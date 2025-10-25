@@ -1,10 +1,13 @@
 import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 
 const Games = () => {
+  const navigate = useNavigate();
+  
   const games = [
     {
       id: 1,
@@ -23,6 +26,7 @@ const Games = () => {
       color: "secondary",
       premium: false,
       difficulty: "Лёгкая",
+      route: "/games/race",
     },
     {
       id: 3,
@@ -41,6 +45,7 @@ const Games = () => {
       color: "primary",
       premium: false,
       difficulty: "Средняя",
+      route: "/games/matching",
     },
     {
       id: 5,
@@ -147,8 +152,10 @@ const Games = () => {
                 <Button
                   className="w-full group-hover:shadow-primary"
                   variant={game.premium ? "outline" : "default"}
+                  onClick={() => game.route ? navigate(game.route) : null}
+                  disabled={!game.route}
                 >
-                  {game.premium ? "Разблокировать" : "Играть"}
+                  {game.premium ? "Разблокировать" : game.route ? "Играть" : "Скоро"}
                 </Button>
               </div>
             </Card>
