@@ -83,6 +83,51 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          first_name: string
+          id: string
+          language_code: string | null
+          last_name: string | null
+          photo_url: string | null
+          platform: string | null
+          subscription_expires_at: string | null
+          subscription_status: string | null
+          telegram_id: number
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_name: string
+          id?: string
+          language_code?: string | null
+          last_name?: string | null
+          photo_url?: string | null
+          platform?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          telegram_id: number
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          first_name?: string
+          id?: string
+          language_code?: string | null
+          last_name?: string | null
+          photo_url?: string | null
+          platform?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          telegram_id?: number
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           correct_answer_es: string
