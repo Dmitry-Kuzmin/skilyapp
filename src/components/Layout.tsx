@@ -1,26 +1,27 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, Trophy, User, Crown, LogIn, LogOut } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
 import { Button } from "./ui/button";
-import { UserProfileFab } from "./UserProfileFab";
+import { SettingsDrawer } from "./SettingsDrawer";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-  const navigation = [
-    { name: "Главная", href: "/", icon: Home },
-    { name: "Тесты", href: "/tests", icon: FileText },
-    { name: "Обучение", href: "/learning", icon: BookOpen },
-    { name: "Игры", href: "/games", icon: Gamepad2 },
-  ];
+const navigation = [
+  { name: "Главная", href: "/", icon: Home },
+  { name: "Тесты", href: "/tests", icon: FileText },
+  { name: "Обучение", href: "/learning", icon: BookOpen },
+  { name: "Игры", href: "/games", icon: Gamepad2 },
+];
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const { user, isAuthenticated, logout } = useUserContext();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -95,12 +96,9 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Main Content */}
       <main className="flex-1 pb-20 md:pb-4">{children}</main>
 
-      {/* User Profile FAB for Mobile */}
-      <UserProfileFab />
-
       {/* Bottom Navigation for Mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50">
-        <div className="grid grid-cols-4 gap-1 px-2 py-2">
+        <div className="grid grid-cols-5 gap-1 px-2 py-2">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -119,8 +117,28 @@ const Layout = ({ children }: LayoutProps) => {
               </NavLink>
             );
           })}
+          
+          {/* Profile Icon */}
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground"
+          >
+            {user?.photo_url ? (
+              <img 
+                src={user.photo_url} 
+                alt={user.first_name}
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <User className="w-6 h-6" />
+            )}
+            <span className="text-xs font-medium">Профиль</span>
+          </button>
         </div>
       </nav>
+
+      {/* Settings Drawer */}
+      <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 };

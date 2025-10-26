@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform, initTelegram } from "@/core/TelegramInit";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 interface UserContextType {
   user: TelegramUser | null;
@@ -17,15 +18,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
 
   useEffect(() => {
+    console.log('[UserContext] Initializing...');
+    
     // Initialize Telegram if available
-    initTelegram();
+    const telegramUser = initTelegram();
+    const currentPlatform = isTelegramMiniApp() ? 'telegram' : 'web';
 
-    // Get user data
-    const telegramUser = getTelegramUser();
-    const currentPlatform = getPlatform();
+    console.log('[UserContext] Platform:', currentPlatform);
+    console.log('[UserContext] Telegram User:', telegramUser);
 
-    setUser(telegramUser);
-    setPlatform(currentPlatform);
+    if (telegramUser) {
+      setUser(telegramUser);
+      setPlatform(currentPlatform);
+    } else if (currentPlatform === 'web') {
+      // For web, check if there's a stored user
+      const storedUser = getTelegramUser();
+      if (storedUser) {
+        setUser(storedUser);
+      }
+      setPlatform('web');
+    }
   }, []);
 
   const login = (userData: TelegramUser) => {

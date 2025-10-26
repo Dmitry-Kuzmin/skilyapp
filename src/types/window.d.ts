@@ -25,6 +25,7 @@ declare global {
         ready: () => void;
         expand: () => void;
         close: () => void;
+        initData?: string;
         initDataUnsafe?: {
           user?: TelegramUser;
         };
