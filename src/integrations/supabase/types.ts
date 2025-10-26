@@ -83,6 +83,45 @@ export type Database = {
         }
         Relationships: []
       }
+      language_terms: {
+        Row: {
+          audio_url: string | null
+          category: string | null
+          created_at: string | null
+          description_es: string
+          description_ru: string
+          difficulty: string | null
+          id: string
+          image_url: string | null
+          term_es: string
+          term_ru: string
+        }
+        Insert: {
+          audio_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description_es: string
+          description_ru: string
+          difficulty?: string | null
+          id?: string
+          image_url?: string | null
+          term_es: string
+          term_ru: string
+        }
+        Update: {
+          audio_url?: string | null
+          category?: string | null
+          created_at?: string | null
+          description_es?: string
+          description_ru?: string
+          difficulty?: string | null
+          id?: string
+          image_url?: string | null
+          term_es?: string
+          term_ru?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           boosts: number | null
@@ -188,6 +227,42 @@ export type Database = {
           topic_es?: string
           topic_ru?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      road_signs: {
+        Row: {
+          created_at: string | null
+          description_es: string
+          description_ru: string
+          id: string
+          image_url: string | null
+          name_es: string
+          name_ru: string
+          sign_number: string | null
+          sign_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          description_es: string
+          description_ru: string
+          id?: string
+          image_url?: string | null
+          name_es: string
+          name_ru: string
+          sign_number?: string | null
+          sign_type: string
+        }
+        Update: {
+          created_at?: string | null
+          description_es?: string
+          description_ru?: string
+          id?: string
+          image_url?: string | null
+          name_es?: string
+          name_ru?: string
+          sign_number?: string | null
+          sign_type?: string
         }
         Relationships: []
       }

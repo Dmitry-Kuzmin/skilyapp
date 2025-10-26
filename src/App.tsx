@@ -15,6 +15,9 @@ import MatchingGame from "./pages/games/MatchingGame";
 import Auth from "./pages/Auth";
 import TestSession from "./pages/TestSession";
 import TestResults from "./pages/TestResults";
+import RoadSigns from "./pages/RoadSigns";
+import Dictionary from "./pages/Dictionary";
+import DataImport from "./pages/DataImport";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,9 @@ const App = () => (
           <Route path="/games/matching" element={<MatchingGame />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/road-signs" element={<RoadSigns />} />
+          <Route path="/dictionary" element={<Dictionary />} />
+          <Route path="/data-import" element={<DataImport />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
