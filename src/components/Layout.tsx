@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
 import { Button } from "./ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
+import { ProfileModal } from "./ProfileModal";
 
 interface LayoutProps {
   children: ReactNode;

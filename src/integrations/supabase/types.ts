@@ -85,13 +85,18 @@ export type Database = {
       }
       profiles: {
         Row: {
+          boosts: number | null
+          clerk_id: string | null
           created_at: string | null
           first_name: string
           id: string
+          is_premium: boolean | null
           language_code: string | null
+          last_login: string | null
           last_name: string | null
           photo_url: string | null
           platform: string | null
+          settings: Json | null
           subscription_expires_at: string | null
           subscription_status: string | null
           telegram_id: number
@@ -99,13 +104,18 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          boosts?: number | null
+          clerk_id?: string | null
           created_at?: string | null
           first_name: string
           id?: string
+          is_premium?: boolean | null
           language_code?: string | null
+          last_login?: string | null
           last_name?: string | null
           photo_url?: string | null
           platform?: string | null
+          settings?: Json | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
           telegram_id: number
@@ -113,13 +123,18 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          boosts?: number | null
+          clerk_id?: string | null
           created_at?: string | null
           first_name?: string
           id?: string
+          is_premium?: boolean | null
           language_code?: string | null
+          last_login?: string | null
           last_name?: string | null
           photo_url?: string | null
           platform?: string | null
+          settings?: Json | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
           telegram_id?: number

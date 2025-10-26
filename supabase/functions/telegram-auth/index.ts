@@ -34,7 +34,7 @@ serve(async (req) => {
 
     console.log('[Telegram Auth] Upserting profile for telegram_id:', user.id);
 
-    // Upsert user profile
+    // Upsert user profile with automatic settings initialization
     const { data: profile, error: upsertError } = await supabase
       .from('profiles')
       .upsert({
@@ -44,10 +44,18 @@ serve(async (req) => {
         username: user.username || null,
         photo_url: user.photo_url || null,
         language_code: user.language_code || null,
+        is_premium: user.is_premium || false,
         platform: platform,
+        last_login: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        settings: {
+          theme: 'light',
+          language: user.language_code || 'en',
+          notifications: true
+        }
       }, {
         onConflict: 'telegram_id',
+        ignoreDuplicates: false
       })
       .select()
       .single();

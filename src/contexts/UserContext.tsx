@@ -39,22 +39,43 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Auto-login for Telegram Mini App with user data
       if (telegramUser) {
         console.log('[UserContext] Auto-logging in Telegram user:', telegramUser.first_name);
+        
+        // Set user immediately for instant UI feedback
+        setUser(telegramUser);
+        window.puzzleUser = telegramUser;
+        window.puzzleCodeData = {
+          FIRST_NAME: telegramUser.first_name,
+          LAST_NAME: telegramUser.last_name,
+          USERNAME: telegramUser.username,
+          ID: telegramUser.id,
+          LANGUAGE: telegramUser.language_code,
+          PLATFORM: detectedPlatform
+        };
+        
+        // Save to backend asynchronously
         try {
           await login(telegramUser);
           console.log('[UserContext] Auto-login successful');
         } catch (err) {
           console.error('[UserContext] Auto-login failed:', err);
-          // Even if backend fails, set user locally for Telegram Mini App
-          setUser(telegramUser);
+          // User is already set locally, so UI still works
         }
       } else {
         // Check for stored token and user
         const token = localStorage.getItem('telegram_token');
-        const storedUser = getTelegramUser();
+        const storedUserStr = localStorage.getItem('puzzle_user');
         
-        if (token && storedUser) {
-          console.log('[UserContext] Restoring user from token');
-          setUser(storedUser);
+        if (token && storedUserStr) {
+          try {
+            const storedUser = JSON.parse(storedUserStr);
+            console.log('[UserContext] Restoring user from localStorage');
+            setUser(storedUser);
+            window.puzzleUser = storedUser;
+          } catch (err) {
+            console.error('[UserContext] Failed to restore user:', err);
+            localStorage.removeItem('telegram_token');
+            localStorage.removeItem('puzzle_user');
+          }
         } else {
           console.log('[UserContext] No stored session - user needs to login');
         }
@@ -80,6 +101,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       ID: userData.id,
       LANGUAGE: userData.language_code,
     };
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('puzzle_user', JSON.stringify(userData));
 
     try {
       // Save to backend asynchronously
@@ -128,6 +152,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       PLATFORM: platform
     };
     localStorage.removeItem('telegram_token');
+    localStorage.removeItem('puzzle_user');
     console.log('[UserContext] User logged out');
   };
 
