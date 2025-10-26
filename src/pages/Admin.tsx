@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, FileSpreadsheet, Trash2, AlertCircle } from "lucide-react";
+import { Upload, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,26 +58,37 @@ const Admin = () => {
     setIsUploading(true);
 
     try {
-      // Clear existing terms
-      const { error: deleteError } = await supabase.from("terms").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      // Clear existing questions
+      const { error: deleteError } = await supabase.from("questions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
 
       if (deleteError) throw deleteError;
 
-      // Insert new terms
-      const formattedTerms = terms.map((term: any) => ({
-        spanish: term.spanish || term.Spanish || term.Испанский || "",
-        russian: term.russian || term.Russian || term.Русский || "",
-        category: term.category || term.Category || term.Категория || null,
-        difficulty: term.difficulty || term.Difficulty || term.Сложность || "Средняя",
-      }));
+      // Insert new questions
+      const formattedQuestions = terms.map((term: any) => {
+        const optionsEs = term["Opciones (ES)"] || term["opciones_es"] || "";
+        const optionsRu = term["Варианты (RU)"] || term["opciones_ru"] || "";
+        
+        return {
+          topic_es: term["Tema (ES)"] || term["tema_es"] || "",
+          topic_ru: term["Тема (RU)"] || term["tema_ru"] || "",
+          question_es: term["Pregunta (ES)"] || term["pregunta_es"] || "",
+          question_ru: term["Вопрос (RU)"] || term["pregunta_ru"] || "",
+          options_es: typeof optionsEs === 'string' ? optionsEs.split(',').map((s: string) => s.trim()) : [],
+          options_ru: typeof optionsRu === 'string' ? optionsRu.split(',').map((s: string) => s.trim()) : [],
+          correct_answer_es: term["Respuesta Correcta (ES)"] || term["respuesta_es"] || "",
+          correct_answer_ru: term["Правильный Ответ (RU)"] || term["respuesta_ru"] || "",
+          explanation_es: term["Explicación (ES)"] || term["explicacion_es"] || null,
+          explanation_ru: term["Пояснение (RU)"] || term["explicacion_ru"] || null,
+        };
+      });
 
-      const { error: insertError } = await supabase.from("terms").insert(formattedTerms);
+      const { error: insertError } = await supabase.from("questions").insert(formattedQuestions);
 
       if (insertError) throw insertError;
 
       toast({
         title: "Успешно!",
-        description: `Загружено ${terms.length} терминов`,
+        description: `Загружено ${terms.length} вопросов`,
       });
 
       setFile(null);
@@ -94,10 +105,10 @@ const Admin = () => {
   };
 
   const handleClearDatabase = async () => {
-    if (!confirm("Вы уверены, что хотите удалить все термины из базы данных?")) return;
+    if (!confirm("Вы уверены, что хотите удалить все вопросы из базы данных?")) return;
 
     try {
-      const { error } = await supabase.from("terms").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const { error } = await supabase.from("questions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
 
       if (error) throw error;
 
@@ -129,8 +140,9 @@ const Admin = () => {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Формат Excel файла: столбцы должны называться "spanish" (или "Испанский"), "russian" (или "Русский"), 
-            опционально "category" (или "Категория") и "difficulty" (или "Сложность": Лёгкая, Средняя, Сложная)
+            Формат Excel файла: столбцы "Tema (ES)", "Тема (RU)", "Pregunta (ES)", "Вопрос (RU)", 
+            "Opciones (ES)" (через запятую), "Варианты (RU)" (через запятую), "Respuesta Correcta (ES)", 
+            "Правильный Ответ (RU)", "Explicación (ES)", "Пояснение (RU)"
           </AlertDescription>
         </Alert>
 
@@ -187,26 +199,34 @@ const Admin = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Испанский</TableHead>
-                    <TableHead>Русский</TableHead>
-                    <TableHead>Категория</TableHead>
-                    <TableHead>Сложность</TableHead>
+                    <TableHead>Тема</TableHead>
+                    <TableHead>Вопрос</TableHead>
+                    <TableHead>Варианты ответа</TableHead>
+                    <TableHead>Правильный ответ</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {terms.slice(0, 10).map((term, index) => (
                     <TableRow key={index}>
-                      <TableCell>{term.spanish || term.Spanish || term.Испанский}</TableCell>
-                      <TableCell>{term.russian || term.Russian || term.Русский}</TableCell>
-                      <TableCell>{term.category || term.Category || term.Категория || "-"}</TableCell>
-                      <TableCell>{term.difficulty || term.Difficulty || term.Сложность || "Средняя"}</TableCell>
+                      <TableCell className="max-w-[150px] truncate">
+                        {term["Тема (RU)"] || term["tema_ru"] || "-"}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {term["Вопрос (RU)"] || term["pregunta_ru"] || "-"}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {term["Варианты (RU)"] || term["opciones_ru"] || "-"}
+                      </TableCell>
+                      <TableCell className="max-w-[150px] truncate">
+                        {term["Правильный Ответ (RU)"] || term["respuesta_ru"] || "-"}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               {terms.length > 10 && (
                 <p className="text-sm text-muted-foreground mt-2 text-center">
-                  Показано 10 из {terms.length} терминов
+                  Показано 10 из {terms.length} вопросов
                 </p>
               )}
             </div>

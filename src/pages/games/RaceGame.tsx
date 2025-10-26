@@ -35,27 +35,32 @@ const RaceGame = () => {
 
   const loadTerms = async () => {
     const { data, error } = await supabase
-      .from("terms")
+      .from("questions")
       .select("*")
       .limit(50);
 
     if (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить термины",
+        description: "Не удалось загрузить вопросы",
         variant: "destructive",
       });
       return;
     }
 
     if (data && data.length > 0) {
-      // Shuffle terms
-      const shuffled = [...data].sort(() => Math.random() - 0.5);
+      // Shuffle questions and create simple term pairs
+      const termPairs = data.map(q => ({
+        id: q.id,
+        spanish: q.question_es,
+        russian: q.correct_answer_ru,
+      }));
+      const shuffled = [...termPairs].sort(() => Math.random() - 0.5);
       setTerms(shuffled);
     } else {
       toast({
         title: "Нет данных",
-        description: "В базе нет терминов для игры",
+        description: "В базе нет вопросов для игры",
         variant: "destructive",
       });
     }

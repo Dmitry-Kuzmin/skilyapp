@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Home, FileText, BookOpen, Gamepad2, Trophy, User, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface LayoutProps {
   children: ReactNode;
@@ -53,17 +54,12 @@ const Layout = ({ children }: LayoutProps) => {
             </nav>
 
             <div className="flex items-center gap-4">
+              <ThemeToggle />
               <NavLink
-                to="/leaderboard"
+                to="/achievements"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Trophy className="w-5 h-5" />
-              </NavLink>
-              <NavLink
-                to="/profile"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <User className="w-5 h-5" />
               </NavLink>
             </div>
           </div>

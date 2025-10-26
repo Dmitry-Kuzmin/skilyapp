@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string
+          created_at: string
+          description: string
+          id: string
+          max_progress: number | null
+          progress: number | null
+          title: string
+          unlocked: boolean | null
+          unlocked_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          achievement_type: string
+          created_at?: string
+          description: string
+          id?: string
+          max_progress?: number | null
+          progress?: number | null
+          title: string
+          unlocked?: boolean | null
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          achievement_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          max_progress?: number | null
+          progress?: number | null
+          title?: string
+          unlocked?: boolean | null
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       game_sessions: {
         Row: {
           created_at: string
@@ -44,32 +83,50 @@ export type Database = {
         }
         Relationships: []
       }
-      terms: {
+      questions: {
         Row: {
-          category: string | null
+          correct_answer_es: string
+          correct_answer_ru: string
           created_at: string
-          difficulty: string | null
+          explanation_es: string | null
+          explanation_ru: string | null
           id: string
-          russian: string
-          spanish: string
+          options_es: string[]
+          options_ru: string[]
+          question_es: string
+          question_ru: string
+          topic_es: string
+          topic_ru: string
           updated_at: string
         }
         Insert: {
-          category?: string | null
+          correct_answer_es: string
+          correct_answer_ru: string
           created_at?: string
-          difficulty?: string | null
+          explanation_es?: string | null
+          explanation_ru?: string | null
           id?: string
-          russian: string
-          spanish: string
+          options_es: string[]
+          options_ru: string[]
+          question_es: string
+          question_ru: string
+          topic_es: string
+          topic_ru: string
           updated_at?: string
         }
         Update: {
-          category?: string | null
+          correct_answer_es?: string
+          correct_answer_ru?: string
           created_at?: string
-          difficulty?: string | null
+          explanation_es?: string | null
+          explanation_ru?: string | null
           id?: string
-          russian?: string
-          spanish?: string
+          options_es?: string[]
+          options_ru?: string[]
+          question_es?: string
+          question_ru?: string
+          topic_es?: string
+          topic_ru?: string
           updated_at?: string
         }
         Relationships: []

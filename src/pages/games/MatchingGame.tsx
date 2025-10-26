@@ -40,31 +40,31 @@ const MatchingGame = () => {
 
   const loadTerms = async () => {
     const { data, error } = await supabase
-      .from("terms")
+      .from("questions")
       .select("*")
       .limit(6);
 
     if (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить термины",
+        description: "Не удалось загрузить вопросы",
         variant: "destructive",
       });
       return;
     }
 
     if (data && data.length >= 4) {
-      const gamePairs = data.slice(0, 6).map((term) => ({
-        id: term.id,
-        spanish: term.spanish,
-        russian: term.russian,
+      const gamePairs = data.slice(0, 6).map((q) => ({
+        id: q.id,
+        spanish: q.question_es,
+        russian: q.correct_answer_ru,
         matched: false,
       }));
       setPairs(gamePairs);
     } else {
       toast({
         title: "Нет данных",
-        description: "Недостаточно терминов для игры (минимум 4)",
+        description: "Недостаточно вопросов для игры (минимум 4)",
         variant: "destructive",
       });
     }

@@ -9,6 +9,7 @@ import Learning from "./pages/Learning";
 import Games from "./pages/Games";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
 import MatchingGame from "./pages/games/MatchingGame";
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/games" element={<Games />} />
           <Route path="/games/race" element={<RaceGame />} />
           <Route path="/games/matching" element={<MatchingGame />} />
+          <Route path="/achievements" element={<Achievements />} />
           <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

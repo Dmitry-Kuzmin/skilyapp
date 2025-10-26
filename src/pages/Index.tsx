@@ -1,4 +1,5 @@
 import { Target, Zap, Trophy, Gift, BookOpen, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
@@ -196,8 +197,8 @@ const Index = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Достижения</h2>
-            <Button variant="ghost" size="sm">
-              Все достижения →
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/achievements">Все достижения →</Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
