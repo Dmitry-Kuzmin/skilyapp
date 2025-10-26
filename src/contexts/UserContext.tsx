@@ -22,21 +22,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
     
     // Initialize Telegram if available
     const telegramUser = initTelegram();
-    const currentPlatform = isTelegramMiniApp() ? 'telegram' : 'web';
+    
+    // Check platform after initialization
+    const detectedPlatform = getPlatform();
+    const isTelegramEnv = isTelegramMiniApp();
 
-    console.log('[UserContext] Platform:', currentPlatform);
-    console.log('[UserContext] Telegram User:', telegramUser);
+    console.log('[UserContext] Detected platform:', detectedPlatform);
+    console.log('[UserContext] Is Telegram Mini App:', isTelegramEnv);
+    console.log('[UserContext] Telegram User from init:', telegramUser);
+
+    setPlatform(detectedPlatform);
 
     if (telegramUser) {
+      console.log('[UserContext] Setting user from Telegram init');
       setUser(telegramUser);
-      setPlatform(currentPlatform);
-    } else if (currentPlatform === 'web') {
-      // For web, check if there's a stored user
+    } else {
+      // Check if user data was set by initTelegram
       const storedUser = getTelegramUser();
       if (storedUser) {
+        console.log('[UserContext] Setting user from stored data');
         setUser(storedUser);
+      } else {
+        console.log('[UserContext] No user found');
       }
-      setPlatform('web');
     }
   }, []);
 

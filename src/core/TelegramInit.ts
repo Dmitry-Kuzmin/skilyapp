@@ -6,7 +6,7 @@ import {
 } from "@/lib/telegram";
 
 export function initTelegram() {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return null;
 
   const webApp = getTelegramWebApp();
   
@@ -14,6 +14,10 @@ export function initTelegram() {
     try {
       // Initialize Telegram WebApp
       initTelegramApp();
+      
+      console.log('[Telegram Init] WebApp detected');
+      console.log('[Telegram Init] initData:', webApp.initData);
+      console.log('[Telegram Init] initDataUnsafe:', webApp.initDataUnsafe);
 
       const user = getTelegramUserFromLib();
 
@@ -38,14 +42,20 @@ export function initTelegram() {
 
         return user;
       } else {
-        console.log('[Telegram Init] No user data available in initDataUnsafe');
+        console.log('[Telegram Init] No user data in initDataUnsafe, but WebApp exists');
+        // WebApp exists but no user yet - это тоже Telegram платформа
+        window.puzzleCodeData = {
+          PLATFORM: 'telegram'
+        };
+        return null;
       }
     } catch (error) {
       console.error('[Telegram Init] Error:', error);
+      return null;
     }
   } else {
     // Web platform
-    console.log('[Telegram Init] Running in web mode');
+    console.log('[Telegram Init] No WebApp - running in web mode');
     if (!window.puzzleCodeData) {
       window.puzzleCodeData = {
         PLATFORM: 'web'

@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
@@ -20,6 +20,7 @@ const navigation = [
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useUserContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -118,22 +119,32 @@ const Layout = ({ children }: LayoutProps) => {
             );
           })}
           
-          {/* Profile Icon */}
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground"
-          >
-            {user?.photo_url ? (
-              <img 
-                src={user.photo_url} 
-                alt={user.first_name}
-                className="w-6 h-6 rounded-full object-cover"
-              />
-            ) : (
-              <User className="w-6 h-6" />
-            )}
-            <span className="text-xs font-medium">Профиль</span>
-          </button>
+          {/* Profile/Login Icon */}
+          {isAuthenticated && user ? (
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
+            >
+              {user?.photo_url ? (
+                <img 
+                  src={user.photo_url} 
+                  alt={user.first_name}
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              ) : (
+                <User className="w-6 h-6" />
+              )}
+              <span className="text-xs font-medium">Профиль</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/auth')}
+              className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="w-6 h-6" />
+              <span className="text-xs font-medium">Вход</span>
+            </button>
+          )}
         </div>
       </nav>
 
