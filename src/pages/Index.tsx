@@ -6,6 +6,7 @@ import Layout from "@/components/Layout";
 import RankProgress from "@/components/RankProgress";
 import StatsCard from "@/components/StatsCard";
 import AchievementCard from "@/components/AchievementCard";
+import { AISearchWidget } from "@/components/AISearchWidget";
 
 const Index = () => {
   // Mock data - будет заменено на реальные данные
@@ -70,6 +71,9 @@ const Index = () => {
             Готовься к экзамену DGT с удовольствием
           </p>
         </div>
+
+        {/* AI Search Widget */}
+        <AISearchWidget />
 
         {/* Rank Progress */}
         <RankProgress
