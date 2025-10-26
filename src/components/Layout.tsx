@@ -1,8 +1,10 @@
 import { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, Trophy, User, Crown } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, Trophy, User, Crown, LogIn, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
+import { useUserContext } from "@/contexts/UserContext";
+import { Button } from "./ui/button";
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,11 +15,11 @@ interface LayoutProps {
     { name: "Тесты", href: "/tests", icon: FileText },
     { name: "Обучение", href: "/learning", icon: BookOpen },
     { name: "Игры", href: "/games", icon: Gamepad2 },
-    { name: "AI Помощник", href: "/ai-assistant", icon: Home },
   ];
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useUserContext();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -62,6 +64,28 @@ const Layout = ({ children }: LayoutProps) => {
               >
                 <Trophy className="w-5 h-5" />
               </NavLink>
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {user?.first_name}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={logout}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                </div>
+              ) : (
+                <NavLink to="/auth">
+                  <Button variant="ghost" size="sm">
+                    <LogIn className="w-5 h-5 mr-2" />
+                    Войти
+                  </Button>
+                </NavLink>
+              )}
             </div>
           </div>
         </div>
