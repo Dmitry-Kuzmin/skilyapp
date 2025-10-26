@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
+import { useNavigate } from "react-router-dom";
 
 const Learning = () => {
+  const navigate = useNavigate();
+
   const learningModules = [
     {
       id: 1,
@@ -14,6 +17,7 @@ const Learning = () => {
       progress: 45,
       topics: 12,
       color: "primary",
+      path: "/tests",
     },
     {
       id: 2,
@@ -23,6 +27,7 @@ const Learning = () => {
       progress: 68,
       topics: 89,
       color: "secondary",
+      path: "/road-signs",
     },
     {
       id: 3,
@@ -32,6 +37,7 @@ const Learning = () => {
       progress: 23,
       topics: 156,
       color: "success",
+      path: "/dictionary",
     },
     {
       id: 4,
@@ -107,6 +113,8 @@ const Learning = () => {
                   variant={module.premium ? "gold" : "default"}
                   className="w-full"
                   size="lg"
+                  onClick={() => module.path && navigate(module.path)}
+                  disabled={module.premium}
                 >
                   {module.premium ? "Разблокировать" : "Продолжить"}
                 </Button>
