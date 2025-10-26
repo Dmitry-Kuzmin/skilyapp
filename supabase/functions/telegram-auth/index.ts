@@ -18,12 +18,21 @@ serve(async (req) => {
 
     const { user, platform = 'telegram' } = await req.json();
 
+    console.log('[Telegram Auth] Received request:', { 
+      userId: user?.id, 
+      firstName: user?.first_name,
+      platform 
+    });
+
     if (!user || !user.id) {
+      console.error('[Telegram Auth] Missing user data');
       return new Response(
         JSON.stringify({ error: 'User data is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('[Telegram Auth] Upserting profile for telegram_id:', user.id);
 
     // Upsert user profile
     const { data: profile, error: upsertError } = await supabase
@@ -44,12 +53,14 @@ serve(async (req) => {
       .single();
 
     if (upsertError) {
-      console.error('Error upserting profile:', upsertError);
+      console.error('[Telegram Auth] Upsert error:', upsertError);
       return new Response(
         JSON.stringify({ error: upsertError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('[Telegram Auth] Profile saved successfully:', profile.id);
 
     // Generate a simple JWT-like token (for demo purposes)
     // In production, use proper JWT signing
@@ -58,6 +69,8 @@ serve(async (req) => {
       username: user.username,
       exp: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
     }));
+
+    console.log('[Telegram Auth] Sending success response');
 
     return new Response(
       JSON.stringify({ 

@@ -17,44 +17,73 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('[UserContext] Initializing...');
-    
-    // Initialize Telegram if available
-    const telegramUser = initTelegram();
-    
-    // Check platform after initialization
-    const detectedPlatform = getPlatform();
-    const isTelegramEnv = isTelegramMiniApp();
+    const initializeAuth = async () => {
+      console.log('[UserContext] Initializing...');
+      
+      // Initialize Telegram if available
+      const telegramUser = initTelegram();
+      
+      // Check platform after initialization
+      const detectedPlatform = getPlatform();
+      const isTelegramEnv = isTelegramMiniApp();
 
-    console.log('[UserContext] Detected platform:', detectedPlatform);
-    console.log('[UserContext] Is Telegram Mini App:', isTelegramEnv);
-    console.log('[UserContext] Telegram User from init:', telegramUser);
+      console.log('[UserContext] Detected platform:', detectedPlatform);
+      console.log('[UserContext] Is Telegram Mini App:', isTelegramEnv);
+      console.log('[UserContext] Telegram User from init:', telegramUser);
 
-    setPlatform(detectedPlatform);
+      setPlatform(detectedPlatform);
 
-    // Auto-login for Telegram Mini App
-    if (telegramUser && detectedPlatform === 'telegram') {
-      console.log('[UserContext] Auto-logging in Telegram user');
-      login(telegramUser).catch(err => {
-        console.error('[UserContext] Auto-login failed:', err);
-      });
-    } else {
-      // Check if user data was set by initTelegram
-      const storedUser = getTelegramUser();
-      if (storedUser) {
-        console.log('[UserContext] Setting user from stored data');
-        setUser(storedUser);
+      // Auto-login for Telegram Mini App with user data
+      if (telegramUser) {
+        console.log('[UserContext] Auto-logging in Telegram user:', telegramUser.first_name);
+        try {
+          await login(telegramUser);
+          console.log('[UserContext] Auto-login successful');
+        } catch (err) {
+          console.error('[UserContext] Auto-login failed:', err);
+          // Even if backend fails, set user locally for Telegram Mini App
+          setUser(telegramUser);
+        }
       } else {
-        console.log('[UserContext] No user found - web mode, need to login');
+        // Check for stored token and user
+        const token = localStorage.getItem('telegram_token');
+        const storedUser = getTelegramUser();
+        
+        if (token && storedUser) {
+          console.log('[UserContext] Restoring user from token');
+          setUser(storedUser);
+        } else {
+          console.log('[UserContext] No stored session - user needs to login');
+        }
       }
-    }
+      
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (userData: TelegramUser) => {
+    console.log('[UserContext] Login started for:', userData.first_name);
+    
+    // Update local state immediately for instant UI feedback
+    setUser(userData);
+    window.puzzleUser = userData;
+    window.puzzleCodeData = {
+      ...window.puzzleCodeData,
+      FIRST_NAME: userData.first_name,
+      LAST_NAME: userData.last_name,
+      USERNAME: userData.username,
+      ID: userData.id,
+      LANGUAGE: userData.language_code,
+    };
+
     try {
-      // Save to backend
+      // Save to backend asynchronously
+      console.log('[UserContext] Saving to backend...');
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/telegram-auth`,
         {
@@ -65,36 +94,30 @@ export function UserProvider({ children }: { children: ReactNode }) {
           },
           body: JSON.stringify({
             user: userData,
-            platform: platform,
+            platform: platform || 'telegram',
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to authenticate');
+        const errorText = await response.text();
+        console.error('[UserContext] Backend error:', errorText);
+        throw new Error(`Failed to authenticate: ${errorText}`);
       }
 
-      const { profile, token } = await response.json();
+      const result = await response.json();
+      console.log('[UserContext] Backend response:', result);
 
-      // Update local state
-      setUser(userData);
-      window.puzzleUser = userData;
-      window.puzzleCodeData = {
-        ...window.puzzleCodeData,
-        FIRST_NAME: userData.first_name,
-        LAST_NAME: userData.last_name,
-        USERNAME: userData.username,
-        ID: userData.id,
-        LANGUAGE: userData.language_code,
-      };
-
-      // Store token
-      localStorage.setItem('telegram_token', token);
+      // Store token if provided
+      if (result.token) {
+        localStorage.setItem('telegram_token', result.token);
+      }
       
-      console.log('[UserContext] User logged in:', userData.first_name);
+      console.log('[UserContext] User saved to backend successfully');
     } catch (error) {
-      console.error('[UserContext] Login error:', error);
-      throw error;
+      console.error('[UserContext] Backend save error:', error);
+      // Don't throw - user is already set locally
+      // This ensures UI works even if backend is down
     }
   };
 
