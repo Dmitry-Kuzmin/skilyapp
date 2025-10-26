@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
 import { Button } from "./ui/button";
+import { UserProfileFab } from "./UserProfileFab";
 
 interface LayoutProps {
   children: ReactNode;
@@ -93,6 +94,9 @@ const Layout = ({ children }: LayoutProps) => {
 
       {/* Main Content */}
       <main className="flex-1 pb-20 md:pb-4">{children}</main>
+
+      {/* User Profile FAB for Mobile */}
+      <UserProfileFab />
 
       {/* Bottom Navigation for Mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50">
