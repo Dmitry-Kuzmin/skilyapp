@@ -12,6 +12,9 @@ import Admin from "./pages/Admin";
 import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
 import MatchingGame from "./pages/games/MatchingGame";
+import AIAssistant from "./pages/AIAssistant";
+import TestSession from "./pages/TestSession";
+import TestResults from "./pages/TestResults";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/tests" element={<Tests />} />
+          <Route path="/test/:mode" element={<TestSession />} />
+          <Route path="/test/:mode/:topic" element={<TestSession />} />
+          <Route path="/test/results" element={<TestResults />} />
+          <Route path="/ai-assistant" element={<AIAssistant />} />
           <Route path="/learning" element={<Learning />} />
           <Route path="/games" element={<Games />} />
           <Route path="/games/race" element={<RaceGame />} />

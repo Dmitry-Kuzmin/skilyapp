@@ -8,12 +8,13 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const navigation = [
-  { name: "Главная", href: "/", icon: Home },
-  { name: "Тесты", href: "/tests", icon: FileText },
-  { name: "Обучение", href: "/learning", icon: BookOpen },
-  { name: "Игры", href: "/games", icon: Gamepad2 },
-];
+  const navigation = [
+    { name: "Главная", href: "/", icon: Home },
+    { name: "Тесты", href: "/tests", icon: FileText },
+    { name: "Обучение", href: "/learning", icon: BookOpen },
+    { name: "Игры", href: "/games", icon: Gamepad2 },
+    { name: "AI Помощник", href: "/ai-assistant", icon: Home },
+  ];
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
