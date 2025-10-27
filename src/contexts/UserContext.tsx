@@ -139,34 +139,30 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Determine the correct platform
       const actualPlatform = platform === 'telegram' ? 'telegram' : 'web';
       
-      // Save to backend asynchronously
+      // Save to backend using Supabase client (works in all environments)
       console.log('[UserContext] Saving to backend with platform:', actualPlatform);
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/telegram-auth`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-          body: JSON.stringify({
-            user: userData,
-            platform: actualPlatform,
-          }),
-        }
-      );
+      console.log('[UserContext] User data:', { 
+        id: userData.id, 
+        first_name: userData.first_name,
+        platform: actualPlatform 
+      });
+      
+      const { data: result, error } = await supabase.functions.invoke('telegram-auth', {
+        body: {
+          user: userData,
+          platform: actualPlatform,
+        },
+      });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[UserContext] Backend error:', errorText);
-        throw new Error(`Failed to authenticate: ${errorText}`);
+      if (error) {
+        console.error('[UserContext] Backend error:', error);
+        throw error;
       }
 
-      const result = await response.json();
       console.log('[UserContext] Backend response:', result);
 
       // Store token if provided
-      if (result.token) {
+      if (result?.token) {
         localStorage.setItem('telegram_token', result.token);
       }
       
