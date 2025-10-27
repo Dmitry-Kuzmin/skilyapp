@@ -138,7 +138,7 @@ export type Database = {
           settings: Json | null
           subscription_expires_at: string | null
           subscription_status: string | null
-          telegram_id: number
+          telegram_id: number | null
           updated_at: string | null
           user_id: string | null
           username: string | null
@@ -158,7 +158,7 @@ export type Database = {
           settings?: Json | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
-          telegram_id: number
+          telegram_id?: number | null
           updated_at?: string | null
           user_id?: string | null
           username?: string | null
@@ -178,7 +178,7 @@ export type Database = {
           settings?: Json | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
-          telegram_id?: number
+          telegram_id?: number | null
           updated_at?: string | null
           user_id?: string | null
           username?: string | null

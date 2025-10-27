@@ -31,40 +31,57 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     // Load Telegram Widget Script only if platform is web
     if (platform !== 'web') return;
     
+    // Define global callback FIRST before loading script
+    (window as any).onTelegramAuth = async (user: any) => {
+      console.log('[AuthModal] Telegram auth callback triggered:', user);
+      
+      try {
+        await login({
+          id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          username: user.username,
+          photo_url: user.photo_url,
+        });
+        
+        toast({
+          title: "Вход выполнен",
+          description: `Добро пожаловать, ${user.first_name}!`,
+        });
+        
+        onClose();
+      } catch (error) {
+        console.error('[AuthModal] Telegram login error:', error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось войти через Telegram",
+          variant: "destructive"
+        });
+      }
+    };
+
+    const container = document.getElementById('telegram-login-container');
+    if (!container) return;
+
+    // Clear any existing content
+    container.innerHTML = '';
+    
     const script = document.createElement('script');
     script.src = 'https://telegram.org/js/telegram-widget.js?22';
     script.async = true;
     script.setAttribute('data-telegram-login', 'sdadimtutbot');
     script.setAttribute('data-size', 'large');
     script.setAttribute('data-radius', '8');
-    script.setAttribute('data-onauth', 'onTelegramAuth');
+    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
     script.setAttribute('data-request-access', 'write');
 
-    const container = document.getElementById('telegram-login-container');
-    if (container && !container.hasChildNodes()) {
-      container.appendChild(script);
-    }
-
-    // Global callback for Telegram auth
-    (window as any).onTelegramAuth = (user: any) => {
-      login({
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        username: user.username,
-        photo_url: user.photo_url,
-      });
-      
-      toast({
-        title: "Вход выполнен",
-        description: `Добро пожаловать, ${user.first_name}!`,
-      });
-      
-      onClose();
-    };
+    container.appendChild(script);
 
     return () => {
       delete (window as any).onTelegramAuth;
+      if (container) {
+        container.innerHTML = '';
+      }
     };
   }, [login, onClose, toast, platform]);
 
