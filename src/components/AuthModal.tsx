@@ -28,9 +28,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only load widget when modal is open and on web platform
-    if (!open || platform !== 'web') {
-      console.log('[AuthModal] Skipping Telegram widget:', { open, platform });
+    // Only load widget when modal is open
+    if (!open) {
+      console.log('[AuthModal] Modal not open, skipping widget');
       return;
     }
 
@@ -96,7 +96,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         container.innerHTML = '';
       }
     };
-  }, [login, onClose, toast, platform, open]);
+  }, [login, onClose, toast, open]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,28 +203,23 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Only show Telegram widget on web platform */}
-          {platform === 'web' && (
-            <>
-              {/* Telegram Login */}
-              <div className="space-y-2">
-                <Label className="text-center block text-lg">Войти через Telegram</Label>
-                <p className="text-sm text-muted-foreground text-center">
-                  Быстрый и безопасный способ входа
-                </p>
-                <div id="telegram-login-container" className="flex justify-center" />
-              </div>
+          {/* Telegram Login */}
+          <div className="space-y-2">
+            <Label className="text-center block text-lg">Войти через Telegram</Label>
+            <p className="text-sm text-muted-foreground text-center">
+              Быстрый и безопасный способ входа
+            </p>
+            <div id="telegram-login-container" className="flex justify-center" />
+          </div>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">или войдите с email</span>
-                </div>
-              </div>
-            </>
-          )}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">или войдите с email</span>
+            </div>
+          </div>
 
           {/* Email Login/Signup */}
           <form onSubmit={handleEmailAuth} className="space-y-4">
