@@ -3,9 +3,12 @@ import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform, initTelegram } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
 
 interface UserContextType {
   user: TelegramUser | null;
+  supabaseUser: User | null;
+  session: Session | null;
   platform: 'telegram' | 'web';
   isAuthenticated: boolean;
   login: (userData: TelegramUser) => Promise<void>;
@@ -16,9 +19,36 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TelegramUser | null>(null);
+  const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Supabase auth listener for web users
+  useEffect(() => {
+    console.log('[UserContext] Setting up Supabase auth listener');
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        console.log('[UserContext] Auth state changed:', event, newSession?.user?.email);
+        setSession(newSession);
+        setSupabaseUser(newSession?.user ?? null);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      console.log('[UserContext] Existing session:', existingSession?.user?.email);
+      setSession(existingSession);
+      setSupabaseUser(existingSession?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Initialize Telegram user
   useEffect(() => {
     const initializeAuth = async () => {
       console.log('[UserContext] Initializing...');
@@ -145,8 +175,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    console.log('[UserContext] Logging out');
+    
+    // Sign out from Supabase if web platform
+    if (platform === 'web' && session) {
+      await supabase.auth.signOut();
+    }
+    
     setUser(null);
+    setSupabaseUser(null);
+    setSession(null);
     window.puzzleUser = null;
     window.puzzleCodeData = {
       PLATFORM: platform
@@ -156,12 +195,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
     console.log('[UserContext] User logged out');
   };
 
+  // Determine if user is authenticated (either Telegram or Supabase)
+  const isAuthenticated = !!(user || supabaseUser);
+
   return (
     <UserContext.Provider
       value={{
         user,
+        supabaseUser,
+        session,
         platform,
-        isAuthenticated: !!user,
+        isAuthenticated,
         login,
         logout,
       }}

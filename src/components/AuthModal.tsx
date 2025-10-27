@@ -5,6 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUserContext } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+import { Crown } from "lucide-react";
+
+const authSchema = z.object({
+  email: z.string().email({ message: "Неверный формат email" }).max(255),
+  password: z.string().min(6, { message: "Пароль должен быть минимум 6 символов" })
+});
 
 interface AuthModalProps {
   open: boolean;
@@ -15,11 +23,14 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const { login, platform } = useUserContext();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load Telegram Widget Script
+    // Load Telegram Widget Script only if platform is web
+    if (platform !== 'web') return;
+    
     const script = document.createElement('script');
     script.src = 'https://telegram.org/js/telegram-widget.js?22';
     script.async = true;
@@ -55,46 +66,116 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     return () => {
       delete (window as any).onTelegramAuth;
     };
-  }, [login, onClose, toast]);
+  }, [login, onClose, toast, platform]);
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate authentication
-    setTimeout(() => {
-      login({
-        id: Date.now(),
-        first_name: email.split('@')[0],
-        username: email.split('@')[0],
-      });
+    try {
+      // Validate input
+      const validated = authSchema.parse({ email, password });
 
-      toast({
-        title: "Вход выполнен",
-        description: "Добро пожаловать!",
-      });
+      if (isSignUp) {
+        // Sign up
+        const { data, error } = await supabase.auth.signUp({
+          email: validated.email,
+          password: validated.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              first_name: validated.email.split('@')[0],
+            }
+          }
+        });
 
+        if (error) {
+          if (error.message.includes('already registered')) {
+            toast({
+              title: "Ошибка",
+              description: "Этот email уже зарегистрирован. Попробуйте войти.",
+              variant: "destructive"
+            });
+          } else {
+            throw error;
+          }
+          return;
+        }
+
+        toast({
+          title: "Регистрация успешна",
+          description: "Добро пожаловать!",
+        });
+
+        onClose();
+      } else {
+        // Sign in
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: validated.email,
+          password: validated.password,
+        });
+
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            toast({
+              title: "Ошибка",
+              description: "Неверный email или пароль",
+              variant: "destructive"
+            });
+          } else {
+            throw error;
+          }
+          return;
+        }
+
+        toast({
+          title: "Вход выполнен",
+          description: "Добро пожаловать!",
+        });
+
+        onClose();
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Ошибка валидации",
+          description: error.errors[0].message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Произошла ошибка. Попробуйте снова.",
+          variant: "destructive"
+        });
+      }
+    } finally {
       setIsLoading(false);
-      onClose();
-    }, 1000);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Вход в Sdadim
+          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-xl gradient-primary">
+            <Crown className="w-8 h-8 text-primary-foreground" />
+          </div>
+          <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {isSignUp ? "Регистрация" : "Вход в систему"}
           </DialogTitle>
-          <DialogDescription>
-            Выберите способ входа для сохранения вашего прогресса
+          <DialogDescription className="text-center">
+            {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* Telegram Login */}
           <div className="space-y-2">
-            <Label className="text-center block">Войти через Telegram</Label>
+            <Label className="text-center block text-lg">Войти через Telegram</Label>
+            <p className="text-sm text-muted-foreground text-center">
+              Быстрый и безопасный способ входа
+            </p>
             <div id="telegram-login-container" className="flex justify-center" />
           </div>
 
@@ -103,12 +184,12 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">или</span>
+              <span className="bg-card px-2 text-muted-foreground">или войдите с email</span>
             </div>
           </div>
 
-          {/* Email Login */}
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          {/* Email Login/Signup */}
+          <form onSubmit={handleEmailAuth} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -129,11 +210,22 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Вход..." : "Войти"}
+            <Button type="submit" className="w-full shadow-primary" size="lg" disabled={isLoading}>
+              {isLoading ? (isSignUp ? "Регистрация..." : "Вход...") : (isSignUp ? "Зарегистрироваться" : "Войти")}
             </Button>
+            
+            <div className="text-center text-sm">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-primary hover:underline font-medium"
+              >
+                {isSignUp ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
+              </button>
+            </div>
           </form>
         </div>
       </DialogContent>

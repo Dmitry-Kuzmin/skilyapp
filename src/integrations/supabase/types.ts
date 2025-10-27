@@ -140,6 +140,7 @@ export type Database = {
           subscription_status: string | null
           telegram_id: number
           updated_at: string | null
+          user_id: string | null
           username: string | null
         }
         Insert: {
@@ -159,6 +160,7 @@ export type Database = {
           subscription_status?: string | null
           telegram_id: number
           updated_at?: string | null
+          user_id?: string | null
           username?: string | null
         }
         Update: {
@@ -178,6 +180,7 @@ export type Database = {
           subscription_status?: string | null
           telegram_id?: number
           updated_at?: string | null
+          user_id?: string | null
           username?: string | null
         }
         Relationships: []
@@ -271,7 +274,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      link_telegram_to_user: {
+        Args: {
+          _first_name: string
+          _last_name?: string
+          _photo_url?: string
+          _telegram_id: number
+          _user_id: string
+          _username?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

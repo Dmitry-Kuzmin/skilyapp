@@ -7,6 +7,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { Button } from "./ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { ProfileModal } from "./ProfileModal";
+import { AuthModal } from "./AuthModal";
 
 interface LayoutProps {
   children: ReactNode;
@@ -22,8 +23,9 @@ const navigation = [
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useUserContext();
+  const { user, platform, isAuthenticated, logout } = useUserContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -83,12 +85,14 @@ const Layout = ({ children }: LayoutProps) => {
                   </Button>
                 </div>
               ) : (
-                <NavLink to="/auth">
-                  <Button variant="ghost" size="sm">
-                    <LogIn className="w-5 h-5 mr-2" />
-                    Войти
-                  </Button>
-                </NavLink>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
+                >
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Войти
+                </Button>
               )}
             </div>
           </div>
@@ -139,7 +143,7 @@ const Layout = ({ children }: LayoutProps) => {
             </button>
           ) : (
             <button
-              onClick={() => navigate('/auth')}
+              onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
               className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
             >
               <LogIn className="w-6 h-6" />
@@ -151,6 +155,9 @@ const Layout = ({ children }: LayoutProps) => {
 
       {/* Settings Drawer */}
       <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
+      
+      {/* Auth Modal for Web Platform */}
+      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </div>
   );
 };
