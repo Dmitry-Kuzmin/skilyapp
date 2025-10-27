@@ -35,13 +35,13 @@ export const importRoadSigns = async (file: File) => {
       if (values.length < 8) continue;
       
       signs.push({
-        name_es: cleanText(values[1]),
-        description_es: cleanText(values[2]),
-        sign_type: cleanText(values[3]),
-        image_url: cleanText(values[4]),
-        name_ru: cleanText(values[6]),
-        description_ru: cleanText(values[7]),
-        sign_number: cleanText(values[8])
+        name_es: cleanText(values[1] || ''),
+        description_es: cleanText(values[2] || ''),
+        sign_type: cleanText(values[3] || ''),
+        image_url: cleanText(values[4] || ''),
+        name_ru: cleanText(values[6] || ''),
+        description_ru: cleanText(values[7] || ''),
+        sign_number: cleanText(values[8] || '')
       });
     }
   } else {
@@ -52,12 +52,12 @@ export const importRoadSigns = async (file: File) => {
     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
     signs = jsonData.map((row: any) => ({
-      name_es: cleanText(row.name_es || row['Название (ES)'] || ''),
-      description_es: cleanText(row.description_es || row['Описание (ES)'] || ''),
+      name_es: cleanText(row.name || row.name_es || row['Название (ES)'] || ''),
+      description_es: cleanText(row.description || row.description_es || row['Описание (ES)'] || ''),
       sign_type: cleanText(row.sign_type || row['Тип знака'] || ''),
       image_url: cleanText(row.image_url || row['URL изображения'] || ''),
-      name_ru: cleanText(row.name_ru || row['Название (RU)'] || ''),
-      description_ru: cleanText(row.description_ru || row['Описание (RU)'] || ''),
+      name_ru: cleanText(row.name_translation || row.name_ru || row['Название (RU)'] || ''),
+      description_ru: cleanText(row.description_translation || row.description_ru || row['Описание (RU)'] || ''),
       sign_number: cleanText(row.sign_number || row['Номер знака'] || '')
     }));
   }
@@ -103,17 +103,17 @@ export const importLanguageTerms = async (file: File) => {
       }
       values.push(current);
       
-      if (values.length < 9) continue;
+      if (values.length < 5) continue;
       
       terms.push({
-        term_es: cleanText(values[1]),
-        term_ru: cleanText(values[2]),
-        description_es: cleanText(values[3]),
+        term_es: cleanText(values[1] || ''),
+        term_ru: cleanText(values[2] || ''),
+        description_es: cleanText(values[3] || ''),
+        description_ru: cleanText(values[9] || ''),
         difficulty: cleanText(values[4]) || 'medium',
         category: values[5] || null,
         image_url: cleanText(values[6]) || null,
-        audio_url: cleanText(values[7]) || null,
-        description_ru: cleanText(values[9])
+        audio_url: cleanText(values[7]) || null
       });
     }
   } else {
@@ -124,10 +124,10 @@ export const importLanguageTerms = async (file: File) => {
     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
     terms = jsonData.map((row: any) => ({
-      term_es: cleanText(row.term_es || row['Термин (ES)'] || ''),
-      term_ru: cleanText(row.term_ru || row['Термин (RU)'] || ''),
-      description_es: cleanText(row.description_es || row['Описание (ES)'] || ''),
-      description_ru: cleanText(row.description_ru || row['Описание (RU)'] || ''),
+      term_es: cleanText(row.term || row.term_es || row['Термин (ES)'] || ''),
+      term_ru: cleanText(row.translation || row.term_ru || row['Термин (RU)'] || ''),
+      description_es: cleanText(row.description || row.description_es || row['Описание (ES)'] || ''),
+      description_ru: cleanText(row.description_translation || row.description_ru || row['Описание (RU)'] || ''),
       difficulty: cleanText(row.difficulty || row['Сложность'] || 'medium'),
       category: row.category || row['Категория'] || null,
       image_url: cleanText(row.image_url || row['URL изображения'] || '') || null,
