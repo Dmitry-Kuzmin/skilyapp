@@ -161,7 +161,17 @@ export const AISearchWidget = () => {
 
         {/* Suggested Topics */}
         {!messages.length && <div className="flex flex-wrap gap-2 mt-4 justify-center animate-in fade-in duration-500">
-            {suggestedTopics.map((topic, index) => {})}
+            {suggestedTopics.map((topic, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => handleTopicClick(topic.query)}
+                className="hover-scale"
+              >
+                {topic.label}
+              </Button>
+            ))}
           </div>}
       </div>
 
