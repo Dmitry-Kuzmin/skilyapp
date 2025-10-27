@@ -7,8 +7,16 @@ import RankProgress from "@/components/RankProgress";
 import StatsCard from "@/components/StatsCard";
 import AchievementCard from "@/components/AchievementCard";
 import { AISearchWidget } from "@/components/AISearchWidget";
+import { useUserContext } from "@/contexts/UserContext";
+import Landing from "./Landing";
 
 const Index = () => {
+  const { isAuthenticated } = useUserContext();
+
+  // Show landing page for non-authenticated users
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
   // Mock data - будет заменено на реальные данные
   const userStats = {
     rank: "Ученик",

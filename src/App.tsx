@@ -12,7 +12,6 @@ import Admin from "./pages/Admin";
 import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
 import MatchingGame from "./pages/games/MatchingGame";
-import Auth from "./pages/Auth";
 import TestSession from "./pages/TestSession";
 import TestResults from "./pages/TestResults";
 import RoadSigns from "./pages/RoadSigns";
@@ -29,7 +28,6 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
           <Route path="/tests" element={<Tests />} />
           <Route path="/test/:mode" element={<TestSession />} />
           <Route path="/test/:mode/:topic" element={<TestSession />} />

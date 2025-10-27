@@ -78,7 +78,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
       if (isSignUp) {
         // Sign up
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email: validated.email,
           password: validated.password,
           options: {
@@ -99,6 +99,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           } else {
             throw error;
           }
+          setIsLoading(false);
           return;
         }
 
@@ -110,7 +111,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         onClose();
       } else {
         // Sign in
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: validated.email,
           password: validated.password,
         });
@@ -125,6 +126,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           } else {
             throw error;
           }
+          setIsLoading(false);
           return;
         }
 
@@ -143,6 +145,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           variant: "destructive"
         });
       } else {
+        console.error('Auth error:', error);
         toast({
           title: "Ошибка",
           description: "Произошла ошибка. Попробуйте снова.",
