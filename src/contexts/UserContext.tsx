@@ -136,8 +136,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('puzzle_user', JSON.stringify(userData));
 
     try {
+      // Determine the correct platform
+      const actualPlatform = platform === 'telegram' ? 'telegram' : 'web';
+      
       // Save to backend asynchronously
-      console.log('[UserContext] Saving to backend...');
+      console.log('[UserContext] Saving to backend with platform:', actualPlatform);
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/telegram-auth`,
         {
@@ -148,7 +151,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           },
           body: JSON.stringify({
             user: userData,
-            platform: platform || 'telegram',
+            platform: actualPlatform,
           }),
         }
       );
