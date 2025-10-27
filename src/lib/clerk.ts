@@ -1,11 +1,7 @@
-import { Clerk } from '@clerk/clerk-react';
-
-// Initialize Clerk with your publishable key
-// Get your key from https://dashboard.clerk.com
-export const clerk = new Clerk(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '');
+import type { UserResource } from '@clerk/types';
 
 // Helper to sync Clerk user with Supabase profile
-export const syncClerkUserToSupabase = async (clerkUser: any, supabase: any) => {
+export const syncClerkUserToSupabase = async (clerkUser: UserResource, supabase: any) => {
   if (!clerkUser) return;
 
   const { data: existingProfile } = await supabase
