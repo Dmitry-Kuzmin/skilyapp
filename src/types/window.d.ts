@@ -44,6 +44,28 @@ declare global {
           enable: () => void;
           disable: () => void;
         };
+        // Safe area insets для Dynamic Island, статус-бар, home indicator
+        safeAreaInset?: {
+          top: number;
+          bottom: number;
+          left: number;
+          right: number;
+        };
+        // Content safe area insets от UI Telegram
+        contentSafeAreaInset?: {
+          top: number;
+          bottom: number;
+          left: number;
+          right: number;
+        };
+        // Стабильная высота viewport без клавиатуры
+        viewportStableHeight?: number;
+        viewportHeight?: number;
+        // События для динамических обновлений
+        onEvent: (eventType: string, callback: () => void) => void;
+        offEvent: (eventType: string, callback: () => void) => void;
+        isVersionAtLeast: (version: string) => boolean;
+        requestFullscreen?: () => void;
       };
     };
   }
