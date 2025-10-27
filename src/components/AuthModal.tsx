@@ -72,7 +72,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     script.setAttribute('data-telegram-login', 'sdadimtutbot');
     script.setAttribute('data-size', 'large');
     script.setAttribute('data-radius', '8');
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+    script.setAttribute('data-onauth', 'onTelegramAuth');
     script.setAttribute('data-request-access', 'write');
 
     container.appendChild(script);
