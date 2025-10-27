@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,11 @@ const Layout = ({ children }: LayoutProps) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname]);
 
   return (
     <div className="telegram-app-container min-h-screen flex flex-col">
@@ -108,7 +113,7 @@ const Layout = ({ children }: LayoutProps) => {
       </header>
 
       {/* Main Content */}
-      <main className="telegram-main-content flex-1 pb-20 md:pb-4">{children}</main>
+      <main className="telegram-main-content flex-1">{children}</main>
 
       {/* Bottom Navigation for Mobile and Telegram */}
       <nav className={cn(

@@ -84,7 +84,7 @@ const Games = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold">Игры</h1>
@@ -94,21 +94,21 @@ const Games = () => {
         </div>
 
         {/* Premium Notice */}
-        <Card className="p-6 gradient-card border-gold/30 relative overflow-hidden">
+        <Card className="p-4 md:p-6 gradient-card border-gold/30 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-3xl" />
-          <div className="relative flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-14 h-14 rounded-xl gradient-gold">
-                <Swords className="w-7 h-7 text-gold-foreground" />
+          <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+            <div className="flex items-center gap-3 md:gap-4 flex-1">
+              <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl gradient-gold shrink-0">
+                <Swords className="w-6 h-6 md:w-7 md:h-7 text-gold-foreground" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold">Безлимитный доступ к играм</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold">Безлимитный доступ к играм</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   В бесплатном режиме доступно 3 игры в день
                 </p>
               </div>
             </div>
-            <Button variant="gold" size="lg" className="shadow-glow">
+            <Button variant="gold" size="lg" className="shadow-glow w-full sm:w-auto shrink-0">
               Премиум за €9.99/мес
             </Button>
           </div>

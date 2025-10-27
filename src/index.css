@@ -141,6 +141,10 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground antialiased transition-colors duration-300;
     min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   body.dark {
@@ -201,19 +205,21 @@ All colors MUST be HSL.
   .telegram-app-container {
     min-height: 100vh;
     min-height: -webkit-fill-available;
-    padding-top: var(--sat, 0);
-    padding-right: var(--sar, 0);
-    padding-bottom: var(--sab, 0);
-    padding-left: var(--sal, 0);
+    display: flex;
+    flex-direction: column;
   }
 
   .telegram-main-content {
-    padding-bottom: calc(5rem + var(--sab, 0));
+    flex: 1;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .app-bottom-nav {
-    padding-bottom: var(--sab, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
 
   /* Orientation-based layout */

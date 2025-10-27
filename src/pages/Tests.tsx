@@ -91,7 +91,7 @@ const Tests = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold">Тесты DGT</h1>

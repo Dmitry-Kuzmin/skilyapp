@@ -130,7 +130,7 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Welcome Section */}
         <div className="text-center space-y-2 py-4">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-slow">
@@ -155,22 +155,22 @@ const Index = () => {
         )}
 
         {/* Daily Bonus */}
-        <Card className="p-6 gradient-card border-gold/30 relative overflow-hidden">
+        <Card className="p-4 md:p-6 gradient-card border-gold/30 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-3xl" />
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-16 h-16 rounded-xl gradient-gold animate-pulse-slow">
-                <Gift className="w-8 h-8 text-gold-foreground" />
+          <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
+            <div className="flex items-center gap-3 md:gap-4 flex-1">
+              <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-xl gradient-gold animate-pulse-slow shrink-0">
+                <Gift className="w-6 h-6 md:w-8 md:h-8 text-gold-foreground" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold">Ежедневный бонус</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg md:text-xl font-bold">Ежедневный бонус</h3>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Заходи каждый день и получай награды!
                 </p>
               </div>
             </div>
-            <Button variant="gold" size="lg" className="shadow-glow">
-              <Zap className="w-5 h-5" />
+            <Button variant="gold" size="lg" className="shadow-glow w-full sm:w-auto shrink-0">
+              <Zap className="w-4 h-4 md:w-5 md:h-5 mr-2" />
               Получить
             </Button>
           </div>

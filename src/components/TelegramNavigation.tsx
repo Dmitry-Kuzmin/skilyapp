@@ -24,16 +24,8 @@ export const TelegramNavigation = () => {
       });
     }
 
-    // MainButton for "Close" on main screen
-    if (isMainScreen) {
-      webApp.MainButton.setText("Закрыть");
-      webApp.MainButton.show();
-      webApp.MainButton.onClick(() => {
-        webApp.close();
-      });
-    } else {
-      webApp.MainButton.hide();
-    }
+    // Hide MainButton completely
+    webApp.MainButton.hide();
 
     // Cleanup
     return () => {
