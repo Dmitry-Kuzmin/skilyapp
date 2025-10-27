@@ -8,6 +8,8 @@ import { Button } from "./ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { ProfileModal } from "./ProfileModal";
 import { AuthModal } from "./AuthModal";
+import { TelegramNavigation } from "./TelegramNavigation";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 interface LayoutProps {
   children: ReactNode;
@@ -26,11 +28,17 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, platform, isAuthenticated, logout } = useUserContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const isTelegramApp = isTelegramMiniApp();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Top Navigation for Desktop */}
-      <header className="hidden md:block border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50">
+    <div className="telegram-app-container min-h-screen flex flex-col">
+      {/* Telegram Navigation Handler */}
+      <TelegramNavigation />
+      {/* Top Navigation for Desktop - Hide in Telegram */}
+      <header className={cn(
+        "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50",
+        isTelegramApp ? "hidden" : "hidden md:block"
+      )}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
@@ -100,10 +108,13 @@ const Layout = ({ children }: LayoutProps) => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 pb-20 md:pb-4">{children}</main>
+      <main className="telegram-main-content flex-1 pb-20 md:pb-4">{children}</main>
 
-      {/* Bottom Navigation for Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50">
+      {/* Bottom Navigation for Mobile and Telegram */}
+      <nav className={cn(
+        "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
+        "md:hidden"
+      )}>
         <div className="grid grid-cols-5 gap-1 px-2 py-2">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;

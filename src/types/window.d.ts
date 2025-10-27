@@ -29,6 +29,21 @@ declare global {
         initDataUnsafe?: {
           user?: TelegramUser;
         };
+        BackButton: {
+          show: () => void;
+          hide: () => void;
+          onClick: (callback: () => void) => void;
+          offClick: (callback: () => void) => void;
+        };
+        MainButton: {
+          setText: (text: string) => void;
+          show: () => void;
+          hide: () => void;
+          onClick: (callback: () => void) => void;
+          offClick: (callback: () => void) => void;
+          enable: () => void;
+          disable: () => void;
+        };
       };
     };
   }

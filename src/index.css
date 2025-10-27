@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Telegram WebApp Theme Variables */
+:root {
+  --tg-theme-bg-color: var(--background);
+  --tg-theme-text-color: var(--foreground);
+  --tg-theme-hint-color: var(--muted-foreground);
+  --tg-theme-link-color: var(--primary);
+  --tg-theme-button-color: var(--primary);
+  --tg-theme-button-text-color: var(--primary-foreground);
+  --tg-theme-secondary-bg-color: var(--card);
+  
+  /* Safe area insets for devices like iPhone with notches/Dynamic Island */
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -177,6 +194,89 @@ All colors MUST be HSL.
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  /* Telegram Mini App Specific Styles */
+  .telegram-app-container {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    padding-top: var(--sat, 0);
+    padding-right: var(--sar, 0);
+    padding-bottom: var(--sab, 0);
+    padding-left: var(--sal, 0);
+  }
+
+  .telegram-main-content {
+    padding-bottom: calc(5rem + var(--sab, 0));
+  }
+
+  .app-bottom-nav {
+    padding-bottom: var(--sab, 0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Orientation-based layout */
+  @media (orientation: landscape) and (max-width: 1024px) {
+    .app-bottom-nav {
+      display: none;
+    }
+    
+    .telegram-main-content {
+      padding-bottom: 1rem;
+    }
+  }
+
+  /* Enhanced navigation item animation */
+  .app-bottom-nav a.active,
+  .app-bottom-nav button.active {
+    position: relative;
+  }
+
+  .app-bottom-nav a.active::before,
+  .app-bottom-nav button.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+    border-radius: 0 0 3px 3px;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Device-specific optimizations */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS specific styles */
+    .telegram-app-container {
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Landscape sidebar navigation (optional enhancement) */
+  @media (orientation: landscape) and (max-width: 1024px) {
+    .landscape-sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4rem;
+      padding-left: var(--sal, 0);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-top: var(--sat, 1rem);
+      padding-bottom: var(--sab, 1rem);
+      border-right: 1px solid hsl(var(--border) / 0.5);
+      backdrop-filter: blur(12px);
+      background: hsl(var(--card) / 0.95);
+      z-index: 50;
+    }
+    
+    .telegram-main-content.with-landscape-sidebar {
+      margin-left: 4rem;
     }
   }
 }
