@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import Landing from "./Landing";
 
 const Index = () => {
-  const { isAuthenticated, user } = useUserContext();
+  const { isAuthenticated, profileId } = useUserContext();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState({
@@ -31,21 +31,39 @@ const Index = () => {
   const [recentAchievements, setRecentAchievements] = useState<any[]>([]);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && profileId) {
+      console.log('[Index] Loading data for profile:', profileId);
       loadUserData();
+    } else {
+      console.log('[Index] Not loading data - authenticated:', isAuthenticated, 'profileId:', profileId);
+      setLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, profileId]);
 
   const loadUserData = async () => {
+    if (!profileId) {
+      console.log('[Index] No profileId available');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
+      console.log('[Index] Fetching profile data for ID:', profileId);
 
-      // Получаем профиль пользователя по telegram_id
-      const { data: profile } = await supabase
+      // Получаем профиль пользователя
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('telegram_id', user.id)
+        .eq('id', profileId)
         .maybeSingle();
+
+      if (profileError) {
+        console.error('[Index] Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      console.log('[Index] Profile loaded:', profile);
 
       if (profile) {
         // Получаем статистику тестов
@@ -53,6 +71,8 @@ const Index = () => {
           .from('game_sessions')
           .select('*')
           .eq('user_id', profile.id);
+
+        console.log('[Index] Sessions loaded:', sessions?.length);
 
         const testsCompleted = sessions?.length || 0;
         const totalQuestions = sessions?.reduce((acc, s) => acc + s.total_questions, 0) || 0;
@@ -77,6 +97,7 @@ const Index = () => {
           .eq('user_id', profile.id)
           .eq('date', new Date().toISOString().split('T')[0]);
 
+        console.log('[Index] Tasks loaded:', tasks?.length);
         setDailyTasks(tasks || []);
 
         // Получаем достижения
@@ -87,6 +108,7 @@ const Index = () => {
           .order('created_at', { ascending: false })
           .limit(4);
 
+        console.log('[Index] Achievements loaded:', achievements?.length);
         setRecentAchievements(achievements || []);
       }
     } catch (error) {

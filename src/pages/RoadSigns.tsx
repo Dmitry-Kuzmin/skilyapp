@@ -20,7 +20,7 @@ interface RoadSign {
 }
 
 export default function RoadSigns() {
-  const { user } = useUserContext();
+  const { profileId } = useUserContext();
   const [signs, setSigns] = useState<RoadSign[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,34 +41,23 @@ export default function RoadSigns() {
       if (signsError) throw signsError;
 
       // Если пользователь авторизован, получаем его прогресс
-      if (user) {
-        // Получаем профиль для получения ID
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('telegram_id', user.id)
-          .maybeSingle();
+      if (profileId) {
+        const { data: progressData } = await supabase
+          .from('user_sign_progress')
+          .select('sign_id, mastery_level, times_practiced')
+          .eq('user_id', profileId);
 
-        if (profile) {
-          const { data: progressData } = await supabase
-            .from('user_sign_progress')
-            .select('sign_id, mastery_level, times_practiced')
-            .eq('user_id', profile.id);
+        // Объединяем данные
+        const signsWithProgress = signsData?.map(sign => {
+          const progress = progressData?.find(p => p.sign_id === sign.id);
+          return {
+            ...sign,
+            mastery_level: progress?.mastery_level || 0,
+            times_practiced: progress?.times_practiced || 0,
+          };
+        }) || [];
 
-          // Объединяем данные
-          const signsWithProgress = signsData?.map(sign => {
-            const progress = progressData?.find(p => p.sign_id === sign.id);
-            return {
-              ...sign,
-              mastery_level: progress?.mastery_level || 0,
-              times_practiced: progress?.times_practiced || 0,
-            };
-          }) || [];
-
-          setSigns(signsWithProgress);
-        } else {
-          setSigns(signsData || []);
-        }
+        setSigns(signsWithProgress);
       } else {
         setSigns(signsData || []);
       }

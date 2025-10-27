@@ -11,6 +11,7 @@ interface UserContextType {
   session: Session | null;
   platform: 'telegram' | 'web';
   isAuthenticated: boolean;
+  profileId: string | null; // ID профиля из таблицы profiles
   login: (userData: TelegramUser) => Promise<void>;
   logout: () => void;
 }
@@ -23,6 +24,38 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
   const [isLoading, setIsLoading] = useState(true);
+  const [profileId, setProfileId] = useState<string | null>(null);
+
+  // Load profile ID when user changes
+  useEffect(() => {
+    const loadProfileId = async () => {
+      if (supabaseUser) {
+        // For web users - get profile by user_id
+        const { data } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', supabaseUser.id)
+          .maybeSingle();
+        
+        setProfileId(data?.id || null);
+        console.log('[UserContext] Loaded profile ID for web user:', data?.id);
+      } else if (user) {
+        // For Telegram users - get profile by telegram_id
+        const { data } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('telegram_id', user.id)
+          .maybeSingle();
+        
+        setProfileId(data?.id || null);
+        console.log('[UserContext] Loaded profile ID for Telegram user:', data?.id);
+      } else {
+        setProfileId(null);
+      }
+    };
+
+    loadProfileId();
+  }, [user, supabaseUser]);
 
   // Supabase auth listener for web users
   useEffect(() => {
@@ -205,6 +238,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         session,
         platform,
         isAuthenticated,
+        profileId,
         login,
         logout,
       }}

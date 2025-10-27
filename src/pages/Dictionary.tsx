@@ -20,7 +20,7 @@ interface LanguageTerm {
 }
 
 export default function Dictionary() {
-  const { user } = useUserContext();
+  const { profileId } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,34 +41,23 @@ export default function Dictionary() {
       if (termsError) throw termsError;
 
       // Если пользователь авторизован, получаем его прогресс
-      if (user) {
-        // Получаем профиль для получения ID
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('telegram_id', user.id)
-          .maybeSingle();
+      if (profileId) {
+        const { data: progressData } = await supabase
+          .from('user_term_progress')
+          .select('term_id, mastery_level, times_practiced')
+          .eq('user_id', profileId);
 
-        if (profile) {
-          const { data: progressData } = await supabase
-            .from('user_term_progress')
-            .select('term_id, mastery_level, times_practiced')
-            .eq('user_id', profile.id);
+        // Объединяем данные
+        const termsWithProgress = termsData?.map(term => {
+          const progress = progressData?.find(p => p.term_id === term.id);
+          return {
+            ...term,
+            mastery_level: progress?.mastery_level || 0,
+            times_practiced: progress?.times_practiced || 0,
+          };
+        }) || [];
 
-          // Объединяем данные
-          const termsWithProgress = termsData?.map(term => {
-            const progress = progressData?.find(p => p.term_id === term.id);
-            return {
-              ...term,
-              mastery_level: progress?.mastery_level || 0,
-              times_practiced: progress?.times_practiced || 0,
-            };
-          }) || [];
-
-          setTerms(termsWithProgress);
-        } else {
-          setTerms(termsData || []);
-        }
+        setTerms(termsWithProgress);
       } else {
         setTerms(termsData || []);
       }
