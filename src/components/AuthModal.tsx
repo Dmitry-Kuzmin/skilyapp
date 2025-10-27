@@ -28,14 +28,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load Telegram Widget Script only if platform is web
-    if (platform !== 'web') return;
-    
-    const container = document.getElementById('telegram-login-container');
-    if (!container) return;
+    // Only load widget when modal is open and on web platform
+    if (!open || platform !== 'web') {
+      console.log('[AuthModal] Skipping Telegram widget:', { open, platform });
+      return;
+    }
 
-    // Clear any existing content
-    container.innerHTML = '';
+    console.log('[AuthModal] Loading Telegram widget...');
     
     // Define global callback FIRST before loading script
     (window as any).onTelegramAuth = async (user: any) => {
@@ -65,19 +64,34 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         });
       }
     };
-    
-    const script = document.createElement('script');
-    script.src = 'https://telegram.org/js/telegram-widget.js?22';
-    script.async = true;
-    script.setAttribute('data-telegram-login', 'sdadimtutbot');
-    script.setAttribute('data-size', 'large');
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-    script.setAttribute('data-request-access', 'write');
 
-    container.appendChild(script);
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      const container = document.getElementById('telegram-login-container');
+      if (!container) {
+        console.error('[AuthModal] Telegram container not found!');
+        return;
+      }
+
+      // Clear any existing content
+      container.innerHTML = '';
+      
+      const script = document.createElement('script');
+      script.src = 'https://telegram.org/js/telegram-widget.js?22';
+      script.async = true;
+      script.setAttribute('data-telegram-login', 'sdadimtutbot');
+      script.setAttribute('data-size', 'large');
+      script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+      script.setAttribute('data-request-access', 'write');
+
+      container.appendChild(script);
+      console.log('[AuthModal] Telegram widget script appended');
+    }, 100);
 
     return () => {
+      console.log('[AuthModal] Cleaning up Telegram widget');
       delete (window as any).onTelegramAuth;
+      const container = document.getElementById('telegram-login-container');
       if (container) {
         container.innerHTML = '';
       }
