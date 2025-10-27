@@ -53,13 +53,66 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          date: string
+          id: string
+          max_progress: number
+          progress: number
+          reward: number
+          task_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          max_progress: number
+          progress?: number
+          reward?: number
+          task_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          max_progress?: number
+          progress?: number
+          reward?: number
+          task_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_sessions: {
         Row: {
           created_at: string
           duration_seconds: number | null
           game_type: string
           id: string
+          mode: string | null
+          questions_data: Json | null
           score: number
+          topic: string | null
           total_questions: number
           user_id: string | null
         }
@@ -68,7 +121,10 @@ export type Database = {
           duration_seconds?: number | null
           game_type: string
           id?: string
+          mode?: string | null
+          questions_data?: Json | null
           score?: number
+          topic?: string | null
           total_questions?: number
           user_id?: string | null
         }
@@ -77,7 +133,10 @@ export type Database = {
           duration_seconds?: number | null
           game_type?: string
           id?: string
+          mode?: string | null
+          questions_data?: Json | null
           score?: number
+          topic?: string | null
           total_questions?: number
           user_id?: string | null
         }
@@ -126,62 +185,77 @@ export type Database = {
         Row: {
           boosts: number | null
           clerk_id: string | null
+          coins: number
           created_at: string | null
           first_name: string
           id: string
           is_premium: boolean | null
           language_code: string | null
+          last_activity_date: string | null
           last_login: string | null
           last_name: string | null
           photo_url: string | null
           platform: string | null
+          rank: string
           settings: Json | null
+          streak_days: number
           subscription_expires_at: string | null
           subscription_status: string | null
           telegram_id: number | null
           updated_at: string | null
           user_id: string | null
           username: string | null
+          xp: number
         }
         Insert: {
           boosts?: number | null
           clerk_id?: string | null
+          coins?: number
           created_at?: string | null
           first_name: string
           id?: string
           is_premium?: boolean | null
           language_code?: string | null
+          last_activity_date?: string | null
           last_login?: string | null
           last_name?: string | null
           photo_url?: string | null
           platform?: string | null
+          rank?: string
           settings?: Json | null
+          streak_days?: number
           subscription_expires_at?: string | null
           subscription_status?: string | null
           telegram_id?: number | null
           updated_at?: string | null
           user_id?: string | null
           username?: string | null
+          xp?: number
         }
         Update: {
           boosts?: number | null
           clerk_id?: string | null
+          coins?: number
           created_at?: string | null
           first_name?: string
           id?: string
           is_premium?: boolean | null
           language_code?: string | null
+          last_activity_date?: string | null
           last_login?: string | null
           last_name?: string | null
           photo_url?: string | null
           platform?: string | null
+          rank?: string
           settings?: Json | null
+          streak_days?: number
           subscription_expires_at?: string | null
           subscription_status?: string | null
           telegram_id?: number | null
           updated_at?: string | null
           user_id?: string | null
           username?: string | null
+          xp?: number
         }
         Relationships: []
       }
@@ -268,6 +342,102 @@ export type Database = {
           sign_type?: string
         }
         Relationships: []
+      }
+      user_sign_progress: {
+        Row: {
+          created_at: string
+          id: string
+          last_practiced_at: string | null
+          mastery_level: number
+          sign_id: string
+          times_practiced: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_practiced_at?: string | null
+          mastery_level?: number
+          sign_id: string
+          times_practiced?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_practiced_at?: string | null
+          mastery_level?: number
+          sign_id?: string
+          times_practiced?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sign_progress_sign_id_fkey"
+            columns: ["sign_id"]
+            isOneToOne: false
+            referencedRelation: "road_signs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_sign_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_term_progress: {
+        Row: {
+          created_at: string
+          id: string
+          last_practiced_at: string | null
+          mastery_level: number
+          term_id: string
+          times_practiced: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_practiced_at?: string | null
+          mastery_level?: number
+          term_id: string
+          times_practiced?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_practiced_at?: string | null
+          mastery_level?: number
+          term_id?: string
+          times_practiced?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_term_progress_term_id_fkey"
+            columns: ["term_id"]
+            isOneToOne: false
+            referencedRelation: "language_terms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_term_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

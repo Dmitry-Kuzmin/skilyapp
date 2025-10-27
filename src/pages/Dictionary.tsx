@@ -4,6 +4,7 @@ import { LanguageTermCard } from "@/components/LanguageTermCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Loader2 } from "lucide-react";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface LanguageTerm {
   id: string;
@@ -14,9 +15,12 @@ interface LanguageTerm {
   difficulty: string;
   image_url: string | null;
   audio_url: string | null;
+  mastery_level?: number;
+  times_practiced?: number;
 }
 
 export default function Dictionary() {
+  const { user } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,13 +32,46 @@ export default function Dictionary() {
 
   const fetchTerms = async () => {
     try {
-      const { data, error } = await supabase
+      // Получаем термины
+      const { data: termsData, error: termsError } = await supabase
         .from('language_terms')
         .select('*')
         .order('term_es');
       
-      if (error) throw error;
-      setTerms(data || []);
+      if (termsError) throw termsError;
+
+      // Если пользователь авторизован, получаем его прогресс
+      if (user) {
+        // Получаем профиль для получения ID
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('telegram_id', user.id)
+          .maybeSingle();
+
+        if (profile) {
+          const { data: progressData } = await supabase
+            .from('user_term_progress')
+            .select('term_id, mastery_level, times_practiced')
+            .eq('user_id', profile.id);
+
+          // Объединяем данные
+          const termsWithProgress = termsData?.map(term => {
+            const progress = progressData?.find(p => p.term_id === term.id);
+            return {
+              ...term,
+              mastery_level: progress?.mastery_level || 0,
+              times_practiced: progress?.times_practiced || 0,
+            };
+          }) || [];
+
+          setTerms(termsWithProgress);
+        } else {
+          setTerms(termsData || []);
+        }
+      } else {
+        setTerms(termsData || []);
+      }
     } catch (error) {
       console.error('Error fetching language terms:', error);
     } finally {

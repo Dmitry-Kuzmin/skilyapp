@@ -4,6 +4,7 @@ import { RoadSignCard } from "@/components/RoadSignCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Loader2 } from "lucide-react";
+import { useUserContext } from "@/contexts/UserContext";
 
 interface RoadSign {
   id: string;
@@ -14,9 +15,12 @@ interface RoadSign {
   sign_type: string;
   sign_number: string;
   image_url: string;
+  mastery_level?: number;
+  times_practiced?: number;
 }
 
 export default function RoadSigns() {
+  const { user } = useUserContext();
   const [signs, setSigns] = useState<RoadSign[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,13 +32,46 @@ export default function RoadSigns() {
 
   const fetchSigns = async () => {
     try {
-      const { data, error } = await supabase
+      // Получаем знаки
+      const { data: signsData, error: signsError } = await supabase
         .from('road_signs')
         .select('*')
         .order('name_es');
       
-      if (error) throw error;
-      setSigns(data || []);
+      if (signsError) throw signsError;
+
+      // Если пользователь авторизован, получаем его прогресс
+      if (user) {
+        // Получаем профиль для получения ID
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('telegram_id', user.id)
+          .maybeSingle();
+
+        if (profile) {
+          const { data: progressData } = await supabase
+            .from('user_sign_progress')
+            .select('sign_id, mastery_level, times_practiced')
+            .eq('user_id', profile.id);
+
+          // Объединяем данные
+          const signsWithProgress = signsData?.map(sign => {
+            const progress = progressData?.find(p => p.sign_id === sign.id);
+            return {
+              ...sign,
+              mastery_level: progress?.mastery_level || 0,
+              times_practiced: progress?.times_practiced || 0,
+            };
+          }) || [];
+
+          setSigns(signsWithProgress);
+        } else {
+          setSigns(signsData || []);
+        }
+      } else {
+        setSigns(signsData || []);
+      }
     } catch (error) {
       console.error('Error fetching road signs:', error);
     } finally {

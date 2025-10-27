@@ -1,5 +1,6 @@
 import { Target, Zap, Trophy, Gift, BookOpen, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
@@ -8,64 +9,102 @@ import StatsCard from "@/components/StatsCard";
 import AchievementCard from "@/components/AchievementCard";
 import { AISearchWidget } from "@/components/AISearchWidget";
 import { useUserContext } from "@/contexts/UserContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import Landing from "./Landing";
 
 const Index = () => {
-  const { isAuthenticated } = useUserContext();
+  const { isAuthenticated, user } = useUserContext();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [userStats, setUserStats] = useState({
+    rank: "Ученик",
+    xp: 0,
+    nextRankXP: 5000,
+    coins: 0,
+    boosts: 0,
+    testsCompleted: 0,
+    accuracy: 0,
+    streak: 0,
+  });
+  const [dailyTasks, setDailyTasks] = useState<any[]>([]);
+  const [recentAchievements, setRecentAchievements] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadUserData();
+    }
+  }, [isAuthenticated, user]);
+
+  const loadUserData = async () => {
+    try {
+      setLoading(true);
+
+      // Получаем профиль пользователя по telegram_id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('telegram_id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        // Получаем статистику тестов
+        const { data: sessions } = await supabase
+          .from('game_sessions')
+          .select('*')
+          .eq('user_id', profile.id);
+
+        const testsCompleted = sessions?.length || 0;
+        const totalQuestions = sessions?.reduce((acc, s) => acc + s.total_questions, 0) || 0;
+        const correctAnswers = sessions?.reduce((acc, s) => acc + s.score, 0) || 0;
+        const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
+        setUserStats({
+          rank: profile.rank || "Ученик",
+          xp: profile.xp || 0,
+          nextRankXP: 5000,
+          coins: profile.coins || 0,
+          boosts: profile.boosts || 0,
+          testsCompleted,
+          accuracy,
+          streak: profile.streak_days || 0,
+        });
+
+        // Получаем ежедневные задания
+        const { data: tasks } = await supabase
+          .from('daily_tasks')
+          .select('*')
+          .eq('user_id', profile.id)
+          .eq('date', new Date().toISOString().split('T')[0]);
+
+        setDailyTasks(tasks || []);
+
+        // Получаем достижения
+        const { data: achievements } = await supabase
+          .from('achievements')
+          .select('*')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        setRecentAchievements(achievements || []);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить данные пользователя",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Show landing page for non-authenticated users
   if (!isAuthenticated) {
     return <Landing />;
   }
-  // Mock data - будет заменено на реальные данные
-  const userStats = {
-    rank: "Ученик",
-    xp: 2450,
-    nextRankXP: 5000,
-    coins: 850,
-    testsCompleted: 12,
-    accuracy: 87,
-    streak: 5,
-  };
-
-  const dailyTasks = [
-    { id: 1, title: "Пройти 10 вопросов", progress: 7, max: 10, reward: 50 },
-    { id: 2, title: "Изучить 5 новых терминов", progress: 3, max: 5, reward: 30 },
-    { id: 3, title: "Сыграть в любую игру", progress: 0, max: 1, reward: 40 },
-  ];
-
-  const recentAchievements = [
-    {
-      id: 1,
-      title: "Первые шаги",
-      description: "Пройдите первый тест",
-      unlocked: true,
-    },
-    {
-      id: 2,
-      title: "Снайпер знаков",
-      description: "Выучите 50 дорожных знаков без ошибок",
-      unlocked: false,
-      progress: 23,
-      maxProgress: 50,
-    },
-    {
-      id: 3,
-      title: "Безошибочный водитель",
-      description: "Пройдите 20 тестов без ошибок",
-      unlocked: false,
-      progress: 3,
-      maxProgress: 20,
-    },
-    {
-      id: 4,
-      title: "Марафонец",
-      description: "Учитесь 7 дней подряд",
-      unlocked: false,
-      progress: 5,
-      maxProgress: 7,
-    },
-  ];
 
   return (
     <Layout>
@@ -84,12 +123,14 @@ const Index = () => {
         <AISearchWidget />
 
         {/* Rank Progress */}
-        <RankProgress
-          currentRank={userStats.rank}
-          currentXP={userStats.xp}
-          nextRankXP={userStats.nextRankXP}
-          coins={userStats.coins}
-        />
+        {!loading && (
+          <RankProgress
+            currentRank={userStats.rank}
+            currentXP={userStats.xp}
+            nextRankXP={userStats.nextRankXP}
+            coins={userStats.coins}
+          />
+        )}
 
         {/* Daily Bonus */}
         <Card className="p-6 gradient-card border-gold/30 relative overflow-hidden">
@@ -136,17 +177,18 @@ const Index = () => {
         </div>
 
         {/* Daily Tasks */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Ежедневные задания</h2>
-            <span className="text-sm text-muted-foreground">
-              {dailyTasks.filter(t => t.progress >= t.max).length} / {dailyTasks.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {dailyTasks.map((task) => {
-              const isCompleted = task.progress >= task.max;
-              const progressPercent = (task.progress / task.max) * 100;
+        {!loading && dailyTasks.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Ежедневные задания</h2>
+              <span className="text-sm text-muted-foreground">
+                {dailyTasks.filter(t => t.completed).length} / {dailyTasks.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {dailyTasks.map((task) => {
+                const isCompleted = task.completed;
+                const progressPercent = (task.progress / task.max_progress) * 100;
 
               return (
                 <Card
@@ -165,7 +207,7 @@ const Index = () => {
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
-                          {task.progress} / {task.max}
+                          {task.progress} / {task.max_progress}
                         </span>
                         <span className="text-gold font-semibold">+{task.reward} 💰</span>
                       </div>
@@ -180,10 +222,11 @@ const Index = () => {
                     </div>
                   </div>
                 </Card>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Continue Learning */}
         <Card className="p-6 gradient-card border-primary/30 hover:border-primary/50 transition-all cursor-pointer group">
@@ -206,19 +249,28 @@ const Index = () => {
         </Card>
 
         {/* Achievements */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Достижения</h2>
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/achievements">Все достижения →</Link>
-            </Button>
+        {!loading && recentAchievements.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Достижения</h2>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/achievements">Все достижения →</Link>
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {recentAchievements.map((achievement) => (
+                <AchievementCard 
+                  key={achievement.id}
+                  title={achievement.title}
+                  description={achievement.description}
+                  unlocked={achievement.unlocked}
+                  progress={achievement.progress}
+                  maxProgress={achievement.max_progress}
+                />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {recentAchievements.map((achievement) => (
-              <AchievementCard key={achievement.id} {...achievement} />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </Layout>
   );
