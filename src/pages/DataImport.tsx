@@ -1,59 +1,80 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { importRoadSigns, importLanguageTerms } from "@/utils/importData";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Upload, CheckCircle2, Database, FileText, BookOpen, Map } from "lucide-react";
+import { Loader2, Upload, CheckCircle2, Database, FileText, BookOpen, Map, Trash2, Download, BarChart3 } from "lucide-react";
 import * as XLSX from 'xlsx';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default function DataImport() {
   const [loading, setLoading] = useState<{[key: string]: boolean}>({});
   const [imported, setImported] = useState<{[key: string]: boolean}>({});
+  const [stats, setStats] = useState<{[key: string]: number}>({});
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const [signsCount, termsCount, questionsCount] = await Promise.all([
+        supabase.from('road_signs').select('*', { count: 'exact', head: true }),
+        supabase.from('language_terms').select('*', { count: 'exact', head: true }),
+        supabase.from('questions').select('*', { count: 'exact', head: true })
+      ]);
+
+      setStats({
+        roadSigns: signsCount.count || 0,
+        terms: termsCount.count || 0,
+        questions: questionsCount.count || 0
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
 
   const handleFileUpload = async (file: File, type: 'roadSigns' | 'terms' | 'questions') => {
     setLoading(prev => ({ ...prev, [type]: true }));
     
     try {
-      if (file.type === 'text/csv') {
-        const text = await file.text();
-        if (type === 'roadSigns') {
-          await importRoadSigns(text);
-        } else if (type === 'terms') {
-          await importLanguageTerms(text);
-        }
-      } else {
-        // Excel файлы
+      if (type === 'roadSigns') {
+        await importRoadSigns(file);
+      } else if (type === 'terms') {
+        await importLanguageTerms(file);
+      } else if (type === 'questions') {
+        // Excel файлы для вопросов
         const data = await file.arrayBuffer();
         const workbook = XLSX.read(data);
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-        if (type === 'questions') {
-          // Очистка старых данных
-          await supabase.from('questions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-          
-          // Импорт новых вопросов
-          const questions = jsonData.map((row: any) => ({
-            topic_es: row.topic_es || row['Тема (ES)'],
-            topic_ru: row.topic_ru || row['Тема (RU)'],
-            question_es: row.question_es || row['Вопрос (ES)'],
-            question_ru: row.question_ru || row['Вопрос (RU)'],
-            options_es: Array.isArray(row.options_es) ? row.options_es : JSON.parse(row.options_es || '[]'),
-            options_ru: Array.isArray(row.options_ru) ? row.options_ru : JSON.parse(row.options_ru || '[]'),
-            correct_answer_es: row.correct_answer_es || row['Правильный ответ (ES)'],
-            correct_answer_ru: row.correct_answer_ru || row['Правильный ответ (RU)'],
-            explanation_es: row.explanation_es || row['Объяснение (ES)'] || null,
-            explanation_ru: row.explanation_ru || row['Объяснение (RU)'] || null,
-          }));
+        // Очистка старых данных
+        await supabase.from('questions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        
+        // Импорт новых вопросов
+        const questions = jsonData.map((row: any) => ({
+          topic_es: row.topic_es || row['Тема (ES)'],
+          topic_ru: row.topic_ru || row['Тема (RU)'],
+          question_es: row.question_es || row['Вопрос (ES)'],
+          question_ru: row.question_ru || row['Вопрос (RU)'],
+          options_es: Array.isArray(row.options_es) ? row.options_es : JSON.parse(row.options_es || '[]'),
+          options_ru: Array.isArray(row.options_ru) ? row.options_ru : JSON.parse(row.options_ru || '[]'),
+          correct_answer_es: row.correct_answer_es || row['Правильный ответ (ES)'],
+          correct_answer_ru: row.correct_answer_ru || row['Правильный ответ (RU)'],
+          explanation_es: row.explanation_es || row['Объяснение (ES)'] || null,
+          explanation_ru: row.explanation_ru || row['Объяснение (RU)'] || null,
+        }));
 
-          const { error } = await supabase.from('questions').insert(questions);
-          if (error) throw error;
-        }
+        const { error } = await supabase.from('questions').insert(questions);
+        if (error) throw error;
       }
 
       setImported(prev => ({ ...prev, [type]: true }));
+      await loadStats();
+      
       toast({
         title: "Успешно!",
         description: `Данные ${type === 'roadSigns' ? 'знаков' : type === 'terms' ? 'терминов' : 'вопросов'} загружены`,
@@ -62,7 +83,7 @@ export default function DataImport() {
       console.error('Error importing:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить данные",
+        description: error instanceof Error ? error.message : "Не удалось загрузить данные",
         variant: "destructive",
       });
     } finally {
@@ -70,21 +91,72 @@ export default function DataImport() {
     }
   };
 
+  const handleClearData = async (type: 'roadSigns' | 'terms' | 'questions') => {
+    setLoading(prev => ({ ...prev, [`clear_${type}`]: true }));
+    
+    try {
+      const tableName = type === 'roadSigns' ? 'road_signs' : type === 'terms' ? 'language_terms' : 'questions';
+      await supabase.from(tableName).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      await loadStats();
+      
+      toast({
+        title: "Успешно!",
+        description: `Данные ${type === 'roadSigns' ? 'знаков' : type === 'terms' ? 'терминов' : 'вопросов'} очищены`,
+      });
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось очистить данные",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, [`clear_${type}`]: false }));
+    }
+  };
+
+  const handleExportData = async (type: 'roadSigns' | 'terms' | 'questions') => {
+    try {
+      const tableName = type === 'roadSigns' ? 'road_signs' : type === 'terms' ? 'language_terms' : 'questions';
+      const { data, error } = await supabase.from(tableName).select('*');
+      
+      if (error) throw error;
+      
+      const ws = XLSX.utils.json_to_sheet(data || []);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, tableName);
+      XLSX.writeFile(wb, `${tableName}_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+      
+      toast({
+        title: "Успешно!",
+        description: "Данные экспортированы",
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось экспортировать данные",
+        variant: "destructive",
+      });
+    }
+  };
+
   const dataTypes = [
     {
       id: 'roadSigns',
       title: 'Дорожные знаки',
-      description: 'CSV файл с дорожными знаками',
+      description: 'CSV или Excel файл с дорожными знаками',
       icon: Map,
-      accept: '.csv',
+      accept: '.csv,.xlsx,.xls',
       color: 'primary'
     },
     {
       id: 'terms',
       title: 'Словарь терминов',
-      description: 'CSV файл с терминами',
+      description: 'CSV или Excel файл с терминами',
       icon: BookOpen,
-      accept: '.csv',
+      accept: '.csv,.xlsx,.xls',
       color: 'secondary'
     },
     {
@@ -112,6 +184,42 @@ export default function DataImport() {
             Управление базой данных приложения - загрузка знаков, терминов и тестовых вопросов
           </p>
         </div>
+
+        {/* Statistics Card */}
+        <Card className="mb-8 gradient-card border-primary/30 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+          <CardContent className="relative p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl gradient-primary shrink-0">
+                <BarChart3 className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <h3 className="text-lg font-bold">Статистика базы данных</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Map className="w-5 h-5 text-primary" />
+                  <span className="text-sm text-muted-foreground">Дорожные знаки</span>
+                </div>
+                <p className="text-3xl font-bold text-primary">{stats.roadSigns || 0}</p>
+              </div>
+              <div className="p-4 rounded-lg bg-secondary/5 border border-secondary/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <BookOpen className="w-5 h-5 text-secondary" />
+                  <span className="text-sm text-muted-foreground">Термины</span>
+                </div>
+                <p className="text-3xl font-bold text-secondary">{stats.terms || 0}</p>
+              </div>
+              <div className="p-4 rounded-lg bg-success/5 border border-success/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-5 h-5 text-success" />
+                  <span className="text-sm text-muted-foreground">Вопросы</span>
+                </div>
+                <p className="text-3xl font-bold text-success">{stats.questions || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Data Import Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -184,6 +292,54 @@ export default function DataImport() {
                 <div className="text-xs text-muted-foreground text-center">
                   Формат: {dataType.accept}
                 </div>
+
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleExportData(dataType.id as any)}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Экспорт
+                  </Button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-destructive/50 hover:bg-destructive/10"
+                        disabled={loading[`clear_${dataType.id}`]}
+                      >
+                        {loading[`clear_${dataType.id}`] ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        Очистить
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Это действие удалит все данные из таблицы "{dataType.title}". 
+                          Это действие нельзя отменить.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Отмена</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleClearData(dataType.id as any)}
+                          className="bg-destructive hover:bg-destructive/90"
+                        >
+                          Удалить
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -199,10 +355,13 @@ export default function DataImport() {
               </div>
               <div className="flex-1 space-y-2">
                 <h3 className="text-lg font-bold">Инструкция по загрузке</h3>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• <strong>Дорожные знаки:</strong> CSV с полями name_es, name_ru, description_es, description_ru, sign_type, image_url</li>
-                  <li>• <strong>Термины:</strong> CSV с полями term_es, term_ru, description_es, description_ru, difficulty, category</li>
-                  <li>• <strong>Вопросы:</strong> Excel с полями topic_es, topic_ru, question_es, question_ru, options_es, options_ru, correct_answer_es, correct_answer_ru</li>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• <strong>Дорожные знаки:</strong> CSV/Excel с полями: name_es, name_ru, description_es, description_ru, sign_type, image_url, sign_number</li>
+                  <li>• <strong>Термины:</strong> CSV/Excel с полями: term_es, term_ru, description_es, description_ru, difficulty, category, image_url, audio_url</li>
+                  <li>• <strong>Вопросы:</strong> Excel с полями: topic_es, topic_ru, question_es, question_ru, options_es, options_ru, correct_answer_es, correct_answer_ru, explanation_es, explanation_ru</li>
+                  <li className="pt-2 border-t border-border/50">
+                    <strong>Примечание:</strong> Загрузка новых данных добавляет записи к существующим. Используйте кнопку "Очистить" для полной замены данных.
+                  </li>
                 </ul>
               </div>
             </div>
