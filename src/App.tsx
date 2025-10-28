@@ -10,7 +10,6 @@ import Games from "./pages/Games";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Achievements from "./pages/Achievements";
-import DailyBonus from "./pages/DailyBonus";
 import RaceGame from "./pages/games/RaceGame";
 import MatchingGame from "./pages/games/MatchingGame";
 import TestSession from "./pages/TestSession";
@@ -38,7 +37,6 @@ const App = () => (
           <Route path="/games/race" element={<RaceGame />} />
           <Route path="/games/matching" element={<MatchingGame />} />
           <Route path="/achievements" element={<Achievements />} />
-          <Route path="/daily-bonus" element={<DailyBonus />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />
