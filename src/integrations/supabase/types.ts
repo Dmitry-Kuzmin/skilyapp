@@ -53,6 +53,27 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_bonus_def: {
+        Row: {
+          created_at: string | null
+          day_number: number
+          description: string
+          reward: Json
+        }
+        Insert: {
+          created_at?: string | null
+          day_number: number
+          description: string
+          reward: Json
+        }
+        Update: {
+          created_at?: string | null
+          day_number?: number
+          description?: string
+          reward?: Json
+        }
+        Relationships: []
+      }
       daily_tasks: {
         Row: {
           completed: boolean
@@ -342,6 +363,44 @@ export type Database = {
           sign_type?: string
         }
         Relationships: []
+      }
+      user_daily_bonus: {
+        Row: {
+          created_at: string | null
+          current_streak: number
+          id: string
+          last_claimed_date: string | null
+          total_claims: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_streak?: number
+          id?: string
+          last_claimed_date?: string | null
+          total_claims?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_streak?: number
+          id?: string
+          last_claimed_date?: string | null
+          total_claims?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_daily_bonus_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_sign_progress: {
         Row: {
