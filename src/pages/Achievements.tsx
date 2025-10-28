@@ -8,10 +8,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Temporary mock data until migration is approved
+const MOCK_ACHIEVEMENT_DEFS = [
+  { id: "leader_of_roads", title: { ru: "Лидер дорог" }, description: { ru: "Занять первое место в рейтинге среди учеников" }, reward: { xp: 200 }, type: "one_time", progress_target: 1, icon: "Trophy", category: "beginner" },
+  { id: "spanish_driver", title: { ru: "Испанский водитель" }, description: { ru: "Пройти финальный тест по ПДД" }, reward: { xp: 150 }, type: "one_time", progress_target: 1, icon: "Flag", category: "master" },
+  { id: "photomodel", title: { ru: "Фотомодель" }, description: { ru: "Добавить фото в профиль" }, reward: { xp: 20 }, type: "one_time", progress_target: 1, icon: "Camera", category: "beginner" },
+  { id: "novice", title: { ru: "Новичок" }, description: { ru: "Завершить первый урок по ПДД" }, reward: { xp: 30 }, type: "one_time", progress_target: 1, icon: "BookOpen", category: "beginner" },
+  { id: "weekend_warrior", title: { ru: "Воин выходного дня" }, description: { ru: "Пройти тест в субботу и воскресенье" }, reward: { xp: 50 }, type: "one_time", progress_target: 2, icon: "Shield", category: "streak" },
+  { id: "enthusiast", title: { ru: "Энтузиаст" }, description: { ru: "Заниматься 3 дня подряд" }, reward: { xp: 40 }, type: "one_time", progress_target: 3, icon: "Calendar", category: "streak" },
+  { id: "social_butterfly", title: { ru: "Душа компании" }, description: { ru: "Пригласить 3 друзей в приложение" }, reward: { xp: 80 }, type: "progressive", progress_target: 3, icon: "Users", category: "learning" },
+  { id: "strategist", title: { ru: "Стратег" }, description: { ru: "Завершить все дополнительные тесты" }, reward: { xp: 120 }, type: "one_time", progress_target: 10, icon: "Target", category: "accuracy" },
+  { id: "true_student", title: { ru: "Настоящий ученик" }, description: { ru: "Завершить 10 дней подряд без пропусков" }, reward: { xp: 200 }, type: "one_time", progress_target: 10, icon: "Calendar", category: "streak" },
+  { id: "flawless_driver", title: { ru: "Безошибочный водитель" }, description: { ru: "Пройти 20 уроков без ошибок" }, reward: { xp: 250 }, type: "progressive", progress_target: 20, icon: "Award", category: "accuracy" },
+  { id: "examiner", title: { ru: "Экзаменатор" }, description: { ru: "Пройти 20 экзаменационных тестов" }, reward: { xp: 200 }, type: "progressive", progress_target: 20, icon: "CheckSquare", category: "games" },
+  { id: "sign_sniper", title: { ru: "Снайпер знаков" }, description: { ru: "Узнать 50 знаков без ошибок" }, reward: { xp: 200 }, type: "progressive", progress_target: 50, icon: "Target", category: "accuracy" },
+  { id: "pdd_genius", title: { ru: "Гений ПДД" }, description: { ru: "Набрать 100% правильных ответов в экзаменационном тесте" }, reward: { xp: 500 }, type: "one_time", progress_target: 100, icon: "Lightbulb", category: "master" },
+  { id: "sign_master", title: { ru: "Знаток знаков" }, description: { ru: "Выучить 100 дорожных знаков" }, reward: { xp: 500 }, type: "progressive", progress_target: 100, icon: "Flag", category: "master" },
+  { id: "pdd_master", title: { ru: "Мастер ПДД" }, description: { ru: "Набрать 4000 очков опыта" }, reward: { xp: 0, badge: "master_pdd" }, type: "one_time", progress_target: 4000, icon: "Crown", category: "master" },
+];
+
 interface AchievementDef {
   id: string;
-  title: { ru: string; en: string };
-  description: { ru: string; en: string };
+  title: { ru: string; en?: string };
+  description: { ru: string; en?: string };
   reward: { xp?: number; coins?: number; badge?: string };
   type: string;
   progress_target: number;
@@ -19,18 +38,14 @@ interface AchievementDef {
   category: string;
 }
 
-interface UserAchievement {
-  id: string;
-  achievement_id: string;
+interface CombinedAchievement extends AchievementDef {
   unlocked: boolean;
   progress: number;
-  status: string;
   unlocked_at?: string;
 }
 
 const Achievements = () => {
-  const [achievementDefs, setAchievementDefs] = useState<AchievementDef[]>([]);
-  const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
+  const [combinedAchievements, setCombinedAchievements] = useState<CombinedAchievement[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -40,22 +55,21 @@ const Achievements = () => {
 
   const loadAchievements = async () => {
     try {
-      // Load achievement definitions
-      const { data: defsData, error: defsError } = await (supabase as any)
-        .from("achievement_def")
-        .select("*");
+      // Use mock data with random progress for demo
+      const mockData: CombinedAchievement[] = MOCK_ACHIEVEMENT_DEFS.map(def => ({
+        ...def,
+        unlocked: Math.random() > 0.6,
+        progress: Math.floor(Math.random() * def.progress_target),
+        unlocked_at: Math.random() > 0.6 ? new Date().toISOString() : undefined,
+      }));
 
-      if (defsError) throw defsError;
-
-      // Load user achievements
-      const { data: userAchData, error: userAchError } = await (supabase as any)
-        .from("user_achievement")
-        .select("*");
-
-      if (userAchError) throw userAchError;
-
-      setAchievementDefs((defsData || []) as AchievementDef[]);
-      setUserAchievements((userAchData || []) as UserAchievement[]);
+      // Set specific achievements for demo (matching screenshot)
+      mockData[11].progress = 33; // sign_sniper: 33/50
+      mockData[11].unlocked = false;
+      mockData[13].progress = 33; // sign_master: 33/100
+      mockData[13].unlocked = false;
+      
+      setCombinedAchievements(mockData);
     } catch (error: any) {
       toast({
         title: "Ошибка",
@@ -67,17 +81,6 @@ const Achievements = () => {
       setLoading(false);
     }
   };
-
-  // Combine achievement definitions with user progress
-  const combinedAchievements = achievementDefs.map(def => {
-    const userAch = userAchievements.find(ua => ua.achievement_id === def.id);
-    return {
-      ...def,
-      unlocked: userAch?.unlocked || false,
-      progress: userAch?.progress || 0,
-      unlocked_at: userAch?.unlocked_at,
-    };
-  });
 
   const unlockedCount = combinedAchievements.filter(a => a.unlocked).length;
   const totalCount = combinedAchievements.length;
