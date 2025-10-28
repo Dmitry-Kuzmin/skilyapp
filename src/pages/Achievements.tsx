@@ -41,21 +41,21 @@ const Achievements = () => {
   const loadAchievements = async () => {
     try {
       // Load achievement definitions
-      const { data: defsData, error: defsError } = await supabase
+      const { data: defsData, error: defsError } = await (supabase as any)
         .from("achievement_def")
         .select("*");
 
       if (defsError) throw defsError;
 
       // Load user achievements
-      const { data: userAchData, error: userAchError } = await supabase
+      const { data: userAchData, error: userAchError } = await (supabase as any)
         .from("user_achievement")
         .select("*");
 
       if (userAchError) throw userAchError;
 
-      setAchievementDefs(defsData || []);
-      setUserAchievements(userAchData || []);
+      setAchievementDefs((defsData || []) as AchievementDef[]);
+      setUserAchievements((userAchData || []) as UserAchievement[]);
     } catch (error: any) {
       toast({
         title: "Ошибка",
