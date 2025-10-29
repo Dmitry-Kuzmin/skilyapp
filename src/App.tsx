@@ -17,6 +17,7 @@ import TestResults from "./pages/TestResults";
 import RoadSigns from "./pages/RoadSigns";
 import Dictionary from "./pages/Dictionary";
 import DataImport from "./pages/DataImport";
+import DailyBonus from "./pages/DailyBonus";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />
           <Route path="/data-import" element={<DataImport />} />
+          <Route path="/daily-bonus" element={<DailyBonus />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

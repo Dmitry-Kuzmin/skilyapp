@@ -503,6 +503,13 @@ const Index = () => {
                   )}
                 </Button>
               </div>
+
+              {/* Link to full page */}
+              <Link to="/daily-bonus" className="block">
+                <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-primary">
+                  Посмотреть все награды →
+                </Button>
+              </Link>
             </div>
           </Card>
         )}
