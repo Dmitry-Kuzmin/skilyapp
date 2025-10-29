@@ -115,11 +115,12 @@ const Index = () => {
         console.log('[Index] Achievements loaded:', achievements?.length);
         setRecentAchievements(achievements || []);
 
-        // Загружаем еженедельные награды
+        // Загружаем награды (первые 90 дней для отображения)
         const { data: rewards } = await (supabase as any)
           .from('daily_bonus_def')
           .select('*')
-          .order('day_number', { ascending: true });
+          .order('day_number', { ascending: true })
+          .limit(90);
 
         if (rewards) {
           setWeeklyRewards(rewards);
@@ -177,10 +178,10 @@ const Index = () => {
       const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       
-      // Вычисляем новый стрик
+      // Вычисляем новый стрик (до 90 дней)
       let newStreak = 1;
       if (dailyBonus.last_claimed_date === yesterday) {
-        newStreak = (dailyBonus.current_streak % 7) + 1;
+        newStreak = Math.min((dailyBonus.current_streak || 0) + 1, 90);
       }
 
       // Получаем награду текущего дня
@@ -231,12 +232,37 @@ const Index = () => {
         description: `+${currentReward.reward.xp} XP${currentReward.reward.coins > 0 ? `, +${currentReward.reward.coins} монет` : ""}`,
       });
 
+      // Специальные уведомления для вех
       if (newStreak === 7) {
         setTimeout(() => {
           toast({
             title: "🏆 Недельный герой!",
-            description: "Ты завершил недельную серию! Так держать!",
+            description: "Первая неделя позади! Так держать!",
             duration: 5000,
+          });
+        }, 2000);
+      } else if (newStreak === 30) {
+        setTimeout(() => {
+          toast({
+            title: "🔥 Месяц подряд!",
+            description: "Невероятная настойчивость! Продолжай в том же духе!",
+            duration: 5000,
+          });
+        }, 2000);
+      } else if (newStreak === 60) {
+        setTimeout(() => {
+          toast({
+            title: "⭐ Два месяца!",
+            description: "Ты неостановим! Осталось совсем немного!",
+            duration: 5000,
+          });
+        }, 2000);
+      } else if (newStreak === 90) {
+        setTimeout(() => {
+          toast({
+            title: "🏆 ЖЕЛЕЗНАЯ ВОЛЯ!",
+            description: "90 дней подряд! Ты настоящий чемпион!",
+            duration: 7000,
           });
         }, 2000);
       }
@@ -283,92 +309,200 @@ const Index = () => {
           />
         )}
 
-        {/* Daily Bonus - Compact & Modern */}
+        {/* Daily Bonus - Road Journey */}
         {!loading && dailyBonus && (
-          <Card className="p-4 md:p-5 gradient-card border-2 border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all">
-            {/* Background effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-gold/5 pointer-events-none" />
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+          <Card className="p-4 md:p-6 gradient-card border-2 border-primary/20 relative overflow-hidden group hover:border-primary/30 transition-all">
+            {/* Animated background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 bg-primary/10 rounded-full blur-3xl animate-pulse" />
             
             <div className="relative space-y-4">
-              {/* Header with streak */}
+              {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
-                    <Gift className="w-6 h-6 text-primary-foreground" strokeWidth={2.5} />
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-lg shadow-primary/20 animate-pulse-slow">
+                    <Zap className="w-7 h-7 text-primary-foreground" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold">Ежедневный бонус</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {canClaimBonus ? 'Забери награду сегодня!' : 'Возвращайся завтра'}
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                      Путь водителя 🚗
+                    </h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                      <Flame className={`w-4 h-4 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500 animate-pulse' : 'text-orange-400'}`} />
+                      <span className="font-semibold">{dailyBonus.current_streak || 0}</span> 
+                      <span>из 90 дней</span>
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span className="font-bold text-sm">{dailyBonus.current_streak || 0}</span>
+                
+                {/* Streak Badge */}
+                <div className={`px-4 py-2 rounded-full border-2 ${
+                  (dailyBonus.current_streak || 0) >= 30 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/40' :
+                  (dailyBonus.current_streak || 0) >= 7 ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40' :
+                  'bg-muted/50 border-border'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <Flame className={`w-5 h-5 ${
+                      (dailyBonus.current_streak || 0) >= 30 ? 'text-yellow-500' :
+                      (dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' :
+                      'text-muted-foreground'
+                    } ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`} />
+                    <span className="font-bold text-lg">{dailyBonus.current_streak || 0}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Mini calendar with rewards */}
-              <div className="grid grid-cols-7 gap-1.5">
-                {weeklyRewards.map((reward) => {
-                  const isCompleted = (dailyBonus.current_streak || 0) >= reward.day_number;
-                  const isCurrent = canClaimBonus && ((dailyBonus.current_streak % 7) + 1) === reward.day_number;
-                  
-                  return (
-                    <div
-                      key={reward.day_number}
-                      className={`aspect-square rounded-lg border flex flex-col items-center justify-center p-1 transition-all ${
-                        isCompleted ? 'bg-primary/20 border-primary shadow-sm' :
-                        isCurrent ? 'bg-gradient-to-br from-primary/30 to-gold/20 border-primary shadow-md animate-pulse' :
-                        'bg-muted/30 border-border/30'
-                      }`}
-                    >
-                      <div className="text-[10px] font-bold text-muted-foreground mb-0.5">
-                        {reward.day_number}
-                      </div>
-                      {isCompleted ? (
-                        <Check className="w-3 h-3 text-primary" strokeWidth={3} />
-                      ) : isCurrent ? (
-                        <Gift className="w-3 h-3 text-primary animate-bounce" />
-                      ) : (
-                        <div className="text-[8px] text-center leading-tight">
-                          {reward.reward.xp > 0 && <div className="text-primary">+{reward.reward.xp}</div>}
+              {/* Road Progress - Horizontal Scroll */}
+              <div className="relative">
+                <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                  <div className="flex gap-2 min-w-max px-1">
+                    {weeklyRewards.slice(0, Math.min(14, weeklyRewards.length)).map((reward, idx) => {
+                      const dayNum = reward.day_number;
+                      const isCompleted = (dailyBonus.current_streak || 0) >= dayNum;
+                      const isCurrent = canClaimBonus && ((dailyBonus.current_streak || 0) + 1) === dayNum;
+                      const isSpecial = dayNum % 7 === 0;
+                      const hasBoost = reward.reward.boost;
+                      const hasBadge = reward.reward.badge;
+                      
+                      return (
+                        <div
+                          key={dayNum}
+                          className={`relative flex flex-col items-center gap-1.5 ${isSpecial ? 'w-20' : 'w-16'}`}
+                        >
+                          {/* Day marker */}
+                          <div className={`
+                            ${isSpecial ? 'w-16 h-16' : 'w-12 h-12'}
+                            rounded-2xl border-2 flex items-center justify-center relative transition-all duration-300
+                            ${isCompleted ? 
+                              'bg-gradient-to-br from-primary to-secondary border-primary shadow-lg shadow-primary/30 scale-105' :
+                              isCurrent ? 
+                              'bg-gradient-to-br from-primary/30 to-secondary/30 border-primary animate-pulse shadow-md' :
+                              'bg-muted/30 border-border/50'
+                            }
+                          `}>
+                            {/* Icon */}
+                            {isCompleted ? (
+                              <Check className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary-foreground`} strokeWidth={3} />
+                            ) : isCurrent ? (
+                              <>
+                                {hasBadge ? (
+                                  <Trophy className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary animate-bounce`} />
+                                ) : hasBoost ? (
+                                  <Zap className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary animate-pulse`} />
+                                ) : (
+                                  <Gift className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary animate-bounce`} />
+                                )}
+                              </>
+                            ) : (
+                              <div className={`text-center ${isSpecial ? 'text-xs' : 'text-[10px]'}`}>
+                                {reward.reward.xp > 0 && <div className="font-bold text-primary">+{reward.reward.xp}</div>}
+                                {reward.reward.coins > 0 && <div className="text-[8px] text-gold">+{reward.reward.coins}💰</div>}
+                              </div>
+                            )}
+                            
+                            {/* Special badge indicator */}
+                            {hasBadge && !isCompleted && !isCurrent && (
+                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gold rounded-full flex items-center justify-center">
+                                <Trophy className="w-3 h-3 text-white" />
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Day number */}
+                          <div className={`text-[10px] font-bold ${isCompleted || isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>
+                            День {dayNum}
+                          </div>
+                          
+                          {/* Connecting line */}
+                          {idx < Math.min(13, weeklyRewards.length - 1) && (
+                            <div className={`absolute top-6 left-full w-2 h-0.5 ${
+                              (dailyBonus.current_streak || 0) >= dayNum ? 'bg-primary' : 'bg-border'
+                            }`} />
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </div>
+                
+                {/* Progress bar */}
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Прогресс</span>
+                    <span className="font-bold text-primary">{Math.round(((dailyBonus.current_streak || 0) / 90) * 100)}%</span>
+                  </div>
+                  <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-500"
+                      style={{ width: `${Math.min(((dailyBonus.current_streak || 0) / 90) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Claim button */}
-              <Button
-                onClick={handleClaimBonus}
-                disabled={!canClaimBonus || claimingBonus}
-                className="w-full h-11 font-bold relative overflow-hidden group"
-                variant={canClaimBonus ? "default" : "secondary"}
-              >
-                {claimingBonus ? (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                    Получение...
-                  </>
-                ) : canClaimBonus ? (
-                  <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Забрать +{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak % 7) + 1))?.reward.xp || 0} XP
-                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak % 7) + 1))?.reward.coins > 0 && (
-                      <span className="ml-1">+ {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak % 7) + 1))?.reward.coins} 🪙</span>
+              {/* Reward preview & Claim button */}
+              <div className="flex gap-3">
+                <div className="flex-1 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-3 border border-primary/20">
+                  <div className="text-xs text-muted-foreground mb-1">Награда сегодня</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) && (
+                      <>
+                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp > 0 && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-primary/20 rounded-lg">
+                            <Sparkles className="w-3 h-3 text-primary" />
+                            <span className="text-sm font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp} XP</span>
+                          </div>
+                        )}
+                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins > 0 && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-gold/20 rounded-lg">
+                            <span className="text-sm font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins} 🪙</span>
+                          </div>
+                        )}
+                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.boost && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-secondary/20 rounded-lg">
+                            <Zap className="w-3 h-3 text-secondary" />
+                            <span className="text-sm font-bold">Boost</span>
+                          </div>
+                        )}
+                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.badge && (
+                          <div className="flex items-center gap-1 px-2 py-1 bg-gold/20 rounded-lg">
+                            <Trophy className="w-3 h-3 text-gold" />
+                            <span className="text-sm font-bold">Бейдж</span>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                ) : (
-                  <>
-                    <Clock className="w-4 h-4 mr-2" />
-                    Возвращайся завтра
-                  </>
-                )}
-              </Button>
+                    {!canClaimBonus && <span className="text-sm text-muted-foreground">Возвращайся завтра</span>}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleClaimBonus}
+                  disabled={!canClaimBonus || claimingBonus}
+                  size="lg"
+                  className={`px-6 font-bold shadow-lg transition-all ${
+                    canClaimBonus ? 'shadow-primary/30 hover:shadow-primary/50' : ''
+                  }`}
+                  variant={canClaimBonus ? "default" : "secondary"}
+                >
+                  {claimingBonus ? (
+                    <>
+                      <Sparkles className="w-5 h-5 mr-2 animate-spin" />
+                      Получение...
+                    </>
+                  ) : canClaimBonus ? (
+                    <>
+                      <Gift className="w-5 h-5 mr-2" />
+                      Забрать
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-5 h-5 mr-2" />
+                      Завтра
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </Card>
         )}

@@ -370,7 +370,9 @@ export type Database = {
           current_streak: number
           id: string
           last_claimed_date: string | null
+          streak_restore_available: boolean | null
           total_claims: number
+          total_restores: number | null
           updated_at: string | null
           user_id: string
         }
@@ -379,7 +381,9 @@ export type Database = {
           current_streak?: number
           id?: string
           last_claimed_date?: string | null
+          streak_restore_available?: boolean | null
           total_claims?: number
+          total_restores?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -388,7 +392,9 @@ export type Database = {
           current_streak?: number
           id?: string
           last_claimed_date?: string | null
+          streak_restore_available?: boolean | null
           total_claims?: number
+          total_restores?: number | null
           updated_at?: string | null
           user_id?: string
         }
