@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { importRoadSigns, importLanguageTerms } from "@/utils/importData";
+import { importQuestions } from "@/utils/importQuestions";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Upload, CheckCircle2, Database, FileText, BookOpen, Map, Trash2, Download, BarChart3 } from "lucide-react";
 import * as XLSX from 'xlsx';
@@ -20,16 +21,18 @@ export default function DataImport() {
 
   const loadStats = async () => {
     try {
-      const [signsCount, termsCount, questionsCount] = await Promise.all([
+      const [signsCount, termsCount, questionsCount, topicsCount] = await Promise.all([
         supabase.from('road_signs').select('*', { count: 'exact', head: true }),
         supabase.from('language_terms').select('*', { count: 'exact', head: true }),
-        supabase.from('questions').select('*', { count: 'exact', head: true })
+        supabase.from('questions_new').select('*', { count: 'exact', head: true }),
+        supabase.from('topics').select('*', { count: 'exact', head: true })
       ]);
 
       setStats({
         roadSigns: signsCount.count || 0,
         terms: termsCount.count || 0,
-        questions: questionsCount.count || 0
+        questions: questionsCount.count || 0,
+        topics: topicsCount.count || 0
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -45,31 +48,8 @@ export default function DataImport() {
       } else if (type === 'terms') {
         await importLanguageTerms(file);
       } else if (type === 'questions') {
-        // Excel файлы для вопросов
-        const data = await file.arrayBuffer();
-        const workbook = XLSX.read(data);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-        // Очистка старых данных
-        await supabase.from('questions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-        
-        // Импорт новых вопросов
-        const questions = jsonData.map((row: any) => ({
-          topic_es: row.topic_es || row['Тема (ES)'],
-          topic_ru: row.topic_ru || row['Тема (RU)'],
-          question_es: row.question_es || row['Вопрос (ES)'],
-          question_ru: row.question_ru || row['Вопрос (RU)'],
-          options_es: Array.isArray(row.options_es) ? row.options_es : JSON.parse(row.options_es || '[]'),
-          options_ru: Array.isArray(row.options_ru) ? row.options_ru : JSON.parse(row.options_ru || '[]'),
-          correct_answer_es: row.correct_answer_es || row['Правильный ответ (ES)'],
-          correct_answer_ru: row.correct_answer_ru || row['Правильный ответ (RU)'],
-          explanation_es: row.explanation_es || row['Объяснение (ES)'] || null,
-          explanation_ru: row.explanation_ru || row['Объяснение (RU)'] || null,
-        }));
-
-        const { error } = await supabase.from('questions').insert(questions);
-        if (error) throw error;
+        const result = await importQuestions(file);
+        console.log(`Imported ${result.successCount}/${result.total} questions`);
       }
 
       setImported(prev => ({ ...prev, [type]: true }));
@@ -95,7 +75,14 @@ export default function DataImport() {
     setLoading(prev => ({ ...prev, [`clear_${type}`]: true }));
     
     try {
-      const tableName = type === 'roadSigns' ? 'road_signs' : type === 'terms' ? 'language_terms' : 'questions';
+      const tableName = type === 'roadSigns' ? 'road_signs' : type === 'terms' ? 'language_terms' : 'questions_new';
+      
+      // For questions, also clear related tables
+      if (type === 'questions') {
+        await supabase.from('question_tags').delete().neq('question_id', '00000000-0000-0000-0000-000000000000');
+        await supabase.from('answer_options').delete().neq('question_id', '00000000-0000-0000-0000-000000000000');
+      }
+      
       await supabase.from(tableName).delete().neq('id', '00000000-0000-0000-0000-000000000000');
       
       await loadStats();
@@ -118,7 +105,7 @@ export default function DataImport() {
 
   const handleExportData = async (type: 'roadSigns' | 'terms' | 'questions') => {
     try {
-      const tableName = type === 'roadSigns' ? 'road_signs' : type === 'terms' ? 'language_terms' : 'questions';
+      const tableName = type === 'roadSigns' ? 'road_signs' : type === 'terms' ? 'language_terms' : 'questions_new';
       const { data, error } = await supabase.from(tableName).select('*');
       
       if (error) throw error;
@@ -195,7 +182,7 @@ export default function DataImport() {
               </div>
               <h3 className="text-lg font-bold">Статистика базы данных</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                 <div className="flex items-center gap-2 mb-2">
                   <Map className="w-5 h-5 text-primary" />
@@ -216,6 +203,13 @@ export default function DataImport() {
                   <span className="text-sm text-muted-foreground">Вопросы</span>
                 </div>
                 <p className="text-3xl font-bold text-success">{stats.questions || 0}</p>
+              </div>
+              <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Database className="w-5 h-5 text-accent" />
+                  <span className="text-sm text-muted-foreground">Темы</span>
+                </div>
+                <p className="text-3xl font-bold text-accent">{stats.topics || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -354,9 +348,21 @@ export default function DataImport() {
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>• <strong>Дорожные знаки:</strong> CSV/Excel с полями: name_es, name_ru, description_es, description_ru, sign_type, image_url, sign_number</li>
                   <li>• <strong>Термины:</strong> CSV/Excel с полями: term_es, term_ru, description_es, description_ru, difficulty, category, image_url, audio_url</li>
-                  <li>• <strong>Вопросы:</strong> Excel с полями: topic_es, topic_ru, question_es, question_ru, options_es, options_ru, correct_answer_es, correct_answer_ru, explanation_es, explanation_ru</li>
+                  <li>• <strong>Вопросы:</strong> Excel с полями:
+                    <ul className="ml-4 mt-1 space-y-1">
+                      <li>- topic_number (1-10), difficulty (easy/medium/hard), is_premium (true/false), type (single/multiple)</li>
+                      <li>- question_ru, question_es, question_en</li>
+                      <li>- answer_1_ru, answer_1_es, answer_1_en, is_correct_1 (до answer_4)</li>
+                      <li>- explanation_ru, explanation_es, explanation_en</li>
+                      <li>- tags (через запятую: priority, signs, maneuvers и т.д.)</li>
+                      <li>- image_url, sign_code, source, notes (опционально)</li>
+                    </ul>
+                  </li>
                   <li className="pt-2 border-t border-border/50">
                     <strong>Примечание:</strong> Загрузка новых данных добавляет записи к существующим. Используйте кнопку "Очистить" для полной замены данных.
+                  </li>
+                  <li className="pt-2 border-t border-border/50">
+                    <strong>Google Sheets:</strong> Сделайте таблицу публичной (Share → Anyone with the link → Viewer), затем экспортируйте: File → Download → Microsoft Excel (.xlsx)
                   </li>
                 </ul>
               </div>
