@@ -53,6 +53,47 @@ export type Database = {
         }
         Relationships: []
       }
+      answer_options: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          position: number
+          question_id: string
+          text_en: string
+          text_es: string
+          text_ru: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          position?: number
+          question_id: string
+          text_en: string
+          text_es: string
+          text_ru: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          position?: number
+          question_id?: string
+          text_en?: string
+          text_es?: string
+          text_ru?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answer_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_bonus_def: {
         Row: {
           created_at: string | null
@@ -280,6 +321,36 @@ export type Database = {
         }
         Relationships: []
       }
+      question_tags: {
+        Row: {
+          question_id: string
+          tag_id: string
+        }
+        Insert: {
+          question_id: string
+          tag_id: string
+        }
+        Update: {
+          question_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_tags_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions_new"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           correct_answer_es: string
@@ -328,6 +399,80 @@ export type Database = {
         }
         Relationships: []
       }
+      questions_new: {
+        Row: {
+          created_at: string
+          difficulty: Database["public"]["Enums"]["difficulty_level"]
+          explanation_en: string | null
+          explanation_es: string | null
+          explanation_ru: string | null
+          id: string
+          image_url: string | null
+          is_premium: boolean
+          notes: string | null
+          percent_correct: number | null
+          question_en: string
+          question_es: string
+          question_ru: string
+          sign_code: string | null
+          source: string | null
+          topic_id: string | null
+          type: Database["public"]["Enums"]["question_type"]
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: Database["public"]["Enums"]["difficulty_level"]
+          explanation_en?: string | null
+          explanation_es?: string | null
+          explanation_ru?: string | null
+          id?: string
+          image_url?: string | null
+          is_premium?: boolean
+          notes?: string | null
+          percent_correct?: number | null
+          question_en: string
+          question_es: string
+          question_ru: string
+          sign_code?: string | null
+          source?: string | null
+          topic_id?: string | null
+          type?: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          difficulty?: Database["public"]["Enums"]["difficulty_level"]
+          explanation_en?: string | null
+          explanation_es?: string | null
+          explanation_ru?: string | null
+          id?: string
+          image_url?: string | null
+          is_premium?: boolean
+          notes?: string | null
+          percent_correct?: number | null
+          question_en?: string
+          question_es?: string
+          question_ru?: string
+          sign_code?: string | null
+          source?: string | null
+          topic_id?: string | null
+          type?: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_new_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       road_signs: {
         Row: {
           created_at: string | null
@@ -361,6 +506,78 @@ export type Database = {
           name_ru?: string
           sign_number?: string | null
           sign_type?: string
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          color: string
+          created_at: string
+          icon: string | null
+          id: string
+          name_en: string
+          name_es: string
+          name_ru: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name_en: string
+          name_es: string
+          name_ru: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name_en?: string
+          name_es?: string
+          name_ru?: string
+        }
+        Relationships: []
+      }
+      topics: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          gradient_from: string
+          gradient_to: string
+          id: string
+          is_premium: boolean
+          number: number
+          title_en: string
+          title_es: string
+          title_ru: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          gradient_from?: string
+          gradient_to?: string
+          id?: string
+          is_premium?: boolean
+          number: number
+          title_en: string
+          title_es: string
+          title_ru: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          gradient_from?: string
+          gradient_to?: string
+          id?: string
+          is_premium?: boolean
+          number?: number
+          title_en?: string
+          title_es?: string
+          title_ru?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -403,6 +620,63 @@ export type Database = {
             foreignKeyName: "user_daily_bonus_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progress: {
+        Row: {
+          answer_history: Json | null
+          attempts: number
+          created_at: string
+          id: string
+          is_answered: boolean
+          is_correct: boolean
+          last_attempt_at: string | null
+          question_id: string
+          time_spent_seconds: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer_history?: Json | null
+          attempts?: number
+          created_at?: string
+          id?: string
+          is_answered?: boolean
+          is_correct?: boolean
+          last_attempt_at?: string | null
+          question_id: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer_history?: Json | null
+          attempts?: number
+          created_at?: string
+          id?: string
+          is_answered?: boolean
+          is_correct?: boolean
+          last_attempt_at?: string | null
+          question_id?: string
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions_new"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -522,7 +796,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      difficulty_level: "easy" | "medium" | "hard"
+      question_type: "single" | "multiple" | "true_false" | "image"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -649,6 +924,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      difficulty_level: ["easy", "medium", "hard"],
+      question_type: ["single", "multiple", "true_false", "image"],
+    },
   },
 } as const
