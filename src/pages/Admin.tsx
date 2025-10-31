@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Upload, Trash2, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Upload, Trash2, AlertCircle, RefreshCw, Database, Users, FileQuestion, Target, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Layout from "@/components/Layout";
@@ -16,6 +16,63 @@ const Admin = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [terms, setTerms] = useState<any[]>([]);
   const { toast } = useToast();
+  const [syncing, setSyncing] = useState(false);
+  const [stats, setStats] = useState({
+    topics: 0,
+    questions: 0,
+    users: 0,
+    tags: 0,
+  });
+  const [lastSync, setLastSync] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [topicsRes, questionsRes, usersRes, tagsRes] = await Promise.all([
+        supabase.from("topics").select("*", { count: "exact", head: true }),
+        supabase.from("questions_new").select("*", { count: "exact", head: true }),
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("tags").select("*", { count: "exact", head: true }),
+      ]);
+
+      setStats({
+        topics: topicsRes.count || 0,
+        questions: questionsRes.count || 0,
+        users: usersRes.count || 0,
+        tags: tagsRes.count || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
+
+  const handleSyncGoogleSheets = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("sync-google-sheets");
+      
+      if (error) throw error;
+
+      toast({
+        title: "Синхронизация завершена",
+        description: `Загружено: ${data.topicsProcessed} тем, ${data.questionsProcessed} вопросов`,
+      });
+      
+      setLastSync(new Date().toLocaleString("ru-RU"));
+      await fetchStats();
+    } catch (error: any) {
+      toast({
+        title: "Ошибка синхронизации",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -133,9 +190,93 @@ const Admin = () => {
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold">Админ-панель</h1>
           <p className="text-muted-foreground text-lg">
-            Управление базой данных терминов
+            Управление системой и данными
           </p>
         </div>
+
+        {/* System Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Темы
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.topics}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileQuestion className="w-4 h-4" />
+                Вопросы
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.questions}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Пользователи
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.users}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Теги
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.tags}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Google Sheets Sync */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Синхронизация с Google Sheets
+            </CardTitle>
+            <CardDescription>
+              Загрузить данные из таблицы Google Sheets
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  Последняя синхронизация: {lastSync || "Никогда"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Автоматическая синхронизация: каждые 24 часа в 03:00 UTC
+                </p>
+              </div>
+              <Button
+                onClick={handleSyncGoogleSheets}
+                disabled={syncing}
+                className="gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+                {syncing ? "Синхронизация..." : "Синхронизировать сейчас"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <Alert>
           <AlertCircle className="h-4 w-4" />
