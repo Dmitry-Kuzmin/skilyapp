@@ -9,7 +9,16 @@ import { toast } from "sonner";
 
 const Tests = () => {
   const navigate = useNavigate();
-  const [topics, setTopics] = useState<{ name: string; questions: number }[]>([]);
+  const [topics, setTopics] = useState<{ 
+    id: string;
+    number: number;
+    name: string; 
+    questions: number;
+    cover_image?: string;
+    gradient_from?: string;
+    gradient_to?: string;
+    is_premium?: boolean;
+  }[]>([]);
   const [stats, setStats] = useState({ accuracy: 0, completed: 0, correct: 0, errors: 0 });
 
   useEffect(() => {
@@ -19,20 +28,43 @@ const Tests = () => {
 
   const loadTopics = async () => {
     try {
-      const { data, error } = await supabase.from("questions").select("topic_ru");
+      const { data, error } = await supabase
+        .from("topics")
+        .select(`
+          id,
+          number,
+          title_ru,
+          cover_image,
+          gradient_from,
+          gradient_to,
+          is_premium
+        `)
+        .order('number');
+
       if (error) throw error;
 
-      const topicCount = data?.reduce((acc, q) => {
-        acc[q.topic_ru] = (acc[q.topic_ru] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      // Count questions for each topic
+      const topicsWithCounts = await Promise.all(
+        (data || []).map(async (topic) => {
+          const { count } = await supabase
+            .from("questions_new")
+            .select("*", { count: 'exact', head: true })
+            .eq('topic_id', topic.id);
 
-      const topicsArray = Object.entries(topicCount || {}).map(([name, questions]) => ({
-        name,
-        questions,
-      }));
+          return {
+            id: topic.id,
+            number: topic.number,
+            name: topic.title_ru,
+            questions: count || 0,
+            cover_image: topic.cover_image,
+            gradient_from: topic.gradient_from,
+            gradient_to: topic.gradient_to,
+            is_premium: topic.is_premium,
+          };
+        })
+      );
 
-      setTopics(topicsArray);
+      setTopics(topicsWithCounts);
     } catch (error) {
       console.error("Error loading topics:", error);
       toast.error("Ошибка загрузки тем");
@@ -149,27 +181,47 @@ const Tests = () => {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold">Тесты по темам</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {topics.map((topic, index) => (
+            {topics.map((topic) => (
               <Card
-                key={index}
-                onClick={() => navigate(`/test/practice/${encodeURIComponent(topic.name)}`)}
-                className="p-4 gradient-card border-border/50 hover:border-primary/30 transition-all duration-300 hover:scale-105 cursor-pointer"
+                key={topic.id}
+                onClick={() => navigate(`/test/practice/${topic.id}`)}
+                className="relative overflow-hidden p-6 border-border/50 hover:border-primary/30 transition-all duration-300 hover:scale-105 cursor-pointer group"
+                style={{
+                  background: `linear-gradient(135deg, ${topic.gradient_from || '#00BFFF'} 0%, ${topic.gradient_to || '#39FF14'} 100%)`,
+                }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/20">
-                      <Zap className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">{topic.name}</h4>
-                      <p className="text-xs text-muted-foreground">
-                        {topic.questions} вопросов
-                      </p>
+                <div className="absolute inset-0 bg-gradient-to-br from-background/90 to-background/70 backdrop-blur-sm" />
+                <div className="relative z-10 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="flex items-center justify-center w-8 h-8 rounded-lg font-bold text-sm"
+                        style={{
+                          background: `linear-gradient(135deg, ${topic.gradient_from || '#00BFFF'}, ${topic.gradient_to || '#39FF14'})`,
+                          color: 'white',
+                        }}
+                      >
+                        {topic.number}
+                      </div>
+                      {topic.is_premium && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-gold/20 text-gold border border-gold/30">
+                          PRO
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    →
-                  </Button>
+                  <div>
+                    <h4 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
+                      {topic.name}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      {topic.questions} вопросов
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Тема {topic.number}</span>
+                  </div>
                 </div>
               </Card>
             ))}

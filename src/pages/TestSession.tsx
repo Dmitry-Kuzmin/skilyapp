@@ -1,60 +1,49 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Clock, CheckCircle2, XCircle, Check, X } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Question = {
+type QuestionData = {
   id: string;
   question_ru: string;
   question_es: string;
-  options_ru: string[];
-  options_es: string[];
-  correct_answer_ru: string;
-  correct_answer_es: string;
+  question_en: string;
+  image_url: string | null;
   explanation_ru: string | null;
   explanation_es: string | null;
-  topic_ru: string;
-  topic_es: string;
+  explanation_en: string | null;
+  topics: {
+    title_ru: string;
+    title_es: string;
+  } | null;
+  answer_options: {
+    id: string;
+    text_ru: string;
+    text_es: string;
+    text_en: string;
+    is_correct: boolean;
+    position: number;
+  }[];
 };
 
 type Answer = {
   questionId: string;
-  selectedAnswer: string;
+  selectedAnswerId: string;
   isCorrect: boolean;
-};
-
-const parseOptions = (options: string[]): string[] => {
-  if (!options || options.length === 0) return [];
-  
-  // Если это массив с одним элементом, содержащим все опции
-  if (options.length === 1) {
-    const singleString = options[0];
-    // Разделяем по A), B), C)
-    const parsed = singleString
-      .split(/(?=[ABC]\))/)
-      .map(opt => opt.trim())
-      .filter(opt => opt.length > 0)
-      .map(opt => opt.replace(/\s*(Correcta|Incorrecta|Правильно|Неправильно)\s*$/, '').trim());
-    
-    return parsed.length > 0 ? parsed : options;
-  }
-  
-  // Если это уже массив опций, просто очищаем от маркеров
-  return options.map(opt => 
-    opt.replace(/\s*(Correcta|Incorrecta|Правильно|Неправильно)\s*$/, '').trim()
-  );
 };
 
 const TestSession = () => {
   const { mode, topic } = useParams();
   const navigate = useNavigate();
-  const [language] = useState<'ru' | 'es'>('ru'); // TODO: получать из контекста темы
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [language, setLanguage] = useState<'ru' | 'es'>('ru');
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -83,7 +72,13 @@ const TestSession = () => {
 
   const loadQuestions = async () => {
     try {
-      let query = supabase.from("questions").select("*");
+      let query = supabase
+        .from("questions_new")
+        .select(`
+          *,
+          answer_options (*),
+          topics (title_ru, title_es)
+        `);
 
       if (mode === "exam") {
         const { data, error } = await query.limit(30);
@@ -91,7 +86,7 @@ const TestSession = () => {
         setQuestions(data?.sort(() => Math.random() - 0.5) || []);
       } else {
         if (topic) {
-          query = query.eq("topic_ru", decodeURIComponent(topic));
+          query = query.eq("topic_id", topic);
         }
         const { data, error } = await query;
         if (error) throw error;
@@ -109,23 +104,29 @@ const TestSession = () => {
     if (!selectedOption) return;
 
     const currentQuestion = questions[currentIndex];
-    const correctAnswer = language === 'ru' ? currentQuestion.correct_answer_ru : currentQuestion.correct_answer_es;
-    const isCorrect = selectedOption === correctAnswer;
+    const selectedAnswer = currentQuestion.answer_options.find(opt => opt.id === selectedOption);
+    const isCorrect = selectedAnswer?.is_correct || false;
 
-    setAnswers([
-      ...answers,
-      {
-        questionId: currentQuestion.id,
-        selectedAnswer: selectedOption,
-        isCorrect,
-      },
-    ]);
+    const newAnswer: Answer = {
+      questionId: currentQuestion.id,
+      selectedAnswerId: selectedOption,
+      isCorrect,
+    };
+
+    setAnswers([...answers, newAnswer]);
 
     if (mode === "practice") {
       setShowExplanation(true);
+      // Success/error animation
+      if (isCorrect) {
+        toast.success("Правильно! ✅", { duration: 2000 });
+      } else {
+        toast.error("Неправильно ❌", { duration: 2000 });
+      }
     } else {
-      const errorCount = [...answers, { isCorrect }].filter((a) => !a.isCorrect).length;
+      const errorCount = [...answers, newAnswer].filter((a) => !a.isCorrect).length;
       if (errorCount >= 3) {
+        toast.error("3 ошибки! Экзамен не сдан");
         finishTest();
         return;
       }
@@ -138,6 +139,7 @@ const TestSession = () => {
     setCurrentIndex(index);
     setSelectedOption(null);
     setShowExplanation(false);
+    setShowTranslation(false);
   };
 
   const nextQuestion = () => {
@@ -145,8 +147,18 @@ const TestSession = () => {
       setCurrentIndex(currentIndex + 1);
       setSelectedOption(null);
       setShowExplanation(false);
+      setShowTranslation(false);
     } else {
       finishTest();
+    }
+  };
+
+  const prevQuestion = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setSelectedOption(null);
+      setShowExplanation(false);
+      setShowTranslation(false);
     }
   };
 
@@ -185,7 +197,10 @@ const TestSession = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">Загрузка вопросов...</p>
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
+            <div className="h-4 bg-muted rounded w-1/2 mx-auto" />
+          </div>
         </div>
       </Layout>
     );
@@ -195,8 +210,8 @@ const TestSession = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">Вопросы не найдены</p>
-          <Button onClick={() => navigate("/tests")} className="mt-4">
+          <p className="text-muted-foreground mb-4">Вопросы не найдены</p>
+          <Button onClick={() => navigate("/tests")}>
             Вернуться к тестам
           </Button>
         </div>
@@ -208,44 +223,63 @@ const TestSession = () => {
   const progress = ((currentIndex + 1) / questions.length) * 100;
   const errorCount = answers.filter((a) => !a.isCorrect).length;
   
-  const displayQuestion = language === 'ru' ? currentQuestion.question_ru : currentQuestion.question_es;
-  const displayTopic = language === 'ru' ? currentQuestion.topic_ru : currentQuestion.topic_es;
-  const displayOptions = parseOptions(language === 'ru' ? currentQuestion.options_ru : currentQuestion.options_es);
-  const correctAnswer = language === 'ru' ? currentQuestion.correct_answer_ru : currentQuestion.correct_answer_es;
-  const displayExplanation = language === 'ru' ? currentQuestion.explanation_ru : currentQuestion.explanation_es;
+  const getQuestionText = (lang: 'ru' | 'es'): string => {
+    return lang === 'ru' ? currentQuestion.question_ru : currentQuestion.question_es;
+  };
+
+  const displayQuestion = showTranslation 
+    ? `${getQuestionText(language)}\n\n🇪🇸 ${currentQuestion.question_es}`
+    : getQuestionText(language);
+  const displayTopic = currentQuestion.topics?.[language === 'ru' ? 'title_ru' : 'title_es'] || 'Без темы';
+  
+  const getExplanation = (lang: 'ru' | 'es'): string | null => {
+    return lang === 'ru' ? currentQuestion.explanation_ru : currentQuestion.explanation_es;
+  };
+  
+  const displayExplanation = getExplanation(language);
+
+  // Sort answer options by position
+  const sortedOptions = [...currentQuestion.answer_options].sort((a, b) => a.position - b.position);
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Header */}
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              {mode === "exam" ? "Экзаменационный тест" : "Практический режим"}
+      <div className="container mx-auto px-3 sm:px-4 py-4 max-w-6xl pb-20 md:pb-4">
+        {/* Compact Header */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {mode === "exam" ? "Экзамен" : "Практика"}
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <Badge variant="outline" className="text-xs">
               {displayTopic}
-            </p>
+            </Badge>
           </div>
-          {mode === "exam" && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border">
-                <Clock className={`w-4 h-4 ${timeLeft < 300 ? "text-destructive" : "text-primary"}`} />
-                <span className={`font-mono text-sm font-bold ${timeLeft < 300 ? "text-destructive" : ""}`}>
-                  {formatTime(timeLeft)}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border">
-                <XCircle className="w-4 h-4 text-destructive" />
-                <span className="text-sm font-semibold">{errorCount}/3</span>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {mode === "exam" && (
+              <>
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-card border text-xs">
+                  <Clock className={`w-3 h-3 ${timeLeft < 300 ? "text-destructive" : "text-primary"}`} />
+                  <span className={`font-mono font-bold ${timeLeft < 300 ? "text-destructive" : ""}`}>
+                    {formatTime(timeLeft)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-card border text-xs">
+                  <XCircle className="w-3 h-3 text-destructive" />
+                  <span className="font-semibold">{errorCount}/3</span>
+                </div>
+              </>
+            )}
+            <span className="text-xs font-semibold text-muted-foreground">
+              {currentIndex + 1}/{questions.length}
+            </span>
+          </div>
         </div>
 
-        {/* Question Navigation Grid */}
-        <Card className="p-4 mb-6 gradient-card border-border/50">
-          <div className="grid grid-cols-10 gap-2">
+        <Progress value={progress} className="mb-4 h-1.5" />
+
+        {/* Compact Question Navigation - Scrollable on mobile */}
+        <div className="mb-4 overflow-x-auto pb-2">
+          <div className="flex gap-1.5 min-w-max">
             {questions.map((_, idx) => {
               const answer = answers.find((a) => a.questionId === questions[idx].id);
               const isAnswered = answer !== undefined;
@@ -256,72 +290,94 @@ const TestSession = () => {
                   key={idx}
                   onClick={() => jumpToQuestion(idx)}
                   className={`
-                    aspect-square rounded-lg font-semibold text-sm transition-all duration-300
+                    w-9 h-9 sm:w-10 sm:h-10 rounded-lg font-semibold text-xs transition-all duration-300 shrink-0
                     ${isCurrent 
-                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" 
+                      ? "ring-2 ring-primary scale-110 shadow-lg shadow-primary/20" 
                       : "hover:scale-105"
                     }
                     ${!isAnswered 
-                      ? "bg-muted text-muted-foreground border border-border" 
+                      ? "bg-muted/50 text-muted-foreground border border-border" 
                       : answer.isCorrect
                         ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/50"
                         : "bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/50"
                     }
                   `}
                 >
-                  <div className="flex items-center justify-center h-full relative">
-                    {idx + 1}
-                    {isAnswered && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        {answer.isCorrect ? (
-                          <Check className="w-3 h-3 absolute top-0.5 right-0.5" />
-                        ) : (
-                          <X className="w-3 h-3 absolute top-0.5 right-0.5" />
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  {idx + 1}
                 </button>
               );
             })}
           </div>
-        </Card>
-
-        <Progress value={progress} className="mb-6 h-2" />
+        </div>
 
         {/* Question Card */}
-        <Card className="p-6 sm:p-8 gradient-card border-border/50 shadow-lg">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-primary px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-                {displayTopic}
-              </span>
-              <span className="text-sm font-semibold text-muted-foreground">
-                {currentIndex + 1} / {questions.length}
-              </span>
+        <Card className="p-4 sm:p-6 gradient-card border-border/50 shadow-lg">
+          {/* Question Image */}
+          {currentQuestion.image_url && (
+            <div className="mb-4 rounded-xl overflow-hidden border border-border/50">
+              <img 
+                src={currentQuestion.image_url} 
+                alt="Вопрос" 
+                className="w-full max-h-64 object-contain bg-muted/30"
+                loading="lazy"
+              />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold leading-relaxed">{displayQuestion}</h2>
+          )}
+
+          {/* Question Text */}
+          <div className="mb-6">
+            <h2 className="text-lg sm:text-xl font-bold leading-relaxed whitespace-pre-line">
+              {displayQuestion}
+            </h2>
           </div>
 
-          <div className="space-y-3">
-            {displayOptions.map((option, idx) => {
-              const isSelected = selectedOption === option;
-              const isCorrect = option === correctAnswer;
+          {/* Translation & Explanation Buttons (Practice Only) */}
+          {mode === "practice" && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTranslation(!showTranslation)}
+                className="text-xs"
+              >
+                <Languages className="w-3 h-3 mr-1" />
+                {showTranslation ? "Скрыть перевод" : "Показать перевод"}
+              </Button>
+              {displayExplanation && !showExplanation && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowExplanation(true)}
+                  className="text-xs"
+                >
+                  <Lightbulb className="w-3 h-3 mr-1" />
+                  Подсказка
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Answer Options */}
+          <div className="space-y-2.5 mb-6">
+            {sortedOptions.map((option) => {
+              const isSelected = selectedOption === option.id;
+              const isCorrect = option.is_correct;
               const showResult = showExplanation && mode === "practice";
+              const displayText = language === 'ru' ? option.text_ru : option.text_es;
 
               return (
                 <button
-                  key={idx}
-                  onClick={() => !showExplanation && setSelectedOption(option)}
+                  key={option.id}
+                  onClick={() => !showExplanation && setSelectedOption(option.id)}
                   disabled={showExplanation}
                   className={`
-                    w-full text-left p-4 sm:p-5 rounded-xl border-2 transition-all duration-300
+                    w-full text-left p-3 sm:p-4 rounded-xl border-2 transition-all duration-300
                     ${showResult
                       ? isCorrect
-                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20"
+                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20 animate-fade-in"
                         : isSelected
-                        ? "border-red-500 bg-red-500/10 shadow-lg shadow-red-500/20"
-                        : "border-border/50 opacity-60"
+                        ? "border-red-500 bg-red-500/10 shadow-lg shadow-red-500/20 animate-fade-in"
+                        : "border-border/30 opacity-50"
                       : isSelected
                       ? "border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-[1.02]"
                       : "border-border/50 hover:border-primary/50 hover:bg-accent/5 hover:scale-[1.01]"
@@ -330,14 +386,14 @@ const TestSession = () => {
                   `}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="flex-1 text-sm sm:text-base leading-relaxed">{option}</span>
+                    <span className="flex-1 text-sm sm:text-base">{displayText}</span>
                     {showResult && isCorrect && (
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/20">
+                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 animate-scale-in">
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
                     )}
                     {showResult && isSelected && !isCorrect && (
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/20">
+                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 animate-scale-in">
                         <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
                       </div>
                     )}
@@ -347,26 +403,39 @@ const TestSession = () => {
             })}
           </div>
 
+          {/* Explanation */}
           {showExplanation && displayExplanation && (
-            <div className="mt-6 p-4 sm:p-5 rounded-xl bg-secondary/50 border border-secondary">
+            <div className="mb-4 p-4 rounded-xl bg-secondary/50 border border-secondary animate-fade-in">
               <div className="flex items-start gap-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 shrink-0">
-                  <span className="text-lg">💡</span>
+                  <Lightbulb className="w-4 h-4 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold mb-2 text-primary">Объяснение:</p>
+                  <p className="text-xs font-semibold mb-1 text-primary">Объяснение:</p>
                   <p className="text-sm leading-relaxed">{displayExplanation}</p>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="mt-6 flex gap-3">
+          {/* Navigation Buttons */}
+          <div className="flex gap-2">
+            {currentIndex > 0 && mode === "practice" && (
+              <Button 
+                onClick={prevQuestion} 
+                variant="outline"
+                className="w-auto"
+                size="sm"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Назад
+              </Button>
+            )}
             {!showExplanation ? (
               <Button 
                 onClick={handleAnswer} 
                 disabled={!selectedOption} 
-                className="w-full h-12 text-base font-semibold shadow-lg"
+                className="flex-1 font-semibold shadow-lg"
                 size="lg"
               >
                 Ответить
@@ -374,10 +443,17 @@ const TestSession = () => {
             ) : (
               <Button 
                 onClick={nextQuestion} 
-                className="w-full h-12 text-base font-semibold shadow-lg"
+                className="flex-1 font-semibold shadow-lg"
                 size="lg"
               >
-                {currentIndex < questions.length - 1 ? "Следующий вопрос →" : "Завершить тест ✓"}
+                {currentIndex < questions.length - 1 ? (
+                  <>
+                    Далее
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </>
+                ) : (
+                  "Завершить ✓"
+                )}
               </Button>
             )}
           </div>
