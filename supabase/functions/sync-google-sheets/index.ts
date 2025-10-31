@@ -5,6 +5,45 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Proper CSV parser that handles quoted fields with commas
+function parseCSVRow(row: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < row.length; i++) {
+    const char = row[i];
+    const nextChar = row[i + 1];
+    
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i++; // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // End of field
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  // Add last field
+  result.push(current.trim());
+  
+  return result;
+}
+
+// Check if text contains Cyrillic characters
+function hasCyrillic(text: string): boolean {
+  return /[а-яА-ЯЁё]/.test(text);
+}
+
 interface QuestionRow {
   topic_number?: number;
   difficulty?: string;
@@ -79,7 +118,7 @@ Deno.serve(async (req) => {
     // Parse and upsert topics
     let topicsProcessed = 0;
     for (const row of topicsRows) {
-      const columns = row.split(',').map(col => col.replace(/^"|"$/g, '').trim());
+      const columns = parseCSVRow(row);
       
       if (!columns[0] || !columns[1]) continue; // Skip empty rows
 
@@ -144,9 +183,15 @@ Deno.serve(async (req) => {
     let questionsProcessed = 0;
     let questionsSkipped = 0;
     const skipReasons: string[] = [];
+    const warnings: string[] = [];
 
     for (const row of questionsRows) {
-      const columns = row.split(',').map(col => col.replace(/^"|"$/g, '').trim());
+      const columns = parseCSVRow(row);
+      
+      // Log parsed columns for debugging
+      console.log(`Parsed ${columns.length} columns for row ${questionsProcessed + questionsSkipped + 1}`);
+      console.log(`question_ru (col 7): "${columns[7]?.substring(0, 50)}..."`);
+      console.log(`question_es (col 8): "${columns[8]?.substring(0, 50)}..."`);
       
       const questionData: QuestionRow = {
         topic_number: parseInt(columns[0]),
@@ -159,9 +204,9 @@ Deno.serve(async (req) => {
         question_ru: columns[7],
         question_es: columns[8],
         question_en: columns[9],
-        explanation_ru: columns[10] || columns[30],
-        explanation_es: columns[11] || columns[31],
-        explanation_en: columns[12] || columns[32],
+        explanation_ru: columns[10],
+        explanation_es: columns[11],
+        explanation_en: columns[12],
         tags: columns[13],
         answer_1_ru: columns[14],
         answer_1_es: columns[15],
@@ -179,8 +224,29 @@ Deno.serve(async (req) => {
         answer_4_es: columns[27],
         answer_4_en: columns[28],
         is_correct_4: columns[29],
-        notes: columns[33],
+        notes: columns[30],
       };
+      
+      // Validate data
+      if (questionData.question_es && hasCyrillic(questionData.question_es)) {
+        warnings.push(`⚠️ Русские буквы в question_es (строка ${questionsProcessed + questionsSkipped + 2}): "${questionData.question_es.substring(0, 50)}..."`);
+      }
+      
+      // Validate answer lengths
+      for (let i = 1; i <= 4; i++) {
+        const answerEs = questionData[`answer_${i}_es` as keyof QuestionRow] as string;
+        const answerRu = questionData[`answer_${i}_ru` as keyof QuestionRow] as string;
+        
+        if (answerEs && answerEs.length > 200) {
+          warnings.push(`⚠️ Ответ ${i} (ES) слишком длинный: ${answerEs.length} символов (строка ${questionsProcessed + questionsSkipped + 2})`);
+        }
+        if (answerRu && answerRu.length > 200) {
+          warnings.push(`⚠️ Ответ ${i} (RU) слишком длинный: ${answerRu.length} символов (строка ${questionsProcessed + questionsSkipped + 2})`);
+        }
+        if (answerEs && hasCyrillic(answerEs)) {
+          warnings.push(`⚠️ Русские буквы в answer_${i}_es (строка ${questionsProcessed + questionsSkipped + 2}): "${answerEs.substring(0, 50)}..."`);
+        }
+      }
 
       if (!questionData.question_ru || !questionData.question_es || !questionData.question_en) {
         skipReasons.push(`Вопрос пропущен: отсутствуют тексты вопроса (строка ${questionsSkipped + questionsProcessed + 2})`);
@@ -308,6 +374,7 @@ Deno.serve(async (req) => {
       questionsProcessed: questionsProcessed,
       questionsSkipped: questionsSkipped,
       skipReasons: skipReasons.slice(0, 10), // First 10 reasons
+      warnings: warnings.slice(0, 20), // First 20 warnings
       timestamp: new Date().toISOString(),
       availableTopics: Array.from(topicMap.keys()).sort((a, b) => a - b),
     };

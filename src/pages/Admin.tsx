@@ -24,9 +24,12 @@ const Admin = () => {
     tags: 0,
   });
   const [lastSync, setLastSync] = useState<string | null>(null);
+  const [recentQuestions, setRecentQuestions] = useState<any[]>([]);
+  const [syncWarnings, setSyncWarnings] = useState<string[]>([]);
 
   useEffect(() => {
     fetchStats();
+    fetchRecentQuestions();
   }, []);
 
   const fetchStats = async () => {
@@ -46,6 +49,22 @@ const Admin = () => {
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
+    }
+  };
+
+  const fetchRecentQuestions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("questions_new")
+        .select("id, question_ru, question_es, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (!error && data) {
+        setRecentQuestions(data);
+      }
+    } catch (error) {
+      console.error("Error fetching recent questions:", error);
     }
   };
 
@@ -71,8 +90,10 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
         variant: data.questionsProcessed > 0 ? "default" : "destructive",
       });
       
+      setSyncWarnings(data.warnings || []);
       setLastSync(new Date().toLocaleString("ru-RU"));
       await fetchStats();
+      await fetchRecentQuestions();
     } catch (error: any) {
       toast({
         title: "Ошибка синхронизации",
@@ -194,6 +215,38 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
     }
   };
 
+  const handleClearAllQuestions = async () => {
+    if (!confirm("Вы уверены, что хотите удалить ВСЕ вопросы из таблицы questions_new? Это действие необратимо!")) return;
+
+    try {
+      // Delete all answer options first (foreign key constraint)
+      await supabase.from("answer_options").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      
+      // Delete all question tags
+      await supabase.from("question_tags").delete().neq("question_id", "00000000-0000-0000-0000-000000000000");
+      
+      // Delete all questions
+      const { error } = await supabase.from("questions_new").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (error) throw error;
+
+      toast({
+        title: "Успешно!",
+        description: "Все вопросы удалены из базы данных",
+      });
+
+      await fetchStats();
+      await fetchRecentQuestions();
+      setRecentQuestions([]);
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось очистить базу данных",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 space-y-8">
@@ -276,15 +329,58 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
                   Автоматическая синхронизация: каждые 24 часа в 03:00 UTC
                 </p>
               </div>
-              <Button
-                onClick={handleSyncGoogleSheets}
-                disabled={syncing}
-                className="gap-2"
-              >
-                <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-                {syncing ? "Синхронизация..." : "Синхронизировать сейчас"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  onClick={handleClearAllQuestions}
+                  className="gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Очистить все вопросы
+                </Button>
+                <Button
+                  onClick={handleSyncGoogleSheets}
+                  disabled={syncing}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+                  {syncing ? "Синхронизация..." : "Синхронизировать сейчас"}
+                </Button>
+              </div>
             </div>
+
+            {syncWarnings.length > 0 && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="space-y-1">
+                    <p className="font-semibold">Найдены проблемы при импорте:</p>
+                    <ul className="list-disc list-inside text-xs space-y-1">
+                      {syncWarnings.map((warning, i) => (
+                        <li key={i}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {recentQuestions.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold">Последние импортированные вопросы:</h4>
+                <div className="space-y-2">
+                  {recentQuestions.map((q) => (
+                    <div key={q.id} className="p-3 rounded-lg bg-muted/50 space-y-1">
+                      <p className="text-sm font-medium">🇷🇺 {q.question_ru?.substring(0, 80)}...</p>
+                      <p className="text-sm text-muted-foreground">🇪🇸 {q.question_es?.substring(0, 80)}...</p>
+                      <p className="text-xs text-muted-foreground">
+                        Импортировано: {new Date(q.created_at).toLocaleString("ru-RU")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
