@@ -41,8 +41,9 @@ type Answer = {
 const TestSession = () => {
   const { mode, topic } = useParams();
   const navigate = useNavigate();
-  const [language, setLanguage] = useState<'ru' | 'es'>('ru');
+  const [language, setLanguage] = useState<'ru' | 'es'>('es');
   const [showTranslation, setShowTranslation] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -224,19 +225,26 @@ const TestSession = () => {
   const errorCount = answers.filter((a) => !a.isCorrect).length;
   
   const getQuestionText = (lang: 'ru' | 'es'): string => {
-    return lang === 'ru' ? currentQuestion.question_ru : currentQuestion.question_es;
+    return lang === 'es' ? currentQuestion.question_es : currentQuestion.question_ru;
   };
 
   const displayQuestion = showTranslation 
-    ? `${getQuestionText(language)}\n\n🇪🇸 ${currentQuestion.question_es}`
-    : getQuestionText(language);
-  const displayTopic = currentQuestion.topics?.[language === 'ru' ? 'title_ru' : 'title_es'] || 'Без темы';
+    ? currentQuestion.question_es
+    : currentQuestion.question_es;
+  const displayTopic = currentQuestion.topics?.title_es || 'Sin tema';
   
   const getExplanation = (lang: 'ru' | 'es'): string | null => {
-    return lang === 'ru' ? currentQuestion.explanation_ru : currentQuestion.explanation_es;
+    return lang === 'es' ? currentQuestion.explanation_es : currentQuestion.explanation_ru;
   };
   
-  const displayExplanation = getExplanation(language);
+  const displayExplanation = getExplanation('es');
+  
+  const toggleTranslation = async () => {
+    setIsTransitioning(true);
+    await new Promise(resolve => setTimeout(resolve, 150));
+    setShowTranslation(!showTranslation);
+    setTimeout(() => setIsTransitioning(false), 150);
+  };
 
   // Sort answer options by position
   const sortedOptions = [...currentQuestion.answer_options].sort((a, b) => a.position - b.position);
@@ -326,8 +334,8 @@ const TestSession = () => {
 
           {/* Question Text */}
           <div className="mb-6">
-            <h2 className="text-lg sm:text-xl font-bold leading-relaxed whitespace-pre-line">
-              {displayQuestion}
+            <h2 className={`text-lg sm:text-xl font-bold leading-relaxed whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
             </h2>
           </div>
 
@@ -337,11 +345,11 @@ const TestSession = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowTranslation(!showTranslation)}
+                onClick={toggleTranslation}
                 className="text-xs"
               >
                 <Languages className="w-3 h-3 mr-1" />
-                {showTranslation ? "Скрыть перевод" : "Показать перевод"}
+                {showTranslation ? "Español" : "Русский перевод"}
               </Button>
               {displayExplanation && !showExplanation && (
                 <Button
@@ -363,7 +371,7 @@ const TestSession = () => {
               const isSelected = selectedOption === option.id;
               const isCorrect = option.is_correct;
               const showResult = showExplanation && mode === "practice";
-              const displayText = language === 'ru' ? option.text_ru : option.text_es;
+              const displayText = showTranslation ? option.text_ru : option.text_es;
 
               return (
                 <button
@@ -386,7 +394,9 @@ const TestSession = () => {
                   `}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="flex-1 text-sm sm:text-base">{displayText}</span>
+                    <span className={`flex-1 text-sm sm:text-base transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                      {displayText}
+                    </span>
                     {showResult && isCorrect && (
                       <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 animate-scale-in">
                         <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -404,15 +414,19 @@ const TestSession = () => {
           </div>
 
           {/* Explanation */}
-          {showExplanation && displayExplanation && (
+          {showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
             <div className="mb-4 p-4 rounded-xl bg-secondary/50 border border-secondary animate-fade-in">
               <div className="flex items-start gap-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 shrink-0">
                   <Lightbulb className="w-4 h-4 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-semibold mb-1 text-primary">Объяснение:</p>
-                  <p className="text-sm leading-relaxed">{displayExplanation}</p>
+                  <p className="text-xs font-semibold mb-1 text-primary">
+                    {showTranslation ? "Объяснение:" : "Explicación:"}
+                  </p>
+                  <p className={`text-sm leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                    {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+                  </p>
                 </div>
               </div>
             </div>
