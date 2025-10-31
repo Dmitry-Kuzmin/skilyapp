@@ -199,12 +199,25 @@ Deno.serve(async (req) => {
         return val.toLowerCase() === 'true' || val === '✔' || val === '1' || val.toLowerCase() === 'yes';
       };
 
+      // Map difficulty number to enum value
+      const difficultyMap: Record<string, 'easy' | 'medium' | 'hard'> = {
+        '1': 'easy',
+        '2': 'medium',
+        '3': 'hard',
+        'easy': 'easy',
+        'medium': 'medium',
+        'hard': 'hard',
+      };
+      const difficulty = questionData.difficulty 
+        ? (difficultyMap[questionData.difficulty.toLowerCase()] || 'medium')
+        : 'medium';
+
       // Insert question
       const { data: question, error: questionError } = await supabase
         .from('questions_new')
         .insert({
           topic_id: topicId,
-          difficulty: questionData.difficulty?.toLowerCase() || 'medium',
+          difficulty: difficulty,
           is_premium: parseBool(questionData.is_premium),
           type: questionData.type || 'single',
           image_url: questionData.image_url || null,
