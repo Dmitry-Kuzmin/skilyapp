@@ -143,6 +143,7 @@ Deno.serve(async (req) => {
 
     let questionsProcessed = 0;
     let questionsSkipped = 0;
+    const skipReasons: string[] = [];
 
     for (const row of questionsRows) {
       const columns = row.split(',').map(col => col.replace(/^"|"$/g, '').trim());
@@ -182,6 +183,7 @@ Deno.serve(async (req) => {
       };
 
       if (!questionData.question_ru || !questionData.question_es || !questionData.question_en) {
+        skipReasons.push(`Вопрос пропущен: отсутствуют тексты вопроса (строка ${questionsSkipped + questionsProcessed + 2})`);
         questionsSkipped++;
         continue;
       }
@@ -189,7 +191,9 @@ Deno.serve(async (req) => {
       const topicId = questionData.topic_number ? topicMap.get(questionData.topic_number) : null;
       
       if (!topicId && questionData.topic_number) {
-        console.warn(`Topic ${questionData.topic_number} not found, skipping question`);
+        const reason = `Тема ${questionData.topic_number} не найдена в базе (вопрос: "${questionData.question_ru?.substring(0, 50)}...")`;
+        console.warn(reason);
+        skipReasons.push(reason);
         questionsSkipped++;
         continue;
       }
@@ -235,7 +239,9 @@ Deno.serve(async (req) => {
         .single();
 
       if (questionError) {
-        console.error('Error inserting question:', questionError);
+        const reason = `Ошибка вставки вопроса: ${questionError.message} (тема: ${questionData.topic_number}, difficulty: ${questionData.difficulty})`;
+        console.error(reason);
+        skipReasons.push(reason);
         questionsSkipped++;
         continue;
       }
@@ -298,13 +304,16 @@ Deno.serve(async (req) => {
 
     const result = {
       success: true,
-      topics_processed: topicsProcessed,
-      questions_processed: questionsProcessed,
-      questions_skipped: questionsSkipped,
+      topicsProcessed: topicsProcessed,
+      questionsProcessed: questionsProcessed,
+      questionsSkipped: questionsSkipped,
+      skipReasons: skipReasons.slice(0, 10), // First 10 reasons
       timestamp: new Date().toISOString(),
+      availableTopics: Array.from(topicMap.keys()).sort((a, b) => a - b),
     };
 
     console.log('Sync completed:', result);
+    console.log('Available topics in DB:', Array.from(topicMap.keys()).sort((a, b) => a - b));
 
     return new Response(
       JSON.stringify(result),

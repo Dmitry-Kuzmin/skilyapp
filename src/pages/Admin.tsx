@@ -56,9 +56,19 @@ const Admin = () => {
       
       if (error) throw error;
 
+      const message = `
+Синхронизация завершена:
+✅ Темы обработано: ${data.topicsProcessed || 0}
+✅ Вопросы загружено: ${data.questionsProcessed || 0}
+⚠️ Вопросы пропущено: ${data.questionsSkipped || 0}
+
+${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:\n• Темы не найдены в базе\n• Неправильный формат данных\n• Отсутствуют обязательные поля' : ''}
+      `.trim();
+
       toast({
-        title: "Синхронизация завершена",
-        description: `Загружено: ${data.topicsProcessed} тем, ${data.questionsProcessed} вопросов`,
+        title: data.questionsProcessed > 0 ? "Синхронизация успешна!" : "Синхронизация завершена с предупреждениями",
+        description: message,
+        variant: data.questionsProcessed > 0 ? "default" : "destructive",
       });
       
       setLastSync(new Date().toLocaleString("ru-RU"));
@@ -66,7 +76,7 @@ const Admin = () => {
     } catch (error: any) {
       toast({
         title: "Ошибка синхронизации",
-        description: error.message,
+        description: `Не удалось синхронизировать данные: ${error.message}`,
         variant: "destructive",
       });
     } finally {
