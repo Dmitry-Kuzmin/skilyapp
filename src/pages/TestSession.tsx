@@ -73,6 +73,31 @@ const TestSession = () => {
 
   const loadQuestions = async () => {
     try {
+      // Get current user profile
+      const { data: { user } } = await supabase.auth.getUser();
+      let profileId = null;
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+        profileId = profile?.id;
+      }
+
+      // Get answered question IDs for this user
+      let answeredQuestionIds: string[] = [];
+      if (profileId) {
+        const { data: progressData } = await supabase
+          .from("user_progress")
+          .select("question_id")
+          .eq("user_id", profileId)
+          .eq("is_answered", true);
+        
+        answeredQuestionIds = progressData?.map(p => p.question_id) || [];
+      }
+
       let query = supabase
         .from("questions_new")
         .select(`
@@ -81,18 +106,28 @@ const TestSession = () => {
           topics (title_ru, title_es)
         `);
 
-      if (mode === "exam") {
-        const { data, error } = await query.limit(30);
-        if (error) throw error;
-        setQuestions(data?.sort(() => Math.random() - 0.5) || []);
-      } else {
-        if (topic) {
-          query = query.eq("topic_id", topic);
-        }
-        const { data, error } = await query;
-        if (error) throw error;
-        setQuestions(data?.sort(() => Math.random() - 0.5) || []);
+      // Filter by topic if specified
+      if (topic) {
+        query = query.eq("topic_id", topic);
       }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      // Filter out answered questions and limit to 30
+      let filteredQuestions = data || [];
+      
+      if (answeredQuestionIds.length > 0) {
+        filteredQuestions = filteredQuestions.filter(
+          q => !answeredQuestionIds.includes(q.id)
+        );
+      }
+
+      // Shuffle and limit to 30 questions
+      const shuffled = filteredQuestions.sort(() => Math.random() - 0.5);
+      const limited = shuffled.slice(0, 30);
+      
+      setQuestions(limited);
     } catch (error) {
       console.error("Error loading questions:", error);
       toast.error("Ошибка загрузки вопросов");
@@ -101,7 +136,7 @@ const TestSession = () => {
     }
   };
 
-  const handleAnswer = () => {
+  const handleAnswer = async () => {
     if (!selectedOption) return;
 
     const currentQuestion = questions[currentIndex];
@@ -116,18 +151,42 @@ const TestSession = () => {
 
     setAnswers([...answers, newAnswer]);
 
+    // Save user progress
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        if (profile) {
+          await supabase.from("user_progress").upsert({
+            user_id: profile.id,
+            question_id: currentQuestion.id,
+            is_answered: true,
+            is_correct: isCorrect,
+            attempts: 1,
+            last_attempt_at: new Date().toISOString(),
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error saving progress:", error);
+    }
+
     if (mode === "practice") {
       setShowExplanation(true);
-      // Success/error animation
       if (isCorrect) {
-        toast.success("Правильно! ✅", { duration: 2000 });
+        toast.success("¡Correcto! ✅", { duration: 2000 });
       } else {
-        toast.error("Неправильно ❌", { duration: 2000 });
+        toast.error("Incorrecto ❌", { duration: 2000 });
       }
     } else {
       const errorCount = [...answers, newAnswer].filter((a) => !a.isCorrect).length;
       if (errorCount >= 3) {
-        toast.error("3 ошибки! Экзамен не сдан");
+        toast.error("3 errores! Examen no aprobado");
         finishTest();
         return;
       }
@@ -319,22 +378,22 @@ const TestSession = () => {
         </div>
 
         {/* Question Card */}
-        <Card className="p-4 sm:p-6 gradient-card border-border/50 shadow-lg">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-xl backdrop-blur-sm">
           {/* Question Image */}
           {currentQuestion.image_url && (
-            <div className="mb-4 rounded-xl overflow-hidden border border-border/50">
+            <div className="mb-6 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
               <img 
                 src={currentQuestion.image_url} 
                 alt="Вопрос" 
-                className="w-full max-h-64 object-contain bg-muted/30"
+                className="w-full max-h-72 object-contain bg-gradient-to-br from-muted/20 to-primary/10"
                 loading="lazy"
               />
             </div>
           )}
 
           {/* Question Text */}
-          <div className="mb-6">
-            <h2 className={`text-lg sm:text-xl font-bold leading-relaxed whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 border-l-4 border-primary">
+            <h2 className={`text-xl sm:text-2xl font-bold leading-relaxed whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
             </h2>
           </div>
@@ -379,18 +438,18 @@ const TestSession = () => {
                   onClick={() => !showExplanation && setSelectedOption(option.id)}
                   disabled={showExplanation}
                   className={`
-                    w-full text-left p-3 sm:p-4 rounded-xl border-2 transition-all duration-300
+                    w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition-all duration-300 font-medium
                     ${showResult
                       ? isCorrect
-                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/20 animate-fade-in"
+                        ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
                         : isSelected
-                        ? "border-red-500 bg-red-500/10 shadow-lg shadow-red-500/20 animate-fade-in"
-                        : "border-border/30 opacity-50"
+                        ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
+                        : "border-border/20 opacity-40"
                       : isSelected
-                      ? "border-primary bg-primary/10 shadow-lg shadow-primary/20 scale-[1.02]"
-                      : "border-border/50 hover:border-primary/50 hover:bg-accent/5 hover:scale-[1.01]"
+                      ? "border-primary bg-gradient-to-r from-primary/15 to-primary/5 shadow-xl shadow-primary/30 scale-[1.02] ring-2 ring-primary/20"
+                      : "border-border/40 hover:border-primary/60 hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
                     }
-                    ${!showExplanation && "cursor-pointer"}
+                    ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
                   `}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -415,16 +474,16 @@ const TestSession = () => {
 
           {/* Explanation */}
           {showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-            <div className="mb-4 p-4 rounded-xl bg-secondary/50 border border-secondary animate-fade-in">
-              <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 shrink-0">
-                  <Lightbulb className="w-4 h-4 text-primary" />
+            <div className="mb-4 p-5 rounded-2xl bg-gradient-to-br from-secondary/40 via-secondary/30 to-primary/10 border-2 border-secondary/60 shadow-lg animate-fade-in">
+              <div className="flex items-start gap-4">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 shrink-0 shadow-md">
+                  <Lightbulb className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-semibold mb-1 text-primary">
+                  <p className="text-sm font-bold mb-2 text-primary uppercase tracking-wide">
                     {showTranslation ? "Объяснение:" : "Explicación:"}
                   </p>
-                  <p className={`text-sm leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                  <p className={`text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                     {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
                   </p>
                 </div>
@@ -449,24 +508,24 @@ const TestSession = () => {
               <Button 
                 onClick={handleAnswer} 
                 disabled={!selectedOption} 
-                className="flex-1 font-semibold shadow-lg"
+                className="flex-1 font-bold shadow-2xl text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                 size="lg"
               >
-                Ответить
+                Responder
               </Button>
             ) : (
               <Button 
                 onClick={nextQuestion} 
-                className="flex-1 font-semibold shadow-lg"
+                className="flex-1 font-bold shadow-2xl text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70"
                 size="lg"
               >
                 {currentIndex < questions.length - 1 ? (
                   <>
-                    Далее
+                    Siguiente
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </>
                 ) : (
-                  "Завершить ✓"
+                  "Finalizar ✓"
                 )}
               </Button>
             )}
