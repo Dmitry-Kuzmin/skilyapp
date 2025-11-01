@@ -86,8 +86,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       console.log('[UserContext] Initializing...');
       
-      // Initialize Telegram if available
-      const telegramUser = initTelegram();
+      // Multiple attempts to get Telegram user data
+      let telegramUser = initTelegram();
+      
+      // Retry mechanism for Telegram WebApp initialization
+      if (!telegramUser && window.Telegram?.WebApp) {
+        console.log('[UserContext] First attempt failed, retrying...');
+        await new Promise(resolve => setTimeout(resolve, 300));
+        telegramUser = getTelegramUser();
+        
+        if (!telegramUser) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          telegramUser = getTelegramUser();
+        }
+      }
       
       // Check platform after initialization
       const detectedPlatform = getPlatform();
@@ -96,6 +108,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       console.log('[UserContext] Detected platform:', detectedPlatform);
       console.log('[UserContext] Is Telegram Mini App:', isTelegramEnv);
       console.log('[UserContext] Telegram User from init:', telegramUser);
+      console.log('[UserContext] WebApp initDataUnsafe:', window.Telegram?.WebApp?.initDataUnsafe);
 
       setPlatform(detectedPlatform);
 
@@ -115,14 +128,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
           PLATFORM: detectedPlatform
         };
         
-        // Save to backend asynchronously
-        try {
-          await login(telegramUser);
-          console.log('[UserContext] Auto-login successful');
-        } catch (err) {
+        // Load profile ID optimistically - don't wait for backend
+        const loadProfileId = async () => {
+          const { data } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('telegram_id', telegramUser.id)
+            .maybeSingle();
+          
+          if (data?.id) {
+            setProfileId(data.id);
+            console.log('[UserContext] Profile ID loaded:', data.id);
+          }
+        };
+        
+        loadProfileId();
+        
+        // Save to backend asynchronously (don't block UI)
+        login(telegramUser).catch(err => {
           console.error('[UserContext] Auto-login failed:', err);
-          // User is already set locally, so UI still works
-        }
+        });
       } else {
         // Check for stored token and user
         const token = localStorage.getItem('telegram_token');

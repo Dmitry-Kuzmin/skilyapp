@@ -405,7 +405,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
             <div className="flex gap-3 justify-center flex-wrap">
               <BoostButton
                 type="fifty_fifty"
-                icon="⚡"
+                icon=""
                 name="50/50"
                 available={boosts.fifty_fifty}
                 onUse={handleUseBoost}
@@ -413,7 +413,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="time_extend"
-                icon="⏱️"
+                icon=""
                 name="+30s"
                 available={boosts.time_extend}
                 onUse={handleUseBoost}
@@ -421,16 +421,16 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="hint"
-                icon="💡"
-                name="Подсказка"
+                icon=""
+                name="Hint"
                 available={boosts.hint}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('hint')}
               />
               <BoostButton
                 type="skip"
-                icon="⏭️"
-                name="Пропуск"
+                icon=""
+                name="Skip"
                 available={boosts.skip}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('skip')}

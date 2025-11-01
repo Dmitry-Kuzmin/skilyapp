@@ -36,14 +36,25 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     return () => clearInterval(timer);
   }, [duelId]);
 
+  // Listen for duel start from real-time updates
   useEffect(() => {
-    if (state.opponentJoined && duelId) {
-      // Start countdown
+    if (state.duelStarted) {
+      console.log('[DuelLobby] Duel started! Transitioning to battle...');
+      // Give a brief moment for UI feedback, then start
       setTimeout(() => {
-        handleStartDuel();
-      }, 5000);
+        onDuelStarted();
+      }, 1000);
     }
-  }, [state.opponentJoined, duelId]);
+  }, [state.duelStarted, onDuelStarted]);
+
+  useEffect(() => {
+    if (state.opponentJoined && duelCode) {
+      console.log('[DuelLobby] Opponent joined! Duel will start automatically...');
+      toast.success('Противник присоединился! Приготовьтесь...', {
+        duration: 3000,
+      });
+    }
+  }, [state.opponentJoined, duelCode]);
 
   const handleCreateDuel = async () => {
     if (!profileId) return;
