@@ -93,8 +93,21 @@ Deno.serve(async (req) => {
 
     console.log('[Duel Manager] Action:', action, 'Params:', params);
 
-    // Get profile ID - use direct auth.uid() since we simplified RLS
-    const profileId = user.id;
+    // Get profile ID from profiles table using auth user_id
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const profileId = profile.id;
 
     switch (action) {
       case 'create_duel': {
