@@ -82,16 +82,28 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     setSettings(updatedSettings);
 
     try {
+      // Validate settings before saving
+      const validTheme = ['light', 'dark'].includes(updatedSettings.theme) ? updatedSettings.theme : 'light';
+      const validLanguage = ['ru', 'en', 'es'].includes(updatedSettings.language) ? updatedSettings.language : 'ru';
+      const validNotifications = typeof updatedSettings.notifications === 'boolean' ? updatedSettings.notifications : true;
+      
+      const validatedSettings = {
+        theme: validTheme,
+        language: validLanguage,
+        notifications: validNotifications
+      };
+
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          settings: updatedSettings,
+          settings: validatedSettings,
           updated_at: new Date().toISOString()
         })
         .eq('telegram_id', user.id);
 
       if (error) throw error;
 
+      setSettings(validatedSettings);
       toast.success('Настройки сохранены');
     } catch (error) {
       console.error('Failed to update settings:', error);
@@ -117,20 +129,28 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   const handleBoost = async () => {
     if (!user) return;
+    
+    // Check if already at max boosts
+    if (boosts >= 100) {
+      toast.error('Достигнут максимум бустов (100)');
+      return;
+    }
 
     setLoading(true);
     try {
+      const newBoosts = Math.min(boosts + 1, 100); // Ensure max 100
+      
       const { error } = await supabase
         .from('profiles')
         .update({ 
-          boosts: boosts + 1,
+          boosts: newBoosts,
           updated_at: new Date().toISOString()
         })
         .eq('telegram_id', user.id);
 
       if (error) throw error;
 
-      setBoosts(boosts + 1);
+      setBoosts(newBoosts);
       toast.success('Буст активирован! +1');
     } catch (error) {
       console.error('Failed to boost:', error);

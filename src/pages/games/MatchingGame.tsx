@@ -121,15 +121,29 @@ const MatchingGame = () => {
     const duration = Math.floor((Date.now() - startTime) / 1000);
 
     // Save game session
-    const { error } = await supabase.from("game_sessions").insert({
-      game_type: "matching",
-      score: score + 1,
-      total_questions: pairs.length,
-      duration_seconds: duration,
-    });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
 
-    if (error) {
-      console.error("Failed to save game session:", error);
+      if (profile) {
+        const sessionData = {
+          user_id: profile.id,
+          game_type: "matching",
+          score: Math.min(Math.max(0, score + 1), 100), // Ensure 0-100 range
+          total_questions: Math.min(Math.max(1, pairs.length), 100), // Ensure 1-100 range
+          duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
+        };
+
+        const { error } = await supabase.from("game_sessions").insert(sessionData);
+
+        if (error) {
+          console.error("Failed to save game session:", error);
+        }
+      }
     }
   };
 

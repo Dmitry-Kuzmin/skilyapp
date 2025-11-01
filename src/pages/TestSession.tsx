@@ -162,14 +162,16 @@ const TestSession = () => {
           .single();
 
         if (profile) {
-          await supabase.from("user_progress").upsert({
+          const progressData = {
             user_id: profile.id,
             question_id: currentQuestion.id,
             is_answered: true,
             is_correct: isCorrect,
-            attempts: 1,
+            attempts: Math.min(Math.max(1, 1), 10), // Ensure 1-10 range
             last_attempt_at: new Date().toISOString(),
-          });
+          };
+          
+          await supabase.from("user_progress").upsert(progressData);
         }
       }
     } catch (error) {
@@ -227,12 +229,27 @@ const TestSession = () => {
     const score = Math.round((correctCount / questions.length) * 100);
 
     try {
-      await supabase.from("game_sessions").insert({
-        game_type: mode === "exam" ? "test_exam" : "test_practice",
-        score,
-        total_questions: questions.length,
-        duration_seconds: mode === "exam" ? 30 * 60 - timeLeft : 0,
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+
+        if (profile) {
+          const duration = mode === "exam" ? 30 * 60 - timeLeft : 0;
+          const sessionData = {
+            user_id: profile.id,
+            game_type: mode === "exam" ? "test_exam" : "test_practice",
+            score: Math.min(Math.max(0, score), 100), // Ensure 0-100 range
+            total_questions: Math.min(Math.max(1, questions.length), 100), // Ensure 1-100 range
+            duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
+          };
+          
+          await supabase.from("game_sessions").insert(sessionData);
+        }
+      }
     } catch (error) {
       console.error("Error saving results:", error);
     }
