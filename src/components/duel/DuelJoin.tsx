@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface DuelJoinProps {
-  onDuelJoined: (duelId: string) => void;
+  onDuelJoined: (duelId: string, code: string) => void;
   onCancel: () => void;
 }
 
@@ -38,7 +38,7 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
       } else {
         toast.success('Вы присоединились! Ожидание старта...');
       }
-      onDuelJoined(data.duel.id);
+      onDuelJoined(data.duel.id, data.duel.code);
     } catch (error: any) {
       toast.error(error.message || 'Дуэль не найдена');
     } finally {
@@ -48,37 +48,43 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
 
   return (
     <div className="max-w-md mx-auto animate-fade-in">
-      <Card className="p-6 space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Присоединиться к дуэли</h2>
-          <p className="text-muted-foreground">Введите код, полученный от друга</p>
+      <Card className="p-8 space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mb-4">
+            <LogIn className="h-8 w-8 text-primary" />
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Присоединиться
+          </h2>
+          <p className="text-muted-foreground text-lg">Введите код от друга</p>
         </div>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Код дуэли</Label>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Код дуэли</Label>
             <Input
               placeholder="ABC123"
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               maxLength={6}
-              className="text-center text-2xl tracking-wider font-bold"
+              className="text-center text-3xl tracking-wider font-black h-16 bg-primary/5"
             />
-            <p className="text-xs text-muted-foreground">6 символов</p>
+            <p className="text-sm text-muted-foreground text-center">6 символов</p>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-4">
           <Button 
             onClick={handleJoinDuel} 
             disabled={isJoining || code.length !== 6}
-            className="flex-1"
+            size="lg"
+            className="flex-1 h-14 text-lg"
           >
-            <LogIn className="mr-2 h-4 w-4" />
+            <LogIn className="mr-2 h-5 w-5" />
             Присоединиться
           </Button>
-          <Button variant="outline" onClick={onCancel}>
-            <X className="h-4 w-4" />
+          <Button variant="outline" onClick={onCancel} size="lg" className="h-14">
+            <X className="h-5 w-5" />
           </Button>
         </div>
       </Card>

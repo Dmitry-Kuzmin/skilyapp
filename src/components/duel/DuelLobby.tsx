@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import { Copy, Share2, Users, Clock, X } from 'lucide-react';
+import { Copy, Share2, Users, Clock, X, Swords } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
@@ -107,48 +107,64 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   if (duelCode) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-        <Card className="p-8 text-center space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Ожидание соперника</h2>
-            <p className="text-muted-foreground">Поделитесь кодом с другом</p>
+        <Card className="p-10 text-center space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
+          <div className="space-y-2">
+            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <Users className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Ожидание соперника
+            </h2>
+            <p className="text-muted-foreground text-lg">Поделитесь кодом с другом</p>
           </div>
 
-          <div className="bg-primary/10 p-8 rounded-lg">
-            <div className="text-4xl font-bold tracking-wider mb-2">{duelCode}</div>
-            <div className="text-sm text-muted-foreground">Код дуэли</div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 blur-xl opacity-50 rounded-2xl" />
+            <div className="relative bg-card/50 backdrop-blur-sm p-10 rounded-2xl border-2 border-primary/30">
+              <div className="text-5xl font-black tracking-wider mb-3 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                {duelCode}
+              </div>
+              <div className="text-sm text-muted-foreground font-semibold">КОД ДУЭЛИ</div>
+            </div>
           </div>
 
           <div className="flex gap-3 justify-center">
-            <Button onClick={handleCopyCode} variant="outline">
-              <Copy className="mr-2 h-4 w-4" />
+            <Button onClick={handleCopyCode} variant="outline" size="lg" className="flex-1 max-w-xs">
+              <Copy className="mr-2 h-5 w-5" />
               Копировать
             </Button>
-            <Button onClick={handleShare}>
-              <Share2 className="mr-2 h-4 w-4" />
+            <Button onClick={handleShare} size="lg" className="flex-1 max-w-xs">
+              <Share2 className="mr-2 h-5 w-5" />
               Поделиться
             </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span>{state.opponentJoined ? '2/2' : '1/2'}</span>
+          <div className="flex items-center justify-center gap-8 text-base">
+            <div className="flex items-center gap-3 bg-primary/10 px-6 py-3 rounded-full">
+              <Users className="h-5 w-5 text-primary" />
+              <span className="font-bold">{state.opponentJoined ? '2/2' : '1/2'}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}</span>
+            <div className="flex items-center gap-3 bg-blue-500/10 px-6 py-3 rounded-full">
+              <Clock className="h-5 w-5 text-blue-500" />
+              <span className="font-mono font-bold">
+                {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
+              </span>
             </div>
           </div>
 
           {state.opponentJoined && (
-            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
-              <p className="text-green-500 font-semibold">Соперник присоединился!</p>
-              <p className="text-sm text-muted-foreground">Старт через 5 секунд...</p>
+            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 rounded-xl p-6 animate-fade-in">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-3xl animate-bounce">🎉</span>
+                <p className="text-green-500 dark:text-green-400 font-bold text-xl">Соперник найден!</p>
+                <span className="text-3xl animate-bounce">🎉</span>
+              </div>
+              <p className="text-muted-foreground font-semibold">Старт через 5 секунд...</p>
             </div>
           )}
 
-          <Button variant="ghost" onClick={onCancel} className="w-full">
-            <X className="mr-2 h-4 w-4" />
+          <Button variant="ghost" onClick={onCancel} size="lg" className="w-full">
+            <X className="mr-2 h-5 w-5" />
             Отменить
           </Button>
         </Card>
@@ -158,51 +174,62 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-      <Card className="p-6 space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold mb-2">Создать дуэль</h2>
-          <p className="text-muted-foreground">Настройте параметры игры</p>
+      <Card className="p-8 space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full flex items-center justify-center mb-4">
+            <Swords className="h-8 w-8 text-primary" />
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Создать дуэль
+          </h2>
+          <p className="text-muted-foreground text-lg">Настройте параметры игры</p>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Количество вопросов</Label>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Количество вопросов</Label>
             <Select value={numQuestions.toString()} onValueChange={(v) => setNumQuestions(parseInt(v))}>
-              <SelectTrigger>
+              <SelectTrigger className="h-14 text-base">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="5">5 вопросов (быстрая)</SelectItem>
-                <SelectItem value="10">10 вопросов</SelectItem>
-                <SelectItem value="15">15 вопросов</SelectItem>
-                <SelectItem value="20">20 вопросов</SelectItem>
-                <SelectItem value="30">30 вопросов (марафон)</SelectItem>
+                <SelectItem value="5">⚡ 5 вопросов (быстрая)</SelectItem>
+                <SelectItem value="10">🎯 10 вопросов</SelectItem>
+                <SelectItem value="15">🔥 15 вопросов</SelectItem>
+                <SelectItem value="20">💪 20 вопросов</SelectItem>
+                <SelectItem value="30">🏆 30 вопросов (марафон)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label>Сложность</Label>
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Сложность</Label>
             <Select value={difficulty} onValueChange={setDifficulty}>
-              <SelectTrigger>
+              <SelectTrigger className="h-14 text-base">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="mix">Микс (все уровни)</SelectItem>
-                <SelectItem value="easy">Легкий</SelectItem>
-                <SelectItem value="medium">Средний</SelectItem>
-                <SelectItem value="hard">Сложный</SelectItem>
+                <SelectItem value="mix">🎲 Микс (все уровни)</SelectItem>
+                <SelectItem value="easy">🟢 Легкий</SelectItem>
+                <SelectItem value="medium">🟡 Средний</SelectItem>
+                <SelectItem value="hard">🔴 Сложный</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <Button onClick={handleCreateDuel} disabled={isCreating} className="flex-1">
+        <div className="flex gap-3 pt-4">
+          <Button 
+            onClick={handleCreateDuel} 
+            disabled={isCreating} 
+            size="lg"
+            className="flex-1 h-14 text-lg"
+          >
+            <Swords className="mr-2 h-5 w-5" />
             Создать дуэль
           </Button>
-          <Button variant="outline" onClick={onCancel}>
-            Отмена
+          <Button variant="outline" onClick={onCancel} size="lg" className="h-14">
+            <X className="h-5 w-5" />
           </Button>
         </div>
       </Card>
