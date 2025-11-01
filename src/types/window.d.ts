@@ -67,6 +67,12 @@ declare global {
         isVersionAtLeast: (version: string) => boolean;
         requestFullscreen?: () => void;
         openTelegramLink: (url: string) => void;
+        // Haptic Feedback
+        HapticFeedback?: {
+          impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' | 'selection_changed') => void;
+          notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+          selectionChanged: () => void;
+        };
       };
     };
   }

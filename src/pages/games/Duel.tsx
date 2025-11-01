@@ -9,6 +9,7 @@ import { DuelResult } from '@/components/duel/DuelResult';
 import { AuthModal } from '@/components/AuthModal';
 import { useUserContext } from '@/contexts/UserContext';
 import { Card } from '@/components/ui/card';
+import { isTelegramMiniApp } from '@/lib/telegram';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -18,6 +19,7 @@ export default function Duel() {
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const isTelegramUser = isTelegramMiniApp();
 
   const handleDuelCreated = (id: string, code: string) => {
     setDuelId(id);
@@ -47,7 +49,13 @@ export default function Duel() {
 
   // Check if user needs to login
   const handleActionClick = (action: () => void) => {
-    if (!isAuthenticated) {
+    // For Telegram users, allow if profileId exists (loading in background)
+    if (isTelegramUser && profileId) {
+      action();
+      return;
+    }
+
+    if (!isAuthenticated && !isTelegramUser) {
       setShowAuthModal(true);
       return;
     }
@@ -58,7 +66,7 @@ export default function Duel() {
       setTimeout(() => {
         if (profileId) {
           action();
-        } else {
+        } else if (!isTelegramUser) {
           setShowAuthModal(true);
         }
       }, 500);
@@ -76,7 +84,7 @@ export default function Duel() {
           <p className="text-muted-foreground">Сразись с друзьями в битве за знания ПДД</p>
         </div>
 
-      {!isAuthenticated ? (
+      {!isAuthenticated && !isTelegramUser ? (
         <Card className="max-w-2xl mx-auto p-12 text-center space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
             <LogIn className="w-10 h-10 text-primary" />

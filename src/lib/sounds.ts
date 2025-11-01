@@ -80,6 +80,11 @@ class SoundManager {
     this.playTone(200, 0.3, 'sawtooth');
   }
 
+  // Opponent sounds
+  opponentAnswer() {
+    this.playTone(440, 0.08);
+  }
+
   // Timer sounds
   timeRunningOut() {
     this.playTone(880, 0.1);

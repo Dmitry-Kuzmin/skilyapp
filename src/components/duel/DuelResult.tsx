@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { motion } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
+import { haptics } from '@/lib/haptics';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Progress } from '@/components/ui/progress';
 
 interface DuelResultProps {
   duelId: string;
@@ -26,8 +29,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   useEffect(() => {
     if (results?.isWinner) {
       sounds.victory();
+      haptics.victory();
     } else if (results && !results.isDraw) {
       sounds.defeat();
+      haptics.defeat();
     }
   }, [results]);
 
@@ -135,82 +140,182 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
           <div className="grid grid-cols-2 gap-4">
             <motion.div 
-              className="bg-gradient-to-br from-primary/20 to-primary/5 p-6 rounded-xl border-2 border-primary/30 shadow-lg"
+              className="bg-gradient-to-br from-primary/20 to-primary/5 p-8 rounded-xl border-2 border-primary/30 shadow-lg backdrop-blur-sm"
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <div className="text-5xl font-bold mb-2 text-primary">{results.myScore}</div>
-              <div className="text-sm text-muted-foreground font-semibold">Ваш счёт</div>
-              <div className="flex items-center justify-center gap-2 mt-2">
-                <Target className="w-4 h-4 text-green-500" />
-                <span className="text-xs text-muted-foreground">
-                  {results.myCorrect} правильных
+              <div className="text-6xl font-black mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                {results.myScore}
+              </div>
+              <div className="text-base text-foreground font-bold mb-3">Ваш счёт</div>
+              <div className="flex items-center justify-center gap-2 bg-success/10 rounded-lg px-3 py-2">
+                <Target className="w-5 h-5 text-success" />
+                <span className="text-sm font-semibold text-success">
+                  {results.myCorrect}/10 правильных
                 </span>
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                Точность: {((results.myCorrect / 10) * 100).toFixed(0)}%
               </div>
             </motion.div>
 
             <motion.div 
-              className="bg-gradient-to-br from-muted/50 to-muted/20 p-6 rounded-xl border-2 border-muted shadow-lg"
+              className="bg-gradient-to-br from-muted/60 to-muted/30 p-8 rounded-xl border-2 border-muted/50 shadow-lg backdrop-blur-sm"
               initial={{ x: 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <div className="text-5xl font-bold mb-2">{results.opponentScore}</div>
-              <div className="text-sm text-muted-foreground font-semibold">{results.opponentName}</div>
-              <div className="flex items-center justify-center gap-2 mt-2">
-                <Target className="w-4 h-4 text-orange-500" />
-                <span className="text-xs text-muted-foreground">
-                  {results.opponentCorrect} правильных
+              <div className="text-6xl font-black mb-3 text-foreground/80">{results.opponentScore}</div>
+              <div className="text-base text-foreground/80 font-bold mb-3">{results.opponentName}</div>
+              <div className="flex items-center justify-center gap-2 bg-orange-500/10 rounded-lg px-3 py-2">
+                <Target className="w-5 h-5 text-orange-500" />
+                <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">
+                  {results.opponentCorrect}/10 правильных
                 </span>
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                Точность: {((results.opponentCorrect / 10) * 100).toFixed(0)}%
               </div>
             </motion.div>
           </div>
 
           <motion.div 
-            className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border-2 border-primary/20 rounded-xl p-5"
+            className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-6 shadow-lg backdrop-blur-sm"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Sparkles className="w-5 h-5 text-yellow-500" />
-              <h3 className="font-bold text-lg">Награды получены</h3>
-              <Sparkles className="w-5 h-5 text-yellow-500" />
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Sparkles className="w-6 h-6 text-yellow-500" />
+              <h3 className="font-black text-xl bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
+                Награды получены
+              </h3>
+              <Sparkles className="w-6 h-6 text-yellow-500" />
             </div>
-            <div className="flex items-center justify-center gap-6 text-base">
-              <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-blue-500" />
-                <span className="font-semibold">XP: +{Math.round(results.myScore / 20) + (results.isWinner ? 25 : 10)}</span>
+            <div className="grid grid-cols-2 gap-4 text-lg">
+              <div className="flex items-center justify-center gap-2 bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
+                <Zap className="w-6 h-6 text-blue-500" />
+                <span className="font-bold text-blue-600 dark:text-blue-400">
+                  +{Math.round(results.myScore / 20) + (results.isWinner ? 25 : 10)} XP
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-500 text-xl">💰</span>
-                <span className="font-semibold">+{Math.floor(results.myScore / 500)}</span>
+              <div className="flex items-center justify-center gap-2 bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20">
+                <span className="text-2xl">💰</span>
+                <span className="font-bold text-yellow-600 dark:text-yellow-400">
+                  +{Math.floor(results.myScore / 500)}
+                </span>
               </div>
             </div>
+          </motion.div>
+
+          {/* Achievement Progress */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <Award className="w-6 h-6 text-purple-500" />
+                <div className="flex-1">
+                  <div className="font-bold text-base">Прогресс до Мастера</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Ещё {10 - (results.myCorrect || 0)} побед до нового ранга
+                  </div>
+                </div>
+                <TrendingUp className="w-5 h-5 text-purple-500" />
+              </div>
+              <Progress value={(results.myCorrect || 0) * 10} className="h-3 bg-purple-500/20" />
+            </Card>
+          </motion.div>
+
+          {/* Detailed Statistics */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Accordion type="single" collapsible className="bg-card/50 backdrop-blur-sm rounded-xl border-2">
+              <AccordionItem value="stats" className="border-none">
+                <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                  <div className="flex items-center gap-2 font-bold text-base">
+                    <span>📊</span>
+                    <span>Подробная статистика</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-muted-foreground">Правильных ответов:</span>
+                      <span className="font-bold text-lg text-success">{results.myCorrect}/10</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-muted-foreground">Точность:</span>
+                      <span className="font-bold text-lg text-primary">
+                        {((results.myCorrect / 10) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-muted-foreground">Набрано очков:</span>
+                      <span className="font-bold text-lg">{results.myScore}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-muted-foreground">Разница:</span>
+                      <span className={`font-bold text-lg ${results.myScore > results.opponentScore ? 'text-success' : 'text-destructive'}`}>
+                        {results.myScore > results.opponentScore ? '+' : ''}{results.myScore - results.opponentScore}
+                      </span>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </motion.div>
 
           <motion.div 
             className="flex gap-3"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.9 }}
           >
-            <Button onClick={onRematch} className="flex-1 h-12" size="lg">
-              <RotateCcw className="mr-2 h-5 w-5" />
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                onRematch();
+              }} 
+              className="flex-1 h-14 text-lg font-bold" 
+              size="lg"
+            >
+              <RotateCcw className="mr-2 h-6 w-6" />
               Реванш
             </Button>
-            <Button onClick={handleShare} variant="outline" size="lg" className="h-12">
-              <Share2 className="h-5 w-5" />
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                handleShare();
+              }} 
+              variant="outline" 
+              size="lg" 
+              className="h-14 px-6"
+            >
+              <Share2 className="h-6 w-6" />
             </Button>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 1.0 }}
           >
-            <Button onClick={onBackToMenu} variant="ghost" className="w-full h-12" size="lg">
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                onBackToMenu();
+              }} 
+              variant="ghost" 
+              className="w-full h-12 text-base" 
+              size="lg"
+            >
               <Home className="mr-2 h-5 w-5" />
               В меню
             </Button>

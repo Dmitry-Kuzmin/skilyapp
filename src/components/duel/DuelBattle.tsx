@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,6 +6,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { BoostButton } from './BoostButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { sounds } from '@/lib/sounds';
+import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
@@ -34,6 +35,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [showHint, setShowHint] = useState(false);
   const [skipCount, setSkipCount] = useState(0);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+  const prevOpponentScore = useRef(opponentScore);
 
   useEffect(() => {
     loadQuestions();
@@ -58,6 +60,27 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       onDuelFinished();
     }
   }, [state.duelFinished]);
+
+  // Realtime opponent notifications
+  useEffect(() => {
+    if (state.opponentAnswered) {
+      toast.info('💨 Соперник ответил!', { duration: 1000 });
+    }
+  }, [state.opponentAnswered]);
+
+  // Track opponent score changes
+  useEffect(() => {
+    if (opponentScore > prevOpponentScore.current && prevOpponentScore.current > 0) {
+      const diff = opponentScore - prevOpponentScore.current;
+      if (diff > 100) {
+        toast.warning('🔥 Соперник набрал комбо!', { duration: 1500 });
+        haptics.warning();
+      } else if (opponentScore > myScore) {
+        toast.info('⚡ Соперник вырвался вперёд!', { duration: 1500 });
+      }
+    }
+    prevOpponentScore.current = opponentScore;
+  }, [opponentScore, myScore]);
 
   useEffect(() => {
     if (answered) return;
@@ -157,19 +180,23 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       // Apply boost effects with sound and animation
       if (type === 'fifty_fifty' && data.hidden_options) {
         sounds.boostFiftyFifty();
+        haptics.boostActivated();
         setHiddenOptions(data.hidden_options);
         toast.success('⚡ 50/50: Два варианта убраны!');
       } else if (type === 'time_extend') {
         sounds.boostTimeExtend();
+        haptics.boostActivated();
         setTimeLeft(prev => Math.min(prev + 30000, 60000));
         toast.success('⏱️ +30 секунд добавлено!');
       } else if (type === 'hint' && data.hint) {
         sounds.boostHint();
+        haptics.boostActivated();
         setHintText(data.hint);
         setShowHint(true);
         toast.success('💡 Подсказка открыта!');
       } else if (type === 'skip') {
         sounds.boostSkip();
+        haptics.boostActivated();
         toast.success('⏭️ Вопрос пропущен!');
         setTimeout(() => {
           if (currentIndex < questions.length - 1) {
@@ -217,14 +244,19 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         
         if (correctAnswer) {
           sounds.correctAnswer();
+          haptics.correctAnswer();
           if (data.combo > 1) {
             sounds.combo(data.combo);
+            haptics.combo();
             toast.success(`🔥 Комбо x${data.combo}! +${data.points_awarded} очков`);
+          } else if (data.points_awarded > 150) {
+            toast.success(`⭐ Идеальный ответ! +${data.points_awarded} очков`);
           } else {
             toast.success(`✅ Правильно! +${data.points_awarded} очков`);
           }
         } else {
           sounds.wrongAnswer();
+          haptics.wrongAnswer();
           toast.error('❌ Неправильно');
         }
       }
@@ -348,10 +380,23 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           
           <div className="text-2xl font-bold text-muted-foreground">⚔️ VS</div>
           
-          <div className="flex items-center gap-2 flex-1 justify-end">
+          <motion.div 
+            className="flex items-center gap-2 flex-1 justify-end relative"
+            animate={state.opponentAnswered ? { scale: [1, 1.1, 1] } : {}}
+          >
             <div className="text-3xl font-bold">{opponentScore}</div>
             <div className="text-sm text-muted-foreground">:Оппонент</div>
-          </div>
+            {state.opponentAnswered && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="absolute -top-8 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-lg"
+              >
+                💨 Ответил!
+              </motion.div>
+            )}
+          </motion.div>
         </div>
 
         {combo > 1 && (
