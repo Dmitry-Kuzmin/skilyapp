@@ -19,42 +19,113 @@ interface DuelLobbyProps {
 }
 
 export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCancel }: DuelLobbyProps) {
-  const { profileId } = useUserContext();
+  const { profileId, platform } = useUserContext();
   const [isCreating, setIsCreating] = useState(false);
   const [numQuestions, setNumQuestions] = useState(10);
   const [difficulty, setDifficulty] = useState('mix');
   const [waitTime, setWaitTime] = useState(0);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
   const { state } = useDuelRealtime(duelId);
 
+  // Check duel status immediately on mount
   useEffect(() => {
     if (!duelId) return;
+
+    console.log('[DuelLobby] Checking initial duel status for:', duelId);
+    const checkStatus = async () => {
+      const { data, error } = await supabase
+        .from('duels')
+        .select('status')
+        .eq('id', duelId)
+        .single();
+
+      if (error) {
+        console.error('[DuelLobby] Error checking duel status:', error);
+        return;
+      }
+
+      console.log('[DuelLobby] Initial duel status:', data?.status);
+      if (data?.status === 'active') {
+        console.log('[DuelLobby] Duel already active! Starting battle...');
+        startCountdown();
+      }
+      setConnectionStatus('connected');
+    };
+
+    checkStatus();
+  }, [duelId]);
+
+  // Handle timer
+  useEffect(() => {
+    if (!duelCode) return;
 
     const timer = setInterval(() => {
       setWaitTime(prev => prev + 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [duelId]);
+  }, [duelCode]);
 
-  // Listen for duel start from real-time updates
-  useEffect(() => {
-    if (state.duelStarted) {
-      console.log('[DuelLobby] Duel started! Transitioning to battle...');
-      // Give a brief moment for UI feedback, then start
-      setTimeout(() => {
-        onDuelStarted();
-      }, 1000);
-    }
-  }, [state.duelStarted, onDuelStarted]);
+  // Countdown animation
+  const startCountdown = () => {
+    console.log('[DuelLobby] Starting countdown...');
+    setCountdown(3);
+  };
 
   useEffect(() => {
-    if (state.opponentJoined && duelCode) {
-      console.log('[DuelLobby] Opponent joined! Duel will start automatically...');
-      toast.success('Противник присоединился! Приготовьтесь...', {
-        duration: 3000,
-      });
+    if (countdown === null) return;
+    
+    if (countdown === 0) {
+      console.log('[DuelLobby] Countdown finished, starting battle!');
+      onDuelStarted();
+      return;
     }
-  }, [state.opponentJoined, duelCode]);
+
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, onDuelStarted]);
+
+  // Handle opponent joined
+  useEffect(() => {
+    if (state.opponentJoined) {
+      console.log('[DuelLobby] Opponent joined!');
+      toast.success('Противник найден! Дуэль начинается через 3 секунды...');
+    }
+  }, [state.opponentJoined]);
+
+  // Handle duel started from realtime
+  useEffect(() => {
+    if (state.duelStarted && countdown === null) {
+      console.log('[DuelLobby] Duel started signal received, starting countdown!');
+      startCountdown();
+    }
+  }, [state.duelStarted, countdown]);
+
+  // Fallback polling if realtime fails
+  useEffect(() => {
+    if (!state.opponentJoined || state.duelStarted || !duelId) return;
+
+    console.log('[DuelLobby] Starting fallback polling...');
+    const pollInterval = setInterval(async () => {
+      const { data } = await supabase
+        .from('duels')
+        .select('status')
+        .eq('id', duelId)
+        .single();
+
+      console.log('[DuelLobby] Polling duel status:', data?.status);
+      if (data?.status === 'active') {
+        console.log('[DuelLobby] Fallback: Duel is active!');
+        startCountdown();
+      }
+    }, 500);
+
+    return () => clearInterval(pollInterval);
+  }, [state.opponentJoined, state.duelStarted, duelId]);
 
   const handleCreateDuel = async () => {
     if (!profileId) return;
@@ -115,10 +186,46 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     }
   };
 
+  // Countdown overlay
+  if (countdown !== null) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+        <div className="text-center space-y-8">
+          {countdown > 0 ? (
+            <>
+              <div 
+                key={countdown}
+                className="text-9xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse"
+              >
+                {countdown}
+              </div>
+              <div className="text-2xl text-muted-foreground">Приготовьтесь...</div>
+            </>
+          ) : (
+            <div className="space-y-4 animate-fade-in">
+              <div className="text-8xl animate-bounce">⚔️</div>
+              <div className="text-6xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                START!
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (duelCode) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
         <Card className="p-10 text-center space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
+          {/* Connection status indicator */}
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
+            <span className="text-muted-foreground">
+              {connectionStatus === 'connected' ? 'Подключено к серверу' : 'Подключение...'}
+            </span>
+          </div>
+
           <div className="space-y-2">
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Users className="h-8 w-8 text-primary" />
@@ -144,10 +251,12 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
               <Copy className="mr-2 h-5 w-5" />
               Копировать
             </Button>
-            <Button onClick={handleShare} size="lg" className="flex-1 max-w-xs">
-              <Share2 className="mr-2 h-5 w-5" />
-              Поделиться
-            </Button>
+            {platform === 'telegram' && (
+              <Button onClick={handleShare} size="lg" className="flex-1 max-w-xs">
+                <Share2 className="mr-2 h-5 w-5" />
+                Поделиться
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center justify-center gap-8 text-base">
@@ -170,7 +279,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                 <p className="text-green-500 dark:text-green-400 font-bold text-xl">Соперник найден!</p>
                 <span className="text-3xl animate-bounce">🎉</span>
               </div>
-              <p className="text-muted-foreground font-semibold">Старт через 5 секунд...</p>
+              <p className="text-muted-foreground font-semibold">Приготовьтесь к битве!</p>
             </div>
           )}
 

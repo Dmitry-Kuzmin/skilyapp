@@ -26,29 +26,65 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [profileId, setProfileId] = useState<string | null>(null);
 
-  // Load profile ID when user changes
+  // Load profile ID when user changes with optimistic loading and retry
   useEffect(() => {
     const loadProfileId = async () => {
       if (supabaseUser) {
         // For web users - get profile by user_id
+        console.log('[UserContext] Loading profile for Supabase user:', supabaseUser.id);
+        
+        // Check cache first
+        const cachedId = localStorage.getItem(`profile_${supabaseUser.id}`);
+        if (cachedId) {
+          console.log('[UserContext] Using cached profileId:', cachedId);
+          setProfileId(cachedId);
+        }
+        
         const { data } = await supabase
           .from('profiles')
           .select('id')
           .eq('user_id', supabaseUser.id)
           .maybeSingle();
         
-        setProfileId(data?.id || null);
-        console.log('[UserContext] Loaded profile ID for web user:', data?.id);
+        if (data?.id) {
+          setProfileId(data.id);
+          localStorage.setItem(`profile_${supabaseUser.id}`, data.id);
+          console.log('[UserContext] Loaded profile ID for web user:', data.id);
+        }
       } else if (user) {
-        // For Telegram users - get profile by telegram_id
-        const { data } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('telegram_id', user.id)
-          .maybeSingle();
+        // For Telegram users - get profile by telegram_id with retry
+        console.log('[UserContext] Loading profile for Telegram user:', user.id);
         
-        setProfileId(data?.id || null);
-        console.log('[UserContext] Loaded profile ID for Telegram user:', data?.id);
+        // Check cache first for instant load
+        const cachedId = localStorage.getItem(`profile_${user.id}`);
+        if (cachedId) {
+          console.log('[UserContext] Using cached profileId:', cachedId);
+          setProfileId(cachedId);
+        }
+        
+        const queryProfile = async (attempt: number = 1): Promise<void> => {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('telegram_id', user.id)
+            .maybeSingle();
+
+          if (error) {
+            console.error('[UserContext] Error loading profile:', error);
+          } else if (data?.id) {
+            console.log('[UserContext] Loaded profile ID for Telegram user:', data.id);
+            setProfileId(data.id);
+            localStorage.setItem(`profile_${user.id}`, data.id);
+          } else if (attempt < 5) {
+            // Retry if profile not found yet (might be creating)
+            console.log(`[UserContext] Profile not found, retry ${attempt}/5 in 500ms...`);
+            setTimeout(() => queryProfile(attempt + 1), 500);
+          } else {
+            console.log('[UserContext] No profile found after 5 retries');
+          }
+        };
+
+        queryProfile();
       } else {
         setProfileId(null);
       }
@@ -81,7 +117,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Initialize Telegram user
+  // Initialize Telegram user with enhanced fallbacks
   useEffect(() => {
     const initializeAuth = async () => {
       console.log('[UserContext] Initializing...');
@@ -98,6 +134,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (!telegramUser) {
           await new Promise(resolve => setTimeout(resolve, 500));
           telegramUser = getTelegramUser();
+        }
+        
+        // Additional retry with longer delay
+        if (!telegramUser) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+          telegramUser = getTelegramUser();
+        }
+      }
+      
+      // Fallback to window.puzzleUser or localStorage
+      if (!telegramUser) {
+        console.log('[UserContext] Checking fallback sources...');
+        if (window.puzzleUser) {
+          console.log('[UserContext] Using window.puzzleUser');
+          telegramUser = window.puzzleUser;
+        } else {
+          const storedUserStr = localStorage.getItem('puzzle_user');
+          if (storedUserStr) {
+            try {
+              console.log('[UserContext] Using stored user from localStorage');
+              telegramUser = JSON.parse(storedUserStr);
+            } catch (err) {
+              console.error('[UserContext] Failed to parse stored user:', err);
+            }
+          }
         }
       }
       
@@ -128,43 +189,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
           PLATFORM: detectedPlatform
         };
         
-        // Load profile ID optimistically - don't wait for backend
-        const loadProfileId = async () => {
-          const { data } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('telegram_id', telegramUser.id)
-            .maybeSingle();
-          
-          if (data?.id) {
-            setProfileId(data.id);
-            console.log('[UserContext] Profile ID loaded:', data.id);
-          }
-        };
-        
-        loadProfileId();
+        // Persist to localStorage
+        localStorage.setItem('puzzle_user', JSON.stringify(telegramUser));
         
         // Save to backend asynchronously (don't block UI)
         login(telegramUser).catch(err => {
           console.error('[UserContext] Auto-login failed:', err);
         });
       } else {
-        // Check for stored token and user
+        // Check for stored token
         const token = localStorage.getItem('telegram_token');
-        const storedUserStr = localStorage.getItem('puzzle_user');
         
-        if (token && storedUserStr) {
-          try {
-            const storedUser = JSON.parse(storedUserStr);
-            console.log('[UserContext] Restoring user from localStorage');
-            setUser(storedUser);
-            window.puzzleUser = storedUser;
-          } catch (err) {
-            console.error('[UserContext] Failed to restore user:', err);
-            localStorage.removeItem('telegram_token');
-            localStorage.removeItem('puzzle_user');
-          }
-        } else {
+        if (!token) {
           console.log('[UserContext] No stored session - user needs to login');
         }
       }

@@ -47,10 +47,24 @@ export default function Duel() {
 
   // Check if user needs to login
   const handleActionClick = (action: () => void) => {
-    if (!isAuthenticated || !profileId) {
+    if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
+    
+    // Check profileId with retry for Telegram users
+    if (!profileId) {
+      console.log('[Duel] ProfileId not loaded yet, retrying...');
+      setTimeout(() => {
+        if (profileId) {
+          action();
+        } else {
+          setShowAuthModal(true);
+        }
+      }, 500);
+      return;
+    }
+    
     action();
   };
 
@@ -62,7 +76,7 @@ export default function Duel() {
           <p className="text-muted-foreground">Сразись с друзьями в битве за знания ПДД</p>
         </div>
 
-      {!isAuthenticated || !profileId ? (
+      {!isAuthenticated ? (
         <Card className="max-w-2xl mx-auto p-12 text-center space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
             <LogIn className="w-10 h-10 text-primary" />
