@@ -1,9 +1,29 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schemas
+const createDuelSchema = z.object({
+  num_questions: z.number().int().min(5).max(30),
+  categories: z.array(z.string().uuid()).max(10).optional(),
+  difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional()
+});
+
+const joinDuelSchema = z.object({
+  code: z.string().regex(/^[A-Z0-9]{6}$/, 'Invalid code format')
+});
+
+const submitAnswerSchema = z.object({
+  duel_id: z.string().uuid(),
+  duel_question_id: z.string().uuid(),
+  selected_option_id: z.string().uuid(),
+  time_taken_ms: z.number().int().min(0).max(60000),
+  latency_ms: z.number().int().min(0).max(5000).optional()
+});
 
 // Seeded random number generator (Mulberry32)
 function mulberry32(seed: number) {
@@ -111,7 +131,8 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'create_duel': {
-        const { num_questions, categories, difficulty } = params;
+        const validated = createDuelSchema.parse(params);
+        const { num_questions, categories, difficulty } = validated;
         
         // Generate unique code
         let code = generateDuelCode();
@@ -158,7 +179,8 @@ Deno.serve(async (req) => {
       }
 
       case 'join_duel': {
-        const { code } = params;
+        const validated = joinDuelSchema.parse(params);
+        const { code } = validated;
 
         const { data: duel, error: duelError } = await supabase
           .from('duels')
@@ -293,7 +315,8 @@ Deno.serve(async (req) => {
       }
 
       case 'submit_answer': {
-        const { duel_id, duel_question_id, selected_option_id, time_taken_ms, latency_ms } = params;
+        const validated = submitAnswerSchema.parse(params);
+        const { duel_id, duel_question_id, selected_option_id, time_taken_ms, latency_ms } = validated;
 
         // Get player
         const { data: player } = await supabase
@@ -415,14 +438,18 @@ Deno.serve(async (req) => {
           const totalXP = baseXP + victoryBonus + cleanSweep;
           const coins = Math.floor(player.score / 500);
 
-          // Update profile
-          await supabase
-            .from('profiles')
-            .update({
-              xp: supabase.rpc('increment', { x: totalXP }),
-              coins: supabase.rpc('increment', { x: coins }),
-            })
-            .eq('id', player.user_id);
+          // Update profile using RPC functions
+          await supabase.rpc('increment_profile_value', {
+            p_profile_id: player.user_id,
+            p_column: 'xp',
+            p_amount: totalXP
+          });
+
+          await supabase.rpc('increment_profile_value', {
+            p_profile_id: player.user_id,
+            p_column: 'coins',
+            p_amount: coins
+          });
 
           // Update stats
           await supabase.rpc('upsert_duel_stats', {

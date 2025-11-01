@@ -1118,6 +1118,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_profile_value: {
+        Args: { p_amount: number; p_column: string; p_profile_id: string }
+        Returns: undefined
+      }
       link_telegram_to_user: {
         Args: {
           _first_name: string
@@ -1126,6 +1130,15 @@ export type Database = {
           _telegram_id: number
           _user_id: string
           _username?: string
+        }
+        Returns: undefined
+      }
+      upsert_duel_stats: {
+        Args: {
+          p_is_draw: boolean
+          p_is_win: boolean
+          p_score: number
+          p_user_id: string
         }
         Returns: undefined
       }
