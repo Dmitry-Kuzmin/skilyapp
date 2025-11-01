@@ -12,11 +12,12 @@ const Games = () => {
     {
       id: 1,
       title: "Дуэль с другом",
-      description: "Соревнуйся с другом или ботом на знание терминов",
+      description: "Соревнуйся с другом или ботом на знание ПДД",
       icon: Swords,
       color: "primary",
-      premium: true,
+      premium: false,
       difficulty: "Средняя",
+      route: "/games/duel",
     },
     {
       id: 2,
