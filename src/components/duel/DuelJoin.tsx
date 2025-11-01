@@ -33,7 +33,11 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
 
       if (error) throw error;
 
-      toast.success('Вы присоединились к дуэли!');
+      if (data.auto_started) {
+        toast.success('Дуэль начинается! 🎮');
+      } else {
+        toast.success('Вы присоединились! Ожидание старта...');
+      }
       onDuelJoined(data.duel.id);
     } catch (error: any) {
       toast.error(error.message || 'Дуэль не найдена');

@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
-import { Clock, Zap, Award, Lightbulb } from 'lucide-react';
 import { BoostButton } from './BoostButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { sounds } from '@/lib/sounds';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 
 interface DuelBattleProps {
   duelId: string;
@@ -20,18 +20,20 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const { state } = useDuelRealtime(duelId);
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60000);
+  const [timeLeft, setTimeLeft] = useState(60000); // 60 seconds
   const [myScore, setMyScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [boosts, setBoosts] = useState({ fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 });
   const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
   const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
-  const [hintText, setHintText] = useState<string>('');
+  const [hintText, setHintText] = useState('');
   const [showHint, setShowHint] = useState(false);
+  const [skipCount, setSkipCount] = useState(0);
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -40,11 +42,15 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   }, [duelId]);
 
   useEffect(() => {
-    // Reset boosts state for new question
+    if (!questions.length) return;
+    
+    setAnswered(false);
+    setSelectedOption(null);
+    setIsCorrect(null);
+    setTimeLeft(60000);
     setHiddenOptions([]);
     setUsedBoosts([]);
-    setHintText('');
-    setShowHint(false);
+    setShowCorrectAnswer(false);
   }, [currentIndex]);
 
   useEffect(() => {
@@ -62,6 +68,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           handleTimeout();
           return 0;
         }
+        // Play warning sound at 10 seconds
+        if (prev <= 10000 && prev > 9900) {
+          sounds.timeRunningOut();
+        }
         return prev - 100;
       });
     }, 100);
@@ -77,17 +87,14 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         .eq('duel_id', duelId)
         .order('position');
 
-      if (error) {
-        console.error('Error loading questions:', error);
-        toast.error('Не удалось загрузить вопросы');
-        return;
-      }
+      if (error) throw error;
 
       if (data && data.length > 0) {
         setQuestions(data);
       }
     } catch (error) {
-      console.error('Error in loadQuestions:', error);
+      console.error('Error loading questions:', error);
+      toast.error('Не удалось загрузить вопросы');
     }
   };
 
@@ -132,50 +139,49 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   };
 
-  const handleUseBoost = async (boostType: string) => {
-    if (usedBoosts.includes(boostType) || answered) {
-      toast.error('Буст уже использован');
-      return;
-    }
+  const handleUseBoost = async (type: string) => {
+    if (usedBoosts.includes(type) || answered) return;
 
     try {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'use_boost',
           duel_id: duelId,
-          duel_question_id: questions[currentIndex].id,
-          boost_type: boostType,
+          duel_question_id: currentQuestion.id,
+          boost_type: type,
         },
       });
 
       if (error) throw error;
 
-      setUsedBoosts(prev => [...prev, boostType]);
-      setBoosts(prev => ({ ...prev, [boostType]: Math.max(0, prev[boostType as keyof typeof prev] - 1) }));
-
-      if (boostType === 'fifty_fifty' && data.hide_options) {
-        setHiddenOptions(data.hide_options);
-        toast.success('Убраны 2 неправильных ответа');
-      } else if (boostType === 'time_extend') {
-        setTimeLeft(prev => Math.min(60000, prev + 30000));
-        toast.success('+30 секунд!');
-      } else if (boostType === 'hint' && data.hint) {
+      // Apply boost effects with sound and animation
+      if (type === 'fifty_fifty' && data.hidden_options) {
+        sounds.boostFiftyFifty();
+        setHiddenOptions(data.hidden_options);
+        toast.success('⚡ 50/50: Два варианта убраны!');
+      } else if (type === 'time_extend') {
+        sounds.boostTimeExtend();
+        setTimeLeft(prev => Math.min(prev + 30000, 60000));
+        toast.success('⏱️ +30 секунд добавлено!');
+      } else if (type === 'hint' && data.hint) {
+        sounds.boostHint();
         setHintText(data.hint);
         setShowHint(true);
-        toast.success('Подсказка показана');
-      } else if (boostType === 'skip') {
-        toast.success('Вопрос пропущен');
+        toast.success('💡 Подсказка открыта!');
+      } else if (type === 'skip') {
+        sounds.boostSkip();
+        toast.success('⏭️ Вопрос пропущен!');
         setTimeout(() => {
           if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-            setTimeLeft(60000);
-            setAnswered(false);
-            setSelectedOption(null);
+            setCurrentIndex(currentIndex + 1);
           } else {
             finishDuel();
           }
         }, 1000);
       }
+
+      setUsedBoosts(prev => [...prev, type]);
+      setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof prev] - 1) }));
     } catch (error: any) {
       toast.error(error.message || 'Ошибка использования буста');
     }
@@ -187,6 +193,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     setAnswered(true);
     setSelectedOption(optionId);
 
+    const correctAnswer = currentQuestion.correct_option_ids.includes(optionId);
+    setIsCorrect(correctAnswer);
+
     const timeTaken = 60000 - timeLeft;
 
     try {
@@ -194,33 +203,41 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         body: {
           action: 'submit_answer',
           duel_id: duelId,
-          duel_question_id: questions[currentIndex].id,
+          duel_question_id: currentQuestion.id,
           selected_option_id: optionId,
           time_taken_ms: timeTaken,
-          latency_ms: 0,
         },
       });
 
       if (error) throw error;
 
-      setIsCorrect(data.is_correct);
-      setMyScore(prev => prev + data.points);
-      setCombo(data.combo);
-
-      toast.success(data.is_correct ? `+${data.points} очков! 🔥` : 'Неверно');
+      if (data) {
+        setMyScore(data.new_score);
+        setCombo(data.combo);
+        
+        if (correctAnswer) {
+          sounds.correctAnswer();
+          if (data.combo > 1) {
+            sounds.combo(data.combo);
+            toast.success(`🔥 Комбо x${data.combo}! +${data.points_awarded} очков`);
+          } else {
+            toast.success(`✅ Правильно! +${data.points_awarded} очков`);
+          }
+        } else {
+          sounds.wrongAnswer();
+          toast.error('❌ Неправильно');
+        }
+      }
 
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
-          setCurrentIndex(prev => prev + 1);
-          setTimeLeft(60000);
-          setAnswered(false);
-          setSelectedOption(null);
+          setCurrentIndex(currentIndex + 1);
         } else {
           finishDuel();
         }
-      }, 2000);
+      }, 2500);
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Ошибка отправки ответа');
     }
   };
 
@@ -228,38 +245,49 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     if (answered) return;
     
     setAnswered(true);
-    const timeTaken = 60000 - timeLeft;
+    setShowCorrectAnswer(true);
+    
+    const newSkipCount = skipCount + 1;
+    setSkipCount(newSkipCount);
+
+    let penaltyPoints = 0;
+    if (newSkipCount % 2 === 0) {
+      penaltyPoints = -50;
+      toast.warning('Штраф за пропуски: -50 очков');
+    }
+    if (newSkipCount >= 4) {
+      penaltyPoints -= 100;
+      toast.error('Слишком много пропусков! -100 очков');
+    }
 
     try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
+      const { data } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
           duel_id: duelId,
-          duel_question_id: questions[currentIndex].id,
+          duel_question_id: currentQuestion.id,
           selected_option_id: null,
-          time_taken_ms: timeTaken,
+          time_taken_ms: 60000,
           is_timeout: true,
         },
       });
 
-      if (error) throw error;
+      if (data && penaltyPoints < 0) {
+        setMyScore(prev => Math.max(0, prev + penaltyPoints));
+      }
 
-      setIsCorrect(false);
-      toast.error('Время вышло!');
-
-      setTimeout(() => {
-        if (currentIndex < questions.length - 1) {
-          setCurrentIndex(prev => prev + 1);
-          setTimeLeft(60000);
-          setAnswered(false);
-          setSelectedOption(null);
-        } else {
-          finishDuel();
-        }
-      }, 2000);
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.info(`⏭️ Вопрос пропущен (${newSkipCount}/3)`);
+    } catch (error) {
+      console.error('Error submitting timeout:', error);
     }
+
+    setTimeout(() => {
+      if (currentIndex < questions.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        finishDuel();
+      }
+    }, 3000);
   };
 
   const finishDuel = async () => {
@@ -271,7 +299,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         },
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error finishing duel:', error);
     }
   };
 
@@ -293,148 +321,224 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   }
 
   const snapshot = currentQuestion.question_snapshot as any;
-  const progress = ((currentIndex + 1) / questions.length) * 100;
-  const timeProgress = (timeLeft / 60000) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="text-center">
-            <div className="text-2xl font-bold">{myScore}</div>
-            <div className="text-xs text-muted-foreground">Вы</div>
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+      {/* Enhanced Header */}
+      <div className="bg-card rounded-lg p-4 border shadow-lg">
+        <div className="flex justify-between items-center mb-3">
+          <div className="text-sm text-muted-foreground">
+            Вопрос {currentIndex + 1} / {questions.length}
           </div>
-        </div>
-
-        <div className="text-center">
-          <div className="text-lg font-semibold">Вопрос {currentIndex + 1}/{questions.length}</div>
-          <Progress value={progress} className="w-32 h-2" />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="text-center">
-            <div className="text-2xl font-bold">{opponentScore}</div>
-            <div className="text-xs text-muted-foreground">Соперник</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Timer */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span className="text-sm">{(timeLeft / 1000).toFixed(1)}s</span>
-          </div>
-          {combo > 0 && (
-            <div className="flex items-center gap-2 text-orange-500">
-              <Zap className="h-4 w-4" />
-              <span className="text-sm font-bold">x{combo} комбо!</span>
+          {skipCount > 0 && (
+            <div className={`text-sm font-medium ${skipCount >= 3 ? 'text-red-500' : 'text-yellow-600'}`}>
+              ⏭️ Пропусков: {skipCount}/3
             </div>
           )}
         </div>
-        <Progress value={timeProgress} className="h-2" />
-      </Card>
-
-      {/* Boosts Panel */}
-      {!answered && (
-        <Card className="p-4">
-          <div className="flex items-center justify-center gap-3">
-            <BoostButton
-              type="fifty_fifty"
-              icon="⚡"
-              name="50/50 - Убрать 2 ответа"
-              available={boosts.fifty_fifty}
-              onUse={handleUseBoost}
-              disabled={usedBoosts.includes('fifty_fifty')}
-            />
-            <BoostButton
-              type="time_extend"
-              icon="⏱️"
-              name="+30 секунд"
-              available={boosts.time_extend}
-              onUse={handleUseBoost}
-              disabled={usedBoosts.includes('time_extend')}
-            />
-            <BoostButton
-              type="hint"
-              icon="💡"
-              name="Подсказка"
-              available={boosts.hint}
-              onUse={handleUseBoost}
-              disabled={usedBoosts.includes('hint')}
-            />
-            <BoostButton
-              type="skip"
-              icon="⏭️"
-              name="Пропустить"
-              available={boosts.skip}
-              onUse={handleUseBoost}
-              disabled={usedBoosts.includes('skip')}
-            />
+        
+        <div className="flex justify-between items-center gap-6">
+          <motion.div 
+            className="flex items-center gap-2 flex-1"
+            animate={isCorrect === true ? { scale: [1, 1.1, 1] } : {}}
+          >
+            <div className="text-sm text-muted-foreground">Вы:</div>
+            <div className="text-3xl font-bold text-primary">{myScore}</div>
+          </motion.div>
+          
+          <div className="text-2xl font-bold text-muted-foreground">⚔️ VS</div>
+          
+          <div className="flex items-center gap-2 flex-1 justify-end">
+            <div className="text-3xl font-bold">{opponentScore}</div>
+            <div className="text-sm text-muted-foreground">:Оппонент</div>
           </div>
-        </Card>
-      )}
-
-      {/* Question */}
-      <Card className="p-6 space-y-4">
-        {snapshot.image_url && (
-          <img 
-            src={snapshot.image_url} 
-            alt="Question" 
-            className="w-full h-48 object-contain rounded-lg"
-          />
-        )}
-
-        <h3 className="text-xl font-semibold">{snapshot.question_es}</h3>
-
-        <div className="grid gap-3">
-          {snapshot.options && Array.isArray(snapshot.options) && snapshot.options.map((option: any) => {
-            if (!option || !option.id) return null;
-            
-            const isHidden = hiddenOptions.includes(option.id);
-            if (isHidden) return null;
-            
-            const isSelected = selectedOption === option.id;
-            const showCorrect = answered && option.is_correct;
-            const showWrong = answered && isSelected && !option.is_correct;
-
-            return (
-              <Button
-                key={option.id}
-                onClick={() => handleAnswer(option.id)}
-                disabled={answered}
-                variant={showCorrect ? 'default' : showWrong ? 'destructive' : 'outline'}
-                className={`h-auto py-4 px-6 text-left justify-start whitespace-normal ${
-                  showCorrect ? 'bg-green-500 hover:bg-green-600' : ''
-                }`}
-              >
-                {option.text_es}
-              </Button>
-            );
-          })}
         </div>
 
-        {answered && (
-          <div className={`p-4 rounded-lg ${isCorrect ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
-            <p className={`font-semibold ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>
-              {isCorrect ? '✓ Правильно!' : '✗ Неверно'}
-            </p>
-          </div>
+        {combo > 1 && (
+          <motion.div 
+            className="mt-3 text-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring" }}
+          >
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-bold shadow-lg">
+              🔥 КОМБО x{combo}
+            </div>
+          </motion.div>
         )}
-      </Card>
+      </div>
+
+      {/* Enhanced Timer */}
+      <motion.div 
+        className="text-center"
+        animate={timeLeft < 10000 ? { scale: [1, 1.05, 1] } : {}}
+        transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
+      >
+        <div className={`text-5xl font-bold mb-3 ${timeLeft < 10000 ? 'text-red-500 animate-pulse' : 'text-primary'}`}>
+          ⏱️ {(timeLeft / 1000).toFixed(1)}s
+        </div>
+        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+          <motion.div
+            className={`h-3 rounded-full transition-all duration-100 ${
+              timeLeft < 10000 ? 'bg-gradient-to-r from-red-500 to-orange-500' : 
+              'bg-gradient-to-r from-primary to-primary'
+            }`}
+            style={{ width: `${(timeLeft / 60000) * 100}%` }}
+            animate={timeLeft < 10000 ? { opacity: [1, 0.7, 1] } : {}}
+            transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Enhanced Boosts Panel */}
+      <AnimatePresence>
+        {!answered && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border"
+          >
+            <div className="text-sm text-muted-foreground mb-3 text-center font-medium">
+              🎯 Бусты
+            </div>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <BoostButton
+                type="fifty_fifty"
+                icon="⚡"
+                name="50/50"
+                available={boosts.fifty_fifty}
+                onUse={handleUseBoost}
+                disabled={usedBoosts.includes('fifty_fifty')}
+              />
+              <BoostButton
+                type="time_extend"
+                icon="⏱️"
+                name="+30s"
+                available={boosts.time_extend}
+                onUse={handleUseBoost}
+                disabled={usedBoosts.includes('time_extend')}
+              />
+              <BoostButton
+                type="hint"
+                icon="💡"
+                name="Подсказка"
+                available={boosts.hint}
+                onUse={handleUseBoost}
+                disabled={usedBoosts.includes('hint')}
+              />
+              <BoostButton
+                type="skip"
+                icon="⏭️"
+                name="Пропуск"
+                available={boosts.skip}
+                onUse={handleUseBoost}
+                disabled={usedBoosts.includes('skip')}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Enhanced Question Card */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="p-8 shadow-xl border-2">
+          {snapshot.image_url && (
+            <motion.div 
+              className="mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <img
+                src={snapshot.image_url}
+                alt="Question"
+                className="max-w-md mx-auto rounded-lg shadow-md"
+              />
+            </motion.div>
+          )}
+
+          <h2 className="text-2xl font-bold mb-8 text-center leading-relaxed">
+            {snapshot.question_es}
+          </h2>
+
+          <div className="space-y-4">
+            {snapshot.answer_options
+              ?.filter((opt: any) => !hiddenOptions.includes(opt.id))
+              .sort((a: any, b: any) => a.position - b.position)
+              .map((option: any) => {
+                const isSelected = selectedOption === option.id;
+                const isCorrectOption = currentQuestion.correct_option_ids.includes(option.id);
+                const showResult = answered || showCorrectAnswer;
+
+                return (
+                  <motion.div
+                    key={option.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: option.position * 0.1 }}
+                    whileHover={{ scale: answered ? 1 : 1.02 }}
+                    whileTap={{ scale: answered ? 1 : 0.98 }}
+                  >
+                    <Button
+                      onClick={() => handleAnswer(option.id)}
+                      disabled={answered}
+                      variant={
+                        showResult
+                          ? isCorrectOption
+                            ? 'default'
+                            : isSelected
+                            ? 'destructive'
+                            : 'outline'
+                          : isSelected
+                          ? 'default'
+                          : 'outline'
+                      }
+                      className={`w-full h-auto py-4 px-6 text-left justify-start text-lg transition-all ${
+                        showResult && isCorrectOption ? 'ring-2 ring-green-500 ring-offset-2' : ''
+                      } ${
+                        showResult && !isCorrectOption && isSelected ? 'ring-2 ring-red-500 ring-offset-2' : ''
+                      }`}
+                    >
+                      <span className="font-bold mr-4 text-xl">
+                        {String.fromCharCode(65 + option.position)}
+                      </span>
+                      <span className="flex-1">{option.text_es}</span>
+                      {showResult && isCorrectOption && <span className="text-2xl ml-2">✓</span>}
+                      {showResult && !isCorrectOption && isSelected && <span className="text-2xl ml-2">✗</span>}
+                    </Button>
+                  </motion.div>
+                );
+              })}
+          </div>
+
+          {showCorrectAnswer && !answered && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg text-center"
+            >
+              <p className="text-sm font-medium">⏭️ Вопрос пропущен - 0 очков</p>
+              <p className="text-xs text-muted-foreground mt-1">Правильный ответ выделен</p>
+            </motion.div>
+          )}
+        </Card>
+      </motion.div>
 
       {/* Hint Dialog */}
       <Dialog open={showHint} onOpenChange={setShowHint}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-yellow-500" />
-              Подсказка
+              💡 Подсказка
             </DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground">{hintText}</p>
+          <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+            <p className="text-foreground">{hintText}</p>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -22,7 +22,7 @@ export default function Duel() {
 
   const handleDuelJoined = (id: string) => {
     setDuelId(id);
-    setMode('battle');
+    setMode('create'); // Go to lobby to wait for start
   };
 
   const handleDuelStarted = () => {

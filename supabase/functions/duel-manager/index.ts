@@ -204,40 +204,82 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Check if already in duel
+        // Check if user is already in this duel
         const { data: existingPlayer } = await supabase
           .from('duel_players')
-          .select('id')
+          .select('*')
           .eq('duel_id', duel.id)
           .eq('user_id', profileId)
           .single();
 
         if (existingPlayer) {
-          return new Response(JSON.stringify({ duel }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-
-        // Check player count
-        const { count } = await supabase
-          .from('duel_players')
-          .select('*', { count: 'exact', head: true })
-          .eq('duel_id', duel.id);
-
-        if (count && count >= 2) {
-          return new Response(JSON.stringify({ error: 'Duel is full' }), {
+          return new Response(JSON.stringify({ error: 'You are already in this duel' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
-        await supabase.from('duel_players').insert({
-          duel_id: duel.id,
-          user_id: profileId,
-          is_host: false,
-        });
+        // Add player to duel
+        const { data: player, error: playerError } = await supabase
+          .from('duel_players')
+          .insert({
+            duel_id: duel.id,
+            user_id: profileId,
+            is_host: false,
+          })
+          .select()
+          .single();
 
-        return new Response(JSON.stringify({ duel }), {
+        if (playerError) throw playerError;
+
+        // Check if we now have 2 players - auto-start duel
+        const { data: allPlayers } = await supabase
+          .from('duel_players')
+          .select('id')
+          .eq('duel_id', duel.id);
+
+        if (allPlayers && allPlayers.length === 2) {
+          // Auto-start the duel
+          const { data: questions } = await supabase
+            .from('questions_new')
+            .select(`
+              id, question_es, image_url, difficulty,
+              answer_options(id, text_es, is_correct, position)
+            `)
+            .limit(duel.num_questions);
+
+          if (!questions) throw new Error('No questions found');
+
+          // Shuffle using seed
+          const rng = mulberry32(duel.question_seed);
+          const shuffled = [...questions].sort(() => rng() - 0.5);
+
+          // Insert duel questions
+          const duelQuestions = shuffled.map((q, idx) => ({
+            duel_id: duel.id,
+            question_id: q.id,
+            position: idx + 1,
+            question_snapshot: q,
+            correct_option_ids: q.answer_options
+              .filter((opt: any) => opt.is_correct)
+              .map((opt: any) => opt.id),
+          }));
+
+          await supabase.from('duel_questions').insert(duelQuestions);
+
+          // Update duel status
+          await supabase
+            .from('duels')
+            .update({ status: 'active', started_at: new Date().toISOString() })
+            .eq('id', duel.id);
+
+          return new Response(
+            JSON.stringify({ duel: { ...duel, status: 'active' }, player, auto_started: true }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        return new Response(JSON.stringify({ duel, player, auto_started: false }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
