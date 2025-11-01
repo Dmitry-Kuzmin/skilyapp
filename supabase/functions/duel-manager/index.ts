@@ -9,7 +9,7 @@ const corsHeaders = {
 // Input validation schemas
 const createDuelSchema = z.object({
   num_questions: z.number().int().min(5).max(30),
-  categories: z.array(z.string().uuid()).max(10).optional(),
+  categories: z.array(z.string().uuid()).max(10).nullable().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional()
 });
 
@@ -20,9 +20,17 @@ const joinDuelSchema = z.object({
 const submitAnswerSchema = z.object({
   duel_id: z.string().uuid(),
   duel_question_id: z.string().uuid(),
-  selected_option_id: z.string().uuid(),
+  selected_option_id: z.string().uuid().nullable().optional(),
   time_taken_ms: z.number().int().min(0).max(60000),
-  latency_ms: z.number().int().min(0).max(5000).optional()
+  latency_ms: z.number().int().min(0).max(5000).optional(),
+  boost_used: z.string().optional(),
+  is_timeout: z.boolean().optional()
+});
+
+const useBoostSchema = z.object({
+  duel_id: z.string().uuid(),
+  duel_question_id: z.string().uuid().optional(),
+  boost_type: z.enum(['fifty_fifty', 'time_extend', 'hint', 'skip'])
 });
 
 // Seeded random number generator (Mulberry32)
@@ -316,7 +324,7 @@ Deno.serve(async (req) => {
 
       case 'submit_answer': {
         const validated = submitAnswerSchema.parse(params);
-        const { duel_id, duel_question_id, selected_option_id, time_taken_ms, latency_ms } = validated;
+        const { duel_id, duel_question_id, selected_option_id, time_taken_ms, latency_ms, boost_used, is_timeout } = validated;
 
         // Get player
         const { data: player } = await supabase
@@ -353,7 +361,8 @@ Deno.serve(async (req) => {
         }
 
         const correctIds = question.correct_option_ids as string[];
-        const isCorrect = correctIds.includes(selected_option_id);
+        const isSkipped = !selected_option_id || is_timeout;
+        const isCorrect = !isSkipped && selected_option_id ? correctIds.includes(selected_option_id) : false;
 
         // Calculate combo
         const { count: correctStreak } = await supabase
@@ -367,7 +376,7 @@ Deno.serve(async (req) => {
 
         // Adjust time for latency
         const adjustedTime = Math.max(0, time_taken_ms - (latency_ms || 0));
-        const timeLimit = 12000; // 12 seconds default
+        const timeLimit = 60000; // 60 seconds
         const timeRemain = Math.max(0, timeLimit - adjustedTime);
 
         const difficulty = (question.question_snapshot as any).difficulty || 'medium';
@@ -378,11 +387,13 @@ Deno.serve(async (req) => {
           duel_id,
           player_id: player.id,
           duel_question_id,
-          selected_option_id,
+          selected_option_id: selected_option_id || null,
           is_correct: isCorrect,
+          is_skipped: isSkipped,
           time_taken_ms: adjustedTime,
           points_awarded: points,
           combo_at_time: combo,
+          boost_used: boost_used || null,
         });
 
         // Update player score
@@ -399,6 +410,85 @@ Deno.serve(async (req) => {
           points,
           combo: isCorrect ? combo + 1 : 0,
         }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'use_boost': {
+        const validated = useBoostSchema.parse(params);
+        const { duel_id, duel_question_id, boost_type } = validated;
+
+        // Get player
+        const { data: player } = await supabase
+          .from('duel_players')
+          .select('*')
+          .eq('duel_id', duel_id)
+          .eq('user_id', profileId)
+          .single();
+
+        if (!player) throw new Error('Player not found');
+
+        // Check if user has the boost
+        const { data: hasBoost } = await supabase.rpc('has_boost', {
+          p_user_id: profileId,
+          p_boost_type: boost_type
+        });
+
+        if (!hasBoost) {
+          return new Response(JSON.stringify({ error: 'Boost not available' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Deduct boost from inventory
+        await supabase.rpc('modify_boost_inventory', {
+          p_user_id: profileId,
+          p_boost_type: boost_type,
+          p_change: -1
+        });
+
+        // Record boost usage
+        await supabase.from('duel_boosts_used').insert({
+          duel_id,
+          player_id: player.id,
+          duel_question_id: duel_question_id || null,
+          boost_type
+        });
+
+        let boostResult: any = { success: true, boost_type };
+
+        // Apply boost effects
+        if (boost_type === 'fifty_fifty' && duel_question_id) {
+          const { data: question } = await supabase
+            .from('duel_questions')
+            .select('question_snapshot, correct_option_ids')
+            .eq('id', duel_question_id)
+            .single();
+
+          if (question) {
+            const snapshot = question.question_snapshot as any;
+            const correctIds = question.correct_option_ids as string[];
+            const incorrectOptions = snapshot.options.filter((opt: any) => !correctIds.includes(opt.id));
+            
+            // Return 2 random incorrect option IDs to hide
+            const shuffled = incorrectOptions.sort(() => Math.random() - 0.5);
+            boostResult.hide_options = shuffled.slice(0, 2).map((opt: any) => opt.id);
+          }
+        } else if (boost_type === 'hint' && duel_question_id) {
+          const { data: question } = await supabase
+            .from('duel_questions')
+            .select('question_snapshot')
+            .eq('id', duel_question_id)
+            .single();
+
+          if (question) {
+            const snapshot = question.question_snapshot as any;
+            boostResult.hint = snapshot.explanation_es || snapshot.explanation_ru || 'Нет подсказки';
+          }
+        }
+
+        return new Response(JSON.stringify(boostResult), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }

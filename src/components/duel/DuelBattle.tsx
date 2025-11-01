@@ -6,7 +6,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
-import { Clock, Zap, Award } from 'lucide-react';
+import { Clock, Zap, Award, Lightbulb } from 'lucide-react';
+import { BoostButton } from './BoostButton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface DuelBattleProps {
   duelId: string;
@@ -18,18 +20,32 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const { state } = useDuelRealtime(duelId);
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(12000);
+  const [timeLeft, setTimeLeft] = useState(60000);
   const [myScore, setMyScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [boosts, setBoosts] = useState({ fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 });
+  const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
+  const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
+  const [hintText, setHintText] = useState<string>('');
+  const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
     loadQuestions();
     loadScores();
+    loadBoosts();
   }, [duelId]);
+
+  useEffect(() => {
+    // Reset boosts state for new question
+    setHiddenOptions([]);
+    setUsedBoosts([]);
+    setHintText('');
+    setShowHint(false);
+  }, [currentIndex]);
 
   useEffect(() => {
     if (state.duelFinished) {
@@ -93,13 +109,85 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   };
 
+  const loadBoosts = async () => {
+    if (!profileId) return;
+    
+    try {
+      const { data } = await supabase
+        .from('boost_inventory')
+        .select('boost_type, quantity')
+        .eq('user_id', profileId);
+
+      if (data) {
+        const boostMap: any = { fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 };
+        data.forEach(item => {
+          if (item.boost_type in boostMap) {
+            boostMap[item.boost_type] = item.quantity;
+          }
+        });
+        setBoosts(boostMap);
+      }
+    } catch (error) {
+      console.error('Error loading boosts:', error);
+    }
+  };
+
+  const handleUseBoost = async (boostType: string) => {
+    if (usedBoosts.includes(boostType) || answered) {
+      toast.error('Буст уже использован');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'use_boost',
+          duel_id: duelId,
+          duel_question_id: questions[currentIndex].id,
+          boost_type: boostType,
+        },
+      });
+
+      if (error) throw error;
+
+      setUsedBoosts(prev => [...prev, boostType]);
+      setBoosts(prev => ({ ...prev, [boostType]: Math.max(0, prev[boostType as keyof typeof prev] - 1) }));
+
+      if (boostType === 'fifty_fifty' && data.hide_options) {
+        setHiddenOptions(data.hide_options);
+        toast.success('Убраны 2 неправильных ответа');
+      } else if (boostType === 'time_extend') {
+        setTimeLeft(prev => Math.min(60000, prev + 30000));
+        toast.success('+30 секунд!');
+      } else if (boostType === 'hint' && data.hint) {
+        setHintText(data.hint);
+        setShowHint(true);
+        toast.success('Подсказка показана');
+      } else if (boostType === 'skip') {
+        toast.success('Вопрос пропущен');
+        setTimeout(() => {
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+            setTimeLeft(60000);
+            setAnswered(false);
+            setSelectedOption(null);
+          } else {
+            finishDuel();
+          }
+        }, 1000);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка использования буста');
+    }
+  };
+
   const handleAnswer = async (optionId: string) => {
     if (answered) return;
 
     setAnswered(true);
     setSelectedOption(optionId);
 
-    const timeTaken = 12000 - timeLeft;
+    const timeTaken = 60000 - timeLeft;
 
     try {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
@@ -124,7 +212,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
           setCurrentIndex(prev => prev + 1);
-          setTimeLeft(12000);
+          setTimeLeft(60000);
           setAnswered(false);
           setSelectedOption(null);
         } else {
@@ -136,9 +224,42 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   };
 
-  const handleTimeout = () => {
+  const handleTimeout = async () => {
     if (answered) return;
-    handleAnswer('');
+    
+    setAnswered(true);
+    const timeTaken = 60000 - timeLeft;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'submit_answer',
+          duel_id: duelId,
+          duel_question_id: questions[currentIndex].id,
+          selected_option_id: null,
+          time_taken_ms: timeTaken,
+          is_timeout: true,
+        },
+      });
+
+      if (error) throw error;
+
+      setIsCorrect(false);
+      toast.error('Время вышло!');
+
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+          setTimeLeft(60000);
+          setAnswered(false);
+          setSelectedOption(null);
+        } else {
+          finishDuel();
+        }
+      }, 2000);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   const finishDuel = async () => {
@@ -173,7 +294,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   const snapshot = currentQuestion.question_snapshot as any;
   const progress = ((currentIndex + 1) / questions.length) * 100;
-  const timeProgress = (timeLeft / 12000) * 100;
+  const timeProgress = (timeLeft / 60000) * 100;
 
   return (
     <div className="max-w-4xl mx-auto space-y-4 animate-fade-in">
@@ -216,6 +337,46 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         <Progress value={timeProgress} className="h-2" />
       </Card>
 
+      {/* Boosts Panel */}
+      {!answered && (
+        <Card className="p-4">
+          <div className="flex items-center justify-center gap-3">
+            <BoostButton
+              type="fifty_fifty"
+              icon="⚡"
+              name="50/50 - Убрать 2 ответа"
+              available={boosts.fifty_fifty}
+              onUse={handleUseBoost}
+              disabled={usedBoosts.includes('fifty_fifty')}
+            />
+            <BoostButton
+              type="time_extend"
+              icon="⏱️"
+              name="+30 секунд"
+              available={boosts.time_extend}
+              onUse={handleUseBoost}
+              disabled={usedBoosts.includes('time_extend')}
+            />
+            <BoostButton
+              type="hint"
+              icon="💡"
+              name="Подсказка"
+              available={boosts.hint}
+              onUse={handleUseBoost}
+              disabled={usedBoosts.includes('hint')}
+            />
+            <BoostButton
+              type="skip"
+              icon="⏭️"
+              name="Пропустить"
+              available={boosts.skip}
+              onUse={handleUseBoost}
+              disabled={usedBoosts.includes('skip')}
+            />
+          </div>
+        </Card>
+      )}
+
       {/* Question */}
       <Card className="p-6 space-y-4">
         {snapshot.image_url && (
@@ -226,11 +387,14 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           />
         )}
 
-        <h3 className="text-xl font-semibold">{snapshot.question_ru}</h3>
+        <h3 className="text-xl font-semibold">{snapshot.question_es}</h3>
 
         <div className="grid gap-3">
           {snapshot.options && Array.isArray(snapshot.options) && snapshot.options.map((option: any) => {
             if (!option || !option.id) return null;
+            
+            const isHidden = hiddenOptions.includes(option.id);
+            if (isHidden) return null;
             
             const isSelected = selectedOption === option.id;
             const showCorrect = answered && option.is_correct;
@@ -246,7 +410,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                   showCorrect ? 'bg-green-500 hover:bg-green-600' : ''
                 }`}
               >
-                {option.text_ru}
+                {option.text_es}
               </Button>
             );
           })}
@@ -260,6 +424,19 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           </div>
         )}
       </Card>
+
+      {/* Hint Dialog */}
+      <Dialog open={showHint} onOpenChange={setShowHint}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5 text-yellow-500" />
+              Подсказка
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground">{hintText}</p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

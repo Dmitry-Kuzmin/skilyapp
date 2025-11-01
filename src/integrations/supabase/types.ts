@@ -94,6 +94,83 @@ export type Database = {
           },
         ]
       }
+      boost_definitions: {
+        Row: {
+          cost_coins: number
+          created_at: string | null
+          description_es: string | null
+          description_ru: string | null
+          icon: string | null
+          id: string
+          is_premium: boolean | null
+          name_es: string
+          name_ru: string
+          type: string
+        }
+        Insert: {
+          cost_coins: number
+          created_at?: string | null
+          description_es?: string | null
+          description_ru?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          name_es: string
+          name_ru: string
+          type: string
+        }
+        Update: {
+          cost_coins?: number
+          created_at?: string | null
+          description_es?: string | null
+          description_ru?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          name_es?: string
+          name_ru?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      boost_inventory: {
+        Row: {
+          boost_type: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          quantity: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          boost_type: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          quantity?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          boost_type?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          quantity?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boost_inventory_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_bonus_def: {
         Row: {
           created_at: string | null
@@ -205,36 +282,42 @@ export type Database = {
       }
       duel_answers: {
         Row: {
+          boost_used: string | null
           combo_at_time: number
           created_at: string
           duel_id: string
           duel_question_id: string
           id: string
           is_correct: boolean
+          is_skipped: boolean | null
           player_id: string
           points_awarded: number
           selected_option_id: string | null
           time_taken_ms: number
         }
         Insert: {
+          boost_used?: string | null
           combo_at_time?: number
           created_at?: string
           duel_id: string
           duel_question_id: string
           id?: string
           is_correct: boolean
+          is_skipped?: boolean | null
           player_id: string
           points_awarded?: number
           selected_option_id?: string | null
           time_taken_ms: number
         }
         Update: {
+          boost_used?: string | null
           combo_at_time?: number
           created_at?: string
           duel_id?: string
           duel_question_id?: string
           id?: string
           is_correct?: boolean
+          is_skipped?: boolean | null
           player_id?: string
           points_awarded?: number
           selected_option_id?: string | null
@@ -257,6 +340,55 @@ export type Database = {
           },
           {
             foreignKeyName: "duel_answers_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "duel_players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_boosts_used: {
+        Row: {
+          boost_type: string
+          duel_id: string
+          duel_question_id: string | null
+          id: string
+          player_id: string
+          used_at: string | null
+        }
+        Insert: {
+          boost_type: string
+          duel_id: string
+          duel_question_id?: string | null
+          id?: string
+          player_id: string
+          used_at?: string | null
+        }
+        Update: {
+          boost_type?: string
+          duel_id?: string
+          duel_question_id?: string | null
+          id?: string
+          player_id?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_boosts_used_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "duels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_boosts_used_duel_question_id_fkey"
+            columns: ["duel_question_id"]
+            isOneToOne: false
+            referencedRelation: "duel_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_boosts_used_player_id_fkey"
             columns: ["player_id"]
             isOneToOne: false
             referencedRelation: "duel_players"
@@ -1111,6 +1243,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_boost: {
+        Args: { p_boost_type: string; p_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1131,6 +1267,10 @@ export type Database = {
           _user_id: string
           _username?: string
         }
+        Returns: undefined
+      }
+      modify_boost_inventory: {
+        Args: { p_boost_type: string; p_change: number; p_user_id: string }
         Returns: undefined
       }
       upsert_duel_stats: {
