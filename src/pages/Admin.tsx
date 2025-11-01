@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Upload, Trash2, AlertCircle, RefreshCw, Database, Users, FileQuestion, Target, Activity } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Upload, Trash2, AlertCircle, RefreshCw, Database, Users, FileQuestion, Target, Activity, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Admin = () => {
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [terms, setTerms] = useState<any[]>([]);
@@ -28,9 +32,42 @@ const Admin = () => {
   const [syncWarnings, setSyncWarnings] = useState<string[]>([]);
 
   useEffect(() => {
+    checkAdminAccess();
+  }, []);
+
+  const checkAdminAccess = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Access denied",
+        description: "Please log in.",
+        variant: "destructive"
+      });
+      navigate('/');
+      return;
+    }
+
+    const { data, error } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (error || !data) {
+      toast({
+        title: "Access denied",
+        description: "Admin privileges required.",
+        variant: "destructive"
+      });
+      navigate('/');
+      return;
+    }
+
+    setIsAdmin(true);
+    setAuthLoading(false);
     fetchStats();
     fetchRecentQuestions();
-  }, []);
+  };
 
   const fetchStats = async () => {
     try {
@@ -246,6 +283,20 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
       });
     }
   };
+
+  if (authLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <Layout>
