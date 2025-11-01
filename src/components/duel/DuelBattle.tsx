@@ -54,28 +54,42 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   }, [answered, currentIndex]);
 
   const loadQuestions = async () => {
-    const { data, error } = await supabase
-      .from('duel_questions')
-      .select('*')
-      .eq('duel_id', duelId)
-      .order('position');
+    try {
+      const { data, error } = await supabase
+        .from('duel_questions')
+        .select('*')
+        .eq('duel_id', duelId)
+        .order('position');
 
-    if (!error && data) {
-      setQuestions(data);
+      if (error) {
+        console.error('Error loading questions:', error);
+        toast.error('Не удалось загрузить вопросы');
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setQuestions(data);
+      }
+    } catch (error) {
+      console.error('Error in loadQuestions:', error);
     }
   };
 
   const loadScores = async () => {
-    const { data } = await supabase
-      .from('duel_players')
-      .select('*')
-      .eq('duel_id', duelId);
+    try {
+      const { data } = await supabase
+        .from('duel_players')
+        .select('*')
+        .eq('duel_id', duelId);
 
-    if (data) {
-      const myPlayer = data.find(p => p.user_id === profileId);
-      const opponent = data.find(p => p.user_id !== profileId);
-      setMyScore(myPlayer?.score || 0);
-      setOpponentScore(opponent?.score || 0);
+      if (data && data.length > 0) {
+        const myPlayer = data.find(p => p.user_id === profileId);
+        const opponent = data.find(p => p.user_id !== profileId);
+        setMyScore(myPlayer?.score || 0);
+        setOpponentScore(opponent?.score || 0);
+      }
+    } catch (error) {
+      console.error('Error loading scores:', error);
     }
   };
 
@@ -141,10 +155,22 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   };
 
   if (questions.length === 0) {
-    return <div className="text-center p-8">Загрузка...</div>;
+    return (
+      <div className="text-center p-8">
+        <p className="text-muted-foreground">Загрузка вопросов...</p>
+      </div>
+    );
   }
 
   const currentQuestion = questions[currentIndex];
+  if (!currentQuestion || !currentQuestion.question_snapshot) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-destructive">Ошибка загрузки вопроса</p>
+      </div>
+    );
+  }
+
   const snapshot = currentQuestion.question_snapshot as any;
   const progress = ((currentIndex + 1) / questions.length) * 100;
   const timeProgress = (timeLeft / 12000) * 100;
@@ -203,7 +229,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         <h3 className="text-xl font-semibold">{snapshot.question_ru}</h3>
 
         <div className="grid gap-3">
-          {snapshot.options?.map((option: any) => {
+          {snapshot.options && Array.isArray(snapshot.options) && snapshot.options.map((option: any) => {
+            if (!option || !option.id) return null;
+            
             const isSelected = selectedOption === option.id;
             const showCorrect = answered && option.is_correct;
             const showWrong = answered && isSelected && !option.is_correct;
