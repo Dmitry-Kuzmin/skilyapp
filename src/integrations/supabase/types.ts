@@ -115,6 +115,44 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_duel_limits: {
+        Row: {
+          created_at: string
+          date: string
+          duels_played: number
+          full_rewards_claimed: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          duels_played?: number
+          full_rewards_claimed?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          duels_played?: number
+          full_rewards_claimed?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_duel_limits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_tasks: {
         Row: {
           completed: boolean
@@ -159,6 +197,275 @@ export type Database = {
           {
             foreignKeyName: "daily_tasks_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_answers: {
+        Row: {
+          combo_at_time: number
+          created_at: string
+          duel_id: string
+          duel_question_id: string
+          id: string
+          is_correct: boolean
+          player_id: string
+          points_awarded: number
+          selected_option_id: string | null
+          time_taken_ms: number
+        }
+        Insert: {
+          combo_at_time?: number
+          created_at?: string
+          duel_id: string
+          duel_question_id: string
+          id?: string
+          is_correct: boolean
+          player_id: string
+          points_awarded?: number
+          selected_option_id?: string | null
+          time_taken_ms: number
+        }
+        Update: {
+          combo_at_time?: number
+          created_at?: string
+          duel_id?: string
+          duel_question_id?: string
+          id?: string
+          is_correct?: boolean
+          player_id?: string
+          points_awarded?: number
+          selected_option_id?: string | null
+          time_taken_ms?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_answers_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "duels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_answers_duel_question_id_fkey"
+            columns: ["duel_question_id"]
+            isOneToOne: false
+            referencedRelation: "duel_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_answers_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "duel_players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_players: {
+        Row: {
+          bot_difficulty: string | null
+          connected: boolean
+          correct_count: number
+          created_at: string
+          duel_id: string
+          estimated_latency_ms: number | null
+          id: string
+          is_bot: boolean
+          is_host: boolean
+          score: number
+          user_id: string | null
+        }
+        Insert: {
+          bot_difficulty?: string | null
+          connected?: boolean
+          correct_count?: number
+          created_at?: string
+          duel_id: string
+          estimated_latency_ms?: number | null
+          id?: string
+          is_bot?: boolean
+          is_host?: boolean
+          score?: number
+          user_id?: string | null
+        }
+        Update: {
+          bot_difficulty?: string | null
+          connected?: boolean
+          correct_count?: number
+          created_at?: string
+          duel_id?: string
+          estimated_latency_ms?: number | null
+          id?: string
+          is_bot?: boolean
+          is_host?: boolean
+          score?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_players_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "duels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_players_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_questions: {
+        Row: {
+          correct_option_ids: Json
+          created_at: string
+          duel_id: string
+          id: string
+          position: number
+          question_id: string
+          question_snapshot: Json
+        }
+        Insert: {
+          correct_option_ids: Json
+          created_at?: string
+          duel_id: string
+          id?: string
+          position: number
+          question_id: string
+          question_snapshot: Json
+        }
+        Update: {
+          correct_option_ids?: Json
+          created_at?: string
+          duel_id?: string
+          id?: string
+          position?: number
+          question_id?: string
+          question_snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_questions_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "duels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duel_questions_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_stats: {
+        Row: {
+          avg_score: number | null
+          best_streak: number
+          created_at: string
+          current_streak: number
+          draws: number
+          id: string
+          losses: number
+          total_duels: number
+          total_points: number
+          updated_at: string
+          user_id: string
+          wins: number
+        }
+        Insert: {
+          avg_score?: number | null
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          draws?: number
+          id?: string
+          losses?: number
+          total_duels?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+          wins?: number
+        }
+        Update: {
+          avg_score?: number | null
+          best_streak?: number
+          created_at?: string
+          current_streak?: number
+          draws?: number
+          id?: string
+          losses?: number
+          total_duels?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+          wins?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_stats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duels: {
+        Row: {
+          categories: Json | null
+          code: string
+          created_at: string
+          difficulty: string | null
+          expires_at: string
+          finished_at: string | null
+          host_user: string
+          id: string
+          num_questions: number
+          question_seed: number
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          categories?: Json | null
+          code: string
+          created_at?: string
+          difficulty?: string | null
+          expires_at?: string
+          finished_at?: string | null
+          host_user: string
+          id?: string
+          num_questions: number
+          question_seed: number
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          categories?: Json | null
+          code?: string
+          created_at?: string
+          difficulty?: string | null
+          expires_at?: string
+          finished_at?: string | null
+          host_user?: string
+          id?: string
+          num_questions?: number
+          question_seed?: number
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duels_host_user_fkey"
+            columns: ["host_user"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

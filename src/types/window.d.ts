@@ -66,6 +66,7 @@ declare global {
         offEvent: (eventType: string, callback: () => void) => void;
         isVersionAtLeast: (version: string) => boolean;
         requestFullscreen?: () => void;
+        openTelegramLink: (url: string) => void;
       };
     };
   }
