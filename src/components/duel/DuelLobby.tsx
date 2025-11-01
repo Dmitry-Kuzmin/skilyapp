@@ -38,15 +38,20 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
         .from('duels')
         .select('status')
         .eq('id', duelId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('[DuelLobby] Error checking duel status:', error);
         return;
       }
 
-      console.log('[DuelLobby] Initial duel status:', data?.status);
-      if (data?.status === 'active') {
+      if (!data) {
+        console.warn('[DuelLobby] Duel not found or no access');
+        return;
+      }
+
+      console.log('[DuelLobby] Initial duel status:', data.status);
+      if (data.status === 'active') {
         console.log('[DuelLobby] Duel already active! Starting battle...');
         startCountdown();
       }
@@ -111,14 +116,25 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
     console.log('[DuelLobby] Starting fallback polling...');
     const pollInterval = setInterval(async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('duels')
         .select('status')
         .eq('id', duelId)
-        .single();
+        .maybeSingle();
 
-      console.log('[DuelLobby] Polling duel status:', data?.status);
-      if (data?.status === 'active') {
+      if (error) {
+        console.error('[DuelLobby] Polling error:', error);
+        setConnectionStatus('checking');
+        return;
+      }
+
+      if (!data) {
+        console.warn('[DuelLobby] Duel not found in polling');
+        return;
+      }
+
+      console.log('[DuelLobby] Polling duel status:', data.status);
+      if (data.status === 'active') {
         console.log('[DuelLobby] Fallback: Duel is active!');
         startCountdown();
       }

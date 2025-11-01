@@ -91,11 +91,13 @@ export function useDuelRealtime(duelId: string | null) {
             .from('duels')
             .select('status')
             .eq('id', duelId)
-            .single()
+            .maybeSingle()
             .then(({ data, error }) => {
               if (error) {
                 console.error('[useDuelRealtime] Error checking duel status:', error);
-              } else if (data) {
+              } else if (!data) {
+                console.warn('[useDuelRealtime] Duel not found or no access');
+              } else {
                 console.log('[useDuelRealtime] Current duel status:', data.status);
                 if (data.status === 'active') {
                   console.log('[useDuelRealtime] Duel is already active!');
