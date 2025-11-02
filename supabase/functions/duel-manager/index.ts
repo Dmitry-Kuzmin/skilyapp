@@ -147,6 +147,40 @@ Deno.serve(async (req) => {
     }
 
     switch (action) {
+      case 'check_status': {
+        const { duel_id } = params;
+        
+        console.log('[Duel Manager] Checking status for duel:', duel_id, 'Profile:', profileId);
+        
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('id, status, started_at, host_user')
+          .eq('id', duel_id)
+          .maybeSingle();
+
+        if (duelError) {
+          console.error('[Duel Manager] Error checking duel:', duelError);
+          throw duelError;
+        }
+
+        if (!duel) {
+          console.warn('[Duel Manager] Duel not found');
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        console.log('[Duel Manager] Duel status:', duel.status);
+        
+        return new Response(JSON.stringify({ 
+          status: duel.status,
+          started_at: duel.started_at
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'create_duel': {
         const validated = createDuelSchema.parse(params);
         const { num_questions, categories, difficulty } = validated;
@@ -183,12 +217,17 @@ Deno.serve(async (req) => {
 
         if (duelError) throw duelError;
 
-        // Add host as player
-        await supabase.from('duel_players').insert({
+        // Add host as player using correct user_id (which is profile.id)
+        const { error: playerError } = await supabase.from('duel_players').insert({
           duel_id: duel.id,
-          user_id: profileId,
+          user_id: profileId,  // This is profile.id
           is_host: true,
         });
+
+        if (playerError) {
+          console.error('[Duel Manager] Error adding host player:', playerError);
+          throw playerError;
+        }
 
         return new Response(JSON.stringify({ duel, code }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -228,18 +267,23 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Add player to duel
+        console.log('[Duel Manager] Adding player to duel. ProfileId:', profileId);
+
+        // Add player to duel using correct user_id (which is profile.id)
         const { data: player, error: playerError } = await supabase
           .from('duel_players')
           .insert({
             duel_id: duel.id,
-            user_id: profileId,
+            user_id: profileId,  // This is profile.id
             is_host: false,
           })
           .select()
           .single();
 
-        if (playerError) throw playerError;
+        if (playerError) {
+          console.error('[Duel Manager] Error adding player:', playerError);
+          throw playerError;
+        }
 
         // Check if we now have 2 players - auto-start duel
         const { data: allPlayers } = await supabase

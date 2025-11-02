@@ -44,31 +44,38 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       checkCount++;
       console.log(`[DuelLobby] Status check #${checkCount} for duel:`, duelId);
       
-      const { data, error } = await supabase
-        .from('duels')
-        .select('status')
-        .eq('id', duelId)
-        .maybeSingle();
+      try {
+        // Use edge function to check status (bypasses RLS issues)
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'check_status',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
 
-      if (error) {
-        console.error('[DuelLobby] Error checking duel status:', error);
-        return;
-      }
+        if (error) {
+          console.error('[DuelLobby] Error checking duel status:', error);
+          return;
+        }
 
-      if (!data) {
-        console.warn('[DuelLobby] Duel not found or no access');
-        return;
-      }
+        if (!data || data.error) {
+          console.warn('[DuelLobby] Duel not found or no access:', data?.error);
+          return;
+        }
 
-      console.log('[DuelLobby] Duel status:', data.status);
-      
-      if (data.status === 'active') {
-        console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting countdown...');
-        setConnectionStatus('connected');
-        startCountdown();
-        isActive = false; // Stop checking
-      } else {
-        setConnectionStatus('connected');
+        console.log('[DuelLobby] Duel status:', data.status);
+        
+        if (data.status === 'active') {
+          console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting countdown...');
+          setConnectionStatus('connected');
+          startCountdown();
+          isActive = false; // Stop checking
+        } else {
+          setConnectionStatus('connected');
+        }
+      } catch (err) {
+        console.error('[DuelLobby] Exception checking status:', err);
       }
     };
 
