@@ -41,6 +41,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     message: string;
     icon?: string;
   }>>([]);
+  const [showHint, setShowHint] = useState(false);
 
   const { state } = useDuelRealtime(duelId, myPlayerId);
 
@@ -66,12 +67,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   // Check if opponent overtook us
   useEffect(() => {
     if (state.opponentScore > myScore && state.opponentScore > 0 && myScore > 0) {
+      const notifId = `overtake-${Date.now()}`;
       setToastNotifications(prev => [...prev, {
-        id: `overtake-${Date.now()}`,
+        id: notifId,
         title: '⚠️ Соперник впереди!',
         message: `Разница: ${state.opponentScore - myScore} очков`,
         icon: '🏃',
       }]);
+      
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+        setToastNotifications(prev => prev.filter(n => n.id !== notifId));
+      }, 3000);
     }
   }, [state.opponentScore, myScore]);
 
@@ -219,12 +226,45 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         
         const toEliminate = incorrectOptions.slice(0, 2);
         setEliminatedOptions(toEliminate);
+        
+        const notifId = `fifty-fifty-${Date.now()}`;
+        setToastNotifications(prev => [...prev, {
+          id: notifId,
+          title: '5️⃣0️⃣ Бустер 50/50',
+          message: 'Убраны 2 неправильных ответа!',
+          icon: '✨',
+        }]);
+        setTimeout(() => {
+          setToastNotifications(prev => prev.filter(n => n.id !== notifId));
+        }, 3000);
       } else if (boostType === 'time_extend') {
         sounds.boostTimeExtend();
-        setTimeLeft(prev => Math.min(prev + 15000, 60000));
+        setTimeLeft(prev => prev + 30000);
+        
+        const notifId = `time-extend-${Date.now()}`;
+        setToastNotifications(prev => [...prev, {
+          id: notifId,
+          title: '⏱️ +30 секунд',
+          message: 'Дополнительное время добавлено!',
+          icon: '⚡',
+        }]);
+        setTimeout(() => {
+          setToastNotifications(prev => prev.filter(n => n.id !== notifId));
+        }, 3000);
       } else if (boostType === 'hint') {
         sounds.boostHint();
-        toast.info('💡 Подсказка: обратите внимание на детали!');
+        setShowHint(true);
+        
+        const notifId = `hint-${Date.now()}`;
+        setToastNotifications(prev => [...prev, {
+          id: notifId,
+          title: '💡 Подсказка активирована',
+          message: 'Объяснение показано ниже',
+          icon: '⚡',
+        }]);
+        setTimeout(() => {
+          setToastNotifications(prev => prev.filter(n => n.id !== notifId));
+        }, 3000);
       } else if (boostType === 'skip') {
         sounds.boostSkip();
         setIsAnswered(true);
@@ -236,6 +276,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
             setTimeLeft(60000);
             setUsedBoosts([]);
             setEliminatedOptions([]);
+            setShowHint(false);
           } else {
             finishDuel();
           }
@@ -306,6 +347,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           setTimeLeft(60000);
           setUsedBoosts([]);
           setEliminatedOptions([]);
+          setShowHint(false);
         } else {
           finishDuel();
         }
@@ -340,6 +382,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           setTimeLeft(60000);
           setUsedBoosts([]);
           setEliminatedOptions([]);
+          setShowHint(false);
         } else {
           finishDuel();
         }
@@ -402,7 +445,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center space-y-6 max-w-md"
+          className="text-center space-y-6 max-w-md w-full"
         >
           <motion.div
             animate={{ rotate: 360 }}
@@ -417,15 +460,40 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
               Ты закончил первым! Подождём, пока соперник завершит свои ответы.
             </p>
           </div>
-          <div className="flex items-center justify-center gap-4 p-4 bg-card rounded-lg border">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{myScore}</div>
-              <div className="text-sm text-muted-foreground">Твой счёт</div>
+          
+          {/* Real-time opponent progress */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-center gap-4 p-4 bg-card rounded-lg border">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{myScore}</div>
+                <div className="text-sm text-muted-foreground">Твой счёт</div>
+              </div>
+              <Users className="w-8 h-8 text-muted-foreground" />
+              <div className="text-center">
+                <motion.div 
+                  key={state.opponentScore || opponentScore}
+                  initial={{ scale: 1.2 }}
+                  animate={{ scale: 1 }}
+                  className="text-2xl font-bold text-secondary"
+                >
+                  {state.opponentScore || opponentScore}
+                </motion.div>
+                <div className="text-sm text-muted-foreground">Соперник</div>
+              </div>
             </div>
-            <Users className="w-8 h-8 text-muted-foreground" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-secondary">{opponentScore}</div>
-              <div className="text-sm text-muted-foreground">Соперник</div>
+            
+            {/* Opponent progress bar */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Прогресс соперника</span>
+                <span className="font-bold text-primary">
+                  {state.opponentProgress || 0}/{questions.length}
+                </span>
+              </div>
+              <Progress 
+                value={((state.opponentProgress || 0) / questions.length) * 100} 
+                className="h-3"
+              />
             </div>
           </div>
         </motion.div>
@@ -492,10 +560,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           <div className="flex items-center gap-2 md:gap-4">
             <motion.div 
               className="text-center px-3 py-1.5 rounded-2xl bg-primary/10 border-2 border-primary/30"
-              animate={{ scale: myScore > opponentScore ? [1, 1.1, 1] : 1 }}
+              animate={{ scale: myScore > (state.opponentScore || opponentScore) ? [1, 1.1, 1] : 1 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-xl md:text-2xl font-black text-primary">{myScore}</div>
+              <motion.div 
+                key={myScore}
+                initial={{ scale: 1.2 }}
+                animate={{ scale: 1 }}
+                className="text-xl md:text-2xl font-black text-primary"
+              >
+                {myScore}
+              </motion.div>
               <div className="text-xs text-muted-foreground hidden md:block">Вы</div>
             </motion.div>
             
@@ -506,7 +581,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
               animate={{ scale: (state.opponentScore || opponentScore) > myScore ? [1, 1.1, 1] : 1 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-xl md:text-2xl font-black text-secondary">{state.opponentScore || opponentScore}</div>
+              <motion.div
+                key={state.opponentScore || opponentScore}
+                initial={{ scale: 1.2 }}
+                animate={{ scale: 1 }}
+                className="text-xl md:text-2xl font-black text-secondary"
+              >
+                {state.opponentScore || opponentScore}
+              </motion.div>
               <div className="text-xs text-muted-foreground hidden md:block">Соперник</div>
             </motion.div>
           </div>
@@ -638,6 +720,26 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
             <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground">
               {currentQuestion.question_snapshot.question_ru}
             </h2>
+
+            {/* Hint - показывается если активирован бустер */}
+            <AnimatePresence>
+              {showHint && currentQuestion.question_snapshot.explanation_ru && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-6 p-4 bg-yellow-500/10 border-2 border-yellow-500/30 rounded-xl"
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="text-2xl">💡</div>
+                    <div>
+                      <div className="font-bold text-yellow-600 dark:text-yellow-400 mb-1">Подсказка:</div>
+                      <p className="text-sm text-foreground/80">{currentQuestion.question_snapshot.explanation_ru}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Answer Options */}
             <div className="grid gap-3">
