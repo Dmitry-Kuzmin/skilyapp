@@ -7,7 +7,6 @@ import { LogIn, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
-import { getTelegramUser } from '@/lib/telegram';
 
 interface DuelJoinProps {
   onDuelJoined: (duelId: string, code: string) => void;
@@ -15,7 +14,7 @@ interface DuelJoinProps {
 }
 
 export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
-  const { profileId, platform } = useUserContext();
+  const { profileId } = useUserContext();
   const [code, setCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
 
@@ -32,20 +31,12 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
 
     setIsJoining(true);
     try {
-      // CRITICAL: Support hybrid authentication - include telegram_id for Telegram users
-      const bodyData: any = {
-        action: 'join_duel',
-        code: code.toUpperCase(),
-      };
-      
-      // Add telegram_id if user is from Telegram
-      const telegramUser = getTelegramUser();
-      if (telegramUser?.id && platform === 'telegram') {
-        bodyData.telegram_id = telegramUser.id;
-      }
-      
       const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: bodyData
+        body: {
+          action: 'join_duel',
+          profile_id: profileId,
+          code: code.toUpperCase(),
+        },
       });
 
       if (error) throw error;

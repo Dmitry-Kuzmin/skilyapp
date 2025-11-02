@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, Zap, Flame, Shield, Users, Globe, Lightbulb } from 'lucide-react';
+import { X, Clock, Zap, Flame, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -18,17 +18,10 @@ interface DuelBattleFullscreenProps {
   onDuelFinished: () => void;
 }
 
-type Language = 'es' | 'en' | 'ru';
-
-const LANGUAGE_FLAGS = {
-  es: '🇪🇸',
-  en: '🇬🇧',
-  ru: '🇷🇺'
-};
-
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBattleFullscreenProps) {
   const { profileId } = useUserContext();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const { state } = useDuelRealtime(duelId, myPlayerId);
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,96 +35,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   const [loading, setLoading] = useState(true);
   const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
   const [eliminatedOptions, setEliminatedOptions] = useState<string[]>([]);
-  const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [toastNotifications, setToastNotifications] = useState<Array<{
     id: string;
     title: string;
     message: string;
     icon?: string;
   }>>([]);
-  const [showHint, setShowHint] = useState(false);
-  const [language, setLanguage] = useState<Language>('es');
-  
-  const prevOpponentScore = useRef(0);
-  const hasShownOvertake = useRef(false);
-
-  const { state } = useDuelRealtime(duelId, myPlayerId);
-
-  // Handle realtime notifications
-  useEffect(() => {
-    if (state.notifications.length > 0) {
-      const latestNotif = state.notifications[state.notifications.length - 1];
-      const id = `notif-${latestNotif.id}-${Date.now()}`;
-      setToastNotifications(prev => [...prev, {
-        id,
-        title: latestNotif.title,
-        message: latestNotif.message,
-        icon: latestNotif.icon,
-      }]);
-      sounds.notificationPop();
-      
-      // Auto-remove after 3 seconds
-      setTimeout(() => {
-        setToastNotifications(prev => prev.filter(n => n.id !== id));
-      }, 3000);
-    }
-  }, [state.notifications]);
-
-  // Check if opponent overtook us - SHOW ONLY ONCE
-  useEffect(() => {
-    const currentOpponentScore = state.opponentScore || 0;
-    
-    if (
-      currentOpponentScore > myScore && 
-      prevOpponentScore.current <= myScore &&
-      currentOpponentScore > 0 && 
-      myScore > 0 &&
-      !hasShownOvertake.current
-    ) {
-      const diff = currentOpponentScore - myScore;
-      const id = `overtake-${Date.now()}`;
-      
-      setToastNotifications(prev => [...prev, {
-        id,
-        title: '⚠️ Соперник впереди!',
-        message: `Разница: ${diff} очков`,
-        icon: '🏃',
-      }]);
-      sounds.notificationPop();
-      haptics.warning();
-      hasShownOvertake.current = true;
-      
-      // Auto-remove after 2 seconds
-      setTimeout(() => {
-        setToastNotifications(prev => prev.filter(n => n.id !== id));
-      }, 2000);
-    }
-    
-    // Reset flag when we're back in the lead
-    if (myScore > currentOpponentScore) {
-      hasShownOvertake.current = false;
-    }
-    
-    prevOpponentScore.current = currentOpponentScore;
-  }, [state.opponentScore, myScore]);
-
-  // Show notification when opponent answers
-  useEffect(() => {
-    if (state.opponentAnswered && state.opponentAnswerData) {
-      const id = `opponent-answer-${Date.now()}`;
-      setToastNotifications(prev => [...prev, {
-        id,
-        title: state.opponentAnswerData.is_correct ? '✅ Правильно!' : '❌ Ошибка',
-        message: 'Соперник ответил на вопрос',
-        icon: state.opponentAnswerData.is_correct ? '⚡' : '❌'
-      }]);
-      
-      setTimeout(() => {
-        setToastNotifications(prev => prev.filter(n => n.id !== id));
-      }, 2000);
-    }
-  }, [state.opponentAnswered, state.opponentAnswerData]);
 
   useEffect(() => {
     if (!duelId || !profileId) return;
@@ -150,95 +59,93 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
       // Create notification via edge function
       const createNotification = async () => {
         try {
+          const isCorrect = state.opponentAnswerData.is_correct;
           await supabase.functions.invoke('duel-manager', {
             body: {
               action: 'create_notification',
               duel_id: duelId,
-              user_id: profileId,
-              type: 'opponent_answer',
-              is_correct: state.opponentAnswerData.is_correct,
+              profile_id: profileId,
+              type: 'progress',
+              title: isCorrect ? '💡 Соперник ответил!' : '❌ Соперник ошибся!',
+              message: isCorrect 
+                ? 'Правильный ответ! Продолжайте бороться!' 
+                : 'Ваш шанс догнать!',
+              icon: isCorrect ? '⚡' : '🎯'
             }
           });
         } catch (error) {
-          console.error('Error creating notification:', error);
+          console.error('[DuelBattleFullscreen] Error creating notification:', error);
         }
       };
       
       createNotification();
+      sounds.notificationPop();
     }
-  }, [state.opponentAnswered, state.opponentAnswerData]);
+  }, [state.opponentAnswered, state.opponentAnswerData, duelId, profileId]);
 
-  // Handle duel finished
+  // Handle duel completion
   useEffect(() => {
     if (state.duelFinished) {
-      console.log('[DuelBattleFullscreen] Duel finished from realtime!');
       onDuelFinished();
     }
-  }, [state.duelFinished, onDuelFinished]);
+  }, [state.duelFinished]);
 
   // Timer countdown
   useEffect(() => {
-    if (loading || isAnswered || timeLeft <= 0) return;
+    if (isAnswered || timeLeft <= 0) return;
 
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 100) {
-          handleTimeout();
-          return 0;
-        }
-        return prev - 100;
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        const newTime = Math.max(0, prev - 100);
+        if (newTime === 0) handleTimeout();
+        return newTime;
       });
     }, 100);
 
-    return () => clearInterval(interval);
-  }, [loading, isAnswered, timeLeft]);
+    return () => clearInterval(timer);
+  }, [timeLeft, isAnswered]);
 
   const loadQuestions = async () => {
     try {
-      const response = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'get_questions',
-          duel_id: duelId,
-        }
+      setLoading(true);
+      console.log('[DuelBattleFullscreen] Loading questions for duel:', duelId, 'profile:', profileId);
+      
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
       });
 
-      if (response.error) throw response.error;
+      console.log('[DuelBattleFullscreen] Questions response:', { data, error });
 
-      if (response.data?.questions) {
-        setQuestions(response.data.questions);
-        console.log('Questions loaded:', response.data.questions);
+      if (error) throw error;
+      if (data?.questions && Array.isArray(data.questions)) {
+        console.log('[DuelBattleFullscreen] Loaded questions:', data.questions.length);
+        setQuestions(data.questions);
+      } else {
+        console.error('[DuelBattleFullscreen] Invalid questions data:', data);
+        toast.error('Некорректные данные вопросов');
       }
-      
-      if (response.data?.player_id) {
-        setMyPlayerId(response.data.player_id);
-      }
-      
-      setLoading(false);
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error('[DuelBattleFullscreen] Error loading questions:', error);
       toast.error('Ошибка загрузки вопросов');
-      onExit();
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadScores = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('duel_players')
-        .select('*')
-        .eq('duel_id', duelId);
+    const { data } = await supabase
+      .from('duel_players')
+      .select('*')
+      .eq('duel_id', duelId);
 
-      if (error) throw error;
-      if (!data) return;
-
-      // Find my player using either user_id or id
-      const myPlayer = data.find(p => p.user_id === profileId || p.id === myPlayerId);
-      const opponent = data.find(p => p.user_id !== profileId && p.id !== myPlayerId);
-
-      if (myPlayer) setMyScore(myPlayer.score);
-      if (opponent) setOpponentScore(opponent.score);
-    } catch (error) {
-      console.error('Error loading scores:', error);
+    if (data && data.length > 0) {
+      const myPlayer = data.find(p => p.user_id === profileId);
+      const opponent = data.find(p => p.user_id !== profileId);
+      
+      if (myPlayer?.id) setMyPlayerId(myPlayer.id);
+      setMyScore(myPlayer?.score || 0);
+      setOpponentScore(opponent?.score || 0);
+      // Combo будет управляться через realtime обновления
     }
   };
 
@@ -246,139 +153,126 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     try {
       const { data, error } = await supabase
         .from('boost_inventory')
-        .select('*')
+        .select('boost_type, quantity')
         .eq('user_id', profileId)
         .gt('quantity', 0);
 
-      if (error) throw error;
-      setBoosts(data || []);
+      if (error) {
+        console.error('Error loading boosts:', error);
+        return;
+      }
+
+      if (data) setBoosts(data);
     } catch (error) {
-      console.error('Error loading boosts:', error);
+      console.error('Exception loading boosts:', error);
     }
   };
 
   const handleBoostUse = async (boostType: string) => {
+    if (usedBoosts.includes(boostType) || isAnswered) return;
+    
+    const boost = boosts.find(b => b.boost_type === boostType);
+    if (!boost || boost.quantity <= 0) return;
+
+    setUsedBoosts(prev => [...prev, boostType]);
+
     try {
-      const response = await supabase.functions.invoke('duel-manager', {
+      if (boostType === 'fifty_fifty') {
+        sounds.boostFiftyFifty();
+        const question = questions[currentIndex];
+        const incorrectOptions = (question.question_snapshot.answer_options || [])
+          .filter((opt: any) => !question.correct_option_ids.includes(opt.id))
+          .map((opt: any) => opt.id);
+        
+        const toEliminate = incorrectOptions.slice(0, 2);
+        setEliminatedOptions(toEliminate);
+      } else if (boostType === 'time_extend') {
+        sounds.boostTimeExtend();
+        setTimeLeft(prev => Math.min(prev + 15000, 60000));
+      } else if (boostType === 'hint') {
+        sounds.boostHint();
+        toast.info('💡 Подсказка: обратите внимание на детали!');
+      } else if (boostType === 'skip') {
+        sounds.boostSkip();
+        setIsAnswered(true);
+        setTimeout(() => {
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+            setIsAnswered(false);
+            setSelectedAnswer(null);
+            setTimeLeft(60000);
+            setUsedBoosts([]);
+            setEliminatedOptions([]);
+          } else {
+            finishDuel();
+          }
+        }, 500);
+      }
+
+      await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'use_boost',
           duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
           boost_type: boostType,
-          duel_question_id: currentQuestion?.id
-        }
+        },
       });
 
-      if (response.error) throw response.error;
-
-      // Handle different boost effects
-      if (boostType === 'fifty_fifty') {
-        // Filter out 2 incorrect answers
-        const currentQuestion = questions[currentIndex];
-        const incorrectOptions = currentQuestion.question_snapshot.options
-          .filter((opt: any) => !currentQuestion.correct_option_ids.includes(opt.id));
-        const toEliminate = incorrectOptions.slice(0, 2).map((opt: any) => opt.id);
-        setEliminatedOptions(prev => [...prev, ...toEliminate]);
-        
-        const id = `boost-${Date.now()}`;
-        setToastNotifications(prev => [...prev, {
-          id,
-          title: '✂️ 50/50 активирован!',
-          message: 'Убрано 2 неправильных ответа',
-          icon: '✂️'
-        }]);
-        setTimeout(() => setToastNotifications(prev => prev.filter(n => n.id !== id)), 2000);
-        
-      } else if (boostType === 'time_extend') {
-        // Add 30 seconds to current time
-        setTimeLeft(prev => prev + 30000);
-        
-        const id = `boost-${Date.now()}`;
-        setToastNotifications(prev => [...prev, {
-          id,
-          title: '⏰ Время продлено!',
-          message: '+30 секунд к таймеру',
-          icon: '⏰'
-        }]);
-        setTimeout(() => setToastNotifications(prev => prev.filter(n => n.id !== id)), 2000);
-        
-      } else if (boostType === 'hint') {
-        // Show explanation
-        setShowHint(true);
-        
-        const id = `boost-${Date.now()}`;
-        setToastNotifications(prev => [...prev, {
-          id,
-          title: '💡 Подсказка показана!',
-          message: 'Читайте объяснение к вопросу',
-          icon: '💡'
-        }]);
-        setTimeout(() => setToastNotifications(prev => prev.filter(n => n.id !== id)), 2000);
-        
-      } else if (boostType === 'skip') {
-        // Skip question
-        setShowHint(false);
-        handleTimeout();
-      }
-
-      // Mark boost as used
-      setUsedBoosts(prev => [...prev, boostType]);
       await loadBoosts();
-      
-      sounds.boostActivate();
-      haptics.buttonClick();
     } catch (error) {
       console.error('Error using boost:', error);
-      toast.error('Ошибка использования бустера');
     }
   };
 
-  const handleAnswer = async (selectedOptionId: string) => {
+  const handleAnswer = async (optionId: string) => {
     if (isAnswered) return;
 
-    setSelectedAnswer(selectedOptionId);
+    setSelectedAnswer(optionId);
     setIsAnswered(true);
 
-    const currentQuestion = questions[currentIndex];
-    const isCorrect = currentQuestion.correct_option_ids.includes(selectedOptionId);
-    const timeTaken = 60000 - timeLeft;
+    const question = questions[currentIndex];
+    const isCorrect = question.correct_option_ids.includes(optionId);
 
-    sounds.answerSubmit();
     if (isCorrect) {
       sounds.correctAnswer();
-      haptics.success();
-      setCombo(prev => prev + 1);
+      haptics.correctAnswer();
+      const newCombo = combo + 1;
+      setCombo(newCombo);
+      if (newCombo > 1) {
+        sounds.combo(newCombo);
+      }
+      if (newCombo >= 3) {
+        sounds.confetti();
+      }
     } else {
       sounds.wrongAnswer();
-      haptics.error();
+      haptics.wrongAnswer();
       setCombo(0);
     }
 
     try {
-      const response = await supabase.functions.invoke('duel-manager', {
+      await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
           duel_id: duelId,
-          duel_question_id: currentQuestion.id,
-          selected_option_id: selectedOptionId,
-          time_taken_ms: timeTaken,
-          is_correct: isCorrect,
-          combo: combo,
-        }
+          profile_id: profileId,
+          duel_question_id: question.id,
+          selected_option_id: optionId,
+          time_taken_ms: 60000 - timeLeft,
+        },
       });
-
-      if (response.error) throw response.error;
 
       await loadScores();
 
       setTimeout(() => {
-        if (currentIndex + 1 < questions.length) {
+        if (currentIndex < questions.length - 1) {
           setCurrentIndex(prev => prev + 1);
-          setTimeLeft(60000);
-          setSelectedAnswer(null);
           setIsAnswered(false);
-          setEliminatedOptions([]);
-          setShowHint(false);
+          setSelectedAnswer(null);
+          setTimeLeft(60000);
           setUsedBoosts([]);
+          setEliminatedOptions([]);
         } else {
           finishDuel();
         }
@@ -388,395 +282,328 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     }
   };
 
-  const handleTimeout = () => {
+  const handleTimeout = async () => {
     if (isAnswered) return;
-    
     setIsAnswered(true);
     sounds.wrongAnswer();
-    haptics.error();
-    setCombo(0);
-
-    setTimeout(async () => {
-      const currentQuestion = questions[currentIndex];
+    
+    try {
+      await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'submit_answer',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
+          selected_option_id: null,
+          time_taken_ms: 60000,
+        },
+      });
       
-      try {
-        await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'submit_answer',
-            duel_id: duelId,
-            duel_question_id: currentQuestion.id,
-            selected_option_id: null,
-            time_taken_ms: 60000,
-            is_correct: false,
-            combo: 0,
-          }
-        });
-
-        await loadScores();
-      } catch (error) {
-        console.error('Error submitting timeout:', error);
-      }
-
-      if (currentIndex + 1 < questions.length) {
-        setCurrentIndex(prev => prev + 1);
-        setTimeLeft(60000);
-        setSelectedAnswer(null);
-        setIsAnswered(false);
-        setEliminatedOptions([]);
-        setShowHint(false);
-        setUsedBoosts([]);
-      } else {
-        finishDuel();
-      }
-    }, 1000);
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+          setIsAnswered(false);
+          setSelectedAnswer(null);
+          setTimeLeft(60000);
+          setUsedBoosts([]);
+          setEliminatedOptions([]);
+        } else {
+          finishDuel();
+        }
+      }, 1500);
+    } catch (error) {
+      console.error('Error on timeout:', error);
+    }
   };
 
   const finishDuel = async () => {
-    console.log('[DuelBattleFullscreen] Finishing duel...');
-    
-    try {
-      const response = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'finish_duel',
-          duel_id: duelId,
-        }
-      });
-
-      if (response.error) throw response.error;
-
-      console.log('[DuelBattleFullscreen] Finish response:', response.data);
-
-      // If we need to wait for opponent
-      if (response.data?.waiting) {
-        console.log('[DuelBattleFullscreen] Waiting for opponent to finish...');
-        setIsWaitingForOpponent(true);
-        
-        // Play notification sound
-        sounds.victory();
-        haptics.success();
-      } else if (response.data?.finished) {
-        console.log('[DuelBattleFullscreen] Both players finished, navigating to results...');
-        onDuelFinished();
-      }
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] Error finishing duel:', error);
-      toast.error('Ошибка завершения дуэли');
-    }
+    await supabase.functions.invoke('duel-manager', {
+      body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
+    });
+    onDuelFinished();
   };
 
-  const handleExit = () => {
-    if (confirm('Вы уверены, что хотите выйти? Вы потеряете прогресс.')) {
-      onExit();
-    }
-  };
+  if (loading || questions.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+        <div className="text-center space-y-4">
+          <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+          <p className="text-lg text-muted-foreground">Загрузка вопросов...</p>
+        </div>
+      </div>
+    );
+  }
 
   const currentQuestion = questions[currentIndex];
-
-  if (loading || !currentQuestion) {
+  
+  if (!currentQuestion || !currentQuestion.question_snapshot) {
+    console.error('[DuelBattleFullscreen] Invalid question data:', currentQuestion);
     return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
         <div className="text-center space-y-4">
-          <div className="text-4xl animate-pulse">⚔️</div>
-          <div className="text-xl font-bold">Загрузка дуэли...</div>
+          <p className="text-lg text-destructive">Ошибка загрузки вопроса</p>
+          <Button onClick={onExit}>Выйти</Button>
         </div>
       </div>
     );
   }
 
-  // Minimized waiting widget
-  if (isWaitingForOpponent && isMinimized) {
-    return (
-      <motion.div 
-        className="fixed bottom-4 right-4 bg-card border-2 border-primary rounded-xl p-4 shadow-2xl cursor-pointer z-50"
-        onClick={() => setIsMinimized(false)}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.05 }}
-      >
-        <div className="flex items-center gap-3">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          >
-            <Clock className="w-6 h-6 text-primary" />
-          </motion.div>
-          <div className="text-sm font-bold">Ожидание...</div>
-        </div>
-      </motion.div>
-    );
-  }
+  const progress = ((currentIndex + 1) / questions.length) * 100;
 
-  // Waiting screen
-  if (isWaitingForOpponent) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/5 to-background flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-card rounded-2xl p-8 text-center space-y-6 border-2 shadow-xl">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          >
-            <Clock className="w-16 h-16 mx-auto text-primary" />
-          </motion.div>
-          <h2 className="text-2xl font-bold">⏳ Ожидание соперника...</h2>
-          <p className="text-muted-foreground">Вы завершили дуэль! Следите за прогрессом соперника.</p>
-          
-          {/* Opponent Progress */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Прогресс соперника:</span>
-              <span className="font-bold">{state.opponentProgress || 0}/10</span>
-            </div>
-            <Progress 
-              value={(state.opponentProgress || 0) * 10} 
-              className="h-3"
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 pt-4">
-            <div className="text-center p-4 bg-primary/10 rounded-lg">
-              <div className="text-3xl font-bold text-primary">{myScore}</div>
-              <div className="text-sm text-muted-foreground mt-1">Ваш счёт</div>
-            </div>
-            <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <motion.div 
-                className="text-3xl font-bold"
-                key={state.opponentScore}
-                initial={{ scale: 1.2, color: 'hsl(var(--primary))' }}
-                animate={{ scale: 1, color: 'currentColor' }}
-                transition={{ duration: 0.3 }}
-              >
-                {state.opponentScore || opponentScore}
-              </motion.div>
-              <div className="text-sm text-muted-foreground mt-1">Соперник</div>
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setIsMinimized(true);
-              sounds.buttonClick();
-              haptics.buttonClick();
-            }}
-            className="w-full"
-          >
-            Свернуть игру 📱
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Main duel interface
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-background via-primary/10 to-background overflow-y-auto">
-      <div className="max-w-4xl mx-auto p-4 pb-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleExit}
-              className="bg-background/80 hover:bg-background backdrop-blur-sm"
+    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-hidden">
+      {/* Toast Notifications */}
+      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+        <AnimatePresence mode="popLayout">
+          {toastNotifications.map((notif) => (
+            <NotificationToast
+              key={notif.id}
+              {...notif}
+              onClose={() => setToastNotifications(prev => prev.filter(n => n.id !== notif.id))}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Progress Bar - Duolingo Style */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-border">
+        <motion.div
+          className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400 shadow-lg shadow-green-500/50"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        />
+      </div>
+
+      {/* Exit Button - Top Left Corner */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onExit}
+        className="absolute top-2 left-2 z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
+      >
+        <X className="h-4 w-4" />
+      </Button>
+
+      {/* Main Content */}
+      <div className="h-full flex flex-col p-3 md:p-4 pt-12 max-w-4xl mx-auto">
+        {/* Header - Scores & Timer */}
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          {/* Scores */}
+          <div className="flex items-center gap-2 md:gap-4">
+            <motion.div 
+              className="text-center px-3 py-1.5 rounded-2xl bg-primary/10 border-2 border-primary/30"
+              animate={{ scale: myScore > opponentScore ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
             >
-              <X className="h-5 w-5" />
-            </Button>
+              <div className="text-xl md:text-2xl font-black text-primary">{myScore}</div>
+              <div className="text-xs text-muted-foreground hidden md:block">Вы</div>
+            </motion.div>
             
-            {/* Language Selector */}
-            <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-lg p-1">
-              {(['es', 'en', 'ru'] as Language[]).map((lang) => (
-                <Button
-                  key={lang}
-                  variant={language === lang ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => {
-                    setLanguage(lang);
-                    sounds.buttonClick();
-                  }}
-                  className="h-8 px-2 text-lg"
-                >
-                  {LANGUAGE_FLAGS[lang]}
-                </Button>
-              ))}
-            </div>
+            <div className="text-2xl font-bold text-muted-foreground/30">VS</div>
+            
+            <motion.div 
+              className="text-center px-3 py-1.5 rounded-2xl bg-secondary/10 border-2 border-secondary/30"
+              animate={{ scale: opponentScore > myScore ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="text-xl md:text-2xl font-black text-secondary">{opponentScore}</div>
+              <div className="text-xs text-muted-foreground hidden md:block">Соперник</div>
+            </motion.div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full">
-              <Users className="w-5 h-5 text-primary" />
-              <motion.span 
-                className="font-bold text-xl"
-                key={myScore}
-                initial={{ scale: 1.2, color: 'hsl(var(--primary))' }}
-                animate={{ scale: 1, color: 'currentColor' }}
-                transition={{ duration: 0.3 }}
-              >
-                {myScore}
-              </motion.span>
-            </div>
-            
-            <span className="text-muted-foreground font-bold">VS</span>
-            
-            <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full">
-              <Shield className="w-5 h-5 text-orange-500" />
-              <motion.span 
-                className="font-bold text-xl"
-                key={state.opponentScore || opponentScore}
-                initial={{ scale: 1.2, color: 'hsl(var(--primary))' }}
-                animate={{ 
-                  scale: (state.opponentScore || opponentScore) > myScore ? 1.15 : 1,
-                  color: (state.opponentScore || opponentScore) > myScore ? 'hsl(var(--destructive))' : 'currentColor'
-                }}
-                transition={{ duration: 0.3 }}
-              >
-                {state.opponentScore || opponentScore}
-              </motion.span>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2 text-sm">
-            <span className="font-medium">Вопрос {currentIndex + 1} из {questions.length}</span>
-            {combo > 1 && (
-              <Badge variant="default" className="flex items-center gap-1">
-                <Flame className="w-3 h-3" />
-                Серия {combo}
-              </Badge>
-            )}
-          </div>
-          <Progress value={((currentIndex + 1) / questions.length) * 100} className="h-2" />
-        </div>
-
-        {/* Timer and Boosts */}
-        <div className="flex items-center justify-between mb-6">
+          {/* Timer & Combo */}
           <div className="flex items-center gap-2">
-            <Clock className={`w-5 h-5 ${timeLeft < 10000 ? 'text-destructive' : 'text-primary'}`} />
-            <span className={`text-2xl font-bold ${timeLeft < 10000 ? 'text-destructive' : ''}`}>
-              {Math.ceil(timeLeft / 1000)}s
-            </span>
-          </div>
-
-          <div className="flex gap-2">
-            {boosts.map((boost) => (
-              <Button
-                key={boost.boost_type}
-                variant="outline"
-                size="sm"
-                onClick={() => handleBoostUse(boost.boost_type)}
-                disabled={usedBoosts.includes(boost.boost_type) || isAnswered}
-                className="relative"
-              >
-                {boost.boost_type === 'fifty_fifty' && '✂️'}
-                {boost.boost_type === 'time_extend' && '⏰'}
-                {boost.boost_type === 'hint' && '💡'}
-                {boost.boost_type === 'skip' && '⏭️'}
-                <Badge variant="secondary" className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                  {boost.quantity}
-                </Badge>
-              </Button>
-            ))}
+            <AnimatePresence>
+              {combo > 1 && (
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0, rotate: 180 }}
+                  className="relative"
+                >
+                  <Badge className="gradient-fire border-none text-white px-2 py-1 text-sm font-bold shadow-lg shadow-orange-500/50">
+                    <Flame className="w-3 h-3 mr-1 animate-pulse" />
+                    x{combo}
+                  </Badge>
+                  {/* Fire particles effect */}
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
+                    animate={{
+                      scale: [1, 1.5, 0],
+                      opacity: [1, 0.5, 0],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      repeatDelay: 0.5,
+                    }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            <motion.div 
+              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border"
+              animate={{ 
+                scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
+                borderColor: timeLeft < 10000 ? ['hsl(var(--border))', 'hsl(var(--destructive))', 'hsl(var(--border))'] : 'hsl(var(--border))'
+              }}
+              transition={{ duration: 0.5, repeat: timeLeft < 10000 ? Infinity : 0 }}
+            >
+              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className={`font-mono font-bold text-xs md:text-sm ${timeLeft < 10000 ? 'text-destructive' : ''}`}>
+                {Math.ceil(timeLeft / 1000)}s
+              </span>
+            </motion.div>
           </div>
         </div>
 
-        {/* Hint Display */}
-        {showHint && currentQuestion && (
-          <motion.div
+        {/* Question Progress */}
+        <div className="text-center mb-3 md:mb-4">
+          <p className="text-xs md:text-sm font-medium text-muted-foreground">
+            Вопрос <span className="text-primary font-bold">{currentIndex + 1}</span> из {questions.length}
+          </p>
+        </div>
+
+        {/* Boosts Section - Duolingo Style */}
+        {boosts.length > 0 && (
+          <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-400 rounded-xl max-h-48 overflow-y-auto shadow-lg"
+            className="mb-4 flex flex-wrap gap-2 justify-center"
           >
-            <div className="flex items-start gap-2">
-              <div className="text-3xl">💡</div>
-              <div className="flex-1">
-                <div className="font-bold text-amber-700 dark:text-amber-300 mb-2 flex items-center justify-between">
-                  <span>Подсказка:</span>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => setShowHint(false)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-                <p className="text-sm text-foreground leading-relaxed">
-                  {currentQuestion.question_snapshot[`explanation_${language}`] || currentQuestion.question_snapshot.explanation_es}
-                </p>
-              </div>
-            </div>
+            {boosts.map((boost) => {
+              const boostConfig = {
+                fifty_fifty: { icon: '5️⃣0️⃣', label: '50/50', gradient: 'from-blue-500 to-cyan-500' },
+                time_extend: { icon: '⏱️', label: '+Время', gradient: 'from-purple-500 to-pink-500' },
+                hint: { icon: '⚡', label: 'Подсказка', gradient: 'from-yellow-500 to-orange-500' },
+                skip: { icon: '⏭️', label: 'Пропуск', gradient: 'from-green-500 to-emerald-500' },
+              }[boost.boost_type] || { icon: '🎯', label: boost.boost_type, gradient: 'from-gray-500 to-gray-600' };
+
+              const isUsed = usedBoosts.includes(boost.boost_type);
+              const isDisabled = isUsed || isAnswered || boost.quantity <= 0;
+
+              return (
+                <motion.button
+                  key={boost.boost_type}
+                  onClick={() => handleBoostUse(boost.boost_type)}
+                  disabled={isDisabled}
+                  whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                  whileTap={!isDisabled ? { scale: 0.95 } : {}}
+                  className={`relative px-3 py-2 rounded-xl font-bold text-sm transition-all shadow-lg border-2 ${
+                    isDisabled
+                      ? 'bg-muted/50 border-border/30 opacity-50 cursor-not-allowed'
+                      : `bg-gradient-to-r ${boostConfig.gradient} text-white border-white/30 hover:shadow-xl`
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-base">{boostConfig.icon}</span>
+                    <span className="hidden sm:inline">{boostConfig.label}</span>
+                    <span className="text-xs bg-white/20 rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                      {boost.quantity}
+                    </span>
+                  </span>
+                </motion.button>
+              );
+            })}
           </motion.div>
         )}
 
-        {/* Question */}
-        <div className="bg-card rounded-2xl p-6 border-2 shadow-xl mb-6">
-          <h3 className="text-2xl font-bold text-center mb-6 leading-tight">
-            {currentQuestion.question_snapshot[`question_${language}`] || currentQuestion.question_snapshot.question_es}
-          </h3>
+        {/* Question Card */}
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="flex-1 flex flex-col"
+        >
+          <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col">
+            {/* Question Image */}
+            {currentQuestion.question_snapshot.image_url && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-6 rounded-2xl overflow-hidden bg-muted/50"
+              >
+                <img
+                  src={currentQuestion.question_snapshot.image_url}
+                  alt="Question"
+                  className="w-full h-48 md:h-56 object-contain"
+                />
+              </motion.div>
+            )}
 
-          {currentQuestion.question_snapshot.image_url && (
-            <div className="mb-6 rounded-xl overflow-hidden">
-              <img 
-                src={currentQuestion.question_snapshot.image_url} 
-                alt="Question" 
-                className="w-full max-h-64 object-contain"
-              />
+            {/* Question Text */}
+            <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground">
+              {currentQuestion.question_snapshot.question_ru}
+            </h2>
+
+            {/* Answer Options */}
+            <div className="grid gap-3">
+              {(currentQuestion.question_snapshot.answer_options || [])
+                .sort((a: any, b: any) => a.position - b.position)
+                .map((option: any, idx: number) => {
+                  const isSelected = selectedAnswer === option.id;
+                  const isCorrect = currentQuestion.correct_option_ids.includes(option.id);
+                  const showResult = isAnswered;
+                  const isEliminated = eliminatedOptions.includes(option.id);
+
+                  if (isEliminated && !showResult) {
+                    return (
+                      <motion.div
+                        key={option.id}
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: 0, height: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="overflow-hidden"
+                      />
+                    );
+                  }
+
+                  return (
+                    <motion.button
+                      key={option.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      onClick={() => handleAnswer(option.id)}
+                      disabled={isAnswered || isEliminated}
+                      whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
+                      whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
+                      className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto ${
+                        showResult
+                          ? isCorrect
+                            ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
+                            : isSelected
+                            ? 'bg-red-500/20 border-red-500 text-foreground shadow-lg'
+                            : 'bg-muted/30 border-border/30 opacity-50'
+                          : isSelected
+                          ? 'bg-primary/20 border-primary shadow-lg'
+                          : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
+                      }`}
+                    >
+                      {showResult && (isCorrect || isSelected) && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className={`absolute top-2 md:top-3 right-2 md:right-3 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold text-white ${
+                            isCorrect ? 'bg-green-500' : 'bg-red-500'
+                          }`}
+                        >
+                          {isCorrect ? '✓' : '✗'}
+                        </motion.div>
+                      )}
+                      <span className="block pr-10 text-base break-words">
+                        {option.text_ru}
+                      </span>
+                    </motion.button>
+                  );
+                })}
             </div>
-          )}
-
-          <div className="grid gap-3">
-            {currentQuestion.question_snapshot.options
-              .filter((opt: any) => !eliminatedOptions.includes(opt.id))
-              .map((option: any, index: number) => {
-                const isSelected = selectedAnswer === option.id;
-                const isCorrect = currentQuestion.correct_option_ids.includes(option.id);
-                const showResult = isAnswered && isSelected;
-
-                return (
-                  <Button
-                    key={option.id}
-                    onClick={() => handleAnswer(option.id)}
-                    disabled={isAnswered}
-                    variant="outline"
-                    className={`
-                      h-auto py-4 px-6 text-left justify-start text-lg font-medium
-                      transition-all duration-200 hover:scale-[1.02]
-                      ${showResult && isCorrect ? 'bg-success/20 border-success text-success-foreground' : ''}
-                      ${showResult && !isCorrect ? 'bg-destructive/20 border-destructive text-destructive-foreground' : ''}
-                      ${!showResult ? 'hover:bg-primary/5 hover:border-primary/30' : ''}
-                    `}
-                  >
-                    <span className="mr-3 font-bold text-primary">
-                      {String.fromCharCode(65 + index)}.
-                    </span>
-                    {option[`text_${language}`] || option.text_es}
-                  </Button>
-                );
-              })}
           </div>
-        </div>
-
-        {/* Notifications */}
-        <AnimatePresence>
-          {toastNotifications.map((notif) => (
-            <motion.div
-              key={notif.id}
-              initial={{ opacity: 0, y: -50, x: '-50%' }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -50 }}
-              className="fixed top-4 left-1/2 z-50"
-            >
-              <NotificationToast
-                title={notif.title}
-                message={notif.message}
-                icon={notif.icon}
-                onClose={() => {}}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );

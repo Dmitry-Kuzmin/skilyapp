@@ -58,34 +58,15 @@ function calculateScore(
   difficulty: string,
   timeRemainMs: number,
   timeTotalMs: number,
-  combo: number,
-  isFasterThanOpponent: boolean = false
+  combo: number
 ): number {
-  // Base points for correct answer
-  let points = 100;
-
-  // Difficulty multiplier
-  if (difficulty === 'hard') {
-    points *= 1.5;
-  } else if (difficulty === 'easy') {
-    points *= 0.8;
-  }
-
-  // Speed bonus if faster than opponent by 5+ seconds
-  if (isFasterThanOpponent) {
-    points += 10;
-  }
-
-  // Combo bonus - every 3 correct answers in a row
-  if (combo > 0 && combo % 3 === 0) {
-    points += 20;
-  }
-
-  // Time bonus (up to 30% bonus for fast answers)
-  const timeBonus = Math.floor((timeRemainMs / timeTotalMs) * 30);
-  points += timeBonus;
-
-  return Math.floor(points);
+  const basePoints = { easy: 100, medium: 200, hard: 350 };
+  const base = basePoints[difficulty as keyof typeof basePoints] || 200;
+  
+  const timeBonus = Math.round((timeRemainMs / timeTotalMs) * base * 0.4);
+  const comboMult = Math.min(1 + (combo * 0.05), 1.20);
+  
+  return Math.round((base + timeBonus) * comboMult);
 }
 
 // Bot simulation
@@ -188,84 +169,45 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // ============================================================================
-    // CRITICAL: HYBRID AUTHENTICATION SUPPORT
-    // ============================================================================
-    // This function supports TWO authentication methods:
-    // 1. WEB users: Use Supabase Auth JWT tokens (Authorization header)
-    // 2. TELEGRAM users: Use telegram_id from request body
-    // 
-    // DO NOT REMOVE EITHER METHOD - both are required for the app to function
-    // The telegram_id method is NECESSARY for Telegram WebApp environment
-    // because Telegram has issues with JWT token persistence and session management
-    // ============================================================================
+    // Parse request body first to get profile_id if provided
+    const { action, profile_id, ...params } = await req.json();
 
-    const { action, telegram_id, ...params } = await req.json();
-    console.log('[Duel Manager] Action:', action, 'Telegram ID:', telegram_id ? 'present' : 'none');
+    console.log('[Duel Manager] Action:', action, 'Profile ID from client:', profile_id);
 
-    let profileId: string;
+    let profileId: string | null = profile_id || null;
 
-    // Try Telegram authentication first (if telegram_id is provided)
-    if (telegram_id) {
-      console.log('[Duel Manager] 🔵 Using TELEGRAM authentication via telegram_id:', telegram_id);
-      
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('telegram_id', telegram_id)
-        .maybeSingle();
-
-      if (profileError || !profile) {
-        console.error('[Duel Manager] Telegram profile not found for telegram_id:', telegram_id);
-        return new Response(JSON.stringify({ error: 'Telegram profile not found' }), {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      profileId = profile.id;
-      console.log('[Duel Manager] ✅ Telegram profile found:', profileId);
-    } else {
-      // Fall back to standard Supabase Auth for web users
-      console.log('[Duel Manager] 🟢 Using WEB authentication via JWT token');
-      
-      const authHeader = req.headers.get('Authorization');
-      if (!authHeader) {
-        console.error('[Duel Manager] No authorization: missing both telegram_id and auth token');
-        return new Response(JSON.stringify({ error: 'Not authenticated' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
+    // If profile_id is not provided, try to get it from auth (fallback for email users)
+    if (!profileId) {
+      console.log('[Duel Manager] No profile_id provided, attempting auth lookup...');
+      const authHeader = req.headers.get('Authorization')!;
       const { data: { user }, error: authError } = await supabase.auth.getUser(
         authHeader.replace('Bearer ', '')
       );
 
-      if (authError || !user) {
-        console.error('[Duel Manager] Auth error:', authError);
-        return new Response(JSON.stringify({ error: 'Not authenticated' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+      if (user && !authError) {
+        console.log('[Duel Manager] Authenticated user found:', user.id);
+        
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (profile && !profileError) {
+          profileId = profile.id;
+          console.log('[Duel Manager] Profile found via auth:', profileId);
+        }
       }
+    } else {
+      console.log('[Duel Manager] Using profile_id from client:', profileId);
+    }
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (profileError || !profile) {
-        console.error('[Duel Manager] Web profile not found for user:', user.id);
-        return new Response(JSON.stringify({ error: 'Profile not found' }), {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      profileId = profile.id;
-      console.log('[Duel Manager] ✅ Web profile found:', profileId);
+    if (!profileId) {
+      console.error('[Duel Manager] Profile not found - neither from client nor auth');
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     switch (action) {
@@ -444,7 +386,6 @@ Deno.serve(async (req) => {
             .from('questions_new')
             .select(`
               id, question_ru, question_es, question_en, image_url, difficulty,
-              explanation_ru, explanation_es, explanation_en,
               answer_options(id, text_ru, text_es, text_en, is_correct, position)
             `);
 
@@ -463,16 +404,12 @@ Deno.serve(async (req) => {
 
           // Insert duel questions with randomly selected set
           const duelQuestions = selectedQuestions.map((q, idx) => {
-            const answerOptions = q.answer_options || [];
             const snapshot = {
               question_ru: q.question_ru,
               question_es: q.question_es,
               question_en: q.question_en,
-              explanation_ru: q.explanation_ru,
-              explanation_es: q.explanation_es,
-              explanation_en: q.explanation_en,
               image_url: q.image_url,
-              options: answerOptions, // Changed from answer_options to options
+              answer_options: q.answer_options || [],
               difficulty: q.difficulty,
             };
             
@@ -481,7 +418,7 @@ Deno.serve(async (req) => {
               question_id: q.id,
               position: idx + 1,
               question_snapshot: snapshot,
-              correct_option_ids: answerOptions
+              correct_option_ids: (q.answer_options || [])
                 .filter((opt: any) => opt.is_correct)
                 .map((opt: any) => opt.id),
             };
@@ -559,11 +496,8 @@ Deno.serve(async (req) => {
             question_ru: q.question_ru,
             question_es: q.question_es,
             question_en: q.question_en,
-            explanation_ru: q.explanation_ru,
-            explanation_es: q.explanation_es,
-            explanation_en: q.explanation_en,
             image_url: q.image_url,
-            options: options || [], // Changed from answer_options to options
+            answer_options: options || [],
             difficulty: q.difficulty,
           };
 
@@ -646,21 +580,8 @@ Deno.serve(async (req) => {
         const timeLimit = 60000; // 60 seconds
         const timeRemain = Math.max(0, timeLimit - adjustedTime);
 
-        // Check if faster than opponent on the same question
-        const { data: opponentAnswer } = await supabase
-          .from('duel_answers')
-          .select('time_taken_ms')
-          .eq('duel_id', duel_id)
-          .eq('duel_question_id', duel_question_id)
-          .neq('player_id', player.id)
-          .maybeSingle();
-
-        const isFasterThanOpponent = opponentAnswer 
-          ? adjustedTime < (opponentAnswer.time_taken_ms - 5000)
-          : false;
-
         const difficulty = (question.question_snapshot as any).difficulty || 'medium';
-        const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo, isFasterThanOpponent) : 0;
+        const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo) : 0;
 
         // Insert answer
         await supabase.from('duel_answers').insert({
@@ -743,170 +664,49 @@ Deno.serve(async (req) => {
 
       case 'finish_duel': {
         const { duel_id } = params;
-        
-        console.log('[finish_duel] Player finishing duel:', duel_id, 'profile:', profileId);
 
-        // Get duel data
-        const { data: duel, error: duelError } = await supabase
+        // Check if already finished
+        const { data: duel } = await supabase
           .from('duels')
-          .select('finished_by_players, host_user, status, num_questions')
+          .select('status')
           .eq('id', duel_id)
           .single();
 
-        if (duelError) throw duelError;
-
-        // Add current player to finished_by_players
-        const finishedPlayers = duel.finished_by_players || [];
-        if (!finishedPlayers.includes(profileId)) {
-          finishedPlayers.push(profileId);
+        if (duel?.status === 'finished') {
+          return new Response(JSON.stringify({ message: 'Already finished' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
         }
 
-        // Determine if this player is host
-        const isHost = duel.host_user === profileId;
-        const finishedAtField = isHost ? 'user_a_finished_at' : 'user_b_finished_at';
+        // Mark as finished and determine winner
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('*')
+          .eq('duel_id', duel_id)
+          .order('score', { ascending: false });
 
-        // Update duel with player finish time
-        await supabase
-          .from('duels')
-          .update({
-            finished_by_players: finishedPlayers,
-            [finishedAtField]: new Date().toISOString(),
-          })
-          .eq('id', duel_id);
+        if (players && players.length >= 2) {
+          const isDraw = players[0].score === players[1].score;
+          const winnerId = isDraw ? null : players[0].id;
 
-        console.log('[finish_duel] Updated finished_by_players:', finishedPlayers.length);
-
-        // If both players finished, calculate winner
-        if (finishedPlayers.length === 2) {
-          console.log('[finish_duel] Both players finished, determining winner...');
-
-          const { data: allPlayers } = await supabase
-            .from('duel_players')
-            .select('*')
-            .eq('duel_id', duel_id)
-            .order('score', { ascending: false });
-
-          if (!allPlayers || allPlayers.length < 2) {
-            throw new Error('Not enough players to finish duel');
-          }
-
-          const winner = allPlayers[0];
-          const isDraw = allPlayers[0].score === allPlayers[1].score;
-
-          // Update duel with final results
           await supabase
             .from('duels')
             .update({
               status: 'finished',
-              winner_id: isDraw ? null : winner.user_id,
               finished_at: new Date().toISOString(),
             })
             .eq('id', duel_id);
 
           // Update stats for both players
-          // Update stats and rewards for both players
-          for (const p of allPlayers) {
-            if (!p.user_id || p.is_bot) continue;
-            
-            const isWin = !isDraw && p.id === winner.id;
-            const isPerfect = p.correct_count === duel.num_questions;
-            
-            // Update duel stats
+          for (const player of players) {
+            const isWin = player.id === winnerId;
             await supabase.rpc('upsert_duel_stats', {
-              p_user_id: p.user_id,
-              p_is_win: isWin,
+              p_user_id: player.user_id,
+              p_is_win: isWin && !isDraw,
               p_is_draw: isDraw,
-              p_score: p.score,
-            });
-            
-            // Calculate rewards
-            let coinsReward = isWin ? 15 : (isDraw ? 8 : 3);
-            let xpReward = isWin ? 30 : (isDraw ? 15 : 5);
-            
-            // Perfect game bonuses
-            if (isPerfect) {
-              coinsReward += 10;
-              xpReward += 20;
-            }
-            
-            // Update coins
-            await supabase.rpc('increment_profile_value', {
-              p_profile_id: p.user_id,
-              p_column: 'coins',
-              p_amount: coinsReward,
-            });
-            
-            // Update XP
-            await supabase.rpc('increment_profile_value', {
-              p_profile_id: p.user_id,
-              p_column: 'xp',
-              p_amount: xpReward,
-            });
-            
-            // 20% chance for random boost on win
-            if (isWin && Math.random() < 0.2) {
-              const boostTypes = ['fifty_fifty', 'time_extend', 'hint', 'skip'];
-              const randomBoost = boostTypes[Math.floor(Math.random() * boostTypes.length)];
-              await supabase.rpc('modify_boost_inventory', {
-                p_user_id: p.user_id,
-                p_boost_type: randomBoost,
-                p_change: 1,
-              });
-            }
-            
-            // Guaranteed boost for perfect game
-            if (isPerfect) {
-              await supabase.rpc('modify_boost_inventory', {
-                p_user_id: p.user_id,
-                p_boost_type: 'time_extend',
-                p_change: 1,
-              });
-            }
-          }
-
-          // Send finish notifications with reward info
-          for (const p of allPlayers) {
-            if (!p.user_id) continue;
-            
-            const isWinner = !isDraw && p.id === winner.id;
-            const isPerfect = p.correct_count === duel.num_questions;
-            const coinsEarned = (isWinner ? 15 : (isDraw ? 8 : 3)) + (isPerfect ? 10 : 0);
-            const xpEarned = (isWinner ? 30 : (isDraw ? 15 : 5)) + (isPerfect ? 20 : 0);
-            
-            await supabase.from('duel_notifications').insert({
-              user_id: p.user_id,
-              duel_id,
-              type: 'finish',
-              title: isWinner ? '🏆 Победа!' : (isDraw ? '🤝 Ничья!' : '😔 Поражение'),
-              message: `Счёт: ${allPlayers[0].score} - ${allPlayers[1].score}. Награды: ${coinsEarned} монет, ${xpEarned} XP${isPerfect ? ' + бустер!' : ''}`,
-              icon: isWinner ? '🎉' : (isDraw ? '🤝' : '⚔️'),
-              metadata: {
-                winner_id: isDraw ? null : winner.user_id,
-                rewards: { coins: coinsEarned, xp: xpEarned, isPerfect }
-              }
+              p_score: player.score
             });
           }
-
-          console.log('[finish_duel] Duel finished, winner:', isDraw ? 'Draw' : winner.user_id);
-
-          return new Response(JSON.stringify({ 
-            waiting: false,
-            finished: true,
-            winner_id: isDraw ? null : winner.user_id,
-            is_draw: isDraw,
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        } else {
-          // Only one player finished, show waiting screen
-          console.log('[finish_duel] Waiting for opponent to finish...');
-          
-          return new Response(JSON.stringify({ 
-            waiting: true,
-            finished: false,
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
         }
 
         return new Response(JSON.stringify({ success: true }), {

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Zap, Clock, Lightbulb, FastForward } from 'lucide-react';
 
 interface BoostButtonProps {
-  type: 'fifty_fifty' | 'time_extend' | 'hint' | 'skip' | 'translate';
+  type: 'fifty_fifty' | 'time_extend' | 'hint' | 'skip';
   icon: string;
   name: string;
   available: number;
@@ -16,38 +16,27 @@ interface BoostButtonProps {
 const boostConfig = {
   fifty_fifty: {
     icon: Zap,
-    gradient: 'from-amber-400 via-yellow-400 to-amber-500',
-    glowColor: 'rgba(251, 191, 36, 0.5)',
+    gradient: 'from-yellow-400 via-orange-400 to-yellow-500',
+    glowColor: 'rgba(251, 191, 36, 0.4)',
     description: '50/50: Убирает 2 неправильных варианта',
-    shadow: 'shadow-amber-500/30',
   },
   time_extend: {
     icon: Clock,
-    gradient: 'from-cyan-400 via-blue-400 to-cyan-500',
-    glowColor: 'rgba(59, 130, 246, 0.5)',
+    gradient: 'from-blue-400 via-cyan-400 to-blue-500',
+    glowColor: 'rgba(59, 130, 246, 0.4)',
     description: '+30 секунд: Добавляет время',
-    shadow: 'shadow-blue-500/30',
   },
   hint: {
     icon: Lightbulb,
-    gradient: 'from-orange-400 via-red-400 to-orange-500',
-    glowColor: 'rgba(251, 146, 60, 0.5)',
+    gradient: 'from-orange-400 via-amber-400 to-orange-500',
+    glowColor: 'rgba(251, 146, 60, 0.4)',
     description: 'Подсказка: Показывает подсказку к вопросу',
-    shadow: 'shadow-orange-500/30',
   },
   skip: {
     icon: FastForward,
-    gradient: 'from-violet-400 via-purple-400 to-violet-500',
-    glowColor: 'rgba(168, 85, 247, 0.5)',
+    gradient: 'from-purple-400 via-pink-400 to-purple-500',
+    glowColor: 'rgba(168, 85, 247, 0.4)',
     description: 'Пропуск: Пропускает текущий вопрос',
-    shadow: 'shadow-purple-500/30',
-  },
-  translate: {
-    icon: Lightbulb,
-    gradient: 'from-emerald-400 via-green-400 to-emerald-500',
-    glowColor: 'rgba(16, 185, 129, 0.5)',
-    description: 'Перевод: Переводит вопрос на русский',
-    shadow: 'shadow-emerald-500/30',
   },
 };
 
@@ -67,19 +56,19 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
       <Tooltip>
         <TooltipTrigger asChild>
           <motion.div
-            whileHover={!isDisabled ? { scale: 1.05 } : {}}
-            whileTap={!isDisabled ? { scale: 0.95 } : {}}
+            whileHover={!isDisabled ? { scale: 1.1, rotate: 5 } : {}}
+            whileTap={!isDisabled ? { scale: 0.9, rotate: -5 } : {}}
             className="relative"
           >
             {!isDisabled && (
               <motion.div
-                className={`absolute -inset-1 bg-gradient-to-r ${config.gradient} blur-md opacity-70 rounded-xl`}
+                className={`absolute inset-0 bg-gradient-to-r ${config.gradient} blur-xl opacity-50 rounded-lg`}
                 animate={{
-                  opacity: [0.5, 0.8, 0.5],
-                  scale: [0.98, 1.02, 0.98],
+                  opacity: [0.3, 0.6, 0.3],
+                  scale: [1, 1.05, 1],
                 }}
                 transition={{
-                  duration: 2.5,
+                  duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
@@ -90,17 +79,18 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
               disabled={isDisabled}
               variant="outline"
               size="sm"
-              className={`relative h-11 px-4 flex items-center gap-2 border-2 transition-all duration-300 rounded-xl ${
+              className={`relative h-9 px-3 flex items-center gap-1.5 border transition-all duration-300 ${
                 isDisabled 
-                  ? 'opacity-40 grayscale cursor-not-allowed bg-muted/50 border-muted' 
-                  : `bg-gradient-to-br ${config.gradient} text-white border-white/30 hover:border-white/60 shadow-lg ${config.shadow} hover:shadow-xl hover:${config.shadow}`
+                  ? 'opacity-30 grayscale cursor-not-allowed' 
+                  : `bg-gradient-to-br ${config.gradient} text-white border-white/20 hover:border-white/50 shadow-md hover:shadow-lg`
               }`}
             >
-              <IconComponent className="w-4 h-4" />
+              <span className="text-base">{icon}</span>
+              <span className="text-xs font-bold">{name}</span>
               {available > 0 && (
                 <Badge 
                   variant="default" 
-                  className="h-5 min-w-5 px-1.5 flex items-center justify-center bg-white/25 backdrop-blur-sm text-white border-white/40 text-xs font-bold rounded-full"
+                  className="h-4 px-1 flex items-center justify-center bg-white/20 text-white border-white/30 text-[10px] font-bold ml-0.5"
                 >
                   {available}
                 </Badge>
@@ -108,7 +98,7 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
             </Button>
           </motion.div>
         </TooltipTrigger>
-        <TooltipContent className="bg-card/95 backdrop-blur-sm border-2 shadow-xl">
+        <TooltipContent className="bg-card border-2">
           <p className="text-sm font-medium">{config.description}</p>
         </TooltipContent>
       </Tooltip>

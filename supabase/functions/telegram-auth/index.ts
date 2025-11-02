@@ -26,9 +26,21 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const requestBody = await req.json();
-    console.log('[Telegram Auth] Authentication request received');
+    console.log('[Telegram Auth] Request body received:', {
+      hasUser: !!requestBody.user,
+      userId: requestBody.user?.id,
+      platform: requestBody.platform
+    });
 
     const { user, platform = 'telegram' } = requestBody;
+
+    console.log('[Telegram Auth] Processing user:', { 
+      userId: user?.id, 
+      firstName: user?.first_name,
+      lastName: user?.last_name,
+      username: user?.username,
+      platform 
+    });
 
     if (!user || !user.id) {
       console.error('[Telegram Auth] Missing user data');
@@ -38,91 +50,69 @@ serve(async (req) => {
       );
     }
 
-    // ============================================================================
-    // CRITICAL: TELEGRAM HYBRID AUTHENTICATION SYSTEM
-    // ============================================================================
-    // This function uses a HYBRID approach:
-    // 1. For TELEGRAM users: Uses telegram_id stored in profiles table
-    // 2. For WEB users: Uses standard Supabase Auth
-    // 
-    // DO NOT MODIFY THIS APPROACH WITHOUT CAREFUL TESTING IN TELEGRAM ENVIRONMENT
-    // The telegram_id approach is NECESSARY because Telegram WebApp has issues
-    // with standard JWT tokens and session persistence
-    // ============================================================================
-    
-    console.log('[Telegram Auth] Using hybrid Telegram authentication (telegram_id based)');
+    console.log('[Telegram Auth] Upserting profile for telegram_id:', user.id);
 
-    // Get or create profile directly using telegram_id
-    // This bypasses Supabase Auth JWT issues in Telegram environment
-    const { data: existingProfile } = await supabase
+    // Upsert user profile with automatic settings initialization
+    const { data: profile, error: upsertError } = await supabase
       .from('profiles')
-      .select('id, user_id, telegram_id')
-      .eq('telegram_id', user.id)
+      .upsert({
+        telegram_id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name || null,
+        username: user.username || null,
+        photo_url: user.photo_url || null,
+        language_code: user.language_code || null,
+        is_premium: user.is_premium || false,
+        platform: platform,
+        last_login: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        settings: {
+          theme: 'light',
+          language: user.language_code || 'en',
+          notifications: true
+        }
+      }, {
+        onConflict: 'telegram_id',
+        ignoreDuplicates: false
+      })
+      .select()
       .single();
 
-    let profile;
-
-    if (existingProfile) {
-      // Update existing profile with latest Telegram data
-      const { data: updatedProfile } = await supabase
-        .from('profiles')
-        .update({
-          first_name: user.first_name,
-          last_name: user.last_name,
-          username: user.username,
-          photo_url: user.photo_url,
-          language_code: user.language_code,
-          is_premium: user.is_premium,
-          platform,
-          last_login: new Date().toISOString()
-        })
-        .eq('telegram_id', user.id)
-        .select('id')
-        .single();
-
-      profile = updatedProfile;
-      console.log('[Telegram Auth] Existing Telegram profile updated');
-    } else {
-      // Create new profile with telegram_id
-      // Note: user_id can be null for Telegram-only users
-      const { data: newProfile, error: createError } = await supabase
-        .from('profiles')
-        .insert({
-          telegram_id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          username: user.username,
-          photo_url: user.photo_url,
-          language_code: user.language_code,
-          is_premium: user.is_premium,
-          platform,
-          user_id: null // Telegram users don't need Supabase auth user_id
-        })
-        .select('id')
-        .single();
-
-      if (createError) {
-        console.error('[Telegram Auth] Profile creation failed:', createError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to create profile' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      profile = newProfile;
-      console.log('[Telegram Auth] New Telegram profile created');
+    if (upsertError) {
+      console.error('[Telegram Auth] Upsert error:', {
+        message: upsertError.message,
+        details: upsertError.details,
+        hint: upsertError.hint,
+        code: upsertError.code
+      });
+      return new Response(
+        JSON.stringify({ error: upsertError.message, details: upsertError.details }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    console.log('[Telegram Auth] Authentication successful');
+    console.log('[Telegram Auth] Profile saved successfully:', {
+      profileId: profile.id,
+      telegramId: profile.telegram_id,
+      firstName: profile.first_name,
+      platform: profile.platform
+    });
 
-    // Return profile info without JWT tokens
-    // Telegram users authenticate via telegram_id in RLS policies
+    // Generate a simple JWT-like token (for demo purposes)
+    // In production, use proper JWT signing
+    const token = btoa(JSON.stringify({
+      telegram_id: user.id,
+      username: user.username,
+      exp: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
+    }));
+
+    console.log('[Telegram Auth] Sending success response with profile ID:', profile.id);
+
     return new Response(
       JSON.stringify({ 
-        success: true,
+        success: true, 
         profile,
-        telegram_id: user.id,
-        platform: 'telegram'
+        token,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -2,40 +2,25 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
-export interface DuelNotification {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  icon?: string;
-  created_at: string;
-}
-
 export interface DuelRealtimeState {
   opponentJoined: boolean;
   opponentScore: number;
-  opponentProgress: number;
   opponentAnswered: boolean;
-  opponentAnswerData: any | null;
-  opponentDisconnected: boolean;
+  opponentAnswerData: any | null;  // Добавим данные ответа соперника
   duelStarted: boolean;
   duelFinished: boolean;
   currentQuestion: number;
-  notifications: DuelNotification[];
 }
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
   const [state, setState] = useState<DuelRealtimeState>({
     opponentJoined: false,
     opponentScore: 0,
-    opponentProgress: 0,
     opponentAnswered: false,
     opponentAnswerData: null,
-    opponentDisconnected: false,
     duelStarted: false,
     duelFinished: false,
     currentQuestion: 0,
-    notifications: [],
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
@@ -83,44 +68,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'duel_notifications',
-          filter: `duel_id=eq.${duelId}`,
-        },
-        (payload) => {
-          console.log('[useDuelRealtime] Notification received:', payload);
-          const notification = payload.new as DuelNotification;
-          setState(prev => ({ 
-            ...prev, 
-            notifications: [...prev.notifications, notification]
-          }));
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'duel_players',
-          filter: `duel_id=eq.${duelId}`,
-        },
-        (payload) => {
-          const player = payload.new as any;
-          if (player.user_id !== myPlayerId) {
-            console.log('[useDuelRealtime] Opponent progress update:', player.score);
-            setState(prev => ({ 
-              ...prev, 
-              opponentScore: player.score,
-              opponentProgress: player.correct_count || 0,
-              opponentDisconnected: !player.connected
-            }));
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
           event: '*',
           schema: 'public',
           table: 'duel_answers',
@@ -129,6 +76,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         (payload) => {
           console.log('[useDuelRealtime] Answer received:', payload);
           
+          // Проверяем, что это ответ соперника, а не мой
           const answerPlayerId = (payload.new as any)?.player_id;
           console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', myPlayerId);
           
@@ -136,6 +84,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             console.log('[useDuelRealtime] ✅ Opponent answered!');
             setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
             
+            // Reset after 1 second
             setTimeout(() => {
               setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
             }, 1000);

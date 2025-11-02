@@ -144,19 +144,6 @@ class SoundManager {
     this.playTone(600, 0.1);
   }
 
-  // UI interactions
-  buttonClick() {
-    this.playTone(600, 0.05);
-  }
-
-  boostActivate() {
-    this.playTone(800, 0.15, 'square');
-  }
-
-  answerSubmit() {
-    this.playTone(440, 0.08);
-  }
-
   // Enable/disable sounds
   setEnabled(enabled: boolean) {
     this.enabled = enabled;

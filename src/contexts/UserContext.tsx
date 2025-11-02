@@ -239,7 +239,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('puzzle_user', JSON.stringify(userData));
 
     try {
-      console.log('[UserContext] Authenticating user');
+      console.log('[UserContext] Saving to backend with platform:', actualPlatform);
+      console.log('[UserContext] User data:', { 
+        id: userData.id, 
+        first_name: userData.first_name,
+        platform: actualPlatform 
+      });
       
       const { data: result, error } = await supabase.functions.invoke('telegram-auth', {
         body: {
@@ -249,61 +254,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        console.error('[UserContext] Authentication failed');
+        console.error('[UserContext] Backend error:', error);
         throw error;
       }
 
-      // ============================================================================
-      // CRITICAL: TELEGRAM HYBRID AUTHENTICATION
-      // ============================================================================
-      // Telegram users DO NOT use Supabase Auth JWT tokens
-      // Instead they authenticate via telegram_id in RLS policies
-      // DO NOT modify this logic without testing in Telegram WebApp environment
-      // ============================================================================
-      
-      if (actualPlatform === 'telegram') {
-        console.log('[UserContext] Telegram authentication - using telegram_id approach');
-        
-        // Сохраняем profileId из ответа
-        if (result?.profile?.id) {
-          setProfileId(result.profile.id);
-          localStorage.setItem(`profile_${userData.id}`, result.profile.id);
-          console.log('[UserContext] Profile ID saved:', result.profile.id);
-        }
-        
-        // Сохраняем telegram_id для использования в edge functions
-        if (result?.telegram_id) {
-          localStorage.setItem('telegram_id', result.telegram_id.toString());
-          console.log('[UserContext] Telegram ID saved for hybrid auth');
-        }
-      } else {
-        // Для Web пользователей используем стандартный Supabase Auth
-        console.log('[UserContext] Web authentication - using Supabase Auth session');
-        
-        if (result?.access_token && result?.refresh_token) {
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: result.access_token,
-            refresh_token: result.refresh_token
-          });
+      console.log('[UserContext] Backend response:', result);
 
-          if (sessionError) {
-            console.error('[UserContext] Session creation failed');
-            throw sessionError;
-          }
+      // If we got profile data back, immediately set profileId
+      if (result?.profile?.id) {
+        console.log('[UserContext] Setting profileId from backend response:', result.profile.id);
+        setProfileId(result.profile.id);
+        localStorage.setItem(`profile_${userData.id}`, result.profile.id);
+      }
 
-          console.log('[UserContext] Supabase session established');
-        }
-
-        // Set profileId from result
-        if (result?.profile?.id) {
-          setProfileId(result.profile.id);
-          localStorage.setItem(`profile_${userData.id}`, result.profile.id);
-        }
+      // Store token if provided
+      if (result?.token) {
+        localStorage.setItem('telegram_token', result.token);
       }
       
-      console.log('[UserContext] User authenticated successfully');
+      console.log('[UserContext] User saved to backend successfully');
     } catch (error) {
-      console.error('[UserContext] Authentication error:', error);
+      console.error('[UserContext] Backend save error:', error);
       // Don't throw - user is already set locally
       // This ensures UI works even if backend is down
     }
@@ -320,13 +291,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setSupabaseUser(null);
     setSession(null);
-    setProfileId(null);
     window.puzzleUser = null;
     window.puzzleCodeData = {
       PLATFORM: platform
     };
     localStorage.removeItem('telegram_token');
-    localStorage.removeItem('telegram_id'); // Clear telegram_id for hybrid auth
     localStorage.removeItem('puzzle_user');
     console.log('[UserContext] User logged out');
   };
