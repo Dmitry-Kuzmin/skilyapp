@@ -32,6 +32,10 @@ const translations: Record<Language, Record<string, string>> = {
     deleteAvatar: "Eliminar avatar",
     save: "Guardar",
     cancel: "Cancelar",
+    email: "Correo electrónico",
+    linkAccount: "Vincular cuenta",
+    accountLinked: "Cuenta vinculada ✅",
+    loginWithEmail: "Iniciar sesión con email",
     
     // Settings
     settings: "Configuración",
@@ -47,6 +51,7 @@ const translations: Record<Language, Record<string, string>> = {
     achievements: "Mis logros",
     duelHistory: "Historia de duelos",
     boostShop: "Tienda de potenciadores",
+    support: "Soporte",
     
     // Messages
     nameSaved: "Nombre guardado",
@@ -59,9 +64,19 @@ const translations: Record<Language, Record<string, string>> = {
     loggedOut: "Sesión cerrada",
     fileTooLarge: "Archivo demasiado grande (máx. 3MB)",
     onlyImages: "Solo se pueden subir imágenes",
+    accountsLinked: "Cuentas vinculadas exitosamente",
+    
+    // Account & Auth
+    accountsAndLogin: "Cuentas y acceso",
+    telegramLinked: "Telegram vinculado",
+    emailLinked: "Email vinculado",
+    linkEmailAccount: "Vincular cuenta de email",
+    authPrompt: "Inicia sesión con email para guardar tu progreso",
     
     // Other
     version: "v1.0.0 © 2025 Sdadim",
+    online: "En línea",
+    xpProgress: "XP hasta siguiente nivel",
   },
   en: {
     // Navigation
@@ -81,6 +96,10 @@ const translations: Record<Language, Record<string, string>> = {
     deleteAvatar: "Delete avatar",
     save: "Save",
     cancel: "Cancel",
+    email: "Email",
+    linkAccount: "Link account",
+    accountLinked: "Account linked ✅",
+    loginWithEmail: "Login with email",
     
     // Settings
     settings: "Settings",
@@ -96,6 +115,7 @@ const translations: Record<Language, Record<string, string>> = {
     achievements: "My achievements",
     duelHistory: "Duel history",
     boostShop: "Boost shop",
+    support: "Support",
     
     // Messages
     nameSaved: "Name saved",
@@ -108,9 +128,19 @@ const translations: Record<Language, Record<string, string>> = {
     loggedOut: "Logged out",
     fileTooLarge: "File too large (max 3MB)",
     onlyImages: "Only images allowed",
+    accountsLinked: "Accounts linked successfully",
+    
+    // Account & Auth
+    accountsAndLogin: "Accounts & Login",
+    telegramLinked: "Telegram linked",
+    emailLinked: "Email linked",
+    linkEmailAccount: "Link email account",
+    authPrompt: "Login with email to save your progress",
     
     // Other
     version: "v1.0.0 © 2025 Sdadim",
+    online: "Online",
+    xpProgress: "XP to next level",
   },
   ru: {
     // Navigation
@@ -130,6 +160,10 @@ const translations: Record<Language, Record<string, string>> = {
     deleteAvatar: "Удалить аватар",
     save: "Сохранить",
     cancel: "Отмена",
+    email: "Email",
+    linkAccount: "Связать аккаунт",
+    accountLinked: "Аккаунт связан ✅",
+    loginWithEmail: "Войти через email",
     
     // Settings
     settings: "Настройки",
@@ -145,6 +179,7 @@ const translations: Record<Language, Record<string, string>> = {
     achievements: "Мои достижения",
     duelHistory: "История дуэлей",
     boostShop: "Магазин бустеров",
+    support: "Поддержка",
     
     // Messages
     nameSaved: "Имя сохранено",
@@ -157,9 +192,19 @@ const translations: Record<Language, Record<string, string>> = {
     loggedOut: "Вы вышли из аккаунта",
     fileTooLarge: "Файл слишком большой (макс. 3MB)",
     onlyImages: "Можно загружать только изображения",
+    accountsLinked: "Аккаунты успешно связаны",
+    
+    // Account & Auth
+    accountsAndLogin: "Аккаунты и вход",
+    telegramLinked: "Telegram связан",
+    emailLinked: "Email связан",
+    linkEmailAccount: "Связать email аккаунт",
+    authPrompt: "Войдите через email, чтобы сохранить прогресс",
     
     // Other
     version: "v1.0.0 © 2025 Sdadim",
+    online: "Онлайн",
+    xpProgress: "XP до следующего уровня",
   },
 };
 
