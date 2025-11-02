@@ -385,8 +385,8 @@ Deno.serve(async (req) => {
           const { data: allQuestions } = await supabase
             .from('questions_new')
             .select(`
-              id, question_es, image_url, difficulty,
-              answer_options(id, text_es, is_correct, position)
+              id, question_ru, question_es, question_en, image_url, difficulty,
+              answer_options(id, text_ru, text_es, text_en, is_correct, position)
             `);
 
           if (!allQuestions || allQuestions.length === 0) {
@@ -403,15 +403,26 @@ Deno.serve(async (req) => {
           console.log(`[join_duel] Selected ${selectedQuestions.length} random questions`);
 
           // Insert duel questions with randomly selected set
-          const duelQuestions = selectedQuestions.map((q, idx) => ({
-            duel_id: duel.id,
-            question_id: q.id,
-            position: idx + 1,
-            question_snapshot: q,
-            correct_option_ids: q.answer_options
-              .filter((opt: any) => opt.is_correct)
-              .map((opt: any) => opt.id),
-          }));
+          const duelQuestions = selectedQuestions.map((q, idx) => {
+            const snapshot = {
+              question_ru: q.question_ru,
+              question_es: q.question_es,
+              question_en: q.question_en,
+              image_url: q.image_url,
+              answer_options: q.answer_options || [],
+              difficulty: q.difficulty,
+            };
+            
+            return {
+              duel_id: duel.id,
+              question_id: q.id,
+              position: idx + 1,
+              question_snapshot: snapshot,
+              correct_option_ids: (q.answer_options || [])
+                .filter((opt: any) => opt.is_correct)
+                .map((opt: any) => opt.id),
+            };
+          });
 
           await supabase.from('duel_questions').insert(duelQuestions);
 
@@ -486,7 +497,7 @@ Deno.serve(async (req) => {
             question_es: q.question_es,
             question_en: q.question_en,
             image_url: q.image_url,
-            options: options || [],
+            answer_options: options || [],
             difficulty: q.difficulty,
           };
 

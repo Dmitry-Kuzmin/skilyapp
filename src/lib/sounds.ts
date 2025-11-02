@@ -117,6 +117,14 @@ class SoundManager {
     }
   }
 
+  // Confetti sound
+  confetti() {
+    this.playTone(523, 0.08);
+    setTimeout(() => this.playTone(659, 0.08), 60);
+    setTimeout(() => this.playTone(784, 0.08), 120);
+    setTimeout(() => this.playTone(1047, 0.12), 180);
+  }
+
   // Victory/Defeat
   victory() {
     this.playTone(523, 0.15);

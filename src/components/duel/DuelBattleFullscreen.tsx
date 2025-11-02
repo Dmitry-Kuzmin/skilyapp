@@ -33,6 +33,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   const [combo, setCombo] = useState(0);
   const [boosts, setBoosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
+  const [eliminatedOptions, setEliminatedOptions] = useState<string[]>([]);
   const [toastNotifications, setToastNotifications] = useState<Array<{
     id: string;
     title: string;
@@ -166,6 +168,63 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     }
   };
 
+  const handleBoostUse = async (boostType: string) => {
+    if (usedBoosts.includes(boostType) || isAnswered) return;
+    
+    const boost = boosts.find(b => b.boost_type === boostType);
+    if (!boost || boost.quantity <= 0) return;
+
+    setUsedBoosts(prev => [...prev, boostType]);
+
+    try {
+      if (boostType === 'fifty_fifty') {
+        sounds.boostFiftyFifty();
+        const question = questions[currentIndex];
+        const incorrectOptions = (question.question_snapshot.answer_options || [])
+          .filter((opt: any) => !question.correct_option_ids.includes(opt.id))
+          .map((opt: any) => opt.id);
+        
+        const toEliminate = incorrectOptions.slice(0, 2);
+        setEliminatedOptions(toEliminate);
+      } else if (boostType === 'time_extend') {
+        sounds.boostTimeExtend();
+        setTimeLeft(prev => Math.min(prev + 15000, 60000));
+      } else if (boostType === 'hint') {
+        sounds.boostHint();
+        toast.info('💡 Подсказка: обратите внимание на детали!');
+      } else if (boostType === 'skip') {
+        sounds.boostSkip();
+        setIsAnswered(true);
+        setTimeout(() => {
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+            setIsAnswered(false);
+            setSelectedAnswer(null);
+            setTimeLeft(60000);
+            setUsedBoosts([]);
+            setEliminatedOptions([]);
+          } else {
+            finishDuel();
+          }
+        }, 500);
+      }
+
+      await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'use_boost',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
+          boost_type: boostType,
+        },
+      });
+
+      await loadBoosts();
+    } catch (error) {
+      console.error('Error using boost:', error);
+    }
+  };
+
   const handleAnswer = async (optionId: string) => {
     if (isAnswered) return;
 
@@ -178,9 +237,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     if (isCorrect) {
       sounds.correctAnswer();
       haptics.correctAnswer();
+      const newCombo = combo + 1;
+      setCombo(newCombo);
+      if (newCombo > 1) {
+        sounds.combo(newCombo);
+      }
+      if (newCombo >= 3) {
+        sounds.confetti();
+      }
     } else {
       sounds.wrongAnswer();
       haptics.wrongAnswer();
+      setCombo(0);
     }
 
     try {
@@ -203,6 +271,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           setIsAnswered(false);
           setSelectedAnswer(null);
           setTimeLeft(60000);
+          setUsedBoosts([]);
+          setEliminatedOptions([]);
         } else {
           finishDuel();
         }
@@ -235,6 +305,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           setIsAnswered(false);
           setSelectedAnswer(null);
           setTimeLeft(60000);
+          setUsedBoosts([]);
+          setEliminatedOptions([]);
         } else {
           finishDuel();
         }
@@ -394,6 +466,50 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           </p>
         </div>
 
+        {/* Boosts Section - Duolingo Style */}
+        {boosts.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 flex flex-wrap gap-2 justify-center"
+          >
+            {boosts.map((boost) => {
+              const boostConfig = {
+                fifty_fifty: { icon: '5️⃣0️⃣', label: '50/50', gradient: 'from-blue-500 to-cyan-500' },
+                time_extend: { icon: '⏱️', label: '+Время', gradient: 'from-purple-500 to-pink-500' },
+                hint: { icon: '⚡', label: 'Подсказка', gradient: 'from-yellow-500 to-orange-500' },
+                skip: { icon: '⏭️', label: 'Пропуск', gradient: 'from-green-500 to-emerald-500' },
+              }[boost.boost_type] || { icon: '🎯', label: boost.boost_type, gradient: 'from-gray-500 to-gray-600' };
+
+              const isUsed = usedBoosts.includes(boost.boost_type);
+              const isDisabled = isUsed || isAnswered || boost.quantity <= 0;
+
+              return (
+                <motion.button
+                  key={boost.boost_type}
+                  onClick={() => handleBoostUse(boost.boost_type)}
+                  disabled={isDisabled}
+                  whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                  whileTap={!isDisabled ? { scale: 0.95 } : {}}
+                  className={`relative px-3 py-2 rounded-xl font-bold text-sm transition-all shadow-lg border-2 ${
+                    isDisabled
+                      ? 'bg-muted/50 border-border/30 opacity-50 cursor-not-allowed'
+                      : `bg-gradient-to-r ${boostConfig.gradient} text-white border-white/30 hover:shadow-xl`
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-base">{boostConfig.icon}</span>
+                    <span className="hidden sm:inline">{boostConfig.label}</span>
+                    <span className="text-xs bg-white/20 rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
+                      {boost.quantity}
+                    </span>
+                  </span>
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
+
         {/* Question Card */}
         <motion.div
           key={currentIndex}
@@ -426,12 +542,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
 
             {/* Answer Options */}
             <div className="grid gap-3">
-              {currentQuestion.question_snapshot.answer_options
+              {(currentQuestion.question_snapshot.answer_options || [])
                 .sort((a: any, b: any) => a.position - b.position)
                 .map((option: any, idx: number) => {
                   const isSelected = selectedAnswer === option.id;
                   const isCorrect = currentQuestion.correct_option_ids.includes(option.id);
                   const showResult = isAnswered;
+                  const isEliminated = eliminatedOptions.includes(option.id);
+
+                  if (isEliminated && !showResult) {
+                    return (
+                      <motion.div
+                        key={option.id}
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: 0, height: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="overflow-hidden"
+                      />
+                    );
+                  }
 
                   return (
                     <motion.button
@@ -440,10 +569,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       onClick={() => handleAnswer(option.id)}
-                      disabled={isAnswered}
-                      whileHover={!isAnswered ? { scale: 1.02 } : {}}
-                      whileTap={!isAnswered ? { scale: 0.98 } : {}}
-                      className={`p-4 rounded-2xl border-2 text-left transition-all font-semibold leading-snug relative overflow-hidden min-h-[60px] ${
+                      disabled={isAnswered || isEliminated}
+                      whileHover={!isAnswered && !isEliminated ? { scale: 1.02 } : {}}
+                      whileTap={!isAnswered && !isEliminated ? { scale: 0.98 } : {}}
+                      className={`p-3 md:p-4 rounded-2xl border-2 text-left transition-all font-semibold text-sm md:text-base leading-snug relative overflow-hidden min-h-[48px] md:min-h-[60px] break-words hyphens-auto ${
                         showResult
                           ? isCorrect
                             ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
@@ -459,7 +588,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center font-bold text-white ${
+                          className={`absolute top-2 md:top-3 right-2 md:right-3 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold text-white ${
                             isCorrect ? 'bg-green-500' : 'bg-red-500'
                           }`}
                         >
