@@ -58,15 +58,34 @@ function calculateScore(
   difficulty: string,
   timeRemainMs: number,
   timeTotalMs: number,
-  combo: number
+  combo: number,
+  isFasterThanOpponent: boolean = false
 ): number {
-  const basePoints = { easy: 100, medium: 200, hard: 350 };
-  const base = basePoints[difficulty as keyof typeof basePoints] || 200;
-  
-  const timeBonus = Math.round((timeRemainMs / timeTotalMs) * base * 0.4);
-  const comboMult = Math.min(1 + (combo * 0.05), 1.20);
-  
-  return Math.round((base + timeBonus) * comboMult);
+  // Base points for correct answer
+  let points = 100;
+
+  // Difficulty multiplier
+  if (difficulty === 'hard') {
+    points *= 1.5;
+  } else if (difficulty === 'easy') {
+    points *= 0.8;
+  }
+
+  // Speed bonus if faster than opponent by 5+ seconds
+  if (isFasterThanOpponent) {
+    points += 10;
+  }
+
+  // Combo bonus - every 3 correct answers in a row
+  if (combo > 0 && combo % 3 === 0) {
+    points += 20;
+  }
+
+  // Time bonus (up to 30% bonus for fast answers)
+  const timeBonus = Math.floor((timeRemainMs / timeTotalMs) * 30);
+  points += timeBonus;
+
+  return Math.floor(points);
 }
 
 // Bot simulation
@@ -580,8 +599,21 @@ Deno.serve(async (req) => {
         const timeLimit = 60000; // 60 seconds
         const timeRemain = Math.max(0, timeLimit - adjustedTime);
 
+        // Check if faster than opponent on the same question
+        const { data: opponentAnswer } = await supabase
+          .from('duel_answers')
+          .select('time_taken_ms')
+          .eq('duel_id', duel_id)
+          .eq('duel_question_id', duel_question_id)
+          .neq('player_id', player.id)
+          .maybeSingle();
+
+        const isFasterThanOpponent = opponentAnswer 
+          ? adjustedTime < (opponentAnswer.time_taken_ms - 5000)
+          : false;
+
         const difficulty = (question.question_snapshot as any).difficulty || 'medium';
-        const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo) : 0;
+        const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo, isFasterThanOpponent) : 0;
 
         // Insert answer
         await supabase.from('duel_answers').insert({
@@ -664,49 +696,114 @@ Deno.serve(async (req) => {
 
       case 'finish_duel': {
         const { duel_id } = params;
+        
+        console.log('[finish_duel] Player finishing duel:', duel_id, 'profile:', profileId);
 
-        // Check if already finished
-        const { data: duel } = await supabase
+        // Get duel data
+        const { data: duel, error: duelError } = await supabase
           .from('duels')
-          .select('status')
+          .select('finished_by_players, host_user, status')
           .eq('id', duel_id)
           .single();
 
-        if (duel?.status === 'finished') {
-          return new Response(JSON.stringify({ message: 'Already finished' }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+        if (duelError) throw duelError;
+
+        // Add current player to finished_by_players
+        const finishedPlayers = duel.finished_by_players || [];
+        if (!finishedPlayers.includes(profileId)) {
+          finishedPlayers.push(profileId);
         }
 
-        // Mark as finished and determine winner
-        const { data: players } = await supabase
-          .from('duel_players')
-          .select('*')
-          .eq('duel_id', duel_id)
-          .order('score', { ascending: false });
+        // Determine if this player is host
+        const isHost = duel.host_user === profileId;
+        const finishedAtField = isHost ? 'user_a_finished_at' : 'user_b_finished_at';
 
-        if (players && players.length >= 2) {
-          const isDraw = players[0].score === players[1].score;
-          const winnerId = isDraw ? null : players[0].id;
+        // Update duel with player finish time
+        await supabase
+          .from('duels')
+          .update({
+            finished_by_players: finishedPlayers,
+            [finishedAtField]: new Date().toISOString(),
+          })
+          .eq('id', duel_id);
 
+        console.log('[finish_duel] Updated finished_by_players:', finishedPlayers.length);
+
+        // If both players finished, calculate winner
+        if (finishedPlayers.length === 2) {
+          console.log('[finish_duel] Both players finished, determining winner...');
+
+          const { data: allPlayers } = await supabase
+            .from('duel_players')
+            .select('*')
+            .eq('duel_id', duel_id)
+            .order('score', { ascending: false });
+
+          if (!allPlayers || allPlayers.length < 2) {
+            throw new Error('Not enough players to finish duel');
+          }
+
+          const winner = allPlayers[0];
+          const isDraw = allPlayers[0].score === allPlayers[1].score;
+
+          // Update duel with final results
           await supabase
             .from('duels')
             .update({
               status: 'finished',
+              winner_id: isDraw ? null : winner.user_id,
               finished_at: new Date().toISOString(),
             })
             .eq('id', duel_id);
 
           // Update stats for both players
-          for (const player of players) {
-            const isWin = player.id === winnerId;
+          for (const p of allPlayers) {
+            if (!p.user_id || p.is_bot) continue;
+            
+            const isWin = !isDraw && p.id === winner.id;
             await supabase.rpc('upsert_duel_stats', {
-              p_user_id: player.user_id,
-              p_is_win: isWin && !isDraw,
+              p_user_id: p.user_id,
+              p_is_win: isWin,
               p_is_draw: isDraw,
-              p_score: player.score
+              p_score: p.score,
             });
           }
+
+          // Send finish notifications to both players
+          for (const p of allPlayers) {
+            if (!p.user_id) continue;
+            
+            const isWinner = !isDraw && p.id === winner.id;
+            await supabase.from('duel_notifications').insert({
+              user_id: p.user_id,
+              duel_id,
+              type: 'finish',
+              title: isWinner ? '🏆 Победа!' : (isDraw ? '🤝 Ничья!' : '😔 Поражение'),
+              message: `Счёт: ${allPlayers[0].score} - ${allPlayers[1].score}`,
+              icon: isWinner ? '🎉' : (isDraw ? '🤝' : '⚔️'),
+            });
+          }
+
+          console.log('[finish_duel] Duel finished, winner:', isDraw ? 'Draw' : winner.user_id);
+
+          return new Response(JSON.stringify({ 
+            waiting: false,
+            finished: true,
+            winner_id: isDraw ? null : winner.user_id,
+            is_draw: isDraw,
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          // Only one player finished, show waiting screen
+          console.log('[finish_duel] Waiting for opponent to finish...');
+          
+          return new Response(JSON.stringify({ 
+            waiting: true,
+            finished: false,
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
         }
 
         return new Response(JSON.stringify({ success: true }), {

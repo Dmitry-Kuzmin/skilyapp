@@ -21,7 +21,6 @@ interface DuelBattleFullscreenProps {
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBattleFullscreenProps) {
   const { profileId } = useUserContext();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const { state } = useDuelRealtime(duelId, myPlayerId);
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -35,12 +34,46 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   const [loading, setLoading] = useState(true);
   const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
   const [eliminatedOptions, setEliminatedOptions] = useState<string[]>([]);
+  const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
   const [toastNotifications, setToastNotifications] = useState<Array<{
     id: string;
     title: string;
     message: string;
     icon?: string;
   }>>([]);
+
+  const { state } = useDuelRealtime(duelId, myPlayerId);
+
+  // Handle realtime notifications
+  useEffect(() => {
+    if (state.notifications.length > 0) {
+      const latestNotif = state.notifications[state.notifications.length - 1];
+      setToastNotifications(prev => [...prev, {
+        id: latestNotif.id,
+        title: latestNotif.title,
+        message: latestNotif.message,
+        icon: latestNotif.icon,
+      }]);
+      sounds.notificationPop();
+      
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+        setToastNotifications(prev => prev.filter(n => n.id !== latestNotif.id));
+      }, 3000);
+    }
+  }, [state.notifications]);
+
+  // Check if opponent overtook us
+  useEffect(() => {
+    if (state.opponentScore > myScore && state.opponentScore > 0 && myScore > 0) {
+      setToastNotifications(prev => [...prev, {
+        id: `overtake-${Date.now()}`,
+        title: '⚠️ Соперник впереди!',
+        message: `Разница: ${state.opponentScore - myScore} очков`,
+        icon: '🏃',
+      }]);
+    }
+  }, [state.opponentScore, myScore]);
 
   useEffect(() => {
     if (!duelId || !profileId) return;
@@ -317,11 +350,39 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   };
 
   const finishDuel = async () => {
-    await supabase.functions.invoke('duel-manager', {
-      body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
-    });
-    onDuelFinished();
+    console.log("[DuelBattleFullscreen] Finishing duel:", duelId);
+    try {
+      const { data, error } = await supabase.functions.invoke("duel-manager", {
+        body: { action: "finish_duel", duel_id: duelId, profile_id: profileId },
+      });
+
+      if (error) throw error;
+      console.log("[DuelBattleFullscreen] Duel finished response:", data);
+      
+      if (data?.waiting) {
+        // Show waiting screen
+        setIsWaitingForOpponent(true);
+        console.log("[DuelBattleFullscreen] Waiting for opponent to finish...");
+      } else if (data?.finished) {
+        // Both finished, show results
+        setTimeout(() => {
+          onDuelFinished();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("[DuelBattleFullscreen] Error finishing duel:", error);
+    }
   };
+
+  // Listen for duel finish from realtime
+  useEffect(() => {
+    if (state.duelFinished && isWaitingForOpponent) {
+      console.log("[DuelBattleFullscreen] Opponent finished, showing results");
+      setTimeout(() => {
+        onDuelFinished();
+      }, 1000);
+    }
+  }, [state.duelFinished, isWaitingForOpponent, onDuelFinished]);
 
   if (loading || questions.length === 0) {
     return (
@@ -330,6 +391,44 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
           <p className="text-lg text-muted-foreground">Загрузка вопросов...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Waiting for opponent screen
+  if (isWaitingForOpponent) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center z-50 p-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center space-y-6 max-w-md"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="inline-block"
+          >
+            <Clock className="w-20 h-20 text-primary" />
+          </motion.div>
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold">⏳ Ожидание соперника...</h2>
+            <p className="text-lg text-muted-foreground">
+              Ты закончил первым! Подождём, пока соперник завершит свои ответы.
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-4 p-4 bg-card rounded-lg border">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">{myScore}</div>
+              <div className="text-sm text-muted-foreground">Твой счёт</div>
+            </div>
+            <Users className="w-8 h-8 text-muted-foreground" />
+            <div className="text-center">
+              <div className="text-2xl font-bold text-secondary">{opponentScore}</div>
+              <div className="text-sm text-muted-foreground">Соперник</div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -404,10 +503,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
             
             <motion.div 
               className="text-center px-3 py-1.5 rounded-2xl bg-secondary/10 border-2 border-secondary/30"
-              animate={{ scale: opponentScore > myScore ? [1, 1.1, 1] : 1 }}
+              animate={{ scale: (state.opponentScore || opponentScore) > myScore ? [1, 1.1, 1] : 1 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="text-xl md:text-2xl font-black text-secondary">{opponentScore}</div>
+              <div className="text-xl md:text-2xl font-black text-secondary">{state.opponentScore || opponentScore}</div>
               <div className="text-xs text-muted-foreground hidden md:block">Соперник</div>
             </motion.div>
           </div>

@@ -613,12 +613,16 @@ export type Database = {
           difficulty: string | null
           expires_at: string
           finished_at: string | null
+          finished_by_players: string[] | null
           host_user: string
           id: string
           num_questions: number
           question_seed: number
           started_at: string | null
           status: string
+          user_a_finished_at: string | null
+          user_b_finished_at: string | null
+          winner_id: string | null
         }
         Insert: {
           categories?: Json | null
@@ -627,12 +631,16 @@ export type Database = {
           difficulty?: string | null
           expires_at?: string
           finished_at?: string | null
+          finished_by_players?: string[] | null
           host_user: string
           id?: string
           num_questions: number
           question_seed: number
           started_at?: string | null
           status?: string
+          user_a_finished_at?: string | null
+          user_b_finished_at?: string | null
+          winner_id?: string | null
         }
         Update: {
           categories?: Json | null
@@ -641,17 +649,28 @@ export type Database = {
           difficulty?: string | null
           expires_at?: string
           finished_at?: string | null
+          finished_by_players?: string[] | null
           host_user?: string
           id?: string
           num_questions?: number
           question_seed?: number
           started_at?: string | null
           status?: string
+          user_a_finished_at?: string | null
+          user_b_finished_at?: string | null
+          winner_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "duels_host_user_fkey"
             columns: ["host_user"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "duels_winner_id_fkey"
+            columns: ["winner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
