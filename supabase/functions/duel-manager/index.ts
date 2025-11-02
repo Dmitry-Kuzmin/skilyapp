@@ -105,37 +105,46 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const authHeader = req.headers.get('Authorization')!;
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    // Parse request body first to get profile_id if provided
+    const { action, profile_id, ...params } = await req.json();
 
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    console.log('[Duel Manager] Action:', action, 'Profile ID from client:', profile_id);
+
+    let profileId: string | null = profile_id || null;
+
+    // If profile_id is not provided, try to get it from auth (fallback for email users)
+    if (!profileId) {
+      console.log('[Duel Manager] No profile_id provided, attempting auth lookup...');
+      const authHeader = req.headers.get('Authorization')!;
+      const { data: { user }, error: authError } = await supabase.auth.getUser(
+        authHeader.replace('Bearer ', '')
+      );
+
+      if (user && !authError) {
+        console.log('[Duel Manager] Authenticated user found:', user.id);
+        
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (profile && !profileError) {
+          profileId = profile.id;
+          console.log('[Duel Manager] Profile found via auth:', profileId);
+        }
+      }
+    } else {
+      console.log('[Duel Manager] Using profile_id from client:', profileId);
     }
 
-    const { action, ...params } = await req.json();
-
-    console.log('[Duel Manager] Action:', action, 'Params:', params);
-
-    // Get profile ID from profiles table using auth user_id
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    if (profileError || !profile) {
+    if (!profileId) {
+      console.error('[Duel Manager] Profile not found - neither from client nor auth');
       return new Response(JSON.stringify({ error: 'Profile not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    const profileId = profile.id;
 
     switch (action) {
       case 'create_duel': {

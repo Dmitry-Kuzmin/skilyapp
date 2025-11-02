@@ -169,6 +169,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'use_boost',
+          profile_id: profileId,
           duel_id: duelId,
           duel_question_id: currentQuestion.id,
           boost_type: type,
@@ -229,6 +230,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
+          profile_id: profileId,
           duel_id: duelId,
           duel_question_id: currentQuestion.id,
           selected_option_id: optionId,
@@ -296,6 +298,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       const { data } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
+          profile_id: profileId,
           duel_id: duelId,
           duel_question_id: currentQuestion.id,
           selected_option_id: null,
@@ -327,6 +330,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'finish_duel',
+          profile_id: profileId,
           duel_id: duelId,
         },
       });

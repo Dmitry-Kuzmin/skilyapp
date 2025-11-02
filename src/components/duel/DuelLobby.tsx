@@ -151,6 +151,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'create_duel',
+          profile_id: profileId,
           num_questions: numQuestions,
           categories: null,
           difficulty,
@@ -170,11 +171,12 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
   const handleStartDuel = async () => {
     if (!duelId) return;
-
+    
     try {
       const { error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'start_duel',
+          profile_id: profileId,
           duel_id: duelId,
         },
       });
