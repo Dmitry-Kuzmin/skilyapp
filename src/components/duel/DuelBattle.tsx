@@ -10,7 +10,7 @@ import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
-import { Swords, Timer, Zap, Trophy } from 'lucide-react';
+import { Swords, Timer, Zap, Trophy, WifiOff, Wifi } from 'lucide-react';
 
 interface DuelBattleProps {
   duelId: string;
@@ -36,7 +36,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [showHint, setShowHint] = useState(false);
   const [skipCount, setSkipCount] = useState(0);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const prevOpponentScore = useRef(opponentScore);
+  const lastOpponentActivityRef = useRef(Date.now());
 
   useEffect(() => {
     loadQuestions();
@@ -66,8 +68,49 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   useEffect(() => {
     if (state.opponentAnswered) {
       toast.info('💨 Соперник ответил!', { duration: 1000 });
+      lastOpponentActivityRef.current = Date.now();
     }
   }, [state.opponentAnswered]);
+
+  // Network monitoring
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('Соединение восстановлено', {
+        description: 'Можете продолжать игру',
+        icon: <Wifi className="w-4 h-4" />,
+      });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.error('Потеряно соединение с интернетом', {
+        description: 'Проверьте подключение к сети',
+        icon: <WifiOff className="w-4 h-4" />,
+        duration: Infinity,
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Check opponent connection
+    const checkOpponentConnection = setInterval(() => {
+      const timeSinceLastActivity = Date.now() - lastOpponentActivityRef.current;
+      if (timeSinceLastActivity > 45000 && !answered) {
+        toast.warning('У соперника могут быть проблемы с сетью', {
+          description: 'Ожидаем подключения...',
+          icon: <WifiOff className="w-4 h-4" />,
+        });
+      }
+    }, 10000);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      clearInterval(checkOpponentConnection);
+    };
+  }, [answered]);
 
   // Track opponent score changes
   useEffect(() => {
@@ -484,22 +527,11 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
             </div>
           </motion.div>
-        </div>
-      </Card>
 
-      {/* Enhanced Boosts Panel */}
-      <AnimatePresence>
-        {!answered && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border"
-          >
-            <div className="text-sm text-muted-foreground mb-3 text-center font-medium">
-              🎯 Бусты
-            </div>
-            <div className="flex gap-3 justify-center flex-wrap">
+          {/* Integrated Boosts Panel */}
+          <div className="bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-purple-500/5 rounded-xl p-3 border border-purple-500/20">
+            <div className="text-xs text-center text-muted-foreground mb-2 font-medium">🎯 Бусты</div>
+            <div className="grid grid-cols-4 gap-2">
               <BoostButton
                 type="fifty_fifty"
                 icon="⚡"
@@ -533,9 +565,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 disabled={usedBoosts.includes('skip')}
               />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </Card>
 
       {/* Enhanced Question Card */}
       <motion.div

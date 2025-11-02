@@ -79,14 +79,14 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
               disabled={isDisabled}
               variant="outline"
               size="lg"
-              className={`relative h-20 w-20 flex-col gap-2 border-2 transition-all duration-300 ${
+              className={`relative h-16 w-full flex-col gap-1 border-2 transition-all duration-300 ${
                 isDisabled 
                   ? 'opacity-30 grayscale cursor-not-allowed' 
                   : `bg-gradient-to-br ${config.gradient} text-white border-white/20 hover:border-white/50 shadow-lg`
               }`}
             >
-              <IconComponent className="w-8 h-8" />
-              <span className="text-xs font-bold">{name}</span>
+              <IconComponent className="w-5 h-5" />
+              <span className="text-[10px] font-bold">{name}</span>
               {available > 0 && (
                 <Badge 
                   variant="default" 

@@ -110,37 +110,52 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     }
   }, [state.duelStarted, countdown]);
 
-  // Aggressive polling for status changes (especially important for Telegram mini-app)
+  // Ultra-aggressive polling AND direct check for Telegram Mini App
   useEffect(() => {
-    if (!duelId || countdown !== null) return;
+    if (!duelId) return;
 
-    console.log('[DuelLobby] Starting status polling...');
-    const pollInterval = setInterval(async () => {
+    let pollInterval: NodeJS.Timeout;
+    let isActive = true;
+
+    const checkDuelStatus = async () => {
+      if (!isActive) return;
+      
       const { data, error } = await supabase
         .from('duels')
-        .select('status')
+        .select('status, started_at')
         .eq('id', duelId)
         .maybeSingle();
 
       if (error) {
-        console.error('[DuelLobby] Polling error:', error);
-        setConnectionStatus('checking');
+        console.error('[DuelLobby] Status check error:', error);
         return;
       }
 
       if (!data) {
-        console.warn('[DuelLobby] Duel not found in polling');
+        console.warn('[DuelLobby] Duel not found');
         return;
       }
 
-      console.log('[DuelLobby] Polling duel status:', data.status);
-      if (data.status === 'active' && countdown === null) {
-        console.log('[DuelLobby] Polling detected active duel! Starting countdown...');
-        startCountdown();
+      console.log('[DuelLobby] Status check:', data.status, 'Countdown:', countdown);
+      
+      if (data.status === 'active') {
+        if (countdown === null) {
+          console.log('[DuelLobby] 🚀 ACTIVE DUEL DETECTED! Starting countdown immediately...');
+          startCountdown();
+        }
       }
-    }, 300); // Poll every 300ms for faster response
+    };
 
-    return () => clearInterval(pollInterval);
+    // Check immediately
+    checkDuelStatus();
+
+    // Then poll every 200ms
+    pollInterval = setInterval(checkDuelStatus, 200);
+
+    return () => {
+      isActive = false;
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, [duelId, countdown]);
 
   const handleCreateDuel = async () => {
