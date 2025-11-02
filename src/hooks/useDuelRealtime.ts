@@ -6,16 +6,18 @@ export interface DuelRealtimeState {
   opponentJoined: boolean;
   opponentScore: number;
   opponentAnswered: boolean;
+  opponentAnswerData: any | null;  // Добавим данные ответа соперника
   duelStarted: boolean;
   duelFinished: boolean;
   currentQuestion: number;
 }
 
-export function useDuelRealtime(duelId: string | null) {
+export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
   const [state, setState] = useState<DuelRealtimeState>({
     opponentJoined: false,
     opponentScore: 0,
     opponentAnswered: false,
+    opponentAnswerData: null,
     duelStarted: false,
     duelFinished: false,
     currentQuestion: 0,
@@ -71,13 +73,24 @@ export function useDuelRealtime(duelId: string | null) {
           table: 'duel_answers',
           filter: `duel_id=eq.${duelId}`,
         },
-        () => {
-          console.log('[useDuelRealtime] Opponent answered!');
-          setState(prev => ({ ...prev, opponentAnswered: true }));
-          // Reset after 1 second
-          setTimeout(() => {
-            setState(prev => ({ ...prev, opponentAnswered: false }));
-          }, 1000);
+        (payload) => {
+          console.log('[useDuelRealtime] Answer received:', payload);
+          
+          // Проверяем, что это ответ соперника, а не мой
+          const answerPlayerId = (payload.new as any)?.player_id;
+          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', myPlayerId);
+          
+          if (answerPlayerId && myPlayerId && answerPlayerId !== myPlayerId) {
+            console.log('[useDuelRealtime] ✅ Opponent answered!');
+            setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
+            
+            // Reset after 1 second
+            setTimeout(() => {
+              setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
+            }, 1000);
+          } else {
+            console.log('[useDuelRealtime] Own answer, ignoring notification');
+          }
         }
       )
       .subscribe((status) => {

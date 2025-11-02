@@ -19,7 +19,8 @@ interface DuelBattleProps {
 
 export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const { profileId } = useUserContext();
-  const { state } = useDuelRealtime(duelId);
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const { state } = useDuelRealtime(duelId, myPlayerId);
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60000); // 60 seconds
@@ -184,6 +185,12 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       if (data && data.length > 0) {
         const myPlayer = data.find(p => p.user_id === profileId);
         const opponent = data.find(p => p.user_id !== profileId);
+        
+        // Сохраняем ID моего игрока для фильтрации realtime событий
+        if (myPlayer?.id) {
+          setMyPlayerId(myPlayer.id);
+        }
+        
         setMyScore(myPlayer?.score || 0);
         setOpponentScore(opponent?.score || 0);
       }
