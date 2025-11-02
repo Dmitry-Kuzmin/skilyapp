@@ -4,6 +4,7 @@ import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn } from "
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { ProfileModal } from "./ProfileModal";
@@ -17,20 +18,21 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const navigation = [
-  { name: "Главная", href: "/", icon: Home },
-  { name: "Тесты", href: "/tests", icon: FileText },
-  { name: "Обучение", href: "/learning", icon: BookOpen },
-  { name: "Игры", href: "/games", icon: Gamepad2 },
-];
-
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, platform, isAuthenticated, logout } = useUserContext();
+  const { t } = useLanguage();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
+
+  const navigation = [
+    { name: t("home"), href: "/", icon: Home },
+    { name: t("tests"), href: "/tests", icon: FileText },
+    { name: t("learning"), href: "/learning", icon: BookOpen },
+    { name: t("games"), href: "/games", icon: Gamepad2 },
+  ];
 
   // Scroll to top on route change
   useEffect(() => {
@@ -95,7 +97,7 @@ const Layout = ({ children }: LayoutProps) => {
                   onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
                 >
                   <LogIn className="w-5 h-5 mr-2" />
-                  Войти
+                  {t('login')}
                 </Button>
               )}
             </div>
@@ -146,7 +148,7 @@ const Layout = ({ children }: LayoutProps) => {
               ) : (
                 <User className="w-6 h-6" />
               )}
-              <span className="text-xs font-medium">Профиль</span>
+              <span className="text-xs font-medium">{t('profile')}</span>
             </button>
           ) : (
             <button
@@ -154,7 +156,7 @@ const Layout = ({ children }: LayoutProps) => {
               className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
             >
               <LogIn className="w-6 h-6" />
-              <span className="text-xs font-medium">Вход</span>
+              <span className="text-xs font-medium">{t('login')}</span>
             </button>
           )}
         </div>
