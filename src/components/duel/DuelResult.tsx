@@ -26,32 +26,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
     loadResults();
   }, [duelId]);
 
-  useEffect(() => {
-    if (results && profileId) {
-      // Начисляем монеты после загрузки результатов
-      const coinsEarned = results.isWinner ? 50 : results.isDraw ? 25 : 15;
-      updateCoins(coinsEarned);
-    }
-  }, [results, profileId]);
-
-  const updateCoins = async (amount: number) => {
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('coins')
-        .eq('id', profileId)
-        .single();
-
-      if (profile) {
-        await supabase
-          .from('profiles')
-          .update({ coins: (profile.coins || 0) + amount })
-          .eq('id', profileId);
-      }
-    } catch (error) {
-      console.error('Ошибка начисления монет:', error);
-    }
-  };
+  // Rewards are now handled by duel-manager edge function
 
   useEffect(() => {
     if (results?.isWinner) {
@@ -77,6 +52,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
       const isWinner = myPlayer && opponent && myPlayer.score > opponent.score;
       const isDraw = myPlayer && opponent && myPlayer.score === opponent.score;
+      const isPerfect = myPlayer && myPlayer.correct_count === 10;
+
+      // Calculate rewards based on new system
+      const coinsEarned = (isWinner ? 15 : (isDraw ? 8 : 3)) + (isPerfect ? 10 : 0);
+      const xpEarned = (isWinner ? 30 : (isDraw ? 15 : 5)) + (isPerfect ? 20 : 0);
 
       setResults({
         myScore: myPlayer?.score || 0,
@@ -86,6 +66,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         opponentName: opponent?.profiles?.first_name || 'Соперник',
         isWinner,
         isDraw,
+        isPerfect,
+        coinsEarned,
+        xpEarned,
       });
     } catch (error) {
       console.error(error);
@@ -224,16 +207,32 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               <div className="flex items-center justify-center gap-2 bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
                 <Zap className="w-6 h-6 text-blue-500" />
                 <span className="font-bold text-blue-600 dark:text-blue-400">
-                  +{Math.round(results.myScore / 20) + (results.isWinner ? 25 : 10)} XP
+                  +{results.xpEarned || 0} XP
                 </span>
               </div>
               <div className="flex items-center justify-center gap-2 bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20">
                 <span className="text-2xl">💰</span>
                 <span className="font-bold text-yellow-600 dark:text-yellow-400">
-                  +{results.isWinner ? 50 : results.isDraw ? 25 : 15} монет
+                  +{results.coinsEarned || 0} монет
                 </span>
               </div>
             </div>
+            
+            {results.isPerfect && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.8, type: "spring" }}
+                className="mt-3 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  <span className="font-bold text-purple-600 dark:text-purple-400">
+                    Перфектная игра! +1 бустер 🚀
+                  </span>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Achievement Progress */}

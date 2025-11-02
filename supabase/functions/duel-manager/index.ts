@@ -757,30 +757,86 @@ Deno.serve(async (req) => {
             .eq('id', duel_id);
 
           // Update stats for both players
+          // Update stats and rewards for both players
           for (const p of allPlayers) {
             if (!p.user_id || p.is_bot) continue;
             
             const isWin = !isDraw && p.id === winner.id;
+            const isPerfect = p.correct_count === duel.num_questions;
+            
+            // Update duel stats
             await supabase.rpc('upsert_duel_stats', {
               p_user_id: p.user_id,
               p_is_win: isWin,
               p_is_draw: isDraw,
               p_score: p.score,
             });
+            
+            // Calculate rewards
+            let coinsReward = isWin ? 15 : (isDraw ? 8 : 3);
+            let xpReward = isWin ? 30 : (isDraw ? 15 : 5);
+            
+            // Perfect game bonuses
+            if (isPerfect) {
+              coinsReward += 10;
+              xpReward += 20;
+            }
+            
+            // Update coins
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: p.user_id,
+              p_column: 'coins',
+              p_amount: coinsReward,
+            });
+            
+            // Update XP
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: p.user_id,
+              p_column: 'xp',
+              p_amount: xpReward,
+            });
+            
+            // 20% chance for random boost on win
+            if (isWin && Math.random() < 0.2) {
+              const boostTypes = ['fifty_fifty', 'time_extend', 'hint', 'skip'];
+              const randomBoost = boostTypes[Math.floor(Math.random() * boostTypes.length)];
+              await supabase.rpc('modify_boost_inventory', {
+                p_user_id: p.user_id,
+                p_boost_type: randomBoost,
+                p_change: 1,
+              });
+            }
+            
+            // Guaranteed boost for perfect game
+            if (isPerfect) {
+              await supabase.rpc('modify_boost_inventory', {
+                p_user_id: p.user_id,
+                p_boost_type: 'time_extend',
+                p_change: 1,
+              });
+            }
           }
 
-          // Send finish notifications to both players
+          // Send finish notifications with reward info
           for (const p of allPlayers) {
             if (!p.user_id) continue;
             
             const isWinner = !isDraw && p.id === winner.id;
+            const isPerfect = p.correct_count === duel.num_questions;
+            const coinsEarned = (isWinner ? 15 : (isDraw ? 8 : 3)) + (isPerfect ? 10 : 0);
+            const xpEarned = (isWinner ? 30 : (isDraw ? 15 : 5)) + (isPerfect ? 20 : 0);
+            
             await supabase.from('duel_notifications').insert({
               user_id: p.user_id,
               duel_id,
               type: 'finish',
               title: isWinner ? '🏆 Победа!' : (isDraw ? '🤝 Ничья!' : '😔 Поражение'),
-              message: `Счёт: ${allPlayers[0].score} - ${allPlayers[1].score}`,
+              message: `Счёт: ${allPlayers[0].score} - ${allPlayers[1].score}. Награды: ${coinsEarned} монет, ${xpEarned} XP${isPerfect ? ' + бустер!' : ''}`,
               icon: isWinner ? '🎉' : (isDraw ? '🤝' : '⚔️'),
+              metadata: {
+                winner_id: isDraw ? null : winner.user_id,
+                rewards: { coins: coinsEarned, xp: xpEarned, isPerfect }
+              }
             });
           }
 

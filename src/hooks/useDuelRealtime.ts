@@ -14,26 +14,28 @@ export interface DuelNotification {
 export interface DuelRealtimeState {
   opponentJoined: boolean;
   opponentScore: number;
+  opponentProgress: number;
   opponentAnswered: boolean;
   opponentAnswerData: any | null;
+  opponentDisconnected: boolean;
   duelStarted: boolean;
   duelFinished: boolean;
   currentQuestion: number;
   notifications: DuelNotification[];
-  opponentProgress: number;
 }
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
   const [state, setState] = useState<DuelRealtimeState>({
     opponentJoined: false,
     opponentScore: 0,
+    opponentProgress: 0,
     opponentAnswered: false,
     opponentAnswerData: null,
+    opponentDisconnected: false,
     duelStarted: false,
     duelFinished: false,
     currentQuestion: 0,
     notifications: [],
-    opponentProgress: 0,
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
@@ -111,6 +113,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               ...prev, 
               opponentScore: player.score,
               opponentProgress: player.correct_count || 0,
+              opponentDisconnected: !player.connected
             }));
           }
         }
