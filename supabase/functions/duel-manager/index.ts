@@ -405,6 +405,7 @@ Deno.serve(async (req) => {
             .from('questions_new')
             .select(`
               id, question_ru, question_es, question_en, image_url, difficulty,
+              explanation_ru, explanation_es, explanation_en,
               answer_options(id, text_ru, text_es, text_en, is_correct, position)
             `);
 
@@ -423,12 +424,16 @@ Deno.serve(async (req) => {
 
           // Insert duel questions with randomly selected set
           const duelQuestions = selectedQuestions.map((q, idx) => {
+            const answerOptions = q.answer_options || [];
             const snapshot = {
               question_ru: q.question_ru,
               question_es: q.question_es,
               question_en: q.question_en,
+              explanation_ru: q.explanation_ru,
+              explanation_es: q.explanation_es,
+              explanation_en: q.explanation_en,
               image_url: q.image_url,
-              answer_options: q.answer_options || [],
+              options: answerOptions, // Changed from answer_options to options
               difficulty: q.difficulty,
             };
             
@@ -437,7 +442,7 @@ Deno.serve(async (req) => {
               question_id: q.id,
               position: idx + 1,
               question_snapshot: snapshot,
-              correct_option_ids: (q.answer_options || [])
+              correct_option_ids: answerOptions
                 .filter((opt: any) => opt.is_correct)
                 .map((opt: any) => opt.id),
             };
@@ -515,8 +520,11 @@ Deno.serve(async (req) => {
             question_ru: q.question_ru,
             question_es: q.question_es,
             question_en: q.question_en,
+            explanation_ru: q.explanation_ru,
+            explanation_es: q.explanation_es,
+            explanation_en: q.explanation_en,
             image_url: q.image_url,
-            answer_options: options || [],
+            options: options || [], // Changed from answer_options to options
             difficulty: q.difficulty,
           };
 

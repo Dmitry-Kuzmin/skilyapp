@@ -590,7 +590,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           </h2>
 
           <div className="space-y-4">
-            {snapshot.answer_options
+            {snapshot.options
               ?.filter((opt: any) => !hiddenOptions.includes(opt.id))
               .sort((a: any, b: any) => a.position - b.position)
               .map((option: any) => {
