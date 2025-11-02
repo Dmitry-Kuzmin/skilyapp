@@ -110,11 +110,11 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     }
   }, [state.duelStarted, countdown]);
 
-  // Fallback polling if realtime fails
+  // Aggressive polling for status changes (especially important for Telegram mini-app)
   useEffect(() => {
-    if (!state.opponentJoined || state.duelStarted || !duelId) return;
+    if (!duelId || countdown !== null) return;
 
-    console.log('[DuelLobby] Starting fallback polling...');
+    console.log('[DuelLobby] Starting status polling...');
     const pollInterval = setInterval(async () => {
       const { data, error } = await supabase
         .from('duels')
@@ -134,14 +134,14 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       }
 
       console.log('[DuelLobby] Polling duel status:', data.status);
-      if (data.status === 'active') {
-        console.log('[DuelLobby] Fallback: Duel is active!');
+      if (data.status === 'active' && countdown === null) {
+        console.log('[DuelLobby] Polling detected active duel! Starting countdown...');
         startCountdown();
       }
-    }, 500);
+    }, 300); // Poll every 300ms for faster response
 
     return () => clearInterval(pollInterval);
-  }, [state.opponentJoined, state.duelStarted, duelId]);
+  }, [duelId, countdown]);
 
   const handleCreateDuel = async () => {
     if (!profileId) return;
