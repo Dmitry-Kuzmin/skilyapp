@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn, LogOut } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
@@ -11,6 +11,7 @@ import { AuthModal } from "./AuthModal";
 import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { NotificationsPanel } from "./NotificationsPanel";
+import { UserProfilePopover } from "./UserProfilePopover";
 
 interface LayoutProps {
   children: ReactNode;
@@ -86,19 +87,7 @@ const Layout = ({ children }: LayoutProps) => {
                 <Trophy className="w-5 h-5" />
               </NavLink>
               {isAuthenticated ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {user?.first_name}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={logout}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                </div>
+                <UserProfilePopover />
               ) : (
                 <Button 
                   variant="ghost" 
