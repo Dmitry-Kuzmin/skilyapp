@@ -15,12 +15,15 @@ import { toast } from 'sonner';
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
 export default function Duel() {
-  const { isAuthenticated, profileId } = useUserContext();
+  const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
   const [mode, setMode] = useState<GameMode>('menu');
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const isTelegramUser = isTelegramMiniApp();
+  
+  // Check if we're waiting for profile to load
+  const isLoadingProfile = (user || supabaseUser) && !profileId;
 
   const handleDuelCreated = (id: string, code: string) => {
     setDuelId(id);
@@ -50,19 +53,14 @@ export default function Duel() {
 
   // Check if user needs to login
   const handleActionClick = (action: () => void) => {
-    // Check if profileId is loaded
-    if (!profileId) {
-      console.log('[Duel] ProfileId not loaded yet...');
-      toast.error('Загрузка профиля...');
-      return;
-    }
-    
-    // For non-Telegram users, require authentication
+    // For non-Telegram users, require authentication first
     if (!isAuthenticated && !isTelegramUser) {
       setShowAuthModal(true);
       return;
     }
     
+    // If we have a user but profileId is still loading, just execute the action
+    // The profileId will be checked inside DuelLobby/DuelJoin when they try to invoke the function
     action();
   };
 
@@ -99,6 +97,7 @@ export default function Duel() {
               size="lg"
               className="h-32 text-xl relative overflow-hidden group"
               onClick={() => handleActionClick(() => setMode('create'))}
+              disabled={isLoadingProfile}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-orange-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative flex items-center justify-center gap-4">
@@ -117,6 +116,7 @@ export default function Duel() {
               variant="outline"
               className="h-32 text-xl relative overflow-hidden group border-2"
               onClick={() => handleActionClick(() => setMode('join'))}
+              disabled={isLoadingProfile}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative flex items-center justify-center gap-4">
