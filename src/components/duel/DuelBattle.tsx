@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Swords, Timer, Zap, Trophy, WifiOff, Wifi } from 'lucide-react';
+import { DuelWaitingReplay } from './DuelWaitingReplay';
 
 interface DuelBattleProps {
   duelId: string;
@@ -40,6 +41,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const prevOpponentScore = useRef(opponentScore);
   const lastOpponentActivityRef = useRef(Date.now());
+  const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -425,6 +427,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   const finishDuel = async () => {
     try {
+      console.log('[DuelBattle] Finishing duel - I completed all questions');
+      
       await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'finish_duel',
@@ -432,10 +436,39 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           duel_id: duelId,
         },
       });
+
+      // Check if opponent also finished
+      const { data: duel } = await supabase
+        .from('duels')
+        .select('status')
+        .eq('id', duelId)
+        .single();
+
+      if (duel?.status === 'finished') {
+        // Both finished, go to results
+        onDuelFinished();
+      } else {
+        // Wait for opponent - show live replay
+        setIsWaitingForOpponent(true);
+      }
     } catch (error) {
       console.error('Error finishing duel:', error);
     }
   };
+
+  // ============================================================================
+  // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
+  // ============================================================================
+  if (isWaitingForOpponent) {
+    return (
+      <DuelWaitingReplay
+        duelId={duelId}
+        myScore={myScore}
+        totalQuestions={questions.length}
+        onDuelFinished={onDuelFinished}
+      />
+    );
+  }
 
   if (questions.length === 0) {
     return (

@@ -11,6 +11,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { NotificationToast } from '@/components/NotificationToast';
+import { DuelWaitingReplay } from './DuelWaitingReplay';
 
 interface DuelBattleFullscreenProps {
   duelId: string;
@@ -41,6 +42,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     message: string;
     icon?: string;
   }>>([]);
+  const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
+  const [hasFinishedMyQuestions, setHasFinishedMyQuestions] = useState(false);
 
   useEffect(() => {
     if (!duelId || !profileId) return;
@@ -329,11 +332,46 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   };
 
   const finishDuel = async () => {
+    console.log('[DuelBattleFullscreen] Finishing duel - I completed all questions');
+    setHasFinishedMyQuestions(true);
+
+    // Mark that I finished
     await supabase.functions.invoke('duel-manager', {
       body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
     });
-    onDuelFinished();
+
+    // Check if opponent also finished
+    const { data: duel } = await supabase
+      .from('duels')
+      .select('status')
+      .eq('id', duelId)
+      .single();
+
+    if (duel?.status === 'finished') {
+      // Both finished, go to results
+      onDuelFinished();
+    } else {
+      // Wait for opponent - show live replay
+      setIsWaitingForOpponent(true);
+    }
   };
+
+  // ============================================================================
+  // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
+  // ============================================================================
+  // Show live replay screen when I finish first
+  // Display opponent's progress in real-time
+  // ============================================================================
+  if (isWaitingForOpponent) {
+    return (
+      <DuelWaitingReplay
+        duelId={duelId}
+        myScore={myScore}
+        totalQuestions={questions.length}
+        onDuelFinished={onDuelFinished}
+      />
+    );
+  }
 
   if (loading || questions.length === 0) {
     return (
