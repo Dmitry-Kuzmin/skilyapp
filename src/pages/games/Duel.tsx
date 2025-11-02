@@ -11,6 +11,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp } from '@/lib/telegram';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -31,24 +32,41 @@ export default function Duel() {
     setMode('create');
   };
 
-  const handleDuelJoined = (id: string, code: string) => {
+  const handleDuelJoined = async (id: string, code: string) => {
+    console.log('[Duel] Player joined duel:', id);
     setDuelId(id);
     setDuelCode(code);
-    setMode('create'); // Go to lobby to wait for start
+    
+    // Check if duel is already active (auto-started)
+    const { data } = await supabase
+      .from('duels')
+      .select('status')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (data?.status === 'active') {
+      console.log('[Duel] Duel already active, going straight to battle!');
+      handleDuelStarted();
+    } else {
+      console.log('[Duel] Going to lobby to wait for start');
+      setMode('create');
+    }
   };
 
   const handleDuelStarted = () => {
-    console.log('[Duel] Switching to battle mode. DuelId:', duelId);
-    // Force immediate state change with retry for Telegram Mini App
-    setTimeout(() => {
-      console.log('[Duel] First attempt to set battle mode');
-      setMode('battle');
-      // Double retry for maximum reliability in Telegram
+    console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', duelId);
+    
+    // Immediate state change
+    setMode('battle');
+    
+    // Multiple retries for Telegram reliability
+    const retries = [50, 150, 300];
+    retries.forEach((delay, index) => {
       setTimeout(() => {
-        console.log('[Duel] Second attempt to set battle mode (retry)');
+        console.log(`[Duel] Battle mode retry #${index + 1}`);
         setMode('battle');
-      }, 50);
-    }, 100);
+      }, delay);
+    });
   };
 
   const handleDuelFinished = () => {

@@ -28,12 +28,22 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
   const { state } = useDuelRealtime(duelId);
 
-  // Check duel status immediately on mount
+  // Check duel status immediately on mount and continuously
   useEffect(() => {
     if (!duelId) return;
 
-    console.log('[DuelLobby] Checking initial duel status for:', duelId);
+    let isActive = true;
+    let checkCount = 0;
+    const MAX_CHECKS = 60; // 60 seconds max
+
+    console.log('[DuelLobby] Initializing status check for:', duelId);
+    
     const checkStatus = async () => {
+      if (!isActive) return;
+      
+      checkCount++;
+      console.log(`[DuelLobby] Status check #${checkCount} for duel:`, duelId);
+      
       const { data, error } = await supabase
         .from('duels')
         .select('status')
@@ -50,15 +60,36 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
         return;
       }
 
-      console.log('[DuelLobby] Initial duel status:', data.status);
+      console.log('[DuelLobby] Duel status:', data.status);
+      
       if (data.status === 'active') {
-        console.log('[DuelLobby] Duel already active! Starting battle...');
+        console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting countdown...');
+        setConnectionStatus('connected');
         startCountdown();
+        isActive = false; // Stop checking
+      } else {
+        setConnectionStatus('connected');
       }
-      setConnectionStatus('connected');
     };
 
+    // Immediate check
     checkStatus();
+
+    // Then check every 500ms for reliability in Telegram
+    const interval = setInterval(() => {
+      if (checkCount >= MAX_CHECKS) {
+        clearInterval(interval);
+        console.log('[DuelLobby] Max checks reached, stopping polling');
+        return;
+      }
+      checkStatus();
+    }, 500);
+
+    return () => {
+      isActive = false;
+      clearInterval(interval);
+      console.log('[DuelLobby] Cleanup: stopped status polling');
+    };
   }, [duelId]);
 
   // Handle timer
@@ -105,58 +136,13 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   // Handle duel started from realtime
   useEffect(() => {
     if (state.duelStarted && countdown === null) {
-      console.log('[DuelLobby] Duel started signal received, starting countdown!');
+      console.log('[DuelLobby] ✅ Duel started signal from realtime!');
       startCountdown();
     }
   }, [state.duelStarted, countdown]);
 
-  // Ultra-aggressive polling AND direct check for Telegram Mini App
-  useEffect(() => {
-    if (!duelId) return;
-
-    let pollInterval: NodeJS.Timeout;
-    let isActive = true;
-
-    const checkDuelStatus = async () => {
-      if (!isActive) return;
-      
-      const { data, error } = await supabase
-        .from('duels')
-        .select('status, started_at')
-        .eq('id', duelId)
-        .maybeSingle();
-
-      if (error) {
-        console.error('[DuelLobby] Status check error:', error);
-        return;
-      }
-
-      if (!data) {
-        console.warn('[DuelLobby] Duel not found');
-        return;
-      }
-
-      console.log('[DuelLobby] Status check:', data.status, 'Countdown:', countdown);
-      
-      if (data.status === 'active') {
-        if (countdown === null) {
-          console.log('[DuelLobby] 🚀 ACTIVE DUEL DETECTED! Starting countdown immediately...');
-          startCountdown();
-        }
-      }
-    };
-
-    // Check immediately
-    checkDuelStatus();
-
-    // Then poll every 200ms
-    pollInterval = setInterval(checkDuelStatus, 200);
-
-    return () => {
-      isActive = false;
-      if (pollInterval) clearInterval(pollInterval);
-    };
-  }, [duelId, countdown]);
+  // REMOVED OLD POLLING - now using consolidated check at mount
+  // Old polling logic removed - simplified approach in initial mount effect
 
   const handleCreateDuel = async () => {
     if (!profileId) return;
