@@ -38,7 +38,11 @@ export default function Duel() {
   };
 
   const handleDuelStarted = () => {
-    setMode('battle');
+    console.log('[Duel] Switching to battle mode. DuelId:', duelId);
+    // Force immediate state change with a small delay to ensure state is set
+    setTimeout(() => {
+      setMode('battle');
+    }, 100);
   };
 
   const handleDuelFinished = () => {

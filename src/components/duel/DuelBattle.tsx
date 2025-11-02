@@ -10,6 +10,7 @@ import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
+import { Swords, Timer, Zap, Trophy } from 'lucide-react';
 
 interface DuelBattleProps {
   duelId: string;
@@ -247,14 +248,15 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         if (correctAnswer) {
           sounds.correctAnswer();
           haptics.correctAnswer();
+          const points = data.points_awarded || 0;
           if (data.combo > 1) {
             sounds.combo(data.combo);
             haptics.combo();
-            toast.success(`🔥 Комбо x${data.combo}! +${data.points_awarded} очков`);
-          } else if (data.points_awarded > 150) {
-            toast.success(`⭐ Идеальный ответ! +${data.points_awarded} очков`);
+            toast.success(`🔥 Комбо x${data.combo}! +${points} очков`);
+          } else if (points > 150) {
+            toast.success(`⭐ Идеальный ответ! +${points} очков`);
           } else {
-            toast.success(`✅ Правильно! +${data.points_awarded} очков`);
+            toast.success(`✅ Правильно! +${points} очков`);
           }
         } else {
           sounds.wrongAnswer();
@@ -360,84 +362,130 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-      {/* Enhanced Header */}
-      <div className="bg-card rounded-lg p-4 border shadow-lg">
-        <div className="flex justify-between items-center mb-3">
-          <div className="text-sm text-muted-foreground">
-            Вопрос {currentIndex + 1} / {questions.length}
-          </div>
-          {skipCount > 0 && (
-            <div className={`text-sm font-medium ${skipCount >= 3 ? 'text-red-500' : 'text-yellow-600'}`}>
-              ⏭️ Пропусков: {skipCount}/3
-            </div>
-          )}
-        </div>
+      {/* Premium Stats & Timer Card */}
+      <Card className="relative overflow-hidden">
+        {/* Animated Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5" />
         
-        <div className="flex justify-between items-center gap-6">
-          <motion.div 
-            className="flex items-center gap-2 flex-1"
-            animate={isCorrect === true ? { scale: [1, 1.1, 1] } : {}}
-          >
-            <div className="text-sm text-muted-foreground">Вы:</div>
-            <div className="text-3xl font-bold text-primary">{myScore}</div>
-          </motion.div>
-          
-          <div className="text-2xl font-bold text-muted-foreground">⚔️ VS</div>
-          
-          <motion.div 
-            className="flex items-center gap-2 flex-1 justify-end relative"
-            animate={state.opponentAnswered ? { scale: [1, 1.1, 1] } : {}}
-          >
-            <div className="text-3xl font-bold">{opponentScore}</div>
-            <div className="text-sm text-muted-foreground">:Оппонент</div>
-            {state.opponentAnswered && (
-              <motion.div
+        <div className="relative p-6 space-y-4">
+          {/* Question Progress */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Trophy className="w-4 h-4" />
+              Вопрос {currentIndex + 1} / {questions.length}
+            </div>
+            {skipCount > 0 && (
+              <div className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full ${
+                skipCount >= 3 ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-600'
+              }`}>
+                <Zap className="w-3.5 h-3.5" />
+                Пропусков: {skipCount}/3
+              </div>
+            )}
+          </div>
+
+          {/* Score Battle */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 blur-xl" />
+            <div className="relative flex items-center justify-between gap-4 p-4 rounded-xl bg-gradient-to-r from-background/80 via-background/60 to-background/80 backdrop-blur-sm border-2 border-primary/20">
+              <motion.div 
+                className="flex items-center gap-3 flex-1"
+                animate={isCorrect === true ? { scale: [1, 1.1, 1] } : {}}
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+                  <Trophy className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground font-medium">Ваш счет</div>
+                  <div className="text-3xl font-black bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    {myScore}
+                  </div>
+                </div>
+              </motion.div>
+              
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30">
+                <Swords className="w-5 h-5 text-red-500" />
+                <span className="text-sm font-bold text-red-500">VS</span>
+              </div>
+              
+              <motion.div 
+                className="flex items-center gap-3 flex-1 justify-end relative"
+                animate={state.opponentAnswered ? { scale: [1, 1.1, 1] } : {}}
+              >
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground font-medium">Соперник</div>
+                  <div className="text-3xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                    {opponentScore}
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-muted to-muted-foreground/60 flex items-center justify-center shadow-lg">
+                  <Trophy className="w-6 h-6 text-background" />
+                </div>
+                <AnimatePresence>
+                  {state.opponentAnswered && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      className="absolute -top-10 right-0 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs px-3 py-1.5 rounded-full shadow-lg font-bold"
+                    >
+                      <Zap className="w-3 h-3 inline mr-1" />
+                      Ответил!
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Combo Badge */}
+          <AnimatePresence>
+            {combo > 1 && (
+              <motion.div 
+                className="flex justify-center"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                className="absolute -top-8 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-lg"
+                transition={{ type: "spring", bounce: 0.5 }}
               >
-                💨 Ответил!
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-6 py-2 rounded-full font-black shadow-xl text-lg">
+                  <Zap className="w-5 h-5" />
+                  КОМБО x{combo}
+                  <Zap className="w-5 h-5" />
+                </div>
               </motion.div>
             )}
-          </motion.div>
-        </div>
+          </AnimatePresence>
 
-        {combo > 1 && (
+          {/* Timer */}
           <motion.div 
-            className="mt-3 text-center"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring" }}
+            className="space-y-3"
+            animate={timeLeft < 10000 ? { scale: [1, 1.02, 1] } : {}}
+            transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-bold shadow-lg">
-              🔥 КОМБО x{combo}
+            <div className="flex items-center justify-center gap-3">
+              <Timer className={`w-8 h-8 ${timeLeft < 10000 ? 'text-red-500 animate-pulse' : 'text-primary'}`} />
+              <div className={`text-6xl font-black ${
+                timeLeft < 10000 ? 'text-red-500 animate-pulse' : 'bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent'
+              }`}>
+                {(timeLeft / 1000).toFixed(1)}s
+              </div>
+            </div>
+            <div className="relative w-full h-4 bg-muted/50 rounded-full overflow-hidden shadow-inner">
+              <motion.div
+                className={`h-4 rounded-full shadow-lg ${
+                  timeLeft < 10000 
+                    ? 'bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500' 
+                    : 'bg-gradient-to-r from-primary via-purple-500 to-pink-500'
+                }`}
+                style={{ width: `${(timeLeft / 60000) * 100}%` }}
+                animate={timeLeft < 10000 ? { opacity: [1, 0.7, 1] } : {}}
+                transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
+              />
             </div>
           </motion.div>
-        )}
-      </div>
-
-      {/* Enhanced Timer */}
-      <motion.div 
-        className="text-center"
-        animate={timeLeft < 10000 ? { scale: [1, 1.05, 1] } : {}}
-        transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
-      >
-        <div className={`text-5xl font-bold mb-3 ${timeLeft < 10000 ? 'text-red-500 animate-pulse' : 'text-primary'}`}>
-          ⏱️ {(timeLeft / 1000).toFixed(1)}s
         </div>
-        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-          <motion.div
-            className={`h-3 rounded-full transition-all duration-100 ${
-              timeLeft < 10000 ? 'bg-gradient-to-r from-red-500 to-orange-500' : 
-              'bg-gradient-to-r from-primary to-primary'
-            }`}
-            style={{ width: `${(timeLeft / 60000) * 100}%` }}
-            animate={timeLeft < 10000 ? { opacity: [1, 0.7, 1] } : {}}
-            transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
-          />
-        </div>
-      </motion.div>
+      </Card>
 
       {/* Enhanced Boosts Panel */}
       <AnimatePresence>
@@ -454,7 +502,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
             <div className="flex gap-3 justify-center flex-wrap">
               <BoostButton
                 type="fifty_fifty"
-                icon=""
+                icon="⚡"
                 name="50/50"
                 available={boosts.fifty_fifty}
                 onUse={handleUseBoost}
@@ -462,7 +510,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="time_extend"
-                icon=""
+                icon="⏱️"
                 name="+30s"
                 available={boosts.time_extend}
                 onUse={handleUseBoost}
@@ -470,7 +518,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="hint"
-                icon=""
+                icon="💡"
                 name="Hint"
                 available={boosts.hint}
                 onUse={handleUseBoost}
@@ -478,7 +526,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="skip"
-                icon=""
+                icon="⏭️"
                 name="Skip"
                 available={boosts.skip}
                 onUse={handleUseBoost}
