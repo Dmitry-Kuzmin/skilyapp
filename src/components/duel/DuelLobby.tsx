@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
+import { getTelegramUser } from '@/lib/telegram';
 
 interface DuelLobbyProps {
   duelId: string | null;
@@ -19,13 +20,13 @@ interface DuelLobbyProps {
 }
 
 export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCancel }: DuelLobbyProps) {
-  const { profileId, platform } = useUserContext();
+  const { profileId, platform, user } = useUserContext();
   const [isCreating, setIsCreating] = useState(false);
   const [numQuestions, setNumQuestions] = useState(10);
   const [difficulty, setDifficulty] = useState('mix');
   const [waitTime, setWaitTime] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking' | 'creating'>('checking');
   const { state } = useDuelRealtime(duelId);
 
   // Check duel status immediately on mount and continuously
@@ -45,12 +46,20 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       console.log(`[DuelLobby] Status check #${checkCount} for duel:`, duelId);
       
       try {
-        // Use edge function to check status (bypasses RLS issues)
+        // CRITICAL: Support hybrid authentication - include telegram_id for Telegram users
+        const bodyData: any = {
+          action: 'check_status',
+          duel_id: duelId
+        };
+        
+        // Add telegram_id if user is from Telegram
+        const telegramUser = getTelegramUser();
+        if (telegramUser?.id && platform === 'telegram') {
+          bodyData.telegram_id = telegramUser.id;
+        }
+        
         const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'check_status',
-            duel_id: duelId
-          }
+          body: bodyData
         });
 
         if (error) {
@@ -154,14 +163,25 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     if (!profileId) return;
 
     setIsCreating(true);
+    setConnectionStatus('creating');
+    
     try {
+      // CRITICAL: Support hybrid authentication - include telegram_id for Telegram users
+      const bodyData: any = {
+        action: 'create_duel',
+        num_questions: numQuestions,
+        categories: null,
+        difficulty,
+      };
+      
+      // Add telegram_id if user is from Telegram
+      const telegramUser = getTelegramUser();
+      if (telegramUser?.id && platform === 'telegram') {
+        bodyData.telegram_id = telegramUser.id;
+      }
+      
       const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'create_duel',
-          num_questions: numQuestions,
-          categories: null,
-          difficulty,
-        },
+        body: bodyData
       });
 
       if (error) throw error;
@@ -176,15 +196,23 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   };
 
   const handleStartDuel = async () => {
-    if (!duelId) return;
+    if (!duelId || !profileId) return;
     
     try {
+      // CRITICAL: Support hybrid authentication - include telegram_id for Telegram users
+      const bodyData: any = {
+        action: 'start_duel',
+        duel_id: duelId,
+      };
+      
+      // Add telegram_id if user is from Telegram
+      const telegramUser = getTelegramUser();
+      if (telegramUser?.id && platform === 'telegram') {
+        bodyData.telegram_id = telegramUser.id;
+      }
+      
       const { error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'start_duel',
-          profile_id: profileId,
-          duel_id: duelId,
-        },
+        body: bodyData
       });
 
       if (error) throw error;

@@ -188,52 +188,85 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Parse request body
-    const { action, ...params } = await req.json();
+    // ============================================================================
+    // CRITICAL: HYBRID AUTHENTICATION SUPPORT
+    // ============================================================================
+    // This function supports TWO authentication methods:
+    // 1. WEB users: Use Supabase Auth JWT tokens (Authorization header)
+    // 2. TELEGRAM users: Use telegram_id from request body
+    // 
+    // DO NOT REMOVE EITHER METHOD - both are required for the app to function
+    // The telegram_id method is NECESSARY for Telegram WebApp environment
+    // because Telegram has issues with JWT token persistence and session management
+    // ============================================================================
 
-    console.log('[Duel Manager] Action:', action);
+    const { action, telegram_id, ...params } = await req.json();
+    console.log('[Duel Manager] Action:', action, 'Telegram ID:', telegram_id ? 'present' : 'none');
 
-    // Get user from auth header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('[Duel Manager] No authorization header');
-      return new Response(JSON.stringify({ error: 'Not authenticated' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    let profileId: string;
+
+    // Try Telegram authentication first (if telegram_id is provided)
+    if (telegram_id) {
+      console.log('[Duel Manager] 🔵 Using TELEGRAM authentication via telegram_id:', telegram_id);
+      
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('telegram_id', telegram_id)
+        .maybeSingle();
+
+      if (profileError || !profile) {
+        console.error('[Duel Manager] Telegram profile not found for telegram_id:', telegram_id);
+        return new Response(JSON.stringify({ error: 'Telegram profile not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      profileId = profile.id;
+      console.log('[Duel Manager] ✅ Telegram profile found:', profileId);
+    } else {
+      // Fall back to standard Supabase Auth for web users
+      console.log('[Duel Manager] 🟢 Using WEB authentication via JWT token');
+      
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        console.error('[Duel Manager] No authorization: missing both telegram_id and auth token');
+        return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: { user }, error: authError } = await supabase.auth.getUser(
+        authHeader.replace('Bearer ', '')
+      );
+
+      if (authError || !user) {
+        console.error('[Duel Manager] Auth error:', authError);
+        return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileError || !profile) {
+        console.error('[Duel Manager] Web profile not found for user:', user.id);
+        return new Response(JSON.stringify({ error: 'Profile not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      profileId = profile.id;
+      console.log('[Duel Manager] ✅ Web profile found:', profileId);
     }
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
-    if (authError || !user) {
-      console.error('[Duel Manager] Auth error:', authError);
-      return new Response(JSON.stringify({ error: 'Not authenticated' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.log('[Duel Manager] User authenticated:', user.id);
-
-    // Get profile from user_id
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (profileError || !profile) {
-      console.error('[Duel Manager] Profile not found for user:', user.id);
-      return new Response(JSON.stringify({ error: 'Profile not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const profileId = profile.id;
-    console.log('[Duel Manager] Profile found:', profileId);
 
     switch (action) {
       case 'create_notification':
