@@ -134,31 +134,19 @@ const Layout = ({ children }: LayoutProps) => {
           })}
           
           {/* Profile/Login Icon */}
-          {isAuthenticated && user ? (
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
-            >
-              {user?.photo_url ? (
-                <img 
-                  src={user.photo_url} 
-                  alt={user.first_name}
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              ) : (
-                <User className="w-6 h-6" />
-              )}
-              <span className="text-xs font-medium">{t('profile')}</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
-              className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
-            >
-              <LogIn className="w-6 h-6" />
-              <span className="text-xs font-medium">{t('login')}</span>
-            </button>
-          )}
+          <div className="flex flex-col items-center gap-1 py-2 px-3">
+            {isAuthenticated ? (
+              <UserProfilePopover />
+            ) : (
+              <button
+                onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
+                className="flex flex-col items-center gap-1 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
+              >
+                <LogIn className="w-6 h-6" />
+                <span className="text-xs font-medium">{t('login')}</span>
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
