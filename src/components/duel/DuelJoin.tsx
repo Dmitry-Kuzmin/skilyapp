@@ -34,7 +34,6 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'join_duel',
-          profile_id: profileId,
           code: code.toUpperCase(),
         },
       });

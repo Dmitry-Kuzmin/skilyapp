@@ -49,8 +49,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
         const { data, error } = await supabase.functions.invoke('duel-manager', {
           body: {
             action: 'check_status',
-            duel_id: duelId,
-            profile_id: profileId
+            duel_id: duelId
           }
         });
 
@@ -159,7 +158,6 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'create_duel',
-          profile_id: profileId,
           num_questions: numQuestions,
           categories: null,
           difficulty,

@@ -188,46 +188,52 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Parse request body first to get profile_id if provided
-    const { action, profile_id, ...params } = await req.json();
+    // Parse request body
+    const { action, ...params } = await req.json();
 
-    console.log('[Duel Manager] Action:', action, 'Profile ID from client:', profile_id);
+    console.log('[Duel Manager] Action:', action);
 
-    let profileId: string | null = profile_id || null;
-
-    // If profile_id is not provided, try to get it from auth (fallback for email users)
-    if (!profileId) {
-      console.log('[Duel Manager] No profile_id provided, attempting auth lookup...');
-      const authHeader = req.headers.get('Authorization')!;
-      const { data: { user }, error: authError } = await supabase.auth.getUser(
-        authHeader.replace('Bearer ', '')
-      );
-
-      if (user && !authError) {
-        console.log('[Duel Manager] Authenticated user found:', user.id);
-        
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (profile && !profileError) {
-          profileId = profile.id;
-          console.log('[Duel Manager] Profile found via auth:', profileId);
-        }
-      }
-    } else {
-      console.log('[Duel Manager] Using profile_id from client:', profileId);
+    // Get user from auth header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('[Duel Manager] No authorization header');
+      return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    if (!profileId) {
-      console.error('[Duel Manager] Profile not found - neither from client nor auth');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      console.error('[Duel Manager] Auth error:', authError);
+      return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('[Duel Manager] User authenticated:', user.id);
+
+    // Get profile from user_id
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      console.error('[Duel Manager] Profile not found for user:', user.id);
       return new Response(JSON.stringify({ error: 'Profile not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    const profileId = profile.id;
+    console.log('[Duel Manager] Profile found:', profileId);
 
     switch (action) {
       case 'create_notification':
