@@ -26,21 +26,9 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const requestBody = await req.json();
-    console.log('[Telegram Auth] Request body received:', {
-      hasUser: !!requestBody.user,
-      userId: requestBody.user?.id,
-      platform: requestBody.platform
-    });
+    console.log('[Telegram Auth] Authentication request received');
 
     const { user, platform = 'telegram' } = requestBody;
-
-    console.log('[Telegram Auth] Processing user:', { 
-      userId: user?.id, 
-      firstName: user?.first_name,
-      lastName: user?.last_name,
-      username: user?.username,
-      platform 
-    });
 
     if (!user || !user.id) {
       console.error('[Telegram Auth] Missing user data');
@@ -50,69 +38,90 @@ serve(async (req) => {
       );
     }
 
-    console.log('[Telegram Auth] Upserting profile for telegram_id:', user.id);
+    console.log('[Telegram Auth] Creating Supabase auth user');
 
-    // Upsert user profile with automatic settings initialization
-    const { data: profile, error: upsertError } = await supabase
-      .from('profiles')
-      .upsert({
-        telegram_id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name || null,
-        username: user.username || null,
-        photo_url: user.photo_url || null,
-        language_code: user.language_code || null,
-        is_premium: user.is_premium || false,
-        platform: platform,
-        last_login: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        settings: {
-          theme: 'light',
-          language: user.language_code || 'en',
-          notifications: true
+    // Create or get Supabase auth user using admin API
+    const email = `telegram_${user.id}@telegram.internal`;
+    
+    // Try to get existing user first
+    let authUser;
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const existingUser = existingUsers?.users?.find(u => 
+      u.user_metadata?.telegram_id === user.id
+    );
+
+    if (existingUser) {
+      authUser = existingUser;
+      console.log('[Telegram Auth] Existing user found');
+    } else {
+      // Create new user
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        user_metadata: {
+          telegram_id: user.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          username: user.username,
+          photo_url: user.photo_url,
+          language_code: user.language_code,
+          is_premium: user.is_premium,
+          platform
         }
-      }, {
-        onConflict: 'telegram_id',
-        ignoreDuplicates: false
-      })
-      .select()
-      .single();
-
-    if (upsertError) {
-      console.error('[Telegram Auth] Upsert error:', {
-        message: upsertError.message,
-        details: upsertError.details,
-        hint: upsertError.hint,
-        code: upsertError.code
       });
+
+      if (createError) {
+        console.error('[Telegram Auth] User creation failed');
+        return new Response(
+          JSON.stringify({ error: 'Failed to create user account' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      authUser = newUser.user;
+      console.log('[Telegram Auth] New user created');
+    }
+
+    // Generate access token
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: authUser.email!,
+      options: {
+        data: {
+          telegram_id: user.id,
+          platform
+        }
+      }
+    });
+
+    if (sessionError || !sessionData) {
+      console.error('[Telegram Auth] Session generation failed');
       return new Response(
-        JSON.stringify({ error: upsertError.message, details: upsertError.details }),
+        JSON.stringify({ error: 'Failed to generate session' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('[Telegram Auth] Profile saved successfully:', {
-      profileId: profile.id,
-      telegramId: profile.telegram_id,
-      firstName: profile.first_name,
-      platform: profile.platform
-    });
+    // Get the profile that was created by the trigger
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', authUser.id)
+      .single();
 
-    // Generate a simple JWT-like token (for demo purposes)
-    // In production, use proper JWT signing
-    const token = btoa(JSON.stringify({
-      telegram_id: user.id,
-      username: user.username,
-      exp: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
-    }));
+    console.log('[Telegram Auth] Authentication successful');
 
-    console.log('[Telegram Auth] Sending success response with profile ID:', profile.id);
+    // Extract tokens from the session link
+    const urlParams = new URL(sessionData.properties.action_link).searchParams;
+    const accessToken = urlParams.get('access_token');
+    const refreshToken = urlParams.get('refresh_token');
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: true,
         profile,
-        token,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        user: authUser
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

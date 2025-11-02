@@ -702,7 +702,7 @@ Deno.serve(async (req) => {
         // Get duel data
         const { data: duel, error: duelError } = await supabase
           .from('duels')
-          .select('finished_by_players, host_user, status')
+          .select('finished_by_players, host_user, status, num_questions')
           .eq('id', duel_id)
           .single();
 

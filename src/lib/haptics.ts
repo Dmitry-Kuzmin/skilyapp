@@ -83,6 +83,15 @@ class HapticManager {
     this.notificationOccurred('warning');
   }
 
+  // Aliases for common actions
+  success() {
+    this.correctAnswer();
+  }
+
+  error() {
+    this.wrongAnswer();
+  }
+
   // Enable/disable
   setEnabled(enabled: boolean) {
     this.enabled = enabled;

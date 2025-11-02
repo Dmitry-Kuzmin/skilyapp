@@ -239,12 +239,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('puzzle_user', JSON.stringify(userData));
 
     try {
-      console.log('[UserContext] Saving to backend with platform:', actualPlatform);
-      console.log('[UserContext] User data:', { 
-        id: userData.id, 
-        first_name: userData.first_name,
-        platform: actualPlatform 
-      });
+      console.log('[UserContext] Authenticating user');
       
       const { data: result, error } = await supabase.functions.invoke('telegram-auth', {
         body: {
@@ -254,27 +249,34 @@ export function UserProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        console.error('[UserContext] Backend error:', error);
+        console.error('[UserContext] Authentication failed');
         throw error;
       }
 
-      console.log('[UserContext] Backend response:', result);
+      // Set Supabase session using the tokens from backend
+      if (result?.access_token && result?.refresh_token) {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: result.access_token,
+          refresh_token: result.refresh_token
+        });
+
+        if (sessionError) {
+          console.error('[UserContext] Session creation failed');
+          throw sessionError;
+        }
+
+        console.log('[UserContext] Session established successfully');
+      }
 
       // If we got profile data back, immediately set profileId
       if (result?.profile?.id) {
-        console.log('[UserContext] Setting profileId from backend response:', result.profile.id);
         setProfileId(result.profile.id);
         localStorage.setItem(`profile_${userData.id}`, result.profile.id);
       }
-
-      // Store token if provided
-      if (result?.token) {
-        localStorage.setItem('telegram_token', result.token);
-      }
       
-      console.log('[UserContext] User saved to backend successfully');
+      console.log('[UserContext] User authenticated successfully');
     } catch (error) {
-      console.error('[UserContext] Backend save error:', error);
+      console.error('[UserContext] Authentication error:', error);
       // Don't throw - user is already set locally
       // This ensures UI works even if backend is down
     }

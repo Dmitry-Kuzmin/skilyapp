@@ -772,6 +772,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                 title={notif.title}
                 message={notif.message}
                 icon={notif.icon}
+                onClose={() => {}}
               />
             </motion.div>
           ))}
