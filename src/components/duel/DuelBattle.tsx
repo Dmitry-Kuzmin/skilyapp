@@ -148,19 +148,28 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   const loadQuestions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('duel_questions')
-        .select('*')
-        .eq('duel_id', duelId)
-        .order('position');
+      console.log('[DuelBattle] Loading questions via edge function');
+      
+      // Use edge function to load questions (bypasses RLS issues)
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'get_questions',
+          duel_id: duelId,
+          profile_id: profileId
+        }
+      });
 
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        setQuestions(data);
+      if (data?.questions && data.questions.length > 0) {
+        console.log('[DuelBattle] Loaded', data.questions.length, 'questions');
+        setQuestions(data.questions);
+      } else {
+        console.warn('[DuelBattle] No questions found');
+        toast.error('Вопросы не найдены');
       }
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error('[DuelBattle] Error loading questions:', error);
       toast.error('Не удалось загрузить вопросы');
     }
   };

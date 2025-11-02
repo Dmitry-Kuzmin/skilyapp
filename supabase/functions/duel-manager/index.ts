@@ -181,6 +181,29 @@ Deno.serve(async (req) => {
         });
       }
 
+      case 'get_questions': {
+        const { duel_id } = params;
+        
+        console.log('[Duel Manager] Getting questions for duel:', duel_id);
+        
+        const { data: questions, error: questionsError } = await supabase
+          .from('duel_questions')
+          .select('*')
+          .eq('duel_id', duel_id)
+          .order('position');
+
+        if (questionsError) {
+          console.error('[Duel Manager] Error getting questions:', questionsError);
+          throw questionsError;
+        }
+
+        console.log('[Duel Manager] Found', questions?.length || 0, 'questions');
+        
+        return new Response(JSON.stringify({ questions }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'create_duel': {
         const validated = createDuelSchema.parse(params);
         const { num_questions, categories, difficulty } = validated;
