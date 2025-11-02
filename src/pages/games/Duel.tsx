@@ -92,7 +92,7 @@ export default function Duel() {
     action();
   };
 
-  // Fullscreen mode for battle
+  // Fullscreen modes - no Layout/Footer
   if (mode === 'battle' && duelId) {
     return (
       <DuelBattleFullscreen
@@ -100,6 +100,21 @@ export default function Duel() {
         onExit={handleBackToMenu}
         onDuelFinished={handleDuelFinished}
       />
+    );
+  }
+
+  // Lobby also fullscreen without footer
+  if (mode === 'create' && duelCode) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
+        <DuelLobby
+          duelId={duelId}
+          duelCode={duelCode}
+          onDuelCreated={handleDuelCreated}
+          onDuelStarted={handleDuelStarted}
+          onCancel={handleBackToMenu}
+        />
+      </div>
     );
   }
 

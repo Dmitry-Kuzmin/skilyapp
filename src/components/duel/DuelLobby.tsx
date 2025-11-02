@@ -272,13 +272,13 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
             </div>
           </div>
 
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handleCopyCode} variant="outline" size="lg" className="flex-1 max-w-xs">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center px-4">
+            <Button onClick={handleCopyCode} variant="outline" size="lg" className="w-full sm:flex-1 sm:max-w-xs">
               <Copy className="mr-2 h-5 w-5" />
               Копировать
             </Button>
             {platform === 'telegram' && (
-              <Button onClick={handleShare} size="lg" className="flex-1 max-w-xs">
+              <Button onClick={handleShare} size="lg" className="w-full sm:flex-1 sm:max-w-xs">
                 <Share2 className="mr-2 h-5 w-5" />
                 Поделиться
               </Button>
@@ -364,17 +364,17 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <Button 
             onClick={handleCreateDuel} 
             disabled={isCreating} 
             size="lg"
-            className="flex-1 h-14 text-lg"
+            className="w-full sm:flex-1 h-14 text-lg"
           >
             <Swords className="mr-2 h-5 w-5" />
             Создать дуэль
           </Button>
-          <Button variant="outline" onClick={onCancel} size="lg" className="h-14">
+          <Button variant="outline" onClick={onCancel} size="lg" className="w-full sm:w-auto h-14 px-6">
             <X className="h-5 w-5" />
           </Button>
         </div>

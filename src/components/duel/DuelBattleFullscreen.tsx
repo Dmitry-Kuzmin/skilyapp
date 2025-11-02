@@ -98,16 +98,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   const loadQuestions = async () => {
     try {
       setLoading(true);
+      console.log('[DuelBattleFullscreen] Loading questions for duel:', duelId, 'profile:', profileId);
+      
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
       });
 
+      console.log('[DuelBattleFullscreen] Questions response:', { data, error });
+
       if (error) throw error;
-      if (data?.questions) {
+      if (data?.questions && Array.isArray(data.questions)) {
+        console.log('[DuelBattleFullscreen] Loaded questions:', data.questions.length);
         setQuestions(data.questions);
+      } else {
+        console.error('[DuelBattleFullscreen] Invalid questions data:', data);
+        toast.error('Некорректные данные вопросов');
       }
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error('[DuelBattleFullscreen] Error loading questions:', error);
       toast.error('Ошибка загрузки вопросов');
     } finally {
       setLoading(false);
@@ -388,17 +396,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
             )}
 
             {/* Question Text */}
-            <h2 className="text-base md:text-xl lg:text-2xl font-bold mb-4 md:mb-6 leading-relaxed break-words hyphens-auto">
-              {currentQuestion.question_snapshot.question_ru}
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-6 leading-relaxed text-foreground px-2">
+              {currentQuestion.question_snapshot?.question_ru || 'Загрузка вопроса...'}
             </h2>
 
             {/* Answer Options */}
-            <div className="grid gap-2 md:gap-3">
-              {currentQuestion.question_snapshot.answer_options
-                .sort((a: any, b: any) => a.position - b.position)
+            <div className="grid gap-3 md:gap-4">
+              {currentQuestion.question_snapshot?.answer_options
+                ?.sort((a: any, b: any) => a.position - b.position)
                 .map((option: any, idx: number) => {
                   const isSelected = selectedAnswer === option.id;
-                  const isCorrect = currentQuestion.correct_option_ids.includes(option.id);
+                  const isCorrect = currentQuestion.correct_option_ids?.includes(option.id);
                   const showResult = isAnswered;
 
                   return (
@@ -409,64 +417,70 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                       transition={{ delay: idx * 0.05 }}
                       onClick={() => handleAnswer(option.id)}
                       disabled={isAnswered}
-                      whileHover={!isAnswered ? { scale: 1.01, x: 4 } : {}}
-                      whileTap={!isAnswered ? { scale: 0.99 } : {}}
-                      className={`p-3 md:p-4 rounded-xl md:rounded-2xl border-2 text-left transition-all text-sm md:text-base lg:text-lg font-medium leading-snug break-words hyphens-auto relative overflow-hidden ${
+                      whileHover={!isAnswered ? { scale: 1.02 } : {}}
+                      whileTap={!isAnswered ? { scale: 0.98 } : {}}
+                      className={`p-4 md:p-5 rounded-2xl border-2 text-left transition-all font-semibold leading-snug relative overflow-hidden min-h-[56px] ${
                         showResult
                           ? isCorrect
-                            ? 'bg-green-500/10 border-green-500/50 text-foreground shadow-lg shadow-green-500/20'
+                            ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
                             : isSelected
-                            ? 'bg-red-500/10 border-red-500/50 text-foreground shadow-lg shadow-red-500/20'
+                            ? 'bg-red-500/20 border-red-500 text-foreground shadow-lg'
                             : 'bg-muted/30 border-border/30 opacity-50'
                           : isSelected
-                          ? 'bg-primary/10 border-primary shadow-lg shadow-primary/20'
-                          : 'bg-background/50 border-border hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
+                          ? 'bg-primary/20 border-primary shadow-lg'
+                          : 'bg-card border-border hover:border-primary/50 hover:bg-primary/10 hover:shadow-md'
                       }`}
                     >
-                      {/* Success/Error indicator */}
                       {showResult && (isCorrect || isSelected) && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className={`absolute top-2 right-2 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center ${
+                          className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center font-bold text-white ${
                             isCorrect ? 'bg-green-500' : 'bg-red-500'
                           }`}
                         >
-                          <span className="text-white text-xs md:text-sm font-bold">
-                            {isCorrect ? '✓' : '✗'}
-                          </span>
+                          {isCorrect ? '✓' : '✗'}
                         </motion.div>
                       )}
-                      {option.text_ru}
+                      <span className="block pr-10 text-sm md:text-base break-words">
+                        {option.text_ru}
+                      </span>
                     </motion.button>
                   );
-                })}
+                }) || []}
             </div>
           </div>
 
-          {/* Boosts Section */}
-          {boosts.length > 0 && (
+          {/* Boosts Section - Above question card */}
+          {boosts.length > 0 && !isAnswered && (
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex gap-2 justify-center mt-3 md:mt-4"
+              className="flex gap-2 justify-center mb-4"
             >
-              {boosts.map((boost, idx) => (
-                <motion.button
-                  key={idx}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 hover:bg-primary/20 border-2 border-primary/30 flex items-center justify-center text-lg md:text-xl transition-colors"
-                  title={`${boost.boost_type}: ${boost.quantity}`}
-                >
-                  {boost.boost_type === 'fifty_fifty' ? '🎲' : 
-                   boost.boost_type === 'time_freeze' ? '⏱️' : 
-                   boost.boost_type === 'double_points' ? '⚡' : '🔥'}
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center font-bold">
-                    {boost.quantity}
-                  </span>
-                </motion.button>
-              ))}
+              {boosts.map((boost, idx) => {
+                const boostEmoji = {
+                  'fifty_fifty': '5️⃣0️⃣',
+                  'time_freeze': '⏱️',
+                  'double_points': '⚡',
+                  'skip_question': '⏭️'
+                }[boost.boost_type] || '🔥';
+
+                return (
+                  <motion.button
+                    key={idx}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border-2 border-primary/40 flex items-center justify-center text-2xl transition-all shadow-lg hover:shadow-primary/30"
+                    title={`${boost.boost_type}: ${boost.quantity}`}
+                  >
+                    <span className="text-2xl">{boostEmoji}</span>
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">
+                      {boost.quantity}
+                    </span>
+                  </motion.button>
+                );
+              })}
             </motion.div>
           )}
         </motion.div>
