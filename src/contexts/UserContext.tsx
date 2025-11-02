@@ -217,6 +217,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // Update local state immediately for instant UI feedback
     setUser(userData);
     window.puzzleUser = userData;
+    
+    // Determine the actual platform based on current environment
+    const isTelegramEnv = isTelegramMiniApp();
+    const actualPlatform = isTelegramEnv ? 'telegram' : 'web';
+    
+    // Set platform immediately
+    setPlatform(actualPlatform);
+    
     window.puzzleCodeData = {
       ...window.puzzleCodeData,
       FIRST_NAME: userData.first_name,
@@ -224,16 +232,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
       USERNAME: userData.username,
       ID: userData.id,
       LANGUAGE: userData.language_code,
+      PLATFORM: actualPlatform
     };
     
     // Store in localStorage for persistence
     localStorage.setItem('puzzle_user', JSON.stringify(userData));
 
     try {
-      // Determine the correct platform
-      const actualPlatform = platform === 'telegram' ? 'telegram' : 'web';
-      
-      // Save to backend using Supabase client (works in all environments)
       console.log('[UserContext] Saving to backend with platform:', actualPlatform);
       console.log('[UserContext] User data:', { 
         id: userData.id, 
@@ -254,6 +259,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
 
       console.log('[UserContext] Backend response:', result);
+
+      // If we got profile data back, immediately set profileId
+      if (result?.profile?.id) {
+        console.log('[UserContext] Setting profileId from backend response:', result.profile.id);
+        setProfileId(result.profile.id);
+        localStorage.setItem(`profile_${userData.id}`, result.profile.id);
+      }
 
       // Store token if provided
       if (result?.token) {

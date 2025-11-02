@@ -72,7 +72,19 @@ export default function Duel() {
           <p className="text-muted-foreground">Сразись с друзьями в битве за знания ПДД</p>
         </div>
 
-      {!isAuthenticated && !isTelegramUser ? (
+      {isLoadingProfile && (
+        <Card className="max-w-2xl mx-auto p-12 text-center space-y-6">
+          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+            <Swords className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold">Загрузка профиля...</h2>
+            <p className="text-muted-foreground">Пожалуйста, подождите</p>
+          </div>
+        </Card>
+      )}
+
+      {!isLoadingProfile && !isAuthenticated && !isTelegramUser && (
         <Card className="max-w-2xl mx-auto p-12 text-center space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
             <LogIn className="w-10 h-10 text-primary" />
@@ -90,7 +102,9 @@ export default function Duel() {
             Войти
           </Button>
         </Card>
-      ) : mode === 'menu' && (
+      )}
+
+      {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
         <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
           <div className="grid gap-4">
             <Button
@@ -188,7 +202,7 @@ export default function Duel() {
         </div>
       )}
 
-      {mode === 'create' && (
+      {!isLoadingProfile && mode === 'create' && (
         <DuelLobby
           duelId={duelId}
           duelCode={duelCode}
