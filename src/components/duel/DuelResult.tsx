@@ -27,6 +27,33 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }, [duelId]);
 
   useEffect(() => {
+    if (results && profileId) {
+      // Начисляем монеты после загрузки результатов
+      const coinsEarned = results.isWinner ? 50 : results.isDraw ? 25 : 15;
+      updateCoins(coinsEarned);
+    }
+  }, [results, profileId]);
+
+  const updateCoins = async (amount: number) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('coins')
+        .eq('id', profileId)
+        .single();
+
+      if (profile) {
+        await supabase
+          .from('profiles')
+          .update({ coins: (profile.coins || 0) + amount })
+          .eq('id', profileId);
+      }
+    } catch (error) {
+      console.error('Ошибка начисления монет:', error);
+    }
+  };
+
+  useEffect(() => {
     if (results?.isWinner) {
       sounds.victory();
       haptics.victory();
@@ -203,7 +230,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               <div className="flex items-center justify-center gap-2 bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20">
                 <span className="text-2xl">💰</span>
                 <span className="font-bold text-yellow-600 dark:text-yellow-400">
-                  +{Math.floor(results.myScore / 500)}
+                  +{results.isWinner ? 50 : results.isDraw ? 25 : 15} монет
                 </span>
               </div>
             </div>

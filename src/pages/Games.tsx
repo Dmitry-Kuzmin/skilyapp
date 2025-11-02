@@ -1,12 +1,16 @@
-import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
+import { BoostShopModal } from "@/components/shop/BoostShopModal";
+import { motion } from "framer-motion";
 
 const Games = () => {
   const navigate = useNavigate();
+  const [shopOpen, setShopOpen] = useState(false);
   
   const games = [
     {
@@ -87,7 +91,7 @@ const Games = () => {
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 relative">
           <h1 className="text-4xl font-bold">Игры</h1>
           <p className="text-muted-foreground text-lg">
             Учись играя! Закрепляй термины в увлекательном формате
@@ -196,6 +200,36 @@ const Games = () => {
           </div>
         </Card>
       </div>
+
+      {/* Floating Action Button for Shop */}
+      <motion.div
+        className="fixed bottom-24 right-6 z-50"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+      >
+        <Button
+          size="lg"
+          onClick={() => setShopOpen(true)}
+          className="w-16 h-16 rounded-full shadow-2xl bg-gradient-to-br from-primary to-secondary hover:shadow-primary/50 relative overflow-hidden group"
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+          />
+          <ShoppingBag className="w-7 h-7 relative z-10" />
+          <motion.div
+            className="absolute -top-1 -right-1 w-5 h-5 bg-gold rounded-full flex items-center justify-center text-xs font-bold"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          >
+            🔥
+          </motion.div>
+        </Button>
+      </motion.div>
+
+      <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
     </Layout>
   );
 };

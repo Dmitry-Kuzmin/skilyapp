@@ -39,9 +39,15 @@ export default function Duel() {
 
   const handleDuelStarted = () => {
     console.log('[Duel] Switching to battle mode. DuelId:', duelId);
-    // Force immediate state change with a small delay to ensure state is set
+    // Force immediate state change with retry for Telegram Mini App
     setTimeout(() => {
+      console.log('[Duel] First attempt to set battle mode');
       setMode('battle');
+      // Double retry for maximum reliability in Telegram
+      setTimeout(() => {
+        console.log('[Duel] Second attempt to set battle mode (retry)');
+        setMode('battle');
+      }, 50);
     }, 100);
   };
 

@@ -405,133 +405,83 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-      {/* Premium Stats & Timer Card */}
-      <Card className="relative overflow-hidden">
-        {/* Animated Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5" />
-        
-        <div className="relative p-6 space-y-4">
-          {/* Question Progress */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Trophy className="w-4 h-4" />
-              Вопрос {currentIndex + 1} / {questions.length}
-            </div>
-            {skipCount > 0 && (
-              <div className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full ${
-                skipCount >= 3 ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-600'
-              }`}>
-                <Zap className="w-3.5 h-3.5" />
-                Пропусков: {skipCount}/3
+      {/* Premium Info Panel */}
+      <Card className="p-4 md:p-5 bg-gradient-to-br from-card via-card/98 to-primary/5 border-2 border-primary/20 shadow-2xl backdrop-blur-sm relative overflow-hidden">
+        {/* Animated background */}
+        <motion.div
+          className="absolute inset-0 opacity-10"
+          animate={{
+            background: [
+              'linear-gradient(45deg, hsl(var(--primary)) 0%, transparent 50%)',
+              'linear-gradient(225deg, hsl(var(--secondary)) 0%, transparent 50%)',
+              'linear-gradient(45deg, hsl(var(--primary)) 0%, transparent 50%)',
+            ],
+          }}
+          transition={{ duration: 5, repeat: Infinity }}
+        />
+
+        <div className="relative z-10 space-y-3">
+          {/* Top Row: Scores */}
+          <div className="flex items-center justify-between gap-4">
+            {/* My Score */}
+            <motion.div 
+              className="flex items-center gap-2 flex-1"
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md">
+                <Trophy className="w-5 h-5 text-primary-foreground" />
               </div>
-            )}
+              <div>
+                <p className="text-xs text-muted-foreground">Вы</p>
+                <p className="text-xl font-black text-primary">{myScore}</p>
+              </div>
+            </motion.div>
+
+            {/* Center: Progress & Timer */}
+            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20">
+              <div className="text-center">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span className="font-bold text-sm">
+                    {currentIndex + 1}/{questions.length}
+                  </span>
+                </div>
+                <div className="relative w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-full"
+                    style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+              <div className="w-px h-8 bg-border"></div>
+              <div className="flex items-center gap-1.5">
+                <Timer className={`w-4 h-4 ${timeLeft < 10000 ? 'text-destructive animate-pulse' : 'text-muted-foreground'}`} />
+                <span className={`font-bold text-sm tabular-nums ${timeLeft < 10000 ? 'text-destructive' : 'text-foreground'}`}>
+                  {(timeLeft / 1000).toFixed(1)}s
+                </span>
+              </div>
+            </div>
+
+            {/* Opponent Score */}
+            <motion.div 
+              className="flex items-center gap-2 flex-1 justify-end"
+              whileHover={{ scale: 1.02 }}
+              animate={state.opponentAnswered ? { scale: [1, 1.1, 1] } : {}}
+            >
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Соперник</p>
+                <p className="text-xl font-black text-secondary">{opponentScore}</p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-blue-600 flex items-center justify-center shadow-md">
+                <Swords className="w-5 h-5 text-secondary-foreground" />
+              </div>
+            </motion.div>
           </div>
 
-          {/* Score Battle */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-purple-500/10 to-primary/10 blur-xl" />
-            <div className="relative flex items-center justify-between gap-4 p-4 rounded-xl bg-gradient-to-r from-background/80 via-background/60 to-background/80 backdrop-blur-sm border-2 border-primary/20">
-              <motion.div 
-                className="flex items-center gap-3 flex-1"
-                animate={isCorrect === true ? { scale: [1, 1.1, 1] } : {}}
-              >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
-                  <Trophy className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground font-medium">Ваш счет</div>
-                  <div className="text-3xl font-black bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    {myScore}
-                  </div>
-                </div>
-              </motion.div>
-              
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30">
-                <Swords className="w-5 h-5 text-red-500" />
-                <span className="text-sm font-bold text-red-500">VS</span>
-              </div>
-              
-              <motion.div 
-                className="flex items-center gap-3 flex-1 justify-end relative"
-                animate={state.opponentAnswered ? { scale: [1, 1.1, 1] } : {}}
-              >
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground font-medium">Соперник</div>
-                  <div className="text-3xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                    {opponentScore}
-                  </div>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-muted to-muted-foreground/60 flex items-center justify-center shadow-lg">
-                  <Trophy className="w-6 h-6 text-background" />
-                </div>
-                <AnimatePresence>
-                  {state.opponentAnswered && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-10 right-0 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs px-3 py-1.5 rounded-full shadow-lg font-bold"
-                    >
-                      <Zap className="w-3 h-3 inline mr-1" />
-                      Ответил!
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Combo Badge */}
-          <AnimatePresence>
-            {combo > 1 && (
-              <motion.div 
-                className="flex justify-center"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: "spring", bounce: 0.5 }}
-              >
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-6 py-2 rounded-full font-black shadow-xl text-lg">
-                  <Zap className="w-5 h-5" />
-                  КОМБО x{combo}
-                  <Zap className="w-5 h-5" />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Timer */}
-          <motion.div 
-            className="space-y-3"
-            animate={timeLeft < 10000 ? { scale: [1, 1.02, 1] } : {}}
-            transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
-          >
-            <div className="flex items-center justify-center gap-3">
-              <Timer className={`w-8 h-8 ${timeLeft < 10000 ? 'text-red-500 animate-pulse' : 'text-primary'}`} />
-              <div className={`text-6xl font-black ${
-                timeLeft < 10000 ? 'text-red-500 animate-pulse' : 'bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent'
-              }`}>
-                {(timeLeft / 1000).toFixed(1)}s
-              </div>
-            </div>
-            <div className="relative w-full h-4 bg-muted/50 rounded-full overflow-hidden shadow-inner">
-              <motion.div
-                className={`h-4 rounded-full shadow-lg ${
-                  timeLeft < 10000 
-                    ? 'bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500' 
-                    : 'bg-gradient-to-r from-primary via-purple-500 to-pink-500'
-                }`}
-                style={{ width: `${(timeLeft / 60000) * 100}%` }}
-                animate={timeLeft < 10000 ? { opacity: [1, 0.7, 1] } : {}}
-                transition={{ repeat: timeLeft < 10000 ? Infinity : 0, duration: 0.5 }}
-              />
-            </div>
-          </motion.div>
-
-          {/* Integrated Boosts Panel */}
-          <div className="bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-purple-500/5 rounded-xl p-3 border border-purple-500/20">
-            <div className="text-xs text-center text-muted-foreground mb-2 font-medium">🎯 Бусты</div>
-            <div className="grid grid-cols-4 gap-2">
+          {/* Bottom Row: Boosts + Status */}
+          <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30">
+            {/* Boosts */}
+            <div className="flex items-center gap-1.5">
               <BoostButton
                 type="fifty_fifty"
                 icon="⚡"
@@ -564,6 +514,35 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('skip')}
               />
+            </div>
+
+            {/* Network Status & Combo */}
+            <div className="flex items-center gap-2">
+              {!isOnline && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md bg-destructive/10 text-destructive text-xs font-bold"
+                >
+                  <WifiOff className="w-3 h-3" />
+                  Офлайн
+                </motion.div>
+              )}
+              {combo > 1 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="px-2 py-1 rounded-md bg-gradient-to-r from-gold to-yellow-600 text-gold-foreground text-xs font-bold flex items-center gap-1"
+                >
+                  <Zap className="w-3 h-3" />
+                  x{combo}
+                </motion.div>
+              )}
+              {skipCount > 0 && (
+                <div className="px-2 py-1 rounded-md bg-warning/10 text-warning text-xs font-bold">
+                  {skipCount}/3
+                </div>
+              )}
             </div>
           </div>
         </div>

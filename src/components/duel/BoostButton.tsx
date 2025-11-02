@@ -78,19 +78,19 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
               onClick={handleClick}
               disabled={isDisabled}
               variant="outline"
-              size="lg"
-              className={`relative h-16 w-full flex-col gap-1 border-2 transition-all duration-300 ${
+              size="sm"
+              className={`relative h-9 px-3 flex items-center gap-1.5 border transition-all duration-300 ${
                 isDisabled 
                   ? 'opacity-30 grayscale cursor-not-allowed' 
-                  : `bg-gradient-to-br ${config.gradient} text-white border-white/20 hover:border-white/50 shadow-lg`
+                  : `bg-gradient-to-br ${config.gradient} text-white border-white/20 hover:border-white/50 shadow-md hover:shadow-lg`
               }`}
             >
-              <IconComponent className="w-5 h-5" />
-              <span className="text-[10px] font-bold">{name}</span>
+              <span className="text-base">{icon}</span>
+              <span className="text-xs font-bold">{name}</span>
               {available > 0 && (
                 <Badge 
                   variant="default" 
-                  className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 bg-white text-primary font-bold shadow-lg border-2 border-primary"
+                  className="h-4 px-1 flex items-center justify-center bg-white/20 text-white border-white/30 text-[10px] font-bold ml-0.5"
                 >
                   {available}
                 </Badge>
