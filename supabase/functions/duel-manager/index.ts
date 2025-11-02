@@ -95,6 +95,70 @@ function simulateBotAnswer(difficulty: string, questionDifficulty: string): {
   };
 }
 
+// Helper function to create notifications
+async function createNotification(body: any, profileId: string, supabase: any) {
+  const { duel_id, type, title, message, icon } = body;
+
+  console.log('[create_notification] Creating notification for duel:', duel_id);
+
+  try {
+    // Get opponent's profile_id
+    const { data: players } = await supabase
+      .from('duel_players')
+      .select('user_id')
+      .eq('duel_id', duel_id);
+
+    if (!players || players.length < 2) {
+      return new Response(JSON.stringify({ error: 'Not enough players' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const opponentId = players.find((p: any) => p.user_id !== profileId)?.user_id;
+    
+    if (!opponentId) {
+      return new Response(JSON.stringify({ error: 'Opponent not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Create notification
+    const { error: notifError } = await supabase
+      .from('duel_notifications')
+      .insert({
+        user_id: opponentId,
+        duel_id,
+        type,
+        title,
+        message,
+        icon,
+        is_read: false
+      });
+
+    if (notifError) {
+      console.error('[create_notification] Error:', notifError);
+      return new Response(JSON.stringify({ error: notifError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('[create_notification] Notification created successfully');
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[create_notification] Exception:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -147,6 +211,8 @@ Deno.serve(async (req) => {
     }
 
     switch (action) {
+      case 'create_notification':
+        return await createNotification(params, profileId, supabase);
       case 'check_status': {
         const { duel_id } = params;
         
@@ -576,43 +642,11 @@ Deno.serve(async (req) => {
         await supabase.from('duel_boosts_used').insert({
           duel_id,
           player_id: player.id,
+          boost_type,
           duel_question_id: duel_question_id || null,
-          boost_type
         });
 
-        let boostResult: any = { success: true, boost_type };
-
-        // Apply boost effects
-        if (boost_type === 'fifty_fifty' && duel_question_id) {
-          const { data: question } = await supabase
-            .from('duel_questions')
-            .select('question_snapshot, correct_option_ids')
-            .eq('id', duel_question_id)
-            .single();
-
-          if (question) {
-            const snapshot = question.question_snapshot as any;
-            const correctIds = question.correct_option_ids as string[];
-            const incorrectOptions = snapshot.options.filter((opt: any) => !correctIds.includes(opt.id));
-            
-            // Return 2 random incorrect option IDs to hide
-            const shuffled = incorrectOptions.sort(() => Math.random() - 0.5);
-            boostResult.hide_options = shuffled.slice(0, 2).map((opt: any) => opt.id);
-          }
-        } else if (boost_type === 'hint' && duel_question_id) {
-          const { data: question } = await supabase
-            .from('duel_questions')
-            .select('question_snapshot')
-            .eq('id', duel_question_id)
-            .single();
-
-          if (question) {
-            const snapshot = question.question_snapshot as any;
-            boostResult.hint = snapshot.explanation_es || snapshot.explanation_ru || 'Нет подсказки';
-          }
-        }
-
-        return new Response(JSON.stringify(boostResult), {
+        return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -620,68 +654,51 @@ Deno.serve(async (req) => {
       case 'finish_duel': {
         const { duel_id } = params;
 
+        // Check if already finished
         const { data: duel } = await supabase
           .from('duels')
-          .select('*, duel_players(*)')
+          .select('status')
           .eq('id', duel_id)
           .single();
 
-        if (!duel) throw new Error('Duel not found');
-
-        const players = duel.duel_players as any[];
-        const [player1, player2] = players;
-
-        let winnerId = null;
-        if (player1.score > player2.score) winnerId = player1.user_id;
-        else if (player2.score > player1.score) winnerId = player2.user_id;
-
-        // Update duel status
-        await supabase
-          .from('duels')
-          .update({ status: 'finished', finished_at: new Date().toISOString() })
-          .eq('id', duel_id);
-
-        // Calculate rewards
-        for (const player of players) {
-          if (player.is_bot) continue;
-
-          const baseXP = Math.round(player.score / 20);
-          const isWinner = player.user_id === winnerId;
-          const victoryBonus = isWinner ? 25 : 10;
-          const cleanSweep = player.correct_count === duel.num_questions ? 50 : 0;
-          const totalXP = baseXP + victoryBonus + cleanSweep;
-          const coins = Math.floor(player.score / 500);
-
-          // Update profile using RPC functions
-          await supabase.rpc('increment_profile_value', {
-            p_profile_id: player.user_id,
-            p_column: 'xp',
-            p_amount: totalXP
-          });
-
-          await supabase.rpc('increment_profile_value', {
-            p_profile_id: player.user_id,
-            p_column: 'coins',
-            p_amount: coins
-          });
-
-          // Update stats
-          await supabase.rpc('upsert_duel_stats', {
-            p_user_id: player.user_id,
-            p_is_win: isWinner,
-            p_is_draw: winnerId === null,
-            p_score: player.score,
+        if (duel?.status === 'finished') {
+          return new Response(JSON.stringify({ message: 'Already finished' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
-        return new Response(JSON.stringify({ 
-          winner_id: winnerId,
-          players: players.map(p => ({
-            user_id: p.user_id,
-            score: p.score,
-            correct_count: p.correct_count,
-          })),
-        }), {
+        // Mark as finished and determine winner
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('*')
+          .eq('duel_id', duel_id)
+          .order('score', { ascending: false });
+
+        if (players && players.length >= 2) {
+          const isDraw = players[0].score === players[1].score;
+          const winnerId = isDraw ? null : players[0].id;
+
+          await supabase
+            .from('duels')
+            .update({
+              status: 'finished',
+              finished_at: new Date().toISOString(),
+            })
+            .eq('id', duel_id);
+
+          // Update stats for both players
+          for (const player of players) {
+            const isWin = player.id === winnerId;
+            await supabase.rpc('upsert_duel_stats', {
+              p_user_id: player.user_id,
+              p_is_win: isWin && !isDraw,
+              p_is_draw: isDraw,
+              p_score: player.score
+            });
+          }
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -692,10 +709,9 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     }
-  } catch (error) {
-    console.error('Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
+  } catch (error: any) {
+    console.error('[Duel Manager] Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

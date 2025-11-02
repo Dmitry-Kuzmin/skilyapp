@@ -40,38 +40,46 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     icon?: string;
   }>>([]);
 
-  // Load questions on mount
   useEffect(() => {
+    if (!duelId || !profileId) return;
+    
     loadQuestions();
     loadScores();
     loadBoosts();
-  }, [duelId]);
+  }, [duelId, profileId]);
 
-  // Update scores from realtime and show notification
+  // Update scores from realtime and create notifications
   useEffect(() => {
     if (state.opponentAnswered && state.opponentAnswerData) {
+      console.log('[DuelBattleFullscreen] Opponent answered:', state.opponentAnswerData);
       loadScores();
       
-      // Show toast notification
-      const isCorrect = state.opponentAnswerData.is_correct;
-      const notification = {
-        id: `notif-${Date.now()}`,
-        title: isCorrect ? '💡 Соперник ответил!' : '❌ Соперник ошибся!',
-        message: isCorrect 
-          ? 'Правильный ответ! Продолжайте бороться!' 
-          : 'Ваш шанс догнать!',
-        icon: isCorrect ? '⚡' : '🎯'
+      // Create notification via edge function
+      const createNotification = async () => {
+        try {
+          const isCorrect = state.opponentAnswerData.is_correct;
+          await supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'create_notification',
+              duel_id: duelId,
+              profile_id: profileId,
+              type: 'progress',
+              title: isCorrect ? '💡 Соперник ответил!' : '❌ Соперник ошибся!',
+              message: isCorrect 
+                ? 'Правильный ответ! Продолжайте бороться!' 
+                : 'Ваш шанс догнать!',
+              icon: isCorrect ? '⚡' : '🎯'
+            }
+          });
+        } catch (error) {
+          console.error('[DuelBattleFullscreen] Error creating notification:', error);
+        }
       };
       
-      setToastNotifications(prev => [...prev, notification]);
+      createNotification();
       sounds.notificationPop();
-      
-      // Auto-remove after 3 seconds
-      setTimeout(() => {
-        setToastNotifications(prev => prev.filter(n => n.id !== notification.id));
-      }, 3000);
     }
-  }, [state.opponentAnswered, state.opponentAnswerData]);
+  }, [state.opponentAnswered, state.opponentAnswerData, duelId, profileId]);
 
   // Handle duel completion
   useEffect(() => {
@@ -246,12 +254,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   if (loading || questions.length === 0) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-        <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full" />
+        <div className="text-center space-y-4">
+          <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+          <p className="text-lg text-muted-foreground">Загрузка вопросов...</p>
+        </div>
       </div>
     );
   }
 
   const currentQuestion = questions[currentIndex];
+  
+  if (!currentQuestion || !currentQuestion.question_snapshot) {
+    console.error('[DuelBattleFullscreen] Invalid question data:', currentQuestion);
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
+        <div className="text-center space-y-4">
+          <p className="text-lg text-destructive">Ошибка загрузки вопроса</p>
+          <Button onClick={onExit}>Выйти</Button>
+        </div>
+      </div>
+    );
+  }
+
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
@@ -381,32 +405,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         >
           <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col">
             {/* Question Image */}
-            {currentQuestion.question_snapshot?.image_url && (
+            {currentQuestion.question_snapshot.image_url && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mb-4 md:mb-6 rounded-2xl overflow-hidden bg-muted/50"
+                className="mb-6 rounded-2xl overflow-hidden bg-muted/50"
               >
                 <img
                   src={currentQuestion.question_snapshot.image_url}
                   alt="Question"
-                  className="w-full h-40 md:h-48 object-contain"
+                  className="w-full h-48 md:h-56 object-contain"
                 />
               </motion.div>
             )}
 
             {/* Question Text */}
-            <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-6 leading-relaxed text-foreground px-2">
-              {currentQuestion.question_snapshot?.question_ru || 'Загрузка вопроса...'}
+            <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground">
+              {currentQuestion.question_snapshot.question_ru}
             </h2>
 
             {/* Answer Options */}
-            <div className="grid gap-3 md:gap-4">
-              {currentQuestion.question_snapshot?.answer_options
-                ?.sort((a: any, b: any) => a.position - b.position)
+            <div className="grid gap-3">
+              {currentQuestion.question_snapshot.answer_options
+                .sort((a: any, b: any) => a.position - b.position)
                 .map((option: any, idx: number) => {
                   const isSelected = selectedAnswer === option.id;
-                  const isCorrect = currentQuestion.correct_option_ids?.includes(option.id);
+                  const isCorrect = currentQuestion.correct_option_ids.includes(option.id);
                   const showResult = isAnswered;
 
                   return (
@@ -419,7 +443,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                       disabled={isAnswered}
                       whileHover={!isAnswered ? { scale: 1.02 } : {}}
                       whileTap={!isAnswered ? { scale: 0.98 } : {}}
-                      className={`p-4 md:p-5 rounded-2xl border-2 text-left transition-all font-semibold leading-snug relative overflow-hidden min-h-[56px] ${
+                      className={`p-4 rounded-2xl border-2 text-left transition-all font-semibold leading-snug relative overflow-hidden min-h-[60px] ${
                         showResult
                           ? isCorrect
                             ? 'bg-green-500/20 border-green-500 text-foreground shadow-lg'
@@ -442,47 +466,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                           {isCorrect ? '✓' : '✗'}
                         </motion.div>
                       )}
-                      <span className="block pr-10 text-sm md:text-base break-words">
+                      <span className="block pr-10 text-base break-words">
                         {option.text_ru}
                       </span>
                     </motion.button>
                   );
-                }) || []}
+                })}
             </div>
           </div>
-
-          {/* Boosts Section - Above question card */}
-          {boosts.length > 0 && !isAnswered && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex gap-2 justify-center mb-4"
-            >
-              {boosts.map((boost, idx) => {
-                const boostEmoji = {
-                  'fifty_fifty': '5️⃣0️⃣',
-                  'time_freeze': '⏱️',
-                  'double_points': '⚡',
-                  'skip_question': '⏭️'
-                }[boost.boost_type] || '🔥';
-
-                return (
-                  <motion.button
-                    key={idx}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 border-2 border-primary/40 flex items-center justify-center text-2xl transition-all shadow-lg hover:shadow-primary/30"
-                    title={`${boost.boost_type}: ${boost.quantity}`}
-                  >
-                    <span className="text-2xl">{boostEmoji}</span>
-                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">
-                      {boost.quantity}
-                    </span>
-                  </motion.button>
-                );
-              })}
-            </motion.div>
-          )}
         </motion.div>
       </div>
     </div>
