@@ -273,12 +273,36 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
               )}
 
-              {/* Info Card */}
-              <Card className="p-4 bg-primary/5 border-primary/20">
-                <p className="text-sm text-muted-foreground">
-                  💡 <strong>Совет:</strong> Используйте бусты стратегически! В дуэлях можно использовать только 1 буст за матч.
-                </p>
-              </Card>
+              {/* Enhanced Info Cards */}
+              <div className="space-y-4">
+                <Card className="p-5 bg-gradient-to-br from-primary/10 via-secondary/5 to-primary/5 border-primary/30">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-xl flex-shrink-0">
+                      💡
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-sm">Стратегическое использование</h4>
+                      <p className="text-sm text-muted-foreground">
+                        В дуэлях можно использовать несколько бустов за игру. Выбирайте момент с умом!
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-5 bg-gradient-to-br from-gold/10 via-yellow-500/5 to-gold/10 border-gold/30">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-xl flex-shrink-0">
+                      🎯
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-bold text-sm">Как заработать монеты?</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Побеждайте в дуэлях, выполняйте задания и получайте ежедневные бонусы!
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </>
           )}
         </div>

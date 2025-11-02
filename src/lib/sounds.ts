@@ -32,7 +32,8 @@ class SoundManager {
       oscillator.frequency.value = frequency;
       oscillator.type = type;
 
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      // Более тихая громкость для ненавязчивости
+      gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
 
       oscillator.start(audioContext.currentTime);
@@ -40,6 +41,17 @@ class SoundManager {
     } catch (e) {
       console.warn('Audio playback failed:', e);
     }
+  }
+
+  // Notification sounds
+  notificationPop() {
+    this.playTone(880, 0.08);
+    setTimeout(() => this.playTone(1100, 0.08), 60);
+  }
+
+  notificationImportant() {
+    this.playTone(660, 0.1);
+    setTimeout(() => this.playTone(880, 0.15), 100);
   }
 
   // Boost sounds

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Swords, Users, Trophy, LogIn } from 'lucide-react';
 import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelJoin } from '@/components/duel/DuelJoin';
-import { DuelBattle } from '@/components/duel/DuelBattle';
+import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelResult } from '@/components/duel/DuelResult';
 import { AuthModal } from '@/components/AuthModal';
 import { useUserContext } from '@/contexts/UserContext';
@@ -248,8 +248,9 @@ export default function Duel() {
       )}
 
       {mode === 'battle' && duelId && (
-        <DuelBattle
+        <DuelBattleFullscreen
           duelId={duelId}
+          onExit={handleBackToMenu}
           onDuelFinished={handleDuelFinished}
         />
       )}

@@ -10,6 +10,7 @@ import { ProfileModal } from "./ProfileModal";
 import { AuthModal } from "./AuthModal";
 import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { NotificationsPanel } from "./NotificationsPanel";
 
 interface LayoutProps {
   children: ReactNode;
@@ -75,8 +76,9 @@ const Layout = ({ children }: LayoutProps) => {
               ))}
             </nav>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <ThemeToggle />
+              <NotificationsPanel />
               <NavLink
                 to="/achievements"
                 className="text-muted-foreground hover:text-foreground transition-colors"

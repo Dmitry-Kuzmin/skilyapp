@@ -315,23 +315,29 @@ Deno.serve(async (req) => {
           .eq('duel_id', duel.id);
 
         if (allPlayers && allPlayers.length === 2) {
-          // Auto-start the duel
-          const { data: questions } = await supabase
+          // Auto-start: Load ALL questions, then randomly select
+          const { data: allQuestions } = await supabase
             .from('questions_new')
             .select(`
               id, question_es, image_url, difficulty,
               answer_options(id, text_es, is_correct, position)
-            `)
-            .limit(duel.num_questions);
+            `);
 
-          if (!questions) throw new Error('No questions found');
+          if (!allQuestions || allQuestions.length === 0) {
+            throw new Error('No questions found');
+          }
 
-          // Shuffle using seed
+          console.log(`[join_duel] Total questions: ${allQuestions.length}`);
+
+          // Randomize selection from full pool using seed
           const rng = mulberry32(duel.question_seed);
-          const shuffled = [...questions].sort(() => rng() - 0.5);
+          const shuffled = [...allQuestions].sort(() => rng() - 0.5);
+          const selectedQuestions = shuffled.slice(0, duel.num_questions);
+          
+          console.log(`[join_duel] Selected ${selectedQuestions.length} random questions`);
 
-          // Insert duel questions
-          const duelQuestions = shuffled.map((q, idx) => ({
+          // Insert duel questions with randomly selected set
+          const duelQuestions = selectedQuestions.map((q, idx) => ({
             duel_id: duel.id,
             question_id: q.id,
             position: idx + 1,
