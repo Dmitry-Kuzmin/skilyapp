@@ -132,13 +132,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   };
 
   const loadBoosts = async () => {
-    const { data } = await supabase
-      .from('boost_inventory')
-      .select('*, boost_definitions(*)')
-      .eq('user_id', profileId)
-      .gt('quantity', 0);
+    try {
+      const { data, error } = await supabase
+        .from('boost_inventory')
+        .select('boost_type, quantity')
+        .eq('user_id', profileId)
+        .gt('quantity', 0);
 
-    if (data) setBoosts(data);
+      if (error) {
+        console.error('Error loading boosts:', error);
+        return;
+      }
+
+      if (data) setBoosts(data);
+    } catch (error) {
+      console.error('Exception loading boosts:', error);
+    }
   };
 
   const handleAnswer = async (optionId: string) => {
@@ -240,8 +249,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-hidden">
       {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        <AnimatePresence>
+      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+        <AnimatePresence mode="popLayout">
           {toastNotifications.map((notif) => (
             <NotificationToast
               key={notif.id}
@@ -252,94 +261,142 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         </AnimatePresence>
       </div>
 
-      {/* Exit Button */}
+      {/* Progress Bar - Duolingo Style */}
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-border">
+        <motion.div
+          className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400 shadow-lg shadow-green-500/50"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        />
+      </div>
+
+      {/* Exit Button - Top Left Corner */}
       <Button
         variant="ghost"
         size="icon"
         onClick={onExit}
-        className="absolute top-4 left-4 z-10 rounded-full w-10 h-10"
+        className="absolute top-2 left-2 z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
       >
-        <X className="h-5 w-5" />
+        <X className="h-4 w-4" />
       </Button>
 
-      {/* Progress Bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-muted">
-        <motion.div
-          className="h-full bg-gradient-to-r from-primary via-secondary to-primary"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.3 }}
-        />
-      </div>
-
       {/* Main Content */}
-      <div className="h-full flex flex-col p-4 pt-16 max-w-4xl mx-auto">
+      <div className="h-full flex flex-col p-3 md:p-4 pt-12 max-w-4xl mx-auto">
         {/* Header - Scores & Timer */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-black text-primary">{myScore}</div>
-              <div className="text-xs text-muted-foreground">Вы</div>
-            </div>
-            <div className="w-px h-10 bg-border" />
-            <div className="text-center">
-              <div className="text-2xl font-black text-secondary">{opponentScore}</div>
-              <div className="text-xs text-muted-foreground">Соперник</div>
-            </div>
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          {/* Scores */}
+          <div className="flex items-center gap-2 md:gap-4">
+            <motion.div 
+              className="text-center px-3 py-1.5 rounded-2xl bg-primary/10 border-2 border-primary/30"
+              animate={{ scale: myScore > opponentScore ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="text-xl md:text-2xl font-black text-primary">{myScore}</div>
+              <div className="text-xs text-muted-foreground hidden md:block">Вы</div>
+            </motion.div>
+            
+            <div className="text-2xl font-bold text-muted-foreground/30">VS</div>
+            
+            <motion.div 
+              className="text-center px-3 py-1.5 rounded-2xl bg-secondary/10 border-2 border-secondary/30"
+              animate={{ scale: opponentScore > myScore ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="text-xl md:text-2xl font-black text-secondary">{opponentScore}</div>
+              <div className="text-xs text-muted-foreground hidden md:block">Соперник</div>
+            </motion.div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {combo > 1 && (
-              <Badge className="gradient-fire border-none animate-pulse">
-                <Flame className="w-3 h-3 mr-1" />
-                x{combo}
-              </Badge>
-            )}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-muted">
-              <Clock className="w-4 h-4" />
-              <span className="font-mono font-bold text-sm">
+          {/* Timer & Combo */}
+          <div className="flex items-center gap-2">
+            <AnimatePresence>
+              {combo > 1 && (
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0, rotate: 180 }}
+                  className="relative"
+                >
+                  <Badge className="gradient-fire border-none text-white px-2 py-1 text-sm font-bold shadow-lg shadow-orange-500/50">
+                    <Flame className="w-3 h-3 mr-1 animate-pulse" />
+                    x{combo}
+                  </Badge>
+                  {/* Fire particles effect */}
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
+                    animate={{
+                      scale: [1, 1.5, 0],
+                      opacity: [1, 0.5, 0],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      repeatDelay: 0.5,
+                    }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            <motion.div 
+              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border"
+              animate={{ 
+                scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
+                borderColor: timeLeft < 10000 ? ['hsl(var(--border))', 'hsl(var(--destructive))', 'hsl(var(--border))'] : 'hsl(var(--border))'
+              }}
+              transition={{ duration: 0.5, repeat: timeLeft < 10000 ? Infinity : 0 }}
+            >
+              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className={`font-mono font-bold text-xs md:text-sm ${timeLeft < 10000 ? 'text-destructive' : ''}`}>
                 {Math.ceil(timeLeft / 1000)}s
               </span>
-            </div>
+            </motion.div>
           </div>
         </div>
 
-        {/* Question Number */}
-        <div className="text-center mb-4">
-          <p className="text-sm text-muted-foreground">
-            Вопрос {currentIndex + 1} из {questions.length}
+        {/* Question Progress */}
+        <div className="text-center mb-3 md:mb-4">
+          <p className="text-xs md:text-sm font-medium text-muted-foreground">
+            Вопрос <span className="text-primary font-bold">{currentIndex + 1}</span> из {questions.length}
           </p>
         </div>
 
         {/* Question Card */}
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="flex-1 flex flex-col"
         >
-          <div className="bg-card border-2 border-border rounded-3xl p-6 md:p-8 shadow-xl flex-1 flex flex-col">
+          <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col">
             {/* Question Image */}
             {currentQuestion.question_snapshot?.image_url && (
-              <div className="mb-6 rounded-2xl overflow-hidden bg-muted">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mb-4 md:mb-6 rounded-2xl overflow-hidden bg-muted/50"
+              >
                 <img
                   src={currentQuestion.question_snapshot.image_url}
                   alt="Question"
-                  className="w-full h-48 object-contain"
+                  className="w-full h-40 md:h-48 object-contain"
                 />
-              </div>
+              </motion.div>
             )}
 
             {/* Question Text */}
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6 md:mb-8 leading-relaxed break-words hyphens-auto">
+            <h2 className="text-base md:text-xl lg:text-2xl font-bold mb-4 md:mb-6 leading-relaxed break-words hyphens-auto">
               {currentQuestion.question_snapshot.question_ru}
             </h2>
 
             {/* Answer Options */}
-            <div className="grid gap-3 md:gap-4">
+            <div className="grid gap-2 md:gap-3">
               {currentQuestion.question_snapshot.answer_options
                 .sort((a: any, b: any) => a.position - b.position)
-                .map((option: any) => {
+                .map((option: any, idx: number) => {
                   const isSelected = selectedAnswer === option.id;
                   const isCorrect = currentQuestion.correct_option_ids.includes(option.id);
                   const showResult = isAnswered;
@@ -347,22 +404,39 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                   return (
                     <motion.button
                       key={option.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
                       onClick={() => handleAnswer(option.id)}
                       disabled={isAnswered}
-                      whileHover={!isAnswered ? { scale: 1.02 } : {}}
-                      whileTap={!isAnswered ? { scale: 0.98 } : {}}
-                      className={`p-4 md:p-5 rounded-2xl border-2 text-left transition-all text-base md:text-lg font-medium leading-relaxed break-words hyphens-auto ${
+                      whileHover={!isAnswered ? { scale: 1.01, x: 4 } : {}}
+                      whileTap={!isAnswered ? { scale: 0.99 } : {}}
+                      className={`p-3 md:p-4 rounded-xl md:rounded-2xl border-2 text-left transition-all text-sm md:text-base lg:text-lg font-medium leading-snug break-words hyphens-auto relative overflow-hidden ${
                         showResult
                           ? isCorrect
-                            ? 'bg-green-500/20 border-green-500 text-green-700 dark:text-green-300'
+                            ? 'bg-green-500/10 border-green-500/50 text-foreground shadow-lg shadow-green-500/20'
                             : isSelected
-                            ? 'bg-red-500/20 border-red-500 text-red-700 dark:text-red-300'
-                            : 'bg-muted/50 border-border/50 opacity-50'
+                            ? 'bg-red-500/10 border-red-500/50 text-foreground shadow-lg shadow-red-500/20'
+                            : 'bg-muted/30 border-border/30 opacity-50'
                           : isSelected
-                          ? 'bg-primary/20 border-primary'
-                          : 'bg-card border-border hover:border-primary/50 hover:bg-primary/5'
+                          ? 'bg-primary/10 border-primary shadow-lg shadow-primary/20'
+                          : 'bg-background/50 border-border hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
                       }`}
                     >
+                      {/* Success/Error indicator */}
+                      {showResult && (isCorrect || isSelected) && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className={`absolute top-2 right-2 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center ${
+                            isCorrect ? 'bg-green-500' : 'bg-red-500'
+                          }`}
+                        >
+                          <span className="text-white text-xs md:text-sm font-bold">
+                            {isCorrect ? '✓' : '✗'}
+                          </span>
+                        </motion.div>
+                      )}
                       {option.text_ru}
                     </motion.button>
                   );
@@ -370,11 +444,30 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
             </div>
           </div>
 
-          {/* Boosts - будут добавлены позже */}
+          {/* Boosts Section */}
           {boosts.length > 0 && (
-            <div className="flex gap-2 justify-center mt-4">
-              <p className="text-sm text-muted-foreground">Бусты: {boosts.length}</p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-2 justify-center mt-3 md:mt-4"
+            >
+              {boosts.map((boost, idx) => (
+                <motion.button
+                  key={idx}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 hover:bg-primary/20 border-2 border-primary/30 flex items-center justify-center text-lg md:text-xl transition-colors"
+                  title={`${boost.boost_type}: ${boost.quantity}`}
+                >
+                  {boost.boost_type === 'fifty_fifty' ? '🎲' : 
+                   boost.boost_type === 'time_freeze' ? '⏱️' : 
+                   boost.boost_type === 'double_points' ? '⚡' : '🔥'}
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center font-bold">
+                    {boost.quantity}
+                  </span>
+                </motion.button>
+              ))}
+            </motion.div>
           )}
         </motion.div>
       </div>

@@ -92,6 +92,17 @@ export default function Duel() {
     action();
   };
 
+  // Fullscreen mode for battle
+  if (mode === 'battle' && duelId) {
+    return (
+      <DuelBattleFullscreen
+        duelId={duelId}
+        onExit={handleBackToMenu}
+        onDuelFinished={handleDuelFinished}
+      />
+    );
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6">
@@ -244,14 +255,6 @@ export default function Duel() {
         <DuelJoin
           onDuelJoined={handleDuelJoined}
           onCancel={handleBackToMenu}
-        />
-      )}
-
-      {mode === 'battle' && duelId && (
-        <DuelBattleFullscreen
-          duelId={duelId}
-          onExit={handleBackToMenu}
-          onDuelFinished={handleDuelFinished}
         />
       )}
 
