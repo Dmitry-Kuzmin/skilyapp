@@ -188,7 +188,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         setEliminatedOptions(toEliminate);
       } else if (boostType === 'time_extend') {
         sounds.boostTimeExtend();
-        setTimeLeft(prev => Math.min(prev + 15000, 60000));
+        // CRITICAL: Add +30s as specified in requirements, not +15s
+        setTimeLeft(prev => Math.min(prev + 30000, 60000));
       } else if (boostType === 'hint') {
         sounds.boostHint();
         toast.info('💡 Подсказка: обратите внимание на детали!');
@@ -252,7 +253,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     }
 
     try {
-      await supabase.functions.invoke('duel-manager', {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
           duel_id: duelId,
@@ -263,7 +264,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         },
       });
 
-      await loadScores();
+      if (error) throw error;
+
+      // ============================================================================
+      // CRITICAL: USE SERVER SCORE - CLIENT NEVER CALCULATES
+      // ============================================================================
+      if (data && data.new_score !== undefined) {
+        setMyScore(data.new_score);
+        setCombo(isCorrect ? (data.combo || 0) : 0);
+      } else {
+        // Fallback: reload from DB if server doesn't return score
+        await loadScores();
+      }
 
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {

@@ -65,10 +65,18 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   }, [state.duelFinished]);
 
-  // Realtime opponent notifications
+  // ============================================================================
+  // CRITICAL: NOTIFICATION SYSTEM WITH AUTO-DISMISS
+  // ============================================================================
+  // All notifications have duration and auto-dismiss
+  // Dedupe is handled at notification level
+  // ============================================================================
   useEffect(() => {
     if (state.opponentAnswered) {
-      toast.info('💨 Соперник ответил!', { duration: 1000 });
+      toast.info('💨 Соперник ответил!', { 
+        duration: 2000,
+        icon: '⚡'
+      });
       lastOpponentActivityRef.current = Date.now();
     }
   }, [state.opponentAnswered]);
@@ -113,15 +121,31 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     };
   }, [answered]);
 
-  // Track opponent score changes
+  // Track opponent score changes with controlled notifications
   useEffect(() => {
     if (opponentScore > prevOpponentScore.current && prevOpponentScore.current > 0) {
       const diff = opponentScore - prevOpponentScore.current;
+      const scoreDiff = opponentScore - myScore;
+      
       if (diff > 100) {
-        toast.warning('🔥 Соперник набрал комбо!', { duration: 1500 });
+        toast.warning('🔥 Соперник набрал комбо!', { 
+          duration: 3000,
+          icon: '🔥' 
+        });
         haptics.warning();
-      } else if (opponentScore > myScore) {
-        toast.info('⚡ Соперник вырвался вперёд!', { duration: 1500 });
+      } else if (scoreDiff > 0 && scoreDiff <= 200) {
+        // Only show if opponent is slightly ahead (not too spammy)
+        toast.info(`⚡ Соперник впереди на ${scoreDiff} очков`, { 
+          duration: 4000,
+          icon: '⚡',
+          id: 'opponent-ahead' // Prevent duplicates
+        });
+      } else if (scoreDiff > 200) {
+        toast.warning(`🚀 Соперник опережает на ${scoreDiff}!`, {
+          duration: 4000,
+          icon: '🚀',
+          id: 'opponent-far-ahead'
+        });
       }
     }
     prevOpponentScore.current = opponentScore;
@@ -222,6 +246,12 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   };
 
+  // ============================================================================
+  // CRITICAL: USE SERVER-PROVIDED BOOST EFFECTS ONLY
+  // ============================================================================
+  // All boost logic is calculated on server
+  // Client only displays effects from server response
+  // ============================================================================
   const handleUseBoost = async (type: string) => {
     if (usedBoosts.includes(type) || answered) return;
 
@@ -238,27 +268,28 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
       if (error) throw error;
 
-      // Apply boost effects with sound and animation
+      // Apply server-provided boost effects
       if (type === 'fifty_fifty' && data.hidden_options) {
         sounds.boostFiftyFifty();
         haptics.boostActivated();
         setHiddenOptions(data.hidden_options);
-        toast.success('⚡ 50/50: Два варианта убраны!');
-      } else if (type === 'time_extend') {
+        toast.success('⚡ 50/50: Два варианта убраны!', { duration: 3000 });
+      } else if (type === 'time_extend' && data.time_added_ms) {
         sounds.boostTimeExtend();
         haptics.boostActivated();
-        setTimeLeft(prev => Math.min(prev + 30000, 60000));
-        toast.success('⏱️ +30 секунд добавлено!');
+        // Add exactly what server says (+30s), capped at 60s total
+        setTimeLeft(prev => Math.min(prev + data.time_added_ms, 60000));
+        toast.success(`⏱️ +${data.time_added_ms / 1000} секунд добавлено!`, { duration: 3000 });
       } else if (type === 'hint' && data.hint) {
         sounds.boostHint();
         haptics.boostActivated();
         setHintText(data.hint);
         setShowHint(true);
-        toast.success('💡 Подсказка открыта!');
-      } else if (type === 'skip') {
+        toast.success('💡 Подсказка открыта!', { duration: 3000 });
+      } else if (type === 'skip' && data.skip_confirmed) {
         sounds.boostSkip();
         haptics.boostActivated();
-        toast.success('⏭️ Вопрос пропущен!');
+        toast.success('⏭️ Вопрос пропущен!', { duration: 2000 });
         setTimeout(() => {
           if (currentIndex < questions.length - 1) {
             setCurrentIndex(currentIndex + 1);
@@ -271,7 +302,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       setUsedBoosts(prev => [...prev, type]);
       setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof prev] - 1) }));
     } catch (error: any) {
-      toast.error(error.message || 'Ошибка использования буста');
+      toast.error(error.message || 'Ошибка использования буста', { duration: 4000 });
     }
   };
 
@@ -300,7 +331,13 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
       if (error) throw error;
 
-      if (data) {
+      // ============================================================================
+      // CRITICAL: USE SERVER-PROVIDED SCORE ONLY
+      // ============================================================================
+      // Client MUST use new_score from server response
+      // Never calculate score locally - server is source of truth
+      // ============================================================================
+      if (data && data.new_score !== undefined) {
         setMyScore(data.new_score);
         setCombo(data.combo);
         
@@ -311,16 +348,16 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           if (data.combo > 1) {
             sounds.combo(data.combo);
             haptics.combo();
-            toast.success(`🔥 Комбо x${data.combo}! +${points} очков`);
+            toast.success(`🔥 Комбо x${data.combo}! +${points} очков`, { duration: 3000 });
           } else if (points > 150) {
-            toast.success(`⭐ Идеальный ответ! +${points} очков`);
+            toast.success(`⭐ Идеальный ответ! +${points} очков`, { duration: 3000 });
           } else {
-            toast.success(`✅ Правильно! +${points} очков`);
+            toast.success(`✅ Правильно! +${points} очков`, { duration: 2500 });
           }
         } else {
           sounds.wrongAnswer();
           haptics.wrongAnswer();
-          toast.error('❌ Неправильно');
+          toast.error('❌ Неправильно', { duration: 2000 });
         }
       }
 

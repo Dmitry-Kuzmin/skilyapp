@@ -598,17 +598,26 @@ Deno.serve(async (req) => {
         });
 
         // Update player score
+        const newScore = player.score + points;
         await supabase
           .from('duel_players')
           .update({
-            score: player.score + points,
+            score: newScore,
             correct_count: player.correct_count + (isCorrect ? 1 : 0),
           })
           .eq('id', player.id);
 
+        // ============================================================================
+        // CRITICAL: SERVER IS SOURCE OF TRUTH FOR SCORES
+        // ============================================================================
+        // Always return new_score from server - client MUST use this value
+        // Never let client calculate scores locally
+        // ============================================================================
+
         return new Response(JSON.stringify({ 
           is_correct: isCorrect, 
-          points,
+          points_awarded: points,
+          new_score: newScore,
           combo: isCorrect ? combo + 1 : 0,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -657,7 +666,65 @@ Deno.serve(async (req) => {
           duel_question_id: duel_question_id || null,
         });
 
-        return new Response(JSON.stringify({ success: true }), {
+        // ============================================================================
+        // CRITICAL: SERVER-SIDE BOOST LOGIC
+        // ============================================================================
+        // All boost effects MUST be calculated on server and returned to client
+        // Client only displays the effects, never calculates them locally
+        // ============================================================================
+        
+        let boostEffect: any = { success: true };
+
+        if (boost_type === 'fifty_fifty' && duel_question_id) {
+          // Get question to find incorrect options
+          const { data: question } = await supabase
+            .from('duel_questions')
+            .select('correct_option_ids, question_snapshot')
+            .eq('id', duel_question_id)
+            .single();
+
+          if (question) {
+            const snapshot = question.question_snapshot as any;
+            const allOptions = snapshot.answer_options || [];
+            const correctIds = question.correct_option_ids as string[];
+            
+            // Find incorrect options
+            const incorrectOptions = allOptions
+              .filter((opt: any) => !correctIds.includes(opt.id))
+              .map((opt: any) => opt.id);
+            
+            // Hide exactly 2 incorrect options (or all if less than 2)
+            const toHide = incorrectOptions.slice(0, Math.min(2, incorrectOptions.length));
+            
+            boostEffect.hidden_options = toHide;
+            console.log('[use_boost] 50/50 hiding options:', toHide);
+          }
+        } else if (boost_type === 'time_extend') {
+          // Server confirms time extension of +30 seconds
+          boostEffect.time_added_ms = 30000;
+          console.log('[use_boost] Time extended by 30s');
+        } else if (boost_type === 'hint' && duel_question_id) {
+          // Get question explanation
+          const { data: question } = await supabase
+            .from('duel_questions')
+            .select('question_snapshot')
+            .eq('id', duel_question_id)
+            .single();
+
+          if (question) {
+            const snapshot = question.question_snapshot as any;
+            // Return explanation in Russian (can be localized based on user preference)
+            const hint = snapshot.explanation_ru || snapshot.explanation_es || snapshot.explanation_en || 'Подсказка недоступна';
+            boostEffect.hint = hint;
+            console.log('[use_boost] Hint provided');
+          }
+        } else if (boost_type === 'skip') {
+          // Skip is handled client-side, just confirm
+          boostEffect.skip_confirmed = true;
+          console.log('[use_boost] Skip confirmed');
+        }
+
+        return new Response(JSON.stringify(boostEffect), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
