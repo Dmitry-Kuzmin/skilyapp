@@ -10,6 +10,7 @@ import { AuthModal } from '@/components/AuthModal';
 import { useUserContext } from '@/contexts/UserContext';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp } from '@/lib/telegram';
+import { toast } from 'sonner';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -49,27 +50,16 @@ export default function Duel() {
 
   // Check if user needs to login
   const handleActionClick = (action: () => void) => {
-    // For Telegram users, allow if profileId exists (loading in background)
-    if (isTelegramUser && profileId) {
-      action();
-      return;
-    }
-
-    if (!isAuthenticated && !isTelegramUser) {
-      setShowAuthModal(true);
+    // Check if profileId is loaded
+    if (!profileId) {
+      console.log('[Duel] ProfileId not loaded yet...');
+      toast.error('Загрузка профиля...');
       return;
     }
     
-    // Check profileId with retry for Telegram users
-    if (!profileId) {
-      console.log('[Duel] ProfileId not loaded yet, retrying...');
-      setTimeout(() => {
-        if (profileId) {
-          action();
-        } else if (!isTelegramUser) {
-          setShowAuthModal(true);
-        }
-      }, 500);
+    // For non-Telegram users, require authentication
+    if (!isAuthenticated && !isTelegramUser) {
+      setShowAuthModal(true);
       return;
     }
     

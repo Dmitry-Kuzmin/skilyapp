@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { LogIn, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useUserContext } from '@/contexts/UserContext';
 
 interface DuelJoinProps {
   onDuelJoined: (duelId: string, code: string) => void;
@@ -13,6 +14,7 @@ interface DuelJoinProps {
 }
 
 export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
+  const { profileId } = useUserContext();
   const [code, setCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
 
@@ -22,11 +24,17 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
       return;
     }
 
+    if (!profileId) {
+      toast.error('Загрузка профиля...');
+      return;
+    }
+
     setIsJoining(true);
     try {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'join_duel',
+          profile_id: profileId,
           code: code.toUpperCase(),
         },
       });
