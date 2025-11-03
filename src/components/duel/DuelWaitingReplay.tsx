@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -45,13 +45,26 @@ export function DuelWaitingReplay({
   const [opponentScore, setOpponentScore] = useState(0);
   const [opponentName, setOpponentName] = useState('Соперник');
   const [isHidden, setIsHidden] = useState(false);
-  const [isDuelFinished, setIsDuelFinished] = useState(false);
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const isHiddenRef = useRef(isHidden);
 
   useEffect(() => {
     loadOpponentData();
-    subscribeToOpponentProgress();
     checkDuelStatus();
   }, [duelId]);
+
+  useEffect(() => {
+    isHiddenRef.current = isHidden;
+  }, [isHidden]);
+
+  useEffect(() => {
+    if (!duelId || !myPlayerId) return;
+
+    const unsubscribe = subscribeToOpponentProgress(myPlayerId);
+    return () => {
+      unsubscribe?.();
+    };
+  }, [duelId, myPlayerId]);
 
   // Check if duel is already finished
   const checkDuelStatus = async () => {
@@ -62,13 +75,12 @@ export function DuelWaitingReplay({
       .single();
 
     if (data?.status === 'finished') {
-      setIsDuelFinished(true);
       sounds.victory();
       toast.success('🏁 Дуэль завершена!', {
         description: 'Смотрите результаты',
         duration: 5000,
       });
-      setTimeout(() => onDuelFinished(), 2000);
+      onDuelFinished();
     }
   };
 
@@ -80,8 +92,15 @@ export function DuelWaitingReplay({
         .select('*, profiles(first_name)')
         .eq('duel_id', duelId);
 
+      let myPlayerIdLocal: string | null = null;
+
       if (players) {
+        const myPlayer = players.find(p => p.user_id === profileId);
         const opponent = players.find(p => p.user_id !== profileId);
+
+        myPlayerIdLocal = myPlayer?.id || null;
+        setMyPlayerId(myPlayerIdLocal);
+
         if (opponent) {
           setOpponentName(opponent.profiles?.first_name || 'Соперник');
           setOpponentScore(opponent.score || 0);
@@ -96,16 +115,17 @@ export function DuelWaitingReplay({
           duel_questions!inner(position)
         `)
         .eq('duel_id', duelId)
-        .neq('player_id', await getMyPlayerId())
         .order('created_at', { ascending: true });
 
       if (answers) {
-        const formattedAnswers = answers.map((ans: any) => ({
-          question_number: ans.duel_questions.position,
-          is_correct: ans.is_correct,
-          time_taken_ms: ans.time_taken_ms,
-          points_awarded: ans.points_awarded || 0,
-        }));
+        const formattedAnswers = answers
+          .filter((ans: any) => !myPlayerIdLocal || ans.player_id !== myPlayerIdLocal)
+          .map((ans: any) => ({
+            question_number: ans.duel_questions.position,
+            is_correct: ans.is_correct,
+            time_taken_ms: ans.time_taken_ms,
+            points_awarded: ans.points_awarded || 0,
+          }));
         setOpponentAnswers(formattedAnswers);
       }
     } catch (error) {
@@ -113,20 +133,7 @@ export function DuelWaitingReplay({
     }
   };
 
-  const getMyPlayerId = async () => {
-    const { data } = await supabase
-      .from('duel_players')
-      .select('id')
-      .eq('duel_id', duelId)
-      .eq('user_id', profileId)
-      .single();
-    return data?.id;
-  };
-
-  const subscribeToOpponentProgress = async () => {
-    const myPlayerId = await getMyPlayerId();
-
-    // Subscribe to new answers from opponent
+  const subscribeToOpponentProgress = (myPlayerIdValue: string) => {
     const channel = supabase
       .channel(`duel_waiting_${duelId}`)
       .on(
@@ -139,44 +146,70 @@ export function DuelWaitingReplay({
         },
         async (payload) => {
           const answer = payload.new as any;
-          
-          // Check if it's opponent's answer
-          if (answer.player_id !== myPlayerId) {
-            console.log('[DuelWaitingReplay] Opponent answered!', answer);
 
-            // Get question position
-            const { data: question } = await supabase
-              .from('duel_questions')
-              .select('position')
-              .eq('id', answer.duel_question_id)
-              .single();
+          if (!answer || answer.player_id === myPlayerIdValue) {
+            return;
+          }
 
-            if (question) {
-              const newAnswer: OpponentAnswer = {
-                question_number: question.position,
-                is_correct: answer.is_correct,
-                time_taken_ms: answer.time_taken_ms,
-                points_awarded: answer.points_awarded || 0,
-              };
+          console.log('[DuelWaitingReplay] Opponent answered!', answer);
 
-              setOpponentAnswers(prev => [...prev, newAnswer]);
-              setOpponentScore(prev => prev + newAnswer.points_awarded);
+          const { data: question, error } = await supabase
+            .from('duel_questions')
+            .select('position')
+            .eq('id', answer.duel_question_id)
+            .single();
 
-              // Play sound and show notification if not hidden
-              if (!isHidden) {
-                sounds.notificationPop();
-                if (answer.is_correct) {
-                  toast.info(`✅ Соперник: Вопрос ${question.position} - Правильно!`, {
-                    duration: 2000,
-                  });
-                } else {
-                  toast.info(`❌ Соперник: Вопрос ${question.position} - Ошибка`, {
-                    duration: 2000,
-                  });
-                }
+          if (error) {
+            console.error('[DuelWaitingReplay] Failed to load question position:', error);
+            return;
+          }
+
+          if (question) {
+            const newAnswer: OpponentAnswer = {
+              question_number: question.position,
+              is_correct: answer.is_correct,
+              time_taken_ms: answer.time_taken_ms,
+              points_awarded: answer.points_awarded || 0,
+            };
+
+            setOpponentAnswers(prev => {
+              const alreadyExists = prev.some(item => item.question_number === newAnswer.question_number);
+              if (alreadyExists) {
+                return prev.map(item => item.question_number === newAnswer.question_number ? newAnswer : item);
+              }
+              return [...prev, newAnswer];
+            });
+
+            if (!isHiddenRef.current) {
+              sounds.notificationPop();
+              if (answer.is_correct) {
+                toast.info(`✅ Соперник: Вопрос ${question.position} - Правильно!`, {
+                  duration: 2000,
+                });
+              } else {
+                toast.info(`❌ Соперник: Вопрос ${question.position} - Ошибка`, {
+                  duration: 2000,
+                });
               }
             }
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'duel_players',
+          filter: `duel_id=eq.${duelId}`,
+        },
+        (payload) => {
+          const updatedPlayer = payload.new as any;
+          if (!updatedPlayer || updatedPlayer.id === myPlayerIdValue) {
+            return;
+          }
+
+          setOpponentScore(updatedPlayer.score || 0);
         }
       )
       .on(
@@ -191,17 +224,14 @@ export function DuelWaitingReplay({
           const duel = payload.new as any;
           if (duel.status === 'finished') {
             console.log('[DuelWaitingReplay] Duel finished!');
-            setIsDuelFinished(true);
             sounds.victory();
-            
-            // Show big notification
+
             toast.success('🏁 Дуэль завершена!', {
               description: 'Соперник закончил! Смотрите результаты',
               duration: 5000,
             });
 
-            // Navigate to results after delay
-            setTimeout(() => onDuelFinished(), 2000);
+            onDuelFinished();
           }
         }
       )

@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Sparkles, X, ShoppingBag } from 'lucide-react';
+import { Coins, X, ShoppingBag } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
@@ -168,7 +166,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
         {showConfetti && (
           <Confetti
             width={600}
@@ -179,64 +177,43 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           />
         )}
 
-        <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10">
+        {/* Компактный заголовок с балансом */}
+        <DialogHeader className="px-4 py-3 border-b border-border/50">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-black flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-                <ShoppingBag className="w-6 h-6 text-primary-foreground" />
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5 text-primary" />
+              <DialogTitle className="text-lg font-semibold">Магазин бустов</DialogTitle>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50">
+                <Coins className="w-4 h-4 text-gold" />
+                <span className="text-sm font-semibold">{coins}</span>
               </div>
-              Магазин бустов
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="rounded-full"
-            >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-
-          {/* Balance Section */}
-          <motion.div
-            className="mt-4 p-4 rounded-xl bg-gradient-to-r from-gold/20 via-yellow-500/20 to-gold/20 border-2 border-gold/30"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse' }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gold/30 flex items-center justify-center">
-                  <Coins className="w-6 h-6 text-gold" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Ваш баланс</p>
-                  <p className="text-2xl font-black text-gold">{coins} монет</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" className="border-gold/50 text-gold hover:bg-gold/10">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Пополнить
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="h-8 w-8"
+              >
+                <X className="w-4 h-4" />
               </Button>
             </div>
-          </motion.div>
+          </div>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-180px)] p-6 space-y-6">
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-4 space-y-3">
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-              <p className="mt-4 text-muted-foreground">Загрузка...</p>
+              <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="mt-3 text-sm text-muted-foreground">Загрузка...</p>
             </div>
           ) : (
             <>
               {/* Regular Boosts */}
               {regularBoosts.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-6 bg-gradient-to-b from-primary to-secondary rounded-full"></div>
-                    <h3 className="text-lg font-bold">🎯 Популярные бусты</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
+                  <div className="space-y-2">
                     {regularBoosts.map((boost) => (
                       <BoostCard
                         key={boost.id}
@@ -252,13 +229,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
               {/* Premium Boosts */}
               {premiumBoosts.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-6 bg-gradient-to-b from-gold to-yellow-600 rounded-full"></div>
-                    <h3 className="text-lg font-bold">💎 Премиум бусты</h3>
-                    <Badge className="gradient-gold border-none text-xs">Premium</Badge>
+                <div className="space-y-2 mt-4">
+                  <div className="flex items-center gap-2 px-1">
+                    <h3 className="text-sm font-semibold text-muted-foreground">Премиум бусты</h3>
+                    <Badge className="gradient-gold border-none text-xs px-1.5 py-0">Premium</Badge>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     {premiumBoosts.map((boost) => (
                       <BoostCard
                         key={boost.id}
@@ -272,37 +248,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   </div>
                 </div>
               )}
-
-              {/* Enhanced Info Cards */}
-              <div className="space-y-4">
-                <Card className="p-5 bg-gradient-to-br from-primary/10 via-secondary/5 to-primary/5 border-primary/30">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-xl flex-shrink-0">
-                      💡
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm">Стратегическое использование</h4>
-                      <p className="text-sm text-muted-foreground">
-                        В дуэлях можно использовать несколько бустов за игру. Выбирайте момент с умом!
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-5 bg-gradient-to-br from-gold/10 via-yellow-500/5 to-gold/10 border-gold/30">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gold/20 flex items-center justify-center text-xl flex-shrink-0">
-                      🎯
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm">Как заработать монеты?</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Побеждайте в дуэлях, выполняйте задания и получайте ежедневные бонусы!
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
             </>
           )}
         </div>

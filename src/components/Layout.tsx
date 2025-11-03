@@ -1,18 +1,20 @@
 import { ReactNode, useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn, Settings, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { ProfileModal } from "./ProfileModal";
 import { AuthModal } from "./AuthModal";
 import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp } from "@/lib/telegram";
-import { NotificationsPanel } from "./NotificationsPanel";
 import { UserProfilePopover } from "./UserProfilePopover";
+import { useNotifications } from "@/hooks/useNotifications";
+import { BoostShopModal } from "./shop/BoostShopModal";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,8 +25,10 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const { user, platform, isAuthenticated, logout } = useUserContext();
   const { t } = useLanguage();
+  const { unreadCount } = useNotifications();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
 
   const navigation = [
@@ -81,7 +85,32 @@ const Layout = ({ children }: LayoutProps) => {
 
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <NotificationsPanel />
+              {isAuthenticated && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShopOpen(true)}
+                    className="relative"
+                    title="Магазин бустов"
+                  >
+                    <ShoppingBag className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSettingsOpen(true)}
+                    className="relative"
+                  >
+                    <Settings className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 border-none min-w-[20px]">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </>
+              )}
               <NavLink
                 to="/achievements"
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -113,7 +142,7 @@ const Layout = ({ children }: LayoutProps) => {
         "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
         "md:hidden"
       )}>
-        <div className="grid grid-cols-5 gap-1 px-2 py-2">
+        <div className={cn("grid gap-1 px-2 py-2", isAuthenticated ? "grid-cols-6" : "grid-cols-5")}>
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -133,20 +162,38 @@ const Layout = ({ children }: LayoutProps) => {
             );
           })}
           
-          {/* Profile/Login Icon */}
-          <div className="flex flex-col items-center gap-1 py-2 px-3">
-            {isAuthenticated ? (
-              <UserProfilePopover />
-            ) : (
+          {/* Settings/Shop/Profile/Login */}
+          {isAuthenticated ? (
+            <>
               <button
-                onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
-                className="flex flex-col items-center gap-1 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
+                onClick={() => setShopOpen(true)}
+                className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
               >
-                <LogIn className="w-6 h-6" />
-                <span className="text-xs font-medium">{t('login')}</span>
+                <ShoppingBag className="w-6 h-6" />
+                <span className="text-xs font-medium">Магазин</span>
               </button>
-            )}
-          </div>
+              <button
+                onClick={() => setSettingsOpen(true)}
+                className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground relative"
+              >
+                <Settings className="w-6 h-6" />
+                <span className="text-xs font-medium">Настройки</span>
+                {unreadCount > 0 && (
+                  <Badge className="absolute top-0 right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-red-500 border-2 border-background min-w-[16px]">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Badge>
+                )}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
+              className="flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="w-6 h-6" />
+              <span className="text-xs font-medium">{t('login')}</span>
+            </button>
+          )}
         </div>
       </nav>
 
@@ -155,6 +202,9 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      
+      {/* Boost Shop Modal */}
+      {isAuthenticated && <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />}
     </div>
   );
 };

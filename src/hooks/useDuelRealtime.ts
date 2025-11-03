@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -10,6 +10,7 @@ export interface DuelRealtimeState {
   duelStarted: boolean;
   duelFinished: boolean;
   currentQuestion: number;
+  myScore: number;
 }
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
@@ -21,8 +22,38 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     duelStarted: false,
     duelFinished: false,
     currentQuestion: 0,
+    myScore: 0,
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const playerIdRef = useRef<string | null>(myPlayerId ?? null);
+
+  useEffect(() => {
+    playerIdRef.current = myPlayerId ?? null;
+
+    if (!duelId || !myPlayerId) return;
+
+    supabase
+      .from('duel_players')
+      .select('id, score')
+      .eq('duel_id', duelId)
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('[useDuelRealtime] Error syncing scores on playerId change:', error);
+          return;
+        }
+
+        if (!data) return;
+
+        const myPlayer = data.find(player => player.id === myPlayerId);
+        const opponentPlayer = data.find(player => player.id !== myPlayerId);
+
+        setState(prev => ({
+          ...prev,
+          myScore: myPlayer?.score ?? prev.myScore,
+          opponentScore: opponentPlayer?.score ?? prev.opponentScore,
+        }));
+      });
+  }, [myPlayerId, duelId]);
 
   useEffect(() => {
     if (!duelId) return;
@@ -93,6 +124,29 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           }
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'duel_players',
+          filter: `duel_id=eq.${duelId}`,
+        },
+        (payload) => {
+          const updatedPlayer = payload.new as any;
+          const currentPlayerId = playerIdRef.current;
+
+          if (!updatedPlayer || !currentPlayerId) {
+            return;
+          }
+
+          if (updatedPlayer.id === currentPlayerId) {
+            setState(prev => ({ ...prev, myScore: updatedPlayer.score ?? prev.myScore }));
+          } else {
+            setState(prev => ({ ...prev, opponentScore: updatedPlayer.score ?? prev.opponentScore }));
+          }
+        }
+      )
       .subscribe((status) => {
         console.log('[useDuelRealtime] Subscription status:', status);
         
@@ -119,6 +173,36 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                   setState(prev => ({ ...prev, duelFinished: true }));
                 }
               }
+            });
+
+          // Fetch latest scores once we are subscribed
+          supabase
+            .from('duel_players')
+            .select('id, score')
+            .eq('duel_id', duelId)
+            .then(({ data, error }) => {
+              if (error) {
+                console.error('[useDuelRealtime] Error fetching player scores:', error);
+                return;
+              }
+
+              if (!data || data.length === 0) return;
+
+              const currentPlayerId = playerIdRef.current;
+
+              if (!currentPlayerId) {
+                console.warn('[useDuelRealtime] myPlayerId not set yet, skipping initial score sync');
+                return;
+              }
+
+              const myPlayer = data.find(player => player.id === currentPlayerId);
+              const opponentPlayer = data.find(player => player.id !== currentPlayerId);
+
+              setState(prev => ({
+                ...prev,
+                myScore: myPlayer?.score ?? prev.myScore,
+                opponentScore: opponentPlayer?.score ?? prev.opponentScore,
+              }));
             });
         }
       });

@@ -93,6 +93,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     }
   }, [state.duelFinished]);
 
+<<<<<<< Current (Your changes)
+  // Sync opponent score from realtime
+  useEffect(() => {
+    if (state.opponentScore > 0) {
+      console.log('[DuelBattleFullscreen] Updating opponent score from realtime:', state.opponentScore);
+      setOpponentScore(state.opponentScore);
+    }
+  }, [state.opponentScore]);
+=======
+  useEffect(() => {
+    if (typeof state.opponentScore === 'number' && state.opponentScore !== opponentScore) {
+      setOpponentScore(state.opponentScore);
+    }
+  }, [state.opponentScore, opponentScore]);
+
+  useEffect(() => {
+    if (typeof state.myScore === 'number' && state.myScore !== myScore) {
+      setMyScore(state.myScore);
+    }
+  }, [state.myScore, myScore]);
+>>>>>>> Incoming (Background Agent changes)
+
   // Timer countdown
   useEffect(() => {
     if (isAnswered || timeLeft <= 0) return;
@@ -147,8 +169,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
       
       if (myPlayer?.id) setMyPlayerId(myPlayer.id);
       setMyScore(myPlayer?.score || 0);
-      setOpponentScore(opponent?.score || 0);
-      // Combo будет управляться через realtime обновления
+      // Don't set opponent score here - will be managed by realtime hook
+      if (!state.opponentScore) {
+        setOpponentScore(opponent?.score || 0);
+      }
     }
   };
 

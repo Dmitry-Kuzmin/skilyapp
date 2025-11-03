@@ -67,6 +67,28 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   }, [state.duelFinished]);
 
+<<<<<<< Current (Your changes)
+  // Sync opponent score from realtime
+  useEffect(() => {
+    if (state.opponentScore > 0) {
+      console.log('[DuelBattle] Updating opponent score from realtime:', state.opponentScore);
+      setOpponentScore(state.opponentScore);
+    }
+  }, [state.opponentScore]);
+=======
+  useEffect(() => {
+    if (typeof state.opponentScore === 'number' && state.opponentScore !== opponentScore) {
+      setOpponentScore(state.opponentScore);
+    }
+  }, [state.opponentScore, opponentScore]);
+
+  useEffect(() => {
+    if (typeof state.myScore === 'number' && state.myScore !== myScore) {
+      setMyScore(state.myScore);
+    }
+  }, [state.myScore, myScore]);
+>>>>>>> Incoming (Background Agent changes)
+
   // ============================================================================
   // CRITICAL: NOTIFICATION SYSTEM WITH AUTO-DISMISS
   // ============================================================================
@@ -218,7 +240,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
         
         setMyScore(myPlayer?.score || 0);
-        setOpponentScore(opponent?.score || 0);
+        // Don't set opponent score here - will be managed by realtime hook
+        if (!state.opponentScore) {
+          setOpponentScore(opponent?.score || 0);
+        }
       }
     } catch (error) {
       console.error('Error loading scores:', error);
