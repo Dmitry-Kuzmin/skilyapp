@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import { Copy, Share2, Users, Clock, X, Swords } from 'lucide-react';
+import { Copy, Share2, Users, Clock, X, Sparkles, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DuelLobbyProps {
   duelId: string | null;
@@ -20,9 +18,6 @@ interface DuelLobbyProps {
 
 export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCancel }: DuelLobbyProps) {
   const { profileId, platform } = useUserContext();
-  const [isCreating, setIsCreating] = useState(false);
-  const [numQuestions, setNumQuestions] = useState(10);
-  const [difficulty, setDifficulty] = useState('mix');
   const [waitTime, setWaitTime] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
@@ -148,35 +143,6 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     }
   }, [state.duelStarted, countdown]);
 
-  // REMOVED OLD POLLING - now using consolidated check at mount
-  // Old polling logic removed - simplified approach in initial mount effect
-
-  const handleCreateDuel = async () => {
-    if (!profileId) return;
-
-    setIsCreating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'create_duel',
-          profile_id: profileId,
-          num_questions: numQuestions,
-          categories: null,
-          difficulty,
-        },
-      });
-
-      if (error) throw error;
-
-      toast.success('Дуэль создана!');
-      onDuelCreated(data.duel.id, data.code);
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка создания дуэли');
-    } finally {
-      setIsCreating(false);
-    }
-  };
-
   const handleStartDuel = async () => {
     if (!duelId) return;
     
@@ -242,143 +208,205 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
   if (duelCode) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-        <Card className="p-10 text-center space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
-          {/* Connection status indicator */}
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
-            <span className="text-muted-foreground">
-              {connectionStatus === 'connected' ? 'Подключено к серверу' : 'Подключение...'}
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <Users className="h-8 w-8 text-primary" />
-            </div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Ожидание соперника
-            </h2>
-            <p className="text-muted-foreground text-lg">Поделитесь кодом с другом</p>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-500/20 blur-xl opacity-50 rounded-2xl" />
-            <div className="relative bg-card/50 backdrop-blur-sm p-10 rounded-2xl border-2 border-primary/30">
-              <div className="text-5xl font-black tracking-wider mb-3 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                {duelCode}
-              </div>
-              <div className="text-sm text-muted-foreground font-semibold">КОД ДУЭЛИ</div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center px-4">
-            <Button onClick={handleCopyCode} variant="outline" size="lg" className="w-full sm:flex-1 sm:max-w-xs">
-              <Copy className="mr-2 h-5 w-5" />
-              Копировать
-            </Button>
-            {platform === 'telegram' && (
-              <Button onClick={handleShare} size="lg" className="w-full sm:flex-1 sm:max-w-xs">
-                <Share2 className="mr-2 h-5 w-5" />
-                Поделиться
-              </Button>
-            )}
-          </div>
-
-          <div className="flex items-center justify-center gap-8 text-base">
-            <div className="flex items-center gap-3 bg-primary/10 px-6 py-3 rounded-full">
-              <Users className="h-5 w-5 text-primary" />
-              <span className="font-bold">{state.opponentJoined ? '2/2' : '1/2'}</span>
-            </div>
-            <div className="flex items-center gap-3 bg-blue-500/10 px-6 py-3 rounded-full">
-              <Clock className="h-5 w-5 text-blue-500" />
-              <span className="font-mono font-bold">
-                {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
+      <div className="max-w-3xl mx-auto space-y-6 animate-fade-in p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="p-8 md:p-12 text-center space-y-8 bg-gradient-to-br from-card via-card to-primary/5 border-2 border-primary/20 shadow-2xl">
+            {/* Connection status indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center justify-center gap-2 text-sm mb-4"
+            >
+              <motion.div
+                className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                animate={connectionStatus === 'connected' ? {} : { scale: [1, 1.2, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+              <span className="text-muted-foreground font-medium">
+                {connectionStatus === 'connected' ? 'Подключено к серверу' : 'Подключение...'}
               </span>
-            </div>
-          </div>
+            </motion.div>
 
-          {state.opponentJoined && (
-            <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 rounded-xl p-6 animate-fade-in">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-3xl animate-bounce">🎉</span>
-                <p className="text-green-500 dark:text-green-400 font-bold text-xl">Соперник найден!</p>
-                <span className="text-3xl animate-bounce">🎉</span>
-              </div>
-              <p className="text-muted-foreground font-semibold">Приготовьтесь к битве!</p>
+            {/* Header */}
+            <div className="space-y-4">
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                className="w-20 h-20 mx-auto bg-gradient-to-br from-primary via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-lg shadow-primary/30"
+              >
+                <Users className="h-10 w-10 text-white" />
+              </motion.div>
+              <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Ожидание соперника
+              </h2>
+              <p className="text-muted-foreground text-lg">Поделитесь кодом с другом</p>
             </div>
-          )}
 
-          <Button variant="ghost" onClick={onCancel} size="lg" className="w-full">
-            <X className="mr-2 h-5 w-5" />
-            Отменить
-          </Button>
-        </Card>
+            {/* Code Display - Enhanced */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-500/30 to-pink-500/30 blur-2xl opacity-60 rounded-3xl" />
+              <motion.div
+                animate={{
+                  boxShadow: [
+                    '0 0 20px rgba(59, 130, 246, 0.3)',
+                    '0 0 40px rgba(147, 51, 234, 0.4)',
+                    '0 0 20px rgba(59, 130, 246, 0.3)',
+                  ],
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="relative bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl p-12 rounded-3xl border-2 border-primary/40"
+              >
+                <motion.div
+                  key={duelCode}
+                  initial={{ scale: 1.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-6xl md:text-7xl font-black tracking-[0.2em] mb-4 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent"
+                >
+                  {duelCode}
+                </motion.div>
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground font-semibold uppercase tracking-wider">
+                  <Sparkles className="h-4 w-4" />
+                  Код дуэли
+                  <Sparkles className="h-4 w-4" />
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center px-4">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex-1 max-w-xs mx-auto sm:mx-0"
+              >
+                <Button
+                  onClick={handleCopyCode}
+                  variant="outline"
+                  size="lg"
+                  className="w-full h-14 text-base font-bold border-2 hover:bg-primary/10"
+                >
+                  <Copy className="mr-2 h-5 w-5" />
+                  Копировать код
+                </Button>
+              </motion.div>
+              {platform === 'telegram' && (
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex-1 max-w-xs mx-auto sm:mx-0"
+                >
+                  <Button
+                    onClick={handleShare}
+                    size="lg"
+                    className="w-full h-14 text-base font-bold bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
+                  >
+                    <Share2 className="mr-2 h-5 w-5" />
+                    Поделиться
+                  </Button>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Stats */}
+            <div className="flex items-center justify-center gap-6 text-base pt-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5, type: "spring" }}
+                className="flex items-center gap-3 bg-gradient-to-r from-primary/20 to-purple-500/20 px-6 py-3 rounded-full border border-primary/30"
+              >
+                <Users className="h-5 w-5 text-primary" />
+                <span className="font-black text-lg">{state.opponentJoined ? '2/2' : '1/2'}</span>
+                <span className="text-muted-foreground text-sm">игроков</span>
+              </motion.div>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.6, type: "spring" }}
+                className="flex items-center gap-3 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-6 py-3 rounded-full border border-blue-500/30"
+              >
+                <Clock className="h-5 w-5 text-blue-500" />
+                <span className="font-mono font-black text-lg">
+                  {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
+                </span>
+              </motion.div>
+            </div>
+
+            {/* Opponent Joined Animation */}
+            <AnimatePresence>
+              {state.opponentJoined && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-2 border-green-500/40 rounded-2xl p-8 shadow-lg shadow-green-500/20"
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="flex items-center justify-center gap-3 mb-3"
+                  >
+                    <Sparkles className="h-6 w-6 text-green-500" />
+                    <p className="text-green-500 dark:text-green-400 font-black text-2xl">
+                      Соперник найден!
+                    </p>
+                    <Sparkles className="h-6 w-6 text-green-500" />
+                  </motion.div>
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-muted-foreground font-semibold text-lg"
+                  >
+                    Приготовьтесь к битве! Битва начнется через 3 секунды...
+                  </motion.p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Loading Animation when waiting */}
+            {!state.opponentJoined && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center justify-center gap-2 text-muted-foreground"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                >
+                  <Zap className="h-5 w-5" />
+                </motion.div>
+                <span className="text-sm font-medium">Ожидание соперника...</span>
+              </motion.div>
+            )}
+
+            <Button
+              variant="ghost"
+              onClick={onCancel}
+              size="lg"
+              className="w-full hover:bg-destructive/10 hover:text-destructive"
+            >
+              <X className="mr-2 h-5 w-5" />
+              Отменить дуэль
+            </Button>
+          </Card>
+        </motion.div>
       </div>
     );
   }
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-      <Card className="p-8 space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
-        <div className="text-center space-y-2">
-          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full flex items-center justify-center mb-4">
-            <Swords className="h-8 w-8 text-primary" />
-          </div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Создать дуэль
-          </h2>
-          <p className="text-muted-foreground text-lg">Настройте параметры игры</p>
-        </div>
-
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <Label className="text-base font-semibold">Количество вопросов</Label>
-            <Select value={numQuestions.toString()} onValueChange={(v) => setNumQuestions(parseInt(v))}>
-              <SelectTrigger className="h-14 text-base">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">⚡ 5 вопросов (быстрая)</SelectItem>
-                <SelectItem value="10">🎯 10 вопросов</SelectItem>
-                <SelectItem value="15">🔥 15 вопросов</SelectItem>
-                <SelectItem value="20">💪 20 вопросов</SelectItem>
-                <SelectItem value="30">🏆 30 вопросов (марафон)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-3">
-            <Label className="text-base font-semibold">Сложность</Label>
-            <Select value={difficulty} onValueChange={setDifficulty}>
-              <SelectTrigger className="h-14 text-base">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mix">🎲 Микс (все уровни)</SelectItem>
-                <SelectItem value="easy">🟢 Легкий</SelectItem>
-                <SelectItem value="medium">🟡 Средний</SelectItem>
-                <SelectItem value="hard">🔴 Сложный</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Button 
-            onClick={handleCreateDuel} 
-            disabled={isCreating} 
-            size="lg"
-            className="w-full sm:flex-1 h-14 text-lg"
-          >
-            <Swords className="mr-2 h-5 w-5" />
-            Создать дуэль
-          </Button>
-          <Button variant="outline" onClick={onCancel} size="lg" className="w-full sm:w-auto h-14 px-6">
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-      </Card>
-    </div>
-  );
+  // This component is now only used for waiting lobby (when duelCode exists)
+  // Creation is handled by DuelCreateModal
+  return null;
 }

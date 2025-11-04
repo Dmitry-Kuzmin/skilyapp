@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
+import { toast } from 'sonner';
+import { sounds } from '@/lib/sounds';
 
 export interface DuelNotification {
   id: string;
@@ -15,19 +17,25 @@ export interface DuelNotification {
   created_at: string;
 }
 
-export function useNotifications() {
+export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
   const { profileId } = useUserContext();
   const [notifications, setNotifications] = useState<DuelNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const showToasts = options?.showToasts ?? true;
+  const playSounds = options?.playSounds ?? true;
 
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId) {
+      console.log('[useNotifications] No profileId, skipping subscription');
+      return;
+    }
 
+    console.log('[useNotifications] Setting up notifications for profileId:', profileId);
     loadNotifications();
 
     // Realtime подписка на новые уведомления
     const channel = supabase
-      .channel('duel_notifications_channel')
+      .channel(`duel_notifications_${profileId}`)
       .on(
         'postgres_changes',
         {
@@ -37,9 +45,52 @@ export function useNotifications() {
           filter: `user_id=eq.${profileId}`,
         },
         (payload) => {
-          console.log('[Notifications] New notification:', payload);
-          setNotifications(prev => [payload.new as DuelNotification, ...prev]);
+          console.log('[Notifications] New notification received:', payload);
+          const newNotification = payload.new as DuelNotification;
+          console.log('[Notifications] Notification details:', {
+            id: newNotification.id,
+            type: newNotification.type,
+            title: newNotification.title,
+            user_id: newNotification.user_id,
+            profileId
+          });
+          
+          // Verify it's for this user
+          if (newNotification.user_id !== profileId) {
+            console.warn('[Notifications] Notification user_id mismatch:', newNotification.user_id, 'vs', profileId);
+            return;
+          }
+          
+          setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
+          
+          // Show toast notification if enabled
+          if (showToasts) {
+            const isImportant = ['start', 'finish', 'boost'].includes(newNotification.type);
+            const duration = isImportant ? 5000 : 3000;
+            
+            toast.info(newNotification.title, {
+              description: newNotification.message,
+              duration,
+              icon: newNotification.icon || undefined,
+              action: newNotification.duel_id ? {
+                label: 'Перейти',
+                onClick: () => {
+                  window.location.href = `/games/duel?duelId=${newNotification.duel_id}`;
+                }
+              } : undefined,
+            });
+          }
+          
+          // Play sound if enabled
+          if (playSounds) {
+            const isImportant = ['start', 'finish', 'boost'].includes(newNotification.type);
+            if (isImportant) {
+              sounds.notificationImportant();
+            } else {
+              sounds.notificationPop();
+            }
+          }
         }
       )
       .on(
@@ -60,28 +111,57 @@ export function useNotifications() {
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('[Notifications] Realtime subscription status:', status);
+        if (err) {
+          console.error('[Notifications] Realtime subscription error:', err);
+        }
+        if (status === 'SUBSCRIBED') {
+          console.log('[Notifications] ✅ Successfully subscribed to notifications');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[Notifications] ❌ Channel error - check RLS policies');
+        }
+      });
 
     return () => {
+      console.log('[useNotifications] Cleaning up notification subscription');
       supabase.removeChannel(channel);
     };
-  }, [profileId]);
+  }, [profileId, showToasts, playSounds]);
 
-  const loadNotifications = async () => {
-    if (!profileId) return;
+  const loadNotifications = useCallback(async () => {
+    if (!profileId) {
+      console.log('[useNotifications] No profileId, skipping load');
+      return;
+    }
 
-    const { data } = await supabase
+    console.log('[useNotifications] Loading notifications for profileId:', profileId);
+    
+    const { data, error } = await supabase
       .from('duel_notifications')
       .select('*')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
       .limit(50);
 
+    if (error) {
+      console.error('[useNotifications] Error loading notifications:', error);
+      console.error('[useNotifications] Error details:', JSON.stringify(error, null, 2));
+      return;
+    }
+
+    console.log('[useNotifications] Loaded notifications:', data?.length || 0);
+    if (data && data.length > 0) {
+      console.log('[useNotifications] Sample notification:', data[0]);
+    }
+    
     if (data) {
       setNotifications(data);
-      setUnreadCount(data.filter(n => !n.is_read).length);
+      const unread = data.filter(n => !n.is_read).length;
+      setUnreadCount(unread);
+      console.log('[useNotifications] Unread count:', unread);
     }
-  };
+  }, [profileId]);
 
   const markAsRead = async (notificationId: string) => {
     await supabase

@@ -42,6 +42,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const prevOpponentScore = useRef(opponentScore);
   const lastOpponentActivityRef = useRef(Date.now());
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
+  const [myName, setMyName] = useState<string>('Ты');
+  const [opponentName, setOpponentName] = useState<string>('Соперник');
 
   useEffect(() => {
     loadQuestions();
@@ -67,25 +69,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   }, [state.duelFinished]);
 
-  // ============================================================================
-  // CRITICAL: NOTIFICATION SYSTEM WITH AUTO-DISMISS
-  // ============================================================================
-  // All notifications have duration and auto-dismiss
-  // Dedupe is handled at notification level
-  // ============================================================================
-  useEffect(() => {
-    if (state.opponentAnswered) {
-      toast.info('💨 Соперник ответил!', { 
-        duration: 2000,
-        icon: '⚡'
-      });
-      lastOpponentActivityRef.current = Date.now();
-    }
-  }, [state.opponentAnswered]);
-
-  // Network monitoring
-  useEffect(() => {
-    const handleOnline = () => {
       setIsOnline(true);
       toast.success('Соединение восстановлено', {
         description: 'Можете продолжать игру',
@@ -205,7 +188,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     try {
       const { data } = await supabase
         .from('duel_players')
-        .select('*')
+        .select('*, profiles(first_name, username)')
         .eq('duel_id', duelId);
 
       if (data && data.length > 0) {
@@ -217,7 +200,14 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           setMyPlayerId(myPlayer.id);
         }
         
+        // Load player names
+        const myProfile = myPlayer?.profiles as any;
+        const opponentProfile = opponent?.profiles as any;
+        setMyName(myProfile?.first_name || myProfile?.username || 'Ты');
+        setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
+        
         setMyScore(myPlayer?.score || 0);
+        // Initial opponent score - realtime will update it
         setOpponentScore(opponent?.score || 0);
       }
     } catch (error) {
@@ -341,16 +331,26 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       // ============================================================================
       if (data && data.new_score !== undefined) {
         setMyScore(data.new_score);
-        setCombo(data.combo);
+        
+        // CRITICAL: Always use server-provided combo value, even if it's 0
+        // Server returns 0 when answer is incorrect or skipped - this resets combo
+        const serverCombo = data.combo !== undefined ? data.combo : 0;
+        setCombo(serverCombo);
+        
+        console.log('[DuelBattle] Server response:', {
+          isCorrect: correctAnswer,
+          serverCombo,
+          points: data.points_awarded
+        });
         
         if (correctAnswer) {
           sounds.correctAnswer();
           haptics.correctAnswer();
           const points = data.points_awarded || 0;
-          if (data.combo > 1) {
-            sounds.combo(data.combo);
+          if (serverCombo > 1) {
+            sounds.combo(serverCombo);
             haptics.combo();
-            toast.success(`🔥 Комбо x${data.combo}! +${points} очков`, { duration: 3000 });
+            toast.success(`🔥 Комбо x${serverCombo}! +${points} очков`, { duration: 3000 });
           } else if (points > 150) {
             toast.success(`⭐ Идеальный ответ! +${points} очков`, { duration: 3000 });
           } else {
@@ -360,6 +360,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           sounds.wrongAnswer();
           haptics.wrongAnswer();
           toast.error('❌ Неправильно', { duration: 2000 });
+          // Combo should be 0 after wrong answer
+          if (serverCombo !== 0) {
+            console.warn('[DuelBattle] Warning: Server returned non-zero combo for incorrect answer:', serverCombo);
+          }
         }
       }
 
@@ -407,8 +411,19 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         },
       });
 
-      if (data && penaltyPoints < 0) {
-        setMyScore(prev => Math.max(0, prev + penaltyPoints));
+      if (data) {
+        // Update score and combo from server
+        if (data.new_score !== undefined) {
+          setMyScore(data.new_score);
+        }
+        // CRITICAL: Always set combo from server, even if 0 (timeout/skip resets combo)
+        const serverCombo = data.combo !== undefined ? data.combo : 0;
+        setCombo(serverCombo);
+        console.log('[DuelBattle] Timeout - Server combo:', serverCombo);
+        
+        if (penaltyPoints < 0) {
+          setMyScore(prev => Math.max(0, prev + penaltyPoints));
+        }
       }
 
       toast.info(`⏭️ Вопрос пропущен (${newSkipCount}/3)`);
@@ -429,7 +444,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     try {
       console.log('[DuelBattle] Finishing duel - I completed all questions');
       
-      await supabase.functions.invoke('duel-manager', {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'finish_duel',
           profile_id: profileId,
@@ -437,22 +452,23 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         },
       });
 
-      // Check if opponent also finished
-      const { data: duel } = await supabase
-        .from('duels')
-        .select('status')
-        .eq('id', duelId)
-        .single();
+      if (error) throw error;
 
-      if (duel?.status === 'finished') {
-        // Both finished, go to results
+      // Server returns finished: true if both players finished, false if waiting
+      if (data?.finished === true) {
+        // Both finished - go to results immediately
+        console.log('[DuelBattle] Both players finished, going to results');
+        toast.success('🏁 Дуэль завершена!', { duration: 3000 });
         onDuelFinished();
       } else {
-        // Wait for opponent - show live replay
+        // Wait for opponent - show waiting screen
+        console.log('[DuelBattle] Waiting for opponent to finish');
+        toast.info('⏳ Ожидание соперника...', { duration: 3000 });
         setIsWaitingForOpponent(true);
       }
     } catch (error) {
       console.error('Error finishing duel:', error);
+      toast.error('Ошибка завершения дуэли');
     }
   };
 
@@ -507,40 +523,62 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         />
 
         <div className="relative z-10 space-y-3">
-          {/* Top Row: Scores */}
+          {/* Top Row: Scores - Premium Design */}
           <div className="flex items-center justify-between gap-4">
-            {/* My Score */}
+            {/* My Score - Enhanced */}
             <motion.div 
-              className="flex items-center gap-2 flex-1"
+              className="flex items-center gap-3 flex-1 group"
               whileHover={{ scale: 1.02 }}
+              animate={myScore > opponentScore ? { 
+                boxShadow: ['0 0 0px rgba(59, 130, 246, 0)', '0 0 20px rgba(59, 130, 246, 0.5)', '0 0 0px rgba(59, 130, 246, 0)']
+              } : {}}
             >
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md">
-                <Trophy className="w-5 h-5 text-primary-foreground" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
+                {myScore > opponentScore && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Вы</p>
-                <p className="text-xl font-black text-primary">{myScore}</p>
+              <div className="flex-1">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
+                <motion.p 
+                  key={myScore}
+                  className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {myScore}
+                </motion.p>
               </div>
             </motion.div>
 
-            {/* Center: Progress & Timer */}
-            <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20">
+            {/* Center: Progress & Timer - Enhanced */}
+            <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-sm border-2 border-primary/20 shadow-lg">
               <div className="text-center">
-                <div className="flex items-center gap-1.5 mb-1">
+                <div className="flex items-center gap-1.5 mb-1.5">
                   <Trophy className="w-4 h-4 text-primary" />
-                  <span className="font-bold text-sm">
+                  <span className="font-bold text-sm text-foreground">
                     {currentIndex + 1}/{questions.length}
                   </span>
                 </div>
-                <div className="relative w-20 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                <div className="relative w-24 h-2 bg-muted/50 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-full"
-                    style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                    className="h-full bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-full shadow-sm"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
                   />
                 </div>
               </div>
-              <div className="w-px h-8 bg-border"></div>
-              <div className="flex items-center gap-1.5">
+              <div className="w-px h-10 bg-gradient-to-b from-transparent via-border to-transparent"></div>
+              <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-muted/30">
                 <Timer className={`w-4 h-4 ${timeLeft < 10000 ? 'text-destructive animate-pulse' : 'text-muted-foreground'}`} />
                 <span className={`font-bold text-sm tabular-nums ${timeLeft < 10000 ? 'text-destructive' : 'text-foreground'}`}>
                   {(timeLeft / 1000).toFixed(1)}s
@@ -548,18 +586,47 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               </div>
             </div>
 
-            {/* Opponent Score */}
+            {/* Opponent Score - Enhanced */}
             <motion.div 
-              className="flex items-center gap-2 flex-1 justify-end"
+              className="flex items-center gap-3 flex-1 justify-end group"
               whileHover={{ scale: 1.02 }}
-              animate={state.opponentAnswered ? { scale: [1, 1.1, 1] } : {}}
+              animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Соперник</p>
-                <p className="text-xl font-black text-secondary">{opponentScore}</p>
+              <div className="flex-1 text-right">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[100px]" title={opponentName}>
+                  {opponentName.length > 12 ? opponentName.substring(0, 10) + '..' : opponentName}
+                </p>
+                <motion.p 
+                  key={opponentScore}
+                  className="text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {opponentScore}
+                </motion.p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-blue-600 flex items-center justify-center shadow-md">
-                <Swords className="w-5 h-5 text-secondary-foreground" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                  <Swords className="w-6 h-6 text-white" />
+                </div>
+                {opponentScore > myScore && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+                {state.opponentAnswered && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.2, 1] }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Zap className="w-3 h-3 text-white" />
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           </div>

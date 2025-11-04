@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,10 +19,13 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { sounds } from '@/lib/sounds';
+import { DuelWidget } from './DuelWidget';
+import { createPortal } from 'react-dom';
 
 interface OpponentAnswer {
   question_number: number;
   is_correct: boolean;
+  is_skipped: boolean;
   time_taken_ms: number;
   points_awarded: number;
 }
@@ -32,20 +35,28 @@ interface DuelWaitingReplayProps {
   myScore: number;
   totalQuestions: number;
   onDuelFinished: () => void;
+  onHide?: (hidden: boolean) => void;
+  onExpand?: () => void; // Callback when widget is expanded
+  initialHidden?: boolean; // Start in hidden state if true
 }
 
 export function DuelWaitingReplay({ 
   duelId, 
   myScore, 
   totalQuestions,
-  onDuelFinished 
+  onDuelFinished,
+  onHide,
+  onExpand,
+  initialHidden = false
 }: DuelWaitingReplayProps) {
   const { profileId } = useUserContext();
   const [opponentAnswers, setOpponentAnswers] = useState<OpponentAnswer[]>([]);
   const [opponentScore, setOpponentScore] = useState(0);
   const [opponentName, setOpponentName] = useState('Соперник');
-  const [isHidden, setIsHidden] = useState(false);
+  const [myName, setMyName] = useState('Вы');
+  const [isHidden, setIsHidden] = useState(initialHidden);
   const [isDuelFinished, setIsDuelFinished] = useState(false);
+  const isCheckingFinishedRef = useRef(false);
 
   useEffect(() => {
     loadOpponentData();
@@ -53,22 +64,109 @@ export function DuelWaitingReplay({
     checkDuelStatus();
   }, [duelId]);
 
-  // Check if duel is already finished
-  const checkDuelStatus = async () => {
-    const { data } = await supabase
-      .from('duels')
-      .select('status')
-      .eq('id', duelId)
-      .single();
+  // Check if opponent finished all questions
+  const checkIfOpponentFinished = async () => {
+    try {
+      if (isDuelFinished) return; // Already finished
 
-    if (data?.status === 'finished') {
-      setIsDuelFinished(true);
-      sounds.victory();
-      toast.success('🏁 Дуэль завершена!', {
-        description: 'Смотрите результаты',
-        duration: 5000,
+      const { data: duel } = await supabase
+        .from('duels')
+        .select('num_questions')
+        .eq('id', duelId)
+        .single();
+
+      if (!duel) return;
+
+      const { data: players } = await supabase
+        .from('duel_players')
+        .select('id, user_id')
+        .eq('duel_id', duelId);
+
+      if (!players || players.length < 2) return;
+
+      const opponent = players.find((p: any) => p.user_id !== profileId);
+      if (!opponent) return;
+
+      const { count: opponentAnswers } = await supabase
+        .from('duel_answers')
+        .select('*', { count: 'exact', head: true })
+        .eq('player_id', opponent.id)
+        .eq('duel_id', duelId);
+
+      console.log('[DuelWaitingReplay] Checking if opponent finished:', {
+        opponentAnswers: opponentAnswers || 0,
+        required: duel.num_questions
       });
-      setTimeout(() => onDuelFinished(), 2000);
+
+      if ((opponentAnswers || 0) >= duel.num_questions) {
+        console.log('[DuelWaitingReplay] ✅ Opponent finished! Transitioning to results');
+        setIsDuelFinished(true);
+        sounds.victory();
+        toast.success('🏁 Соперник закончил!', {
+          description: 'Переход к результатам...',
+          duration: 2000,
+        });
+        setTimeout(() => {
+          onDuelFinished();
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('[DuelWaitingReplay] Error checking if opponent finished:', error);
+    }
+  };
+
+  // Check if duel is really finished - verify opponent actually completed all questions
+  const checkDuelStatus = async () => {
+    try {
+      const { data: duel } = await supabase
+        .from('duels')
+        .select('status, num_questions')
+        .eq('id', duelId)
+        .single();
+
+      if (!duel || duel.status !== 'finished') return;
+
+      // Get opponent's player ID
+      const { data: players } = await supabase
+        .from('duel_players')
+        .select('id, user_id')
+        .eq('duel_id', duelId);
+
+      if (!players || players.length < 2) return;
+
+      const opponent = players.find((p: any) => p.user_id !== profileId);
+      if (!opponent) return;
+
+      // Count opponent's actual answers
+      const { count: opponentAnswers } = await supabase
+        .from('duel_answers')
+        .select('*', { count: 'exact', head: true })
+        .eq('player_id', opponent.id)
+        .eq('duel_id', duelId);
+
+      console.log('[DuelWaitingReplay] Initial status check:', {
+        status: duel.status,
+        opponentAnswers: opponentAnswers || 0,
+        required: duel.num_questions
+      });
+
+      // Only transition if opponent really finished all questions
+      if ((opponentAnswers || 0) >= duel.num_questions) {
+        console.log('[DuelWaitingReplay] ✅ Opponent finished all questions, transitioning to results');
+        setIsDuelFinished(true);
+        sounds.victory();
+        toast.success('🏁 Дуэль завершена!', {
+          description: 'Смотрите результаты',
+          duration: 3000,
+        });
+        setTimeout(() => {
+          onDuelFinished();
+        }, 1000);
+      } else {
+        console.log('[DuelWaitingReplay] ⚠️ Status is finished but opponent hasn\'t answered all questions yet - staying on waiting screen');
+      }
+    } catch (error) {
+      console.error('[DuelWaitingReplay] Error checking duel status:', error);
     }
   };
 
@@ -77,14 +175,22 @@ export function DuelWaitingReplay({
       // Get opponent info
       const { data: players } = await supabase
         .from('duel_players')
-        .select('*, profiles(first_name)')
+        .select('*, profiles(first_name, username)')
         .eq('duel_id', duelId);
 
       if (players) {
         const opponent = players.find(p => p.user_id !== profileId);
+        const myPlayer = players.find(p => p.user_id === profileId);
+        
         if (opponent) {
-          setOpponentName(opponent.profiles?.first_name || 'Соперник');
+          const opponentProfile = opponent.profiles as any;
+          setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
           setOpponentScore(opponent.score || 0);
+        }
+        
+        if (myPlayer) {
+          const myProfile = myPlayer.profiles as any;
+          setMyName(myProfile?.first_name || myProfile?.username || 'Вы');
         }
       }
 
@@ -103,6 +209,7 @@ export function DuelWaitingReplay({
         const formattedAnswers = answers.map((ans: any) => ({
           question_number: ans.duel_questions.position,
           is_correct: ans.is_correct,
+          is_skipped: ans.is_skipped || false,
           time_taken_ms: ans.time_taken_ms,
           points_awarded: ans.points_awarded || 0,
         }));
@@ -155,18 +262,34 @@ export function DuelWaitingReplay({
               const newAnswer: OpponentAnswer = {
                 question_number: question.position,
                 is_correct: answer.is_correct,
+                is_skipped: answer.is_skipped || false,
                 time_taken_ms: answer.time_taken_ms,
                 points_awarded: answer.points_awarded || 0,
               };
 
-              setOpponentAnswers(prev => [...prev, newAnswer]);
-              setOpponentScore(prev => prev + newAnswer.points_awarded);
+              // Load actual score from database (server is source of truth)
+              // This ensures we get the correct score even if realtime update is delayed
+              // Small delay to ensure server has updated the score after inserting the answer
+              setTimeout(async () => {
+                const { data: players } = await supabase
+                  .from('duel_players')
+                  .select('score, user_id, id')
+                  .eq('duel_id', duelId);
+                
+                if (players) {
+                  const opponent = players.find((p: any) => p.user_id !== profileId);
+                  if (opponent) {
+                    console.log('[DuelWaitingReplay] Loading opponent score from DB:', opponent.score);
+                    setOpponentScore(opponent.score || 0);
+                  }
+                }
+              }, 200); // Small delay to ensure score is updated
 
               // Play sound and show notification if not hidden
               if (!isHidden) {
                 sounds.notificationPop();
                 if (answer.is_correct) {
-                  toast.info(`✅ Соперник: Вопрос ${question.position} - Правильно!`, {
+                  toast.info(`✅ Соперник: Вопрос ${question.position} - Правильно! (+${newAnswer.points_awarded})`, {
                     duration: 2000,
                   });
                 } else {
@@ -175,7 +298,44 @@ export function DuelWaitingReplay({
                   });
                 }
               }
+
+              // Check if opponent just finished all questions
+              // Use a callback to get the latest state and check completion
+              setOpponentAnswers(prev => {
+                const updated = [...prev, newAnswer];
+                // Check if this was the last question
+                if (updated.length >= totalQuestions && !isCheckingFinishedRef.current) {
+                  console.log('[DuelWaitingReplay] Opponent answered last question - checking if finished');
+                  isCheckingFinishedRef.current = true;
+                  
+                  // Small delay to ensure answer is committed to database
+                  setTimeout(async () => {
+                    await checkIfOpponentFinished();
+                    isCheckingFinishedRef.current = false;
+                  }, 800);
+                }
+                return updated;
+              });
             }
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'duel_players',
+          filter: `duel_id=eq.${duelId}`,
+        },
+        async (payload) => {
+          const updatedPlayer = payload.new as any;
+          
+          // Check if this is opponent's score update
+          if (updatedPlayer.id !== myPlayerId) {
+            console.log('[DuelWaitingReplay] Opponent score UPDATE:', updatedPlayer.score);
+            // Use server score as source of truth
+            setOpponentScore(updatedPlayer.score || 0);
           }
         }
       )
@@ -187,21 +347,16 @@ export function DuelWaitingReplay({
           table: 'duels',
           filter: `id=eq.${duelId}`,
         },
-        (payload) => {
+        async (payload) => {
           const duel = payload.new as any;
-          if (duel.status === 'finished') {
-            console.log('[DuelWaitingReplay] Duel finished!');
-            setIsDuelFinished(true);
-            sounds.victory();
+          if (duel.status === 'finished' && !isDuelFinished) {
+            console.log('[DuelWaitingReplay] Duel status changed to finished - verifying opponent completed');
             
-            // Show big notification
-            toast.success('🏁 Дуэль завершена!', {
-              description: 'Соперник закончил! Смотрите результаты',
-              duration: 5000,
-            });
-
-            // Navigate to results after delay
-            setTimeout(() => onDuelFinished(), 2000);
+            // Small delay to ensure opponent's last answer is committed to database
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Use the same check function
+            await checkIfOpponentFinished();
           }
         }
       )
@@ -214,13 +369,54 @@ export function DuelWaitingReplay({
 
   const progress = (opponentAnswers.length / totalQuestions) * 100;
 
+  // Notify parent when hide state changes
+  useEffect(() => {
+    if (onHide) {
+      onHide(isHidden);
+    }
+  }, [isHidden, onHide]);
+
+  // When hidden, show widget as portal and return null so parent can show normal content
+  if (isHidden && !isDuelFinished) {
+    // Render widget via portal to document.body
+    // Portal renders to body, but component returns null so parent can show menu
+    return createPortal(
+      <DuelWidget
+        myScore={myScore}
+        opponentScore={opponentScore}
+        myName={myName}
+        opponentName={opponentName}
+        progress={progress}
+        totalQuestions={totalQuestions}
+        currentQuestion={opponentAnswers.length + 1}
+        onExpand={() => {
+          setIsHidden(false);
+          // Notify parent to switch back to battle mode
+          if (onHide) {
+            onHide(false);
+          }
+          // Also call onExpand callback if provided
+          if (onExpand) {
+            onExpand();
+          }
+        }}
+      />,
+      document.body
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-2xl space-y-6"
-      >
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4"
+    >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-full max-w-2xl space-y-6"
+            >
         {/* Header */}
         <Card className="p-6 bg-gradient-to-br from-card to-primary/5 border-2 border-primary/20">
           <div className="text-center space-y-4">
@@ -324,7 +520,9 @@ export function DuelWaitingReplay({
                         transition={{ delay: idx * 0.05 }}
                         className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
                           isAnswered 
-                            ? answer.is_correct 
+                            ? answer.is_skipped
+                              ? 'bg-muted/20 border border-muted/30'
+                              : answer.is_correct 
                               ? 'bg-success/10 border border-success/20' 
                               : 'bg-destructive/10 border border-destructive/20'
                             : isCurrent
@@ -335,7 +533,11 @@ export function DuelWaitingReplay({
                         {/* Question Number */}
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                           isAnswered 
-                            ? answer.is_correct ? 'bg-success text-success-foreground' : 'bg-destructive text-destructive-foreground'
+                            ? answer.is_skipped
+                              ? 'bg-muted text-muted-foreground'
+                              : answer.is_correct 
+                              ? 'bg-success text-success-foreground' 
+                              : 'bg-destructive text-destructive-foreground'
                             : isCurrent
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground'
@@ -347,14 +549,22 @@ export function DuelWaitingReplay({
                         <div className="flex-1">
                           {isAnswered ? (
                             <div className="flex items-center gap-2">
-                              {answer.is_correct ? (
-                                <CheckCircle2 className="w-5 h-5 text-success" />
+                              {answer.is_skipped ? (
+                                <>
+                                  <Clock className="w-5 h-5 text-muted-foreground" />
+                                  <span className="font-medium text-muted-foreground">Пропущено</span>
+                                </>
+                              ) : answer.is_correct ? (
+                                <>
+                                  <CheckCircle2 className="w-5 h-5 text-success" />
+                                  <span className="font-medium">Правильно</span>
+                                </>
                               ) : (
-                                <XCircle className="w-5 h-5 text-destructive" />
+                                <>
+                                  <XCircle className="w-5 h-5 text-destructive" />
+                                  <span className="font-medium">Неправильно</span>
+                                </>
                               )}
-                              <span className="font-medium">
-                                {answer.is_correct ? 'Правильно' : 'Неправильно'}
-                              </span>
                             </div>
                           ) : isCurrent ? (
                             <div className="flex items-center gap-2">
@@ -367,7 +577,7 @@ export function DuelWaitingReplay({
                         </div>
 
                         {/* Time & Points */}
-                        {isAnswered && (
+                        {isAnswered && !answer.is_skipped && (
                           <div className="flex items-center gap-3 text-sm">
                             <Badge variant="outline" className="gap-1">
                               <Clock className="w-3 h-3" />
@@ -409,6 +619,6 @@ export function DuelWaitingReplay({
           </motion.div>
         )}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

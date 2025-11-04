@@ -43,6 +43,16 @@ function mulberry32(seed: number) {
   };
 }
 
+// Fisher-Yates shuffle for better randomization
+function fisherYatesShuffle<T>(array: T[], rng: () => number): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 // Generate readable 6-character code
 function generateDuelCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars
@@ -95,67 +105,324 @@ function simulateBotAnswer(difficulty: string, questionDifficulty: string): {
   };
 }
 
-// Helper function to create notifications
-async function createNotification(body: any, profileId: string, supabase: any) {
-  const { duel_id, type, title, message, icon } = body;
+// Notification templates with emotional, engaging texts
+const notificationTemplates: Record<string, (metadata: any) => { title: string; message: string; icon: string }> = {
+  // Start notifications
+  'start': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    const templates = [
+      { title: `🔥 ${opponentName} принял твой вызов!`, message: 'Дуэль начинается прямо сейчас.', icon: '🔥' },
+      { title: '⚔️ Матч стартовал', message: 'Кто победит, решат секунды.', icon: '⚔️' },
+    ];
+    return templates[Math.floor(Math.random() * templates.length)];
+  },
 
-  console.log('[create_notification] Creating notification for duel:', duel_id);
+  // Progress notifications
+  'progress': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    if (metadata.combo && metadata.combo >= 3) {
+      return {
+        title: `💡 ${opponentName} ответил правильно ${metadata.combo} раза подряд!`,
+        message: 'Отличная серия! Продолжайте бороться!',
+        icon: '💡'
+      };
+    } else if (metadata.is_correct === false) {
+      return {
+        title: `❌ ${opponentName} ошибся`,
+        message: 'Твой шанс догнать!',
+        icon: '❌'
+      };
+    } else if (metadata.progress) {
+      return {
+        title: `🚀 ${opponentName} прошёл ${metadata.progress}% теста!`,
+        message: 'Игра набирает обороты!',
+        icon: '🚀'
+      };
+    } else if (metadata.time_diff && metadata.time_diff > 0) {
+      return {
+        title: `🐢 Ты опережаешь соперника на ${metadata.time_diff} секунд!`,
+        message: 'Продолжай в том же духе!',
+        icon: '🐢'
+      };
+    } else if (metadata.is_tied) {
+      return {
+        title: '🔥 Игра идёт вровень',
+        message: 'Кто ответит первым, тот победит!',
+        icon: '🔥'
+      };
+    } else {
+      return {
+        title: `✅ ${opponentName} ответил правильно!`,
+        message: 'Продолжайте бороться!',
+        icon: '✅'
+      };
+    }
+  },
+
+  // Boost notifications
+  'boost': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    const boostNames: Record<string, string> = {
+      'fifty_fifty': '50/50',
+      'time_extend': 'Дополнительное время',
+      'hint': 'Подсказка',
+      'skip': 'Пропуск'
+    };
+    const boostIcons: Record<string, string> = {
+      'fifty_fifty': '⚡',
+      'time_extend': '⏱️',
+      'hint': '💡',
+      'skip': '🌀'
+    };
+    const boostType = metadata.boost_type || 'unknown';
+    const boostName = boostNames[boostType] || boostType;
+    const icon = boostIcons[boostType] || '⚡';
+
+    return {
+      title: `${icon} ${opponentName} использовал бустер '${boostName}'!`,
+      message: boostType === 'fifty_fifty' ? 'Осторожно!' : boostType === 'skip' ? 'Не сдаётся!' : 'Используй свои бустеры!',
+      icon
+    };
+  },
+
+  // Finish notifications
+  'finish': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    const correctAnswers = metadata.correct_answers || 0;
+    
+    if (metadata.is_winner === false) {
+      return {
+        title: `🏁 ${opponentName} закончил игру`,
+        message: `С ${correctAnswers} правильными ответами! Результаты готовы.`,
+        icon: '🏁'
+      };
+    } else if (metadata.is_last_question) {
+      return {
+        title: '🎯 Победа близка',
+        message: 'Остался один вопрос!',
+        icon: '🎯'
+      };
+    } else {
+      return {
+        title: '🥇 Результаты готовы!',
+        message: 'Проверь, кто выиграл дуэль.',
+        icon: '🥇'
+      };
+    }
+  },
+
+  // Reminder notifications
+  'reminder': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    
+    if (metadata.is_waiting) {
+      return {
+        title: `⏰ Дуэль с ${opponentName} ждёт твоего ответа`,
+        message: 'Не забудь завершить игру!',
+        icon: '⏰'
+      };
+    } else if (metadata.is_timeout_warning) {
+      return {
+        title: '📢 Время почти вышло',
+        message: 'Завершай дуэль!',
+        icon: '📢'
+      };
+    } else {
+      return {
+        title: `💤 ${opponentName} ещё не закончил игру`,
+        message: 'Напомни ему!',
+        icon: '💤'
+      };
+    }
+  },
+
+  // Timeout notifications
+  'timeout': (metadata: any) => {
+    return {
+      title: '⏰ Время истекло',
+      message: 'Дуэль завершена по таймауту.',
+      icon: '⏰'
+    };
+  },
+
+  // Opponent ahead/behind (legacy support)
+  'opponent_ahead': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    return {
+      title: `⚡ ${opponentName} опережает тебя`,
+      message: 'Ускорься, чтобы догнать!',
+      icon: '⚡'
+    };
+  },
+
+  'opponent_behind': (metadata: any) => {
+    const opponentName = metadata.opponent_name || 'Соперник';
+    return {
+      title: `🐢 Ты опережаешь ${opponentName}`,
+      message: 'Продолжай в том же духе!',
+      icon: '🐢'
+    };
+  },
+};
+
+// Helper function to get opponent name from profile
+async function getOpponentName(opponentId: string, supabase: any): Promise<string> {
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name, username')
+      .eq('id', opponentId)
+      .single();
+
+    if (profile) {
+      return profile.first_name || profile.username || 'Соперник';
+    }
+  } catch (error) {
+    console.error('[getOpponentName] Error:', error);
+  }
+  return 'Соперник';
+}
+
+// Helper function to create notifications with templates
+// Returns true if successful, throws error if failed
+async function createNotification(body: any, profileId: string, supabase: any, returnResponse: boolean = false): Promise<boolean | Response> {
+  const { duel_id, type, title, message, icon, metadata = {} } = body;
+
+  console.log('[create_notification] Creating notification for duel:', duel_id, 'type:', type, 'profileId:', profileId);
 
   try {
     // Get opponent's profile_id
-    const { data: players } = await supabase
+    const { data: players, error: playersError } = await supabase
       .from('duel_players')
       .select('user_id')
       .eq('duel_id', duel_id);
 
+    if (playersError) {
+      console.error('[create_notification] Error getting players:', playersError);
+      if (returnResponse) {
+        return new Response(JSON.stringify({ error: playersError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw new Error(playersError.message);
+    }
+
     if (!players || players.length < 2) {
-      return new Response(JSON.stringify({ error: 'Not enough players' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.warn('[create_notification] Not enough players:', players?.length || 0);
+      if (returnResponse) {
+        return new Response(JSON.stringify({ error: 'Not enough players' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return false; // Silently fail if not enough players (duel might not be ready)
     }
 
     const opponentId = players.find((p: any) => p.user_id !== profileId)?.user_id;
     
     if (!opponentId) {
-      return new Response(JSON.stringify({ error: 'Opponent not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.warn('[create_notification] Opponent not found. Players:', players, 'profileId:', profileId);
+      if (returnResponse) {
+        return new Response(JSON.stringify({ error: 'Opponent not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return false; // Silently fail if opponent not found
     }
 
+    console.log('[create_notification] Opponent found:', opponentId, 'All players:', JSON.stringify(players.map((p: any) => ({ user_id: p.user_id }))));
+
+    // Get opponent name if not provided in metadata
+    if (!metadata.opponent_name) {
+      metadata.opponent_name = await getOpponentName(opponentId, supabase);
+      console.log('[create_notification] Opponent name:', metadata.opponent_name);
+    }
+
+    // Use template if title/message/icon are not provided
+    let finalTitle = title;
+    let finalMessage = message;
+    let finalIcon = icon;
+
+    if (!title || !message || !icon) {
+      const template = notificationTemplates[type];
+      if (template) {
+        const templateResult = template(metadata);
+        finalTitle = finalTitle || templateResult.title;
+        finalMessage = finalMessage || templateResult.message;
+        finalIcon = finalIcon || templateResult.icon;
+      } else {
+        // Fallback if template not found
+        finalTitle = finalTitle || `Уведомление ${type}`;
+        finalMessage = finalMessage || 'Новое уведомление';
+        finalIcon = finalIcon || '🔔';
+      }
+    }
+
+    console.log('[create_notification] Final notification:', { title: finalTitle, message: finalMessage, icon: finalIcon });
+
     // Create notification
-    const { error: notifError } = await supabase
+    console.log('[create_notification] Inserting notification:', {
+      user_id: opponentId,
+      duel_id,
+      type,
+      title: finalTitle,
+      message: finalMessage,
+      icon: finalIcon
+    });
+    
+    const { data: insertedNotification, error: notifError } = await supabase
       .from('duel_notifications')
       .insert({
         user_id: opponentId,
         duel_id,
         type,
-        title,
-        message,
-        icon,
+        title: finalTitle,
+        message: finalMessage,
+        icon: finalIcon,
+        metadata,
         is_read: false
-      });
+      })
+      .select()
+      .single();
 
     if (notifError) {
-      console.error('[create_notification] Error:', notifError);
-      return new Response(JSON.stringify({ error: notifError.message }), {
+      console.error('[create_notification] Error inserting notification:', notifError);
+      console.error('[create_notification] Error details:', JSON.stringify(notifError));
+      if (returnResponse) {
+        return new Response(JSON.stringify({ error: notifError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw new Error(notifError.message);
+    }
+
+    console.log('[create_notification] Notification created successfully:', { 
+      id: insertedNotification?.id,
+      type, 
+      title: finalTitle, 
+      opponentId,
+      user_id: insertedNotification?.user_id,
+      duel_id: insertedNotification?.duel_id
+    });
+    if (returnResponse) {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    return true;
+  } catch (error: any) {
+    console.error('[create_notification] Exception:', error);
+    if (returnResponse) {
+      return new Response(JSON.stringify({ error: error.message }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    console.log('[create_notification] Notification created successfully');
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error: any) {
-    console.error('[create_notification] Exception:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    throw error;
   }
 }
 
@@ -212,7 +479,7 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'create_notification':
-        return await createNotification(params, profileId, supabase);
+        return await createNotification(params, profileId, supabase, true);
       case 'check_status': {
         const { duel_id } = params;
         
@@ -289,7 +556,8 @@ Deno.serve(async (req) => {
           attempts++;
         }
 
-        const questionSeed = Math.floor(Math.random() * 1000000);
+        // Generate more random seed using timestamp + random
+        const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
 
         const { data: duel, error: duelError } = await supabase
           .from('duels')
@@ -395,12 +663,13 @@ Deno.serve(async (req) => {
 
           console.log(`[join_duel] Total questions: ${allQuestions.length}`);
 
-          // Randomize selection from full pool using seed
+          // Smart randomization: Fisher-Yates shuffle for better distribution
+          // Use seed for reproducible randomness (same seed = same questions for both players)
           const rng = mulberry32(duel.question_seed);
-          const shuffled = [...allQuestions].sort(() => rng() - 0.5);
+          const shuffled = fisherYatesShuffle(allQuestions, rng);
           const selectedQuestions = shuffled.slice(0, duel.num_questions);
           
-          console.log(`[join_duel] Selected ${selectedQuestions.length} random questions`);
+          console.log(`[join_duel] Selected ${selectedQuestions.length} random questions using seed ${duel.question_seed}`);
 
           // Insert duel questions with randomly selected set
           const duelQuestions = selectedQuestions.map((q, idx) => {
@@ -431,6 +700,19 @@ Deno.serve(async (req) => {
             .from('duels')
             .update({ status: 'active', started_at: new Date().toISOString() })
             .eq('id', duel.id);
+
+          // Create start notification for host (first player)
+          const notifResult = await createNotification({
+            duel_id: duel.id,
+            type: 'start',
+            metadata: {}
+          }, profileId, supabase).catch(err => {
+            console.error('[join_duel] Error creating start notification:', err);
+            return false;
+          });
+          if (!notifResult) {
+            console.warn('[join_duel] Failed to create start notification');
+          }
 
           return new Response(
             JSON.stringify({ duel: { ...duel, status: 'active' }, player, auto_started: true }),
@@ -478,8 +760,8 @@ Deno.serve(async (req) => {
           throw new Error('No questions available');
         }
 
-        // Shuffle and select using seeded random
-        const shuffled = [...allQuestions].sort(() => rng() - 0.5);
+        // Smart randomization: Fisher-Yates shuffle for better distribution
+        const shuffled = fisherYatesShuffle(allQuestions, rng);
         const selectedQuestions = shuffled.slice(0, duel.num_questions);
 
         // Create question snapshots
@@ -517,6 +799,19 @@ Deno.serve(async (req) => {
           .from('duels')
           .update({ status: 'active', started_at: new Date().toISOString() })
           .eq('id', duel.id);
+
+        // Create start notification for opponent (second player)
+        const notifResult = await createNotification({
+          duel_id: duel.id,
+          type: 'start',
+          metadata: {}
+        }, profileId, supabase).catch(err => {
+          console.error('[start_duel] Error creating start notification:', err);
+          return false;
+        });
+        if (!notifResult) {
+          console.warn('[start_duel] Failed to create start notification');
+        }
 
         return new Response(JSON.stringify({ success: true }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -565,15 +860,42 @@ Deno.serve(async (req) => {
         const isSkipped = !selected_option_id || is_timeout;
         const isCorrect = !isSkipped && selected_option_id ? correctIds.includes(selected_option_id) : false;
 
-        // Calculate combo
-        const { count: correctStreak } = await supabase
+        // Calculate combo - count consecutive correct answers (NOT skipped, NOT incorrect)
+        // Get all answers for this player in this duel, ordered by creation time DESC (newest first)
+        const { data: allAnswers } = await supabase
           .from('duel_answers')
-          .select('*', { count: 'exact', head: true })
+          .select('is_correct, is_skipped, created_at')
           .eq('player_id', player.id)
-          .eq('is_correct', true)
-          .gte('created_at', new Date(Date.now() - 60000).toISOString());
+          .eq('duel_id', duel_id)
+          .order('created_at', { ascending: false });
 
-        const combo = correctStreak || 0;
+        let combo = 0;
+        if (allAnswers && allAnswers.length > 0) {
+          // Count consecutive correct answers from the most recent backwards
+          // Stop counting when we hit an incorrect answer OR a skipped answer
+          for (const answer of allAnswers) {
+            // Only count if answer is correct AND not skipped
+            if (answer.is_correct === true && answer.is_skipped === false) {
+              combo++;
+            } else {
+              // Stop counting when we hit an incorrect or skipped answer
+              // This breaks the combo chain
+              break;
+            }
+          }
+        }
+        
+        console.log('[submit_answer] Combo calculation:', {
+          totalAnswers: allAnswers?.length || 0,
+          comboBeforeCurrent: combo,
+          isCorrect,
+          isSkipped,
+          selected_option_id
+        });
+        
+        // Combo is now the number of consecutive correct answers BEFORE this one
+        // We'll use this combo for calculating points for the current answer
+        // After inserting, if current answer is correct, return combo + 1, else return 0
 
         // Adjust time for latency
         const adjustedTime = Math.max(0, time_taken_ms - (latency_ms || 0));
@@ -581,6 +903,8 @@ Deno.serve(async (req) => {
         const timeRemain = Math.max(0, timeLimit - adjustedTime);
 
         const difficulty = (question.question_snapshot as any).difficulty || 'medium';
+        // Use combo BEFORE current answer for scoring
+        // If current answer is correct, combo will be used, if incorrect/skipped, points = 0
         const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo) : 0;
 
         // Insert answer
@@ -614,11 +938,71 @@ Deno.serve(async (req) => {
         // Never let client calculate scores locally
         // ============================================================================
 
+        // Return combo AFTER processing this answer
+        // CRITICAL: Combo MUST reset to 0 if current answer is incorrect or skipped
+        // If current answer is correct and not skipped, combo increases by 1
+        // If current answer is incorrect or skipped, combo resets to 0 (not continue from previous)
+        let finalCombo = 0;
+        if (isCorrect === true && isSkipped === false) {
+          // Current answer is correct and not skipped - increment combo
+          finalCombo = combo + 1;
+        } else {
+          // Current answer is incorrect OR skipped - combo resets to 0
+          finalCombo = 0;
+        }
+        
+        console.log('[submit_answer] Final combo:', {
+          comboBefore: combo,
+          isCorrect,
+          isSkipped,
+          finalCombo
+        });
+
+        // Create progress notification for opponent
+        // Always notify about opponent's answer (not just at milestones)
+        if (!isSkipped) {
+          console.log('[submit_answer] Creating progress notification for opponent');
+          
+          const { data: duel } = await supabase
+            .from('duels')
+            .select('num_questions')
+            .eq('id', duel_id)
+            .single();
+          
+          const { data: allPlayerAnswers } = await supabase
+            .from('duel_answers')
+            .select('id')
+            .eq('player_id', player.id)
+            .eq('duel_id', duel_id);
+          
+          const progress = duel ? Math.round(((allPlayerAnswers?.length || 0) / duel.num_questions) * 100) : 0;
+          
+          // Always notify about progress, but include progress percentage only at milestones
+          const notifResult = await createNotification({
+            duel_id,
+            type: 'progress',
+            metadata: {
+              is_correct: isCorrect,
+              combo: finalCombo >= 3 ? finalCombo : undefined, // Notify about combo only if >= 3
+              progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Notify at 25%, 50%, 75%
+            }
+          }, profileId, supabase).catch(err => {
+            console.error('[submit_answer] Error creating progress notification:', err);
+            return false;
+          });
+          
+          if (!notifResult) {
+            console.warn('[submit_answer] Failed to create progress notification - opponent might not be found yet');
+          } else {
+            console.log('[submit_answer] ✅ Progress notification created successfully');
+          }
+        }
+
         return new Response(JSON.stringify({ 
           is_correct: isCorrect, 
           points_awarded: points,
           new_score: newScore,
-          combo: isCorrect ? combo + 1 : 0,
+          combo: finalCombo,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -724,38 +1108,175 @@ Deno.serve(async (req) => {
           console.log('[use_boost] Skip confirmed');
         }
 
+        // Create boost notification for opponent
+        const notifResult = await createNotification({
+          duel_id,
+          type: 'boost',
+          metadata: {
+            boost_type,
+          }
+        }, profileId, supabase).catch(err => {
+          console.error('[use_boost] Error creating boost notification:', err);
+          return false;
+        });
+        if (!notifResult) {
+          console.warn('[use_boost] Failed to create boost notification');
+        }
+
         return new Response(JSON.stringify(boostEffect), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
       case 'finish_duel': {
+        // Get profile_id from params or use the one from request body
         const { duel_id } = params;
+        const profile_id = params.profile_id || profileId;
 
-        // Check if already finished
+        // Get duel info
         const { data: duel } = await supabase
           .from('duels')
-          .select('status')
+          .select('status, num_questions, started_at, expires_at')
           .eq('id', duel_id)
           .single();
 
-        if (duel?.status === 'finished') {
-          return new Response(JSON.stringify({ message: 'Already finished' }), {
+        if (!duel) {
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+            status: 404,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
-        // Mark as finished and determine winner
-        const { data: players } = await supabase
+        // Check if already finished
+        if (duel.status === 'finished') {
+          return new Response(JSON.stringify({ message: 'Already finished', finished: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Get current player
+        const { data: currentPlayer } = await supabase
           .from('duel_players')
-          .select('*')
+          .select('id, user_id')
           .eq('duel_id', duel_id)
-          .order('score', { ascending: false });
+          .eq('user_id', profile_id)
+          .single();
 
-        if (players && players.length >= 2) {
-          const isDraw = players[0].score === players[1].score;
-          const winnerId = isDraw ? null : players[0].id;
+        if (!currentPlayer) {
+          return new Response(JSON.stringify({ error: 'Player not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
 
+        // Count how many questions this player has answered
+        const { count: answeredCount } = await supabase
+          .from('duel_answers')
+          .select('*', { count: 'exact', head: true })
+          .eq('player_id', currentPlayer.id)
+          .eq('duel_id', duel_id);
+
+        console.log('[finish_duel] Player finished:', {
+          playerId: currentPlayer.id,
+          answeredCount,
+          totalQuestions: duel.num_questions
+        });
+
+        // Check if all players have finished
+        const { data: allPlayers } = await supabase
+          .from('duel_players')
+          .select('id, user_id, score, correct_count')
+          .eq('duel_id', duel_id);
+
+        if (!allPlayers || allPlayers.length < 2) {
+          return new Response(JSON.stringify({ error: 'Not enough players' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Small delay to ensure current player's last answer is fully committed
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Check if both players finished by counting their answers
+        // IMPORTANT: Count answers AFTER current player's last answer is saved
+        let allPlayersFinished = true;
+        const playerAnswerCounts: { [playerId: string]: number } = {};
+        
+        // Count answers for each player - verify ALL players have answered ALL questions
+        for (const player of allPlayers) {
+          const { count: playerAnswers } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', player.id)
+            .eq('duel_id', duel_id);
+
+          const answerCount = playerAnswers || 0;
+          playerAnswerCounts[player.id] = answerCount;
+
+          console.log('[finish_duel] Player answer count:', {
+            playerId: player.id,
+            userId: player.user_id,
+            answerCount,
+            required: duel.num_questions,
+            hasFinished: answerCount >= duel.num_questions
+          });
+
+          // CRITICAL: ALL players must have answered ALL questions
+          if (answerCount < duel.num_questions) {
+            allPlayersFinished = false;
+            console.log('[finish_duel] Player has not finished:', {
+              playerId: player.id,
+              answers: answerCount,
+              required: duel.num_questions
+            });
+          }
+        }
+
+        console.log('[finish_duel] All players finished check:', {
+          allPlayersFinished,
+          playerAnswerCounts,
+          requiredAnswers: duel.num_questions,
+          currentPlayerId: currentPlayer.id
+        });
+
+        // Check timeout (10 minutes after start or 15 minutes total)
+        const now = new Date();
+        const startedAt = duel.started_at ? new Date(duel.started_at) : null;
+        const expiresAt = duel.expires_at ? new Date(duel.expires_at) : null;
+        const timeoutMs = 10 * 60 * 1000; // 10 minutes
+        const isTimeout = startedAt && (now.getTime() - startedAt.getTime() > timeoutMs) || 
+                         (expiresAt && now > expiresAt);
+
+        console.log('[finish_duel] Status check:', {
+          allPlayersFinished,
+          isTimeout,
+          startedAt: startedAt?.toISOString(),
+          expiresAt: expiresAt?.toISOString()
+        });
+
+        // Only finish duel if both players finished OR timeout occurred
+        if (allPlayersFinished || isTimeout) {
+          // Calculate final scores and determine winner
+          const playersWithScores = await Promise.all(allPlayers.map(async (player) => {
+            const { count: playerAnswers } = await supabase
+              .from('duel_answers')
+              .select('*', { count: 'exact', head: true })
+              .eq('player_id', player.id)
+              .eq('duel_id', duel_id);
+
+            return {
+              ...player,
+              answersCount: playerAnswers || 0
+            };
+          }));
+
+          // Sort by score (descending)
+          playersWithScores.sort((a, b) => b.score - a.score);
+          const isDraw = playersWithScores[0].score === playersWithScores[1].score;
+          const winnerId = isDraw ? null : playersWithScores[0].id;
+
+          // Update duel status to finished
           await supabase
             .from('duels')
             .update({
@@ -765,7 +1286,7 @@ Deno.serve(async (req) => {
             .eq('id', duel_id);
 
           // Update stats for both players
-          for (const player of players) {
+          for (const player of playersWithScores) {
             const isWin = player.id === winnerId;
             await supabase.rpc('upsert_duel_stats', {
               p_user_id: player.user_id,
@@ -774,11 +1295,73 @@ Deno.serve(async (req) => {
               p_score: player.score
             });
           }
-        }
 
-        return new Response(JSON.stringify({ success: true }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+          console.log('[finish_duel] Duel finished:', {
+            winnerId,
+            isDraw,
+            reason: allPlayersFinished ? 'both_finished' : 'timeout'
+          });
+
+          // Create finish notification for opponent
+          const opponentPlayer = playersWithScores.find((p: any) => p.user_id !== profile_id);
+          if (opponentPlayer) {
+            const notifResult = await createNotification({
+              duel_id,
+              type: 'finish',
+              metadata: {
+                is_winner: opponentPlayer.id === winnerId,
+                correct_answers: opponentPlayer.correct_count || 0,
+                is_last_question: false,
+              }
+            }, profile_id, supabase).catch(err => {
+              console.error('[finish_duel] Error creating finish notification:', err);
+              return false;
+            });
+            if (!notifResult) {
+              console.warn('[finish_duel] Failed to create finish notification');
+            }
+          }
+
+          return new Response(JSON.stringify({ 
+            success: true, 
+            finished: true,
+            reason: allPlayersFinished ? 'both_finished' : 'timeout'
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          // Not all players finished yet - just acknowledge this player finished
+          console.log('[finish_duel] Player finished, waiting for opponent');
+          
+          // Create finish notification for opponent (first player finished)
+          const opponentPlayer = allPlayers.find((p: any) => p.user_id !== profile_id);
+          const currentPlayerData = allPlayers.find((p: any) => p.user_id === profile_id);
+          if (opponentPlayer && currentPlayerData) {
+            const notifResult = await createNotification({
+              duel_id,
+              type: 'finish',
+              metadata: {
+                is_winner: false,
+                correct_answers: currentPlayerData.correct_count || 0,
+                is_last_question: false,
+              }
+            }, profile_id, supabase).catch(err => {
+              console.error('[finish_duel] Error creating finish notification:', err);
+              return false;
+            });
+            if (!notifResult) {
+              console.warn('[finish_duel] Failed to create finish notification');
+            }
+          }
+          
+          return new Response(JSON.stringify({ 
+            success: true, 
+            finished: false,
+            message: 'Waiting for opponent to finish'
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
       }
 
       default:
