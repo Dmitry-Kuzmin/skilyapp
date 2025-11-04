@@ -1,15 +1,108 @@
+import { useState, useMemo, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Check, CheckCheck } from 'lucide-react';
+import { Bell, Check, CheckCheck, Swords, Clock, Zap } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { formatDistanceToNow } from 'date-fns';
+import { useUserContext } from '@/contexts/UserContext';
+import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+
+type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
 
 export function NotificationsPanel() {
+  const { profileId } = useUserContext();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const [filter, setFilter] = useState<NotificationFilter>('all');
+  const navigate = useNavigate();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
+    console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
+    if (notifications.length > 0) {
+      console.log('[NotificationsPanel] First notification:', notifications[0]);
+    }
+  }, [notifications, unreadCount, profileId]);
+
+  // Filter notifications by type
+  const filteredNotifications = useMemo(() => {
+    if (filter === 'all') return notifications;
+    
+    const typeMap: Record<string, NotificationFilter> = {
+      'start': 'duels',
+      'progress': 'duels',
+      'boost': 'duels',
+      'finish': 'duels',
+      'timeout': 'duels',
+      'opponent_ahead': 'duels',
+      'opponent_behind': 'duels',
+      'reminder': 'reminders',
+    };
+
+    return notifications.filter(n => {
+      const category = typeMap[n.type] || 'system';
+      return category === filter;
+    });
+  }, [notifications, filter]);
+
+  // Group notifications by date
+  const groupedNotifications = useMemo(() => {
+    const groups: Record<string, typeof notifications> = {};
+    
+    filteredNotifications.forEach(notification => {
+      const date = new Date(notification.created_at);
+      let groupKey: string;
+      
+      if (isToday(date)) {
+        groupKey = 'Сегодня';
+      } else if (isYesterday(date)) {
+        groupKey = 'Вчера';
+      } else if (isThisWeek(date)) {
+        groupKey = 'На этой неделе';
+      } else if (isThisMonth(date)) {
+        groupKey = 'В этом месяце';
+      } else {
+        groupKey = format(date, 'MMMM yyyy', { locale: ru });
+      }
+      
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(notification);
+    });
+    
+    return groups;
+  }, [filteredNotifications]);
+
+  const handleNotificationClick = (notification: typeof notifications[0]) => {
+    if (!notification.is_read) {
+      markAsRead(notification.id);
+    }
+    
+    // Navigate to duel if duel_id exists
+    if (notification.duel_id) {
+      navigate(`/games/duel?duelId=${notification.duel_id}`);
+    }
+  };
+
+  const getFilterIcon = (filterType: NotificationFilter) => {
+    switch (filterType) {
+      case 'duels':
+        return <Swords className="h-4 w-4" />;
+      case 'reminders':
+        return <Clock className="h-4 w-4" />;
+      case 'system':
+        return <Zap className="h-4 w-4" />;
+      default:
+        return <Bell className="h-4 w-4" />;
+    }
+  };
 
   return (
     <Sheet>
@@ -23,9 +116,9 @@ export function NotificationsPanel() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md p-0">
+      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
         <SheetHeader className="p-6 pb-4 border-b">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <SheetTitle className="text-2xl font-bold flex items-center gap-2">
               <Bell className="h-6 w-6" />
               Уведомления
@@ -35,66 +128,150 @@ export function NotificationsPanel() {
                 variant="ghost"
                 size="sm"
                 onClick={markAllAsRead}
-                className="text-xs"
+                className="text-xs h-8"
               >
                 <CheckCheck className="h-4 w-4 mr-1" />
                 Всё прочитано
               </Button>
             )}
           </div>
+          
+          {/* Filters */}
+          <Tabs value={filter} onValueChange={(v) => setFilter(v as NotificationFilter)} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 h-9">
+              <TabsTrigger value="all" className="text-xs px-2">
+                Все
+              </TabsTrigger>
+              <TabsTrigger value="duels" className="text-xs px-2">
+                <Swords className="h-3 w-3 mr-1" />
+                Дуэли
+              </TabsTrigger>
+              <TabsTrigger value="reminders" className="text-xs px-2">
+                <Clock className="h-3 w-3 mr-1" />
+                Напоминания
+              </TabsTrigger>
+              <TabsTrigger value="system" className="text-xs px-2">
+                <Zap className="h-3 w-3 mr-1" />
+                Системные
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-80px)]">
-          {notifications.length === 0 ? (
-            <div className="p-12 text-center space-y-3">
-              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                <Bell className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">Пока нет уведомлений</p>
-            </div>
-          ) : (
-            <div className="p-4 space-y-2">
-              {notifications.map((notification, index) => (
-                <motion.div
-                  key={notification.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    notification.is_read
-                      ? 'bg-background/50 border-border/50 opacity-60'
-                      : 'bg-primary/5 border-primary/30 hover:bg-primary/10'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {notification.icon && (
-                      <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0 text-xl">
-                        {notification.icon}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h4 className="font-bold text-sm line-clamp-1">{notification.title}</h4>
-                        {!notification.is_read && (
-                          <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1" />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(notification.created_at), {
-                          addSuffix: true,
-                          locale: ru,
-                        })}
-                      </p>
+        <ScrollArea className="flex-1">
+          <AnimatePresence mode="wait">
+            {filteredNotifications.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="p-12 text-center space-y-3"
+              >
+                <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+                  {getFilterIcon(filter)}
+                </div>
+                <p className="text-muted-foreground">
+                  {filter === 'all' 
+                    ? 'Пока нет уведомлений' 
+                    : `Нет уведомлений в категории "${filter}"`}
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="notifications"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="p-4 space-y-6"
+              >
+                {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
+                  <div key={groupKey} className="space-y-3">
+                    {/* Group Header */}
+                    <div className="flex items-center gap-2 px-2">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {groupKey}
+                      </h3>
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-xs text-muted-foreground">
+                        {groupNotifications.length}
+                      </span>
+                    </div>
+
+                    {/* Notifications in group */}
+                    <div className="space-y-2">
+                      {groupNotifications.map((notification, index) => (
+                        <motion.div
+                          key={notification.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                          onClick={() => handleNotificationClick(notification)}
+                          className={cn(
+                            "p-4 rounded-xl border-2 cursor-pointer transition-all",
+                            "hover:shadow-md hover:scale-[1.02]",
+                            notification.is_read
+                              ? 'bg-background/50 border-border/50 opacity-60'
+                              : 'bg-primary/5 border-primary/30 hover:bg-primary/10 hover:border-primary/50'
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            {notification.icon && (
+                              <div className={cn(
+                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 text-xl",
+                                notification.is_read 
+                                  ? 'bg-muted/50' 
+                                  : 'bg-primary/20 shadow-sm'
+                              )}>
+                                {notification.icon}
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <h4 className={cn(
+                                  "font-bold text-sm line-clamp-1",
+                                  !notification.is_read && "text-foreground"
+                                )}>
+                                  {notification.title}
+                                </h4>
+                                {!notification.is_read && (
+                                  <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 animate-pulse" />
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground line-clamp-2 mb-2 leading-relaxed">
+                                {notification.message}
+                              </p>
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs text-muted-foreground">
+                                  {formatDistanceToNow(new Date(notification.created_at), {
+                                    addSuffix: true,
+                                    locale: ru,
+                                  })}
+                                </p>
+                                {notification.duel_id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 text-xs px-2"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/games/duel?duelId=${notification.duel_id}`);
+                                    }}
+                                  >
+                                    Перейти
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </ScrollArea>
       </SheetContent>
     </Sheet>

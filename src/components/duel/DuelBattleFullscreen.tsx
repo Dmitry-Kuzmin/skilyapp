@@ -1,28 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Clock, Zap, Flame, Shield, Users } from 'lucide-react';
+import { X, Clock, Zap, Flame, Shield, Users, Trophy, Swords, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { NotificationToast } from '@/components/NotificationToast';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
+import { DuelWidget } from './DuelWidget';
+import Layout from '@/components/Layout';
 
 interface DuelBattleFullscreenProps {
   duelId: string;
   onExit: () => void;
   onDuelFinished: () => void;
+  onHide?: () => void;
+  onWidgetExpand?: () => void;
 }
 
-export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBattleFullscreenProps) {
+export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
+  const [isWaitingHidden, setIsWaitingHidden] = useState(false);
   const { profileId } = useUserContext();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
+  
+  // Initialize notifications for this duel
+  useNotifications({ showToasts: true, playSounds: true });
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -36,6 +45,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   const [loading, setLoading] = useState(true);
   const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
   const [eliminatedOptions, setEliminatedOptions] = useState<string[]>([]);
+  const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
   const [toastNotifications, setToastNotifications] = useState<Array<{
     id: string;
     title: string;
@@ -44,6 +54,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   }>>([]);
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
   const [hasFinishedMyQuestions, setHasFinishedMyQuestions] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
+  const isVerifyingRef = useRef(false);
+  const [myName, setMyName] = useState<string>('Ты');
+  const [opponentName, setOpponentName] = useState<string>('Соперник');
 
   useEffect(() => {
     if (!duelId || !profileId) return;
@@ -53,67 +69,155 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     loadBoosts();
   }, [duelId, profileId]);
 
-  // Update scores from realtime and create notifications
+  // Start countdown when duel starts
+  useEffect(() => {
+    if (state.duelStarted && !showCountdown && questions.length > 0) {
+      console.log('[DuelBattleFullscreen] Duel started, starting countdown...');
+      setShowCountdown(true);
+      setCountdown(3);
+      
+      const interval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev === null || prev <= 0) {
+            clearInterval(interval);
+            return null;
+          }
+          if (prev === 1) {
+            sounds.countdownFinish();
+            setTimeout(() => {
+              setShowCountdown(false);
+            }, 1000);
+            return 0;
+          }
+          sounds.countdownTick();
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [state.duelStarted, questions.length, showCountdown]);
+
+  // Update notifications when opponent answers
   useEffect(() => {
     if (state.opponentAnswered && state.opponentAnswerData) {
       console.log('[DuelBattleFullscreen] Opponent answered:', state.opponentAnswerData);
-      loadScores();
       
-      // Create notification via edge function
-      const createNotification = async () => {
+      const isCorrect = state.opponentAnswerData.is_correct;
+      const points = state.opponentAnswerData.points_awarded || 0;
+      
+      // Show notification
+      if (isCorrect) {
+        toast.info(`✅ Соперник ответил правильно! +${points} очков`, {
+          duration: 3000,
+          icon: '⚡'
+        });
+      } else {
+        toast.info('❌ Соперник ошибся! Ваш шанс догнать!', {
+          duration: 2000,
+          icon: '🎯'
+        });
+      }
+      
+      sounds.notificationPop();
+      // Don't call loadScores() - realtime will update scores automatically
+    }
+  }, [state.opponentAnswered, state.opponentAnswerData]);
+
+  // Handle duel completion - CRITICAL: Verify opponent actually finished before transitioning
+  useEffect(() => {
+    if (state.duelFinished && isWaitingForOpponent && !isVerifyingRef.current) {
+      // Realtime hook detected finished status - VERIFY opponent actually completed before transitioning
+      console.log('[DuelBattleFullscreen] Realtime detected finished status - verifying opponent completed');
+      
+      // Prevent multiple simultaneous verifications
+      isVerifyingRef.current = true;
+      
+      const verifyAndTransition = async () => {
         try {
-          const isCorrect = state.opponentAnswerData.is_correct;
-          await supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'create_notification',
-              duel_id: duelId,
-              profile_id: profileId,
-              type: 'progress',
-              title: isCorrect ? '💡 Соперник ответил!' : '❌ Соперник ошибся!',
-              message: isCorrect 
-                ? 'Правильный ответ! Продолжайте бороться!' 
-                : 'Ваш шанс догнать!',
-              icon: isCorrect ? '⚡' : '🎯'
-            }
+          // Get opponent's player ID
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('id, user_id')
+            .eq('duel_id', duelId);
+
+          if (!players || players.length < 2) {
+            console.log('[DuelBattleFullscreen] Not enough players, ignoring');
+            return;
+          }
+
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          if (!opponent) {
+            console.log('[DuelBattleFullscreen] Opponent not found, ignoring');
+            return;
+          }
+
+          // Get required number of questions
+          const { data: duelInfo } = await supabase
+            .from('duels')
+            .select('num_questions')
+            .eq('id', duelId)
+            .single();
+
+          const requiredAnswers = duelInfo?.num_questions || 10;
+
+          // Count opponent's actual answers
+          const { count: opponentAnswers } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', opponent.id)
+            .eq('duel_id', duelId);
+
+          console.log('[DuelBattleFullscreen] Verification:', {
+            opponentAnswers: opponentAnswers || 0,
+            required: requiredAnswers,
+            canTransition: (opponentAnswers || 0) >= requiredAnswers
           });
+
+          // Only transition if opponent really finished
+          if ((opponentAnswers || 0) >= requiredAnswers) {
+            console.log('[DuelBattleFullscreen] ✅ Opponent finished all questions, transitioning to results');
+            isVerifyingRef.current = false; // Reset before transition
+            sounds.victory();
+            toast.success('🏁 Соперник закончил! Смотрите результаты', { duration: 3000 });
+            setTimeout(() => {
+              onDuelFinished();
+            }, 1000);
+          } else {
+            console.log('[DuelBattleFullscreen] ⚠️ Status is finished but opponent hasn\'t completed - staying on waiting screen');
+            // Don't transition - stay on waiting screen
+            isVerifyingRef.current = false; // Reset for next check
+          }
         } catch (error) {
-          console.error('[DuelBattleFullscreen] Error creating notification:', error);
+          console.error('[DuelBattleFullscreen] Error verifying opponent completion:', error);
+          // On error, don't transition - better to wait than transition prematurely
+          isVerifyingRef.current = false; // Reset on error
         }
       };
-      
-      createNotification();
-      sounds.notificationPop();
-    }
-  }, [state.opponentAnswered, state.opponentAnswerData, duelId, profileId]);
 
-  // Handle duel completion
-  useEffect(() => {
-    if (state.duelFinished) {
-      onDuelFinished();
+      verifyAndTransition();
+    } else if (state.duelFinished && !isWaitingForOpponent && !hasFinishedMyQuestions) {
+      // Duel finished but we haven't finished our questions - this shouldn't happen
+      console.log('[DuelBattleFullscreen] Duel finished but we haven\'t finished our questions yet - ignoring');
     }
-  }, [state.duelFinished]);
+    // If state.duelFinished is true but we're not waiting, ignore the realtime event
+  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
-<<<<<<< Current (Your changes)
   // Sync opponent score from realtime
   useEffect(() => {
-    if (state.opponentScore > 0) {
-      console.log('[DuelBattleFullscreen] Updating opponent score from realtime:', state.opponentScore);
-      setOpponentScore(state.opponentScore);
-    }
-  }, [state.opponentScore]);
-=======
-  useEffect(() => {
     if (typeof state.opponentScore === 'number' && state.opponentScore !== opponentScore) {
+      console.log('[DuelBattleFullscreen] Updating opponent score from realtime:', state.opponentScore);
       setOpponentScore(state.opponentScore);
     }
   }, [state.opponentScore, opponentScore]);
 
+  // Sync my score from realtime
   useEffect(() => {
     if (typeof state.myScore === 'number' && state.myScore !== myScore) {
+      console.log('[DuelBattleFullscreen] Updating my score from realtime:', state.myScore);
       setMyScore(state.myScore);
     }
   }, [state.myScore, myScore]);
->>>>>>> Incoming (Background Agent changes)
 
   // Timer countdown
   useEffect(() => {
@@ -129,6 +233,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
 
     return () => clearInterval(timer);
   }, [timeLeft, isAnswered]);
+
+  // Reset translation when moving to next question
+  useEffect(() => {
+    setTranslationLanguage(null);
+  }, [currentIndex]);
 
   const loadQuestions = async () => {
     try {
@@ -160,7 +269,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   const loadScores = async () => {
     const { data } = await supabase
       .from('duel_players')
-      .select('*')
+      .select('*, profiles(first_name, username)')
       .eq('duel_id', duelId);
 
     if (data && data.length > 0) {
@@ -168,11 +277,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
       const opponent = data.find(p => p.user_id !== profileId);
       
       if (myPlayer?.id) setMyPlayerId(myPlayer.id);
+      
+      // Load player names
+      const myProfile = myPlayer?.profiles as any;
+      const opponentProfile = opponent?.profiles as any;
+      setMyName(myProfile?.first_name || myProfile?.username || 'Ты');
+      setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
+      
+      // Initial scores - realtime will update them automatically
       setMyScore(myPlayer?.score || 0);
-      // Don't set opponent score here - will be managed by realtime hook
-      if (!state.opponentScore) {
-        setOpponentScore(opponent?.score || 0);
-      }
+      setOpponentScore(opponent?.score || 0);
     }
   };
 
@@ -195,7 +309,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     }
   };
 
-  const handleBoostUse = async (boostType: string) => {
+  const handleBoostUse = async (boostType: string, language?: 'ru' | 'en') => {
     if (usedBoosts.includes(boostType) || isAnswered) return;
     
     const boost = boosts.find(b => b.boost_type === boostType);
@@ -231,10 +345,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
             setTimeLeft(60000);
             setUsedBoosts([]);
             setEliminatedOptions([]);
+            setTranslationLanguage(null); // Сбрасываем перевод при переходе к следующему вопросу
           } else {
             finishDuel();
           }
         }, 500);
+      } else if (boostType === 'translate' && language) {
+        sounds.boostHint(); // Используем звук подсказки для перевода
+        setTranslationLanguage(language);
+        const langName = language === 'ru' ? 'русский' : 'английский';
+        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 3000 });
       }
 
       await supabase.functions.invoke('duel-manager', {
@@ -244,6 +364,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           profile_id: profileId,
           duel_question_id: questions[currentIndex].id,
           boost_type: boostType,
+          language: language, // Для translate бустера
         },
       });
 
@@ -262,23 +383,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     const question = questions[currentIndex];
     const isCorrect = question.correct_option_ids.includes(optionId);
 
-    if (isCorrect) {
-      sounds.correctAnswer();
-      haptics.correctAnswer();
-      const newCombo = combo + 1;
-      setCombo(newCombo);
-      if (newCombo > 1) {
-        sounds.combo(newCombo);
-      }
-      if (newCombo >= 3) {
-        sounds.confetti();
-      }
-    } else {
-      sounds.wrongAnswer();
-      haptics.wrongAnswer();
-      setCombo(0);
-    }
-
     try {
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
@@ -294,11 +398,51 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
       if (error) throw error;
 
       // ============================================================================
-      // CRITICAL: USE SERVER SCORE - CLIENT NEVER CALCULATES
+      // CRITICAL: USE SERVER SCORE AND COMBO - CLIENT NEVER CALCULATES
       // ============================================================================
       if (data && data.new_score !== undefined) {
         setMyScore(data.new_score);
-        setCombo(isCorrect ? (data.combo || 0) : 0);
+        
+        // CRITICAL: Always use server-provided combo value, even if it's 0
+        // Server returns 0 when answer is incorrect or skipped - this resets combo
+        const serverCombo = data.combo !== undefined ? data.combo : 0;
+        
+        // ALWAYS update combo from server - this ensures correct combo after wrong answer
+        // Server logic: wrong answer = combo 0, correct answer = combo increases
+        setCombo(serverCombo);
+        
+        console.log('[DuelBattleFullscreen] Combo updated from server:', {
+          oldCombo: combo,
+          newCombo: serverCombo,
+          isCorrect,
+          expectedBehavior: isCorrect ? `Combo should be ${combo + 1}` : 'Combo should be 0'
+        });
+        
+        console.log('[DuelBattleFullscreen] Server response:', {
+          isCorrect,
+          serverCombo,
+          points: data.points_awarded
+        });
+        
+        // Play sounds based on server response
+        if (isCorrect) {
+          sounds.correctAnswer();
+          haptics.correctAnswer();
+          if (serverCombo > 1) {
+            sounds.combo(serverCombo);
+            haptics.combo();
+          }
+          if (serverCombo >= 3) {
+            sounds.confetti();
+          }
+        } else {
+          sounds.wrongAnswer();
+          haptics.wrongAnswer();
+          // Combo should be 0 after wrong answer
+          if (serverCombo !== 0) {
+            console.warn('[DuelBattleFullscreen] Warning: Server returned non-zero combo for incorrect answer:', serverCombo);
+          }
+        }
       } else {
         // Fallback: reload from DB if server doesn't return score
         await loadScores();
@@ -327,7 +471,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
     sounds.wrongAnswer();
     
     try {
-      await supabase.functions.invoke('duel-manager', {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
           duel_id: duelId,
@@ -337,6 +481,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           time_taken_ms: 60000,
         },
       });
+
+      if (error) throw error;
+
+      // Update score and combo from server (combo should be 0 for timeout)
+      if (data) {
+        if (data.new_score !== undefined) {
+          setMyScore(data.new_score);
+        }
+        // CRITICAL: Always set combo from server, even if 0 (timeout resets combo)
+        const serverCombo = data.combo !== undefined ? data.combo : 0;
+        setCombo(serverCombo);
+        console.log('[DuelBattleFullscreen] Timeout - Server combo:', serverCombo);
+      }
       
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
@@ -357,26 +514,45 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
 
   const finishDuel = async () => {
     console.log('[DuelBattleFullscreen] Finishing duel - I completed all questions');
+    
+    // Mark that I finished (but don't show waiting screen yet)
     setHasFinishedMyQuestions(true);
+    
+    // Small delay to ensure last answer is saved in DB
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Mark that I finished
-    await supabase.functions.invoke('duel-manager', {
-      body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
-    });
+    try {
+      // Mark that I finished
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
+      });
 
-    // Check if opponent also finished
-    const { data: duel } = await supabase
-      .from('duels')
-      .select('status')
-      .eq('id', duelId)
-      .single();
+      if (error) throw error;
 
-    if (duel?.status === 'finished') {
-      // Both finished, go to results
-      onDuelFinished();
-    } else {
-      // Wait for opponent - show live replay
-      setIsWaitingForOpponent(true);
+      console.log('[DuelBattleFullscreen] Finish duel response:', data);
+
+      // Server returns finished: true if both players finished, false if waiting
+      // CRITICAL: If server says finished=true, go directly to results WITHOUT showing waiting screen
+      if (data?.finished === true) {
+        // Server confirmed both players finished - go to results IMMEDIATELY
+        console.log('[DuelBattleFullscreen] ✅ Server confirmed both players finished, going directly to results');
+        sounds.victory();
+        toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+        // Go to results immediately - no waiting screen
+        setTimeout(() => {
+          onDuelFinished();
+        }, 500);
+      } else {
+        // Wait for opponent - show waiting screen ONLY if server says waiting
+        console.log('[DuelBattleFullscreen] Waiting for opponent to finish - showing waiting screen');
+        setIsWaitingForOpponent(true);
+        toast.info('⏳ Ты закончил первым! Ожидание соперника...', { duration: 4000 });
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error finishing duel:', error);
+      toast.error('Ошибка завершения дуэли');
+      // Reset waiting state on error
+      setIsWaitingForOpponent(false);
     }
   };
 
@@ -385,6 +561,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
   // ============================================================================
   // Show live replay screen when I finish first
   // Display opponent's progress in real-time
+  // If hidden, DuelWaitingReplay will show widget via portal and return null
   // ============================================================================
   if (isWaitingForOpponent) {
     return (
@@ -393,8 +570,34 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
         myScore={myScore}
         totalQuestions={questions.length}
         onDuelFinished={onDuelFinished}
+        onExpand={() => {
+          // When widget expands, restore battle view
+          setIsWaitingHidden(false);
+          // Notify parent to restore battle mode
+          if (onWidgetExpand) {
+            onWidgetExpand();
+          }
+        }}
+        onHide={(hidden) => {
+          setIsWaitingHidden(hidden);
+          if (hidden) {
+            // Notify parent that game is hidden - parent will show menu
+            if (onHide) {
+              onHide();
+            }
+          } else {
+            // Game is expanded again - reset state
+            setIsWaitingHidden(false);
+          }
+        }}
       />
     );
+  }
+
+  // If waiting is hidden but we're not waiting for opponent (shouldn't happen)
+  // Return null so parent can show menu
+  if (isWaitingHidden) {
+    return null;
   }
 
   if (loading || questions.length === 0) {
@@ -461,28 +664,88 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
 
       {/* Main Content */}
       <div className="h-full flex flex-col p-3 md:p-4 pt-12 max-w-4xl mx-auto">
-        {/* Header - Scores & Timer */}
+        {/* Header - Scores & Timer - Premium Design */}
         <div className="flex items-center justify-between mb-3 md:mb-4">
-          {/* Scores */}
-          <div className="flex items-center gap-2 md:gap-4">
+          {/* Scores - Enhanced */}
+          <div className="flex items-center gap-3 md:gap-5">
+            {/* My Score */}
             <motion.div 
-              className="text-center px-3 py-1.5 rounded-2xl bg-primary/10 border-2 border-primary/30"
-              animate={{ scale: myScore > opponentScore ? [1, 1.1, 1] : 1 }}
-              transition={{ duration: 0.3 }}
+              className="flex items-center gap-2 md:gap-3 group"
+              whileHover={{ scale: 1.02 }}
+              animate={myScore > opponentScore ? { 
+                boxShadow: ['0 0 0px rgba(59, 130, 246, 0)', '0 0 20px rgba(59, 130, 246, 0.5)', '0 0 0px rgba(59, 130, 246, 0)']
+              } : {}}
             >
-              <div className="text-xl md:text-2xl font-black text-primary">{myScore}</div>
-              <div className="text-xs text-muted-foreground hidden md:block">Вы</div>
+              <div className="relative">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                  <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                </div>
+                {myScore > opponentScore && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block">{myName}</p>
+                <motion.div 
+                  key={myScore}
+                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {myScore}
+                </motion.div>
+              </div>
             </motion.div>
             
-            <div className="text-2xl font-bold text-muted-foreground/30">VS</div>
+            <div className="text-xl md:text-2xl font-bold text-muted-foreground/30 px-2">VS</div>
             
+            {/* Opponent Score */}
             <motion.div 
-              className="text-center px-3 py-1.5 rounded-2xl bg-secondary/10 border-2 border-secondary/30"
-              animate={{ scale: opponentScore > myScore ? [1, 1.1, 1] : 1 }}
-              transition={{ duration: 0.3 }}
+              className="flex items-center gap-2 md:gap-3 group"
+              whileHover={{ scale: 1.02 }}
+              animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
-              <div className="text-xl md:text-2xl font-black text-secondary">{opponentScore}</div>
-              <div className="text-xs text-muted-foreground hidden md:block">Соперник</div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block text-right truncate max-w-[120px] ml-auto" title={opponentName}>
+                  {opponentName}
+                </p>
+                <motion.div 
+                  key={opponentScore}
+                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {opponentScore}
+                </motion.div>
+              </div>
+              <div className="relative">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                  <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                </div>
+                {opponentScore > myScore && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+                {state.opponentAnswered && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.2, 1] }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
+                  </motion.div>
+                )}
+              </div>
             </motion.div>
           </div>
 
@@ -549,35 +812,99 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
           >
             {boosts.map((boost) => {
               const boostConfig = {
-                fifty_fifty: { icon: '5️⃣0️⃣', label: '50/50', gradient: 'from-blue-500 to-cyan-500' },
-                time_extend: { icon: '⏱️', label: '+Время', gradient: 'from-purple-500 to-pink-500' },
-                hint: { icon: '⚡', label: 'Подсказка', gradient: 'from-yellow-500 to-orange-500' },
-                skip: { icon: '⏭️', label: 'Пропуск', gradient: 'from-green-500 to-emerald-500' },
-              }[boost.boost_type] || { icon: '🎯', label: boost.boost_type, gradient: 'from-gray-500 to-gray-600' };
+                fifty_fifty: { icon: Sparkles, label: '50/50', gradient: 'from-yellow-400 to-orange-500' },
+                time_extend: { icon: Timer, label: '+30s', gradient: 'from-blue-400 to-cyan-500' },
+                hint: { icon: HelpCircle, label: 'Hint', gradient: 'from-orange-400 to-amber-500' },
+                skip: { icon: SkipForward, label: 'Skip', gradient: 'from-purple-400 to-pink-500' },
+                translate: { icon: Globe, label: 'Translate', gradient: 'from-green-400 to-emerald-500' },
+              }[boost.boost_type] || { icon: Zap, label: boost.boost_type, gradient: 'from-gray-500 to-gray-600' };
+              
+              const BoostIcon = boostConfig.icon;
 
               const isUsed = usedBoosts.includes(boost.boost_type);
               const isDisabled = isUsed || isAnswered || boost.quantity <= 0;
 
+              // Для translate бустера показываем развернутую версию с выбором языка
+              if (boost.boost_type === 'translate' && translatePopoverOpen === boost.boost_type && !isDisabled) {
+                return (
+                  <motion.div
+                    key={boost.boost_type}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative flex items-center gap-1"
+                  >
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        onClick={() => {
+                          handleBoostUse(boost.boost_type, 'ru');
+                          setTranslatePopoverOpen(null);
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="relative h-9 px-3 flex items-center gap-1.5 border transition-all duration-300 bg-gradient-to-br from-red-500 to-red-600 text-white border-white/20 hover:border-white/50 shadow-md hover:shadow-lg"
+                      >
+                        <span className="text-sm">🇷🇺</span>
+                        <span className="text-xs font-bold">RU</span>
+                      </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        onClick={() => {
+                          handleBoostUse(boost.boost_type, 'en');
+                          setTranslatePopoverOpen(null);
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="relative h-9 px-3 flex items-center gap-1.5 border transition-all duration-300 bg-gradient-to-br from-blue-500 to-blue-600 text-white border-white/20 hover:border-white/50 shadow-md hover:shadow-lg"
+                      >
+                        <span className="text-sm">🇬🇧</span>
+                        <span className="text-xs font-bold">EN</span>
+                      </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        onClick={() => setTranslatePopoverOpen(null)}
+                        variant="outline"
+                        size="sm"
+                        className="relative h-9 w-9 p-0 flex items-center justify-center border transition-all duration-300 bg-muted/50 hover:bg-muted border-border"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </motion.div>
+                  </motion.div>
+                );
+              }
+
               return (
                 <motion.button
                   key={boost.boost_type}
-                  onClick={() => handleBoostUse(boost.boost_type)}
+                  onClick={() => {
+                    if (boost.boost_type === 'translate') {
+                      setTranslatePopoverOpen(boost.boost_type);
+                    } else {
+                      handleBoostUse(boost.boost_type);
+                    }
+                  }}
                   disabled={isDisabled}
                   whileHover={!isDisabled ? { scale: 1.05 } : {}}
                   whileTap={!isDisabled ? { scale: 0.95 } : {}}
-                  className={`relative px-3 py-2 rounded-xl font-bold text-sm transition-all shadow-lg border-2 ${
+                  className={`relative h-9 px-2.5 flex items-center gap-1.5 rounded-lg font-bold text-sm transition-all shadow-md border border-white/20 ${
                     isDisabled
                       ? 'bg-muted/50 border-border/30 opacity-50 cursor-not-allowed'
-                      : `bg-gradient-to-r ${boostConfig.gradient} text-white border-white/30 hover:shadow-xl`
+                      : `bg-gradient-to-br ${boostConfig.gradient} text-white hover:shadow-lg hover:scale-105 active:scale-95`
                   }`}
                 >
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-base">{boostConfig.icon}</span>
-                    <span className="hidden sm:inline">{boostConfig.label}</span>
-                    <span className="text-xs bg-white/20 rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                      {boost.quantity}
-                    </span>
-                  </span>
+                  <BoostIcon className="w-4 h-4" />
+                  <span className="hidden sm:inline text-xs font-bold">{boostConfig.label}</span>
+                  {boost.boost_type === 'translate' && !isDisabled && (
+                    <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
+                  )}
+                  <Badge 
+                    variant="default" 
+                    className="h-4 px-1.5 flex items-center justify-center bg-white/20 text-white border-white/30 text-[10px] font-bold ml-0.5 min-w-[18px]"
+                  >
+                    {boost.quantity}
+                  </Badge>
                 </motion.button>
               );
             })}
@@ -611,7 +938,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
 
             {/* Question Text */}
             <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground">
-              {currentQuestion.question_snapshot.question_ru}
+              {translationLanguage === 'ru' && currentQuestion.question_snapshot.question_ru
+                ? currentQuestion.question_snapshot.question_ru
+                : translationLanguage === 'en' && currentQuestion.question_snapshot.question_en
+                ? currentQuestion.question_snapshot.question_en
+                : currentQuestion.question_snapshot.question_es}
             </h2>
 
             {/* Answer Options */}
@@ -670,7 +1001,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished }: DuelBat
                         </motion.div>
                       )}
                       <span className="block pr-10 text-base break-words">
-                        {option.text_ru}
+                        {translationLanguage === 'ru' && option.text_ru
+                          ? option.text_ru
+                          : translationLanguage === 'en' && option.text_en
+                          ? option.text_en
+                          : option.text_es}
                       </span>
                     </motion.button>
                   );

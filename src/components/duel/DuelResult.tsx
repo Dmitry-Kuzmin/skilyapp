@@ -78,14 +78,28 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       const isWinner = myPlayer && opponent && myPlayer.score > opponent.score;
       const isDraw = myPlayer && opponent && myPlayer.score === opponent.score;
 
+      // Cast profiles to access nested properties
+      const myProfile = myPlayer?.profiles as any;
+      const opponentProfile = opponent?.profiles as any;
+      
       setResults({
         myScore: myPlayer?.score || 0,
         myCorrect: myPlayer?.correct_count || 0,
         opponentScore: opponent?.score || 0,
         opponentCorrect: opponent?.correct_count || 0,
-        opponentName: opponent?.profiles?.first_name || 'Соперник',
+        opponentName: opponentProfile?.first_name || opponentProfile?.username || 'Соперник',
+        myName: myProfile?.first_name || myProfile?.username || 'Вы',
         isWinner,
         isDraw,
+      });
+      
+      console.log('[DuelResult] Loaded results:', {
+        myScore: myPlayer?.score,
+        opponentScore: opponent?.score,
+        myCorrect: myPlayer?.correct_count,
+        opponentCorrect: opponent?.correct_count,
+        myName: myProfile?.first_name || myProfile?.username,
+        opponentName: opponentProfile?.first_name || opponentProfile?.username
       });
     } catch (error) {
       console.error(error);
