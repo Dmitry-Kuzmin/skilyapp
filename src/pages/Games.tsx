@@ -59,12 +59,13 @@ const Games = () => {
     },
     {
       id: 6,
-      title: "Переведи правильно",
-      description: "Выбери правильный перевод термина из вариантов",
+      title: "Четыре варианта",
+      description: "Выбери правильный перевод термина из четырех вариантов",
       icon: Languages,
       color: "success",
       premium: false,
       difficulty: "Средняя",
+      route: "/games/four-variants",
     },
     {
       id: 7,

@@ -13,6 +13,7 @@ import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
 import MatchingGame from "./pages/games/MatchingGame";
 import Duel from "./pages/games/Duel";
+import FourVariantsGame from "./pages/games/FourVariantsGame";
 import TestSession from "./pages/TestSession";
 import TestResults from "./pages/TestResults";
 import RoadSigns from "./pages/RoadSigns";
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/games/race" element={<RaceGame />} />
           <Route path="/games/matching" element={<MatchingGame />} />
           <Route path="/games/duel" element={<Duel />} />
+          <Route path="/games/four-variants" element={<FourVariantsGame />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/road-signs" element={<RoadSigns />} />
