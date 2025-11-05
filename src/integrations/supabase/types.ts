@@ -1316,6 +1316,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_profile_id: { Args: never; Returns: string }
       has_boost: {
         Args: { p_boost_type: string; p_user_id: string }
         Returns: boolean
