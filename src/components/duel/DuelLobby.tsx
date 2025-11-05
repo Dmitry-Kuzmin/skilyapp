@@ -23,76 +23,42 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
   const { state } = useDuelRealtime(duelId);
 
-  // Check duel status immediately on mount and continuously
+  // One-time initial status check (realtime subscription handles all updates)
   useEffect(() => {
-    if (!duelId) return;
+    if (!duelId || !profileId) return;
 
-    let isActive = true;
-    let checkCount = 0;
-    const MAX_CHECKS = 60; // 60 seconds max
-
-    console.log('[DuelLobby] Initializing status check for:', duelId);
+    console.log('[DuelLobby] Checking initial duel status for:', duelId);
     
-    const checkStatus = async () => {
-      if (!isActive) return;
-      
-      checkCount++;
-      console.log(`[DuelLobby] Status check #${checkCount} for duel:`, duelId);
-      
-      try {
-        // Use edge function to check status (bypasses RLS issues)
-        const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'check_status',
-            duel_id: duelId,
-            profile_id: profileId
-          }
-        });
-
-        if (error) {
-          console.error('[DuelLobby] Error checking duel status:', error);
-          return;
-        }
-
-        if (!data || data.error) {
-          console.warn('[DuelLobby] Duel not found or no access:', data?.error);
-          return;
-        }
-
-        console.log('[DuelLobby] Duel status:', data.status);
-        
-        if (data.status === 'active') {
-          console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting countdown...');
-          setConnectionStatus('connected');
-          startCountdown();
-          isActive = false; // Stop checking
-        } else {
-          setConnectionStatus('connected');
-        }
-      } catch (err) {
-        console.error('[DuelLobby] Exception checking status:', err);
+    // Check status once on mount to handle case where duel is already active
+    supabase.functions.invoke('duel-manager', {
+      body: {
+        action: 'check_status',
+        duel_id: duelId,
+        profile_id: profileId
       }
-    };
-
-    // Immediate check
-    checkStatus();
-
-    // Then check every 500ms for reliability in Telegram
-    const interval = setInterval(() => {
-      if (checkCount >= MAX_CHECKS) {
-        clearInterval(interval);
-        console.log('[DuelLobby] Max checks reached, stopping polling');
+    }).then(({ data, error }) => {
+      if (error) {
+        console.error('[DuelLobby] Error checking initial status:', error);
+        setConnectionStatus('connected'); // Still show as connected
         return;
       }
-      checkStatus();
-    }, 500);
 
-    return () => {
-      isActive = false;
-      clearInterval(interval);
-      console.log('[DuelLobby] Cleanup: stopped status polling');
-    };
-  }, [duelId]);
+      if (!data || data.error) {
+        console.warn('[DuelLobby] Duel not found or no access:', data?.error);
+        return;
+      }
+
+      console.log('[DuelLobby] Initial duel status:', data.status);
+      setConnectionStatus('connected');
+      
+      // If duel is already active, start countdown immediately
+      if (data.status === 'active') {
+        console.log('[DuelLobby] ✅ Duel already active! Starting countdown...');
+        startCountdown();
+      }
+      // Otherwise, realtime subscription will handle status changes
+    });
+  }, [duelId, profileId]);
 
   // Handle timer
   useEffect(() => {

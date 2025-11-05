@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { isTelegramMiniApp } from "@/lib/telegram";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -251,10 +253,26 @@ const DailyBonus = () => {
     new Date(Date.now() - 86400000).toISOString().split('T')[0] &&
     !canClaimBonus;
 
+  const isTelegramApp = isTelegramMiniApp();
+
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+      <div 
+        className={cn(
+          "sticky z-10 bg-background/95 backdrop-blur-sm border-b",
+          isTelegramApp 
+            ? "tg-safe-top" 
+            : "top-0"
+        )}
+        style={isTelegramApp ? {
+          paddingTop: `calc(env(safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 80px))`,
+          top: 0
+        } : {
+          paddingTop: '0px',
+          top: 0
+        }}
+      >
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => navigate('/')}>

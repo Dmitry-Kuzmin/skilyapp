@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,61 @@ const Layout = ({ children }: LayoutProps) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
+  const mainContentRef = useRef<HTMLElement>(null);
+  
+  // Принудительно применяем отступы при изменении isTelegramApp или при монтировании
+  useEffect(() => {
+    // Проверяем наличие Telegram WebApp дополнительно
+    const hasTelegramWebApp = !!window.Telegram?.WebApp;
+    const shouldApplyPadding = isTelegramApp || hasTelegramWebApp;
+    
+    console.log('[Layout] isTelegramApp:', isTelegramApp, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
+    
+    if (mainContentRef.current && shouldApplyPadding) {
+      const topInsetStr = getComputedStyle(document.documentElement)
+        .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '80px';
+      const topInset = parseInt(topInsetStr, 10) || 80;
+      const systemSafeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0', 10) || 0;
+      const fixedPadding = `${topInset + systemSafeArea}px`;
+      const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset}px)`;
+      
+      // Применяем оба варианта для надежности
+      mainContentRef.current.style.paddingTop = computedPadding;
+      mainContentRef.current.style.setProperty('padding-top', fixedPadding, 'important');
+      
+      console.log('[Layout] Applied padding-top via useEffect:', {
+        computed: computedPadding,
+        fixed: fixedPadding,
+        topInset: topInset,
+        systemSafeArea: systemSafeArea,
+        finalValue: getComputedStyle(mainContentRef.current).paddingTop
+      });
+    } else if (mainContentRef.current && !shouldApplyPadding) {
+      mainContentRef.current.style.paddingTop = '0px';
+      console.log('[Layout] Removed padding-top (not Telegram)');
+    }
+  }, [isTelegramApp, location.pathname]); // Также при изменении маршрута
+  
+  // Также применяем при изменении CSS переменных
+  useEffect(() => {
+    if (!isTelegramApp || !mainContentRef.current) return;
+    
+    const observer = new MutationObserver(() => {
+      if (mainContentRef.current) {
+        const topInset = getComputedStyle(document.documentElement)
+          .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '80px';
+        const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset})`;
+        mainContentRef.current.style.paddingTop = computedPadding;
+      }
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+    
+    return () => observer.disconnect();
+  }, [isTelegramApp]);
 
   const navigation = [
     { name: t("home"), href: "/", icon: Home },
@@ -105,8 +160,14 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="telegram-main-content flex-1">{children}</main>
+      {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
+      <main 
+        ref={mainContentRef}
+        className="telegram-main-content flex-1"
+        style={{}}
+      >
+        {children}
+      </main>
 
       {/* Bottom Navigation for Mobile and Telegram */}
       <nav className={cn(

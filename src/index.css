@@ -19,6 +19,7 @@
   --tg-safe-area-inset-right: 0px;
   
   /* Content safe area insets - отступы от UI Telegram */
+  /* По умолчанию 0px - будет обновлено через TelegramNavigation только в Telegram WebApp */
   --tg-content-safe-area-inset-top: 0px;
   --tg-content-safe-area-inset-bottom: 0px;
   --tg-content-safe-area-inset-left: 0px;
@@ -164,6 +165,16 @@ All colors MUST be HSL.
     padding-bottom: var(--sab);
     padding-left: var(--sal);
     padding-right: var(--sar);
+    
+    /* Отключаем pull-to-refresh по умолчанию */
+    overscroll-behavior-y: none;
+    overscroll-behavior: none;
+  }
+  
+  /* Для Telegram WebApp применяем дополнительные стили */
+  body.telegram-webapp {
+    overscroll-behavior-y: none !important;
+    overscroll-behavior: none !important;
   }
 
   body.dark {
@@ -172,6 +183,32 @@ All colors MUST be HSL.
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
+  }
+}
+
+@keyframes progress-glow {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.9;
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes progress-shine {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
   }
 }
 
@@ -233,6 +270,28 @@ All colors MUST be HSL.
     padding-bottom: calc(5rem + var(--sab) + var(--tg-content-safe-area-inset-bottom, 0px));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    /* Отключаем pull-to-refresh */
+    overscroll-behavior-y: contain;
+  }
+  
+  /* По умолчанию отступов нет */
+  .telegram-main-content {
+    padding-top: 0px !important;
+  }
+  
+  /* Безопасная зона сверху ТОЛЬКО для Telegram WebApp */
+  /* Используем CSS env() напрямую + класс на body/html для селектора */
+  /* env(safe-area-inset-top) - системный safe area (Dynamic Island, статус-бар) */
+  /* Минимальный отступ для нативной панели Telegram на iPhone (35px - минимально необходимое) */
+  html.telegram-webapp .telegram-main-content,
+  body.telegram-webapp .telegram-main-content {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 35px) !important;
+  }
+  
+  /* Отключаем pull-to-refresh для всего приложения в Telegram */
+  body.telegram-webapp {
+    overscroll-behavior-y: none;
+    overscroll-behavior: none;
   }
 
   .app-bottom-nav {

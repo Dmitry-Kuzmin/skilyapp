@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { isTelegramMiniApp } from "@/lib/telegram";
+import { cn } from "@/lib/utils";
 
 type QuestionData = {
   id: string;
@@ -53,6 +55,36 @@ const TestSession = () => {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const isTelegramApp = isTelegramMiniApp();
+  
+  const handleCloseModal = useCallback(() => {
+    if (isClosing) return; // Предотвращаем множественные вызовы
+    setIsClosing(true);
+    setIsDragging(false);
+    setDragStartY(0);
+    setDragCurrentY(0);
+    // Закрываем сразу без задержки
+    setShowQuestionMap(false);
+    setTimeout(() => {
+      setIsClosing(false);
+    }, 100);
+  }, [isClosing]);
+  
+  // Close modal with Escape key
+  useEffect(() => {
+    if (!showQuestionMap) return;
+    
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCloseModal();
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showQuestionMap]);
 
   useEffect(() => {
     loadQuestions();
@@ -88,18 +120,6 @@ const TestSession = () => {
         profileId = profile?.id;
       }
 
-      // Get answered question IDs for this user
-      let answeredQuestionIds: string[] = [];
-      if (profileId) {
-        const { data: progressData } = await supabase
-          .from("user_progress")
-          .select("question_id")
-          .eq("user_id", profileId)
-          .eq("is_answered", true);
-        
-        answeredQuestionIds = progressData?.map(p => p.question_id) || [];
-      }
-
       let query = supabase
         .from("questions_new")
         .select(`
@@ -116,17 +136,17 @@ const TestSession = () => {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Filter out answered questions and limit to 30
-      let filteredQuestions = data || [];
-      
-      if (answeredQuestionIds.length > 0) {
-        filteredQuestions = filteredQuestions.filter(
-          q => !answeredQuestionIds.includes(q.id)
-        );
-      }
+      // Убираем дубликаты вопросов по id (на случай если в базе есть дубликаты)
+      const uniqueQuestionsMap = new Map<string, typeof data[0]>();
+      (data || []).forEach(q => {
+        if (!uniqueQuestionsMap.has(q.id)) {
+          uniqueQuestionsMap.set(q.id, q);
+        }
+      });
+      const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
 
-      // Shuffle and limit to 30 questions
-      const shuffled = filteredQuestions.sort(() => Math.random() - 0.5);
+      // Shuffle and limit to 30 questions (не исключаем уже отвеченные)
+      const shuffled = uniqueQuestions.sort(() => Math.random() - 0.5);
       const limited = shuffled.slice(0, 30);
       
       setQuestions(limited);
@@ -327,35 +347,109 @@ const TestSession = () => {
   // Sort answer options by position
   const sortedOptions = [...currentQuestion.answer_options].sort((a, b) => a.position - b.position);
 
+  const handleClose = () => {
+    if (window.confirm("Вы уверены, что хотите выйти из экзамена? Ваш прогресс не будет сохранен.")) {
+      navigate("/tests");
+    }
+  };
+
   return (
     <Layout>
-      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 max-w-6xl pb-16 md:pb-4">
-        {/* Compact Header - Mobile Optimized */}
-        <div className="mb-3 sm:mb-4">
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent truncate">
+      <div className="container mx-auto px-2 sm:px-4 pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 max-w-6xl pb-16 md:pb-4">
+        {/* Header Row - Title and Close button (browser only) */}
+        <div className={cn(
+          "mb-2 sm:mb-3 flex items-center justify-between",
+          isTelegramApp ? "-mt-[21px] sm:-mt-3" : "-mt-6 sm:-mt-3 md:mt-0"
+        )}>
+          {/* Large Title - Bigger on mobile */}
+          <div className="flex-1">
+            <h1 className="text-3xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent text-center">
               {mode === "exam" ? "Экзамен" : "Практика"}
             </h1>
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {mode === "exam" && (
-                <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-card border text-[10px] sm:text-xs">
-                  <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${timeLeft < 300 ? "text-destructive" : "text-primary"}`} />
-                  <span className={`font-mono font-bold ${timeLeft < 300 ? "text-destructive" : ""}`}>
-                    {formatTime(timeLeft)}
-                  </span>
-                </div>
-              )}
-              <button
-                onClick={() => setShowQuestionMap(true)}
-                className="flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-card border text-[10px] sm:text-xs hover:bg-muted transition-colors cursor-pointer"
-              >
-                <Grid3x3 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground" />
-                <span className="font-semibold text-muted-foreground">
-                  {currentIndex + 1}/{questions.length}
-                </span>
-              </button>
-            </div>
           </div>
+          
+          {/* Close button - Only in browser, not Telegram */}
+          {!isTelegramApp && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="ml-2 shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+            >
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Timer and Question Map - Modern design, raised higher */}
+        <div className="mb-2 sm:mb-4 flex items-center justify-end gap-2 sm:gap-3">
+          {mode === "exam" && (
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
+              <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
+              <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+                {formatTime(timeLeft)}
+              </span>
+            </div>
+          )}
+          <button
+            onClick={() => setShowQuestionMap(true)}
+            className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden"
+            style={{
+              border: '2px solid',
+              borderColor: 'hsl(var(--border) / 0.5)',
+              position: 'relative'
+            }}
+          >
+            {/* Animated progress border - прямо на рамке */}
+            <div
+              className="absolute inset-0 rounded-xl pointer-events-none"
+              style={{
+                background: `conic-gradient(
+                  from -90deg,
+                  hsl(var(--primary)) 0deg,
+                  hsl(var(--primary)) ${(answers.length / questions.length) * 360}deg,
+                  transparent ${(answers.length / questions.length) * 360}deg,
+                  transparent 360deg
+                )`,
+                padding: '2px',
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+                animation: 'progress-glow 2s ease-in-out infinite',
+                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            />
+            
+            {/* Glowing effect overlay */}
+            <div
+              className="absolute inset-0 rounded-xl pointer-events-none"
+              style={{
+                background: `conic-gradient(
+                  from -90deg,
+                  hsl(var(--primary) / 0.8) 0deg,
+                  hsl(var(--primary) / 0.8) ${(answers.length / questions.length) * 360}deg,
+                  transparent ${(answers.length / questions.length) * 360}deg,
+                  transparent 360deg
+                )`,
+                padding: '2px',
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+                filter: 'blur(4px)',
+                opacity: 0.6,
+                animation: 'progress-shine 2s ease-in-out infinite',
+                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            />
+            
+            {/* Content */}
+            <div className="relative z-10 flex items-center gap-2">
+              <Grid3x3 className="w-5 h-5 sm:w-6 sm:h-6 text-foreground/70" />
+              <span className="font-semibold text-foreground text-sm sm:text-base">
+                {currentIndex + 1}/{questions.length}
+              </span>
+            </div>
+          </button>
         </div>
 
 
@@ -531,44 +625,69 @@ const TestSession = () => {
           <>
             {/* Backdrop */}
             <div 
-              className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
-              onClick={() => setShowQuestionMap(false)}
-            />
-            {/* Bottom Sheet */}
-            <div 
-              className={`fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl ${
-                !isDragging ? 'transition-transform duration-300 ease-out' : ''
-              } ${
-                showQuestionMap && !isDragging ? 'translate-y-0' : 'translate-y-full'
+              className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
+                isClosing ? 'opacity-0' : 'opacity-100'
               }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isDragging && !isClosing) {
+                  handleCloseModal();
+                }
+              }}
+            />
+            {/* Bottom Sheet - Higher z-index than navbar (z-50) and padding for navbar on mobile only */}
+            <div 
+              className={`fixed left-0 right-0 z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl ${
+                !isDragging && !isClosing ? 'transition-transform duration-300 ease-out' : isClosing ? 'transition-transform duration-300 ease-in' : ''
+              } ${
+                !isClosing && !isDragging ? 'translate-y-0' : 'translate-y-full'
+              }`}
+              onClick={(e) => e.stopPropagation()}
               style={{ 
-                height: '90vh',
+                bottom: isTelegramApp ? '75px' : '0px', // Отступ только на мобильных (60px navbar + 15px запас для легенды)
+                maxHeight: isTelegramApp ? 'calc(90vh - 75px)' : '90vh',
+                height: 'auto',
                 transform: isDragging && dragCurrentY > dragStartY 
                   ? `translateY(${dragCurrentY - dragStartY}px)` 
                   : undefined
               }}
               onTouchStart={(e) => {
+                if (isClosing) return;
                 const touch = e.touches[0];
                 if (touch) {
-                  setIsDragging(true);
-                  setDragStartY(touch.clientY);
-                  setDragCurrentY(touch.clientY);
+                  // Начинаем драг только если свайп начинается с верхней части модального окна
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                  const touchY = touch.clientY;
+                  if (touchY - rect.top < 100) { // Только верхние 100px для начала драга
+                    setIsDragging(true);
+                    setDragStartY(touch.clientY);
+                    setDragCurrentY(touch.clientY);
+                  }
                 }
               }}
               onTouchMove={(e) => {
-                if (e.touches.length > 0) {
+                if (isDragging && !isClosing) {
+                  e.preventDefault();
                   const touch = e.touches[0];
-                  setDragCurrentY(touch.clientY);
+                  if (touch) {
+                    const deltaY = touch.clientY - dragStartY;
+                    if (deltaY > 0) {
+                      setDragCurrentY(touch.clientY);
+                    }
+                  }
                 }
               }}
-              onTouchEnd={() => {
-                const dragDistance = dragCurrentY - dragStartY;
-                if (dragDistance > 100) {
-                  setShowQuestionMap(false);
+              onTouchEnd={(e) => {
+                if (isDragging && !isClosing) {
+                  const dragDistance = dragCurrentY - dragStartY;
+                  if (dragDistance > 50) {
+                    handleCloseModal();
+                  } else {
+                    setIsDragging(false);
+                    setDragStartY(0);
+                    setDragCurrentY(0);
+                  }
                 }
-                setIsDragging(false);
-                setDragStartY(0);
-                setDragCurrentY(0);
               }}
             >
               {/* Drag Handle */}
@@ -579,18 +698,29 @@ const TestSession = () => {
               {/* Header */}
               <div className="px-4 sm:px-6 pb-4 border-b border-border">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg sm:text-xl font-bold">Карта вопросов</h2>
-                  <button
-                    onClick={() => setShowQuestionMap(false)}
-                    className="p-2 rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <h2 className="text-lg sm:text-xl font-semibold text-foreground">Карта вопросов</h2>
+                  <div className="flex items-center gap-2">
+                    {/* Escape hint */}
+                    <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground px-2 py-1 rounded-md bg-muted/50">
+                      <kbd className="px-1.5 py-0.5 text-xs font-semibold text-muted-foreground bg-background border border-border rounded">Esc</kbd>
+                      <span>закрыть</span>
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCloseModal();
+                      }}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                      aria-label="Закрыть"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="overflow-y-auto h-[calc(90vh-80px)] px-4 sm:px-6 py-4">
+              {/* Content - Auto height based on content with padding for legend */}
+              <div className="overflow-y-auto px-4 sm:px-6 py-4 pb-24" style={{ maxHeight: isTelegramApp ? 'calc(90vh - 220px)' : 'calc(90vh - 140px)' }}>
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
                   {questions.map((_, idx) => {
                     const answer = answers.find((a) => a.questionId === questions[idx].id);
@@ -602,18 +732,18 @@ const TestSession = () => {
                         key={idx}
                         onClick={() => {
                           jumpToQuestion(idx);
-                          setShowQuestionMap(false);
+                          handleCloseModal();
                         }}
                         className={`
                           aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200
                           ${isCurrent 
-                            ? "ring-2 ring-primary ring-offset-2 scale-110 shadow-lg shadow-primary/30 z-10 bg-primary text-primary-foreground" 
+                            ? "ring-2 ring-primary ring-offset-2 scale-110 shadow-lg z-10 bg-primary text-primary-foreground" 
                             : "hover:scale-105"
                           }
                           ${!isAnswered 
-                            ? "bg-muted/50 text-muted-foreground border border-border hover:border-primary/50" 
+                            ? "bg-muted/30 text-muted-foreground border border-border/50 hover:border-muted-foreground/30 hover:bg-muted/50" 
                             : mode === "exam"
-                              ? "bg-primary/20 text-primary border-2 border-primary/50 hover:bg-primary/30"
+                              ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-2 border-blue-500/50 hover:bg-blue-500/30"
                               : answer.isCorrect
                                 ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-2 border-emerald-500/50 hover:bg-emerald-500/30"
                                 : "bg-red-500/20 text-red-700 dark:text-red-400 border-2 border-red-500/50 hover:bg-red-500/30"
@@ -634,7 +764,7 @@ const TestSession = () => {
                     </div>
                     {mode === "exam" ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded border-2 border-primary/50 bg-primary/20" />
+                        <div className="w-4 h-4 rounded border-2 border-blue-500/50 bg-blue-500/20" />
                         <span>Отвечен</span>
                       </div>
                     ) : (

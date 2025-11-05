@@ -12,6 +12,8 @@ import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import Confetti from "react-confetti";
 import { useUserContext } from "@/contexts/UserContext";
+import { isTelegramMiniApp } from "@/lib/telegram";
+import { cn } from "@/lib/utils";
 
 // ============================================
 // Game Configuration (from TZ)
@@ -552,7 +554,17 @@ const RaceGame = () => {
           <motion.div
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className="race-game-header fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-primary/20 shadow-lg md:hidden"
+            className={cn(
+              "race-game-header fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-primary/20 shadow-lg md:hidden",
+              isTelegramMiniApp() 
+                ? "tg-safe-top-fixed" 
+                : "top-0"
+            )}
+            style={isTelegramMiniApp() ? {
+              top: `calc(env(safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 80px))`
+            } : {
+              top: '0px'
+            }}
           >
             <div className="flex items-center justify-between px-4 py-3">
               <Button 

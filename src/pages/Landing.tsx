@@ -40,7 +40,12 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div 
+      className="min-h-screen"
+      style={{ 
+        paddingTop: 'calc(var(--sat) + var(--tg-content-safe-area-inset-top, 0px))' 
+      }}
+    >
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/5 to-background -z-10" />
