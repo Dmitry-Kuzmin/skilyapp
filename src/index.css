@@ -284,6 +284,101 @@ All colors MUST be HSL.
     }
   }
 
+  /* Race Game Fullscreen Mode */
+  body.race-game-active .app-bottom-nav,
+  body.race-game-active .telegram-main-content {
+    display: none !important;
+  }
+
+  .race-game-fullscreen-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: hsl(var(--background));
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .race-game-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .race-game-wrapper.race-game-fullscreen {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+    overflow: hidden;
+  }
+
+  .race-game-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: hsl(var(--background) / 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .race-game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    padding-top: 2.5rem; /* Space for fixed header on mobile */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (min-width: 768px) {
+    .race-game-content {
+      padding: 1rem;
+      padding-top: 1rem;
+      max-width: 42rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .race-game-content {
+      min-height: calc(100vh - 3rem);
+      padding-bottom: 1rem;
+    }
+
+    /* Ensure everything fits on one screen */
+    .race-game-content .space-y-3 > * + * {
+      margin-top: 0.75rem;
+    }
+
+    /* Compact card padding on mobile */
+    .race-game-content .card {
+      padding: 1rem;
+    }
+
+    /* Smaller text sizes on mobile */
+    .race-game-content h1 {
+      font-size: 1.5rem;
+    }
+
+    .race-game-content h2 {
+      font-size: 1.25rem;
+    }
+
+    /* Ensure buttons are touch-friendly */
+    .race-game-content button {
+      min-height: 3rem;
+      min-width: 3rem;
+    }
+  }
+
   /* Landscape sidebar navigation (optional enhancement) */
   @media (orientation: landscape) and (max-width: 1024px) {
     .landscape-sidebar {
