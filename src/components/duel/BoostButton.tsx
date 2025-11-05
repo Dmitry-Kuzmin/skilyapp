@@ -56,7 +56,7 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
         // Переключаем состояние развернутой кнопки
         setIsLanguageExpanded(!isLanguageExpanded);
       } else {
-        onUse(type);
+      onUse(type);
       }
     }
   };
@@ -72,10 +72,10 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
 
   // Для translate бустера показываем развернутую версию с выбором языка
   if (type === 'translate' && isLanguageExpanded && !isDisabled) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
             <motion.div
               initial={{ width: 'auto' }}
               animate={{ width: 'auto' }}
@@ -145,55 +145,55 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
   }
 
   const buttonContent = (
-    <motion.div
-      whileHover={!isDisabled ? { scale: 1.1, rotate: 5 } : {}}
-      whileTap={!isDisabled ? { scale: 0.9, rotate: -5 } : {}}
-      className="relative"
-    >
-      {!isDisabled && (
-        <motion.div
-          className={`absolute inset-0 bg-gradient-to-r ${config.gradient} blur-xl opacity-50 rounded-lg`}
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-            scale: [1, 1.05, 1],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      )}
-      <Button
-        onClick={handleClick}
-        disabled={isDisabled}
-        variant="outline"
-        size="sm"
+          <motion.div
+            whileHover={!isDisabled ? { scale: 1.1, rotate: 5 } : {}}
+            whileTap={!isDisabled ? { scale: 0.9, rotate: -5 } : {}}
+            className="relative"
+          >
+            {!isDisabled && (
+              <motion.div
+                className={`absolute inset-0 bg-gradient-to-r ${config.gradient} blur-xl opacity-50 rounded-lg`}
+                animate={{
+                  opacity: [0.3, 0.6, 0.3],
+                  scale: [1, 1.05, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            )}
+            <Button
+              onClick={handleClick}
+              disabled={isDisabled}
+              variant="outline"
+              size="sm"
         className={`relative h-9 px-2.5 flex items-center gap-1.5 border transition-all duration-300 rounded-lg ${
-          isDisabled 
-            ? 'opacity-30 grayscale cursor-not-allowed' 
+                isDisabled 
+                  ? 'opacity-30 grayscale cursor-not-allowed' 
             : `bg-gradient-to-br ${config.gradient} text-white border-white/20 hover:border-white/50 shadow-md hover:shadow-lg hover:scale-105 active:scale-95`
-        }`}
-      >
+              }`}
+            >
         {icon ? (
           <span className="text-base flex items-center">{icon}</span>
         ) : (
           <IconComponent className="w-4 h-4" />
         )}
-        <span className="text-xs font-bold">{name}</span>
+              <span className="text-xs font-bold">{name}</span>
         {type === 'translate' && !isDisabled && (
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isLanguageExpanded ? 'rotate-180' : ''}`} />
         )}
-        {available > 0 && (
-          <Badge 
-            variant="default" 
+              {available > 0 && (
+                <Badge 
+                  variant="default" 
             className="h-4 px-1.5 flex items-center justify-center bg-white/20 text-white border-white/30 text-[10px] font-bold ml-0.5 min-w-[18px]"
-          >
-            {available}
-          </Badge>
-        )}
-      </Button>
-    </motion.div>
+                >
+                  {available}
+                </Badge>
+              )}
+            </Button>
+          </motion.div>
   );
 
   return (

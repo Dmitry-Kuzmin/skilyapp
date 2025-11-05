@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { NotificationIcon } from './NotificationIcon';
 
 type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
 
@@ -218,12 +219,20 @@ export function NotificationsPanel() {
                           <div className="flex items-start gap-3">
                             {notification.icon && (
                               <div className={cn(
-                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 text-xl",
+                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
                                 notification.is_read 
                                   ? 'bg-muted/50' 
                                   : 'bg-primary/20 shadow-sm'
                               )}>
-                                {notification.icon}
+                                <NotificationIcon 
+                                  iconName={notification.icon} 
+                                  className={cn(
+                                    notification.is_read 
+                                      ? 'text-muted-foreground' 
+                                      : 'text-primary'
+                                  )}
+                                  size={24}
+                                />
                               </div>
                             )}
                             <div className="flex-1 min-w-0">

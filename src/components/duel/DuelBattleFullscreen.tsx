@@ -211,6 +211,30 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.opponentScore, opponentScore]);
 
+  // Reload opponent name if it's still "Соперник" after initial load
+  useEffect(() => {
+    if (!profileId || !duelId) return;
+    
+    const timer = setTimeout(() => {
+      if (opponentName === 'Соперник') {
+        console.log('[DuelBattleFullscreen] ⚠️ Opponent name is still default, reloading...');
+        loadScores();
+      } else {
+        console.log('[DuelBattleFullscreen] ✅ Opponent name is set:', opponentName);
+      }
+    }, 1000); // Wait 1 second after mount before checking
+    
+    return () => clearTimeout(timer);
+  }, [opponentName, profileId, duelId]);
+  
+  // Also reload when duelId or profileId changes
+  useEffect(() => {
+    if (profileId && duelId) {
+      console.log('[DuelBattleFullscreen] DuelId or profileId changed, reloading scores...');
+      loadScores();
+    }
+  }, [duelId, profileId]);
+
   // Sync my score from realtime
   useEffect(() => {
     if (typeof state.myScore === 'number' && state.myScore !== myScore) {
@@ -267,26 +291,108 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   };
 
   const loadScores = async () => {
-    const { data } = await supabase
-      .from('duel_players')
-      .select('*, profiles(first_name, username)')
-      .eq('duel_id', duelId);
+    try {
+      const { data, error } = await supabase
+        .from('duel_players')
+        .select('*, profiles(first_name, username)')
+        .eq('duel_id', duelId);
 
-    if (data && data.length > 0) {
-      const myPlayer = data.find(p => p.user_id === profileId);
-      const opponent = data.find(p => p.user_id !== profileId);
-      
-      if (myPlayer?.id) setMyPlayerId(myPlayer.id);
-      
-      // Load player names
-      const myProfile = myPlayer?.profiles as any;
-      const opponentProfile = opponent?.profiles as any;
-      setMyName(myProfile?.first_name || myProfile?.username || 'Ты');
-      setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
-      
-      // Initial scores - realtime will update them automatically
-      setMyScore(myPlayer?.score || 0);
-      setOpponentScore(opponent?.score || 0);
+      if (error) {
+        console.error('[DuelBattleFullscreen] Error loading scores:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const myPlayer = data.find(p => p.user_id === profileId);
+        const opponent = data.find(p => p.user_id !== profileId);
+        
+        console.log('[DuelBattleFullscreen] Players data:', {
+          allPlayers: data.map(p => ({ user_id: p.user_id, id: p.id })),
+          myPlayer: myPlayer ? { user_id: myPlayer.user_id, id: myPlayer.id } : null,
+          opponent: opponent ? { user_id: opponent.user_id, id: opponent.id } : null,
+          profileId
+        });
+        
+        if (myPlayer?.id) setMyPlayerId(myPlayer.id);
+        
+        // Load player names - try different ways to access profile data
+        let myProfile: any = null;
+        let opponentProfile: any = null;
+        
+        // Try direct access
+        if ((myPlayer as any)?.profiles) {
+          myProfile = (myPlayer as any).profiles;
+        }
+        if ((opponent as any)?.profiles) {
+          opponentProfile = (opponent as any).profiles;
+        }
+        
+        // If profiles not loaded via join, fetch separately
+        // Note: This should work now with the updated RLS policy
+        if (!opponentProfile && opponent?.user_id) {
+          console.log('[DuelBattleFullscreen] ⚠️ Profile not in join, fetching separately for opponent:', opponent.user_id);
+          
+          // Try to get profile data through duel_players join first
+          const { data: playerWithProfile } = await supabase
+            .from('duel_players')
+            .select('profiles(first_name, username)')
+            .eq('id', opponent.id)
+            .eq('duel_id', duelId)
+            .single();
+          
+          if (playerWithProfile && (playerWithProfile as any).profiles) {
+            opponentProfile = (playerWithProfile as any).profiles;
+            console.log('[DuelBattleFullscreen] ✅ Got opponent profile via duel_players join:', opponentProfile);
+          } else {
+            // Fallback: direct profile query (requires RLS policy update)
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('first_name, username')
+              .eq('id', opponent.user_id)
+              .single();
+            
+            if (profileError) {
+              console.error('[DuelBattleFullscreen] ❌ Error fetching opponent profile:', profileError);
+              console.error('[DuelBattleFullscreen] Profile error details:', JSON.stringify(profileError, null, 2));
+            } else if (profileData) {
+              opponentProfile = profileData;
+              console.log('[DuelBattleFullscreen] ✅ Fetched opponent profile directly:', opponentProfile);
+            } else {
+              console.warn('[DuelBattleFullscreen] ⚠️ No profile data returned for opponent:', opponent.user_id);
+            }
+          }
+        }
+        
+        console.log('[DuelBattleFullscreen] Loaded profiles:', {
+          myProfile,
+          opponentProfile,
+          opponentUserId: opponent?.user_id
+        });
+        
+        const myNameValue = myProfile?.first_name || myProfile?.username || 'Ты';
+        const opponentNameValue = opponentProfile?.first_name || opponentProfile?.username || 'Соперник';
+        
+        console.log('[DuelBattleFullscreen] 🔥 Setting names:', {
+          myName: myNameValue,
+          opponentName: opponentNameValue,
+          opponentProfileExists: !!opponentProfile,
+          opponentProfileData: opponentProfile
+        });
+        
+        setMyName(myNameValue);
+        setOpponentName(opponentNameValue);
+        
+        // Force a check after setting
+        setTimeout(() => {
+          console.log('[DuelBattleFullscreen] After setting, opponentName state should be:', opponentNameValue);
+        }, 100);
+        
+        // Initial scores - realtime will update them automatically
+        setMyScore(myPlayer?.score || 0);
+        setOpponentScore(opponent?.score || 0);
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Exception in loadScores:', error);
     }
   };
 
@@ -628,7 +734,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-y-auto">
       {/* Toast Notifications */}
       <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
         <AnimatePresence mode="popLayout">
@@ -663,7 +769,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       </Button>
 
       {/* Main Content */}
-      <div className="h-full flex flex-col p-3 md:p-4 pt-12 max-w-4xl mx-auto">
+      <div className="min-h-full flex flex-col p-3 md:p-4 pt-12 pb-6 max-w-4xl mx-auto">
         {/* Header - Scores & Timer - Premium Design */}
         <div className="flex items-center justify-between mb-3 md:mb-4">
           {/* Scores - Enhanced */}
@@ -711,8 +817,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block text-right truncate max-w-[120px] ml-auto" title={opponentName}>
-                  {opponentName}
+                <p 
+                  className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block text-right truncate max-w-[120px] ml-auto" 
+                  title={opponentName}
+                  key={`opponent-name-${opponentName}`}
+                >
+                  {opponentName || 'Соперник'}
                 </p>
                 <motion.div 
                   key={opponentScore}
@@ -918,9 +1028,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 flex flex-col"
+          className="flex-1 flex flex-col min-h-0"
         >
-          <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col">
+          <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             {/* Question Image */}
             {currentQuestion.question_snapshot.image_url && (
               <motion.div 
@@ -937,7 +1047,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             )}
 
             {/* Question Text */}
-            <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground">
+            <h2 className="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-foreground break-words">
               {translationLanguage === 'ru' && currentQuestion.question_snapshot.question_ru
                 ? currentQuestion.question_snapshot.question_ru
                 : translationLanguage === 'en' && currentQuestion.question_snapshot.question_en
@@ -1000,7 +1110,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                           {isCorrect ? '✓' : '✗'}
                         </motion.div>
                       )}
-                      <span className="block pr-10 text-base break-words">
+                      <span className="block pr-10 text-base break-words hyphens-auto">
                         {translationLanguage === 'ru' && option.text_ru
                           ? option.text_ru
                           : translationLanguage === 'en' && option.text_en

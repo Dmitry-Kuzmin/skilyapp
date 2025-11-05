@@ -1,0 +1,180 @@
+{
+  "ru": {
+    "title": "Режим \"Гонка\"",
+    "subtitle": "Проверьте, насколько быстро вы можете переводить термины!",
+    "start": {
+      "title": "Режим \"Гонка\"",
+      "subtitle": "Проверьте, насколько быстро вы можете переводить термины!",
+      "rules": {
+        "title": "Правила:",
+        "time": "У вас есть {time} секунд для проверки максимального количества слов",
+        "correct": "За правильный ответ +{points} очко и +{time} секунды",
+        "incorrect": "За неправильный ответ вы теряете {time} секунды",
+        "combo": "Серия правильных ответов даёт бонусные очки"
+      },
+      "keyboard": "Используйте клавиши ← (Неверно) и → (Верно) для быстрого ответа",
+      "startButton": "Начать игру",
+      "cancelButton": "Отмена"
+    },
+    "game": {
+      "term": "Термин:",
+      "translation": "Перевод:",
+      "question": "Верен ли перевод?",
+      "yes": "Да",
+      "no": "Нет",
+      "keyboardHint": "Используйте клавиши ← (Неверно) и → (Верно) для быстрого ответа",
+      "score": "Счёт: {score}",
+      "time": "{time}с"
+    },
+    "feedback": {
+      "correct": "Правильно! ✓",
+      "correctPoints": "+{points} очко{plural} +{time} секунда{plural}",
+      "incorrect": "Неверно ✗",
+      "incorrectTime": "-{time} секунды",
+      "combo": "🔥 COMBO x{count}! +{points} очков",
+      "tooFast": "Слишком быстро!",
+      "tooFastMessage": "Отвечайте не быстрее, чем {interval}s",
+      "rateLimit": "Внимание!",
+      "rateLimitMessage": "Слишком много быстрых ответов. Временное ограничение 5 секунд."
+    },
+    "gameOver": {
+      "title": "Игра окончена!",
+      "score": "{score}",
+      "answered": "Вы ответили на {count} вопросов",
+      "stats": {
+        "correct": "Правильных",
+        "incorrect": "Неправильных",
+        "accuracy": "Точность",
+        "maxCombo": "Макс. комбо"
+      },
+      "playAgain": "Играть снова",
+      "backToGames": "К играм"
+    },
+    "errors": {
+      "loadTerms": "Не удалось загрузить термины: {error}",
+      "noData": "В базе нет терминов для игры. Импортируйте данные через админ-панель.",
+      "notEnoughData": "Недостаточно данных",
+      "notEnoughDataMessage": "Нужно минимум 2 термина для игры",
+      "unexpected": "Произошла неожиданная ошибка: {error}"
+    }
+  },
+  "es": {
+    "title": "Modo \"Carrera\"",
+    "subtitle": "¡Comprueba qué tan rápido puedes traducir términos!",
+    "start": {
+      "title": "Modo \"Carrera\"",
+      "subtitle": "¡Comprueba qué tan rápido puedes traducir términos!",
+      "rules": {
+        "title": "Reglas:",
+        "time": "Tienes {time} segundos para verificar la cantidad máxima de palabras",
+        "correct": "Por respuesta correcta +{points} punto y +{time} segundos",
+        "incorrect": "Por respuesta incorrecta pierdes {time} segundos",
+        "combo": "Una serie de respuestas correctas da puntos de bonificación"
+      },
+      "keyboard": "Usa las teclas ← (Falso) y → (Verdadero) para responder rápidamente",
+      "startButton": "Comenzar juego",
+      "cancelButton": "Cancelar"
+    },
+    "game": {
+      "term": "Término:",
+      "translation": "Traducción:",
+      "question": "¿Es correcta la traducción?",
+      "yes": "Sí",
+      "no": "No",
+      "keyboardHint": "Usa las teclas ← (Falso) y → (Verdadero) para responder rápidamente",
+      "score": "Puntuación: {score}",
+      "time": "{time}s"
+    },
+    "feedback": {
+      "correct": "¡Correcto! ✓",
+      "correctPoints": "+{points} punto{plural} +{time} segundo{plural}",
+      "incorrect": "Incorrecto ✗",
+      "incorrectTime": "-{time} segundos",
+      "combo": "🔥 COMBO x{count}! +{points} puntos",
+      "tooFast": "¡Demasiado rápido!",
+      "tooFastMessage": "Responde no más rápido que {interval}s",
+      "rateLimit": "¡Atención!",
+      "rateLimitMessage": "Demasiadas respuestas rápidas. Limitación temporal de 5 segundos."
+    },
+    "gameOver": {
+      "title": "¡Juego terminado!",
+      "score": "{score}",
+      "answered": "Respondiste {count} preguntas",
+      "stats": {
+        "correct": "Correctas",
+        "incorrect": "Incorrectas",
+        "accuracy": "Precisión",
+        "maxCombo": "Máx. combo"
+      },
+      "playAgain": "Jugar de nuevo",
+      "backToGames": "A juegos"
+    },
+    "errors": {
+      "loadTerms": "No se pudieron cargar los términos: {error}",
+      "noData": "No hay términos en la base de datos para el juego. Importa datos a través del panel de administración.",
+      "notEnoughData": "Datos insuficientes",
+      "notEnoughDataMessage": "Se necesitan al menos 2 términos para jugar",
+      "unexpected": "Ocurrió un error inesperado: {error}"
+    }
+  },
+  "en": {
+    "title": "Race Mode",
+    "subtitle": "Check how fast you can translate terms!",
+    "start": {
+      "title": "Race Mode",
+      "subtitle": "Check how fast you can translate terms!",
+      "rules": {
+        "title": "Rules:",
+        "time": "You have {time} seconds to check the maximum number of words",
+        "correct": "For correct answer +{points} point and +{time} seconds",
+        "incorrect": "For incorrect answer you lose {time} seconds",
+        "combo": "A series of correct answers gives bonus points"
+      },
+      "keyboard": "Use keys ← (False) and → (True) for quick answer",
+      "startButton": "Start game",
+      "cancelButton": "Cancel"
+    },
+    "game": {
+      "term": "Term:",
+      "translation": "Translation:",
+      "question": "Is the translation correct?",
+      "yes": "Yes",
+      "no": "No",
+      "keyboardHint": "Use keys ← (False) and → (True) for quick answer",
+      "score": "Score: {score}",
+      "time": "{time}s"
+    },
+    "feedback": {
+      "correct": "Correct! ✓",
+      "correctPoints": "+{points} point{plural} +{time} second{plural}",
+      "incorrect": "Incorrect ✗",
+      "incorrectTime": "-{time} seconds",
+      "combo": "🔥 COMBO x{count}! +{points} points",
+      "tooFast": "Too fast!",
+      "tooFastMessage": "Answer no faster than {interval}s",
+      "rateLimit": "Warning!",
+      "rateLimitMessage": "Too many fast answers. Temporary 5 second limit."
+    },
+    "gameOver": {
+      "title": "Game Over!",
+      "score": "{score}",
+      "answered": "You answered {count} questions",
+      "stats": {
+        "correct": "Correct",
+        "incorrect": "Incorrect",
+        "accuracy": "Accuracy",
+        "maxCombo": "Max combo"
+      },
+      "playAgain": "Play again",
+      "backToGames": "Back to games"
+    },
+    "errors": {
+      "loadTerms": "Failed to load terms: {error}",
+      "noData": "No terms in database for game. Import data through admin panel.",
+      "notEnoughData": "Insufficient data",
+      "notEnoughDataMessage": "Need at least 2 terms to play",
+      "unexpected": "Unexpected error occurred: {error}"
+    }
+  }
+}
+

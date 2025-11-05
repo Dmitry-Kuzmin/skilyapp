@@ -1,0 +1,48 @@
+# Правила для Cursor AI при работе с Lovable проектом
+
+## КРИТИЧЕСКИ ВАЖНО
+
+Этот проект использует Lovable платформу с особой структурой. Cursor ДОЛЖЕН соблюдать следующие правила:
+
+### ❌ НИКОГДА НЕ ИЗМЕНЯЙ БЕЗ ЯВНОЙ ПРОСЬБЫ:
+
+- package.json (НЕ удалять зависимости, НЕ изменять версии)
+- vite.config.ts (НЕ удалять lovable-tagger, НЕ изменять plugins)
+- tsconfig.json, tsconfig.app.json, tsconfig.node.json
+- tailwind.config.ts
+- postcss.config.js
+- eslint.config.js
+- .gitignore
+- index.html
+
+### ✅ МОЖНО ИЗМЕНЯТЬ:
+
+- src/components/ (все .tsx файлы)
+- src/pages/ (все .tsx файлы)
+- src/hooks/ (все .ts, .tsx файлы)
+- src/contexts/ (все .tsx файлы)
+- src/lib/ (все .ts файлы)
+- src/utils/ (все .ts файлы)
+- src/types/ (все .ts, .d.ts файлы)
+- src/integrations/ (осторожно с клиентами)
+- src/core/ (все .ts файлы)
+- src/data/ (все .csv, .json файлы)
+- supabase/functions/ (Edge Functions)
+- supabase/migrations/ (только новые миграции)
+
+### 🔑 КРИТИЧЕСКИЕ ЗАВИСИМОСТИ (НЕ УДАЛЯТЬ):
+
+- lovable-tagger (обязателен для Lovable)
+- @vitejs/plugin-react-swc
+- Все @radix-ui/* компоненты
+- lucide-react
+
+### 📋 ПРАВИЛО №1:
+
+Если хочешь изменить конфигурационный файл - СПРОСИ пользователя сначала!
+
+### 📚 ДЕТАЛЬНЫЕ ПРАВИЛА:
+
+Смотри файлы:
+- CURSOR_RULES.md - полные правила работы
+- GIT_WORKFLOW.md - правила синхронизации с Git

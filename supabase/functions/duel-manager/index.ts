@@ -110,59 +110,91 @@ function simulateBotAnswer(difficulty: string, questionDifficulty: string): {
 const notificationTemplates: Record<string, (metadata: any) => { title: string; message: string; icon: string }> = {
   // Start notifications
   'start': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
     const templates = [
-      { title: `🔥 ${opponentName} принял твой вызов!`, message: 'Дуэль начинается прямо сейчас.', icon: '🔥' },
-      { title: '⚔️ Матч стартовал', message: 'Кто победит, решат секунды.', icon: '⚔️' },
+      { title: `${opponentName} принял твой вызов!`, message: 'Дуэль начинается прямо сейчас.', icon: 'flame' },
+      { title: 'Матч стартовал', message: 'Кто победит, решат секунды.', icon: 'sword' },
     ];
     return templates[Math.floor(Math.random() * templates.length)];
   },
 
   // Progress notifications
   'progress': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
+    const opponentFinished = metadata.opponent_finished || false; // Игрок уже закончил игру
+    
+    // Если игрок уже закончил - показываем только информативные уведомления без мотивации
+    if (opponentFinished) {
+      if (metadata.combo && metadata.combo >= 3) {
+        return {
+          title: `${opponentName} ответил правильно ${metadata.combo} раза подряд`,
+          message: '',
+          icon: 'lightbulb'
+        };
+      } else if (metadata.is_correct === false) {
+        return {
+          title: `${opponentName} ошибся`,
+          message: '',
+          icon: 'x-circle'
+        };
+      } else if (metadata.progress) {
+        return {
+          title: `${opponentName} прошёл ${metadata.progress}% теста`,
+          message: '',
+          icon: 'rocket'
+        };
+      } else {
+        return {
+          title: `${opponentName} ответил правильно`,
+          message: '',
+          icon: 'check-circle'
+        };
+      }
+    }
+    
+    // Если игрок еще играет - показываем мотивирующие уведомления
     if (metadata.combo && metadata.combo >= 3) {
       return {
-        title: `💡 ${opponentName} ответил правильно ${metadata.combo} раза подряд!`,
+        title: `${opponentName} ответил правильно ${metadata.combo} раза подряд!`,
         message: 'Отличная серия! Продолжайте бороться!',
-        icon: '💡'
+        icon: 'lightbulb'
       };
     } else if (metadata.is_correct === false) {
       return {
-        title: `❌ ${opponentName} ошибся`,
+        title: `${opponentName} ошибся`,
         message: 'Твой шанс догнать!',
-        icon: '❌'
+        icon: 'x-circle'
       };
     } else if (metadata.progress) {
       return {
-        title: `🚀 ${opponentName} прошёл ${metadata.progress}% теста!`,
+        title: `${opponentName} прошёл ${metadata.progress}% теста!`,
         message: 'Игра набирает обороты!',
-        icon: '🚀'
+        icon: 'rocket'
       };
     } else if (metadata.time_diff && metadata.time_diff > 0) {
       return {
-        title: `🐢 Ты опережаешь соперника на ${metadata.time_diff} секунд!`,
+        title: `Ты опережаешь соперника на ${metadata.time_diff} секунд!`,
         message: 'Продолжай в том же духе!',
-        icon: '🐢'
+        icon: 'turtle'
       };
     } else if (metadata.is_tied) {
       return {
-        title: '🔥 Игра идёт вровень',
+        title: 'Игра идёт вровень',
         message: 'Кто ответит первым, тот победит!',
-        icon: '🔥'
+        icon: 'flame'
       };
     } else {
       return {
-        title: `✅ ${opponentName} ответил правильно!`,
+        title: `${opponentName} ответил правильно!`,
         message: 'Продолжайте бороться!',
-        icon: '✅'
+        icon: 'check-circle'
       };
     }
   },
 
   // Boost notifications
   'boost': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
     const boostNames: Record<string, string> = {
       'fifty_fifty': '50/50',
       'time_extend': 'Дополнительное время',
@@ -170,17 +202,18 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
       'skip': 'Пропуск'
     };
     const boostIcons: Record<string, string> = {
-      'fifty_fifty': '⚡',
-      'time_extend': '⏱️',
-      'hint': '💡',
-      'skip': '🌀'
+      'fifty_fifty': 'zap',
+      'time_extend': 'timer',
+      'hint': 'lightbulb',
+      'skip': 'skip-forward',
+      'translate': 'globe'
     };
     const boostType = metadata.boost_type || 'unknown';
     const boostName = boostNames[boostType] || boostType;
-    const icon = boostIcons[boostType] || '⚡';
+    const icon = boostIcons[boostType] || 'zap';
 
     return {
-      title: `${icon} ${opponentName} использовал бустер '${boostName}'!`,
+      title: `${opponentName} использовал бустер '${boostName}'!`,
       message: boostType === 'fifty_fifty' ? 'Осторожно!' : boostType === 'skip' ? 'Не сдаётся!' : 'Используй свои бустеры!',
       icon
     };
@@ -188,51 +221,51 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
 
   // Finish notifications
   'finish': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
     const correctAnswers = metadata.correct_answers || 0;
     
     if (metadata.is_winner === false) {
       return {
-        title: `🏁 ${opponentName} закончил игру`,
+        title: `${opponentName} закончил игру`,
         message: `С ${correctAnswers} правильными ответами! Результаты готовы.`,
-        icon: '🏁'
+        icon: 'flag'
       };
     } else if (metadata.is_last_question) {
       return {
-        title: '🎯 Победа близка',
+        title: 'Победа близка',
         message: 'Остался один вопрос!',
-        icon: '🎯'
+        icon: 'target'
       };
     } else {
       return {
-        title: '🥇 Результаты готовы!',
+        title: 'Результаты готовы!',
         message: 'Проверь, кто выиграл дуэль.',
-        icon: '🥇'
+        icon: 'trophy'
       };
     }
   },
 
   // Reminder notifications
   'reminder': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
     
     if (metadata.is_waiting) {
       return {
-        title: `⏰ Дуэль с ${opponentName} ждёт твоего ответа`,
+        title: `Дуэль с ${opponentName} ждёт твоего ответа`,
         message: 'Не забудь завершить игру!',
-        icon: '⏰'
+        icon: 'clock'
       };
     } else if (metadata.is_timeout_warning) {
       return {
-        title: '📢 Время почти вышло',
+        title: 'Время почти вышло',
         message: 'Завершай дуэль!',
-        icon: '📢'
+        icon: 'bell'
       };
     } else {
       return {
-        title: `💤 ${opponentName} ещё не закончил игру`,
+        title: `${opponentName} ещё не закончил игру`,
         message: 'Напомни ему!',
-        icon: '💤'
+        icon: 'moon'
       };
     }
   },
@@ -240,28 +273,28 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
   // Timeout notifications
   'timeout': (metadata: any) => {
     return {
-      title: '⏰ Время истекло',
+      title: 'Время истекло',
       message: 'Дуэль завершена по таймауту.',
-      icon: '⏰'
+      icon: 'clock'
     };
   },
 
   // Opponent ahead/behind (legacy support)
   'opponent_ahead': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
     return {
-      title: `⚡ ${opponentName} опережает тебя`,
+      title: `${opponentName} опережает тебя`,
       message: 'Ускорься, чтобы догнать!',
-      icon: '⚡'
+      icon: 'zap'
     };
   },
 
   'opponent_behind': (metadata: any) => {
-    const opponentName = metadata.opponent_name || 'Соперник';
+    const opponentName = metadata.opponent_name; // Всегда должно быть установлено
     return {
-      title: `🐢 Ты опережаешь ${opponentName}`,
+      title: `Ты опережаешь ${opponentName}`,
       message: 'Продолжай в том же духе!',
-      icon: '🐢'
+      icon: 'turtle'
     };
   },
 };
@@ -269,24 +302,37 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
 // Helper function to get opponent name from profile
 async function getOpponentName(opponentId: string, supabase: any): Promise<string> {
   try {
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
-      .select('first_name, username')
+      .select('first_name, username, telegram_username')
       .eq('id', opponentId)
       .single();
 
     if (profile) {
-      return profile.first_name || profile.username || 'Соперник';
+      // Приоритет: first_name > username > telegram_username > первые буквы ID
+      const name = profile.first_name || profile.username || profile.telegram_username;
+      if (name) {
+        return name;
+      }
+      
+      // Если ничего нет, используем первые буквы ID как последний fallback
+      return opponentId.substring(0, 8);
+    }
+    
+    if (error) {
+      console.error('[getOpponentName] Error fetching profile:', error);
     }
   } catch (error) {
-    console.error('[getOpponentName] Error:', error);
+    console.error('[getOpponentName] Exception:', error);
   }
-  return 'Соперник';
+  
+  // Последний fallback - первые буквы ID
+  return opponentId.substring(0, 8);
 }
 
 // Helper function to create notifications with templates
-// Returns true if successful, throws error if failed
-async function createNotification(body: any, profileId: string, supabase: any, returnResponse: boolean = false): Promise<boolean | Response> {
+// Always returns Response
+async function createNotification(body: any, profileId: string, supabase: any): Promise<Response> {
   const { duel_id, type, title, message, icon, metadata = {} } = body;
 
   console.log('[create_notification] Creating notification for duel:', duel_id, 'type:', type, 'profileId:', profileId);
@@ -300,46 +346,94 @@ async function createNotification(body: any, profileId: string, supabase: any, r
 
     if (playersError) {
       console.error('[create_notification] Error getting players:', playersError);
-      if (returnResponse) {
-        return new Response(JSON.stringify({ error: playersError.message }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw new Error(playersError.message);
+      return new Response(JSON.stringify({ error: playersError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     if (!players || players.length < 2) {
       console.warn('[create_notification] Not enough players:', players?.length || 0);
-      if (returnResponse) {
-        return new Response(JSON.stringify({ error: 'Not enough players' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      return false; // Silently fail if not enough players (duel might not be ready)
+      return new Response(JSON.stringify({ error: 'Not enough players' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const opponentId = players.find((p: any) => p.user_id !== profileId)?.user_id;
     
     if (!opponentId) {
       console.warn('[create_notification] Opponent not found. Players:', players, 'profileId:', profileId);
-      if (returnResponse) {
-        return new Response(JSON.stringify({ error: 'Opponent not found' }), {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      return false; // Silently fail if opponent not found
+      return new Response(JSON.stringify({ error: 'Opponent not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('[create_notification] Opponent found:', opponentId, 'All players:', JSON.stringify(players.map((p: any) => ({ user_id: p.user_id }))));
 
     // Get opponent name if not provided in metadata
+    // ВАЖНО: Всегда получаем имя соперника перед использованием шаблона
     if (!metadata.opponent_name) {
-      metadata.opponent_name = await getOpponentName(opponentId, supabase);
-      console.log('[create_notification] Opponent name:', metadata.opponent_name);
+      try {
+        metadata.opponent_name = await getOpponentName(opponentId, supabase);
+        console.log('[create_notification] Opponent name retrieved:', metadata.opponent_name);
+      } catch (nameError: any) {
+        console.warn('[create_notification] Error getting opponent name:', nameError);
+        // Используем первые буквы ID как fallback вместо "Соперник"
+        metadata.opponent_name = opponentId.substring(0, 8);
+      }
     }
+    
+    // Убеждаемся, что opponent_name всегда установлен и не равен "Соперник"
+    if (!metadata.opponent_name || metadata.opponent_name === 'Соперник') {
+      metadata.opponent_name = opponentId.substring(0, 8);
+    }
+
+    // Проверяем, закончил ли получатель уведомления (profileId) игру (для персонализации текстов)
+    // ВАЖНО: проверяем получателя уведомления, а не оппонента!
+    let recipientFinished = false;
+    if (type === 'progress') {
+      try {
+        const { data: duel } = await supabase
+          .from('duels')
+          .select('num_questions')
+          .eq('id', duel_id)
+          .single();
+        
+        if (duel) {
+          // Получатель уведомления - это profileId (не opponentId!)
+          const { data: recipientPlayer } = await supabase
+            .from('duel_players')
+            .select('id')
+            .eq('duel_id', duel_id)
+            .eq('user_id', profileId)
+            .single();
+          
+          if (recipientPlayer) {
+            const { count: recipientAnswersCount } = await supabase
+              .from('duel_answers')
+              .select('*', { count: 'exact', head: true })
+              .eq('player_id', recipientPlayer.id)
+              .eq('duel_id', duel_id);
+            
+            recipientFinished = (recipientAnswersCount || 0) >= duel.num_questions;
+            console.log('[create_notification] Recipient finished check:', { 
+              recipientAnswersCount, 
+              required: duel.num_questions, 
+              recipientFinished,
+              profileId,
+              opponentId
+            });
+          }
+        }
+      } catch (error) {
+        console.warn('[create_notification] Error checking recipient finished status:', error);
+      }
+    }
+    
+    // Добавляем флаг в metadata для использования в шаблонах
+    metadata.opponent_finished = recipientFinished; // Переименовано для ясности, но оставляем старое имя для совместимости
 
     // Use template if title/message/icon are not provided
     let finalTitle = title;
@@ -357,7 +451,7 @@ async function createNotification(body: any, profileId: string, supabase: any, r
         // Fallback if template not found
         finalTitle = finalTitle || `Уведомление ${type}`;
         finalMessage = finalMessage || 'Новое уведомление';
-        finalIcon = finalIcon || '🔔';
+        finalIcon = finalIcon || 'bell';
       }
     }
 
@@ -391,13 +485,10 @@ async function createNotification(body: any, profileId: string, supabase: any, r
     if (notifError) {
       console.error('[create_notification] Error inserting notification:', notifError);
       console.error('[create_notification] Error details:', JSON.stringify(notifError));
-      if (returnResponse) {
-        return new Response(JSON.stringify({ error: notifError.message }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw new Error(notifError.message);
+      return new Response(JSON.stringify({ error: notifError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('[create_notification] ✅ Notification created successfully:', { 
@@ -417,22 +508,24 @@ async function createNotification(body: any, profileId: string, supabase: any, r
       console.error('[create_notification] ❌ Notification insert returned null!');
       throw new Error('Notification insert failed - no data returned');
     }
-    if (returnResponse) {
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    return true;
+    
+    // Log notification details for debugging
+    console.log('[create_notification] 📤 Notification ready for Realtime delivery:', {
+      notification_id: insertedNotification.id,
+      user_id: insertedNotification.user_id,
+      type: insertedNotification.type,
+      title: insertedNotification.title
+    });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error: any) {
     console.error('[create_notification] Exception:', error);
-    if (returnResponse) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    throw error;
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 }
 
@@ -489,7 +582,7 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'create_notification':
-        return await createNotification(params, profileId, supabase, true);
+        return await createNotification(params, profileId, supabase);
       case 'check_status': {
         const { duel_id } = params;
         
@@ -712,16 +805,23 @@ Deno.serve(async (req) => {
             .eq('id', duel.id);
 
           // Create start notification for host (first player)
-          const notifResult = await createNotification({
-            duel_id: duel.id,
-            type: 'start',
-            metadata: {}
-          }, profileId, supabase).catch(err => {
-            console.error('[join_duel] Error creating start notification:', err);
-            return false;
-          });
-          if (!notifResult) {
-            console.warn('[join_duel] Failed to create start notification');
+          // Wrap in try-catch to prevent notification errors from breaking duel start
+          try {
+            const notifResult = await createNotification({
+              duel_id: duel.id,
+              type: 'start',
+              metadata: {}
+            }, profileId, supabase);
+            
+            if (!notifResult) {
+              console.warn('[join_duel] Failed to create start notification - continuing anyway');
+            } else {
+              console.log('[join_duel] ✅ Start notification created successfully');
+            }
+          } catch (notifErr: any) {
+            console.error('[join_duel] Error creating start notification:', notifErr);
+            console.error('[join_duel] Notification error details:', JSON.stringify(notifErr, null, 2));
+            // Continue anyway - notification failure shouldn't block duel start
           }
 
           return new Response(
@@ -811,16 +911,23 @@ Deno.serve(async (req) => {
           .eq('id', duel.id);
 
         // Create start notification for opponent (second player)
-        const notifResult = await createNotification({
-          duel_id: duel.id,
-          type: 'start',
-          metadata: {}
-        }, profileId, supabase).catch(err => {
-          console.error('[start_duel] Error creating start notification:', err);
-          return false;
-        });
-        if (!notifResult) {
-          console.warn('[start_duel] Failed to create start notification');
+        // Wrap in try-catch to prevent notification errors from breaking duel start
+        try {
+          const notifResult = await createNotification({
+            duel_id: duel.id,
+            type: 'start',
+            metadata: {}
+          }, profileId, supabase);
+          
+          if (!notifResult) {
+            console.warn('[start_duel] Failed to create start notification - continuing anyway');
+          } else {
+            console.log('[start_duel] ✅ Start notification created successfully');
+          }
+        } catch (notifErr: any) {
+          console.error('[start_duel] Error creating start notification:', notifErr);
+          console.error('[start_duel] Notification error details:', JSON.stringify(notifErr, null, 2));
+          // Continue anyway - notification failure shouldn't block duel start
         }
 
         return new Response(JSON.stringify({ success: true }), {

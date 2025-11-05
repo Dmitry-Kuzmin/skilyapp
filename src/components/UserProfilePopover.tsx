@@ -8,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { ProfileModal } from "@/components/ProfileModal";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   User, 
   Edit2, 
@@ -83,6 +85,7 @@ export function UserProfilePopover() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const isMiniApp = isTelegramMiniApp();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (profileId) {
@@ -290,6 +293,33 @@ export function UserProfilePopover() {
   const xpProgress = (currentXP % 1000) / 10;
   const avatarColor = generateAvatarColor(profileId || '');
   const initials = getInitials(profile?.first_name || user?.first_name);
+
+  // Use ProfileModal on mobile, Sheet on desktop
+  if (isMobile) {
+    return (
+      <>
+        <button 
+          className="relative group"
+          onClick={() => setOpen(true)}
+        >
+          <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
+            <AvatarImage 
+              src={avatarPreview || profile?.photo_url || user?.photo_url} 
+              alt={profile?.first_name || user?.first_name} 
+            />
+            <AvatarFallback 
+              className="text-white font-bold text-sm"
+              style={{ backgroundColor: avatarColor }}
+            >
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+        </button>
+        <ProfileModal open={open} onOpenChange={setOpen} />
+      </>
+    );
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

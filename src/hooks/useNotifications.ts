@@ -30,20 +30,32 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       return;
     }
 
-    console.log('[useNotifications] Setting up notifications for profileId:', profileId);
+    console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
+    console.log('[useNotifications] Profile ID type:', typeof profileId, 'value:', profileId);
+    
+    // Load existing notifications first
     loadNotifications();
 
     // Realtime подписка на новые уведомления
     // Используем более простой фильтр для лучшей совместимости с realtime
+    console.log('[useNotifications] Creating Realtime channel for profileId:', profileId);
+    console.log('[useNotifications] ProfileId type:', typeof profileId, 'value:', profileId);
+    
+    // Создаем канал с уникальным именем
+    const channelName = `duel_notifications_${profileId}`;
+    console.log('[useNotifications] Channel name:', channelName);
+    
     const channel = supabase
-      .channel(`duel_notifications_${profileId}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'duel_notifications',
-          filter: `user_id=eq.${profileId}`,
+          // Убираем фильтр - RLS политика будет фильтровать на сервере
+          // Это предотвращает ошибку "mismatch between server and client bindings"
+          // RLS политика все равно проверяет, что user_id совпадает с profile_id текущего пользователя
         },
         (payload) => {
           console.log('[Notifications] ✅ New notification received via Realtime:', payload);
@@ -69,20 +81,21 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           
           // Show toast notification if enabled
           if (showToasts) {
-            const isImportant = ['start', 'finish', 'boost'].includes(newNotification.type);
+            const isImportant = ['start', 'finish'].includes(newNotification.type);
             const duration = isImportant ? 5000 : 3000;
             
-            console.log('[Notifications] Showing toast:', newNotification.title);
-            toast.info(newNotification.title, {
+            // Убираем иконку из title, если она уже есть в icon
+            let titleText = newNotification.title;
+            if (newNotification.icon && titleText.startsWith(newNotification.icon)) {
+              titleText = titleText.replace(newNotification.icon, '').trim();
+            }
+            
+            console.log('[Notifications] Showing toast:', titleText);
+            toast.info(titleText, {
               description: newNotification.message,
               duration,
-              icon: newNotification.icon || undefined,
-              action: newNotification.duel_id ? {
-                label: 'Перейти',
-                onClick: () => {
-                  window.location.href = `/games/duel?duelId=${newNotification.duel_id}`;
-                }
-              } : undefined,
+              // Кнопка "Перейти" убрана - не нужна
+              // Иконки будут отображаться через компоненты в NotificationsPanel
             });
           }
           
@@ -103,7 +116,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           event: 'UPDATE',
           schema: 'public',
           table: 'duel_notifications',
-          filter: `user_id=eq.${profileId}`,
+          // Убираем фильтр - RLS политика будет фильтровать на сервере
         },
         (payload) => {
           console.log('[Notifications] Updated notification:', payload);
@@ -116,14 +129,32 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
         }
       )
       .subscribe((status, err) => {
-        console.log('[Notifications] Realtime subscription status:', status);
+        console.log('[Notifications] Realtime subscription status:', status, 'for profileId:', profileId);
         if (err) {
-          console.error('[Notifications] Realtime subscription error:', err);
+          console.error('[Notifications] ❌ Realtime subscription error:', err);
+          console.error('[Notifications] Error details:', JSON.stringify(err, null, 2));
+          console.error('[Notifications] Error message:', err?.message);
+          
+          // Если ошибка "mismatch between server and client bindings"
+          if (err?.message?.includes('mismatch') || err?.message?.includes('bindings')) {
+            console.error('[Notifications] 🔴 Binding mismatch error detected!');
+            console.error('[Notifications] This usually means RLS policy doesn\'t match the filter');
+            console.error('[Notifications] Filter used: user_id=eq.' + profileId);
+            console.error('[Notifications] Try using a simpler RLS policy or removing the filter');
+          }
         }
         if (status === 'SUBSCRIBED') {
-          console.log('[Notifications] ✅ Successfully subscribed to notifications');
+          console.log('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('[Notifications] ❌ Channel error - check RLS policies');
+          console.error('[Notifications] ❌ Channel error - check RLS policies and realtime publication');
+          console.error('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
+          console.error('[Notifications] Channel name:', channelName);
+        } else if (status === 'TIMED_OUT') {
+          console.error('[Notifications] ❌ Subscription timed out');
+        } else if (status === 'CLOSED') {
+          console.warn('[Notifications] ⚠️ Subscription closed');
+        } else {
+          console.log('[Notifications] Subscription status:', status);
         }
       });
 

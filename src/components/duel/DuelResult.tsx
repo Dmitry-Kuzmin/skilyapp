@@ -124,7 +124,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 animate-fade-in overflow-x-hidden">
       {results.isWinner && typeof window !== 'undefined' && (
         <Confetti
           width={window.innerWidth}
@@ -139,23 +139,24 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", duration: 0.5 }}
+        className="w-full"
       >
-        <Card className="p-8 text-center space-y-6 bg-gradient-to-br from-card via-card to-card/50 border-2 shadow-2xl">
+        <Card className="p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-card via-card to-card/50 border-2 shadow-2xl">
           <div>
             {results.isWinner && (
               <motion.div 
-                className="mb-4"
+                className="mb-3 sm:mb-4"
                 animate={{ 
                   rotate: [0, -10, 10, -10, 0],
                   scale: [1, 1.1, 1, 1.1, 1]
                 }}
                 transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 2 }}
               >
-                <Trophy className="h-20 w-20 mx-auto text-yellow-500 drop-shadow-lg" />
+                <Trophy className="h-16 w-16 sm:h-20 sm:w-20 mx-auto text-yellow-500 drop-shadow-lg" />
               </motion.div>
             )}
             <motion.h2 
-              className={`text-4xl font-bold mb-2 ${
+              className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-2 ${
                 results.isWinner ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500' :
                 results.isDraw ? 'text-blue-500' : 'text-muted-foreground'
               }`}
@@ -166,7 +167,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               {results.isWinner ? '🏆 Победа!' : results.isDraw ? '🤝 Ничья!' : '😔 Поражение'}
             </motion.h2>
             <motion.p 
-              className="text-muted-foreground text-lg"
+              className="text-muted-foreground text-sm sm:text-base md:text-lg px-2"
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -179,71 +180,71 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
             <motion.div 
-              className="bg-gradient-to-br from-primary/20 to-primary/5 p-8 rounded-xl border-2 border-primary/30 shadow-lg backdrop-blur-sm"
+              className="bg-gradient-to-br from-primary/20 to-primary/5 p-4 sm:p-6 md:p-8 rounded-lg sm:rounded-xl border-2 border-primary/30 shadow-lg backdrop-blur-sm"
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <div className="text-6xl font-black mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-2 sm:mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 {results.myScore}
               </div>
-              <div className="text-base text-foreground font-bold mb-3">Ваш счёт</div>
-              <div className="flex items-center justify-center gap-2 bg-success/10 rounded-lg px-3 py-2">
-                <Target className="w-5 h-5 text-success" />
-                <span className="text-sm font-semibold text-success">
-                  {results.myCorrect}/10 правильных
+              <div className="text-xs sm:text-sm md:text-base text-foreground font-bold mb-2 sm:mb-3">Ваш счёт</div>
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-success/10 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
+                <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-success" />
+                <span className="text-xs sm:text-sm font-semibold text-success">
+                  {results.myCorrect}/10
                 </span>
               </div>
-              <div className="mt-3 text-xs text-muted-foreground">
+              <div className="mt-2 sm:mt-3 text-[10px] sm:text-xs text-muted-foreground">
                 Точность: {((results.myCorrect / 10) * 100).toFixed(0)}%
               </div>
             </motion.div>
 
             <motion.div 
-              className="bg-gradient-to-br from-muted/60 to-muted/30 p-8 rounded-xl border-2 border-muted/50 shadow-lg backdrop-blur-sm"
+              className="bg-gradient-to-br from-muted/60 to-muted/30 p-4 sm:p-6 md:p-8 rounded-lg sm:rounded-xl border-2 border-muted/50 shadow-lg backdrop-blur-sm"
               initial={{ x: 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              <div className="text-6xl font-black mb-3 text-foreground/80">{results.opponentScore}</div>
-              <div className="text-base text-foreground/80 font-bold mb-3">{results.opponentName}</div>
-              <div className="flex items-center justify-center gap-2 bg-orange-500/10 rounded-lg px-3 py-2">
-                <Target className="w-5 h-5 text-orange-500" />
-                <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">
-                  {results.opponentCorrect}/10 правильных
+              <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-2 sm:mb-3 text-foreground/80">{results.opponentScore}</div>
+              <div className="text-xs sm:text-sm md:text-base text-foreground/80 font-bold mb-2 sm:mb-3 truncate">{results.opponentName}</div>
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-orange-500/10 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
+                <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-orange-500" />
+                <span className="text-xs sm:text-sm font-semibold text-orange-600 dark:text-orange-400">
+                  {results.opponentCorrect}/10
                 </span>
               </div>
-              <div className="mt-3 text-xs text-muted-foreground">
+              <div className="mt-2 sm:mt-3 text-[10px] sm:text-xs text-muted-foreground">
                 Точность: {((results.opponentCorrect / 10) * 100).toFixed(0)}%
               </div>
             </motion.div>
           </div>
 
           <motion.div 
-            className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-6 shadow-lg backdrop-blur-sm"
+            className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-2 border-yellow-500/30 rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 shadow-lg backdrop-blur-sm"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-yellow-500" />
-              <h3 className="font-black text-xl bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-yellow-500" />
+              <h3 className="font-black text-base sm:text-lg md:text-xl bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
                 Награды получены
               </h3>
-              <Sparkles className="w-6 h-6 text-yellow-500" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-yellow-500" />
             </div>
-            <div className="grid grid-cols-2 gap-4 text-lg">
-              <div className="flex items-center justify-center gap-2 bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
-                <Zap className="w-6 h-6 text-blue-500" />
-                <span className="font-bold text-blue-600 dark:text-blue-400">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-blue-500/10 rounded-lg p-2 sm:p-3 border border-blue-500/20">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-500 flex-shrink-0" />
+                <span className="font-bold text-sm sm:text-base md:text-lg text-blue-600 dark:text-blue-400 text-center">
                   +{Math.round(results.myScore / 20) + (results.isWinner ? 25 : 10)} XP
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-2 bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20">
-                <span className="text-2xl">💰</span>
-                <span className="font-bold text-yellow-600 dark:text-yellow-400">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 bg-yellow-500/10 rounded-lg p-2 sm:p-3 border border-yellow-500/20">
+                <span className="text-xl sm:text-2xl">💰</span>
+                <span className="font-bold text-xs sm:text-sm md:text-base lg:text-lg text-yellow-600 dark:text-yellow-400 text-center">
                   +{results.isWinner ? 50 : results.isDraw ? 25 : 15} монет
                 </span>
               </div>
@@ -256,18 +257,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <Award className="w-6 h-6 text-purple-500" />
-                <div className="flex-1">
-                  <div className="font-bold text-base">Прогресс до Мастера</div>
-                  <div className="text-xs text-muted-foreground mt-1">
+            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 p-3 sm:p-4 md:p-5">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-purple-500 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm sm:text-base">Прогресс до Мастера</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
                     Ещё {10 - (results.myCorrect || 0)} побед до нового ранга
                   </div>
                 </div>
-                <TrendingUp className="w-5 h-5 text-purple-500" />
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500 flex-shrink-0" />
               </div>
-              <Progress value={(results.myCorrect || 0) * 10} className="h-3 bg-purple-500/20" />
+              <Progress value={(results.myCorrect || 0) * 10} className="h-2 sm:h-3 bg-purple-500/20" />
             </Card>
           </motion.div>
 
@@ -314,7 +315,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           </motion.div>
 
           <motion.div 
-            className="flex gap-3"
+            className="flex flex-col sm:flex-row gap-2 sm:gap-3"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.9 }}
@@ -324,10 +325,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 haptics.buttonClick();
                 onRematch();
               }} 
-              className="flex-1 h-14 text-lg font-bold" 
+              className="flex-1 h-12 sm:h-14 text-base sm:text-lg font-bold" 
               size="lg"
             >
-              <RotateCcw className="mr-2 h-6 w-6" />
+              <RotateCcw className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />
               Реванш
             </Button>
             <Button 
@@ -337,9 +338,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               }} 
               variant="outline" 
               size="lg" 
-              className="h-14 px-6"
+              className="h-12 sm:h-14 px-4 sm:px-6"
             >
-              <Share2 className="h-6 w-6" />
+              <Share2 className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
           </motion.div>
 
@@ -354,10 +355,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 onBackToMenu();
               }} 
               variant="ghost" 
-              className="w-full h-12 text-base" 
+              className="w-full h-11 sm:h-12 text-sm sm:text-base" 
               size="lg"
             >
-              <Home className="mr-2 h-5 w-5" />
+              <Home className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               В меню
             </Button>
           </motion.div>

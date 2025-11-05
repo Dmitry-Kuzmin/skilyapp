@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -51,6 +49,10 @@ const TestSession = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [timeLeft, setTimeLeft] = useState(mode === "exam" ? 30 * 60 : 0);
   const [loading, setLoading] = useState(true);
+  const [showQuestionMap, setShowQuestionMap] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragCurrentY, setDragCurrentY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -186,12 +188,11 @@ const TestSession = () => {
         toast.error("Incorrecto ❌", { duration: 2000 });
       }
     } else {
-      const errorCount = [...answers, newAnswer].filter((a) => !a.isCorrect).length;
-      if (errorCount >= 3) {
-        toast.error("3 errores! Examen no aprobado");
-        finishTest();
-        return;
-      }
+      // Exam mode: no feedback, no early termination, just move to next question
+      // Don't finish test early - let user complete all questions
+      // Reset selection and move to next question immediately
+      setSelectedOption(null);
+      setShowExplanation(false);
       nextQuestion();
     }
   };
@@ -208,6 +209,7 @@ const TestSession = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedOption(null);
+      // Always reset explanation, especially for exam mode
       setShowExplanation(false);
       setShowTranslation(false);
     } else {
@@ -297,7 +299,7 @@ const TestSession = () => {
   }
 
   const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const progress = questions.length > 0 ? (answers.length / questions.length) * 100 : 0;
   const errorCount = answers.filter((a) => !a.isCorrect).length;
   
   const getQuestionText = (lang: 'ru' | 'es'): string => {
@@ -327,114 +329,78 @@ const TestSession = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-3 sm:px-4 py-4 max-w-6xl pb-20 md:pb-4">
-        {/* Compact Header */}
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 max-w-6xl pb-16 md:pb-4">
+        {/* Compact Header - Mobile Optimized */}
+        <div className="mb-3 sm:mb-4">
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent truncate">
               {mode === "exam" ? "Экзамен" : "Практика"}
             </h1>
-            <Badge variant="outline" className="text-xs">
-              {displayTopic}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            {mode === "exam" && (
-              <>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-card border text-xs">
-                  <Clock className={`w-3 h-3 ${timeLeft < 300 ? "text-destructive" : "text-primary"}`} />
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {mode === "exam" && (
+                <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-card border text-[10px] sm:text-xs">
+                  <Clock className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${timeLeft < 300 ? "text-destructive" : "text-primary"}`} />
                   <span className={`font-mono font-bold ${timeLeft < 300 ? "text-destructive" : ""}`}>
                     {formatTime(timeLeft)}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-card border text-xs">
-                  <XCircle className="w-3 h-3 text-destructive" />
-                  <span className="font-semibold">{errorCount}/3</span>
-                </div>
-              </>
-            )}
-            <span className="text-xs font-semibold text-muted-foreground">
-              {currentIndex + 1}/{questions.length}
-            </span>
+              )}
+              <button
+                onClick={() => setShowQuestionMap(true)}
+                className="flex items-center gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-card border text-[10px] sm:text-xs hover:bg-muted transition-colors cursor-pointer"
+              >
+                <Grid3x3 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground" />
+                <span className="font-semibold text-muted-foreground">
+                  {currentIndex + 1}/{questions.length}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <Progress value={progress} className="mb-4 h-1.5" />
-
-        {/* Compact Question Navigation - Scrollable on mobile */}
-        <div className="mb-4 overflow-x-auto pb-2">
-          <div className="flex gap-1.5 min-w-max">
-            {questions.map((_, idx) => {
-              const answer = answers.find((a) => a.questionId === questions[idx].id);
-              const isAnswered = answer !== undefined;
-              const isCurrent = idx === currentIndex;
-              
-              return (
-                <button
-                  key={idx}
-                  onClick={() => jumpToQuestion(idx)}
-                  className={`
-                    w-9 h-9 sm:w-10 sm:h-10 rounded-lg font-semibold text-xs transition-all duration-300 shrink-0
-                    ${isCurrent 
-                      ? "ring-2 ring-primary scale-110 shadow-lg shadow-primary/20" 
-                      : "hover:scale-105"
-                    }
-                    ${!isAnswered 
-                      ? "bg-muted/50 text-muted-foreground border border-border" 
-                      : answer.isCorrect
-                        ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/50"
-                        : "bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/50"
-                    }
-                  `}
-                >
-                  {idx + 1}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Question Card */}
-        <Card className="p-4 sm:p-6 bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-xl backdrop-blur-sm">
-          {/* Question Image */}
+        <Card className="p-3 sm:p-4 md:p-6 bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-xl backdrop-blur-sm">
+          {/* Question Image - Only show if image exists */}
           {currentQuestion.image_url && (
-            <div className="mb-6 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
+            <div className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
               <img 
                 src={currentQuestion.image_url} 
                 alt="Вопрос" 
-                className="w-full max-h-72 object-contain bg-gradient-to-br from-muted/20 to-primary/10"
+                className="w-full max-h-48 sm:max-h-64 md:max-h-72 object-contain bg-gradient-to-br from-muted/20 to-primary/10"
                 loading="lazy"
               />
             </div>
           )}
 
           {/* Question Text */}
-          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/5 to-secondary/5 border-l-4 border-primary">
-            <h2 className={`text-xl sm:text-2xl font-bold leading-relaxed whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="mb-4 sm:mb-6 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+            <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
             </h2>
           </div>
 
           {/* Translation & Explanation Buttons (Practice Only) */}
           {mode === "practice" && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={toggleTranslation}
-                className="text-xs"
+                className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
               >
-                <Languages className="w-3 h-3 mr-1" />
-                {showTranslation ? "Español" : "Русский перевод"}
+                <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
               </Button>
               {displayExplanation && !showExplanation && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowExplanation(true)}
-                  className="text-xs"
+                  className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
                 >
-                  <Lightbulb className="w-3 h-3 mr-1" />
+                  <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
                   Подсказка
                 </Button>
               )}
@@ -442,7 +408,7 @@ const TestSession = () => {
           )}
 
           {/* Answer Options */}
-          <div className="space-y-2.5 mb-6">
+          <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
             {sortedOptions.map((option) => {
               const isSelected = selectedOption === option.id;
               const isCorrect = option.is_correct;
@@ -452,10 +418,18 @@ const TestSession = () => {
               return (
                 <button
                   key={option.id}
-                  onClick={() => !showExplanation && setSelectedOption(option.id)}
-                  disabled={showExplanation}
+                  onClick={() => {
+                    if (mode === "exam") {
+                      // In exam mode, allow selection even after answer
+                      setSelectedOption(option.id);
+                    } else if (!showExplanation) {
+                      // In practice mode, only allow selection before explanation
+                      setSelectedOption(option.id);
+                    }
+                  }}
+                  disabled={mode === "practice" && showExplanation}
                   className={`
-                    w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition-all duration-300 font-medium
+                    w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                     ${showResult
                       ? isCorrect
                         ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
@@ -469,18 +443,18 @@ const TestSession = () => {
                     ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
                   `}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className={`flex-1 text-sm sm:text-base transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                  <div className="flex items-center justify-between gap-2 sm:gap-3">
+                    <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                       {displayText}
                     </span>
                     {showResult && isCorrect && (
-                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 animate-scale-in">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                      <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
                     )}
                     {showResult && isSelected && !isCorrect && (
-                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500/20 animate-scale-in">
-                        <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
+                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
                       </div>
                     )}
                   </div>
@@ -489,18 +463,18 @@ const TestSession = () => {
             })}
           </div>
 
-          {/* Explanation */}
-          {showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-            <div className="mb-4 p-5 rounded-2xl bg-gradient-to-br from-secondary/40 via-secondary/30 to-primary/10 border-2 border-secondary/60 shadow-lg animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 shrink-0 shadow-md">
-                  <Lightbulb className="w-5 h-5 text-primary" />
+          {/* Explanation - Only in practice mode */}
+          {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
+            <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary/40 via-secondary/30 to-primary/10 border-2 border-secondary/60 shadow-lg animate-fade-in">
+              <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 shrink-0 shadow-md">
+                  <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold mb-2 text-primary uppercase tracking-wide">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-primary uppercase tracking-wide">
                     {showTranslation ? "Объяснение:" : "Explicación:"}
                   </p>
-                  <p className={`text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                  <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                     {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
                   </p>
                 </div>
@@ -514,40 +488,177 @@ const TestSession = () => {
               <Button 
                 onClick={prevQuestion} 
                 variant="outline"
-                className="w-auto"
+                className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
                 size="sm"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
-                Назад
+                <span className="hidden sm:inline">Назад</span>
+                <span className="sm:hidden">←</span>
               </Button>
             )}
-            {!showExplanation ? (
-              <Button 
-                onClick={handleAnswer} 
-                disabled={!selectedOption} 
-                className="flex-1 font-bold shadow-2xl text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                size="lg"
-              >
-                Responder
-              </Button>
-            ) : (
+            {mode === "practice" && showExplanation ? (
               <Button 
                 onClick={nextQuestion} 
-                className="flex-1 font-bold shadow-2xl text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70"
-                size="lg"
+                className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
               >
                 {currentIndex < questions.length - 1 ? (
                   <>
-                    Siguiente
+                    <span className="hidden sm:inline">Siguiente</span>
+                    <span className="sm:hidden">Siguiente</span>
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </>
                 ) : (
-                  "Finalizar ✓"
+                  <>
+                    <span className="hidden sm:inline">Finalizar ✓</span>
+                    <span className="sm:hidden">Finalizar</span>
+                  </>
                 )}
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleAnswer} 
+                disabled={!selectedOption} 
+                className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 h-10 sm:h-11 md:h-12"
+              >
+                Responder
               </Button>
             )}
           </div>
         </Card>
+
+        {/* Question Map Bottom Sheet */}
+        {showQuestionMap && (
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+              onClick={() => setShowQuestionMap(false)}
+            />
+            {/* Bottom Sheet */}
+            <div 
+              className={`fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl ${
+                !isDragging ? 'transition-transform duration-300 ease-out' : ''
+              } ${
+                showQuestionMap && !isDragging ? 'translate-y-0' : 'translate-y-full'
+              }`}
+              style={{ 
+                height: '90vh',
+                transform: isDragging && dragCurrentY > dragStartY 
+                  ? `translateY(${dragCurrentY - dragStartY}px)` 
+                  : undefined
+              }}
+              onTouchStart={(e) => {
+                const touch = e.touches[0];
+                if (touch) {
+                  setIsDragging(true);
+                  setDragStartY(touch.clientY);
+                  setDragCurrentY(touch.clientY);
+                }
+              }}
+              onTouchMove={(e) => {
+                if (e.touches.length > 0) {
+                  const touch = e.touches[0];
+                  setDragCurrentY(touch.clientY);
+                }
+              }}
+              onTouchEnd={() => {
+                const dragDistance = dragCurrentY - dragStartY;
+                if (dragDistance > 100) {
+                  setShowQuestionMap(false);
+                }
+                setIsDragging(false);
+                setDragStartY(0);
+                setDragCurrentY(0);
+              }}
+            >
+              {/* Drag Handle */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+              </div>
+              
+              {/* Header */}
+              <div className="px-4 sm:px-6 pb-4 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg sm:text-xl font-bold">Карта вопросов</h2>
+                  <button
+                    onClick={() => setShowQuestionMap(false)}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="overflow-y-auto h-[calc(90vh-80px)] px-4 sm:px-6 py-4">
+                <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
+                  {questions.map((_, idx) => {
+                    const answer = answers.find((a) => a.questionId === questions[idx].id);
+                    const isAnswered = answer !== undefined;
+                    const isCurrent = idx === currentIndex;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          jumpToQuestion(idx);
+                          setShowQuestionMap(false);
+                        }}
+                        className={`
+                          aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200
+                          ${isCurrent 
+                            ? "ring-2 ring-primary ring-offset-2 scale-110 shadow-lg shadow-primary/30 z-10 bg-primary text-primary-foreground" 
+                            : "hover:scale-105"
+                          }
+                          ${!isAnswered 
+                            ? "bg-muted/50 text-muted-foreground border border-border hover:border-primary/50" 
+                            : mode === "exam"
+                              ? "bg-primary/20 text-primary border-2 border-primary/50 hover:bg-primary/30"
+                              : answer.isCorrect
+                                ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-2 border-emerald-500/50 hover:bg-emerald-500/30"
+                                : "bg-red-500/20 text-red-700 dark:text-red-400 border-2 border-red-500/50 hover:bg-red-500/30"
+                          }
+                        `}
+                        title={`Вопрос ${idx + 1}${isAnswered ? (mode === "exam" ? " (отвечен)" : (answer.isCorrect ? " (правильно)" : " (неправильно)")) : ""}`}
+                      >
+                        {idx + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-6 pt-4 border-t border-border">
+                  <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded border border-border bg-muted/50" />
+                      <span>Не отвечен</span>
+                    </div>
+                    {mode === "exam" ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded border-2 border-primary/50 bg-primary/20" />
+                        <span>Отвечен</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border-2 border-emerald-500/50 bg-emerald-500/20" />
+                          <span>Правильно</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border-2 border-red-500/50 bg-red-500/20" />
+                          <span>Неправильно</span>
+                        </div>
+                      </>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded ring-2 ring-primary ring-offset-2 bg-primary text-primary-foreground" />
+                      <span>Текущий</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Layout>
   );

@@ -4,4 +4,22 @@ project_id = "ijijcrucqqnnjbkclqhb"
 verify_jwt = false
 
 [functions.sync-google-sheets]
+<<<<<<< Current (Your changes)
 verify_jwt = false
+=======
+verify_jwt = false
+
+<<<<<<< HEAD
+[functions.get-service-key]
+verify_jwt = false
+=======
+[functions.duel-manager]
+verify_jwt = false
+
+[functions.get-service-key]
+verify_jwt = false
+
+[functions.apply-sql]
+verify_jwt = false
+>>>>>>> 7b366ab (feat: улучшен дизайн уведомлений и инфо панели)
+>>>>>>> Incoming (Background Agent changes)

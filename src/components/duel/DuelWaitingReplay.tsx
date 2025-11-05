@@ -59,9 +59,32 @@ export function DuelWaitingReplay({
   const isCheckingFinishedRef = useRef(false);
 
   useEffect(() => {
-    loadOpponentData();
-    subscribeToOpponentProgress();
-    checkDuelStatus();
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+    
+    // Initial load with delay for Telegram to ensure WebApp is ready
+    if (isTelegram) {
+      // Small delay for Telegram WebApp to fully initialize
+      setTimeout(() => {
+        loadOpponentData();
+        subscribeToOpponentProgress();
+        checkDuelStatus();
+      }, 300);
+    } else {
+      loadOpponentData();
+      subscribeToOpponentProgress();
+      checkDuelStatus();
+    }
+    
+    // Periodically reload opponent data to catch any missed answers
+    // This ensures we always have the latest state, especially when first player finishes
+    // Telegram WebApp may have slower realtime updates, so we reload more frequently
+    const reloadInterval = setInterval(() => {
+      loadOpponentData();
+    }, isTelegram ? 1000 : 2000); // Reload every 1 second in Telegram, 2 seconds in browser
+    
+    return () => {
+      clearInterval(reloadInterval);
+    };
   }, [duelId]);
 
   // Check if opponent finished all questions
@@ -195,6 +218,7 @@ export function DuelWaitingReplay({
       }
 
       // Get opponent's answers so far
+      const myPlayerId = await getMyPlayerId();
       const { data: answers } = await supabase
         .from('duel_answers')
         .select(`
@@ -202,7 +226,7 @@ export function DuelWaitingReplay({
           duel_questions!inner(position)
         `)
         .eq('duel_id', duelId)
-        .neq('player_id', await getMyPlayerId())
+        .neq('player_id', myPlayerId)
         .order('created_at', { ascending: true });
 
       if (answers) {
@@ -212,8 +236,31 @@ export function DuelWaitingReplay({
           is_skipped: ans.is_skipped || false,
           time_taken_ms: ans.time_taken_ms,
           points_awarded: ans.points_awarded || 0,
-        }));
+        }))
+        // Sort by question_number to ensure correct order
+        .sort((a, b) => a.question_number - b.question_number);
+        
+        console.log('[DuelWaitingReplay] Loaded opponent answers:', {
+          count: formattedAnswers.length,
+          answers: formattedAnswers,
+          isTelegram: typeof window !== 'undefined' && !!window.Telegram?.WebApp
+        });
+        
+        // Always update state, even if count seems same (data may have changed)
         setOpponentAnswers(formattedAnswers);
+        
+        // Update opponent score from database
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('score, user_id, id')
+          .eq('duel_id', duelId);
+        
+        if (players) {
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          if (opponent) {
+            setOpponentScore(opponent.score || 0);
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading opponent data:', error);
@@ -231,7 +278,19 @@ export function DuelWaitingReplay({
   };
 
   const subscribeToOpponentProgress = async () => {
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
     const myPlayerId = await getMyPlayerId();
+    
+    if (!myPlayerId) {
+      console.error('[DuelWaitingReplay] Could not get my player ID');
+      return;
+    }
+    
+    console.log('[DuelWaitingReplay] Subscribing to opponent progress:', {
+      duelId,
+      myPlayerId,
+      isTelegram
+    });
 
     // Subscribe to new answers from opponent
     const channel = supabase
@@ -301,18 +360,39 @@ export function DuelWaitingReplay({
 
               // Check if opponent just finished all questions
               // Use a callback to get the latest state and check completion
+              // For Telegram WebApp, reload data immediately to ensure sync
+              const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+              
               setOpponentAnswers(prev => {
+                // Check if this answer already exists (avoid duplicates)
+                const existingAnswer = prev.find(a => a.question_number === question.position);
+                if (existingAnswer) {
+                  console.log('[DuelWaitingReplay] Answer already exists, skipping:', question.position);
+                  return prev;
+                }
+                
                 const updated = [...prev, newAnswer];
+                // Sort by question_number to ensure correct order
+                updated.sort((a, b) => a.question_number - b.question_number);
+                
+                // Reload all data in Telegram to ensure sync (realtime may be slower)
+                if (isTelegram) {
+                  setTimeout(() => {
+                    loadOpponentData();
+                  }, 300);
+                }
+                
                 // Check if this was the last question
                 if (updated.length >= totalQuestions && !isCheckingFinishedRef.current) {
                   console.log('[DuelWaitingReplay] Opponent answered last question - checking if finished');
                   isCheckingFinishedRef.current = true;
                   
                   // Small delay to ensure answer is committed to database
+                  // Longer delay for Telegram to ensure data is synced
                   setTimeout(async () => {
                     await checkIfOpponentFinished();
                     isCheckingFinishedRef.current = false;
-                  }, 800);
+                  }, isTelegram ? 1200 : 800);
                 }
                 return updated;
               });
@@ -418,34 +498,41 @@ export function DuelWaitingReplay({
               className="w-full max-w-2xl space-y-6"
             >
         {/* Header */}
-        <Card className="p-6 bg-gradient-to-br from-card to-primary/5 border-2 border-primary/20">
-          <div className="text-center space-y-4">
+        <Card className="p-6 bg-card border border-border/50 shadow-lg">
+          <div className="text-center space-y-5">
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="w-20 h-20 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg"
+              className="w-16 h-16 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg"
             >
-              <Trophy className="w-10 h-10 text-white" />
+              <Trophy className="w-8 h-8 text-white" />
             </motion.div>
             
             <div>
-              <h2 className="text-3xl font-black mb-2">Вы закончили первым!</h2>
-              <p className="text-muted-foreground text-lg">
-                Ждём {opponentName}...
+              <h2 className="text-2xl font-bold mb-2">Вы закончили первым!</h2>
+              <p className="text-muted-foreground">
+                Ожидание ответа от <span className="font-semibold text-foreground">{opponentName}</span>
               </p>
             </div>
 
             {/* Scores */}
-            <div className="flex items-center justify-center gap-6 pt-2">
+            <div className="flex items-center justify-center gap-8 pt-3 pb-2">
               <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-1">Вы</div>
-                <div className="text-4xl font-black text-primary">{myScore}</div>
-              </div>
-              <div className="text-2xl font-bold text-muted-foreground/30">VS</div>
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-1">{opponentName}</div>
+                <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wide">Вы</div>
                 <motion.div 
-                  className="text-4xl font-black text-secondary"
+                  className="text-3xl font-black text-primary"
+                  key={myScore}
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {myScore}
+                </motion.div>
+              </div>
+              <div className="text-xl font-bold text-muted-foreground/40">VS</div>
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wide">{opponentName}</div>
+                <motion.div 
+                  className="text-3xl font-black text-secondary"
                   key={opponentScore}
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 0.3 }}
@@ -456,12 +543,12 @@ export function DuelWaitingReplay({
             </div>
 
             {/* Progress */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">
                   Прогресс: {opponentAnswers.length}/{totalQuestions}
                 </span>
-                <span className="font-bold">{Math.round(progress)}%</span>
+                <span className="font-semibold">{Math.round(progress)}%</span>
               </div>
               <Progress value={progress} className="h-2" />
             </div>
@@ -490,7 +577,7 @@ export function DuelWaitingReplay({
           </Button>
         </div>
 
-        {/* Live Progress Timeline */}
+        {/* Compact Live Progress */}
         <AnimatePresence>
           {!isHidden && (
             <motion.div
@@ -498,103 +585,138 @@ export function DuelWaitingReplay({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <Card className="p-6 bg-card/50 backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <h3 className="font-bold text-lg">Live Replay</h3>
+              <Card className="p-6 bg-card/50 backdrop-blur-sm border-border/50">
+                {/* Visual Progress Timeline */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-muted-foreground">Ход игры</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {opponentAnswers.length} / {totalQuestions}
+                    </span>
+                  </div>
+                  
+                  {/* Compact Visual Timeline */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {Array.from({ length: totalQuestions }).map((_, idx) => {
+                      const questionNum = idx + 1;
+                      const answer = opponentAnswers.find(a => a.question_number === questionNum);
+                      const isAnswered = !!answer;
+                      // Current question is the next one after all answered questions
+                      // If opponent answered 5 questions, current question is 6 (opponentAnswers.length + 1)
+                      // For Telegram WebApp, we need to ensure we count correctly
+                      const sortedAnswers = [...opponentAnswers].sort((a, b) => a.question_number - b.question_number);
+                      const answeredCount = sortedAnswers.length;
+                      const currentQuestionNumber = answeredCount + 1;
+                      const isCurrent = questionNum === currentQuestionNumber && !isAnswered;
+
+                      return (
+                        <motion.div
+                          key={questionNum}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: idx * 0.03 }}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${
+                            isAnswered 
+                              ? answer.is_skipped
+                                ? 'bg-muted text-muted-foreground'
+                                : answer.is_correct 
+                                ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30' 
+                                : 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30'
+                              : isCurrent
+                              ? 'bg-primary/20 text-primary border-2 border-primary animate-pulse'
+                              : 'bg-muted/30 text-muted-foreground border border-border/30'
+                          }`}
+                          title={
+                            isAnswered 
+                              ? answer.is_skipped
+                                ? `Вопрос ${questionNum}: Пропущено`
+                                : answer.is_correct 
+                                ? `Вопрос ${questionNum}: Правильно (+${answer.points_awarded})`
+                                : `Вопрос ${questionNum}: Неправильно`
+                              : isCurrent
+                              ? 'Отвечает...'
+                              : 'Ожидание'
+                          }
+                        >
+                          {isAnswered ? (
+                            answer.is_skipped ? (
+                              <Clock className="w-3.5 h-3.5" />
+                            ) : answer.is_correct ? (
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            ) : (
+                              <XCircle className="w-3.5 h-3.5" />
+                            )
+                          ) : isCurrent ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            questionNum
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Questions Timeline */}
-                <div className="space-y-2">
-                  {Array.from({ length: totalQuestions }).map((_, idx) => {
-                    const questionNum = idx + 1;
-                    const answer = opponentAnswers.find(a => a.question_number === questionNum);
-                    const isAnswered = !!answer;
-                    const isCurrent = opponentAnswers.length === idx;
-
-                    return (
+                {/* Recent Activity - Last 3 Answers */}
+                {opponentAnswers.length > 0 && (
+                  <div className="space-y-2 pt-4 border-t border-border/50">
+                    <div className="text-xs font-medium text-muted-foreground mb-3">
+                      Последние ответы
+                    </div>
+                    {opponentAnswers.slice(-3).reverse().map((answer, idx) => (
                       <motion.div
-                        key={questionNum}
-                        initial={{ opacity: 0, x: -20 }}
+                        key={`${answer.question_number}-${idx}`}
+                        initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                          isAnswered 
-                            ? answer.is_skipped
-                              ? 'bg-muted/20 border border-muted/30'
-                              : answer.is_correct 
-                              ? 'bg-success/10 border border-success/20' 
-                              : 'bg-destructive/10 border border-destructive/20'
-                            : isCurrent
-                            ? 'bg-primary/10 border border-primary/20 animate-pulse'
-                            : 'bg-muted/30 border border-border/30'
+                        className={`flex items-center justify-between p-2 rounded-lg text-sm ${
+                          answer.is_skipped
+                            ? 'bg-muted/20'
+                            : answer.is_correct 
+                            ? 'bg-green-500/10' 
+                            : 'bg-red-500/10'
                         }`}
                       >
-                        {/* Question Number */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                          isAnswered 
-                            ? answer.is_skipped
-                              ? 'bg-muted text-muted-foreground'
-                              : answer.is_correct 
-                              ? 'bg-success text-success-foreground' 
-                              : 'bg-destructive text-destructive-foreground'
-                            : isCurrent
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {questionNum}
-                        </div>
-
-                        {/* Status Icon */}
-                        <div className="flex-1">
-                          {isAnswered ? (
-                            <div className="flex items-center gap-2">
-                              {answer.is_skipped ? (
-                                <>
-                                  <Clock className="w-5 h-5 text-muted-foreground" />
-                                  <span className="font-medium text-muted-foreground">Пропущено</span>
-                                </>
-                              ) : answer.is_correct ? (
-                                <>
-                                  <CheckCircle2 className="w-5 h-5 text-success" />
-                                  <span className="font-medium">Правильно</span>
-                                </>
-                              ) : (
-                                <>
-                                  <XCircle className="w-5 h-5 text-destructive" />
-                                  <span className="font-medium">Неправильно</span>
-                                </>
-                              )}
-                            </div>
-                          ) : isCurrent ? (
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                              <span className="font-medium text-primary">Отвечает...</span>
-                            </div>
+                        <div className="flex items-center gap-2">
+                          {answer.is_skipped ? (
+                            <>
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-muted-foreground">
+                                Вопрос {answer.question_number} пропущен
+                              </span>
+                            </>
+                          ) : answer.is_correct ? (
+                            <>
+                              <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                              <span className="font-medium">
+                                Вопрос {answer.question_number} — Правильно
+                              </span>
+                            </>
                           ) : (
-                            <span className="text-muted-foreground text-sm">Ожидание</span>
+                            <>
+                              <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
+                              <span className="font-medium">
+                                Вопрос {answer.question_number} — Неправильно
+                              </span>
+                            </>
                           )}
                         </div>
-
-                        {/* Time & Points */}
-                        {isAnswered && !answer.is_skipped && (
-                          <div className="flex items-center gap-3 text-sm">
-                            <Badge variant="outline" className="gap-1">
-                              <Clock className="w-3 h-3" />
-                              {(answer.time_taken_ms / 1000).toFixed(1)}s
-                            </Badge>
+                        {!answer.is_skipped && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{(answer.time_taken_ms / 1000).toFixed(1)}с</span>
                             {answer.points_awarded > 0 && (
-                              <Badge variant="secondary" className="gap-1">
-                                <Target className="w-3 h-3" />
+                              <Badge variant="secondary" className="text-xs px-1.5 py-0">
                                 +{answer.points_awarded}
                               </Badge>
                             )}
                           </div>
                         )}
                       </motion.div>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                )}
               </Card>
             </motion.div>
           )}

@@ -435,7 +435,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         console.log('[DuelBattle] Timeout - Server combo:', serverCombo);
         
         if (penaltyPoints < 0) {
-          setMyScore(prev => Math.max(0, prev + penaltyPoints));
+        setMyScore(prev => Math.max(0, prev + penaltyPoints));
         }
       }
 
@@ -706,7 +706,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 >
                   <Badge className="bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 border-none text-white px-2 py-1 text-xs font-bold shadow-lg shadow-orange-500/50 flex items-center gap-1">
                     <Flame className="w-3 h-3 animate-pulse" />
-                    x{combo}
+                  x{combo}
                   </Badge>
                   <motion.div
                     className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"

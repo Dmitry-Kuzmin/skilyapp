@@ -279,24 +279,24 @@ export default function Duel() {
                   <div className="flex items-center justify-between">
                     <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                       <Swords className="h-8 w-8 text-white" />
-                    </div>
+                </div>
                     <motion.div
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                     >
                       <Sparkles className="h-6 w-6 text-red-500" />
                     </motion.div>
-                  </div>
+                </div>
                   <div>
                     <h3 className="text-2xl font-black mb-2">Создать дуэль</h3>
                     <p className="text-muted-foreground">
                       Создайте дуэль и пригласите друга на битву знаний
                     </p>
-                  </div>
+              </div>
                   <div className="flex items-center gap-4 pt-4">
                     <div className="flex-1 h-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-full" />
-                    <Button 
-                      size="lg"
+            <Button
+              size="lg"
                       className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold shadow-lg shadow-red-500/30"
                     >
                       Создать
@@ -326,23 +326,23 @@ export default function Duel() {
                     >
                       <Zap className="h-6 w-6 text-blue-500" />
                     </motion.div>
-                  </div>
+                </div>
                   <div>
                     <h3 className="text-2xl font-black mb-2">Присоединиться</h3>
                     <p className="text-muted-foreground">
                       Введите код дуэли от друга и начните битву
                     </p>
-                  </div>
+              </div>
                   <div className="flex items-center gap-4 pt-4">
                     <div className="flex-1 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
-                    <Button 
-                      size="lg"
+            <Button
+              size="lg"
                       variant="outline"
                       className="border-2 border-blue-500/30 hover:border-blue-500/50 font-bold"
                     >
                       Присоединиться
                     </Button>
-                  </div>
+                </div>
                 </div>
               </Card>
             </motion.div>
@@ -359,14 +359,14 @@ export default function Duel() {
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-purple-500 rounded-xl flex items-center justify-center">
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
-                Как играть
-              </h3>
+              Как играть
+            </h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-4 p-4 rounded-xl bg-primary/5 border border-primary/10">
                   <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Swords className="h-6 w-6 text-white" />
                   </div>
-                  <div>
+                <div>
                     <div className="font-bold text-lg mb-1">Создайте или присоединитесь</div>
                     <div className="text-sm text-muted-foreground">Пригласите друга или введите код дуэли</div>
                   </div>
@@ -374,32 +374,32 @@ export default function Duel() {
                 <div className="flex items-start gap-4 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Zap className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
+              </div>
+                <div>
                     <div className="font-bold text-lg mb-1">Отвечайте быстрее</div>
-                    <div className="text-sm text-muted-foreground">Бонус за скорость до +40%</div>
+                  <div className="text-sm text-muted-foreground">Бонус за скорость до +40%</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Target className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
+              </div>
+                <div>
                     <div className="font-bold text-lg mb-1">Собирайте комбо</div>
-                    <div className="text-sm text-muted-foreground">До +20% за серию правильных ответов</div>
+                  <div className="text-sm text-muted-foreground">До +20% за серию правильных ответов</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-4 p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/10">
                   <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Trophy className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
+              </div>
+                <div>
                     <div className="font-bold text-lg mb-1">Побеждайте!</div>
-                    <div className="text-sm text-muted-foreground">Получайте награды и поднимайтесь в рейтинге</div>
-                  </div>
+                  <div className="text-sm text-muted-foreground">Получайте награды и поднимайтесь в рейтинге</div>
                 </div>
               </div>
-            </Card>
+            </div>
+          </Card>
           </motion.div>
         </div>
       )}
