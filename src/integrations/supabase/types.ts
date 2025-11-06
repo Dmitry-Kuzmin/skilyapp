@@ -53,47 +53,6 @@ export type Database = {
         }
         Relationships: []
       }
-      answer_options: {
-        Row: {
-          created_at: string
-          id: string
-          is_correct: boolean
-          position: number
-          question_id: string
-          text_en: string
-          text_es: string
-          text_ru: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_correct?: boolean
-          position?: number
-          question_id: string
-          text_en: string
-          text_es: string
-          text_ru: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_correct?: boolean
-          position?: number
-          question_id?: string
-          text_en?: string
-          text_es?: string
-          text_ru?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "answer_options_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions_new"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       boost_definitions: {
         Row: {
           cost_coins: number
@@ -862,54 +821,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      questions: {
-        Row: {
-          correct_answer_es: string
-          correct_answer_ru: string
-          created_at: string
-          explanation_es: string | null
-          explanation_ru: string | null
-          id: string
-          options_es: string[]
-          options_ru: string[]
-          question_es: string
-          question_ru: string
-          topic_es: string
-          topic_ru: string
-          updated_at: string
-        }
-        Insert: {
-          correct_answer_es: string
-          correct_answer_ru: string
-          created_at?: string
-          explanation_es?: string | null
-          explanation_ru?: string | null
-          id?: string
-          options_es: string[]
-          options_ru: string[]
-          question_es: string
-          question_ru: string
-          topic_es: string
-          topic_ru: string
-          updated_at?: string
-        }
-        Update: {
-          correct_answer_es?: string
-          correct_answer_ru?: string
-          created_at?: string
-          explanation_es?: string | null
-          explanation_ru?: string | null
-          id?: string
-          options_es?: string[]
-          options_ru?: string[]
-          question_es?: string
-          question_ru?: string
-          topic_es?: string
-          topic_ru?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       questions_new: {
         Row: {
