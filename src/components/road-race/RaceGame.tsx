@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { X, Fuel, Gauge, Trophy, Flame, Zap } from "lucide-react";
+import { X, Fuel, Gauge, Trophy, Flame, Zap, MapPin, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { sounds } from "@/lib/sounds";
@@ -54,7 +54,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
 
       const allQuestions: Question[] = [];
 
-      // Load road signs
+      // Load road signs (Spanish language)
       if (numSigns > 0) {
         const { data: signs } = await supabase
           .from("road_signs")
@@ -66,33 +66,33 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
             // Get 3 random wrong answers
             const { data: wrongSigns } = await supabase
               .from("road_signs")
-              .select("name_ru")
+              .select("name_es")
               .neq("id", sign.id)
               .limit(3);
 
             const options = [
-              sign.name_ru,
-              ...(wrongSigns?.map((s) => s.name_ru) || []),
+              sign.name_es,
+              ...(wrongSigns?.map((s) => s.name_es) || []),
             ];
             
             // Shuffle options
             const shuffled = options.sort(() => Math.random() - 0.5);
-            const correctIndex = shuffled.indexOf(sign.name_ru);
+            const correctIndex = shuffled.indexOf(sign.name_es);
 
             allQuestions.push({
               id: sign.id,
               type: "sign",
-              question: "Что означает этот знак?",
+              question: "¿Qué significa esta señal?",
               options: shuffled,
               correctAnswer: correctIndex,
-              explanation: sign.description_ru,
+              explanation: sign.description_es,
               image_url: sign.image_url,
             });
           }
         }
       }
 
-      // Load terms
+      // Load terms (Spanish language)
       if (numTerms > 0) {
         const { data: terms } = await supabase
           .from("language_terms")
@@ -118,32 +118,45 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
             allQuestions.push({
               id: term.id,
               type: "term",
-              question: `Как переводится "${term.term_es}"?`,
+              question: `¿Cómo se traduce "${term.term_es}"?`,
               options: shuffled,
               correctAnswer: correctIndex,
-              explanation: term.description_ru,
+              explanation: term.description_es,
             });
           }
         }
       }
 
-      // Load PDD questions
+      // Load PDD questions with answer_options (Spanish language)
       if (numQuestions > 0) {
         const { data: pddQuestions } = await supabase
           .from("questions_new")
-          .select("*")
+          .select(`
+            *,
+            answer_options (
+              id,
+              text_es,
+              is_correct,
+              position
+            )
+          `)
           .limit(numQuestions);
 
         if (pddQuestions) {
-          // For now, using placeholder options until we restore answer_options
           for (const q of pddQuestions) {
+            // Sort answer options by position
+            const sortedOptions = (q.answer_options || [])
+              .sort((a: any, b: any) => a.position - b.position);
+            
+            const correctIndex = sortedOptions.findIndex((opt: any) => opt.is_correct);
+            
             allQuestions.push({
               id: q.id,
               type: "question",
-              question: q.question_ru,
-              options: ["Вариант 1", "Вариант 2", "Вариант 3", "Вариант 4"],
-              correctAnswer: 0,
-              explanation: q.explanation_ru,
+              question: q.question_es,
+              options: sortedOptions.map((opt: any) => opt.text_es),
+              correctAnswer: correctIndex,
+              explanation: q.explanation_es,
               image_url: q.image_url,
             });
           }
@@ -155,10 +168,11 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
       setLoading(false);
     } catch (error: any) {
       toast({
-        title: "Ошибка",
-        description: "Не удалось загрузить вопросы",
+        title: "Error",
+        description: "No se pudieron cargar las preguntas",
         variant: "destructive",
       });
+      console.error("Error loading questions:", error);
     }
   };
 
@@ -233,8 +247,8 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
       // Check if out of fuel
       if (newFuel <= 0) {
         toast({
-          title: "Топливо закончилось!",
-          description: "Игра окончена. Будь внимательнее!",
+          title: "¡Sin combustible!",
+          description: "Juego terminado. ¡Sé más cuidadoso!",
           variant: "destructive",
         });
         onFinish(newStats);
@@ -250,10 +264,22 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
 
   if (loading || questions.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-muted-foreground">Загрузка маршрута...</p>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+        <div className="text-center space-y-6">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-20 h-20 border-4 border-primary/30 border-t-primary rounded-full mx-auto"
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-2"
+          >
+            <p className="text-2xl font-bold">Preparando la ruta...</p>
+            <p className="text-muted-foreground">Cargando preguntas</p>
+          </motion.div>
         </div>
       </div>
     );
@@ -263,156 +289,278 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
   const progress = (stats.distance / route.total_distance) * 100;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-background via-background/95 to-background">
-      {/* Animated Road Background */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Dynamic Gradient Background */}
+      <div 
+        className="absolute inset-0 transition-all duration-1000"
+        style={{
+          background: `linear-gradient(135deg, ${route.gradient_from}15 0%, ${route.gradient_to}15 100%)`,
+        }}
+      />
+
+      {/* Animated Road Lines */}
+      <div className="absolute inset-0 pointer-events-none opacity-10">
         <div
-          className="absolute inset-0 bg-repeat-y animate-roadScroll"
+          className="absolute inset-0 bg-repeat-y"
           style={{
-            backgroundImage: "linear-gradient(180deg, transparent 48%, hsl(var(--primary)) 49%, hsl(var(--primary)) 51%, transparent 52%)",
-            backgroundSize: "100% 40px",
-            animationDuration: `${2 / (stats.speed / 60)}s`,
+            backgroundImage: "linear-gradient(180deg, transparent 48%, hsl(var(--foreground)) 49%, hsl(var(--foreground)) 51%, transparent 52%)",
+            backgroundSize: "100% 60px",
+            animation: `roadScroll ${2 / (stats.speed / 60)}s linear infinite`,
           }}
         />
       </div>
 
-      {/* HUD */}
-      <div className="relative z-10 p-4 space-y-4">
-        {/* Top Bar */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={onExit}>
-            <X className="w-5 h-5" />
-          </Button>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full">
-              <Trophy className="w-5 h-5 text-gold" />
-              <span className="font-bold">{stats.score}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <Card className="p-4 gradient-card">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>{stats.distance} км</span>
-              <span>{route.total_distance} км</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-        </Card>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="p-3 gradient-card">
-            <div className="flex items-center gap-2">
-              <Gauge className="w-5 h-5 text-primary" />
-              <div>
-                <p className="text-xs text-muted-foreground">Скорость</p>
-                <p className="text-lg font-bold">{stats.speed} км/ч</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-3 gradient-card">
-            <div className="flex items-center gap-2">
-              <Fuel className={`w-5 h-5 ${stats.fuel < 30 ? 'text-destructive' : 'text-success'}`} />
-              <div>
-                <p className="text-xs text-muted-foreground">Топливо</p>
-                <p className="text-lg font-bold">{stats.fuel}%</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-3 gradient-card">
-            <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-warning" />
-              <div>
-                <p className="text-xs text-muted-foreground">Комбо</p>
-                <p className="text-lg font-bold">x{stats.combo}</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Question Card */}
-        <Card className="p-6 gradient-card">
-          <AnimatePresence mode="wait">
+      {/* Speed Particles */}
+      {stats.speed > 100 && (
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          {[...Array(15)].map((_, i) => (
             <motion.div
-              key={currentQuestionIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              {currentQuestion.image_url && (
-                <img
-                  src={currentQuestion.image_url}
-                  alt="Question"
-                  className="w-full max-h-48 object-contain rounded-lg"
-                />
-              )}
-
-              <h2 className="text-xl font-bold text-center">
-                {currentQuestion.question}
-              </h2>
-
-              <div className="grid gap-3">
-                {currentQuestion.options.map((option, index) => (
-                  <Button
-                    key={index}
-                    variant={
-                      showFeedback
-                        ? index === currentQuestion.correctAnswer
-                          ? "default"
-                          : index === selectedAnswer
-                          ? "destructive"
-                          : "outline"
-                        : "outline"
-                    }
-                    className={`w-full text-left justify-start h-auto py-4 px-6 ${
-                      showFeedback && index === currentQuestion.correctAnswer
-                        ? "ring-2 ring-success"
-                        : ""
-                    }`}
-                    onClick={() => handleAnswerSelect(index)}
-                    disabled={showFeedback}
-                  >
-                    {option}
-                  </Button>
-                ))}
-              </div>
-
-              {showFeedback && currentQuestion.explanation && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="p-4 bg-muted rounded-lg"
-                >
-                  <p className="text-sm text-muted-foreground">
-                    {currentQuestion.explanation}
-                  </p>
-                </motion.div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </Card>
-      </div>
-
-      {/* Speed Effects */}
-      {stats.speed > 120 && (
-        <div className="fixed inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <div
               key={i}
-              className="absolute w-1 h-20 bg-gradient-to-b from-primary/50 to-transparent animate-speedLine"
+              className="absolute w-1 rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
+                height: `${20 + Math.random() * 40}px`,
+                background: `linear-gradient(180deg, ${route.gradient_from}80, transparent)`,
+              }}
+              animate={{
+                y: ["0vh", "100vh"],
+                opacity: [0, 0.8, 0],
+              }}
+              transition={{
+                duration: 0.5 + Math.random() * 0.5,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+                ease: "linear",
               }}
             />
           ))}
         </div>
+      )}
+
+      {/* Main Content */}
+      <div className="relative z-10 p-4 md:p-6 space-y-4 max-w-4xl mx-auto">
+        {/* Top Bar */}
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex items-center justify-between"
+        >
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onExit}
+            className="bg-background/50 backdrop-blur-sm hover:bg-background/80"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+          
+          <motion.div 
+            className="flex items-center gap-3 bg-background/80 backdrop-blur-md px-6 py-3 rounded-full border border-primary/20 shadow-lg"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Trophy className="w-6 h-6 text-gold" />
+            <span className="font-bold text-2xl bg-gradient-to-r from-gold to-warning bg-clip-text text-transparent">
+              {stats.score}
+            </span>
+          </motion.div>
+        </motion.div>
+
+        {/* Progress Section */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="p-5 bg-background/80 backdrop-blur-md border-primary/20">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm font-medium">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span>{stats.distance} km</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">
+                    {Math.floor(stats.timeSpent / 60)}:{String(stats.timeSpent % 60).padStart(2, '0')}
+                  </span>
+                </div>
+                <span className="text-muted-foreground">{route.total_distance} km</span>
+              </div>
+              <Progress 
+                value={progress} 
+                className="h-3"
+                style={{
+                  background: `linear-gradient(90deg, ${route.gradient_from}20, ${route.gradient_to}20)`,
+                }}
+              />
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <motion.div 
+          className="grid grid-cols-3 gap-3"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="p-4 bg-background/80 backdrop-blur-md border-primary/20 hover:border-primary/40 transition-all">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-primary">
+                <Gauge className="w-5 h-5" />
+                <p className="text-xs font-medium">Velocidad</p>
+              </div>
+              <p className="text-2xl font-bold">{stats.speed}</p>
+              <p className="text-xs text-muted-foreground">km/h</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-background/80 backdrop-blur-md border-primary/20 hover:border-primary/40 transition-all">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Fuel className={`w-5 h-5 ${stats.fuel < 30 ? 'text-destructive' : 'text-success'}`} />
+                <p className="text-xs font-medium">Combustible</p>
+              </div>
+              <p className="text-2xl font-bold">{stats.fuel}</p>
+              <p className="text-xs text-muted-foreground">%</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 bg-background/80 backdrop-blur-md border-primary/20 hover:border-primary/40 transition-all">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-warning">
+                <Flame className="w-5 h-5" />
+                <p className="text-xs font-medium">Combo</p>
+              </div>
+              <p className="text-2xl font-bold">x{stats.combo}</p>
+              <p className="text-xs text-muted-foreground">racha</p>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Question Card - Premium Design */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentQuestionIndex}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="p-6 md:p-8 bg-background/90 backdrop-blur-xl border-primary/30 shadow-2xl">
+              <div className="space-y-6">
+                {/* Question Image */}
+                {currentQuestion.image_url && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative rounded-xl overflow-hidden bg-muted/20 p-4"
+                  >
+                    <img
+                      src={currentQuestion.image_url}
+                      alt="Pregunta"
+                      className="w-full max-h-64 object-contain mx-auto"
+                    />
+                  </motion.div>
+                )}
+
+                {/* Question Text */}
+                <motion.h2 
+                  className="text-xl md:text-2xl font-bold text-center leading-relaxed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {currentQuestion.question}
+                </motion.h2>
+
+                {/* Answer Options */}
+                <div className="grid gap-3">
+                  {currentQuestion.options.map((option, index) => {
+                    const isCorrect = index === currentQuestion.correctAnswer;
+                    const isSelected = index === selectedAnswer;
+                    const showResult = showFeedback;
+                    
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.15 + index * 0.05 }}
+                      >
+                        <Button
+                          variant="outline"
+                          className={`w-full h-auto py-4 px-6 text-left justify-start text-base md:text-lg transition-all ${
+                            showResult && isCorrect
+                              ? "bg-success/20 border-success text-success font-semibold"
+                              : showResult && isSelected && !isCorrect
+                              ? "bg-destructive/20 border-destructive text-destructive"
+                              : "hover:bg-primary/10 hover:border-primary/50"
+                          }`}
+                          onClick={() => handleAnswerSelect(index)}
+                          disabled={showFeedback}
+                        >
+                          <span className="flex items-center gap-3 w-full">
+                            <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 ${
+                              showResult && isCorrect
+                                ? "bg-success text-success-foreground border-success"
+                                : showResult && isSelected && !isCorrect
+                                ? "bg-destructive text-destructive-foreground border-destructive"
+                                : "bg-muted border-muted-foreground/20"
+                            }`}>
+                              {String.fromCharCode(65 + index)}
+                            </span>
+                            <span className="flex-1">{option}</span>
+                            {showResult && isCorrect && (
+                              <Zap className="w-5 h-5 text-success" />
+                            )}
+                          </span>
+                        </Button>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Explanation */}
+                {showFeedback && currentQuestion.explanation && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="p-5 bg-primary/10 border border-primary/20 rounded-xl"
+                  >
+                    <p className="text-sm md:text-base leading-relaxed">
+                      <span className="font-semibold text-primary">Explicación: </span>
+                      {currentQuestion.explanation}
+                    </p>
+                  </motion.div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Combo Effect */}
+      {stats.combo >= 3 && (
+        <motion.div
+          className="fixed top-1/4 left-1/2 -translate-x-1/2 pointer-events-none z-50"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+        >
+          <div className="text-center">
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity }}
+              className="text-6xl"
+            >
+              🔥
+            </motion.div>
+            <p className="text-3xl font-bold text-warning">
+              ¡x{stats.combo} COMBO!
+            </p>
+          </div>
+        </motion.div>
       )}
     </div>
   );

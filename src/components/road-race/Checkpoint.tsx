@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Flag, Zap, Target, Flame, ArrowRight, X } from "lucide-react";
+import { Trophy, Gauge, Fuel, Flame, ArrowRight, X, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Route, GameStats } from "@/pages/games/RoadRace";
 
@@ -18,121 +17,134 @@ export const Checkpoint = ({ route, stats, onContinue, onExit }: CheckpointProps
     : 0;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        background: `linear-gradient(135deg, ${route.gradient_from}10, ${route.gradient_to}10)`,
+      }}
+    >
+      {/* Animated Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-primary/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              scale: [0, 1.5, 0],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-2xl"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 max-w-2xl w-full"
       >
-        <Card className="p-8 gradient-card border-primary/30 relative overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
-
-          <div className="relative space-y-6">
-            {/* Header */}
-            <div className="text-center space-y-4">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.2 }}
-                className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent mx-auto"
-              >
-                <Flag className="w-10 h-10 text-white" />
-              </motion.div>
-
-              <div>
-                <h2 className="text-3xl font-bold mb-2">Контрольная точка!</h2>
-                <p className="text-muted-foreground">
-                  {stats.distance} км из {route.total_distance} км пройдено
-                </p>
+        <Card className="p-8 md:p-12 bg-background/95 backdrop-blur-xl border-primary/40 shadow-2xl">
+          <div className="text-center space-y-8">
+            {/* Title */}
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+            >
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-accent mb-4">
+                <Star className="w-10 h-10 text-white" />
               </div>
-            </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                ¡Punto de Control!
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                Has recorrido <span className="font-bold text-primary">{stats.distance} km</span> de {route.total_distance} km
+              </p>
+            </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4 bg-background/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-success/20">
-                    <Target className="w-5 h-5 text-success" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Точность</p>
-                    <p className="text-2xl font-bold text-success">{accuracy}%</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4 bg-background/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/20">
-                    <Zap className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Макс. скорость</p>
-                    <p className="text-2xl font-bold text-primary">{stats.maxSpeed} км/ч</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4 bg-background/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-warning/20">
-                    <Flame className="w-5 h-5 text-warning" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Макс. комбо</p>
-                    <p className="text-2xl font-bold text-warning">x{stats.combo}</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4 bg-background/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-gold/20">
-                    <span className="text-2xl">🏆</span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Очки</p>
-                    <p className="text-2xl font-bold text-gold">{stats.score}</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Bonus Info */}
-            <Card className="p-4 bg-gradient-to-r from-primary/10 to-accent/10">
-              <div className="flex items-center gap-3">
-                <Zap className="w-8 h-8 text-warning" />
-                <div className="flex-1">
-                  <p className="font-semibold">Бонус за контрольную точку!</p>
-                  <p className="text-sm text-muted-foreground">+500 очков и топливо восстановлено</p>
-                </div>
-                <Badge className="bg-success text-white">+500</Badge>
-              </div>
-            </Card>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={onExit} className="flex-1">
-                <X className="w-4 h-4 mr-2" />
-                Выйти
-              </Button>
-              <Button
-                onClick={onContinue}
-                className="flex-1 bg-gradient-to-r from-primary to-accent"
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <motion.div 
+                className="p-5 bg-gradient-to-br from-gold/20 to-warning/20 border border-gold/30 rounded-xl"
+                whileHover={{ scale: 1.05 }}
               >
-                Продолжить
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
+                <Trophy className="w-8 h-8 mx-auto mb-2 text-gold drop-shadow-glow" />
+                <p className="text-3xl font-bold text-gold">{stats.score}</p>
+                <p className="text-xs text-muted-foreground">Puntos</p>
+              </motion.div>
 
-            {/* Progress Indicator */}
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Осталось {route.total_distance - stats.distance} км до финиша
-              </p>
-            </div>
+              <motion.div 
+                className="p-5 bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 rounded-xl"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Gauge className="w-8 h-8 mx-auto mb-2 text-primary drop-shadow-glow" />
+                <p className="text-3xl font-bold text-primary">{stats.speed}</p>
+                <p className="text-xs text-muted-foreground">km/h</p>
+              </motion.div>
+
+              <motion.div 
+                className="p-5 bg-gradient-to-br from-success/20 to-primary/20 border border-success/30 rounded-xl"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Fuel className="w-8 h-8 mx-auto mb-2 text-success drop-shadow-glow" />
+                <p className="text-3xl font-bold text-success">{stats.fuel}%</p>
+                <p className="text-xs text-muted-foreground">Combustible</p>
+              </motion.div>
+
+              <motion.div 
+                className="p-5 bg-gradient-to-br from-warning/20 to-destructive/20 border border-warning/30 rounded-xl"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Flame className="w-8 h-8 mx-auto mb-2 text-warning drop-shadow-glow" />
+                <p className="text-3xl font-bold text-warning">{accuracy}%</p>
+                <p className="text-xs text-muted-foreground">Precisión</p>
+              </motion.div>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <motion.div 
+              className="flex gap-4 pt-4"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Button
+                variant="outline"
+                onClick={onExit}
+                className="flex-1 h-14 text-lg border-2 hover:bg-destructive/10 hover:border-destructive"
+              >
+                <X className="w-5 h-5 mr-2" />
+                Salir
+              </Button>
+              <motion.div
+                className="flex-1"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={onContinue}
+                  className="w-full h-14 text-lg font-semibold shadow-lg"
+                  style={{
+                    background: `linear-gradient(135deg, ${route.gradient_from}, ${route.gradient_to})`,
+                  }}
+                >
+                  Continuar
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </motion.div>
+            </motion.div>
           </div>
         </Card>
       </motion.div>

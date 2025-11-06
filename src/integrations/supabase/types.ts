@@ -53,6 +53,47 @@ export type Database = {
         }
         Relationships: []
       }
+      answer_options: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          position: number
+          question_id: string
+          text_en: string
+          text_es: string
+          text_ru: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          position?: number
+          question_id: string
+          text_en: string
+          text_es: string
+          text_ru: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          position?: number
+          question_id?: string
+          text_en?: string
+          text_es?: string
+          text_ru?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answer_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       boost_definitions: {
         Row: {
           cost_coins: number
