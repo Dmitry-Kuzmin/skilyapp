@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
+import GuessTheSign from "./pages/games/GuessTheSign";
 import MatchingGame from "./pages/games/MatchingGame";
 import Duel from "./pages/games/Duel";
 import FourVariantsGame from "./pages/games/FourVariantsGame";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/learning" element={<Learning />} />
           <Route path="/games" element={<Games />} />
           <Route path="/games/race" element={<RaceGame />} />
+          <Route path="/games/guess-sign" element={<GuessTheSign />} />
           <Route path="/games/matching" element={<MatchingGame />} />
           <Route path="/games/duel" element={<Duel />} />
           <Route path="/games/four-variants" element={<FourVariantsGame />} />

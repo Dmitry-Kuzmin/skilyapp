@@ -1,4 +1,4 @@
-import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -75,6 +75,16 @@ const Games = () => {
       color: "primary",
       premium: false,
       difficulty: "Сложная",
+    },
+    {
+      id: 8,
+      title: "Угадай Знак",
+      description: "Проверь свои знания дорожных знаков в премиум игре",
+      icon: Shield,
+      color: "secondary",
+      premium: false,
+      difficulty: "Средняя",
+      route: "/games/guess-sign",
     },
   ];
 
