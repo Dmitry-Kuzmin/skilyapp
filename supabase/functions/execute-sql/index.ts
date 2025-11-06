@@ -56,8 +56,8 @@ Deno.serve(async (req) => {
     // Разбиваем SQL на отдельные команды
     const sqlCommands = sql
       .split(';')
-      .map(cmd => cmd.trim())
-      .filter(cmd => cmd.length > 0 && !cmd.startsWith('--') && !cmd.startsWith('--'));
+      .map((cmd: string) => cmd.trim())
+      .filter((cmd: string) => cmd.length > 0 && !cmd.startsWith('--') && !cmd.startsWith('--'));
 
     console.log(`[execute-sql] Found ${sqlCommands.length} commands to execute`);
 

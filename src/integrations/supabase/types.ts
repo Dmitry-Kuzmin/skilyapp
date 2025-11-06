@@ -896,6 +896,223 @@ export type Database = {
           },
         ]
       }
+      road_race_achievements: {
+        Row: {
+          achievement_type: string
+          description_en: string
+          description_es: string
+          description_ru: string
+          icon: string | null
+          id: string
+          name_en: string
+          name_es: string
+          name_ru: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          description_en: string
+          description_es: string
+          description_ru: string
+          icon?: string | null
+          id?: string
+          name_en: string
+          name_es: string
+          name_ru: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          description_en?: string
+          description_es?: string
+          description_ru?: string
+          icon?: string | null
+          id?: string
+          name_en?: string
+          name_es?: string
+          name_ru?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      road_race_leaderboard: {
+        Row: {
+          accuracy_percent: number
+          avg_speed: number
+          created_at: string
+          id: string
+          route_id: string
+          score: number
+          time_spent_seconds: number
+          user_id: string
+        }
+        Insert: {
+          accuracy_percent: number
+          avg_speed: number
+          created_at?: string
+          id?: string
+          route_id: string
+          score: number
+          time_spent_seconds: number
+          user_id: string
+        }
+        Update: {
+          accuracy_percent?: number
+          avg_speed?: number
+          created_at?: string
+          id?: string
+          route_id?: string
+          score?: number
+          time_spent_seconds?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "road_race_leaderboard_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "road_race_routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      road_race_routes: {
+        Row: {
+          checkpoint_interval: number
+          created_at: string
+          description_en: string
+          description_es: string
+          description_ru: string
+          difficulty: string
+          gradient_from: string
+          gradient_to: string
+          icon: string | null
+          id: string
+          is_premium: boolean
+          name_en: string
+          name_es: string
+          name_ru: string
+          question_mix: Json
+          total_distance: number
+          updated_at: string
+        }
+        Insert: {
+          checkpoint_interval?: number
+          created_at?: string
+          description_en: string
+          description_es: string
+          description_ru: string
+          difficulty?: string
+          gradient_from?: string
+          gradient_to?: string
+          icon?: string | null
+          id?: string
+          is_premium?: boolean
+          name_en: string
+          name_es: string
+          name_ru: string
+          question_mix?: Json
+          total_distance?: number
+          updated_at?: string
+        }
+        Update: {
+          checkpoint_interval?: number
+          created_at?: string
+          description_en?: string
+          description_es?: string
+          description_ru?: string
+          difficulty?: string
+          gradient_from?: string
+          gradient_to?: string
+          icon?: string | null
+          id?: string
+          is_premium?: boolean
+          name_en?: string
+          name_es?: string
+          name_ru?: string
+          question_mix?: Json
+          total_distance?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      road_race_sessions: {
+        Row: {
+          avg_speed: number
+          checkpoints_reached: number
+          combo_max: number
+          completed: boolean
+          completed_at: string | null
+          correct_answers: number
+          created_at: string
+          distance_completed: number
+          final_score: number
+          fuel_remaining: number
+          id: string
+          incorrect_answers: number
+          max_speed: number
+          route_id: string
+          session_data: Json | null
+          time_spent_seconds: number
+          total_distance: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          avg_speed?: number
+          checkpoints_reached?: number
+          combo_max?: number
+          completed?: boolean
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string
+          distance_completed?: number
+          final_score?: number
+          fuel_remaining?: number
+          id?: string
+          incorrect_answers?: number
+          max_speed?: number
+          route_id: string
+          session_data?: Json | null
+          time_spent_seconds?: number
+          total_distance: number
+          total_questions: number
+          user_id: string
+        }
+        Update: {
+          avg_speed?: number
+          checkpoints_reached?: number
+          combo_max?: number
+          completed?: boolean
+          completed_at?: string | null
+          correct_answers?: number
+          created_at?: string
+          distance_completed?: number
+          final_score?: number
+          fuel_remaining?: number
+          id?: string
+          incorrect_answers?: number
+          max_speed?: number
+          route_id?: string
+          session_data?: Json | null
+          time_spent_seconds?: number
+          total_distance?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "road_race_sessions_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "road_race_routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       road_signs: {
         Row: {
           created_at: string | null

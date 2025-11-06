@@ -1,4 +1,4 @@
-import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers, Shield } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers, Shield, Flag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -85,6 +85,16 @@ const Games = () => {
       premium: false,
       difficulty: "Средняя",
       route: "/games/guess-sign",
+    },
+    {
+      id: 9,
+      title: "Дорожная Гонка",
+      description: "Марафон тестов в формате гонки по трассе Испании",
+      icon: Flag,
+      color: "primary",
+      premium: false,
+      difficulty: "Сложная",
+      route: "/games/road-race",
     },
   ];
 
