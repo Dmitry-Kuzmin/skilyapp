@@ -117,7 +117,7 @@ export default function DataImport() {
       // For questions, also clear related tables
       if (type === 'questions') {
         await supabase.from('question_tags').delete().neq('question_id', '00000000-0000-0000-0000-000000000000');
-        await supabase.from('answer_options').delete().neq('question_id', '00000000-0000-0000-0000-000000000000');
+        // answer_options table removed - no longer needed
       }
       
       await supabase.from(tableName).delete().neq('id', '00000000-0000-0000-0000-000000000000');

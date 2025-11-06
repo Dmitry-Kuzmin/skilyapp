@@ -146,6 +146,8 @@ export const importQuestions = async (file: File) => {
           }
         }
 
+        // answer_options table was removed - questions now store options differently
+        /* DISABLED - answer_options table removed for security
         if (answers.length > 0) {
           const { error: answersError } = await supabase
             .from('answer_options')
@@ -156,6 +158,7 @@ export const importQuestions = async (file: File) => {
             // Don't skip, question is already inserted
           }
         }
+        */
 
         // Process tags
         if (row.tags) {

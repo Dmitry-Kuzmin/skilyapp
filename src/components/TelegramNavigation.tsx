@@ -28,8 +28,8 @@ export const TelegramNavigation = () => {
     webApp.MainButton.hide();
 
     // Отключаем вертикальные свайпы (pull-to-refresh) чтобы предотвратить закрытие приложения
-    if (webApp.enableClosingConfirmation) {
-      webApp.enableClosingConfirmation();
+    if (typeof (webApp as any).enableClosingConfirmation === 'function') {
+      (webApp as any).enableClosingConfirmation();
     }
     
     // Попытка отключить pull-to-refresh через API (если доступен)

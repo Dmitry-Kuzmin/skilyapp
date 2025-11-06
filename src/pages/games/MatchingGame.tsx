@@ -39,8 +39,9 @@ const MatchingGame = () => {
   }, [selectedSpanish, selectedRussian]);
 
   const loadTerms = async () => {
+    // Legacy "questions" table was removed for security - using questions_new instead
     const { data, error } = await supabase
-      .from("questions")
+      .from("questions_new")
       .select("*")
       .limit(6);
 
@@ -57,7 +58,7 @@ const MatchingGame = () => {
       const gamePairs = data.slice(0, 6).map((q) => ({
         id: q.id,
         spanish: q.question_es,
-        russian: q.correct_answer_ru,
+        russian: q.question_ru, // Using question_ru for matching game
         matched: false,
       }));
       setPairs(gamePairs);

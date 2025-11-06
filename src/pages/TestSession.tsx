@@ -22,7 +22,8 @@ type QuestionData = {
     title_ru: string;
     title_es: string;
   } | null;
-  answer_options: {
+  // answer_options table was removed - now optional/not used
+  answer_options?: {
     id: string;
     text_ru: string;
     text_es: string;
@@ -124,7 +125,6 @@ const TestSession = () => {
         .from("questions_new")
         .select(`
           *,
-          answer_options (*),
           topics (title_ru, title_es)
         `);
 

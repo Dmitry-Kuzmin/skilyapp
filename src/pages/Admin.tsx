@@ -178,6 +178,15 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
   };
 
   const handleUpload = async () => {
+    // Legacy "questions" table removed for security
+    // This functionality is disabled - use questions_new table instead
+    toast({
+      title: "Функция недоступна",
+      description: "Legacy таблица 'questions' была удалена из соображений безопасности. Используйте импорт данных для questions_new.",
+      variant: "destructive",
+    });
+    
+    /* DISABLED - Legacy questions table removed
     if (!file || terms.length === 0) return;
 
     setIsUploading(true);
@@ -227,9 +236,17 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
     } finally {
       setIsUploading(false);
     }
+    */
   };
 
   const handleClearDatabase = async () => {
+    // Legacy "questions" table removed for security
+    toast({
+      title: "Функция недоступна",
+      description: "Legacy таблица 'questions' была удалена.",
+      variant: "destructive",
+    });
+    /* DISABLED
     if (!confirm("Вы уверены, что хотите удалить все вопросы из базы данных?")) return;
 
     try {
@@ -250,14 +267,15 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
         variant: "destructive",
       });
     }
+    */
   };
 
   const handleClearAllQuestions = async () => {
     if (!confirm("Вы уверены, что хотите удалить ВСЕ вопросы из таблицы questions_new? Это действие необратимо!")) return;
 
     try {
-      // Delete all answer options first (foreign key constraint)
-      await supabase.from("answer_options").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      // Note: answer_options table was removed. Question deletion now works directly.
+      // Delete all answer options first (foreign key constraint) - REMOVED
       
       // Delete all question tags
       await supabase.from("question_tags").delete().neq("question_id", "00000000-0000-0000-0000-000000000000");
