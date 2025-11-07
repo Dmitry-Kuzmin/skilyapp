@@ -14,31 +14,52 @@ const LearningMap = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
   const [overallStats, setOverallStats] = useState<ProgressStats | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated && profileId) {
+    // Загружаем темы сразу, если пользователь авторизован
+    // Не ждем profileId - прогресс можно загрузить позже
+    if (isAuthenticated) {
       loadLearningMap();
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated, profileId]);
+  }, [isAuthenticated]);
+
+  // Загружаем прогресс отдельно, когда profileId готов
+  useEffect(() => {
+    if (isAuthenticated && profileId && topics.length > 0) {
+      loadProgress();
+    }
+  }, [isAuthenticated, profileId, topics.length]);
 
   const loadLearningMap = async () => {
     try {
       setLoading(true);
+      setError(null);
+
+      // Таймаут для загрузки тем (10 секунд)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Таймаут загрузки тем')), 10000);
+      });
 
       // Загружаем все темы
-      const { data: topicsData, error: topicsError } = await supabase
+      const topicsPromise = supabase
         .from("topics")
         .select("*")
         .order("order_index", { ascending: true });
 
+      const { data: topicsData, error: topicsError } = await Promise.race([
+        topicsPromise,
+        timeoutPromise
+      ]) as any;
+
       if (topicsError) throw topicsError;
 
-      const topicsList: Topic[] = (topicsData || []).map((t) => ({
+      const topicsList: Topic[] = (topicsData || []).map((t: any) => ({
         id: t.id,
         number: t.number,
         order_index: t.order_index || t.number,
@@ -56,18 +77,78 @@ const LearningMap = () => {
       }));
 
       setTopics(topicsList);
+      setLoading(false);
+    } catch (error: any) {
+      console.error("Error loading learning map:", error);
+      setError(error.message || "Не удалось загрузить карту обучения. Попробуйте обновить страницу.");
+      setLoading(false);
+    }
+  };
 
-      // Рассчитываем прогресс по каждой теме
-      if (profileId) {
-        const progressMap = new Map<string, TopicProgress>();
-        for (const topic of topicsList) {
-          const progress = await calculateTopicProgress(profileId, topic.id);
-          progressMap.set(topic.id, progress);
+  const loadProgress = async () => {
+    if (!profileId || topics.length === 0) return;
+
+    try {
+      console.log('[LearningMap] Loading progress for profileId:', profileId);
+      
+      // Загружаем прогресс по каждой теме (с таймаутом)
+      const progressMap = new Map<string, TopicProgress>();
+      
+      // Загружаем прогресс параллельно для всех тем (но с ограничением)
+      const progressPromises = topics.slice(0, 20).map(async (topic) => {
+        try {
+          const progress = await Promise.race([
+            calculateTopicProgress(profileId, topic.id),
+            new Promise<TopicProgress>((resolve) => {
+              setTimeout(() => resolve({
+                completed: false,
+                isUnlocked: true,
+                progress: 0,
+                subtopicsCompleted: 0,
+                subtopicsTotal: 0
+              }), 5000); // Таймаут 5 секунд на тему
+            })
+          ]);
+          return { topicId: topic.id, progress };
+        } catch (error) {
+          console.error(`[LearningMap] Error loading progress for topic ${topic.id}:`, error);
+          return {
+            topicId: topic.id,
+            progress: {
+              completed: false,
+              isUnlocked: true,
+              progress: 0,
+              subtopicsCompleted: 0,
+              subtopicsTotal: 0
+            } as TopicProgress
+          };
         }
-        setTopicsProgress(progressMap);
+      });
 
-        // Рассчитываем общую статистику
-        const stats = await calculateOverallProgress(profileId);
+      const progressResults = await Promise.all(progressPromises);
+      progressResults.forEach(({ topicId, progress }) => {
+        progressMap.set(topicId, progress);
+      });
+      
+      setTopicsProgress(progressMap);
+
+      // Рассчитываем общую статистику (с таймаутом)
+      try {
+        const stats = await Promise.race([
+          calculateOverallProgress(profileId),
+          new Promise<ProgressStats>((resolve) => {
+            setTimeout(() => resolve({
+              totalTopics: topics.length,
+              completedTopics: 0,
+              totalSubtopics: 0,
+              completedSubtopics: 0,
+              readinessScore: 0,
+              avgAccuracy: 0,
+              testSuccessRate: 0
+            }), 5000);
+          })
+        ]);
+        
         setOverallStats({
           totalTopics: stats.totalTopics,
           completedTopics: stats.completedTopics,
@@ -77,11 +158,13 @@ const LearningMap = () => {
           avgAccuracy: stats.avgAccuracy,
           testSuccessRate: stats.testSuccessRate,
         });
+      } catch (error) {
+        console.error('[LearningMap] Error loading overall stats:', error);
+        // Продолжаем без статистики
       }
     } catch (error) {
-      console.error("Error loading learning map:", error);
-    } finally {
-      setLoading(false);
+      console.error('[LearningMap] Error loading progress:', error);
+      // Продолжаем без прогресса - показываем темы без прогресса
     }
   };
 
@@ -97,6 +180,29 @@ const LearningMap = () => {
           <div className="text-center space-y-4">
             <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
             <p className="text-muted-foreground">Загрузка карты обучения...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+          <div className="text-center space-y-4 max-w-md">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+              <BookOpen className="w-8 h-8 text-destructive" />
+            </div>
+            <h2 className="text-2xl font-bold">Ошибка загрузки</h2>
+            <p className="text-muted-foreground">{error}</p>
+            <Button onClick={() => {
+              setError(null);
+              setLoading(true);
+              loadLearningMap();
+            }}>
+              Попробовать снова
+            </Button>
           </div>
         </div>
       </Layout>
