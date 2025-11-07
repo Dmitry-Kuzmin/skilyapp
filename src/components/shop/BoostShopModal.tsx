@@ -38,6 +38,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -216,8 +217,36 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       sounds.correctAnswer();
       haptics.boostActivated();
 
-      // Перезагружаем данные для получения актуальных значений
-      await loadData();
+      // Обновляем данные без скрытия контента
+      setIsRefreshing(true);
+      try {
+        // Обновляем баланс монет
+        const { data: updatedProfile } = await supabase
+          .from('profiles')
+          .select('coins')
+          .eq('id', profileId)
+          .single();
+
+        if (updatedProfile) {
+          setCoins(updatedProfile.coins || 0);
+        }
+
+        // Обновляем инвентарь
+        const { data: updatedInventory } = await supabase
+          .from('boost_inventory')
+          .select('boost_type, quantity')
+          .eq('user_id', profileId);
+
+        if (updatedInventory) {
+          setInventory(updatedInventory);
+        }
+      } catch (error) {
+        console.error('[BoostShop] Ошибка обновления данных:', error);
+        // При ошибке обновления все равно перезагружаем полностью
+        await loadData();
+      } finally {
+        setIsRefreshing(false);
+      }
 
       toast({
         title: '✅ Покупка успешна!',
@@ -248,7 +277,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0 [&>button[class*='absolute']]:hidden">
         {showConfetti && (
           <Confetti
             width={600}
@@ -283,7 +312,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-4 space-y-3">
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-4 space-y-3 relative">
+          {isRefreshing && (
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+              <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
+            </div>
+          )}
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto"></div>
