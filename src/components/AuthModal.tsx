@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const { login, platform } = useUserContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Only load widget when modal is open
@@ -55,6 +57,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         });
         
         onClose();
+        
+        // Redirect to home page (learning map) after successful login
+        setTimeout(() => {
+          navigate('/');
+        }, 300);
       } catch (error) {
         console.error('[AuthModal] Telegram login error:', error);
         toast({
@@ -139,6 +146,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         });
 
         onClose();
+        
+        // Redirect to home page (learning map) after successful signup
+        setTimeout(() => {
+          navigate('/');
+        }, 300);
       } else {
         // Sign in
         const { error } = await supabase.auth.signInWithPassword({
@@ -166,6 +178,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         });
 
         onClose();
+        
+        // Redirect to home page (learning map) after successful login
+        setTimeout(() => {
+          navigate('/');
+        }, 300);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
