@@ -15,19 +15,18 @@ import { useUserContext } from "@/contexts/UserContext";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
 import { updateTermProgress } from "@/lib/termProgress";
-import { getImageUrl } from "@/utils/imageUtils";
 
 // ============================================
-// Game Configuration (from TZ)
+// Game Configuration
 // ============================================
 const GAME_CONFIG = {
-  START_TIME_MS: 60_000, // Начальное время: 60 секунд
-  MAX_TIME_MS: 90_000, // Максимальное время: 90 секунд (60 + 30)
-  MAX_TIME_BONUS_MS: 30_000, // Максимальный бонус времени: +30 секунд
-  TIME_PER_CORRECT_MS: 1_000, // +1 секунда за правильный ответ
+  START_TIME_MS: 60_000,        // Стартовое время: 60 секунд
+  MAX_TIME_MS: 90_000,          // Максимальное время: 90 секунд (60 + 30 накопление)
+  MAX_TIME_ACCUMULATION_MS: 30_000, // Максимум накопления: +30 секунд
+  TIME_PER_CORRECT_MS: 1_000,   // +1 секунда за правильный ответ
   TIME_PENALTY_INCORRECT_MS: 2_000, // -2 секунды за неправильный ответ
-  MIN_ANSWER_INTERVAL_MS: 600,
-  BASE_POINTS_PER_CORRECT: 1,
+  MIN_ANSWER_INTERVAL_MS: 600,  // Минимальный интервал между ответами
+  BASE_POINTS_PER_CORRECT: 1,   // Базовые очки за правильный ответ
   COMBO_THRESHOLDS: [
     { count: 3, bonus_points: 2, bonus_time_ms: 0 },
     { count: 5, bonus_points: 5, bonus_time_ms: 2_000 },
@@ -44,24 +43,11 @@ interface LanguageTerm {
   id: string;
   term_es: string;
   term_ru: string;
-  category?: string;
-}
-
-interface RoadSign {
-  id: string;
-  name_es: string;
-  name_ru: string;
-  description_es: string;
-  description_ru: string;
-  sign_type: string;
-  image_url?: string;
 }
 
 interface GameQuestion {
   question_id: string;
-  term?: LanguageTerm;
-  road_sign?: RoadSign;
-  question_type: 'term' | 'sign';
+  term: LanguageTerm;
   translation: string;
   is_correct: boolean;
   server_ts: number;
@@ -99,9 +85,7 @@ const RaceGame = () => {
   const { toast } = useToast();
   const { profileId } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
-  const [roadSigns, setRoadSigns] = useState<RoadSign[]>([]);
   const [session, setSession] = useState<RaceSession | null>(null);
-  const [progress, setProgress] = useState(0); // Прогресс машины на треке (0-100%)
   const [stats, setStats] = useState<GameStats>({
     total_points: 0,
     correct_count: 0,
@@ -129,21 +113,9 @@ const RaceGame = () => {
   const sessionIdRef = useRef<string>("");
 
   useEffect(() => {
-    console.log("RaceGame component mounted, loading content...");
-    loadGameContent();
+    console.log("RaceGame component mounted, loading terms...");
+    loadTerms();
   }, []);
-
-  // Обновляем прогресс машины на основе скорости ответа (правильные ответы)
-  useEffect(() => {
-    if (isGameActive && stats.total_answered > 0) {
-      // Прогресс = количество правильных ответов (каждый правильный ответ = +5% прогресса)
-      // Максимум 100% (20 правильных ответов)
-      const newProgress = Math.min(100, stats.correct_count * 5);
-      setProgress(newProgress);
-    } else if (!isGameActive) {
-      setProgress(0);
-    }
-  }, [stats.correct_count, stats.total_answered, isGameActive]);
 
   useEffect(() => {
     if (isGameActive && !isPaused && timeLeft > 0) {
@@ -179,58 +151,35 @@ const RaceGame = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isGameActive, isPaused, session?.current_question]);
 
-  const loadGameContent = async () => {
+  const loadTerms = async () => {
     try {
-      // Загружаем дорожные термины (категория "road" или все термины)
-      const { data: termsData, error: termsError } = await supabase
+      const { data, error } = await supabase
         .from("language_terms")
-        .select("id, term_es, term_ru, category")
-        .or("category.eq.road,category.is.null")
+        .select("id, term_es, term_ru")
         .limit(100);
 
-      if (termsError) {
-        console.error("Error loading terms:", termsError);
-      } else if (termsData && termsData.length > 0) {
-        const shuffled = [...termsData].sort(() => Math.random() - 0.5);
+      if (error) {
+        toast({
+          title: "Ошибка",
+          description: `Не удалось загрузить термины: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const shuffled = [...data].sort(() => Math.random() - 0.5);
         setTerms(shuffled);
         console.log(`✅ Successfully loaded ${shuffled.length} terms for race game`);
-      }
-
-      // Загружаем дорожные знаки
-      const { data: signsData, error: signsError } = await supabase
-        .from("road_signs")
-        .select("id, name_es, name_ru, description_es, description_ru, sign_type, image_url")
-        .limit(50);
-
-      if (signsError) {
-        console.error("Error loading road signs:", signsError);
-      } else if (signsData && signsData.length > 0) {
-        const shuffled = [...signsData].sort(() => Math.random() - 0.5);
-        setRoadSigns(shuffled);
-        console.log(`✅ Successfully loaded ${shuffled.length} road signs for race game`);
-      }
-
-      // Если нет данных, загружаем все термины как fallback
-      if ((!termsData || termsData.length === 0) && (!signsData || signsData.length === 0)) {
-        const { data: allTermsData } = await supabase
-          .from("language_terms")
-          .select("id, term_es, term_ru, category")
-          .limit(100);
-
-        if (allTermsData && allTermsData.length > 0) {
-          const shuffled = [...allTermsData].sort(() => Math.random() - 0.5);
-          setTerms(shuffled);
-          console.log(`✅ Loaded ${shuffled.length} terms as fallback`);
-        } else {
-          toast({
-            title: "Нет данных",
-            description: "В базе нет данных для игры. Импортируйте данные через админ-панель.",
-            variant: "destructive",
-          });
-        }
+      } else {
+        toast({
+          title: "Нет данных",
+          description: "В базе нет терминов для игры. Импортируйте данные через админ-панель.",
+          variant: "destructive",
+        });
       }
     } catch (err: any) {
-      console.error("❌ Unexpected error in loadGameContent:", err);
+      console.error("❌ Unexpected error in loadTerms:", err);
       toast({
         title: "Ошибка",
         description: `Произошла неожиданная ошибка: ${err?.message || "Неизвестная ошибка"}`,
@@ -240,82 +189,42 @@ const RaceGame = () => {
   };
 
   const generateQuestion = (): GameQuestion | null => {
-    // Решаем тип вопроса: 70% термины, 30% знаки (или наоборот, если мало знаков)
-    const useSigns = roadSigns.length > 0 && Math.random() < 0.3;
-    
-    if (useSigns && roadSigns.length >= 2) {
-      // Вопрос про дорожный знак
-      const randomIndex = Math.floor(Math.random() * roadSigns.length);
-      const sign = roadSigns[randomIndex];
-      const showCorrect = Math.random() > 0.5;
-      let translation: string;
-      let is_correct: boolean;
+    if (terms.length < 2) return null;
+    const randomIndex = Math.floor(Math.random() * terms.length);
+    const term = terms[randomIndex];
+    const showCorrect = Math.random() > 0.5;
+    let translation: string;
+    let is_correct: boolean;
 
-      if (showCorrect) {
-        translation = sign.name_ru;
-        is_correct = true;
+    if (showCorrect) {
+      translation = term.term_ru;
+      is_correct = true;
+    } else {
+      const wrongTerms = terms.filter((t) => t.id !== term.id);
+      if (wrongTerms.length > 0) {
+        const wrongTerm = wrongTerms[Math.floor(Math.random() * wrongTerms.length)];
+        translation = wrongTerm.term_ru;
+        is_correct = false;
       } else {
-        // Выбираем случайный неправильный перевод
-        const wrongSigns = roadSigns.filter((s) => s.id !== sign.id);
-        if (wrongSigns.length > 0) {
-          const wrongSign = wrongSigns[Math.floor(Math.random() * wrongSigns.length)];
-          translation = wrongSign.name_ru;
-          is_correct = false;
-        } else {
-          translation = sign.name_ru;
-          is_correct = true;
-        }
-      }
-
-      return {
-        question_id: `q_sign_${Date.now()}_${Math.random()}`,
-        road_sign: sign,
-        question_type: 'sign',
-        translation,
-        is_correct,
-        server_ts: Date.now(),
-      };
-    } else if (terms.length >= 2) {
-      // Вопрос про термин
-      const randomIndex = Math.floor(Math.random() * terms.length);
-      const term = terms[randomIndex];
-      const showCorrect = Math.random() > 0.5;
-      let translation: string;
-      let is_correct: boolean;
-
-      if (showCorrect) {
         translation = term.term_ru;
         is_correct = true;
-      } else {
-        const wrongTerms = terms.filter((t) => t.id !== term.id);
-        if (wrongTerms.length > 0) {
-          const wrongTerm = wrongTerms[Math.floor(Math.random() * wrongTerms.length)];
-          translation = wrongTerm.term_ru;
-          is_correct = false;
-        } else {
-          translation = term.term_ru;
-          is_correct = true;
-        }
       }
-
-      return {
-        question_id: `q_term_${Date.now()}_${Math.random()}`,
-        term,
-        question_type: 'term',
-        translation,
-        is_correct,
-        server_ts: Date.now(),
-      };
     }
 
-    return null;
+    return {
+      question_id: `q_${Date.now()}_${Math.random()}`,
+      term,
+      translation,
+      is_correct,
+      server_ts: Date.now(),
+    };
   };
 
   const startGame = () => {
-    if (terms.length < 2 && roadSigns.length < 2) {
+    if (terms.length < 2) {
       toast({
         title: "Недостаточно данных",
-        description: "Нужно минимум 2 термина или знака для игры",
+        description: "Нужно минимум 2 термина для игры",
         variant: "destructive",
       });
       return;
@@ -400,7 +309,7 @@ const RaceGame = () => {
 
     if (is_correct) {
       points_awarded = GAME_CONFIG.BASE_POINTS_PER_CORRECT;
-      time_delta_ms = GAME_CONFIG.TIME_PER_CORRECT_MS;
+      time_delta_ms = GAME_CONFIG.TIME_PER_CORRECT_MS; // +1 секунда за правильный ответ
       const newCombo = stats.combo_count + 1;
       const threshold = GAME_CONFIG.COMBO_THRESHOLDS.find((t) => t.count === newCombo);
       if (threshold) {
@@ -409,11 +318,14 @@ const RaceGame = () => {
           time_ms: threshold.bonus_time_ms,
         };
         points_awarded += threshold.bonus_points;
-        time_delta_ms += threshold.bonus_time_ms;
+        time_delta_ms += threshold.bonus_time_ms; // Бонусное время от комбо (может быть 0, 2 или 5 секунд)
       }
     } else {
-      time_delta_ms = -GAME_CONFIG.TIME_PENALTY_INCORRECT_MS;
+      time_delta_ms = -GAME_CONFIG.TIME_PENALTY_INCORRECT_MS; // -2 секунды за неправильный ответ
     }
+    
+    // Примечание: Ограничение максимального времени (90 секунд) применяется в setTimeLeft в handleAnswer
+    // Это предотвращает бесконечную игру, даже с бонусами от комбо
 
     return {
       is_correct,
@@ -430,22 +342,33 @@ const RaceGame = () => {
 
     const { is_correct, points_awarded, time_delta_ms, combo_bonus } = result;
     const currentQuestion = session.current_question;
+    
+    // Мгновенные звуковые реакции для повышения вовлечения
+    if (is_correct) {
+      if (combo_bonus) {
+        // Комбо звук воспроизводится сразу для комбо
+        sounds.combo(stats.combo_count + 1);
+        haptics.combo();
+      } else {
+        // Обычный звук правильного ответа
+        sounds.correctAnswer();
+        haptics.correctAnswer();
+      }
+    } else {
+      // Звук неправильного ответа
+      sounds.wrongAnswer();
+      haptics.wrongAnswer();
+    }
+
     setLastAnswerCorrect(is_correct);
 
     // Save mistake if incorrect
     if (!is_correct) {
-      const term_es = currentQuestion.question_type === 'term'
-        ? currentQuestion.term!.term_es
-        : currentQuestion.road_sign!.name_es;
-      const term_ru = currentQuestion.question_type === 'term'
-        ? currentQuestion.term!.term_ru
-        : currentQuestion.road_sign!.name_ru;
-      
       setMistakes((prev) => [
         ...prev,
         {
-          term_es,
-          term_ru_correct: term_ru,
+          term_es: currentQuestion.term.term_es,
+          term_ru_correct: currentQuestion.term.term_ru,
           term_ru_shown: currentQuestion.translation,
           user_answer: chosen,
           question_id: currentQuestion.question_id,
@@ -454,8 +377,8 @@ const RaceGame = () => {
       
       // Show correct answer for learning (only on wrong answer)
       setCorrectAnswerInfo({
-        term_es,
-        term_ru,
+        term_es: currentQuestion.term.term_es,
+        term_ru: currentQuestion.term.term_ru,
       });
       setShowCorrectAnswer(true);
     } else {
@@ -485,38 +408,31 @@ const RaceGame = () => {
       };
     });
 
+    // Обновляем время с ограничением: максимум 90 секунд (60 стартовых + 30 максимальное накопление)
     setTimeLeft((prev) => {
       const newTime = Math.min(
         Math.max(prev + time_delta_ms, 0),
-        GAME_CONFIG.MAX_TIME_MS
+        GAME_CONFIG.MAX_TIME_MS // 90 секунд - максимальное время игры
       );
       return newTime;
     });
 
-    if (is_correct) {
-      if (combo_bonus) {
-        sounds.combo(stats.combo_count + 1);
-        haptics.combo();
-        showBonusAnimation(`${combo_bonus.points}`);
-      } else {
-        sounds.correctAnswer();
-        haptics.correctAnswer();
-      }
-      // Обновляем прогресс термина (правильный ответ)
-      if (profileId && currentQuestion?.question_type === 'term' && currentQuestion?.term?.id) {
+    // Обновляем прогресс термина
+    if (profileId && currentQuestion?.term?.id) {
+      if (is_correct) {
         console.log(`[RaceGame] Updating progress for term ${currentQuestion.term.id} (${currentQuestion.term.term_es}) - CORRECT`);
         updateTermProgress(profileId, currentQuestion.term.id, true);
-      }
-    } else {
-      // Мгновенная звуковая реакция на неправильный ответ
-      sounds.wrongAnswer();
-      haptics.wrongAnswer();
-      
-      // Обновляем прогресс термина (неправильный ответ)
-      if (profileId && currentQuestion?.question_type === 'term' && currentQuestion?.term?.id) {
+      } else {
         console.log(`[RaceGame] Updating progress for term ${currentQuestion.term.id} (${currentQuestion.term.term_es}) - WRONG`);
         updateTermProgress(profileId, currentQuestion.term.id, false);
       }
+    } else {
+      console.warn('[RaceGame] Cannot update progress:', { profileId, termId: currentQuestion?.term?.id });
+    }
+
+    // Показываем бонусную анимацию для комбо
+    if (is_correct && combo_bonus) {
+      showBonusAnimation(`${combo_bonus.points}`);
     }
 
     // Hide feedback and move to next question
@@ -772,11 +688,11 @@ const RaceGame = () => {
                     </div>
                     <div className="grid gap-4">
                       {[
-                        { icon: Clock, text: `У вас есть ${GAME_CONFIG.START_TIME_MS / 1000} секунд. Максимальное время: ${GAME_CONFIG.MAX_TIME_MS / 1000} секунд`, color: "secondary" },
+                        { icon: Clock, text: `У вас есть ${GAME_CONFIG.START_TIME_MS / 1000} секунд для проверки максимального количества слов`, color: "secondary" },
                         { icon: Check, text: `За правильный ответ +${GAME_CONFIG.BASE_POINTS_PER_CORRECT} очко и +${GAME_CONFIG.TIME_PER_CORRECT_MS / 1000} секунды`, color: "success" },
                         { icon: X, text: `За неправильный ответ вы теряете ${GAME_CONFIG.TIME_PENALTY_INCORRECT_MS / 1000} секунды`, color: "destructive" },
+                        { icon: Timer, text: `Максимум времени: ${GAME_CONFIG.MAX_TIME_MS / 1000} секунд (накопление не более ${GAME_CONFIG.MAX_TIME_ACCUMULATION_MS / 1000} секунд)`, color: "warning" },
                         { icon: Flame, text: "Серия правильных ответов даёт бонусные очки", color: "orange-500" },
-                        { icon: Zap, text: "Вопросы по дорожным терминам, знакам или микс", color: "primary" },
                       ].map((rule, idx) => (
                         <motion.div
                           key={idx}
@@ -809,7 +725,7 @@ const RaceGame = () => {
                   <Button
                     onClick={startGame}
                     size="lg"
-                    disabled={terms.length < 2 && roadSigns.length < 2}
+                    disabled={terms.length < 2}
                     className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)]"
                   >
                     <Zap className="w-4 h-4 mr-2" />
@@ -1181,53 +1097,7 @@ const RaceGame = () => {
               </AnimatePresence>
 
               <div className="relative z-10 p-6 md:p-10 space-y-6 md:space-y-8">
-                {/* Visual Race Track with Car */}
-                <div className="relative w-full h-24 md:h-32 mb-6 rounded-xl overflow-hidden bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20">
-                  {/* Track background pattern */}
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="h-full" style={{
-                      backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(139, 92, 246, 0.3) 40px, rgba(139, 92, 246, 0.3) 42px)'
-                    }} />
-                  </div>
-                  
-                  {/* Car position based on progress */}
-                  <motion.div
-                    className="absolute top-1/2 -translate-y-1/2 z-10"
-                    style={{
-                      left: `${progress}%`,
-                      transform: 'translate(-50%, -50%)',
-                    }}
-                    animate={{
-                      x: [0, -2, 0],
-                    }}
-                    transition={{
-                      duration: 0.3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    {/* Car icon/emoji */}
-                    <div className="text-4xl md:text-5xl">🏎️</div>
-                  </motion.div>
-                  
-                  {/* Progress bar background */}
-                  <div className="absolute bottom-0 left-0 right-0 h-2 bg-muted/30" />
-                  
-                  {/* Progress bar fill */}
-                  <motion.div
-                    className="absolute bottom-0 left-0 h-2 bg-primary rounded-r-full"
-                    initial={{ width: '0%' }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                  />
-                  
-                  {/* Finish line */}
-                  <div className="absolute right-0 top-0 bottom-0 w-1 bg-success/50 flex items-center justify-center">
-                    <div className="text-xs font-bold text-success rotate-90 whitespace-nowrap">ФИНИШ</div>
-                  </div>
-                </div>
-
-                {/* Spanish Term or Road Sign - Premium Style */}
+                {/* Spanish Term - Premium Style */}
                 <motion.div
                   key={`term-${stats.total_answered}`}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -1236,22 +1106,10 @@ const RaceGame = () => {
                   className="space-y-3"
                 >
                   <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    <span>{session.current_question.question_type === 'sign' ? 'Дорожный знак' : 'Термин'}</span>
+                    <span>Термин</span>
                   </div>
-                  {session.current_question.question_type === 'sign' && session.current_question.road_sign?.image_url && (
-                    <div className="flex justify-center mb-4">
-                      <img 
-                        src={getImageUrl(session.current_question.road_sign.image_url, 'road_signs') || session.current_question.road_sign.image_url} 
-                        alt={session.current_question.road_sign.name_es}
-                        className="w-24 h-24 md:w-32 md:h-32 object-contain rounded-lg border border-border/50 bg-muted/20 p-2"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
                   <div className="text-3xl md:text-4xl font-bold text-foreground break-words leading-tight">
-                    {session.current_question.question_type === 'term' 
-                      ? session.current_question.term!.term_es
-                      : session.current_question.road_sign!.name_es}
+                    {session.current_question.term.term_es}
                   </div>
                 </motion.div>
 
