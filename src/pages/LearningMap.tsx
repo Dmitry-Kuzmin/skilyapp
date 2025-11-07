@@ -70,23 +70,12 @@ const LearningMap = () => {
       setLoading(true);
       setError(null);
 
-      // Таймаут для загрузки тем (10 секунд)
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Таймаут загрузки тем')), 10000);
-      });
-
-      // Загружаем все темы
-      const topicsPromise = supabase
+      // Быстрая загрузка тем без таймаута
+      const { data: topicsData, error: topicsError } = await supabase
         .from("topics")
         .select("*")
-        .order("order_index", { ascending: true });
-
-      const { data: topicsData, error: topicsError } = await Promise.race([
-        topicsPromise,
-        timeoutPromise
-      ]) as any;
-
-      if (topicsError) throw topicsError;
+        .order("order_index", { ascending: true })
+        .limit(50);
 
       const topicsList: Topic[] = (topicsData || []).map((t: any) => ({
         id: t.id,
@@ -115,50 +104,115 @@ const LearningMap = () => {
   };
 
   const loadProgress = async () => {
-    if (!profileId || topics.length === 0) return;
+    // Если нет тем, сразу выходим
+    if (topics.length === 0) {
+      setLoading(false);
+      return;
+    }
 
     try {
+      // Если нет profileId, используем дефолтные значения (все темы разблокированы)
+      if (!profileId) {
+        const defaultProgress = new Map<string, TopicProgress>();
+        topics.forEach((topic, index) => {
+          defaultProgress.set(topic.id, {
+            completed: false,
+            progressPercent: 0,
+            completedSubtopicCount: 0,
+            totalSubtopicCount: 0,
+            isUnlocked: true, // Все темы разблокированы для неавторизованных
+          });
+        });
+        setTopicsProgress(defaultProgress);
+        setActiveTopicId(topics[0]?.id || null);
+        return;
+      }
+
       console.log('[LearningMap] Loading progress for profileId:', profileId);
       
-      // Загружаем прогресс по каждой теме (с таймаутом)
+      // Быстрая проверка - есть ли вообще прогресс в базе
+      const { data: progressCheck, error: checkError } = await supabase
+        .from("user_topic_progress")
+        .select("topic_id")
+        .eq("user_id", profileId)
+        .limit(1)
+        .maybeSingle();
+
+      // Если нет прогресса в базе, используем дефолтные значения
+      if (checkError || !progressCheck) {
+        const defaultProgress = new Map<string, TopicProgress>();
+        topics.forEach((topic, index) => {
+          defaultProgress.set(topic.id, {
+            completed: false,
+            progressPercent: 0,
+            completedSubtopicCount: 0,
+            totalSubtopicCount: 0,
+            isUnlocked: index === 0, // Только первая тема разблокирована
+          });
+        });
+        setTopicsProgress(defaultProgress);
+        setActiveTopicId(topics[0]?.id || null);
+        return;
+      }
+
+      // Загружаем прогресс батчами по 10 тем для оптимизации
       const progressMap = new Map<string, TopicProgress>();
-      
-      // Загружаем прогресс параллельно для всех тем (но с ограничением)
-      const progressPromises = topics.slice(0, 20).map(async (topic) => {
-        try {
-          const progress = await Promise.race([
-            calculateTopicProgress(profileId, topic.id),
-            new Promise<TopicProgress>((resolve) => {
-              setTimeout(() => resolve({
+      const BATCH_SIZE = 10;
+      const topicsToLoad = topics.slice(0, 50); // Ограничиваем до 50 тем
+
+      for (let i = 0; i < topicsToLoad.length; i += BATCH_SIZE) {
+        const batch = topicsToLoad.slice(i, i + BATCH_SIZE);
+        const batchPromises = batch.map(async (topic) => {
+          try {
+            // Быстрая загрузка с коротким таймаутом
+            const progress = await Promise.race([
+              calculateTopicProgress(profileId, topic.id),
+              new Promise<TopicProgress>((resolve) => {
+                setTimeout(() => resolve({
+                  completed: false,
+                  progressPercent: 0,
+                  completedSubtopicCount: 0,
+                  totalSubtopicCount: 0,
+                  isUnlocked: i === 0 || progressMap.has(topicsToLoad[i - 1]?.id),
+                }), 2000); // Таймаут 2 секунды вместо 5
+              })
+            ]);
+            return { topicId: topic.id, progress };
+          } catch (error) {
+            console.error(`[LearningMap] Error loading progress for topic ${topic.id}:`, error);
+            // Возвращаем дефолтный прогресс при ошибке
+            return {
+              topicId: topic.id,
+              progress: {
                 completed: false,
-                isUnlocked: true,
-                progress: 0,
-                subtopicsCompleted: 0,
-                subtopicsTotal: 0
-              }), 5000); // Таймаут 5 секунд на тему
-            })
-          ]);
-          return { topicId: topic.id, progress };
-        } catch (error) {
-          console.error(`[LearningMap] Error loading progress for topic ${topic.id}:`, error);
-          return {
-            topicId: topic.id,
-            progress: {
-              completed: false,
-              isUnlocked: true,
-              progress: 0,
-              subtopicsCompleted: 0,
-              subtopicsTotal: 0
-            } as TopicProgress
-          };
+                progressPercent: 0,
+                completedSubtopicCount: 0,
+                totalSubtopicCount: 0,
+                isUnlocked: i === 0 || progressMap.has(topicsToLoad[i - 1]?.id),
+              } as TopicProgress
+            };
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        batchResults.forEach(({ topicId, progress }) => {
+          progressMap.set(topicId, progress);
+        });
+      }
+
+      // Для оставшихся тем используем дефолтные значения
+      topics.slice(50).forEach((topic, index) => {
+        if (!progressMap.has(topic.id)) {
+          progressMap.set(topic.id, {
+            completed: false,
+            progressPercent: 0,
+            completedSubtopicCount: 0,
+            totalSubtopicCount: 0,
+            isUnlocked: false,
+          });
         }
       });
 
-      const progressResults = await Promise.all(progressPromises);
-      progressResults.forEach(({ topicId, progress }) => {
-        progressMap.set(topicId, progress);
-      });
-      
       setTopicsProgress(progressMap);
 
       // Определяем активную тему (первая незавершенная и разблокированная)
@@ -167,10 +221,22 @@ const LearningMap = () => {
         return prog?.isUnlocked && !prog?.completed;
       });
       
-      setActiveTopicId(activeTopic?.id || null);
+      setActiveTopicId(activeTopic?.id || topics[0]?.id || null);
     } catch (error) {
       console.error('[LearningMap] Error loading progress:', error);
-      // Продолжаем без прогресса - показываем темы без прогресса
+      // Fallback: показываем первую тему как доступную
+      const defaultProgress = new Map<string, TopicProgress>();
+      topics.forEach((topic, index) => {
+        defaultProgress.set(topic.id, {
+          completed: false,
+          progressPercent: 0,
+          completedSubtopicCount: 0,
+          totalSubtopicCount: 0,
+          isUnlocked: index === 0,
+        });
+      });
+      setTopicsProgress(defaultProgress);
+      setActiveTopicId(topics[0]?.id || null);
     }
   };
 

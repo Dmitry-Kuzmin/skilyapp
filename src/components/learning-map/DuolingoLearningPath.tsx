@@ -30,18 +30,26 @@ export const DuolingoLearningPath = ({
     ? topics.findIndex((t) => t.id === activeTopicId)
     : -1;
 
+  // Функция для расчета смещения узла (зигзаг)
+  const getNodeOffset = (index: number) => {
+    // Чередуем позиции: четные индексы - влево, нечетные - вправо
+    // Смещение увеличивается для более выраженного зигзага
+    const offset = index % 2 === 0 ? -90 : 90;
+    return offset;
+  };
+
   return (
-    <div className={cn("flex justify-center relative min-h-[600px]", className)}>
-      {/* Персонаж Duolingo на пути (позиционируется слева от активной темы) */}
+    <div className={cn("relative min-h-[600px] w-full", className)}>
+      {/* Персонаж Duolingo на пути */}
       {activeIndex >= 0 && (
         <div
-          className="absolute left-[-100px] md:left-[-120px] transition-all duration-500 z-20 hidden md:block"
+          className="absolute transition-all duration-500 z-20 hidden md:block"
           style={{
-            top: `${activeIndex * 140 + 60}px`,
+            left: `calc(50% + ${getNodeOffset(activeIndex)}px - 80px)`,
+            top: `${activeIndex * 140 + 28}px`,
           }}
         >
           <div className="relative">
-            {/* Простой персонаж (зеленый круг с иконкой) */}
             <div className="w-16 h-16 bg-[#58CC02] rounded-full flex items-center justify-center shadow-lg border-4 border-white">
               <BookOpen className="w-8 h-8 text-white" />
             </div>
@@ -49,7 +57,7 @@ export const DuolingoLearningPath = ({
         </div>
       )}
 
-      {/* Вертикальный путь */}
+      {/* Вертикальный путь с зигзагом */}
       <div className="relative flex flex-col items-center py-8">
         {topics.map((topic, index) => {
           const progress = topicsProgress.get(topic.id);
@@ -57,9 +65,18 @@ export const DuolingoLearningPath = ({
           const isActive = topic.id === activeTopicId;
           const isNext = topic.id === nextTopicId;
           const isCompleted = progress?.completed ?? false;
+          const nodeOffset = getNodeOffset(index);
+          const nextNodeOffset = index < topics.length - 1 ? getNodeOffset(index + 1) : 0;
 
           return (
-            <div key={topic.id} className="relative flex flex-col items-center">
+            <div
+              key={topic.id}
+              className="relative flex flex-col items-center"
+              style={{
+                transform: `translateX(${nodeOffset}px)`,
+                transition: 'transform 0.3s ease',
+              }}
+            >
               {/* Кнопка "ПЕРЕЙТИ СЮДА?" для следующего урока */}
               {isNext && !isCompleted && (
                 <div className="mb-6">
@@ -75,19 +92,35 @@ export const DuolingoLearningPath = ({
                 </div>
               )}
 
-              {/* Соединительная линия */}
+              {/* Кривая соединительная линия для зигзага */}
               {index < topics.length - 1 && (
                 <div
-                  className={cn(
-                    "w-1 transition-colors duration-300",
-                    isCompleted
-                      ? "bg-[#58CC02]"
-                      : progress?.isUnlocked
-                      ? "bg-[#8CD4FF]"
-                      : "bg-[#E5E5E5]"
-                  )}
-                  style={{ height: "100px", minHeight: "100px" }}
-                />
+                  className="relative mb-4"
+                  style={{ height: "100px", width: "200px" }}
+                >
+                  <svg
+                    className="absolute"
+                    style={{ width: "200px", height: "100px", left: '50%', transform: 'translateX(-50%)' }}
+                    viewBox="0 0 200 100"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d={`M 100 0 Q ${100 + (nextNodeOffset - nodeOffset) / 2} 50 100 100`}
+                      stroke={
+                        isCompleted
+                          ? "#58CC02"
+                          : progress?.isUnlocked
+                          ? "#8CD4FF"
+                          : "#E5E5E5"
+                      }
+                      strokeWidth="3"
+                      fill="none"
+                      className="transition-colors duration-300"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               )}
 
               {/* Узел темы */}

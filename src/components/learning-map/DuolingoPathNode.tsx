@@ -36,8 +36,8 @@ export const DuolingoPathNode = ({
   const isUnlocked = progress?.isUnlocked ?? !isLocked;
   const Icon = getTopicIcon(topic.number, topic.is_premium);
 
-  // Размер узла в зависимости от состояния
-  const nodeSize = isNext ? 72 : 56;
+  // Размер узла в зависимости от состояния (как в Duolingo)
+  const nodeSize = isNext ? 64 : 56;
   const nodeSizePx = `${nodeSize}px`;
 
   // Стили узла в стиле Duolingo
@@ -46,21 +46,24 @@ export const DuolingoPathNode = ({
       return {
         background: "#E5E5E5",
         color: "#BABABA",
-        border: "none",
+        border: "3px solid #FFFFFF",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
       };
     }
     if (isCompleted) {
       return {
         background: "#58CC02",
         color: "#FFFFFF",
-        border: "4px solid #FFFFFF",
+        border: "3px solid #FFFFFF",
+        boxShadow: "0 4px 12px rgba(88, 204, 2, 0.3)",
       };
     }
     // Активная/доступная тема
     return {
       background: "#8CD4FF",
       color: "#1CB0F6",
-      border: "4px solid #FFFFFF",
+      border: "3px solid #FFFFFF",
+      boxShadow: "0 4px 12px rgba(140, 212, 255, 0.4)",
     };
   };
 
@@ -79,9 +82,9 @@ export const DuolingoPathNode = ({
       <div
         className={cn(
           "relative rounded-full flex items-center justify-center transition-all duration-300",
-          "shadow-md hover:shadow-lg",
-          isNext && "scale-110",
-          isActive && !isCompleted && "ring-4 ring-blue-200",
+          "hover:scale-110 active:scale-105",
+          isNext && "scale-110 z-10",
+          isActive && !isCompleted && "ring-4 ring-blue-200 ring-opacity-50",
           !isUnlocked && "opacity-70"
         )}
         style={{
@@ -89,6 +92,7 @@ export const DuolingoPathNode = ({
           height: nodeSizePx,
           background: styles.background,
           border: styles.border,
+          boxShadow: styles.boxShadow,
         }}
       >
         {/* Иконка внутри узла */}
