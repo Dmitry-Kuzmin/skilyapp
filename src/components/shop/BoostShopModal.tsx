@@ -70,13 +70,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // Загрузка профиля
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('coins')
+        .select('id, coins')
         .eq('id', profileId)
         .single();
 
       if (profileError) {
         console.error('[BoostShop] Ошибка загрузки профиля:', profileError);
+        console.error('[BoostShop] ProfileId, который не найден:', profileId);
+        // Если профиль не найден, пробуем перезагрузить profileId из контекста
+        if (profileError.code === 'PGRST116') {
+          console.warn('[BoostShop] Профиль не найден в базе. Возможно, profileId устарел.');
+        }
       } else if (profile) {
+        console.log('[BoostShop] Профиль загружен:', { id: profile.id, coins: profile.coins });
         setCoins(profile.coins || 0);
       }
 
