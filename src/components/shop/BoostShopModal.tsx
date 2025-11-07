@@ -46,41 +46,53 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   }, [open]);
 
   const loadData = async () => {
+    if (!profileId) {
+      console.warn('[BoostShop] profileId не установлен');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
       // Загрузка бустов
-      const { data: boostsData } = await supabase
+      const { data: boostsData, error: boostsError } = await supabase
         .from('boost_definitions')
         .select('*')
         .order('cost_coins', { ascending: true });
 
-      if (boostsData) {
+      if (boostsError) {
+        console.error('[BoostShop] Ошибка загрузки бустов:', boostsError);
+      } else if (boostsData) {
         setBoosts(boostsData);
       }
 
       // Загрузка профиля
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('coins')
         .eq('id', profileId)
         .single();
 
-      if (profile) {
+      if (profileError) {
+        console.error('[BoostShop] Ошибка загрузки профиля:', profileError);
+      } else if (profile) {
         setCoins(profile.coins || 0);
       }
 
       // Загрузка инвентаря
-      const { data: inventoryData } = await supabase
+      const { data: inventoryData, error: inventoryError } = await supabase
         .from('boost_inventory')
         .select('boost_type, quantity')
         .eq('user_id', profileId);
 
-      if (inventoryData) {
+      if (inventoryError) {
+        console.error('[BoostShop] Ошибка загрузки инвентаря:', inventoryError);
+      } else if (inventoryData) {
         setInventory(inventoryData);
       }
     } catch (error) {
-      console.error('Ошибка загрузки данных магазина:', error);
+      console.error('[BoostShop] Ошибка загрузки данных магазина:', error);
     } finally {
       setLoading(false);
     }
@@ -112,70 +124,50 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
 
     try {
-      // Списываем монеты
-      const { error: updateError, data: updatedProfile } = await supabase
-        .from('profiles')
-        .update({ coins: coins - boost.cost_coins })
-        .eq('id', profileId)
-        .select('coins')
-        .single();
-
-      if (updateError) {
-        console.error('Ошибка обновления монет:', updateError);
-        throw new Error(`Не удалось списать монеты: ${updateError.message}`);
-      }
-
-      // Проверяем, что монеты действительно списались
-      if (updatedProfile && updatedProfile.coins !== coins - boost.cost_coins) {
-        console.warn('Монеты не обновились корректно');
-      }
-
-      // Добавляем буст в инвентарь
-      const currentQuantity = getInventoryCount(boost.type);
-      
-      // Проверяем, существует ли уже запись
-      const { data: existingInventory } = await supabase
-        .from('boost_inventory')
-        .select('quantity')
-        .eq('user_id', profileId)
-        .eq('boost_type', boost.type)
-        .single();
-
-      if (existingInventory) {
-        // Обновляем существующую запись
-        const { error: inventoryError } = await supabase
-          .from('boost_inventory')
-          .update({ quantity: existingInventory.quantity + 1 })
-          .eq('user_id', profileId)
-          .eq('boost_type', boost.type);
-
-        if (inventoryError) throw inventoryError;
-      } else {
-        // Создаем новую запись
-        const { error: inventoryError } = await supabase
-          .from('boost_inventory')
-          .insert({
-            user_id: profileId,
-            boost_type: boost.type,
-            quantity: 1,
-          });
-
-        if (inventoryError) throw inventoryError;
-      }
-
-      // Обновляем локальное состояние
-      setCoins(prev => prev - boost.cost_coins);
-      setInventory(prev => {
-        const existing = prev.find(i => i.boost_type === boost.type);
-        if (existing) {
-          return prev.map(i => 
-            i.boost_type === boost.type 
-              ? { ...i, quantity: i.quantity + 1 }
-              : i
-          );
-        }
-        return [...prev, { boost_type: boost.type, quantity: 1 }];
+      console.log('[BoostShop] Начало покупки:', { 
+        profileId, 
+        boostType: boost.type, 
+        cost: boost.cost_coins, 
+        currentCoins: coins 
       });
+
+      // Используем функцию increment_profile_value для списания монет
+      // Она использует SECURITY DEFINER и обходит RLS проблемы
+      const { error: coinsError } = await supabase.rpc('increment_profile_value', {
+        p_profile_id: profileId,
+        p_column: 'coins',
+        p_amount: -boost.cost_coins
+      });
+
+      if (coinsError) {
+        console.error('[BoostShop] Ошибка списания монет:', coinsError);
+        throw new Error(`Не удалось списать монеты: ${coinsError.message}`);
+      }
+
+      console.log('[BoostShop] Монеты списаны успешно');
+
+      // Добавляем буст в инвентарь используя функцию modify_boost_inventory
+      // Это более надежный способ, который обходит RLS проблемы
+      const { error: inventoryError } = await supabase.rpc('modify_boost_inventory', {
+        p_user_id: profileId,
+        p_boost_type: boost.type,
+        p_change: 1
+      });
+
+      if (inventoryError) {
+        console.error('[BoostShop] Ошибка добавления буста в инвентарь:', inventoryError);
+        
+        // Откатываем списание монет при ошибке
+        await supabase.rpc('increment_profile_value', {
+          p_profile_id: profileId,
+          p_column: 'coins',
+          p_amount: boost.cost_coins
+        });
+        
+        throw new Error(`Не удалось добавить буст в инвентарь: ${inventoryError.message}`);
+      }
+
+      console.log('[BoostShop] Буст добавлен в инвентарь успешно');
 
       // Анимации и звуки
       setShowConfetti(true);
@@ -183,20 +175,27 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       sounds.correctAnswer();
       haptics.boostActivated();
 
+      // Перезагружаем данные для получения актуальных значений
+      await loadData();
+
       toast({
         title: '✅ Покупка успешна!',
         description: `${boost.name_ru} добавлен в инвентарь`,
       });
     } catch (error: any) {
-      console.error('Ошибка покупки:', error);
+      console.error('[BoostShop] Ошибка покупки:', error);
       
-      // Откатываем изменения в локальном состоянии при ошибке
-      setCoins(prev => prev + boost.cost_coins);
+      const errorMessage = error?.message || error?.error?.message || 'Неизвестная ошибка';
+      console.error('[BoostShop] Детали ошибки:', {
+        message: errorMessage,
+        fullError: error
+      });
       
-      const errorMessage = error?.message || 'Неизвестная ошибка';
       toast({
         title: '❌ Ошибка покупки',
-        description: errorMessage || 'Не удалось совершить покупку. Попробуйте еще раз.',
+        description: errorMessage.includes('RLS') 
+          ? 'Ошибка доступа. Попробуйте обновить страницу и войти снова.'
+          : errorMessage || 'Не удалось совершить покупку. Попробуйте еще раз.',
         variant: 'destructive',
       });
       haptics.wrongAnswer();
