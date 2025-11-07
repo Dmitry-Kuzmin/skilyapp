@@ -18,6 +18,7 @@ import { DuelWaitingReplay } from './DuelWaitingReplay';
 import { DuelWidget } from './DuelWidget';
 import Layout from '@/components/Layout';
 import { getImageUrl } from '@/utils/imageUtils';
+import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 
 interface DuelBattleFullscreenProps {
   duelId: string;
@@ -112,17 +113,49 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const isCorrect = state.opponentAnswerData.is_correct;
       const points = state.opponentAnswerData.points_awarded || 0;
       
+      const isTelegram = isTelegramMiniApp();
+      const webApp = getTelegramWebApp();
+      
       // Show notification
       if (isCorrect) {
-        toast.info(`✅ Соперник ответил правильно! +${points} очков`, {
-          duration: 3000,
-          icon: '⚡'
-        });
+        const message = `✅ Соперник ответил правильно! +${points} очков`;
+        
+        // В Telegram показываем через toast и вибрацию
+        if (isTelegram && webApp) {
+          toast.info(message, {
+            duration: 3000,
+            icon: '⚡',
+            style: { zIndex: 999999 }
+          });
+          // Вибрация для Telegram
+          if (webApp.HapticFeedback) {
+            webApp.HapticFeedback.notificationOccurred('success');
+          }
+        } else {
+          toast.info(message, {
+            duration: 3000,
+            icon: '⚡'
+          });
+        }
       } else {
-        toast.info('❌ Соперник ошибся! Ваш шанс догнать!', {
-          duration: 2000,
-          icon: '🎯'
-        });
+        const message = '❌ Соперник ошибся! Ваш шанс догнать!';
+        
+        if (isTelegram && webApp) {
+          toast.info(message, {
+            duration: 2000,
+            icon: '🎯',
+            style: { zIndex: 999999 }
+          });
+          // Вибрация для Telegram
+          if (webApp.HapticFeedback) {
+            webApp.HapticFeedback.notificationOccurred('warning');
+          }
+        } else {
+          toast.info(message, {
+            duration: 2000,
+            icon: '🎯'
+          });
+        }
       }
       
       sounds.notificationPop();

@@ -416,4 +416,20 @@ All colors MUST be HSL.
       margin-left: 4rem;
     }
   }
+
+  /* Sonner toast notifications - высокий z-index для Telegram */
+  [data-sonner-toaster] {
+    z-index: 999999 !important;
+  }
+
+  [data-sonner-toast] {
+    z-index: 999999 !important;
+  }
+
+  /* Telegram WebApp - убеждаемся, что toast виден поверх всего */
+  html.telegram-webapp [data-sonner-toaster],
+  body.telegram-webapp [data-sonner-toaster] {
+    z-index: 999999 !important;
+    position: fixed !important;
+  }
 }

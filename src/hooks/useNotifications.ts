@@ -17,8 +17,9 @@ export interface DuelNotification {
   created_at: string;
 }
 
-// Types of notifications to hide (progress notifications)
-// Show only results: finish, timeout
+// Types of notifications to hide in notification center
+// Show only results (finish, timeout) in notification center
+// Progress notifications (opponent answers) should only show as toast during game, not in notification center
 const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
 
 export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
@@ -80,10 +81,10 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             return;
           }
           
-          // Filter out progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
-          // Show only results (finish, timeout)
+          // Filter out progress notifications - show only results (finish, timeout) in notification center
+          // Progress notifications (opponent answers) are shown as toast during game via useDuelRealtime
           if (PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type)) {
-            console.log('[Notifications] ⏭️ Skipping progress notification:', newNotification.type);
+            console.log('[Notifications] ⏭️ Skipping progress notification (shown only as toast during game):', newNotification.type);
             return;
           }
           

@@ -32,12 +32,13 @@ export function NotificationsPanel() {
   }, [notifications, unreadCount, profileId]);
 
   // Filter notifications by type
-  // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
-  // Show only results (finish, timeout)
+  // Hide progress notifications in notification center - show only results (finish, timeout)
+  // Progress notifications (opponent answers) are shown as toast during game only
   const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
   
   const filteredNotifications = useMemo(() => {
-    // First, filter out progress notifications (always hide them)
+    // Filter out progress notifications - show only results (finish, timeout) in notification center
+    // Progress notifications (opponent answers) are shown as toast during game only
     const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
     
     if (filter === 'all') return notificationsWithoutProgress;
