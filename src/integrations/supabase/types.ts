@@ -728,6 +728,7 @@ export type Database = {
           image_url: string | null
           term_es: string
           term_ru: string
+          topic_id: string | null
         }
         Insert: {
           audio_url?: string | null
@@ -740,6 +741,7 @@ export type Database = {
           image_url?: string | null
           term_es: string
           term_ru: string
+          topic_id?: string | null
         }
         Update: {
           audio_url?: string | null
@@ -752,8 +754,126 @@ export type Database = {
           image_url?: string | null
           term_es?: string
           term_ru?: string
+          topic_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "language_terms_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_versions: {
+        Row: {
+          content: Json
+          created_at: string
+          html_preview: string
+          id: string
+          material_id: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          html_preview: string
+          id?: string
+          material_id: string
+          updated_by?: string | null
+          version: number
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          html_preview?: string
+          id?: string
+          material_id?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_versions_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials: {
+        Row: {
+          content: Json | null
+          content_en: string
+          content_es: string
+          content_ru: string
+          created_at: string
+          html_preview: string | null
+          id: string
+          images: Json | null
+          is_published: boolean
+          source_pdf: string | null
+          subtopic_id: string
+          title_en: string
+          title_es: string
+          title_ru: string
+          type: Database["public"]["Enums"]["material_type"] | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          content?: Json | null
+          content_en: string
+          content_es: string
+          content_ru: string
+          created_at?: string
+          html_preview?: string | null
+          id?: string
+          images?: Json | null
+          is_published?: boolean
+          source_pdf?: string | null
+          subtopic_id: string
+          title_en: string
+          title_es: string
+          title_ru: string
+          type?: Database["public"]["Enums"]["material_type"] | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          content?: Json | null
+          content_en?: string
+          content_es?: string
+          content_ru?: string
+          created_at?: string
+          html_preview?: string | null
+          id?: string
+          images?: Json | null
+          is_published?: boolean
+          source_pdf?: string | null
+          subtopic_id?: string
+          title_en?: string
+          title_es?: string
+          title_ru?: string
+          type?: Database["public"]["Enums"]["material_type"] | null
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_subtopic_id_fkey"
+            columns: ["subtopic_id"]
+            isOneToOne: false
+            referencedRelation: "subtopics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -880,6 +1000,7 @@ export type Database = {
           question_ru: string
           sign_code: string | null
           source: string | null
+          source_id: string | null
           topic_id: string | null
           type: Database["public"]["Enums"]["question_type"]
           updated_at: string
@@ -901,6 +1022,7 @@ export type Database = {
           question_ru: string
           sign_code?: string | null
           source?: string | null
+          source_id?: string | null
           topic_id?: string | null
           type?: Database["public"]["Enums"]["question_type"]
           updated_at?: string
@@ -922,6 +1044,7 @@ export type Database = {
           question_ru?: string
           sign_code?: string | null
           source?: string | null
+          source_id?: string | null
           topic_id?: string | null
           type?: Database["public"]["Enums"]["question_type"]
           updated_at?: string
@@ -1190,6 +1313,56 @@ export type Database = {
         }
         Relationships: []
       }
+      subtopics: {
+        Row: {
+          content_id: string | null
+          created_at: string
+          id: string
+          is_required: boolean
+          order_index: number
+          title_en: string
+          title_es: string
+          title_ru: string
+          topic_id: string
+          type: Database["public"]["Enums"]["subtopic_type"]
+          updated_at: string
+        }
+        Insert: {
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          order_index: number
+          title_en: string
+          title_es: string
+          title_ru: string
+          topic_id: string
+          type: Database["public"]["Enums"]["subtopic_type"]
+          updated_at?: string
+        }
+        Update: {
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          is_required?: boolean
+          order_index?: number
+          title_en?: string
+          title_es?: string
+          title_ru?: string
+          topic_id?: string
+          type?: Database["public"]["Enums"]["subtopic_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subtopics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string
@@ -1220,44 +1393,116 @@ export type Database = {
         }
         Relationships: []
       }
+      topic_tests: {
+        Row: {
+          created_at: string
+          id: string
+          is_skip_test: boolean
+          min_pass_percent: number
+          question_count: number
+          subtopic_id: string | null
+          title_en: string
+          title_es: string
+          title_ru: string
+          topic_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_skip_test?: boolean
+          min_pass_percent?: number
+          question_count?: number
+          subtopic_id?: string | null
+          title_en: string
+          title_es: string
+          title_ru: string
+          topic_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_skip_test?: boolean
+          min_pass_percent?: number
+          question_count?: number
+          subtopic_id?: string | null
+          title_en?: string
+          title_es?: string
+          title_ru?: string
+          topic_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_tests_subtopic_id_fkey"
+            columns: ["subtopic_id"]
+            isOneToOne: false
+            referencedRelation: "subtopics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_tests_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       topics: {
         Row: {
           cover_image: string | null
           created_at: string
+          description_en: string | null
+          description_es: string | null
+          description_ru: string | null
           gradient_from: string
           gradient_to: string
           id: string
           is_premium: boolean
           number: number
+          order_index: number
           title_en: string
           title_es: string
           title_ru: string
+          unlock_condition: Json | null
           updated_at: string
         }
         Insert: {
           cover_image?: string | null
           created_at?: string
+          description_en?: string | null
+          description_es?: string | null
+          description_ru?: string | null
           gradient_from?: string
           gradient_to?: string
           id?: string
           is_premium?: boolean
           number: number
+          order_index: number
           title_en: string
           title_es: string
           title_ru: string
+          unlock_condition?: Json | null
           updated_at?: string
         }
         Update: {
           cover_image?: string | null
           created_at?: string
+          description_en?: string | null
+          description_es?: string | null
+          description_ru?: string | null
           gradient_from?: string
           gradient_to?: string
           id?: string
           is_premium?: boolean
           number?: number
+          order_index?: number
           title_en?: string
           title_es?: string
           title_ru?: string
+          unlock_condition?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -1480,6 +1725,64 @@ export type Database = {
           },
         ]
       }
+      user_topic_progress: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          last_activity: string
+          score: number | null
+          subtopic_id: string | null
+          topic_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          last_activity?: string
+          score?: number | null
+          subtopic_id?: string | null
+          topic_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          last_activity?: string
+          score?: number | null
+          subtopic_id?: string | null
+          topic_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_topic_progress_subtopic_id_fkey"
+            columns: ["subtopic_id"]
+            isOneToOne: false
+            referencedRelation: "subtopics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_topic_progress_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_topic_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1529,7 +1832,9 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       difficulty_level: "easy" | "medium" | "hard"
+      material_type: "theory" | "test" | "terms"
       question_type: "single" | "multiple" | "true_false" | "image"
+      subtopic_type: "material" | "test" | "terms"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1659,7 +1964,9 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       difficulty_level: ["easy", "medium", "hard"],
+      material_type: ["theory", "test", "terms"],
       question_type: ["single", "multiple", "true_false", "image"],
+      subtopic_type: ["material", "test", "terms"],
     },
   },
 } as const
