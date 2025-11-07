@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, BookOpen, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
 import { TopicCard, Topic, TopicProgress } from "@/components/learning-map/TopicCard";
 import { ProgressTracker, ProgressStats } from "@/components/learning-map/ProgressTracker";
 import { supabase } from "@/integrations/supabase/client";
