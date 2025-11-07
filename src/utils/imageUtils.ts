@@ -22,8 +22,9 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
     const { data } = supabase.storage.from(bucket).getPublicUrl(imageUrl);
     return data.publicUrl;
   } catch (error) {
-    console.error('Error getting image URL from Supabase Storage:', error);
-    return null;
+    console.error(`Error getting image URL from Supabase Storage (bucket: ${bucket}, path: ${imageUrl}):`, error);
+    // Возвращаем исходный URL как fallback
+    return imageUrl;
   }
 }
 
