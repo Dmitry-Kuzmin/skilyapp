@@ -133,7 +133,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // Используем функцию increment_profile_value для списания монет
       // Она использует SECURITY DEFINER и обходит RLS проблемы
-      const { error: coinsError } = await supabase.rpc('increment_profile_value', {
+      const { data: coinsData, error: coinsError } = await supabase.rpc('increment_profile_value', {
         p_profile_id: profileId,
         p_column: 'coins',
         p_amount: -boost.cost_coins
@@ -141,14 +141,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       if (coinsError) {
         console.error('[BoostShop] Ошибка списания монет:', coinsError);
-        throw new Error(`Не удалось списать монеты: ${coinsError.message}`);
+        console.error('[BoostShop] Детали ошибки списания:', {
+          code: coinsError.code,
+          message: coinsError.message,
+          details: coinsError.details,
+          hint: coinsError.hint
+        });
+        throw new Error(`Не удалось списать монеты: ${coinsError.message || coinsError.code || 'Неизвестная ошибка'}`);
       }
 
-      console.log('[BoostShop] Монеты списаны успешно');
+      console.log('[BoostShop] Монеты списаны успешно, результат:', coinsData);
 
       // Добавляем буст в инвентарь используя функцию modify_boost_inventory
       // Это более надежный способ, который обходит RLS проблемы
-      const { error: inventoryError } = await supabase.rpc('modify_boost_inventory', {
+      const { data: inventoryData, error: inventoryError } = await supabase.rpc('modify_boost_inventory', {
         p_user_id: profileId,
         p_boost_type: boost.type,
         p_change: 1
@@ -156,16 +162,28 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       if (inventoryError) {
         console.error('[BoostShop] Ошибка добавления буста в инвентарь:', inventoryError);
+        console.error('[BoostShop] Детали ошибки инвентаря:', {
+          code: inventoryError.code,
+          message: inventoryError.message,
+          details: inventoryError.details,
+          hint: inventoryError.hint
+        });
         
         // Откатываем списание монет при ошибке
-        await supabase.rpc('increment_profile_value', {
+        const { error: rollbackError } = await supabase.rpc('increment_profile_value', {
           p_profile_id: profileId,
           p_column: 'coins',
           p_amount: boost.cost_coins
         });
         
-        throw new Error(`Не удалось добавить буст в инвентарь: ${inventoryError.message}`);
+        if (rollbackError) {
+          console.error('[BoostShop] Ошибка отката монет:', rollbackError);
+        }
+        
+        throw new Error(`Не удалось добавить буст в инвентарь: ${inventoryError.message || inventoryError.code || 'Неизвестная ошибка'}`);
       }
+
+      console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
 
       console.log('[BoostShop] Буст добавлен в инвентарь успешно');
 
