@@ -105,31 +105,60 @@ const Admin = () => {
     }
   };
 
-  const handleSyncGoogleSheets = async () => {
+  const handleSyncGoogleSheets = async (syncType: 'all' | 'questions' | 'terms' | 'signs' = 'all') => {
     setSyncing(true);
     try {
-      const { data, error } = await supabase.functions.invoke("sync-google-sheets");
+      const { data, error } = await supabase.functions.invoke("sync-google-sheets", {
+        body: { syncType }
+      });
       
       if (error) throw error;
 
-      const message = `
-Синхронизация завершена:
+      let message = '';
+      if (syncType === 'all' || syncType === 'questions') {
+        message += `
+Синхронизация вопросов:
 ✅ Темы обработано: ${data.topicsProcessed || 0}
 📥 Вопросов добавлено: ${data.questionsInserted || 0}
 🔄 Вопросов обновлено: ${data.questionsUpdated || 0}
 📊 Всего обработано: ${data.questionsProcessed || 0}
 ⚠️ Вопросов пропущено: ${data.questionsSkipped || 0}
+        `.trim();
+      }
+      
+      if (syncType === 'all' || syncType === 'terms') {
+        if (message) message += '\n\n';
+        message += `
+Синхронизация терминов:
+📥 Терминов добавлено: ${data.termsInserted || 0}
+🔄 Терминов обновлено: ${data.termsUpdated || 0}
+📊 Всего обработано: ${data.termsProcessed || 0}
+⚠️ Терминов пропущено: ${data.termsSkipped || 0}
+        `.trim();
+      }
+      
+      if (syncType === 'all' || syncType === 'signs') {
+        if (message) message += '\n\n';
+        message += `
+Синхронизация дорожных знаков:
+📥 Знаков добавлено: ${data.signsInserted || 0}
+🔄 Знаков обновлено: ${data.signsUpdated || 0}
+📊 Всего обработано: ${data.signsProcessed || 0}
+⚠️ Знаков пропущено: ${data.signsSkipped || 0}
+        `.trim();
+      }
 
-${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:\n• Отсутствует source_id\n• Темы не найдены в базе\n• Неправильный формат данных\n• Отсутствуют обязательные поля' : ''}
-      `.trim();
+      const hasErrors = (syncType === 'all' || syncType === 'questions' ? (data.questionsSkipped || 0) > 0 : false) ||
+                        (syncType === 'all' || syncType === 'terms' ? (data.termsSkipped || 0) > 0 : false) ||
+                        (syncType === 'all' || syncType === 'signs' ? (data.signsSkipped || 0) > 0 : false);
 
       toast({
-        title: data.questionsProcessed > 0 ? "Синхронизация успешна!" : "Синхронизация завершена с предупреждениями",
+        title: !hasErrors ? "Синхронизация успешна!" : "Синхронизация завершена с предупреждениями",
         description: message,
-        variant: data.questionsProcessed > 0 ? "default" : "destructive",
+        variant: !hasErrors ? "default" : "destructive",
       });
       
-      setSyncWarnings(data.warnings || []);
+      setSyncWarnings([...(data.warnings || []), ...(data.termsWarnings || []), ...(data.signsWarnings || [])]);
       setLastSync(new Date().toLocaleString("ru-RU"));
       await fetchStats();
       await fetchRecentQuestions();
@@ -400,7 +429,7 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
                   Автоматическая синхронизация: каждые 24 часа в 03:00 UTC
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant="destructive"
                   onClick={handleClearAllQuestions}
@@ -410,12 +439,39 @@ ${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:
                   Очистить все вопросы
                 </Button>
                 <Button
-                  onClick={handleSyncGoogleSheets}
+                  onClick={() => handleSyncGoogleSheets('all')}
                   disabled={syncing}
                   className="gap-2"
                 >
                   <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-                  {syncing ? "Синхронизация..." : "Синхронизировать сейчас"}
+                  {syncing ? "Синхронизация..." : "Синхронизировать все"}
+                </Button>
+                <Button
+                  onClick={() => handleSyncGoogleSheets('questions')}
+                  disabled={syncing}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <FileQuestion className="w-4 h-4" />
+                  Синхронизировать вопросы
+                </Button>
+                <Button
+                  onClick={() => handleSyncGoogleSheets('terms')}
+                  disabled={syncing}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Target className="w-4 h-4" />
+                  Синхронизировать термины
+                </Button>
+                <Button
+                  onClick={() => handleSyncGoogleSheets('signs')}
+                  disabled={syncing}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Activity className="w-4 h-4" />
+                  Синхронизировать знаки
                 </Button>
               </div>
             </div>

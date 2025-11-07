@@ -6,9 +6,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const PROJECT_ID = 'ijijcrucqqnnjbkclqhb';
+const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqaWpjcnVjcXFubmpia2NscWhiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTQxMTU2MSwiZXhwIjoyMDc2OTg3NTYxfQ.lvySjbh9dH89sgx0LxIF0PeBPRQse27jZwuXFqVzCeM';
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 async function checkMigrations() {
   console.log('🔍 Проверяю применение миграций...\n');

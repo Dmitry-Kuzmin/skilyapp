@@ -3,8 +3,13 @@
 -- ========================================
 -- Add fields for TipTap editor: content (JSONB), html_preview (TEXT), type (ENUM), is_published (BOOLEAN), version (INTEGER), updated_by (UUID)
 
--- Create enum for material types
-CREATE TYPE IF NOT EXISTS public.material_type AS ENUM ('theory', 'test', 'terms');
+-- Create enum for material types (only if not exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'material_type') THEN
+    CREATE TYPE public.material_type AS ENUM ('theory', 'test', 'terms');
+  END IF;
+END $$;
 
 -- Add new columns to materials table
 ALTER TABLE public.materials

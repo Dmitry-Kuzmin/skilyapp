@@ -17,6 +17,10 @@ export interface DuelNotification {
   created_at: string;
 }
 
+// Types of notifications to hide (progress notifications)
+// Show only results: finish, timeout
+const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
+
 export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
   const { profileId } = useUserContext();
   const [notifications, setNotifications] = useState<DuelNotification[]>([]);
@@ -76,12 +80,19 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             return;
           }
           
+          // Filter out progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
+          // Show only results (finish, timeout)
+          if (PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type)) {
+            console.log('[Notifications] ⏭️ Skipping progress notification:', newNotification.type);
+            return;
+          }
+          
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
-          // Show toast notification if enabled
+          // Show toast notification if enabled (only for results, not progress)
           if (showToasts) {
-            const isImportant = ['start', 'finish'].includes(newNotification.type);
+            const isImportant = ['finish'].includes(newNotification.type);
             const duration = isImportant ? 5000 : 3000;
             
             // Убираем иконку из title, если она уже есть в icon
@@ -177,7 +188,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       .select('*')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(100); // Load more to filter on client side
 
     if (error) {
       console.error('[useNotifications] Error loading notifications:', error);
@@ -191,10 +202,12 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     }
     
     if (data) {
-      setNotifications(data);
-      const unread = data.filter(n => !n.is_read).length;
+      // Filter out progress notifications on client side
+      const filteredData = data.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
+      setNotifications(filteredData);
+      const unread = filteredData.filter(n => !n.is_read).length;
       setUnreadCount(unread);
-      console.log('[useNotifications] Unread count:', unread);
+      console.log('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread);
     }
   }, [profileId]);
 

@@ -1,77 +1,55 @@
-# 🔄 Автоматическое применение миграций
+# 🚀 Автоматическое применение миграций
 
-## ✅ Система готова!
+## ✅ Настройка выполнена
 
-Теперь миграции будут применяться автоматически через Edge Function `apply-sql`.
+Теперь все миграции применяются **автоматически** при их создании.
 
----
+## 📋 Как это работает
 
-## 🚀 Первый запуск (один раз)
+1. **Создайте новую миграцию** в `supabase/migrations/`
+2. **Запустите скрипт** для применения:
+   ```bash
+   node scripts/auto-apply-migrations.js
+   ```
 
-### Шаг 1: Задеплоить функцию `apply-sql`
-
-**Через Supabase Dashboard:**
-
-1. Откройте: https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/functions
-2. Нажмите **"New Function"**
-3. Название: `apply-sql`
-4. Скопируйте код из `supabase/functions/apply-sql/index.ts`
-5. Нажмите **"Deploy"**
-
-**Или через CLI (если установлен):**
+Или примените конкретную миграцию:
 ```bash
-supabase functions deploy apply-sql
+node scripts/auto-apply-migrations.js supabase/migrations/20251107150000_fix_source_id_unique_constraint.sql
 ```
 
-### Шаг 2: Настроить переменные окружения
+## 🔧 Технические детали
 
-В Supabase Dashboard → Edge Functions → `apply-sql` → Settings → Secrets:
+- **Метод:** Supabase Management API
+- **Токен:** Используется `SUPABASE_ACCESS_TOKEN` из окружения или встроенный токен
+- **Идемпотентность:** Все миграции проверяют наличие объектов перед созданием
+- **Ошибки:** Ошибки "already exists" игнорируются (это нормально)
 
-- `DATABASE_URL`: `postgres://postgres:ZfNtylh28w-b7-KlZih-Ama7H6vtJJiN@db.ijijcrucqqnnjbkclqhb.supabase.co:5432/postgres?sslmode=prefer`
-
----
-
-## 📋 Применение миграций
-
-### Способ 1: Через npm скрипт (рекомендуется)
+## 📝 Пример использования
 
 ```bash
-npm run supabase:apply APPLY_NOW.sql "описание миграции"
+# Применить все новые миграции
+node scripts/auto-apply-migrations.js
+
+# Применить конкретную миграцию
+node scripts/auto-apply-migrations.js supabase/migrations/20251107150000_fix_source_id_unique_constraint.sql
 ```
 
-### Способ 2: Напрямую через скрипт
+## ⚙️ Переменные окружения
 
+Можно установить свой токен:
 ```bash
-node scripts/apply-migration-auto-v2.js APPLY_NOW.sql "описание миграции"
+export SUPABASE_ACCESS_TOKEN=your_token_here
+node scripts/auto-apply-migrations.js
 ```
 
-### Способ 3: С указанием Service Role Key
+## ✅ Результат
 
-```bash
-export SUPABASE_SERVICE_ROLE_KEY="ваш-ключ"
-npm run supabase:apply APPLY_NOW.sql "описание миграции"
-```
+После применения миграции вы увидите:
+- ✅ Применено: X - количество успешно примененных миграций
+- ⚠️  Пропущено: X - количество уже примененных миграций
+- ❌ Ошибок: X - количество миграций с ошибками
 
----
+## 🔗 Полезные ссылки
 
-## ✅ Что делает скрипт
-
-1. Читает SQL из указанного файла
-2. Отправляет SQL в Edge Function `apply-sql`
-3. Edge Function выполняет SQL напрямую через PostgreSQL
-4. Возвращает результат
-
----
-
-## ⚠️ Важно
-
-- Edge Function `apply-sql` должна быть задеплоена
-- Переменная окружения `DATABASE_URL` должна быть настроена в Edge Function
-- Service Role Key должен быть сохранен в `.env.local` (не коммитьте в Git!)
-
----
-
-## 🔗 Прямые ссылки
-
-- **Edge Functions**: https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/functions
-- **SQL Editor** (резервный вариант): https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/sql/new
+- **SQL Editor:** https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/sql/new
+- **Миграции:** https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/database/migrations

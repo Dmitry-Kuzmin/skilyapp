@@ -6,7 +6,7 @@
 
 import { execSync } from 'child_process';
 
-const PROJECT_ID = 'ijijcrucqqnnjbkclqhb';
+const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 
 console.log('🔧 Настройка Supabase CLI...\n');
 

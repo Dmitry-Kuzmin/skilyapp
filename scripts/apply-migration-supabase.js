@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
-const PROJECT_ID = 'ijijcrucqqnnjbkclqhb';
+const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqaWpjcnVjcXFubmpia2NscWhiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTQxMTU2MSwiZXhwIjoyMDc2OTg3NTYxfQ.lvySjbh9dH89sgx0LxIF0PeBPRQse27jZwuXFqVzCeM';
 
@@ -92,7 +92,7 @@ async function executeViaEdgeFunction(sql) {
   console.log('2. Или использовать Supabase CLI');
   console.log('3. Или применить вручную через SQL Editor\n');
   
-  console.log('🔗 SQL Editor: https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/sql/new\n');
+  console.log('🔗 SQL Editor: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/sql/new\n');
   console.log('📄 SQL для применения:\n');
   console.log('='.repeat(60));
   console.log(sql);
@@ -109,7 +109,7 @@ async function executeViaClient(sql) {
     // Но можно использовать RPC функции
     console.log('⚠️  Supabase JS Client не поддерживает произвольный SQL напрямую.');
     console.log('📝 Примените миграцию вручную через SQL Editor:\n');
-    console.log('🔗 https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/sql/new\n');
+    console.log('🔗 https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/sql/new\n');
     
     return false;
   } catch (error) {

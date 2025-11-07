@@ -1,45 +1,51 @@
 #!/bin/bash
 
-# Автоматическое применение миграций через psql
-# Использует DB URL для подключения к PostgreSQL
+# Применение миграции через прямой SQL запрос к базе данных
+# Использует psql для прямого подключения к PostgreSQL
 
-SQL_FILE="${1:-APPLY_NOW.sql}"
-DESCRIPTION="${2:-миграцию}"
+PROJECT_ID="yffjnqegeiorunyvcxkn"
+DB_PASSWORD="345556Ff@?"
+DB_HOST="aws-1-eu-north-1.pooler.supabase.com"
+DB_PORT="5432"
+DB_NAME="postgres"
+DB_USER="postgres.${PROJECT_ID}"
 
-DB_URL="postgres://postgres:ZfNtylh28w-b7-KlZih-Ama7H6vtJJiN@db.ijijcrucqqnnjbkclqhb.supabase.co:5432/postgres?sslmode=prefer"
+# URL для подключения
+DB_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
 
-echo "🚀 Применяю ${DESCRIPTION}..."
-echo ""
-echo "📄 Файл: ${SQL_FILE}"
-echo "📝 Описание: ${DESCRIPTION}"
-echo ""
+# Путь к миграции
+MIGRATION_FILE="${1:-supabase/migrations/20251107150000_fix_source_id_unique_constraint.sql}"
 
-if [ ! -f "$SQL_FILE" ]; then
-  echo "❌ Файл ${SQL_FILE} не найден!"
+if [ ! -f "$MIGRATION_FILE" ]; then
+  echo "❌ Файл миграции не найден: $MIGRATION_FILE"
   exit 1
 fi
 
+echo "🚀 Применение миграции: $MIGRATION_FILE"
+echo "=================================================================================="
+echo ""
+
+# Проверяем наличие psql
 if ! command -v psql &> /dev/null; then
-  echo "❌ psql не установлен"
-  echo "📦 Установите PostgreSQL клиент:"
-  echo "   macOS: brew install postgresql"
-  echo "   Linux: sudo apt-get install postgresql-client"
+  echo "❌ psql не установлен. Установите PostgreSQL client:"
+  echo "   brew install postgresql"
   exit 1
 fi
 
-echo "📤 Выполняю SQL через psql..."
-echo ""
-
-psql "$DB_URL" -f "$SQL_FILE"
+# Применяем миграцию
+echo "📝 Применяю SQL..."
+psql "$DB_URL" -f "$MIGRATION_FILE"
 
 if [ $? -eq 0 ]; then
   echo ""
-  echo "✅ Миграция успешно применена!"
-  exit 0
+  echo "=================================================================================="
+  echo "✅ Миграция применена успешно!"
 else
   echo ""
-  echo "❌ Ошибка при применении миграции"
+  echo "=================================================================================="
+  echo "❌ Ошибка применения миграции"
+  echo ""
+  echo "📝 Попробуйте применить миграцию вручную через SQL Editor:"
+  echo "   https://supabase.com/dashboard/project/${PROJECT_ID}/sql/new"
   exit 1
 fi
-
-

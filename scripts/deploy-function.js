@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 #!/usr/bin/env node
 
 /**
@@ -64,16 +62,9 @@ try {
   });
 
   console.log(`\n✅ Функция ${FUNCTION_NAME} успешно задеплоена!`);
-  console.log(`\n📊 Проверьте логи: https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/functions/${FUNCTION_NAME}/logs`);
+  console.log(`\n📊 Проверьте логи: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/functions/${FUNCTION_NAME}/logs`);
 
 } catch (error) {
   console.error(`\n❌ Ошибка при деплое функции ${FUNCTION_NAME}:`, error.message);
   process.exit(1);
 }
-<<<<<<< Current (Your changes)
-<<<<<<< Current (Your changes)
->>>>>>> Incoming (Background Agent changes)
-=======
->>>>>>> Incoming (Background Agent changes)
-=======
->>>>>>> Incoming (Background Agent changes)

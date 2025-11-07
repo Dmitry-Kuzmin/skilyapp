@@ -18,7 +18,8 @@ ALTER TABLE daily_duel_limits DROP CONSTRAINT IF EXISTS daily_duel_limits_user_i
 ALTER TABLE daily_duel_limits ADD CONSTRAINT daily_duel_limits_user_id_fkey 
   FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE;
 
--- Grant admin role to kuzmin.public@gmail.com
+-- Grant admin role to kuzmin.public@gmail.com (only if user exists)
 INSERT INTO user_roles (user_id, role)
-VALUES ('0d897282-c18b-4140-bd77-fecb23cd1af1', 'admin')
+SELECT '0d897282-c18b-4140-bd77-fecb23cd1af1', 'admin'
+WHERE EXISTS (SELECT 1 FROM auth.users WHERE id = '0d897282-c18b-4140-bd77-fecb23cd1af1')
 ON CONFLICT (user_id, role) DO NOTHING;

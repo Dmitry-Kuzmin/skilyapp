@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
-const PROJECT_ID = 'ijijcrucqqnnjbkclqhb';
+const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
 
 async function applyUrgentFix() {

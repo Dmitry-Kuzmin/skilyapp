@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 #!/usr/bin/env node
 
 /**
@@ -16,7 +14,7 @@ const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
 // Конфигурация из config.toml
-const PROJECT_ID = 'ijijcrucqqnnjbkclqhb';
+const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
 
 // Получаем access token из переменных окружения или Supabase CLI
@@ -176,10 +174,3 @@ async function main() {
 
 // Запускаем скрипт
 main();
-<<<<<<< Current (Your changes)
-<<<<<<< Current (Your changes)
->>>>>>> Incoming (Background Agent changes)
-=======
->>>>>>> Incoming (Background Agent changes)
-=======
->>>>>>> Incoming (Background Agent changes)

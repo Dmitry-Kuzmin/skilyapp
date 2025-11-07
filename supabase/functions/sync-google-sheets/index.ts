@@ -90,12 +90,48 @@ interface TopicRow {
   gradient_to?: string;
 }
 
+interface LanguageTermRow {
+  source_id?: string;
+  term?: string;
+  translation?: string;
+  description?: string;
+  difficulty?: string;
+  category?: string; // Comma-separated topic numbers like "1,3" or "4,6"
+  image_url?: string;
+  audio_url?: string;
+  description_translation?: string;
+}
+
+interface RoadSignRow {
+  source_id?: string;
+  name?: string;
+  description?: string;
+  sign_type?: string;
+  image_url?: string;
+  created_at?: string;
+  name_translation?: string;
+  description_translation?: string;
+  sign_number?: string;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Parse request body first (can only be read once)
+    let syncType = 'all';
+    try {
+      const bodyText = await req.text();
+      if (bodyText) {
+        const body = JSON.parse(bodyText);
+        syncType = body.syncType || 'all';
+      }
+    } catch {
+      // If body parsing fails, use default
+    }
+
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -141,6 +177,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('Admin user verified:', user.email);
+    console.log('Sync type:', syncType);
 
     // Create service role client for actual operations
     const supabase = createClient(
@@ -155,7 +192,7 @@ Deno.serve(async (req) => {
 
     console.log('Starting Google Sheets sync...');
 
-    // Fetch Topics sheet
+    // Fetch Topics sheet (always needed for topic mapping)
     const topicsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=Topics`;
     const topicsResponse = await fetch(topicsUrl);
     const topicsCsv = await topicsResponse.text();
@@ -206,13 +243,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Fetch Questions sheet
-    const questionsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=Questions`;
-    const questionsResponse = await fetch(questionsUrl);
-    const questionsCsv = await questionsResponse.text();
-    const questionsRows = questionsCsv.split('\n').slice(1).filter(row => row.trim());
+    // Fetch Questions sheet (only if needed)
+    let questionsRows: string[] = [];
+    if (syncType === 'all' || syncType === 'questions') {
+      const questionsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=Questions`;
+      const questionsResponse = await fetch(questionsUrl);
+      const questionsCsv = await questionsResponse.text();
+      questionsRows = questionsCsv.split('\n').slice(1).filter(row => row.trim());
 
-    console.log(`Found ${questionsRows.length} questions`);
+      console.log(`Found ${questionsRows.length} questions`);
+    }
 
     // Get topics map
     const { data: topics } = await supabase
@@ -235,11 +275,25 @@ Deno.serve(async (req) => {
     const skipReasons: string[] = [];
     const warnings: string[] = [];
 
-    for (const row of questionsRows) {
+    if (syncType === 'all' || syncType === 'questions') {
+      for (const row of questionsRows) {
       const columns = parseCSVRow(row);
       
       // Log parsed columns for debugging
-      console.log(`Parsed ${columns.length} columns for row ${questionsProcessed + questionsSkipped + 1}`);
+      const rowNumber = questionsProcessed + questionsSkipped + 1;
+      console.log(`Parsed ${columns.length} columns for row ${rowNumber}`);
+      
+      // Debug: log first few columns to see what's being parsed
+      if (rowNumber <= 3) {
+        console.log(`Row ${rowNumber} first 3 columns:`, {
+          col0: columns[0],
+          col1: columns[1],
+          col2: columns[2],
+          col0_trimmed: columns[0]?.trim(),
+          col0_length: columns[0]?.length,
+          raw_row_preview: row.substring(0, 100)
+        });
+      }
       
       // source_id is now in column 0 (first column)
       // topic_number is now in column 1 (second column)
@@ -278,9 +332,18 @@ Deno.serve(async (req) => {
         notes: columns[31],
       };
       
-      // Validate source_id
+      // Validate source_id with detailed logging
       if (!questionData.source_id || !questionData.source_id.trim()) {
-        skipReasons.push(`Вопрос пропущен: отсутствует source_id (строка ${questionsSkipped + questionsProcessed + 2})`);
+        const debugInfo = {
+          rowNumber: rowNumber + 1,
+          columnsCount: columns.length,
+          firstColumn: columns[0],
+          firstColumnTrimmed: columns[0]?.trim(),
+          firstColumnLength: columns[0]?.length,
+          firstColumnAfterTrim: columns[0]?.trim()?.length
+        };
+        console.warn(`Missing source_id for row ${rowNumber + 1}:`, debugInfo);
+        skipReasons.push(`Вопрос пропущен: отсутствует source_id (строка ${rowNumber + 1}, колонок: ${columns.length}, первая колонка: "${columns[0] || '(пусто)'}")`);
         questionsSkipped++;
         continue;
       }
@@ -459,17 +522,259 @@ Deno.serve(async (req) => {
       }
 
       questionsProcessed++;
+      }
+    }
+
+    // Sync language_terms if needed
+    let termsProcessed = 0;
+    let termsInserted = 0;
+    let termsUpdated = 0;
+    let termsSkipped = 0;
+    const termsSkipReasons: string[] = [];
+    const termsWarnings: string[] = [];
+
+    if (syncType === 'all' || syncType === 'terms') {
+      // Fetch Language Terms sheet
+      const termsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=language_terms`;
+      const termsResponse = await fetch(termsUrl);
+      const termsCsv = await termsResponse.text();
+      const termsRows = termsCsv.split('\n').slice(1).filter(row => row.trim());
+
+      console.log(`Found ${termsRows.length} language terms`);
+
+      for (const row of termsRows) {
+        const columns = parseCSVRow(row);
+        
+        // Log parsed columns for debugging
+        const rowNumber = termsProcessed + termsSkipped + 1;
+        if (rowNumber <= 3) {
+          console.log(`Term row ${rowNumber} first 3 columns:`, {
+            col0: columns[0],
+            col1: columns[1],
+            col2: columns[2],
+          });
+        }
+
+        // source_id is in column 0 (first column)
+        const termData: LanguageTermRow = {
+          source_id: columns[0]?.trim() || null,
+          term: columns[1],
+          translation: columns[2],
+          description: columns[3],
+          difficulty: columns[4],
+          category: columns[5], // Comma-separated topic numbers
+          image_url: columns[6],
+          audio_url: columns[7],
+          description_translation: columns[8],
+        };
+
+        // Validate source_id
+        if (!termData.source_id || !termData.source_id.trim()) {
+          termsSkipReasons.push(`Термин пропущен: отсутствует source_id (строка ${rowNumber + 1})`);
+          termsSkipped++;
+          continue;
+        }
+
+        // Validate required fields
+        if (!termData.term || !termData.translation) {
+          termsSkipReasons.push(`Термин пропущен: отсутствуют обязательные поля (строка ${rowNumber + 1})`);
+          termsSkipped++;
+          continue;
+        }
+
+        // Parse category (comma-separated topic numbers) and get first topic_id
+        let topicId: string | null = null;
+        if (termData.category) {
+          const topicNumbers = termData.category.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+          if (topicNumbers.length > 0) {
+            // Get topic_id for the first topic number
+            topicId = topicMap.get(topicNumbers[0]) || null;
+            if (!topicId) {
+              termsWarnings.push(`Тема ${topicNumbers[0]} не найдена для термина ${termData.source_id}`);
+            }
+          }
+        }
+
+        // Map difficulty
+        const difficultyMap: Record<string, 'easy' | 'medium' | 'hard'> = {
+          '1': 'easy',
+          '2': 'medium',
+          '3': 'hard',
+          'easy': 'easy',
+          'medium': 'medium',
+          'hard': 'hard',
+        };
+        const difficulty = termData.difficulty 
+          ? (difficultyMap[termData.difficulty.toLowerCase()] || 'medium')
+          : 'medium';
+
+        // Upsert language term
+        const { data: term, error: termError } = await supabase
+          .from('language_terms')
+          .upsert({
+            source_id: termData.source_id.trim(),
+            term_es: termData.term,
+            term_ru: termData.translation,
+            description_es: termData.description || '',
+            description_ru: termData.description_translation || termData.description || '',
+            difficulty: difficulty,
+            topic_id: topicId,
+            image_url: termData.image_url || null,
+            audio_url: termData.audio_url || null,
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'source_id',
+            ignoreDuplicates: false
+          })
+          .select('id, created_at, updated_at')
+          .single();
+
+        if (termError) {
+          const reason = `Ошибка upsert термина: ${termError.message} (source_id: ${termData.source_id})`;
+          console.error(reason);
+          termsSkipReasons.push(reason);
+          termsSkipped++;
+          continue;
+        }
+
+        // Determine if term was new or updated
+        const createdAt = new Date(term.created_at).getTime();
+        const updatedAt = new Date(term.updated_at).getTime();
+        const timeDiff = Math.abs(updatedAt - createdAt);
+        const isNewTerm = timeDiff < 2000;
+
+        if (isNewTerm) {
+          termsInserted++;
+        } else {
+          termsUpdated++;
+        }
+
+        termsProcessed++;
+      }
+    }
+
+    // Sync road_signs if needed
+    let signsProcessed = 0;
+    let signsInserted = 0;
+    let signsUpdated = 0;
+    let signsSkipped = 0;
+    const signsSkipReasons: string[] = [];
+    const signsWarnings: string[] = [];
+
+    if (syncType === 'all' || syncType === 'signs') {
+      // Fetch Road Signs sheet
+      const signsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=road_signs_rows`;
+      const signsResponse = await fetch(signsUrl);
+      const signsCsv = await signsResponse.text();
+      const signsRows = signsCsv.split('\n').slice(1).filter(row => row.trim());
+
+      console.log(`Found ${signsRows.length} road signs`);
+
+      for (const row of signsRows) {
+        const columns = parseCSVRow(row);
+        
+        // Log parsed columns for debugging
+        const rowNumber = signsProcessed + signsSkipped + 1;
+        if (rowNumber <= 3) {
+          console.log(`Sign row ${rowNumber} first 3 columns:`, {
+            col0: columns[0],
+            col1: columns[1],
+            col2: columns[2],
+          });
+        }
+
+        // source_id is in column 0 (first column)
+        const signData: RoadSignRow = {
+          source_id: columns[0]?.trim() || null,
+          name: columns[1],
+          description: columns[2],
+          sign_type: columns[3],
+          image_url: columns[4],
+          created_at: columns[5],
+          name_translation: columns[6],
+          description_translation: columns[7],
+          sign_number: columns[8],
+        };
+
+        // Validate source_id
+        if (!signData.source_id || !signData.source_id.trim()) {
+          signsSkipReasons.push(`Знак пропущен: отсутствует source_id (строка ${rowNumber + 1})`);
+          signsSkipped++;
+          continue;
+        }
+
+        // Validate required fields
+        if (!signData.name || !signData.name_translation) {
+          signsSkipReasons.push(`Знак пропущен: отсутствуют обязательные поля (строка ${rowNumber + 1})`);
+          signsSkipped++;
+          continue;
+        }
+
+        // Upsert road sign
+        const { data: sign, error: signError } = await supabase
+          .from('road_signs')
+          .upsert({
+            source_id: signData.source_id.trim(),
+            name_es: signData.name,
+            name_ru: signData.name_translation,
+            description_es: signData.description || '',
+            description_ru: signData.description_translation || signData.description || '',
+            sign_type: signData.sign_type || 'information',
+            sign_number: signData.sign_number || null,
+            image_url: signData.image_url || null,
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'source_id',
+            ignoreDuplicates: false
+          })
+          .select('id, created_at, updated_at')
+          .single();
+
+        if (signError) {
+          const reason = `Ошибка upsert знака: ${signError.message} (source_id: ${signData.source_id})`;
+          console.error(reason);
+          signsSkipReasons.push(reason);
+          signsSkipped++;
+          continue;
+        }
+
+        // Determine if sign was new or updated
+        const createdAt = new Date(sign.created_at).getTime();
+        const updatedAt = new Date(sign.updated_at).getTime();
+        const timeDiff = Math.abs(updatedAt - createdAt);
+        const isNewSign = timeDiff < 2000;
+
+        if (isNewSign) {
+          signsInserted++;
+        } else {
+          signsUpdated++;
+        }
+
+        signsProcessed++;
+      }
     }
 
     const result = {
       success: true,
       topicsProcessed: topicsProcessed,
-      questionsProcessed: questionsProcessed,
-      questionsInserted: questionsInserted,
-      questionsUpdated: questionsUpdated,
-      questionsSkipped: questionsSkipped,
+      questionsProcessed: syncType === 'all' || syncType === 'questions' ? questionsProcessed : 0,
+      questionsInserted: syncType === 'all' || syncType === 'questions' ? questionsInserted : 0,
+      questionsUpdated: syncType === 'all' || syncType === 'questions' ? questionsUpdated : 0,
+      questionsSkipped: syncType === 'all' || syncType === 'questions' ? questionsSkipped : 0,
+      termsProcessed: syncType === 'all' || syncType === 'terms' ? termsProcessed : 0,
+      termsInserted: syncType === 'all' || syncType === 'terms' ? termsInserted : 0,
+      termsUpdated: syncType === 'all' || syncType === 'terms' ? termsUpdated : 0,
+      termsSkipped: syncType === 'all' || syncType === 'terms' ? termsSkipped : 0,
+      signsProcessed: syncType === 'all' || syncType === 'signs' ? signsProcessed : 0,
+      signsInserted: syncType === 'all' || syncType === 'signs' ? signsInserted : 0,
+      signsUpdated: syncType === 'all' || syncType === 'signs' ? signsUpdated : 0,
+      signsSkipped: syncType === 'all' || syncType === 'signs' ? signsSkipped : 0,
       skipReasons: skipReasons.slice(0, 10), // First 10 reasons
+      termsSkipReasons: termsSkipReasons.slice(0, 10), // First 10 reasons for terms
+      signsSkipReasons: signsSkipReasons.slice(0, 10), // First 10 reasons for signs
       warnings: warnings.slice(0, 20), // First 20 warnings
+      termsWarnings: termsWarnings.slice(0, 20), // First 20 warnings for terms
+      signsWarnings: signsWarnings.slice(0, 20), // First 20 warnings for signs
       timestamp: new Date().toISOString(),
       availableTopics: Array.from(topicMap.keys()).sort((a, b) => a - b),
     };

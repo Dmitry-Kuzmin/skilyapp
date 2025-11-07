@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         error: 'Direct SQL execution not supported via REST API',
         message: 'Please use Supabase Dashboard SQL Editor or create a RPC function',
-        sql_editor_url: 'https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/sql/new',
+        sql_editor_url: 'https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/sql/new',
         alternative: 'Use Supabase CLI or apply SQL manually'
       }),
       { 

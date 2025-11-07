@@ -22,6 +22,15 @@ CREATE POLICY "Users can view their own notifications"
   FOR SELECT
   USING (user_id = get_user_profile_id());
 
--- Включаем realtime для таблицы
-ALTER PUBLICATION supabase_realtime ADD TABLE duel_notifications;
+-- Включаем realtime для таблицы (только если еще не добавлена)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND tablename = 'duel_notifications'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE duel_notifications;
+  END IF;
+END $$;
 

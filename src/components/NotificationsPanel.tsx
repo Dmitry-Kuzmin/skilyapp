@@ -32,21 +32,22 @@ export function NotificationsPanel() {
   }, [notifications, unreadCount, profileId]);
 
   // Filter notifications by type
+  // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
+  // Show only results (finish, timeout)
+  const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
+  
   const filteredNotifications = useMemo(() => {
-    if (filter === 'all') return notifications;
+    // First, filter out progress notifications (always hide them)
+    const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
+    
+    if (filter === 'all') return notificationsWithoutProgress;
     
     const typeMap: Record<string, NotificationFilter> = {
-      'start': 'duels',
-      'progress': 'duels',
-      'boost': 'duels',
       'finish': 'duels',
       'timeout': 'duels',
-      'opponent_ahead': 'duels',
-      'opponent_behind': 'duels',
-      'reminder': 'reminders',
     };
 
-    return notifications.filter(n => {
+    return notificationsWithoutProgress.filter(n => {
       const category = typeMap[n.type] || 'system';
       return category === filter;
     });

@@ -17,6 +17,15 @@ CREATE POLICY "Users can view their own notifications"
     )
   );
 
--- Проверяем, что realtime включен для таблицы
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS duel_notifications;
+-- Проверяем, что realtime включен для таблицы (только если еще не добавлена)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND tablename = 'duel_notifications'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE duel_notifications;
+  END IF;
+END $$;
 
