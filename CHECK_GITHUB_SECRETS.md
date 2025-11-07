@@ -44,13 +44,15 @@
 
 2. **Проверьте секреты:**
    - `VITE_SUPABASE_URL` должен быть: `https://yffjnqegeiorunyvcxkn.supabase.co`
-   - `VITE_SUPABASE_ANON_KEY` должен начинаться с `eyJ` и быть длиной 200-400 символов
+   - `VITE_SUPABASE_PUBLISHABLE_KEY` должен начинаться с `eyJ` и быть длиной 200-400 символов
+   - ⚠️ **ВАЖНО:** Используйте имя `VITE_SUPABASE_PUBLISHABLE_KEY` (не `VITE_SUPABASE_ANON_KEY`!)
 
 3. **Если нужно изменить:**
    - Нажмите на секрет
    - Выберите "Update"
    - Вставьте правильное значение
    - Сохраните
+   - ⚠️ **ВАЖНО:** Если у вас есть `VITE_SUPABASE_ANON_KEY`, переименуйте его в `VITE_SUPABASE_PUBLISHABLE_KEY`!
 
 ## ✅ Правильные значения
 
@@ -59,11 +61,13 @@
 https://yffjnqegeiorunyvcxkn.supabase.co
 ```
 
-### VITE_SUPABASE_ANON_KEY
+### VITE_SUPABASE_PUBLISHABLE_KEY
+- **⚠️ ВАЖНО:** Используйте имя `VITE_SUPABASE_PUBLISHABLE_KEY` (не `VITE_SUPABASE_ANON_KEY`!)
 - **Формат:** JWT токен (начинается с `eyJ`)
 - **Длина:** 200-400 символов
-- **Тип:** "anon" "public" ключ (НЕ service_role!)
-- **Где найти:** Supabase Dashboard → Settings → API → "anon" "public"
+   - **Тип:** "anon" "public" ключ (НЕ service_role!)
+   - **Где найти:** Supabase Dashboard → Settings → API → "anon" "public"
+   - **Имя в GitHub Secrets:** `VITE_SUPABASE_PUBLISHABLE_KEY` (не `VITE_SUPABASE_ANON_KEY`!)
 
 ## ⚠️ Важные замечания
 

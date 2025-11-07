@@ -15,7 +15,7 @@ console.log('='.repeat(80));
 
 // Проверяем, что переменные окружения установлены
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabasePublishableKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY; // Поддержка обоих имен
 
 console.log('\n📋 Текущие значения:\n');
 
@@ -32,12 +32,13 @@ if (supabaseUrl) {
 
 console.log('');
 
-if (supabaseAnonKey) {
+if (supabasePublishableKey) {
   // Проверяем формат ключа (JWT токен)
-  const keyLength = supabaseAnonKey.length;
-  const startsWithEy = supabaseAnonKey.startsWith('eyJ');
+  const keyLength = supabasePublishableKey.length;
+  const startsWithEy = supabasePublishableKey.startsWith('eyJ');
   
-  console.log(`✅ VITE_SUPABASE_ANON_KEY: ${supabaseAnonKey.substring(0, 20)}... (${keyLength} символов)`);
+  const keyName = process.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'VITE_SUPABASE_PUBLISHABLE_KEY' : 'VITE_SUPABASE_ANON_KEY';
+  console.log(`✅ ${keyName}: ${supabasePublishableKey.substring(0, 20)}... (${keyLength} символов)`);
   
   if (startsWithEy) {
     console.log('   ✅ Формат ключа правильный (JWT токен)');
@@ -51,28 +52,30 @@ if (supabaseAnonKey) {
     console.log('   ⚠️  Длина ключа может быть неправильной (обычно 200-400 символов)');
   }
 } else {
-  console.log('❌ VITE_SUPABASE_ANON_KEY: не установлен');
+  console.log('❌ VITE_SUPABASE_PUBLISHABLE_KEY: не установлен');
+  console.log('   ⚠️  Также проверьте VITE_SUPABASE_ANON_KEY (старое имя)');
 }
 
 console.log('\n' + '='.repeat(80));
 console.log('\n📝 Инструкции:\n');
 
-if (!supabaseUrl || !supabaseAnonKey) {
+if (!supabaseUrl || !supabasePublishableKey) {
   console.log('1. Установите переменные окружения:');
   console.log(`   export VITE_SUPABASE_URL="${EXPECTED_SUPABASE_URL}"`);
-  console.log('   export VITE_SUPABASE_ANON_KEY="ваш_anon_key"');
+  console.log('   export VITE_SUPABASE_PUBLISHABLE_KEY="ваш_anon_key"');
   console.log('\n2. Или запустите скрипт с переменными:');
-  console.log('   VITE_SUPABASE_URL="..." VITE_SUPABASE_ANON_KEY="..." node scripts/check-github-secrets.js');
+  console.log('   VITE_SUPABASE_URL="..." VITE_SUPABASE_PUBLISHABLE_KEY="..." node scripts/check-github-secrets.js');
 } else {
   console.log('✅ Переменные окружения установлены!');
   console.log('\n📋 Для проверки в GitHub:');
   console.log('1. Откройте: https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep/settings/secrets/actions');
   console.log('2. Проверьте, что секреты имеют те же значения, что и выше');
+  console.log('3. ⚠️  ВАЖНО: Используйте имя VITE_SUPABASE_PUBLISHABLE_KEY (не VITE_SUPABASE_ANON_KEY!)');
   console.log('\n🔗 Как получить правильный anon key:');
   console.log('1. Откройте Supabase Dashboard: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn');
   console.log('2. Перейдите в Settings → API');
   console.log('3. Скопируйте "anon" "public" ключ (не service_role!)');
-  console.log('4. Добавьте его в GitHub Secrets как VITE_SUPABASE_ANON_KEY');
+  console.log('4. Добавьте его в GitHub Secrets как VITE_SUPABASE_PUBLISHABLE_KEY');
 }
 
 console.log('\n' + '='.repeat(80));
