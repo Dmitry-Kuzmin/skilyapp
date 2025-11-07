@@ -3,12 +3,17 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useInitTelegram } from "@/hooks/useInitTelegram";
 import Index from "./pages/Index";
+import LearningMap from "./pages/LearningMap";
+import TopicDetail from "./pages/TopicDetail";
+import SubtopicDetail from "./pages/SubtopicDetail";
 import Tests from "./pages/Tests";
 import Learning from "./pages/Learning";
 import Games from "./pages/Games";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import AdminEditor from "./pages/AdminEditor";
 import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
 import GuessTheSign from "./pages/games/GuessTheSign";
@@ -25,14 +30,21 @@ import DailyBonus from "./pages/DailyBonus";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+const App = () => {
+  // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
+  useInitTelegram();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LearningMap />} />
+          <Route path="/dashboard" element={<Index />} />
+          <Route path="/topic/:id" element={<TopicDetail />} />
+          <Route path="/subtopic/:id" element={<SubtopicDetail />} />
           <Route path="/tests" element={<Tests />} />
           <Route path="/test/:mode" element={<TestSession />} />
           <Route path="/test/:mode/:topic" element={<TestSession />} />
@@ -47,6 +59,7 @@ const App = () => (
           <Route path="/games/road-race" element={<RoadRace />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/editor" element={<AdminEditor />} />
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />
           <Route path="/data-import" element={<DataImport />} />
@@ -57,6 +70,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

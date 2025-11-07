@@ -12,27 +12,29 @@
   --tg-theme-button-text-color: var(--primary-foreground);
   --tg-theme-secondary-bg-color: var(--card);
   
-  /* Safe area insets - Telegram Mini Apps API (для Dynamic Island, статус-бар, home indicator) */
+  /* Telegram WebApp Safe Area Insets - единая система отступов */
+  /* Используем Telegram WebApp API для получения правильных значений */
   --tg-safe-area-inset-top: 0px;
   --tg-safe-area-inset-bottom: 0px;
   --tg-safe-area-inset-left: 0px;
   --tg-safe-area-inset-right: 0px;
   
-  /* Content safe area insets - отступы от UI Telegram */
-  /* По умолчанию 0px - будет обновлено через TelegramNavigation только в Telegram WebApp */
-  --tg-content-safe-area-inset-top: 0px;
-  --tg-content-safe-area-inset-bottom: 0px;
-  --tg-content-safe-area-inset-left: 0px;
-  --tg-content-safe-area-inset-right: 0px;
-  
   /* Viewport stable height - стабильная высота без клавиатуры */
   --tg-viewport-stable-height: 100vh;
   
-  /* Fallback для браузеров без поддержки Telegram API */
-  --sat: env(safe-area-inset-top, var(--tg-safe-area-inset-top));
-  --sar: env(safe-area-inset-right, var(--tg-safe-area-inset-right));
-  --sab: env(safe-area-inset-bottom, var(--tg-safe-area-inset-bottom));
-  --sal: env(safe-area-inset-left, var(--tg-safe-area-inset-left));
+  /* Единая система отступов для Telegram WebApp */
+  /* Используем env() для системных safe areas + Telegram API для content safe areas */
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-safe-left: env(safe-area-inset-left, 0px);
+  --app-safe-right: env(safe-area-inset-right, 0px);
+  
+  /* Отступы для основного контента в Telegram WebApp */
+  /* Будет обновлено через TelegramNavigation на основе Telegram WebApp API */
+  /* Для мобильных: используем contentSafeAreaInset.top из Telegram API */
+  /* Для десктопа: 0px (нет нативной панели Telegram) */
+  --app-content-top: 0px;
+  --app-content-bottom: 0px;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -149,11 +151,6 @@ All colors MUST be HSL.
   }
 }
 
-/* Premium glow effects */
-.drop-shadow-glow {
-  filter: drop-shadow(0 0 8px currentColor);
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -166,20 +163,10 @@ All colors MUST be HSL.
     box-sizing: border-box;
     
     /* Отступы от системных UI элементов (Dynamic Island, статус-бар, home indicator) */
-    padding-top: var(--sat);
-    padding-bottom: var(--sab);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-    
-    /* Отключаем pull-to-refresh по умолчанию */
-    overscroll-behavior-y: none;
-    overscroll-behavior: none;
-  }
-  
-  /* Для Telegram WebApp применяем дополнительные стили */
-  body.telegram-webapp {
-    overscroll-behavior-y: none !important;
-    overscroll-behavior: none !important;
+    padding-top: var(--app-safe-top);
+    padding-bottom: var(--app-safe-bottom);
+    padding-left: var(--app-safe-left);
+    padding-right: var(--app-safe-right);
   }
 
   body.dark {
@@ -188,32 +175,6 @@ All colors MUST be HSL.
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
-  }
-}
-
-@keyframes progress-glow {
-  0%, 100% {
-    opacity: 1;
-    filter: brightness(1);
-  }
-  50% {
-    opacity: 0.9;
-    filter: brightness(1.2);
-  }
-}
-
-@keyframes progress-shine {
-  0% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.02);
-  }
-  100% {
-    opacity: 0.4;
-    transform: scale(1);
   }
 }
 
@@ -270,41 +231,31 @@ All colors MUST be HSL.
     flex-direction: column;
   }
 
+  /* Основной контент - единая система отступов */
   .telegram-main-content {
     flex: 1;
-    padding-bottom: calc(5rem + var(--sab) + var(--tg-content-safe-area-inset-bottom, 0px));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    /* Отключаем pull-to-refresh */
     overscroll-behavior-y: contain;
+    /* Отступ снизу для нижней навигации */
+    padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
   }
   
-  /* По умолчанию отступов нет */
-  .telegram-main-content {
-    padding-top: 0px !important;
-  }
-  
-  /* Безопасная зона сверху ТОЛЬКО для Telegram WebApp */
-  /* Используем CSS env() напрямую + класс на body/html для селектора */
-  /* env(safe-area-inset-top) - системный safe area (Dynamic Island, статус-бар) */
-  /* Минимальный отступ для нативной панели Telegram на iPhone (35px - минимально необходимое) */
+  /* Верхний отступ ТОЛЬКО для Telegram WebApp */
+  /* Используем единую систему на основе Telegram WebApp API */
+  /* Для мобильных: используем contentSafeAreaInset.top из Telegram API */
+  /* Для десктопа: 0px (нет нативной панели Telegram) */
   html.telegram-webapp .telegram-main-content,
   body.telegram-webapp .telegram-main-content {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 35px) !important;
-  }
-  
-  /* Отключаем pull-to-refresh для всего приложения в Telegram */
-  body.telegram-webapp {
-    overscroll-behavior-y: none;
-    overscroll-behavior: none;
+    padding-top: calc(var(--app-safe-top) + var(--app-content-top)) !important;
   }
 
   .app-bottom-nav {
     position: fixed;
     bottom: 0;
-    left: var(--sal);
-    right: var(--sar);
-    padding-bottom: calc(var(--sab) + var(--tg-content-safe-area-inset-bottom, 0px));
+    left: var(--app-safe-left);
+    right: var(--app-safe-right);
+    padding-bottom: calc(var(--app-safe-bottom) + var(--app-content-bottom));
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
@@ -345,101 +296,6 @@ All colors MUST be HSL.
     /* iOS specific styles */
     .telegram-app-container {
       min-height: -webkit-fill-available;
-    }
-  }
-
-  /* Race Game Fullscreen Mode */
-  body.race-game-active .app-bottom-nav,
-  body.race-game-active .telegram-main-content {
-    display: none !important;
-  }
-
-  .race-game-fullscreen-wrapper {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    background: hsl(var(--background));
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .race-game-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .race-game-wrapper.race-game-fullscreen {
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for mobile */
-    overflow: hidden;
-  }
-
-  .race-game-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    background: hsl(var(--background) / 0.95);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid hsl(var(--border) / 0.5);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .race-game-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 0.75rem;
-    padding-top: 2.5rem; /* Space for fixed header on mobile */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  @media (min-width: 768px) {
-    .race-game-content {
-      padding: 1rem;
-      padding-top: 1rem;
-      max-width: 42rem;
-      margin: 0 auto;
-      width: 100%;
-    }
-  }
-
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .race-game-content {
-      min-height: calc(100vh - 3rem);
-      padding-bottom: 1rem;
-    }
-
-    /* Ensure everything fits on one screen */
-    .race-game-content .space-y-3 > * + * {
-      margin-top: 0.75rem;
-    }
-
-    /* Compact card padding on mobile */
-    .race-game-content .card {
-      padding: 1rem;
-    }
-
-    /* Smaller text sizes on mobile */
-    .race-game-content h1 {
-      font-size: 1.5rem;
-    }
-
-    .race-game-content h2 {
-      font-size: 1.25rem;
-    }
-
-    /* Ensure buttons are touch-friendly */
-    .race-game-content button {
-      min-height: 3rem;
-      min-width: 3rem;
     }
   }
 
