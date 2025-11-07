@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, Zap, Flame, Shield, Users, Trophy, Swords, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,71 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const { state } = useDuelRealtime(duelId, myPlayerId);
   
   // Initialize notifications for this duel
-  useNotifications({ showToasts: true, playSounds: true });
+  const { notifications, markAsRead } = useNotifications({ showToasts: false, playSounds: true });
+  
+  // Обрабатываем уведомления о бустах соперника во время игры
+  const processedBoostNotifications = useRef<Set<string>>(new Set());
+  
+  useEffect(() => {
+    // Фильтруем только уведомления о бустах для текущей дуэли
+    const boostNotifications = notifications.filter(
+      n => n.type === 'boost' && n.duel_id === duelId && !n.is_read && !processedBoostNotifications.current.has(n.id)
+    );
+    
+    if (boostNotifications.length > 0) {
+      const latestBoost = boostNotifications[0]; // Берем последнее уведомление
+      console.log('[DuelBattleFullscreen] ✅ Boost notification received:', latestBoost);
+      
+      // Помечаем как обработанное
+      processedBoostNotifications.current.add(latestBoost.id);
+      
+      const isTelegram = isTelegramMiniApp();
+      const webApp = getTelegramWebApp();
+      
+      // Показываем toast-уведомление о бусте
+      const message = latestBoost.title || 'Соперник использовал буст!';
+      
+      console.log('[DuelBattleFullscreen] Showing boost toast:', message, 'isTelegram:', isTelegram);
+      
+      if (isTelegram && webApp?.showAlert) {
+        try {
+          webApp.showAlert(message);
+          console.log('[DuelBattleFullscreen] ✅ Shown via Telegram WebApp.showAlert');
+        } catch (e) {
+          console.warn('[DuelBattleFullscreen] Telegram showAlert error:', e);
+        }
+      }
+      
+      toast.info(message, {
+        duration: 3000,
+        icon: '⚡',
+        style: { 
+          zIndex: 999999,
+          fontSize: isTelegram ? '16px' : '14px',
+          padding: isTelegram ? '16px' : '12px'
+        }
+      });
+      
+      // Вибрация для Telegram
+      if (isTelegram && webApp?.HapticFeedback) {
+        try {
+          webApp.HapticFeedback.notificationOccurred('warning');
+        } catch (e) {
+          console.warn('[DuelBattleFullscreen] Haptic feedback error:', e);
+        }
+      }
+      
+      // Звук уведомления
+      try {
+        sounds.notificationPop();
+      } catch (e) {
+        console.warn('[DuelBattleFullscreen] Sound error:', e);
+      }
+      
+      // Помечаем как прочитанное
+      markAsRead(latestBoost.id);
+    }
+  }, [notifications, duelId, markAsRead]);
   
   // Get safe area insets from Telegram WebApp API
   const safeArea = useSafeArea();
@@ -87,9 +151,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }, [myPlayerId]);
 
   // Start countdown when duel starts
+  // ВАЖНО: Countdown показываем только если вопросы уже загружены
+  // И только один раз при старте (не при каждом обновлении state.duelStarted)
+  const countdownStartedRef = useRef(false);
+  
   useEffect(() => {
-    if (state.duelStarted && !showCountdown && questions.length > 0) {
-      console.log('[DuelBattleFullscreen] Duel started, starting countdown...');
+    // Показываем countdown только если:
+    // 1. Duel начался
+    // 2. Вопросы загружены
+    // 3. Countdown еще не был показан
+    // 4. Countdown не показывается сейчас
+    if (state.duelStarted && questions.length > 0 && !countdownStartedRef.current && !showCountdown) {
+      console.log('[DuelBattleFullscreen] Duel started, starting countdown...', {
+        questionsLength: questions.length,
+        duelStarted: state.duelStarted
+      });
+      
+      countdownStartedRef.current = true;
       setShowCountdown(true);
       setCountdown(3);
       
@@ -114,6 +192,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       return () => clearInterval(interval);
     }
   }, [state.duelStarted, questions.length, showCountdown]);
+  
+  // Сбрасываем флаг countdown при размонтировании или смене дуэли
+  useEffect(() => {
+    return () => {
+      countdownStartedRef.current = false;
+    };
+  }, [duelId]);
 
   // Update notifications when opponent answers
   useEffect(() => {
@@ -130,11 +215,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       if (isCorrect) {
         const message = `✅ Соперник ответил правильно! +${points} очков`;
         
-        console.log('[DuelBattleFullscreen] Showing success toast:', message);
+        console.log('[DuelBattleFullscreen] Showing success toast:', message, 'isTelegram:', isTelegram);
+        
+        // В Telegram пробуем показать через WebApp.showAlert как fallback
+        if (isTelegram && webApp?.showAlert) {
+          try {
+            // Показываем через Telegram WebApp API
+            webApp.showAlert(message);
+            console.log('[DuelBattleFullscreen] ✅ Shown via Telegram WebApp.showAlert');
+          } catch (e) {
+            console.warn('[DuelBattleFullscreen] Telegram showAlert error, using toast:', e);
+          }
+        }
+        
+        // Всегда показываем toast (работает в браузере и Telegram)
         toast.success(message, {
           duration: 3000,
           icon: '⚡',
-          style: { zIndex: 999999 }
+          style: { 
+            zIndex: 999999,
+            fontSize: isTelegram ? '16px' : '14px',
+            padding: isTelegram ? '16px' : '12px'
+          }
         });
         
         // Вибрация для Telegram
@@ -148,11 +250,27 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       } else {
         const message = '❌ Соперник ошибся! Ваш шанс догнать!';
         
-        console.log('[DuelBattleFullscreen] Showing error toast:', message);
+        console.log('[DuelBattleFullscreen] Showing error toast:', message, 'isTelegram:', isTelegram);
+        
+        // В Telegram пробуем показать через WebApp.showAlert как fallback
+        if (isTelegram && webApp?.showAlert) {
+          try {
+            webApp.showAlert(message);
+            console.log('[DuelBattleFullscreen] ✅ Shown via Telegram WebApp.showAlert');
+          } catch (e) {
+            console.warn('[DuelBattleFullscreen] Telegram showAlert error, using toast:', e);
+          }
+        }
+        
+        // Всегда показываем toast
         toast.error(message, {
           duration: 2000,
           icon: '🎯',
-          style: { zIndex: 999999 }
+          style: { 
+            zIndex: 999999,
+            fontSize: isTelegram ? '16px' : '14px',
+            padding: isTelegram ? '16px' : '12px'
+          }
         });
         
         // Вибрация для Telegram
@@ -176,84 +294,137 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.opponentAnswered, state.opponentAnswerData]);
 
-  // Handle duel completion - CRITICAL: Verify opponent actually finished before transitioning
-  useEffect(() => {
-    if (state.duelFinished && isWaitingForOpponent && !isVerifyingRef.current) {
-      // Realtime hook detected finished status - VERIFY opponent actually completed before transitioning
-      console.log('[DuelBattleFullscreen] Realtime detected finished status - verifying opponent completed');
-      
-      // Prevent multiple simultaneous verifications
-      isVerifyingRef.current = true;
-      
-      const verifyAndTransition = async () => {
-        try {
-          // Get opponent's player ID
-          const { data: players } = await supabase
-            .from('duel_players')
-            .select('id, user_id')
-            .eq('duel_id', duelId);
-
-          if (!players || players.length < 2) {
-            console.log('[DuelBattleFullscreen] Not enough players, ignoring');
-            return;
-          }
-
-          const opponent = players.find((p: any) => p.user_id !== profileId);
-          if (!opponent) {
-            console.log('[DuelBattleFullscreen] Opponent not found, ignoring');
-            return;
-          }
-
-          // Get required number of questions
-          const { data: duelInfo } = await supabase
-            .from('duels')
-            .select('num_questions')
-            .eq('id', duelId)
-            .single();
-
-          const requiredAnswers = duelInfo?.num_questions || 10;
-
-          // Count opponent's actual answers
-          const { count: opponentAnswers } = await supabase
-            .from('duel_answers')
-            .select('*', { count: 'exact', head: true })
-            .eq('player_id', opponent.id)
-            .eq('duel_id', duelId);
-
-          console.log('[DuelBattleFullscreen] Verification:', {
-            opponentAnswers: opponentAnswers || 0,
-            required: requiredAnswers,
-            canTransition: (opponentAnswers || 0) >= requiredAnswers
-          });
-
-          // Only transition if opponent really finished
-          if ((opponentAnswers || 0) >= requiredAnswers) {
-            console.log('[DuelBattleFullscreen] ✅ Opponent finished all questions, transitioning to results');
-            isVerifyingRef.current = false; // Reset before transition
-            sounds.victory();
-            toast.success('🏁 Соперник закончил! Смотрите результаты', { duration: 3000 });
-            setTimeout(() => {
-              onDuelFinished();
-            }, 1000);
-          } else {
-            console.log('[DuelBattleFullscreen] ⚠️ Status is finished but opponent hasn\'t completed - staying on waiting screen');
-            // Don't transition - stay on waiting screen
-            isVerifyingRef.current = false; // Reset for next check
-          }
-        } catch (error) {
-          console.error('[DuelBattleFullscreen] Error verifying opponent completion:', error);
-          // On error, don't transition - better to wait than transition prematurely
-          isVerifyingRef.current = false; // Reset on error
-        }
-      };
-
-      verifyAndTransition();
-    } else if (state.duelFinished && !isWaitingForOpponent && !hasFinishedMyQuestions) {
-      // Duel finished but we haven't finished our questions - this shouldn't happen
-      console.log('[DuelBattleFullscreen] Duel finished but we haven\'t finished our questions yet - ignoring');
+  // Функция проверки завершения противника и перехода к результатам
+  const checkAndTransitionToResults = useCallback(async () => {
+    if (isVerifyingRef.current) {
+      console.log('[DuelBattleFullscreen] Verification already in progress, skipping');
+      return;
     }
-    // If state.duelFinished is true but we're not waiting, ignore the realtime event
-  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
+    
+    isVerifyingRef.current = true;
+    
+    try {
+      console.log('[DuelBattleFullscreen] Checking if opponent finished and transitioning to results...');
+      
+      // Получаем информацию о дуэли
+      const { data: duelInfo } = await supabase
+        .from('duels')
+        .select('status, num_questions')
+        .eq('id', duelId)
+        .single();
+
+      if (!duelInfo) {
+        console.log('[DuelBattleFullscreen] Duel not found');
+        isVerifyingRef.current = false;
+        return;
+      }
+
+      // Если дуэль не завершена, продолжаем ждать
+      if (duelInfo.status !== 'finished') {
+        console.log('[DuelBattleFullscreen] Duel not finished yet, status:', duelInfo.status);
+        isVerifyingRef.current = false;
+        return;
+      }
+
+      // Get opponent's player ID
+      const { data: players } = await supabase
+        .from('duel_players')
+        .select('id, user_id')
+        .eq('duel_id', duelId);
+
+      if (!players || players.length < 2) {
+        console.log('[DuelBattleFullscreen] Not enough players, ignoring');
+        isVerifyingRef.current = false;
+        return;
+      }
+
+      const opponent = players.find((p: any) => p.user_id !== profileId);
+      if (!opponent) {
+        console.log('[DuelBattleFullscreen] Opponent not found, ignoring');
+        isVerifyingRef.current = false;
+        return;
+      }
+
+      const requiredAnswers = duelInfo.num_questions || 10;
+
+      // Count opponent's actual answers
+      const { count: opponentAnswers } = await supabase
+        .from('duel_answers')
+        .select('*', { count: 'exact', head: true })
+        .eq('player_id', opponent.id)
+        .eq('duel_id', duelId);
+
+      console.log('[DuelBattleFullscreen] Verification:', {
+        duelStatus: duelInfo.status,
+        opponentAnswers: opponentAnswers || 0,
+        required: requiredAnswers,
+        canTransition: (opponentAnswers || 0) >= requiredAnswers
+      });
+
+      // Only transition if opponent really finished all questions
+      if ((opponentAnswers || 0) >= requiredAnswers) {
+        console.log('[DuelBattleFullscreen] ✅ Opponent finished all questions, transitioning to results');
+        sounds.victory();
+        toast.success('🏁 Соперник закончил! Смотрите результаты', { 
+          duration: 3000,
+          style: { zIndex: 999999 }
+        });
+        
+        // В Telegram показываем через WebApp.showAlert
+        const isTelegram = isTelegramMiniApp();
+        const webApp = getTelegramWebApp();
+        if (isTelegram && webApp?.showAlert) {
+          try {
+            webApp.showAlert('🏁 Соперник закончил! Переход к результатам...');
+          } catch (e) {
+            console.warn('[DuelBattleFullscreen] Telegram showAlert error:', e);
+          }
+        }
+        
+        setTimeout(() => {
+          isVerifyingRef.current = false;
+          onDuelFinished();
+        }, 1500);
+      } else {
+        console.log('[DuelBattleFullscreen] ⚠️ Status is finished but opponent hasn\'t completed - staying on waiting screen');
+        isVerifyingRef.current = false; // Reset for next check
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error verifying opponent completion:', error);
+      isVerifyingRef.current = false; // Reset on error
+    }
+  }, [duelId, profileId, onDuelFinished]);
+
+  // Handle duel completion via realtime - CRITICAL: Verify opponent actually finished before transitioning
+  useEffect(() => {
+    if (state.duelFinished && isWaitingForOpponent) {
+      console.log('[DuelBattleFullscreen] Realtime detected finished status - verifying opponent completed');
+      checkAndTransitionToResults();
+    }
+  }, [state.duelFinished, isWaitingForOpponent, duelId, profileId, onDuelFinished]);
+
+  // Дополнительная проверка через polling для Telegram WebApp (на случай если realtime не работает)
+  useEffect(() => {
+    if (!isWaitingForOpponent || !hasFinishedMyQuestions) return;
+    
+    console.log('[DuelBattleFullscreen] Starting polling check for opponent completion (Telegram fallback)');
+    
+    // Проверяем каждые 2 секунды, если мы ждем противника
+    const pollingInterval = setInterval(() => {
+      if (!isWaitingForOpponent) {
+        clearInterval(pollingInterval);
+        return;
+      }
+      
+      console.log('[DuelBattleFullscreen] Polling: checking if opponent finished...');
+      checkAndTransitionToResults();
+    }, 2000);
+
+    return () => {
+      console.log('[DuelBattleFullscreen] Stopping polling check');
+      clearInterval(pollingInterval);
+    };
+  }, [isWaitingForOpponent, hasFinishedMyQuestions, duelId, profileId, onDuelFinished]);
 
   // Sync opponent score from realtime
   useEffect(() => {

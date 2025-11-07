@@ -83,13 +83,21 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           
           // Filter out progress notifications - show only results (finish, timeout) in notification center
           // Progress notifications (opponent answers) are shown as toast during game via useDuelRealtime
-          if (PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type)) {
-            console.log('[Notifications] ⏭️ Skipping progress notification (shown only as toast during game):', newNotification.type);
-            return;
+          // ВАЖНО: Уведомления о бустах добавляем в список, но не показываем toast автоматически
+          // Они будут показаны через компоненты игры (DuelBattleFullscreen, DuelBattle)
+          const shouldSkipToast = PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type);
+          
+          if (shouldSkipToast) {
+            console.log('[Notifications] ⏭️ Progress notification received (will be shown as toast in game):', newNotification.type);
           }
           
+          // Добавляем в список уведомлений (даже если это progress/boost - они нужны для показа в игре)
           setNotifications(prev => [newNotification, ...prev]);
-          setUnreadCount(prev => prev + 1);
+          
+          // Увеличиваем счетчик только для важных уведомлений (не для progress/boost)
+          if (!shouldSkipToast) {
+            setUnreadCount(prev => prev + 1);
+          }
           
           // Show toast notification if enabled (only for results, not progress)
           if (showToasts) {

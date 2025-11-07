@@ -73,17 +73,8 @@ export default function Duel() {
     // Reset hidden state when starting new battle
     setIsBattleHidden(false);
     
-    // Immediate state change
+    // Single immediate state change - убрали retry, который вызывал мерцание
     setMode('battle');
-    
-    // Multiple retries for Telegram reliability
-    const retries = [50, 150, 300];
-    retries.forEach((delay, index) => {
-      setTimeout(() => {
-        console.log(`[Duel] Battle mode retry #${index + 1}`);
-        setMode('battle');
-      }, delay);
-    });
   };
   
   // Handle widget expand - restore battle mode when widget is expanded

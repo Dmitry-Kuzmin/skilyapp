@@ -14,6 +14,7 @@ import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Swords, Timer, Zap, Trophy, WifiOff, Wifi, Flame } from 'lucide-react';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface DuelBattleProps {
   duelId: string;
@@ -24,6 +25,72 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const { profileId } = useUserContext();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
+  
+  // Initialize notifications for boost notifications
+  const { notifications, markAsRead } = useNotifications({ showToasts: false, playSounds: true });
+  
+  // Обрабатываем уведомления о бустах соперника во время игры
+  const processedBoostNotifications = useRef<Set<string>>(new Set());
+  
+  useEffect(() => {
+    // Фильтруем только уведомления о бустах для текущей дуэли
+    const boostNotifications = notifications.filter(
+      n => n.type === 'boost' && n.duel_id === duelId && !n.is_read && !processedBoostNotifications.current.has(n.id)
+    );
+    
+    if (boostNotifications.length > 0) {
+      const latestBoost = boostNotifications[0];
+      console.log('[DuelBattle] ✅ Boost notification received:', latestBoost);
+      
+      // Помечаем как обработанное
+      processedBoostNotifications.current.add(latestBoost.id);
+      
+      const isTelegram = isTelegramMiniApp();
+      const webApp = getTelegramWebApp();
+      
+      const message = latestBoost.title || 'Соперник использовал буст!';
+      
+      console.log('[DuelBattle] Showing boost toast:', message, 'isTelegram:', isTelegram);
+      
+      if (isTelegram && webApp?.showAlert) {
+        try {
+          webApp.showAlert(message);
+        } catch (e) {
+          console.warn('[DuelBattle] Telegram showAlert error:', e);
+        }
+      }
+      
+      toast.info(message, {
+        duration: 3000,
+        icon: '⚡',
+        style: { 
+          zIndex: 999999,
+          fontSize: isTelegram ? '16px' : '14px',
+          padding: isTelegram ? '16px' : '12px'
+        }
+      });
+      
+      // Вибрация для Telegram
+      if (isTelegram && webApp?.HapticFeedback) {
+        try {
+          webApp.HapticFeedback.notificationOccurred('warning');
+        } catch (e) {
+          console.warn('[DuelBattle] Haptic feedback error:', e);
+        }
+      }
+      
+      // Звук уведомления
+      try {
+        sounds.notificationPop();
+      } catch (e) {
+        console.warn('[DuelBattle] Sound error:', e);
+      }
+      
+      // Помечаем как прочитанное
+      markAsRead(latestBoost.id);
+    }
+  }, [notifications, duelId, markAsRead]);
+  
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60000); // 60 seconds
