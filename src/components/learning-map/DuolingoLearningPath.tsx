@@ -31,10 +31,11 @@ export const DuolingoLearningPath = ({
     : -1;
 
   // Функция для расчета смещения узла (зигзаг)
+  // В Duolingo узлы смещены более плавно, создавая красивый зигзаг
   const getNodeOffset = (index: number) => {
     // Чередуем позиции: четные индексы - влево, нечетные - вправо
-    // Смещение увеличивается для более выраженного зигзага
-    const offset = index % 2 === 0 ? -90 : 90;
+    // Смещение для красивого зигзага
+    const offset = index % 2 === 0 ? -100 : 100;
     return offset;
   };
 
@@ -96,16 +97,22 @@ export const DuolingoLearningPath = ({
               {index < topics.length - 1 && (
                 <div
                   className="relative mb-4"
-                  style={{ height: "100px", width: "200px" }}
+                  style={{ height: "100px", width: "220px" }}
                 >
                   <svg
                     className="absolute"
-                    style={{ width: "200px", height: "100px", left: '50%', transform: 'translateX(-50%)' }}
-                    viewBox="0 0 200 100"
-                    preserveAspectRatio="none"
+                    style={{ 
+                      width: "220px", 
+                      height: "100px", 
+                      left: '50%', 
+                      transform: 'translateX(-50%)',
+                      overflow: 'visible'
+                    }}
+                    viewBox="0 0 220 100"
                   >
+                    {/* Вычисляем контрольную точку для плавной кривой */}
                     <path
-                      d={`M 100 0 Q ${100 + (nextNodeOffset - nodeOffset) / 2} 50 100 100`}
+                      d={`M 110 0 Q ${110 + (nextNodeOffset - nodeOffset) / 2} 50 110 100`}
                       stroke={
                         isCompleted
                           ? "#58CC02"
