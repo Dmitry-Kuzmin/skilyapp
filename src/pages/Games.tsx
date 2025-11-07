@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,32 +10,142 @@ import { getStudiedTermsCount } from "@/lib/termProgress";
 import { TermProgressModal } from "@/components/TermProgressModal";
 import { BoostShopModal } from "@/components/shop/BoostShopModal";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+
+interface GamesStats {
+  gamesPlayed: number;
+  studiedTerms: number;
+  averageResult: number;
+}
 
 const Games = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
-  const [studiedTermsCount, setStudiedTermsCount] = useState(0);
+  const [stats, setStats] = useState<GamesStats>({
+    gamesPlayed: 0,
+    studiedTerms: 0,
+    averageResult: 0,
+  });
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   useEffect(() => {
     if (profileId) {
       // Добавляем небольшую задержку, чтобы избежать частых запросов
       const timer = setTimeout(() => {
-        loadStudiedTermsCount();
+        loadStats();
       }, 100);
       return () => clearTimeout(timer);
+    } else {
+      setIsLoadingStats(false);
     }
   }, [profileId]);
 
-  const loadStudiedTermsCount = async () => {
+  // Обновляем статистику при возврате на страницу (visibility change)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && profileId) {
+        loadStats();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [profileId]);
+
+  const loadStats = async () => {
     if (!profileId) return;
     try {
+      setIsLoadingStats(true);
+      
+      // Загружаем данные параллельно
+      const [gamesPlayed, studiedTermsCount, averageResult] = await Promise.all([
+        loadGamesPlayed(),
+        loadStudiedTermsCount(),
+        loadAverageResult(),
+      ]);
+
+      setStats({
+        gamesPlayed,
+        studiedTerms: studiedTermsCount,
+        averageResult,
+      });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  const loadGamesPlayed = async (): Promise<number> => {
+    if (!profileId) return 0;
+    try {
+      const { count, error } = await supabase
+        .from('game_sessions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profileId);
+
+      if (error) {
+        console.error('Error loading games played:', error);
+        return 0;
+      }
+
+      return count || 0;
+    } catch (error) {
+      console.error('Error loading games played:', error);
+      return 0;
+    }
+  };
+
+  const loadStudiedTermsCount = async (): Promise<number> => {
+    if (!profileId) return 0;
+    try {
       const count = await getStudiedTermsCount(profileId);
-      setStudiedTermsCount(count);
+      return count;
     } catch (error) {
       console.error('Error loading studied terms count:', error);
-      // Не показываем ошибку пользователю, просто оставляем 0
+      return 0;
+    }
+  };
+
+  const loadAverageResult = async (): Promise<number> => {
+    if (!profileId) return 0;
+    try {
+      const { data: sessions, error } = await supabase
+        .from('game_sessions')
+        .select('score, total_questions')
+        .eq('user_id', profileId)
+        .not('total_questions', 'is', null)
+        .gt('total_questions', 0);
+
+      if (error) {
+        console.error('Error loading average result:', error);
+        return 0;
+      }
+
+      if (!sessions || sessions.length === 0) {
+        return 0;
+      }
+
+      // Вычисляем средний процент правильных ответов
+      let totalPercentage = 0;
+      let validSessions = 0;
+
+      sessions.forEach(session => {
+        if (session.total_questions > 0) {
+          const percentage = (session.score / session.total_questions) * 100;
+          totalPercentage += percentage;
+          validSessions++;
+        }
+      });
+
+      return validSessions > 0 ? Math.round(totalPercentage / validSessions) : 0;
+    } catch (error) {
+      console.error('Error loading average result:', error);
+      return 0;
     }
   };
   
@@ -209,39 +319,106 @@ const Games = () => {
         </div>
 
         {/* Stats */}
-        <Card className="p-6 gradient-card border-border/50">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div>
-              <p className="text-3xl font-bold text-primary">24</p>
-              <p className="text-sm text-muted-foreground mt-1">Игр сыграно</p>
+        <Card className="p-6 gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
+          {isLoadingStats ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-8 bg-muted/50 rounded-lg animate-pulse mx-auto w-16" />
+                  <div className="h-4 bg-muted/30 rounded animate-pulse mx-auto w-24" />
+                </div>
+              ))}
             </div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="cursor-pointer group"
-              onClick={() => setIsProgressModalOpen(true)}
-            >
-              <div className="p-2 -m-2 rounded-lg hover:bg-muted/50 transition-colors">
-                <motion.p
-                  key={studiedTermsCount}
-                  initial={{ scale: 1.2, color: "#fbbf24" }}
-                  animate={{ scale: 1, color: "#fbbf24" }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="text-3xl font-bold text-gold"
-                >
-                  {studiedTermsCount}
-                </motion.p>
-                <p className="text-sm text-muted-foreground mt-1">Терминов изучено</p>
-                <p className="text-xs text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Игр сыграно */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-center p-4 rounded-lg hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Swords className="w-5 h-5 text-primary" />
+                  <motion.p
+                    key={stats.gamesPlayed}
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="text-3xl font-bold text-primary"
+                  >
+                    {stats.gamesPlayed}
+                  </motion.p>
+                </div>
+                <p className="text-sm text-muted-foreground">Игр сыграно</p>
+              </motion.div>
+
+              {/* Терминов изучено */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="cursor-pointer group text-center p-4 rounded-lg hover:bg-muted/50 transition-colors relative"
+                onClick={() => setIsProgressModalOpen(true)}
+              >
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-gold" />
+                  <motion.p
+                    key={stats.studiedTerms}
+                    initial={{ scale: 1.2, color: "#fbbf24" }}
+                    animate={{ scale: 1, color: "#fbbf24" }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="text-3xl font-bold text-gold"
+                  >
+                    {stats.studiedTerms}
+                  </motion.p>
+                </div>
+                <p className="text-sm text-muted-foreground">Терминов изучено</p>
+                <p className="text-xs text-primary mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
                   Нажмите для деталей
                 </p>
-              </div>
-            </motion.div>
-            <div>
-              <p className="text-3xl font-bold text-success">89%</p>
-              <p className="text-sm text-muted-foreground mt-1">Средний результат</p>
+              </motion.div>
+
+              {/* Средний результат */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center p-4 rounded-lg hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    stats.averageResult >= 80 ? 'bg-success' : 
+                    stats.averageResult >= 60 ? 'bg-warning' : 
+                    'bg-destructive'
+                  }`} />
+                  <motion.p
+                    key={stats.averageResult}
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className={`text-3xl font-bold ${
+                      stats.averageResult >= 80 ? 'text-success' : 
+                      stats.averageResult >= 60 ? 'text-warning' : 
+                      'text-destructive'
+                    }`}
+                  >
+                    {stats.averageResult}%
+                  </motion.p>
+                </div>
+                <p className="text-sm text-muted-foreground">Средний результат</p>
+                {stats.averageResult > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {stats.averageResult >= 80 ? 'Отлично!' : 
+                     stats.averageResult >= 60 ? 'Хорошо' : 
+                     'Продолжай тренироваться'}
+                  </p>
+                )}
+              </motion.div>
             </div>
-          </div>
+          )}
         </Card>
 
         {/* Daily Limit Info for Free Users */}
