@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Swords, Timer, Zap, Trophy, WifiOff, Wifi, Flame } from 'lucide-react';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
+import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 
 interface DuelBattleProps {
   duelId: string;
@@ -110,6 +111,68 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       clearInterval(checkOpponentConnection);
     };
   }, [answered]);
+
+  // Update notifications when opponent answers
+  useEffect(() => {
+    if (state.opponentAnswered && state.opponentAnswerData) {
+      console.log('[DuelBattle] ✅ Opponent answered, showing notification:', state.opponentAnswerData);
+      
+      const isCorrect = state.opponentAnswerData.is_correct;
+      const points = state.opponentAnswerData.points_awarded || 0;
+      
+      const isTelegram = isTelegramMiniApp();
+      const webApp = getTelegramWebApp();
+      
+      // Show notification - ВСЕГДА показываем toast, независимо от платформы
+      if (isCorrect) {
+        const message = `✅ Соперник ответил правильно! +${points} очков`;
+        
+        console.log('[DuelBattle] Showing success toast:', message);
+        toast.success(message, {
+          duration: 3000,
+          icon: '⚡',
+          style: { zIndex: 999999 }
+        });
+        
+        // Вибрация для Telegram
+        if (isTelegram && webApp?.HapticFeedback) {
+          try {
+            webApp.HapticFeedback.notificationOccurred('success');
+          } catch (e) {
+            console.warn('[DuelBattle] Haptic feedback error:', e);
+          }
+        }
+      } else {
+        const message = '❌ Соперник ошибся! Ваш шанс догнать!';
+        
+        console.log('[DuelBattle] Showing error toast:', message);
+        toast.error(message, {
+          duration: 2000,
+          icon: '🎯',
+          style: { zIndex: 999999 }
+        });
+        
+        // Вибрация для Telegram
+        if (isTelegram && webApp?.HapticFeedback) {
+          try {
+            webApp.HapticFeedback.notificationOccurred('warning');
+          } catch (e) {
+            console.warn('[DuelBattle] Haptic feedback error:', e);
+          }
+        }
+      }
+      
+      // Звук уведомления
+      try {
+        sounds.notificationPop();
+      } catch (e) {
+        console.warn('[DuelBattle] Sound error:', e);
+      }
+      
+      // Обновляем время последней активности соперника
+      lastOpponentActivityRef.current = Date.now();
+    }
+  }, [state.opponentAnswered, state.opponentAnswerData]);
 
   // Track opponent score changes with controlled notifications
   useEffect(() => {

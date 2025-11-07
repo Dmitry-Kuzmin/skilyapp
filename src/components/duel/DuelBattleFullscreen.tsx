@@ -71,10 +71,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   useEffect(() => {
     if (!duelId || !profileId) return;
     
+    console.log('[DuelBattleFullscreen] Initializing duel:', { duelId, profileId });
     loadQuestions();
-    loadScores();
+    loadScores(); // Важно: загружаем scores первым, чтобы установить myPlayerId
     loadBoosts();
   }, [duelId, profileId]);
+  
+  // Логируем установку myPlayerId
+  useEffect(() => {
+    if (myPlayerId) {
+      console.log('[DuelBattleFullscreen] ✅ myPlayerId установлен:', myPlayerId);
+    } else {
+      console.warn('[DuelBattleFullscreen] ⚠️ myPlayerId еще не установлен');
+    }
+  }, [myPlayerId]);
 
   // Start countdown when duel starts
   useEffect(() => {
@@ -108,7 +118,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Update notifications when opponent answers
   useEffect(() => {
     if (state.opponentAnswered && state.opponentAnswerData) {
-      console.log('[DuelBattleFullscreen] Opponent answered:', state.opponentAnswerData);
+      console.log('[DuelBattleFullscreen] ✅ Opponent answered, showing notification:', state.opponentAnswerData);
       
       const isCorrect = state.opponentAnswerData.is_correct;
       const points = state.opponentAnswerData.points_awarded || 0;
@@ -116,49 +126,52 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
       
-      // Show notification
+      // Show notification - ВСЕГДА показываем toast, независимо от платформы
       if (isCorrect) {
         const message = `✅ Соперник ответил правильно! +${points} очков`;
         
-        // В Telegram показываем через toast и вибрацию
-        if (isTelegram && webApp) {
-          toast.info(message, {
-            duration: 3000,
-            icon: '⚡',
-            style: { zIndex: 999999 }
-          });
-          // Вибрация для Telegram
-          if (webApp.HapticFeedback) {
+        console.log('[DuelBattleFullscreen] Showing success toast:', message);
+        toast.success(message, {
+          duration: 3000,
+          icon: '⚡',
+          style: { zIndex: 999999 }
+        });
+        
+        // Вибрация для Telegram
+        if (isTelegram && webApp?.HapticFeedback) {
+          try {
             webApp.HapticFeedback.notificationOccurred('success');
+          } catch (e) {
+            console.warn('[DuelBattleFullscreen] Haptic feedback error:', e);
           }
-        } else {
-          toast.info(message, {
-            duration: 3000,
-            icon: '⚡'
-          });
         }
       } else {
         const message = '❌ Соперник ошибся! Ваш шанс догнать!';
         
-        if (isTelegram && webApp) {
-          toast.info(message, {
-            duration: 2000,
-            icon: '🎯',
-            style: { zIndex: 999999 }
-          });
-          // Вибрация для Telegram
-          if (webApp.HapticFeedback) {
+        console.log('[DuelBattleFullscreen] Showing error toast:', message);
+        toast.error(message, {
+          duration: 2000,
+          icon: '🎯',
+          style: { zIndex: 999999 }
+        });
+        
+        // Вибрация для Telegram
+        if (isTelegram && webApp?.HapticFeedback) {
+          try {
             webApp.HapticFeedback.notificationOccurred('warning');
+          } catch (e) {
+            console.warn('[DuelBattleFullscreen] Haptic feedback error:', e);
           }
-        } else {
-          toast.info(message, {
-            duration: 2000,
-            icon: '🎯'
-          });
         }
       }
       
-      sounds.notificationPop();
+      // Звук уведомления
+      try {
+        sounds.notificationPop();
+      } catch (e) {
+        console.warn('[DuelBattleFullscreen] Sound error:', e);
+      }
+      
       // Don't call loadScores() - realtime will update scores automatically
     }
   }, [state.opponentAnswered, state.opponentAnswerData]);

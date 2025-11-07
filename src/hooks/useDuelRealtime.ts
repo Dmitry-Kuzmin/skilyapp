@@ -127,19 +127,29 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           console.log('[useDuelRealtime] Answer received:', payload);
           
           // Проверяем, что это ответ соперника, а не мой
+          // ВАЖНО: Используем myPlayerIdRef.current, так как значение может обновиться после создания подписки
           const answerPlayerId = (payload.new as any)?.player_id;
-          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', myPlayerId);
+          const currentMyPlayerId = myPlayerIdRef.current;
+          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', currentMyPlayerId);
           
-          if (answerPlayerId && myPlayerId && answerPlayerId !== myPlayerId) {
-            console.log('[useDuelRealtime] ✅ Opponent answered!');
+          if (answerPlayerId && currentMyPlayerId && answerPlayerId !== currentMyPlayerId) {
+            console.log('[useDuelRealtime] ✅ Opponent answered!', {
+              answerPlayerId,
+              myPlayerId: currentMyPlayerId,
+              answerData: payload.new
+            });
             setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
             
-            // Reset after 1 second
+            // Reset after 2 seconds to ensure toast is shown
             setTimeout(() => {
               setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
-            }, 1000);
+            }, 2000);
           } else {
-            console.log('[useDuelRealtime] Own answer, ignoring notification');
+            console.log('[useDuelRealtime] Own answer or player ID not set, ignoring notification', {
+              answerPlayerId,
+              myPlayerId: currentMyPlayerId,
+              isOwnAnswer: answerPlayerId === currentMyPlayerId
+            });
           }
         }
       )
