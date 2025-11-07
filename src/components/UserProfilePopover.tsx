@@ -33,6 +33,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { BoostShopModal } from "@/components/shop/BoostShopModal";
 
 const LANGUAGES = [
   { code: 'es' as const, label: 'Español', flag: '🇪🇸' },
@@ -83,6 +84,7 @@ export function UserProfilePopover() {
   const [notifications, setNotifications] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
 
   const isMiniApp = isTelegramMiniApp();
   const isMobile = useIsMobile();
@@ -586,6 +588,7 @@ export function UserProfilePopover() {
               size="sm"
               onClick={() => {
                 setOpen(false);
+                setIsBoostShopOpen(true);
               }}
             >
               <ShoppingBag className="h-4 w-4 mr-2" />
@@ -614,6 +617,12 @@ export function UserProfilePopover() {
           </div>
         </div>
       </SheetContent>
+
+      {/* Boost Shop Modal */}
+      <BoostShopModal 
+        open={isBoostShopOpen} 
+        onOpenChange={setIsBoostShopOpen}
+      />
     </Sheet>
   );
 }

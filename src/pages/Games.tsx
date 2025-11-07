@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
 import { getStudiedTermsCount } from "@/lib/termProgress";
 import { TermProgressModal } from "@/components/TermProgressModal";
+import { BoostShopModal } from "@/components/shop/BoostShopModal";
 import { motion } from "framer-motion";
 
 const Games = () => {
@@ -15,6 +16,7 @@ const Games = () => {
   const { profileId } = useUserContext();
   const [studiedTermsCount, setStudiedTermsCount] = useState(0);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+  const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
 
   useEffect(() => {
     if (profileId) {
@@ -141,9 +143,20 @@ const Games = () => {
                 </p>
               </div>
             </div>
-            <Button variant="gold" size="lg" className="shadow-glow w-full sm:w-auto shrink-0">
-              Премиум за €9.99/мес
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto shrink-0">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="shadow-sm w-full sm:w-auto"
+                onClick={() => setIsBoostShopOpen(true)}
+              >
+                <ShoppingBag className="w-4 h-4 mr-2" />
+                Магазин бустов
+              </Button>
+              <Button variant="gold" size="lg" className="shadow-glow w-full sm:w-auto shrink-0">
+                Премиум за €9.99/мес
+              </Button>
+            </div>
           </div>
         </Card>
 
@@ -251,6 +264,12 @@ const Games = () => {
       <TermProgressModal 
         open={isProgressModalOpen} 
         onOpenChange={setIsProgressModalOpen}
+      />
+
+      {/* Boost Shop Modal */}
+      <BoostShopModal 
+        open={isBoostShopOpen} 
+        onOpenChange={setIsBoostShopOpen}
       />
     </Layout>
   );
