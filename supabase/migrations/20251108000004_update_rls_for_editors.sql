@@ -60,8 +60,47 @@ BEGIN
   END IF;
 END $$;
 
+-- Update materials policies (if not already updated in 20251108000000)
+-- Drop old policies if they exist
+DROP POLICY IF EXISTS "Admins and editors can insert materials" ON public.materials;
+DROP POLICY IF EXISTS "Admins and editors can update materials" ON public.materials;
+DROP POLICY IF EXISTS "Admins can delete materials" ON public.materials;
+
+-- Recreate with editor support
+CREATE POLICY "Admins and editors can insert materials"
+  ON public.materials
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    public.has_role(auth.uid(), 'admin') OR 
+    public.has_role(auth.uid(), 'editor')
+  );
+
+CREATE POLICY "Admins and editors can update materials"
+  ON public.materials
+  FOR UPDATE
+  TO authenticated
+  USING (
+    public.has_role(auth.uid(), 'admin') OR 
+    public.has_role(auth.uid(), 'editor')
+  )
+  WITH CHECK (
+    public.has_role(auth.uid(), 'admin') OR 
+    public.has_role(auth.uid(), 'editor')
+  );
+
+-- Only admins can delete materials
+CREATE POLICY "Admins can delete materials"
+  ON public.materials
+  FOR DELETE
+  TO authenticated
+  USING (public.has_role(auth.uid(), 'admin'));
+
 -- Add comment for documentation
 COMMENT ON POLICY "Admins and editors can insert subtopics" ON public.subtopics IS 'Editors can create subtopics';
 COMMENT ON POLICY "Admins and editors can update subtopics" ON public.subtopics IS 'Editors can update subtopics';
 COMMENT ON POLICY "Admins can delete subtopics" ON public.subtopics IS 'Only admins can delete subtopics';
+COMMENT ON POLICY "Admins and editors can insert materials" ON public.materials IS 'Editors can create materials';
+COMMENT ON POLICY "Admins and editors can update materials" ON public.materials IS 'Editors can update materials';
+COMMENT ON POLICY "Admins can delete materials" ON public.materials IS 'Only admins can delete materials';
 
