@@ -295,6 +295,27 @@ All colors MUST be HSL.
     background-color: hsl(var(--muted-foreground) / 0.5);
   }
 
+  /* Scrollbar hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Modern learning map styles */
+  .modern-topic-card {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .modern-topic-card {
+      width: 260px;
+    }
+  }
+
   /* Telegram Mini App Specific Styles */
   .telegram-app-container {
     min-height: calc(var(--tg-viewport-stable-height, 100vh) - var(--sat) - var(--sab));
