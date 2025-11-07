@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Lock, Zap, Timer, Lightbulb, SkipForward } from 'lucide-react';
+import { Coins, Lock, Zap, Timer, Lightbulb, SkipForward, Globe } from 'lucide-react';
 
 interface Boost {
   type: string;
@@ -24,6 +24,7 @@ const boostIcons = {
   'time_extend': Timer,
   'hint': Lightbulb,
   'skip': SkipForward,
+  'translate': Globe,
 };
 
 const boostColors = {
@@ -31,6 +32,7 @@ const boostColors = {
   'time_extend': 'bg-orange-500/10 text-orange-600 border-orange-500/20',
   'hint': 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
   'skip': 'bg-green-500/10 text-green-600 border-green-500/20',
+  'translate': 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
 };
 
 export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium = false }: BoostCardProps) {
