@@ -111,6 +111,7 @@ const RaceGame = () => {
   const [showMistakesReview, setShowMistakesReview] = useState(false);
   const lastAnswerTimeRef = useRef<number>(0);
   const sessionIdRef = useRef<string>("");
+  const accumulatedTimeRef = useRef<number>(0); // Отслеживаем накопленное время сверх стартовых 60 секунд
 
   useEffect(() => {
     console.log("RaceGame component mounted, loading terms...");
@@ -264,6 +265,7 @@ const RaceGame = () => {
     setMistakes([]);
     setShowMistakesReview(false);
     lastAnswerTimeRef.current = 0;
+    accumulatedTimeRef.current = 0; // Сбрасываем накопленное время при старте игры
     console.log("Race session started:", session_id);
   };
 
@@ -309,23 +311,42 @@ const RaceGame = () => {
 
     if (is_correct) {
       points_awarded = GAME_CONFIG.BASE_POINTS_PER_CORRECT;
-      time_delta_ms = GAME_CONFIG.TIME_PER_CORRECT_MS; // +1 секунда за правильный ответ
-      const newCombo = stats.combo_count + 1;
-      const threshold = GAME_CONFIG.COMBO_THRESHOLDS.find((t) => t.count === newCombo);
-      if (threshold) {
-        combo_bonus = {
-          points: threshold.bonus_points,
-          time_ms: threshold.bonus_time_ms,
-        };
-        points_awarded += threshold.bonus_points;
-        time_delta_ms += threshold.bonus_time_ms; // Бонусное время от комбо (может быть 0, 2 или 5 секунд)
+      
+      // Проверяем, не достигнут ли лимит накопления времени (30 секунд)
+      const currentAccumulatedTime = accumulatedTimeRef.current;
+      const maxAccumulation = GAME_CONFIG.MAX_TIME_ACCUMULATION_MS;
+      
+      if (currentAccumulatedTime >= maxAccumulation) {
+        // Лимит накопления достигнут - время не добавляем, только очки
+        time_delta_ms = 0;
+        console.log('[RaceGame] Лимит накопления времени достигнут. Время не добавляется, только очки.');
+      } else {
+        // Добавляем базовое время за правильный ответ
+        const baseTimeBonus = GAME_CONFIG.TIME_PER_CORRECT_MS;
+        const remainingAccumulation = maxAccumulation - currentAccumulatedTime;
+        const timeToAdd = Math.min(baseTimeBonus, remainingAccumulation);
+        time_delta_ms = timeToAdd;
+        
+        const newCombo = stats.combo_count + 1;
+        const threshold = GAME_CONFIG.COMBO_THRESHOLDS.find((t) => t.count === newCombo);
+        if (threshold) {
+          combo_bonus = {
+            points: threshold.bonus_points,
+            time_ms: threshold.bonus_time_ms,
+          };
+          points_awarded += threshold.bonus_points;
+          
+          // Добавляем бонусное время от комбо, но не превышаем лимит накопления
+          if (currentAccumulatedTime + timeToAdd < maxAccumulation) {
+            const comboTimeRemaining = maxAccumulation - (currentAccumulatedTime + timeToAdd);
+            const comboTimeToAdd = Math.min(threshold.bonus_time_ms, comboTimeRemaining);
+            time_delta_ms += comboTimeToAdd;
+          }
+        }
       }
     } else {
       time_delta_ms = -GAME_CONFIG.TIME_PENALTY_INCORRECT_MS; // -2 секунды за неправильный ответ
     }
-    
-    // Примечание: Ограничение максимального времени (90 секунд) применяется в setTimeLeft в handleAnswer
-    // Это предотвращает бесконечную игру, даже с бонусами от комбо
 
     return {
       is_correct,
@@ -411,16 +432,25 @@ const RaceGame = () => {
       };
     });
 
-    // Обновляем время с ограничением: максимум 90 секунд (60 стартовых + 30 максимальное накопление)
-    // Это означает, что даже с бонусами от комбо время не может превысить 90 секунд
+    // Обновляем время с правильной логикой ограничения накопления
     setTimeLeft((prev) => {
       // Вычисляем новое время
-      const calculatedTime = prev + time_delta_ms;
+      let calculatedTime = prev + time_delta_ms;
+      
+      // Если добавляем время (правильный ответ), обновляем счетчик накопленного времени
+      if (is_correct && time_delta_ms > 0) {
+        accumulatedTimeRef.current = Math.min(
+          accumulatedTimeRef.current + time_delta_ms,
+          GAME_CONFIG.MAX_TIME_ACCUMULATION_MS
+        );
+      }
+      
       // Ограничиваем снизу нулем (время не может быть отрицательным)
-      const clampedTime = Math.max(calculatedTime, 0);
-      // Ограничиваем сверху максимальным временем (90 секунд)
-      // Это предотвращает бесконечную игру, даже с бонусами от комбо
-      const finalTime = Math.min(clampedTime, GAME_CONFIG.MAX_TIME_MS);
+      calculatedTime = Math.max(calculatedTime, 0);
+      
+      // Ограничиваем сверху максимальным временем (90 секунд = 60 стартовых + 30 накопление)
+      const finalTime = Math.min(calculatedTime, GAME_CONFIG.MAX_TIME_MS);
+      
       return finalTime;
     });
 
