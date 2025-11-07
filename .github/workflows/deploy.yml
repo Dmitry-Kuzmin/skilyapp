@@ -36,6 +36,16 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           GITHUB_PAGES: 'true'
+        continue-on-error: false
+      
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "✅ Build successful: dist directory exists"
+          ls -la dist/ | head -10
       
       - name: Setup Pages
         uses: actions/configure-pages@v4

@@ -2,8 +2,35 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Get environment variables with fallback values
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 
+  import.meta.env.PUBLIC_SUPABASE_URL || 
+  'https://yffjnqegeiorunyvcxkn.supabase.co';
+
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
+  import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 
+  '';
+
+// Validate environment variables
+if (!SUPABASE_URL || SUPABASE_URL === '') {
+  console.error('❌ VITE_SUPABASE_URL is not set!');
+  throw new Error('VITE_SUPABASE_URL is required. Please set it in your environment variables or GitHub Secrets.');
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '') {
+  console.error('❌ VITE_SUPABASE_PUBLISHABLE_KEY is not set!');
+  throw new Error('VITE_SUPABASE_PUBLISHABLE_KEY is required. Please set it in your environment variables or GitHub Secrets.');
+}
+
+// Log configuration (without exposing the full key)
+if (import.meta.env.DEV) {
+  console.log('🔧 Supabase Configuration:', {
+    url: SUPABASE_URL,
+    keyPrefix: SUPABASE_PUBLISHABLE_KEY.substring(0, 20) + '...',
+    keyLength: SUPABASE_PUBLISHABLE_KEY.length,
+  });
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
