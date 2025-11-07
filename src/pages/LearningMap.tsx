@@ -11,6 +11,20 @@ import { calculateTopicProgress, calculateOverallProgress } from "@/utils/learni
 import { cn } from "@/lib/utils";
 import Landing from "./Landing";
 
+// Обертка для ProgressTracker с обработкой ошибок
+const ProgressTrackerWrapper = ({ stats }: { stats: ProgressStats }) => {
+  try {
+    return <ProgressTracker stats={stats} />;
+  } catch (error) {
+    console.error('[LearningMap] Error rendering ProgressTracker:', error);
+    return (
+      <div className="p-4 rounded-lg border border-destructive/20 bg-destructive/5">
+        <p className="text-sm text-destructive">Не удалось загрузить прогресс</p>
+      </div>
+    );
+  }
+};
+
 const LearningMap = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
@@ -228,7 +242,7 @@ const LearningMap = () => {
 
         {/* Progress Tracker */}
         {overallStats && profileId && (
-          <ProgressTracker stats={overallStats} />
+          <ProgressTrackerWrapper stats={overallStats} />
         )}
 
         {/* Learning Map - Vertical Path */}
