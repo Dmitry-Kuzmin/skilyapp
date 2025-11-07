@@ -11,6 +11,7 @@ SET search_path = public
 AS $$
 DECLARE
   v_current_value INTEGER;
+  v_new_value INTEGER;
 BEGIN
   -- Получаем текущее значение
   EXECUTE format(
@@ -18,17 +19,25 @@ BEGIN
     p_column
   ) INTO v_current_value USING p_profile_id;
 
+  -- Вычисляем новое значение
+  v_new_value := v_current_value + p_amount;
+
   -- Проверяем, что значение не станет отрицательным (для coins)
-  IF p_column = 'coins' AND (v_current_value + p_amount) < 0 THEN
+  IF p_column = 'coins' AND v_new_value < 0 THEN
     RAISE EXCEPTION 'Недостаточно монет. Текущий баланс: %, требуется: %', v_current_value, ABS(p_amount);
   END IF;
 
   -- Обновляем значение
   EXECUTE format(
-    'UPDATE profiles SET %I = GREATEST(0, COALESCE(%I, 0) + $1), updated_at = NOW() WHERE id = $2',
-    p_column, p_column
+    'UPDATE profiles SET %I = $1, updated_at = NOW() WHERE id = $2',
+    p_column
   )
-  USING p_amount, p_profile_id;
+  USING v_new_value, p_profile_id;
+
+  -- Проверяем, что обновление произошло
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Профиль с id % не найден', p_profile_id;
+  END IF;
 END;
 $$;
 
