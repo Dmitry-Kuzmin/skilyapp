@@ -1,22 +1,16 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, BookOpen, Sparkles } from "lucide-react";
+import { Loader2, BookOpen, Play, ArrowLeft } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { TopicCard, Topic, TopicProgress } from "@/components/learning-map/TopicCard";
-import { ProgressStats } from "@/components/learning-map/ProgressTracker";
+import { Topic, TopicProgress } from "@/components/learning-map/TopicCard";
+import { TopicNode } from "@/components/learning-map/TopicNode";
+import { RightSidebar } from "@/components/learning-map/RightSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
-import { calculateTopicProgress, calculateOverallProgress } from "@/utils/learningMap";
+import { calculateTopicProgress } from "@/utils/learningMap";
 import { cn } from "@/lib/utils";
 import Landing from "./Landing";
-
-// Динамическая загрузка ProgressTracker для предотвращения ошибок при загрузке модуля
-const ProgressTracker = lazy(() => 
-  import("@/components/learning-map/ProgressTracker").then(module => ({
-    default: module.ProgressTracker
-  }))
-);
 
 const LearningMap = () => {
   const navigate = useNavigate();
@@ -25,7 +19,8 @@ const LearningMap = () => {
   const [error, setError] = useState<string | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
-  const [overallStats, setOverallStats] = useState<ProgressStats | null>(null);
+  const [userProfile, setUserProfile] = useState<{ rank?: string; xp?: number } | null>(null);
+  const [activeTopicIndex, setActiveTopicIndex] = useState<number | null>(null);
 
   useEffect(() => {
     // Загружаем темы сразу, если пользователь авторизован
@@ -37,12 +32,36 @@ const LearningMap = () => {
     }
   }, [isAuthenticated]);
 
-  // Загружаем прогресс отдельно, когда profileId готов
+  // Загружаем прогресс и профиль отдельно, когда profileId готов
   useEffect(() => {
-    if (isAuthenticated && profileId && topics.length > 0) {
-      loadProgress();
+    if (isAuthenticated && profileId) {
+      loadUserProfile();
+      if (topics.length > 0) {
+        loadProgress();
+      }
     }
   }, [isAuthenticated, profileId, topics.length]);
+
+  const loadUserProfile = async () => {
+    if (!profileId) return;
+
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('rank, xp')
+        .eq('id', profileId)
+        .single();
+
+      if (error) throw error;
+
+      setUserProfile({
+        rank: profile?.rank || undefined,
+        xp: profile?.xp || 0,
+      });
+    } catch (error) {
+      console.error('[LearningMap] Error loading user profile:', error);
+    }
+  };
 
   const loadLearningMap = async () => {
     try {
@@ -140,39 +159,49 @@ const LearningMap = () => {
       
       setTopicsProgress(progressMap);
 
-      // Рассчитываем общую статистику (с таймаутом)
-      try {
-        const stats = await Promise.race([
-          calculateOverallProgress(profileId),
-          new Promise<ProgressStats>((resolve) => {
-            setTimeout(() => resolve({
-              totalTopics: topics.length,
-              completedTopics: 0,
-              totalSubtopics: 0,
-              completedSubtopics: 0,
-              readinessScore: 0,
-              avgAccuracy: 0,
-              testSuccessRate: 0
-            }), 5000);
-          })
-        ]);
-        
-        setOverallStats({
-          totalTopics: stats.totalTopics,
-          completedTopics: stats.completedTopics,
-          totalSubtopics: stats.totalSubtopics,
-          completedSubtopics: stats.completedSubtopics,
-          readinessScore: stats.readinessScore,
-          avgAccuracy: stats.avgAccuracy,
-          testSuccessRate: stats.testSuccessRate,
+      // Определяем активную тему (первая незавершенная и разблокированная)
+      // Если все завершены, показываем последнюю завершенную
+      let activeIndex = topics.findIndex((topic, idx) => {
+        const prog = progressMap.get(topic.id);
+        return prog?.isUnlocked && !prog?.completed;
+      });
+      
+      // Если все темы завершены, активируем последнюю
+      if (activeIndex < 0) {
+        const lastCompletedIndex = topics.findLastIndex((topic) => {
+          const prog = progressMap.get(topic.id);
+          return prog?.completed;
         });
-      } catch (error) {
-        console.error('[LearningMap] Error loading overall stats:', error);
-        // Продолжаем без статистики
+        activeIndex = lastCompletedIndex >= 0 ? lastCompletedIndex : 0;
       }
+      
+      setActiveTopicIndex(activeIndex >= 0 ? activeIndex : 0);
     } catch (error) {
       console.error('[LearningMap] Error loading progress:', error);
       // Продолжаем без прогресса - показываем темы без прогресса
+    }
+  };
+
+  // Находим следующую доступную тему для кнопки "НАЧАТЬ"
+  const getNextAvailableTopic = () => {
+    if (activeTopicIndex !== null && activeTopicIndex < topics.length) {
+      return topics[activeTopicIndex];
+    }
+    // Если нет активной, возвращаем первую разблокированную
+    return topics.find((topic, idx) => {
+      const progress = topicsProgress.get(topic.id);
+      return progress?.isUnlocked || idx === 0;
+    });
+  };
+
+  const handleTopicClick = (topic: Topic) => {
+    navigate(`/topic/${topic.id}`);
+  };
+
+  const handleStartClick = () => {
+    const nextTopic = getNextAvailableTopic();
+    if (nextTopic) {
+      navigate(`/topic/${nextTopic.id}`);
     }
   };
 
@@ -217,93 +246,119 @@ const LearningMap = () => {
     );
   }
 
+  // Группируем темы по модулям (каждые 5 тем = 1 модуль)
+  const getModuleAndSection = (index: number) => {
+    const moduleNumber = Math.floor(index / 5) + 1;
+    const sectionNumber = (index % 5) + 1;
+    return { module: moduleNumber, section: sectionNumber };
+  };
+
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-        {/* Header */}
-        <div className="text-center space-y-2 py-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary via-secondary to-primary mb-4 shadow-lg shadow-primary/20">
-            <BookOpen className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-            Карта обучения
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Изучай темы последовательно и готовься к экзамену DGT
-          </p>
-        </div>
-
-        {/* Progress Tracker */}
-        {overallStats && profileId && (
-          <Suspense fallback={
-            <div className="p-4 rounded-lg border border-border/50 bg-card animate-pulse">
-              <div className="h-20 bg-muted/20 rounded" />
-            </div>
-          }>
-            <ProgressTracker stats={overallStats} />
-          </Suspense>
-        )}
-
-        {/* Learning Map - Vertical Path */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Темы</h2>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Sparkles className="w-4 h-4" />
-              <span>
-                {topicsProgress.size > 0
-                  ? Array.from(topicsProgress.values()).filter((p) => p.completed).length
-                  : 0}{" "}
-                / {topics.length} завершено
-              </span>
-            </div>
-          </div>
-
-          {/* Topics Path */}
-          <div className="relative space-y-4">
-            {topics.map((topic, index) => {
-              const progress = topicsProgress.get(topic.id);
-              const isLocked = progress ? !progress.isUnlocked : index > 0;
-
-              return (
-                <div key={topic.id} className="relative">
-                  {/* Connecting Line */}
-                  {index < topics.length - 1 && (
-                    <div
-                      className={cn(
-                        "absolute left-8 top-20 w-0.5 h-8 z-0 transition-colors",
-                        progress?.completed
-                          ? "bg-success"
-                          : progress?.isUnlocked
-                          ? "bg-primary/30"
-                          : "bg-muted/30"
-                      )}
-                    />
-                  )}
-
-                  {/* Topic Card */}
-                  <div className="relative z-10">
-                    <TopicCard
-                      topic={topic}
-                      progress={progress}
-                      isLocked={isLocked}
-                    />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-6 lg:py-8">
+          <div className="flex gap-6 lg:gap-8">
+            {/* Основной контент - путь обучения */}
+            <div className="flex-1 min-w-0">
+              {/* Header с модулем и разделом */}
+              {topics.length > 0 && activeTopicIndex !== null && activeTopicIndex < topics.length && (
+                <div className="mb-6">
+                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ArrowLeft className="w-5 h-5 text-primary" />
+                      <span className="font-bold text-primary">
+                        МОДУЛЬ {getModuleAndSection(activeTopicIndex).module}, РАЗДЕЛ {getModuleAndSection(activeTopicIndex).section}
+                      </span>
+                    </div>
+                    {topics[activeTopicIndex] && (
+                      <span className="text-sm text-muted-foreground hidden md:inline">
+                        {topics[activeTopicIndex].title_ru}
+                      </span>
+                    )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              )}
 
-          {/* Empty State */}
-          {topics.length === 0 && (
-            <div className="text-center py-12">
-              <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Темы пока не добавлены</h3>
-              <p className="text-muted-foreground">
-                Администратор добавит темы в ближайшее время
-              </p>
+              {/* Кнопка "НАЧАТЬ" для активной темы */}
+              {activeTopicIndex !== null && activeTopicIndex < topics.length && getNextAvailableTopic() && (
+                <div className="mb-8 text-center">
+                  <Button
+                    size="lg"
+                    className="bg-green-500 hover:bg-green-600 text-white px-8 py-6 text-lg font-bold rounded-full shadow-lg hover:shadow-xl transition-all animate-pulse"
+                    onClick={handleStartClick}
+                  >
+                    <Play className="w-6 h-6 mr-2" />
+                    НАЧАТЬ
+                  </Button>
+                  {topics[activeTopicIndex] && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {topics[activeTopicIndex].title_ru}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Вертикальный путь обучения */}
+              <div className="flex justify-center">
+                <div className="relative flex flex-col items-center py-8">
+                  {topics.length === 0 ? (
+                    <div className="text-center py-12">
+                      <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">Темы пока не добавлены</h3>
+                      <p className="text-muted-foreground">
+                        Администратор добавит темы в ближайшее время
+                      </p>
+                    </div>
+                  ) : (
+                    topics.map((topic, index) => {
+                      const progress = topicsProgress.get(topic.id);
+                      const isLocked = progress ? !progress.isUnlocked : index > 0;
+                      const isActive = index === activeTopicIndex;
+                      const isCompleted = progress?.completed ?? false;
+
+                      return (
+                        <div key={topic.id} className="relative flex flex-col items-center">
+                          {/* Соединительная линия */}
+                          {index < topics.length - 1 && (
+                            <div
+                              className={cn(
+                                "w-1 transition-colors duration-300 connecting-line",
+                                isCompleted && "completed",
+                                isCompleted
+                                  ? "bg-green-500"
+                                  : progress?.isUnlocked
+                                  ? "bg-primary/50"
+                                  : "bg-gray-300"
+                              )}
+                              style={{ height: "120px" }}
+                            />
+                          )}
+
+                          {/* Узел темы */}
+                          <TopicNode
+                            topic={topic}
+                            progress={progress}
+                            isLocked={isLocked}
+                            isActive={isActive}
+                            onClick={() => handleTopicClick(topic)}
+                          />
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
             </div>
-          )}
+
+            {/* Правая боковая панель */}
+            {profileId && (
+              <RightSidebar
+                profileId={profileId}
+                rank={userProfile?.rank}
+                xp={userProfile?.xp}
+              />
+            )}
+          </div>
         </div>
       </div>
     </Layout>
