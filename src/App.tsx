@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,12 +35,29 @@ const App = () => {
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
 
+  // Определяем basename для GitHub Pages
+  // Если мы на GitHub Pages (dmitry-kuzmin.github.io), используем /sdadim-dgt-prep
+  // Иначе используем /
+  const isGitHubPages = window.location.hostname === 'dmitry-kuzmin.github.io' || 
+                        window.location.pathname.startsWith('/sdadim-dgt-prep');
+  const basename = isGitHubPages ? '/sdadim-dgt-prep' : '/';
+
+  // Обработка редиректа из 404.html для GitHub Pages
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get('p');
+    if (redirectPath && isGitHubPages) {
+      // Удаляем query параметр и перенаправляем на правильный путь
+      window.history.replaceState({}, '', basename + redirectPath);
+    }
+  }, [basename, isGitHubPages]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<LearningMap />} />
           <Route path="/dashboard" element={<Index />} />

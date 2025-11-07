@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/sdadim-dgt-prep/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sdadim - Подготовка к теоретическому экзамену DGT в Испании</title>
+    <script>
+      // GitHub Pages SPA redirect
+      // This file is served when a 404 occurs
+      // We redirect to index.html to let React Router handle the routing
+      (function() {
+        var basePath = '/sdadim-dgt-prep';
+        var l = window.location;
+        var path = l.pathname;
+        
+        // Remove base path if present
+        if (path.startsWith(basePath)) {
+          path = path.slice(basePath.length);
+        }
+        
+        // Ensure path starts with /
+        if (!path.startsWith('/')) {
+          path = '/' + path;
+        }
+        
+        // Redirect to index.html with the path as query parameter
+        var redirectPath = basePath + '/index.html' + (path !== '/' ? '?p=' + encodeURIComponent(path) : '');
+        window.location.replace(redirectPath);
+      })();
+    </script>
+  </head>
+  <body>
+    <div>Redirecting...</div>
+  </body>
+</html>
+
