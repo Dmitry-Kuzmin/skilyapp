@@ -277,7 +277,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0 [&>button[class*='absolute']]:hidden">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0" hideCloseButton>
         {showConfetti && (
           <Confetti
             width={600}
