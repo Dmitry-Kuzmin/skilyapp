@@ -185,8 +185,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
 
-      console.log('[BoostShop] Буст добавлен в инвентарь успешно');
-
       // Анимации и звуки
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
