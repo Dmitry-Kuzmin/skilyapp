@@ -41,28 +41,35 @@ export const TopicNode = ({
   const isUnlocked = progress?.isUnlocked ?? !isLocked;
   const Icon = getTopicIcon(topic.number, topic.is_premium);
   
-  const nodeSize = 80;
+  // Duolingo style: квадратные узлы с закругленными углами, размер ~72px
+  const nodeSize = 72;
   const nodeSizePx = `${nodeSize}px`;
 
-  // Определяем стили для узла
+  // Определяем стили для узла (Duolingo colors)
   const getNodeStyles = () => {
     if (!isUnlocked) {
       return {
-        background: "#d1d5db",
-        border: "3px solid #9ca3af",
+        background: "#E5E5E5",
+        border: "none",
+        color: "#BABABA",
       };
     }
     if (isCompleted) {
       return {
-        background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-        border: "3px solid #059669",
+        background: "#58CC02",
+        border: "none",
+        color: "#FFFFFF",
       };
     }
+    // Активные узлы - синий цвет (как в Duolingo)
     return {
-      background: `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`,
-      border: `3px solid ${topic.gradient_to}`,
+      background: "#8CD4FF",
+      border: "none",
+      color: "#1CB0F6",
     };
   };
+
+  const nodeStyles = getNodeStyles();
 
   return (
     <div
@@ -73,65 +80,41 @@ export const TopicNode = ({
       )}
       onClick={isUnlocked ? onClick : undefined}
     >
-      {/* Узел */}
+      {/* Узел - квадратный с закругленными углами (Duolingo style) */}
       <div
         className={cn(
-          "relative rounded-full flex items-center justify-center transition-all duration-300 topic-node",
-          "shadow-lg hover:shadow-xl",
-          isActive && "active",
-          !isUnlocked && "opacity-60"
+          "relative rounded-xl flex items-center justify-center transition-all duration-300",
+          "shadow-md hover:shadow-lg hover:scale-105",
+          isActive && !isCompleted && "ring-4 ring-[#1CB0F6]/30",
+          !isUnlocked && "opacity-70"
         )}
         style={{
           width: nodeSizePx,
           height: nodeSizePx,
-          ...getNodeStyles(),
+          background: nodeStyles.background,
+          border: nodeStyles.border,
         }}
       >
         {/* Иконка внутри узла */}
-        <div className="text-white">
+        <div style={{ color: nodeStyles.color }}>
           {!isUnlocked ? (
             <Lock className="w-8 h-8" />
           ) : isCompleted ? (
-            <CheckCircle2 className="w-10 h-10" strokeWidth={3} />
+            <CheckCircle2 className="w-9 h-9" strokeWidth={2.5} />
           ) : (
-            <Icon className="w-10 h-10" strokeWidth={2} />
+            <Icon className="w-9 h-9" strokeWidth={2} />
           )}
         </div>
 
-        {/* Premium badge */}
+        {/* Premium badge - золотой (Duolingo style) */}
         {topic.is_premium && isUnlocked && !isCompleted && (
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-white z-10">
-            <Star className="w-3 h-3 text-yellow-800 fill-yellow-800" />
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#FFC800] rounded-full flex items-center justify-center border-2 border-white z-10 shadow-sm">
+            <Star className="w-3 h-3 text-[#FF9600] fill-[#FF9600]" />
           </div>
         )}
       </div>
 
-      {/* Название темы под узлом */}
-      <div className="mt-2 text-center max-w-[100px]">
-        <p
-          className={cn(
-            "text-xs font-semibold leading-tight",
-            isUnlocked ? "text-foreground" : "text-muted-foreground"
-          )}
-        >
-          {topic.title_ru}
-        </p>
-        {progress && isUnlocked && (
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {progress.completedSubtopicCount}/{progress.totalSubtopicCount}
-          </p>
-        )}
-      </div>
-
-      {/* Tooltip при наведении */}
-      {isUnlocked && (
-        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-          <div className="bg-black/90 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-            {topic.title_ru}
-            {topic.is_premium && " ⭐"}
-          </div>
-        </div>
-      )}
+      {/* Название темы под узлом - убираем для Duolingo style, или делаем очень маленьким */}
     </div>
   );
 };

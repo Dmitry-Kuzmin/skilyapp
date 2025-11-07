@@ -98,10 +98,14 @@ export const DailyTasksWidget = ({ profileId, className }: DailyTasksWidgetProps
   const completedCount = tasks.filter(t => t.completed).length;
 
   return (
-    <Card className={cn("p-4 space-y-4", className)}>
+    <Card className={cn("p-5 space-y-4 bg-white border border-gray-200 shadow-sm", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg">Задания дня</h3>
-        <Button variant="ghost" size="sm" className="text-xs h-7">
+        <h3 className="font-bold text-lg text-gray-900">Задания дня</h3>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-xs h-7 text-[#1CB0F6] hover:text-[#1CB0F6]/80 hover:bg-[#1CB0F6]/10 px-2"
+        >
           ВСЕ
         </Button>
       </div>
@@ -117,66 +121,57 @@ export const DailyTasksWidget = ({ profileId, className }: DailyTasksWidgetProps
           return (
             <div
               key={task.id}
-              className={cn(
-                "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                isCompleted ? "bg-success/10" : "bg-muted/20"
-              )}
+              className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200"
             >
-              {/* Иконка */}
+              {/* Иконка - Duolingo style colors */}
               <div
                 className={cn(
-                  "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                  isCompleted ? "bg-success/20" : "bg-primary/20"
+                  "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                  isCompleted 
+                    ? "bg-[#58CC02]" 
+                    : task.task_type.toLowerCase().includes("опыт") || task.task_type.toLowerCase().includes("xp")
+                    ? "bg-[#FFC800]"
+                    : "bg-[#1CB0F6]"
                 )}
               >
-                <Icon
-                  className={cn(
-                    "w-4 h-4",
-                    isCompleted ? "text-success" : "text-primary"
-                  )}
-                />
+                <Icon className="w-5 h-5 text-white" />
               </div>
 
               {/* Контент */}
-              <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex-1 min-w-0 space-y-2">
                 <p
                   className={cn(
-                    "text-sm font-medium leading-tight",
-                    isCompleted && "line-through text-muted-foreground"
+                    "text-sm font-medium leading-tight text-gray-900",
+                    isCompleted && "line-through text-gray-400"
                   )}
                 >
                   {task.title}
                 </p>
                 <div className="flex items-center gap-2">
-                  <Progress
-                    value={progressPercent}
-                    className={cn(
-                      "h-1.5 flex-1",
-                      isCompleted && "opacity-50"
-                    )}
-                  />
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {/* Прогресс-бар - Duolingo style */}
+                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full transition-all duration-300 rounded-full",
+                        isCompleted ? "bg-[#58CC02]" : "bg-[#1CB0F6]"
+                      )}
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-600 font-medium whitespace-nowrap">
                     {task.progress}/{task.max_progress}
                   </span>
-                  {/* Сундук награды */}
+                  {/* Сундук награды - Duolingo style */}
                   {isCompleted && (
-                    <Gift className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                    <div className="w-5 h-5 bg-[#FFC800] rounded flex items-center justify-center flex-shrink-0">
+                      <Gift className="w-3 h-3 text-[#FF9600]" />
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           );
         })}
-      </div>
-
-      {/* Прогресс выполнения */}
-      <div className="pt-2 border-t">
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Выполнено заданий</span>
-          <span className="font-semibold text-foreground">
-            {completedCount} / {tasks.length}
-          </span>
-        </div>
       </div>
     </Card>
   );

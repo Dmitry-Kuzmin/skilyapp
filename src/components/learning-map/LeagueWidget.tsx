@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Award, TrendingUp } from "lucide-react";
+import { Trophy, Award, TrendingUp, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LeagueWidgetProps {
@@ -77,38 +77,42 @@ export const LeagueWidget = ({ rank, xp = 0, className }: LeagueWidgetProps) => 
   const Icon = leagueInfo.icon;
 
   return (
-    <Card className={cn("p-4 space-y-4", className)}>
+    <Card className={cn("p-5 space-y-4 bg-white border border-gray-200 shadow-sm", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg">{leagueInfo.name}</h3>
-        <Button variant="ghost" size="sm" className="text-xs h-7">
+        <h3 className="font-bold text-lg text-gray-900">{leagueInfo.name}</h3>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-xs h-7 text-[#1CB0F6] hover:text-[#1CB0F6]/80 hover:bg-[#1CB0F6]/10 px-2"
+        >
           ОБЗОР ЛИГИ
         </Button>
       </div>
 
-      {/* Иллюстрация лиги */}
-      <div className="relative h-24 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center", leagueInfo.color)}>
-            <Icon className="w-8 h-8 text-white" />
+      {/* Иллюстрация лиги - Duolingo style */}
+      <div className="relative h-32 bg-gradient-to-b from-[#58CC02]/10 to-transparent rounded-lg flex items-end justify-center overflow-hidden border border-[#58CC02]/20">
+        {/* Холм (зеленый) */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-[#58CC02] rounded-t-full"></div>
+        
+        {/* Спящий персонаж (Zz) - Duolingo style */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <div className="relative">
+            {/* Простой персонаж */}
+            <div className="w-12 h-12 bg-[#58CC02] rounded-full flex items-center justify-center border-2 border-white shadow-md">
+              <BookOpen className="w-6 h-6 text-white" />
+            </div>
+            {/* Zz текст */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xl font-bold text-gray-600">
+              Zz
+            </div>
           </div>
         </div>
-        {/* Спящий персонаж (Zz) */}
-        <div className="absolute top-2 right-2 text-2xl opacity-50">Zz</div>
       </div>
 
       {/* Описание */}
-      <p className="text-sm text-muted-foreground text-center">
+      <p className="text-sm text-gray-600 text-center leading-relaxed">
         Пройдите урок, чтобы войти в недельный рейтинг и сразиться с другими учащимися
       </p>
-
-      {/* Статистика */}
-      <div className="flex items-center justify-center gap-4 pt-2 border-t">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-semibold">{xp.toLocaleString()}</span>
-          <span className="text-xs text-muted-foreground">XP</span>
-        </div>
-      </div>
     </Card>
   );
 };
