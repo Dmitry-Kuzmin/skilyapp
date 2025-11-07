@@ -809,7 +809,7 @@ const RaceGame = () => {
                   <Button
                     onClick={startGame}
                     size="lg"
-                    disabled={terms.length < 2}
+                    disabled={terms.length < 2 && roadSigns.length < 2}
                     className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)]"
                   >
                     <Zap className="w-4 h-4 mr-2" />
