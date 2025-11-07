@@ -358,7 +358,7 @@ export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps
                           transition={{ delay: index * 0.05 }}
                         >
                           <Card 
-                            className={`p-4 border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${
+                            className={`p-4 border transition-all duration-300 hover:shadow-lg ${
                               term.is_studied 
                                 ? 'border-success/40 bg-gradient-to-r from-success/10 to-success/5' 
                                 : term.times_practiced > 0
