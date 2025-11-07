@@ -12,12 +12,21 @@ AS $$
 DECLARE
   v_current_value INTEGER;
   v_new_value INTEGER;
+  v_profile_exists BOOLEAN;
+  v_rows_updated INTEGER;
 BEGIN
+  -- Проверяем, существует ли профиль
+  SELECT EXISTS(SELECT 1 FROM profiles WHERE id = p_profile_id) INTO v_profile_exists;
+  
+  IF NOT v_profile_exists THEN
+    RAISE EXCEPTION 'Профиль с id % не найден', p_profile_id;
+  END IF;
+
   -- Получаем текущее значение
   EXECUTE format(
     'SELECT COALESCE(%I, 0) FROM profiles WHERE id = $1',
     p_column
-  ) INTO v_current_value USING p_profile_id;
+  ) INTO STRICT v_current_value USING p_profile_id;
 
   -- Вычисляем новое значение
   v_new_value := v_current_value + p_amount;
@@ -33,10 +42,12 @@ BEGIN
     p_column
   )
   USING v_new_value, p_profile_id;
+  
+  GET DIAGNOSTICS v_rows_updated = ROW_COUNT;
 
   -- Проверяем, что обновление произошло
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Профиль с id % не найден', p_profile_id;
+  IF v_rows_updated = 0 THEN
+    RAISE EXCEPTION 'Не удалось обновить профиль с id %', p_profile_id;
   END IF;
 END;
 $$;

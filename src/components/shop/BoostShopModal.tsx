@@ -124,12 +124,31 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
 
     try {
+      // Проверяем, что profileId действительно существует в базе
+      if (!profileId) {
+        throw new Error('profileId не установлен. Пожалуйста, обновите страницу и войдите снова.');
+      }
+
       console.log('[BoostShop] Начало покупки:', { 
         profileId, 
         boostType: boost.type, 
         cost: boost.cost_coins, 
         currentCoins: coins 
       });
+
+      // Проверяем существование профиля перед покупкой
+      const { data: profileCheck, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('id, coins')
+        .eq('id', profileId)
+        .single();
+
+      if (profileCheckError || !profileCheck) {
+        console.error('[BoostShop] Профиль не найден:', profileCheckError);
+        throw new Error(`Профиль не найден: ${profileCheckError?.message || 'Неизвестная ошибка'}. Пожалуйста, обновите страницу и войдите снова.`);
+      }
+
+      console.log('[BoostShop] Профиль найден, текущий баланс:', profileCheck.coins);
 
       // Используем функцию increment_profile_value для списания монет
       // Она использует SECURITY DEFINER и обходит RLS проблемы
