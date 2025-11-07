@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 // Get environment variables with fallback values
+// Vite replaces import.meta.env.VITE_* at build time
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 
   import.meta.env.PUBLIC_SUPABASE_URL || 
   'https://yffjnqegeiorunyvcxkn.supabase.co';
@@ -12,14 +13,28 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY |
   import.meta.env.VITE_SUPABASE_ANON_KEY || 
   '';
 
+// Debug: log environment variables (only in development or if explicitly enabled)
+if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
+  console.log('🔧 Supabase Environment Variables:', {
+    hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+    hasKey: !!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    urlLength: SUPABASE_URL.length,
+    keyLength: SUPABASE_PUBLISHABLE_KEY.length,
+    urlPrefix: SUPABASE_URL.substring(0, 30),
+    keyPrefix: SUPABASE_PUBLISHABLE_KEY.substring(0, 20),
+  });
+}
+
 // Validate environment variables
-if (!SUPABASE_URL || SUPABASE_URL === '') {
+if (!SUPABASE_URL || SUPABASE_URL === '' || SUPABASE_URL === 'undefined') {
   console.error('❌ VITE_SUPABASE_URL is not set!');
+  console.error('Available env vars:', Object.keys(import.meta.env).filter(k => k.includes('SUPABASE')));
   throw new Error('VITE_SUPABASE_URL is required. Please set it in your environment variables or GitHub Secrets.');
 }
 
-if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '') {
+if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '' || SUPABASE_PUBLISHABLE_KEY === 'undefined') {
   console.error('❌ VITE_SUPABASE_PUBLISHABLE_KEY is not set!');
+  console.error('Available env vars:', Object.keys(import.meta.env).filter(k => k.includes('SUPABASE')));
   throw new Error('VITE_SUPABASE_PUBLISHABLE_KEY is required. Please set it in your environment variables or GitHub Secrets.');
 }
 
