@@ -17,6 +17,7 @@ import { NotificationToast } from '@/components/NotificationToast';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
 import { DuelWidget } from './DuelWidget';
 import Layout from '@/components/Layout';
+import { getImageUrl } from '@/utils/imageUtils';
 
 interface DuelBattleFullscreenProps {
   duelId: string;
@@ -1099,14 +1100,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         >
           <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             {/* Question Image */}
-            {currentQuestion.question_snapshot.image_url && (
+            {currentQuestion.question_snapshot.image_url && getImageUrl(currentQuestion.question_snapshot.image_url) && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="mb-6 rounded-2xl overflow-hidden bg-muted/50"
               >
                 <img
-                  src={currentQuestion.question_snapshot.image_url}
+                  src={getImageUrl(currentQuestion.question_snapshot.image_url) || ''}
                   alt="Question"
                   className="w-full h-48 md:h-56 object-contain"
                 />

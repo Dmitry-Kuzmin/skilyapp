@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
+import { getImageUrl } from "@/utils/imageUtils";
 
 type QuestionData = {
   id: string;
@@ -489,10 +490,10 @@ const TestSession = () => {
         {/* Question Card */}
         <Card className="p-3 sm:p-4 md:p-6 bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-xl backdrop-blur-sm">
           {/* Question Image - Only show if image exists */}
-          {currentQuestion.image_url && (
+          {currentQuestion.image_url && getImageUrl(currentQuestion.image_url) && (
             <div className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
               <img 
-                src={currentQuestion.image_url} 
+                src={getImageUrl(currentQuestion.image_url) || ''} 
                 alt="Вопрос" 
                 className="w-full max-h-48 sm:max-h-64 md:max-h-72 object-contain bg-gradient-to-br from-muted/20 to-primary/10"
                 loading="lazy"

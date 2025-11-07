@@ -16,6 +16,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import Confetti from "react-confetti";
 import { BoostButton } from "@/components/duel/BoostButton";
+import { getImageUrl } from "@/utils/imageUtils";
 
 interface RoadSign {
   id: string;
@@ -670,7 +671,7 @@ export default function GuessTheSign() {
                   >
                     {currentQuestion.sign.image_url ? (
                       <img
-                        src={currentQuestion.sign.image_url}
+                        src={currentQuestion.sign.image_url.startsWith('http') ? currentQuestion.sign.image_url : getImageUrl(currentQuestion.sign.image_url, 'road_signs') || currentQuestion.sign.image_url}
                         alt="Road sign"
                         className="w-48 h-48 md:w-64 md:h-64 mx-auto object-contain drop-shadow-lg"
                       />

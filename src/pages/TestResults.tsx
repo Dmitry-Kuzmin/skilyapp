@@ -270,10 +270,10 @@ const TestResults = () => {
           </div>
         </div>
 
-        {question.image_url && (
+        {question.image_url && getImageUrl(question.image_url) && (
           <div className="mb-4 rounded-lg overflow-hidden border border-border/50">
             <img 
-              src={question.image_url} 
+              src={getImageUrl(question.image_url) || ''} 
               alt="Pregunta" 
               className="w-full max-h-48 object-contain bg-muted/30"
               loading="lazy"

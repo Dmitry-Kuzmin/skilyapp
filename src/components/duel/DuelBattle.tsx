@@ -739,14 +739,14 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         transition={{ duration: 0.3 }}
       >
         <Card className="p-8 shadow-xl border-2">
-          {snapshot.image_url && (
+          {snapshot.image_url && getImageUrl(snapshot.image_url) && (
             <motion.div 
               className="mb-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <img
-                src={snapshot.image_url}
+                src={getImageUrl(snapshot.image_url) || ''}
                 alt="Question"
                 className="max-w-md mx-auto rounded-lg shadow-md"
               />

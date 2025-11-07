@@ -9,6 +9,7 @@ import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import type { Route, Question, GameStats } from "@/pages/games/RoadRace";
 import { motion, AnimatePresence } from "framer-motion";
+import { getImageUrl } from "@/utils/imageUtils";
 
 interface RaceGameProps {
   route: Route;
@@ -457,7 +458,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
                     className="relative rounded-xl overflow-hidden bg-muted/20 p-4"
                   >
                     <img
-                      src={currentQuestion.image_url}
+                      src={getImageUrl(currentQuestion.image_url) || currentQuestion.image_url}
                       alt="Pregunta"
                       className="w-full max-h-64 object-contain mx-auto"
                     />
