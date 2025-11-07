@@ -5,6 +5,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // Base path for GitHub Pages (if repo is not in root)
+  // For root repo, use '/' or leave empty
+  base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
   server: {
     host: "::",
     port: 8080,
