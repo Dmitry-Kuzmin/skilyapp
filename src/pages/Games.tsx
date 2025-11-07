@@ -44,8 +44,10 @@ const Games = () => {
 
   // Обновляем статистику при возврате на страницу (visibility change)
   useEffect(() => {
+    if (!profileId) return;
+    
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && profileId) {
+      if (document.visibilityState === 'visible') {
         loadStats();
       }
     };
@@ -54,6 +56,7 @@ const Games = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId]);
 
   const loadStats = async () => {
