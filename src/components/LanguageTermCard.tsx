@@ -126,7 +126,12 @@ export const LanguageTermCard = ({ term }: LanguageTermCardProps) => {
                     <Button 
                       variant="outline"
                       size="icon"
-                      onClick={() => new Audio(term.audio_url!).play()}
+                      onClick={() => {
+                        const audio = new Audio(term.audio_url!);
+                        audio.play().catch((e) => {
+                          console.warn('[LanguageTermCard] ⚠️ Audio blocked:', e);
+                        });
+                      }}
                       className="hover:bg-success/10"
                     >
                       <Volume2 className="w-5 h-5" />
@@ -152,7 +157,12 @@ export const LanguageTermCard = ({ term }: LanguageTermCardProps) => {
                     <Button 
                       variant="outline"
                       size="icon"
-                      onClick={() => new Audio(term.audio_url!).play()}
+                      onClick={() => {
+                        const audio = new Audio(term.audio_url!);
+                        audio.play().catch((e) => {
+                          console.warn('[LanguageTermCard] ⚠️ Audio blocked:', e);
+                        });
+                      }}
                       className="hover:bg-success/10"
                     >
                       <Volume2 className="w-5 h-5" />

@@ -1,12 +1,41 @@
-import { Swords, Zap, CreditCard, Puzzle, FileText, Languages, Layers, Shield, Flag } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
+import { useUserContext } from "@/contexts/UserContext";
+import { getStudiedTermsCount } from "@/lib/termProgress";
+import { TermProgressModal } from "@/components/TermProgressModal";
+import { motion } from "framer-motion";
 
 const Games = () => {
   const navigate = useNavigate();
+  const { profileId } = useUserContext();
+  const [studiedTermsCount, setStudiedTermsCount] = useState(0);
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (profileId) {
+      // Добавляем небольшую задержку, чтобы избежать частых запросов
+      const timer = setTimeout(() => {
+        loadStudiedTermsCount();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [profileId]);
+
+  const loadStudiedTermsCount = async () => {
+    if (!profileId) return;
+    try {
+      const count = await getStudiedTermsCount(profileId);
+      setStudiedTermsCount(count);
+    } catch (error) {
+      console.error('Error loading studied terms count:', error);
+      // Не показываем ошибку пользователю, просто оставляем 0
+    }
+  };
   
   const games = [
     {
@@ -49,15 +78,6 @@ const Games = () => {
       route: "/games/matching",
     },
     {
-      id: 5,
-      title: "Заполни пробел",
-      description: "Вставь правильный термин в определение",
-      icon: FileText,
-      color: "secondary",
-      premium: false,
-      difficulty: "Сложная",
-    },
-    {
       id: 6,
       title: "Четыре варианта",
       description: "Выбери правильный перевод термина из четырех вариантов",
@@ -66,15 +86,6 @@ const Games = () => {
       premium: false,
       difficulty: "Средняя",
       route: "/games/four-variants",
-    },
-    {
-      id: 7,
-      title: "Разбей слово по слогам",
-      description: "Собери слово из перемешанных слогов",
-      icon: Layers,
-      color: "primary",
-      premium: false,
-      difficulty: "Сложная",
     },
     {
       id: 8,
@@ -191,10 +202,28 @@ const Games = () => {
               <p className="text-3xl font-bold text-primary">24</p>
               <p className="text-sm text-muted-foreground mt-1">Игр сыграно</p>
             </div>
-            <div>
-              <p className="text-3xl font-bold text-gold">156</p>
-              <p className="text-sm text-muted-foreground mt-1">Терминов изучено</p>
-            </div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="cursor-pointer group"
+              onClick={() => setIsProgressModalOpen(true)}
+            >
+              <div className="p-2 -m-2 rounded-lg hover:bg-muted/50 transition-colors">
+                <motion.p
+                  key={studiedTermsCount}
+                  initial={{ scale: 1.2, color: "#fbbf24" }}
+                  animate={{ scale: 1, color: "#fbbf24" }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className="text-3xl font-bold text-gold"
+                >
+                  {studiedTermsCount}
+                </motion.p>
+                <p className="text-sm text-muted-foreground mt-1">Терминов изучено</p>
+                <p className="text-xs text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Нажмите для деталей
+                </p>
+              </div>
+            </motion.div>
             <div>
               <p className="text-3xl font-bold text-success">89%</p>
               <p className="text-sm text-muted-foreground mt-1">Средний результат</p>
@@ -217,6 +246,12 @@ const Games = () => {
           </div>
         </Card>
       </div>
+
+      {/* Term Progress Modal */}
+      <TermProgressModal 
+        open={isProgressModalOpen} 
+        onOpenChange={setIsProgressModalOpen}
+      />
     </Layout>
   );
 };

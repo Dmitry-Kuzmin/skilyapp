@@ -125,7 +125,8 @@ const TestSession = () => {
         .from("questions_new")
         .select(`
           *,
-          topics (title_ru, title_es)
+          topics (title_ru, title_es),
+          answer_options (*)
         `);
 
       // Filter by topic if specified
@@ -162,6 +163,10 @@ const TestSession = () => {
     if (!selectedOption) return;
 
     const currentQuestion = questions[currentIndex];
+    if (!currentQuestion || !currentQuestion.answer_options) {
+      toast.error("Ошибка: вопрос не найден");
+      return;
+    }
     const selectedAnswer = currentQuestion.answer_options.find(opt => opt.id === selectedOption);
     const isCorrect = selectedAnswer?.is_correct || false;
 
@@ -171,7 +176,7 @@ const TestSession = () => {
       isCorrect,
     };
 
-    setAnswers([...answers, newAnswer]);
+    setAnswers([...(answers || []), newAnswer]);
 
     // Save user progress
     try {
@@ -318,7 +323,33 @@ const TestSession = () => {
     );
   }
 
+  if (!questions.length || !questions[currentIndex]) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-muted-foreground mb-4">Вопрос не найден</p>
+          <Button onClick={() => navigate("/tests")}>
+            Вернуться к тестам
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
   const currentQuestion = questions[currentIndex];
+  if (!currentQuestion) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-muted-foreground mb-4">Вопрос не найден</p>
+          <Button onClick={() => navigate("/tests")}>
+            Вернуться к тестам
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
   const progress = questions.length > 0 ? (answers.length / questions.length) * 100 : 0;
   const errorCount = answers.filter((a) => !a.isCorrect).length;
   
@@ -344,8 +375,10 @@ const TestSession = () => {
     setTimeout(() => setIsTransitioning(false), 150);
   };
 
-  // Sort answer options by position
-  const sortedOptions = [...currentQuestion.answer_options].sort((a, b) => a.position - b.position);
+  // Sort answer options by position - защита от null/undefined
+  const sortedOptions = (currentQuestion.answer_options && Array.isArray(currentQuestion.answer_options))
+    ? [...currentQuestion.answer_options].sort((a, b) => (a?.position || 0) - (b?.position || 0))
+    : [];
 
   const handleClose = () => {
     if (window.confirm("Вы уверены, что хотите выйти из экзамена? Ваш прогресс не будет сохранен.")) {

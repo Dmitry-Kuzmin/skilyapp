@@ -1,8 +1,7 @@
 import { ReactNode, useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, User, Crown, Trophy, LogIn } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "./ThemeToggle";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
@@ -38,8 +37,8 @@ const Layout = ({ children }: LayoutProps) => {
     
     if (mainContentRef.current && shouldApplyPadding) {
       const topInsetStr = getComputedStyle(document.documentElement)
-        .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '80px';
-      const topInset = parseInt(topInsetStr, 10) || 80;
+        .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '40px';
+      const topInset = parseInt(topInsetStr, 10) || 40;
       const systemSafeArea = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sat') || '0', 10) || 0;
       const fixedPadding = `${topInset + systemSafeArea}px`;
       const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset}px)`;
@@ -68,7 +67,7 @@ const Layout = ({ children }: LayoutProps) => {
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {
         const topInset = getComputedStyle(document.documentElement)
-          .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '80px';
+          .getPropertyValue('--tg-content-safe-area-inset-top').trim() || '40px';
         const computedPadding = `calc(env(safe-area-inset-top, 0px) + ${topInset})`;
         mainContentRef.current.style.paddingTop = computedPadding;
       }
@@ -135,14 +134,7 @@ const Layout = ({ children }: LayoutProps) => {
             </nav>
 
             <div className="flex items-center gap-2">
-              <ThemeToggle />
               <NotificationsPanel />
-              <NavLink
-                to="/achievements"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Trophy className="w-5 h-5" />
-              </NavLink>
               {isAuthenticated ? (
                 <UserProfilePopover />
               ) : (

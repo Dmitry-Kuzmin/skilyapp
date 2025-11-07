@@ -115,10 +115,12 @@ const Admin = () => {
       const message = `
 Синхронизация завершена:
 ✅ Темы обработано: ${data.topicsProcessed || 0}
-✅ Вопросы загружено: ${data.questionsProcessed || 0}
-⚠️ Вопросы пропущено: ${data.questionsSkipped || 0}
+📥 Вопросов добавлено: ${data.questionsInserted || 0}
+🔄 Вопросов обновлено: ${data.questionsUpdated || 0}
+📊 Всего обработано: ${data.questionsProcessed || 0}
+⚠️ Вопросов пропущено: ${data.questionsSkipped || 0}
 
-${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:\n• Темы не найдены в базе\n• Неправильный формат данных\n• Отсутствуют обязательные поля' : ''}
+${data.questionsSkipped > 0 ? 'Причины пропуска вопросов:\n• Отсутствует source_id\n• Темы не найдены в базе\n• Неправильный формат данных\n• Отсутствуют обязательные поля' : ''}
       `.trim();
 
       toast({

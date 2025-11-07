@@ -5,19 +5,15 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // Base path для GitHub Pages
-  base: mode === 'production' ? '/sdadim-dgt-prep/' : '/',
-  
   server: {
     host: "::",
     port: 8080,
     allowedHosts: [
       "localhost",
-      "unlogical-despairful-stuart.ngrok-free.dev",
-      ".ngrok-free.dev",
       ".ngrok.io",
       ".ngrok-free.app",
       ".ngrok.app",
+      "unlogical-despairful-stuart.ngrok-free.dev",
     ],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),

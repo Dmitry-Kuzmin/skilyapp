@@ -28,14 +28,27 @@ export const initTelegramApp = () => {
   const webApp = getTelegramWebApp();
   if (webApp) {
     try {
+      // КРИТИЧЕСКИ ВАЖНО: вызываем ready() и expand() в самом начале
       webApp.ready();
       webApp.expand();
-      console.log('[Telegram] WebApp initialized');
+      
+      // Логируем состояние WebApp для отладки
+      console.log('[Telegram] ✅ WebApp initialized:', {
+        platform: webApp.platform,
+        version: webApp.version,
+        isExpanded: webApp.isExpanded,
+        viewportHeight: webApp.viewportHeight,
+        viewportStableHeight: webApp.viewportStableHeight,
+        safeAreaInset: webApp.safeAreaInset,
+        contentSafeAreaInset: webApp.contentSafeAreaInset,
+      });
+      
       return true;
     } catch (error) {
-      console.error('[Telegram] Initialization error:', error);
+      console.error('[Telegram] ❌ Initialization error:', error);
       return false;
     }
   }
+  console.warn('[Telegram] ⚠️ WebApp не найден - возможно, приложение запущено не в Telegram');
   return false;
 };

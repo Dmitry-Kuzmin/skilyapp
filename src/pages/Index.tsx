@@ -8,6 +8,7 @@ import RankProgress from "@/components/RankProgress";
 import StatsCard from "@/components/StatsCard";
 import AchievementCard from "@/components/AchievementCard";
 import { AISearchWidget } from "@/components/AISearchWidget";
+import { ExamReadinessWidget } from "@/components/ExamReadinessWidget";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -307,6 +308,11 @@ const Index = () => {
             nextRankXP={userStats.nextRankXP}
             coins={userStats.coins}
           />
+        )}
+
+        {/* Exam Readiness Widget */}
+        {!loading && profileId && (
+          <ExamReadinessWidget />
         )}
 
         {/* Daily Bonus - Road Journey */}

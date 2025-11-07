@@ -11,6 +11,7 @@ import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import Confetti from "react-confetti";
 import { useUserContext } from "@/contexts/UserContext";
+import { updateTermProgress } from "@/lib/termProgress";
 
 interface LanguageTerm {
   id: string;
@@ -132,6 +133,10 @@ const FourVariantsGame = () => {
         title: "Правильно! ✓",
         description: `+1 очко`,
       });
+      // Обновляем прогресс термина
+      if (profileId && currentQuestion?.term?.id) {
+        updateTermProgress(profileId, currentQuestion.term.id, true);
+      }
     } else {
       setWrongAnswers((prev) => prev + 1);
       sounds.wrongAnswer();
@@ -141,6 +146,10 @@ const FourVariantsGame = () => {
         description: `Правильный ответ: ${currentQuestion.correct_answer}`,
         variant: "destructive",
       });
+      // Обновляем прогресс термина (неправильный ответ)
+      if (profileId && currentQuestion?.term?.id) {
+        updateTermProgress(profileId, currentQuestion.term.id, false);
+      }
     }
 
     // Move to next question after delay
@@ -244,7 +253,7 @@ const FourVariantsGame = () => {
             className="max-w-2xl mx-auto"
           >
             <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-2xl">
-              <div className="p-8 md:p-12 space-y-8">
+              <div className="p-4 sm:p-6 md:p-8 lg:p-12 space-y-6 md:space-y-8">
                 {/* Spanish Term */}
                 <div className="text-center space-y-4">
                   <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -254,7 +263,7 @@ const FourVariantsGame = () => {
                     key={currentQuestion.term.term_es}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-4xl md:text-5xl font-bold text-foreground break-words"
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground break-words break-all px-2"
                   >
                     {currentQuestion.term.term_es}
                   </motion.div>
@@ -282,7 +291,7 @@ const FourVariantsGame = () => {
                         <Button
                           onClick={() => handleAnswer(option)}
                           disabled={selectedAnswer !== null}
-                          className={`w-full h-20 md:h-24 text-lg md:text-xl font-semibold rounded-xl border-2 transition-all ${
+                          className={`w-full min-h-20 md:min-h-24 h-auto py-4 px-4 text-base md:text-lg font-semibold rounded-xl border-2 transition-all ${
                             showResult
                               ? isCorrectOption
                                 ? "bg-success border-success text-success-foreground hover:bg-success"
@@ -292,13 +301,13 @@ const FourVariantsGame = () => {
                               : "bg-card border-border hover:border-primary hover:bg-muted/50"
                           }`}
                         >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="flex-1 text-left">{option}</span>
+                          <div className="flex items-center justify-between w-full gap-2 min-w-0">
+                            <span className="flex-1 text-left break-words whitespace-normal">{option}</span>
                             {showResult && isCorrectOption && (
-                              <Check className="w-6 h-6 ml-2" />
+                              <Check className="w-5 h-5 md:w-6 md:h-6 ml-2 flex-shrink-0" />
                             )}
                             {showResult && isSelected && !isCorrectOption && (
-                              <X className="w-6 h-6 ml-2" />
+                              <X className="w-5 h-5 md:w-6 md:h-6 ml-2 flex-shrink-0" />
                             )}
                           </div>
                         </Button>

@@ -5,12 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Clock, Zap, Star, ArrowRight, RotateCcw } from "lucide-react";
+import { Trophy, Clock, Zap, Star, ArrowLeft, RotateCcw, Target, Award, TrendingUp, Sparkles, Shield, Check, X, HelpCircle, SkipForward, Timer } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Layout from "@/components/Layout";
+import { useUserContext } from "@/contexts/UserContext";
+import { cn } from "@/lib/utils";
+import Confetti from "react-confetti";
+import { BoostButton } from "@/components/duel/BoostButton";
 
 interface RoadSign {
   id: string;
@@ -40,6 +45,7 @@ const POINTS_SPEED_BONUS = 50;
 export default function GuessTheSign() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { profileId } = useUserContext();
   
   const [gameState, setGameState] = useState<GameState>("menu");
   const [gameMode, setGameMode] = useState<GameMode>("beginner");
@@ -52,6 +58,21 @@ export default function GuessTheSign() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [wrongAnswerIds, setWrongAnswerIds] = useState<Set<string>>(new Set());
+  const [correctAnswerIds, setCorrectAnswerIds] = useState<Set<string>>(new Set());
+  
+  // Boosters
+  const [boosts, setBoosts] = useState<{ [key: string]: number }>({
+    fifty_fifty: 0,
+    time_extend: 0,
+    hint: 0,
+    skip: 0,
+  });
+  const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
+  const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
+  const [showHint, setShowHint] = useState(false);
+  const [hintText, setHintText] = useState<string>("");
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / QUESTIONS_COUNT) * 100;
@@ -63,7 +84,7 @@ export default function GuessTheSign() {
       const { data, error } = await supabase
         .from("road_signs")
         .select("*")
-        .limit(100);
+        .limit(200);
 
       if (error) {
         toast.error("Ошибка загрузки знаков");
@@ -81,6 +102,36 @@ export default function GuessTheSign() {
 
     loadSigns();
   }, []);
+
+  // Load boosts
+  useEffect(() => {
+    if (gameState === "playing" && profileId) {
+      loadBoosts();
+    }
+  }, [gameState, profileId]);
+
+  const loadBoosts = async () => {
+    if (!profileId) return;
+    
+    try {
+      const { data } = await supabase
+        .from('boost_inventory')
+        .select('boost_type, quantity')
+        .eq('user_id', profileId);
+
+      if (data) {
+        const boostMap: { [key: string]: number } = { fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 };
+        data.forEach(item => {
+          if (item.boost_type in boostMap) {
+            boostMap[item.boost_type] = item.quantity;
+          }
+        });
+        setBoosts(boostMap);
+      }
+    } catch (error) {
+      console.error('Error loading boosts:', error);
+    }
+  };
 
   // Timer for expert mode
   useEffect(() => {
@@ -135,6 +186,12 @@ export default function GuessTheSign() {
     setTimeLeft(TIME_PER_QUESTION_EXPERT);
     setSelectedOption(null);
     setIsAnswerRevealed(false);
+    setWrongAnswerIds(new Set());
+    setCorrectAnswerIds(new Set());
+    setUsedBoosts([]);
+    setHiddenOptions([]);
+    setShowHint(false);
+    setHintText("");
     setGameState("playing");
     sounds.countdownFinish();
     haptics.buttonClick();
@@ -144,7 +201,7 @@ export default function GuessTheSign() {
     setIsAnswerRevealed(true);
     sounds.wrongAnswer();
     haptics.wrongAnswer();
-    toast.error("Время вышло!");
+    toast.error("¡Tiempo agotado!");
     
     setTimeout(() => {
       nextQuestion();
@@ -159,6 +216,15 @@ export default function GuessTheSign() {
 
     const isCorrect = optionId === currentQuestion.correctAnswer.id;
     
+    // Визуальные эффекты
+    if (isCorrect) {
+      setCorrectAnswerIds(new Set([optionId]));
+      setTimeout(() => setCorrectAnswerIds(new Set()), 1000);
+    } else {
+      setWrongAnswerIds(new Set([optionId]));
+      setTimeout(() => setWrongAnswerIds(new Set()), 1000);
+    }
+    
     if (isCorrect) {
       let points = POINTS_CORRECT;
       
@@ -171,16 +237,72 @@ export default function GuessTheSign() {
       setCorrectAnswers((prev) => prev + 1);
       sounds.correctAnswer();
       haptics.correctAnswer();
-      toast.success(`Правильно! +${points}`);
+      toast.success(`¡Correcto! +${points} puntos`);
     } else {
       sounds.wrongAnswer();
       haptics.wrongAnswer();
-      toast.error("Неправильно");
+      toast.error("Incorrecto");
     }
 
     setTimeout(() => {
       nextQuestion();
     }, 2000);
+  };
+
+  const handleUseBoost = async (type: string) => {
+    if (usedBoosts.includes(type) || isAnswerRevealed || !profileId) return;
+
+    if (boosts[type] <= 0) {
+      toast.error("У вас нет этого бустера");
+      return;
+    }
+
+    try {
+      // Use boost via RPC function
+      const { data, error } = await supabase.rpc('modify_boost_inventory', {
+        p_user_id: profileId,
+        p_boost_type: type,
+        p_change: -1
+      });
+
+      if (error) throw error;
+
+      // Apply boost effects
+      if (type === 'fifty_fifty') {
+        const wrongOptions = currentQuestion.options
+          .filter(opt => opt.id !== currentQuestion.correctAnswer.id)
+          .slice(0, 2)
+          .map(opt => opt.id);
+        setHiddenOptions(wrongOptions);
+        sounds.boostFiftyFifty();
+        haptics.boostActivated();
+        toast.success('⚡ 50/50: Dos opciones eliminadas!', { duration: 3000 });
+      } else if (type === 'time_extend' && gameMode === 'expert') {
+        setTimeLeft(prev => Math.min(prev + 30, 60));
+        sounds.boostTimeExtend();
+        haptics.boostActivated();
+        toast.success('⏱️ +30 segundos añadidos!', { duration: 3000 });
+      } else if (type === 'hint') {
+        setHintText(currentQuestion.sign.description_es);
+        setShowHint(true);
+        sounds.boostHint();
+        haptics.boostActivated();
+        toast.success('💡 Pista abierta!', { duration: 3000 });
+      } else if (type === 'skip') {
+        sounds.boostSkip();
+        haptics.boostActivated();
+        toast.success('⏭️ Pregunta saltada!', { duration: 2000 });
+        setTimeout(() => {
+          nextQuestion();
+        }, 1000);
+        return; // Don't add to usedBoosts since we're moving to next question
+      }
+
+      setUsedBoosts(prev => [...prev, type]);
+      setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type] - 1) }));
+    } catch (error: any) {
+      toast.error(error.message || 'Error al usar el boost', { duration: 4000 });
+    }
   };
 
   const nextQuestion = () => {
@@ -191,138 +313,271 @@ export default function GuessTheSign() {
       setSelectedOption(null);
       setIsAnswerRevealed(false);
       setTimeLeft(TIME_PER_QUESTION_EXPERT);
+      setWrongAnswerIds(new Set());
+      setCorrectAnswerIds(new Set());
+      setUsedBoosts([]);
+      setHiddenOptions([]);
+      setShowHint(false);
+      setHintText("");
     }
   };
 
   const finishGame = async () => {
     setGameState("finished");
+    const accuracy = Math.round((correctAnswers / questions.length) * 100);
+    
+    if (accuracy >= 80) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
+    }
+    
     sounds.victory();
     haptics.victory();
 
     // Save session to database
-    const { error } = await supabase.from("game_sessions").insert({
-      game_type: "guess_sign",
-      mode: gameMode,
-      score,
-      total_questions: questions.length,
-      duration_seconds: 0, // Can track this if needed
-    });
+    if (profileId) {
+      const { error } = await supabase.from("game_sessions").insert({
+        game_type: "guess_sign",
+        mode: gameMode,
+        score,
+        total_questions: questions.length,
+        correct_answers: correctAnswers,
+        duration_seconds: 0,
+      });
 
-    if (error) console.error("Error saving game session:", error);
+      if (error) console.error("Error saving game session:", error);
+    }
   };
 
   const restartGame = () => {
     setGameState("menu");
+    setShowConfetti(false);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
-        <div className="text-white text-xl">Загрузка знаков...</div>
-      </div>
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center space-y-4"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-16 h-16 mx-auto border-4 border-primary border-t-transparent rounded-full"
+            />
+            <p className="text-lg text-muted-foreground">Загрузка знаков...</p>
+          </motion.div>
+        </div>
+      </Layout>
     );
   }
 
   if (gameState === "menu") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-4 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-2xl"
-        >
-          <Card className="p-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
-            <div className="text-center space-y-6">
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-12 px-4">
+          <div className="max-w-4xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
+            >
               <motion.div
-                initial={{ y: -20 }}
-                animate={{ y: 0 }}
-                transition={{ repeat: Infinity, duration: 2, repeatType: "reverse" }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary mb-6 shadow-lg"
               >
-                <Trophy className="w-24 h-24 mx-auto text-yellow-400 drop-shadow-glow" />
+                <Shield className="w-12 h-12 text-primary-foreground" />
               </motion.div>
               
-              <h1 className="text-5xl font-bold text-white drop-shadow-lg">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
                 Угадай Знак
               </h1>
               
-              <p className="text-xl text-white/90">
-                Проверь свои знания дорожных знаков!
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Проверь свои знания дорожных знаков в премиум игре с красивым дизайном
               </p>
+            </motion.div>
 
-              <div className="grid gap-4 mt-8">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    onClick={() => startGame("beginner")}
-                    className="w-full h-20 text-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-xl"
-                  >
-                    <Star className="w-6 h-6 mr-3" />
-                    Режим Новичка
-                    <Badge className="ml-3 bg-white/20">Без таймера</Badge>
-                  </Button>
-                </motion.div>
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Card className="p-8 gradient-card border-primary/30 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  onClick={() => startGame("beginner")}
+                >
+                  <div className="text-center space-y-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/20 mb-4">
+                      <Star className="w-8 h-8 text-success" />
+                    </div>
+                    <h3 className="text-2xl font-bold">Режим Новичка</h3>
+                    <p className="text-muted-foreground">
+                      Изучай знаки в своем темпе без ограничений по времени
+                    </p>
+                    <Badge className="bg-success/20 text-success border-success/30">
+                      Без таймера
+                    </Badge>
+                  </div>
+                </Card>
+              </motion.div>
 
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    onClick={() => startGame("expert")}
-                    className="w-full h-20 text-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 shadow-xl"
-                  >
-                    <Zap className="w-6 h-6 mr-3" />
-                    Режим Эксперта
-                    <Badge className="ml-3 bg-white/20">С таймером</Badge>
-                  </Button>
-                </motion.div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Card className="p-8 gradient-card border-secondary/30 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  onClick={() => startGame("expert")}
+                >
+                  <div className="text-center space-y-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/20 mb-4">
+                      <Zap className="w-8 h-8 text-secondary" />
+                    </div>
+                    <h3 className="text-2xl font-bold">Режим Эксперта</h3>
+                    <p className="text-muted-foreground">
+                      Проверь свои навыки с ограничением по времени и бонусами за скорость
+                    </p>
+                    <Badge className="bg-secondary/20 text-secondary border-secondary/30">
+                      С таймером
+                    </Badge>
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-center mt-8"
+            >
               <Button
                 onClick={() => navigate("/games")}
                 variant="ghost"
-                className="mt-6 text-white hover:bg-white/10"
+                className="text-muted-foreground hover:text-foreground"
               >
+                <ArrowLeft className="w-4 h-4 mr-2" />
                 Назад к играм
               </Button>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
+            </motion.div>
+          </div>
+        </div>
+      </Layout>
     );
   }
 
   if (gameState === "finished") {
     const accuracy = Math.round((correctAnswers / questions.length) * 100);
+    const isPerfect = accuracy === 100;
+    const isExcellent = accuracy >= 80;
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-4 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-2xl"
-        >
-          <Card className="p-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
-            <div className="text-center space-y-6">
-              <Trophy className="w-24 h-24 mx-auto text-yellow-400 drop-shadow-glow" />
+      <Layout>
+        {showConfetti && (
+          <Confetti
+            width={window.innerWidth}
+            height={window.innerHeight}
+            recycle={false}
+            numberOfPieces={200}
+          />
+        )}
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-12 px-4">
+          <div className="max-w-3xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center"
+            >
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-primary to-secondary mb-8 shadow-2xl"
+              >
+                <Trophy className="w-16 h-16 text-primary-foreground" />
+              </motion.div>
               
-              <h2 className="text-4xl font-bold text-white">Игра завершена!</h2>
+              <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+                Игра завершена!
+              </h2>
 
-              <div className="grid grid-cols-2 gap-4 mt-8">
-                <div className="bg-white/10 rounded-lg p-6">
-                  <div className="text-5xl font-bold text-white">{score}</div>
-                  <div className="text-white/80 mt-2">Очки</div>
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 mb-8">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <Card className="p-6 text-center gradient-card border-primary/30">
+                    <div className="text-4xl font-bold text-primary mb-2">{score}</div>
+                    <div className="text-sm text-muted-foreground">Очки</div>
+                  </Card>
+                </motion.div>
                 
-                <div className="bg-white/10 rounded-lg p-6">
-                  <div className="text-5xl font-bold text-white">{accuracy}%</div>
-                  <div className="text-white/80 mt-2">Точность</div>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Card className="p-6 text-center gradient-card border-success/30">
+                    <div className="text-4xl font-bold text-success mb-2">{accuracy}%</div>
+                    <div className="text-sm text-muted-foreground">Точность</div>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Card className="p-6 text-center gradient-card border-primary/30">
+                    <div className="text-4xl font-bold text-primary mb-2">{correctAnswers}</div>
+                    <div className="text-sm text-muted-foreground">Правильно</div>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Card className="p-6 text-center gradient-card border-muted/30">
+                    <div className="text-4xl font-bold text-foreground mb-2">{questions.length - correctAnswers}</div>
+                    <div className="text-sm text-muted-foreground">Ошибок</div>
+                  </Card>
+                </motion.div>
               </div>
 
-              <div className="text-xl text-white/90">
-                Правильных ответов: {correctAnswers} из {questions.length}
-              </div>
+              {(isPerfect || isExcellent) && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="mb-8"
+                >
+                  <Card className="p-6 gradient-card border-success/30 bg-success/10">
+                    <div className="flex items-center justify-center gap-3">
+                      <Award className="w-8 h-8 text-success" />
+                      <span className="text-xl font-bold text-success">
+                        {isPerfect ? "Идеальный результат! 🎉" : "Отличный результат! ⭐"}
+                      </span>
+                    </div>
+                  </Card>
+                </motion.div>
+              )}
 
-              <div className="flex gap-4 mt-8">
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <Button
                   onClick={restartGame}
-                  className="flex-1 h-14 text-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                  className="flex-1 h-14 text-lg gradient-primary shadow-lg hover:shadow-xl transition-all"
                 >
                   <RotateCcw className="w-5 h-5 mr-2" />
                   Играть ещё
@@ -331,132 +586,230 @@ export default function GuessTheSign() {
                 <Button
                   onClick={() => navigate("/games")}
                   variant="outline"
-                  className="flex-1 h-14 text-lg bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  className="flex-1 h-14 text-lg"
                 >
                   Другие игры
                 </Button>
               </div>
-            </div>
-          </Card>
-        </motion.div>
-      </div>
+            </motion.div>
+          </div>
+        </div>
+      </Layout>
     );
   }
 
   // Playing state
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-4">
-      <div className="max-w-4xl mx-auto pt-4">
-        {/* Header */}
-        <div className="mb-6 space-y-4">
-          <div className="flex items-center justify-between text-white">
-            <div className="flex items-center gap-4">
-              <Badge className="bg-white/20 text-white text-lg px-4 py-2">
-                {currentQuestionIndex + 1} / {questions.length}
-              </Badge>
-              
-              {gameMode === "expert" && (
-                <Badge 
-                  className={`text-lg px-4 py-2 ${
-                    timeLeft <= 5 
-                      ? "bg-red-500 animate-pulse" 
-                      : "bg-white/20 text-white"
-                  }`}
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6 px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="mb-6 space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setGameState("menu")}
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <Clock className="w-4 h-4 mr-2" />
-                  {timeLeft}с
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Меню
+                </Button>
+                <Badge className="bg-primary/10 text-primary border-primary/30 text-base px-4 py-2">
+                  {currentQuestionIndex + 1} / {questions.length}
                 </Badge>
-              )}
+                
+                {gameMode === "expert" && (
+                  <Badge 
+                    className={cn(
+                      "text-base px-4 py-2 transition-all",
+                      timeLeft <= 5 
+                        ? "bg-destructive text-destructive-foreground animate-pulse" 
+                        : "bg-primary/10 text-primary border-primary/30"
+                    )}
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    {timeLeft}с
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-2xl font-bold">
+                <Trophy className="w-6 h-6 text-primary" />
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  {score}
+                </span>
+              </div>
             </div>
 
-            <div className="text-2xl font-bold">
-              <Trophy className="w-6 h-6 inline mr-2" />
-              {score}
-            </div>
+            <Progress value={progress} className="h-3 bg-muted/50" />
           </div>
 
-          <Progress value={progress} className="h-3 bg-white/20" />
-        </div>
+          {/* Question */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentQuestionIndex}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="p-6 md:p-8 bg-card border-primary/30 shadow-xl mb-6">
+                <div className="text-center space-y-6">
+                  <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    ¿Qué significa esta señal?
+                  </h3>
 
-        {/* Question */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentQuestionIndex}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-          >
-            <Card className="p-8 bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl mb-6">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-white mb-6">
-                  Что означает этот знак?
-                </h3>
+                  {/* Sign Image */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-card rounded-2xl p-6 md:p-8 shadow-lg border-2 border-border/50"
+                  >
+                    {currentQuestion.sign.image_url ? (
+                      <img
+                        src={currentQuestion.sign.image_url}
+                        alt="Road sign"
+                        className="w-48 h-48 md:w-64 md:h-64 mx-auto object-contain drop-shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-48 h-48 md:w-64 md:h-64 mx-auto flex items-center justify-center bg-muted rounded-lg">
+                        <span className="text-muted-foreground">Нет изображения</span>
+                      </div>
+                    )}
+                    
+                    {currentQuestion.sign.sign_number && (
+                      <Badge className="mt-4 bg-primary/10 text-primary border-primary/30">
+                        {currentQuestion.sign.sign_number}
+                      </Badge>
+                    )}
+                  </motion.div>
 
-                {/* Sign Image */}
-                <div className="bg-white rounded-2xl p-8 mb-6 shadow-2xl">
-                  {currentQuestion.sign.image_url ? (
-                    <img
-                      src={currentQuestion.sign.image_url}
-                      alt="Road sign"
-                      className="w-48 h-48 mx-auto object-contain"
-                    />
-                  ) : (
-                    <div className="w-48 h-48 mx-auto flex items-center justify-center bg-gray-200 rounded-lg">
-                      <span className="text-gray-500">Нет изображения</span>
+                  {/* Hint */}
+                  {showHint && hintText && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4 mb-4"
+                    >
+                      <div className="flex items-start gap-3">
+                        <HelpCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-sm font-semibold text-primary mb-1">Pista:</p>
+                          <p className="text-sm text-foreground">{hintText}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Boosters */}
+                  {profileId && (
+                    <div className="flex flex-wrap items-center gap-2 mb-4 justify-center">
+                      <BoostButton
+                        type="fifty_fifty"
+                        name="50/50"
+                        available={boosts.fifty_fifty}
+                        onUse={handleUseBoost}
+                        disabled={isAnswerRevealed || usedBoosts.includes('fifty_fifty') || hiddenOptions.length > 0}
+                      />
+                      {gameMode === 'expert' && (
+                        <BoostButton
+                          type="time_extend"
+                          name="+30s"
+                          available={boosts.time_extend}
+                          onUse={handleUseBoost}
+                          disabled={isAnswerRevealed || usedBoosts.includes('time_extend')}
+                        />
+                      )}
+                      <BoostButton
+                        type="hint"
+                        name="Pista"
+                        available={boosts.hint}
+                        onUse={handleUseBoost}
+                        disabled={isAnswerRevealed || usedBoosts.includes('hint') || showHint}
+                      />
+                      <BoostButton
+                        type="skip"
+                        name="Saltar"
+                        available={boosts.skip}
+                        onUse={handleUseBoost}
+                        disabled={isAnswerRevealed || usedBoosts.includes('skip')}
+                      />
                     </div>
                   )}
-                  
-                  {currentQuestion.sign.sign_number && (
-                    <Badge className="mt-4 bg-blue-500 text-white">
-                      {currentQuestion.sign.sign_number}
-                    </Badge>
-                  )}
-                </div>
 
-                {/* Options */}
-                <div className="grid grid-cols-1 gap-3">
-                  {currentQuestion.options.map((option, index) => {
-                    const isSelected = selectedOption === option.id;
-                    const isCorrect = option.id === currentQuestion.correctAnswer.id;
-                    const showCorrect = isAnswerRevealed && isCorrect;
-                    const showWrong = isAnswerRevealed && isSelected && !isCorrect;
+                  {/* Options */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <AnimatePresence>
+                      {currentQuestion.options
+                        .filter(option => !hiddenOptions.includes(option.id))
+                        .map((option, index) => {
+                          const isSelected = selectedOption === option.id;
+                          const isCorrect = option.id === currentQuestion.correctAnswer.id;
+                          const showCorrect = isAnswerRevealed && isCorrect;
+                          const showWrong = isAnswerRevealed && isSelected && !isCorrect;
+                          const isWrong = wrongAnswerIds.has(option.id);
+                          const isCorrectHighlight = correctAnswerIds.has(option.id);
 
-                    return (
-                      <motion.div
-                        key={option.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        <Button
-                          onClick={() => handleAnswerSelect(option.id)}
-                          disabled={isAnswerRevealed}
-                          className={`w-full h-auto py-4 px-6 text-left text-lg transition-all ${
-                            showCorrect
-                              ? "bg-green-500 hover:bg-green-500 text-white border-green-400 shadow-glow-green"
-                              : showWrong
-                              ? "bg-red-500 hover:bg-red-500 text-white border-red-400"
-                              : isSelected
-                              ? "bg-blue-500 text-white"
-                              : "bg-white/90 hover:bg-white text-gray-800"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="flex-1">
-                              {language === "ru" ? option.name_ru : option.name_es}
-                            </span>
-                            {showCorrect && <Star className="w-6 h-6 ml-3" />}
-                          </div>
-                        </Button>
-                      </motion.div>
-                    );
-                  })}
+                          return (
+                            <motion.div
+                              key={option.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.9 }}
+                              transition={{ delay: index * 0.1 }}
+                            >
+                              <Button
+                                onClick={() => handleAnswerSelect(option.id)}
+                                disabled={isAnswerRevealed}
+                                className={cn(
+                                  "w-full h-auto min-h-[80px] py-4 px-6 text-left text-base md:text-lg transition-all duration-300 relative overflow-hidden",
+                                  showCorrect
+                                    ? "bg-success text-success-foreground border-2 border-success shadow-lg scale-[1.02]"
+                                    : showWrong || isWrong
+                                    ? "bg-destructive text-destructive-foreground border-2 border-destructive shadow-lg scale-[1.02]"
+                                    : isCorrectHighlight
+                                    ? "bg-success/20 text-success border-2 border-success/50 shadow-md"
+                                    : isSelected
+                                    ? "bg-primary text-primary-foreground border-2 border-primary shadow-md"
+                                    : "bg-background hover:bg-muted/50 text-foreground border-2 border-border hover:border-primary/50 hover:shadow-md"
+                                )}
+                              >
+                                {showCorrect && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute top-2 right-2"
+                                  >
+                                    <Check className="w-6 h-6" />
+                                  </motion.div>
+                                )}
+                                {showWrong && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute top-2 right-2"
+                                  >
+                                    <X className="w-6 h-6" />
+                                  </motion.div>
+                                )}
+                                <span className="flex-1 text-left break-words whitespace-normal">
+                                  {option.name_es}
+                                </span>
+                              </Button>
+                            </motion.div>
+                          );
+                        })}
+                    </AnimatePresence>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          </motion.div>
-        </AnimatePresence>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

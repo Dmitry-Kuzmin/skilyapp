@@ -70,4 +70,10 @@ try {
   console.error(`\n❌ Ошибка при деплое функции ${FUNCTION_NAME}:`, error.message);
   process.exit(1);
 }
+<<<<<<< Current (Your changes)
+<<<<<<< Current (Your changes)
+>>>>>>> Incoming (Background Agent changes)
+=======
+>>>>>>> Incoming (Background Agent changes)
+=======
 >>>>>>> Incoming (Background Agent changes)

@@ -45,6 +45,7 @@ function hasCyrillic(text: string): boolean {
 }
 
 interface QuestionRow {
+  source_id?: string;
   topic_number?: number;
   difficulty?: string;
   is_premium?: string;
@@ -229,6 +230,8 @@ Deno.serve(async (req) => {
 
     let questionsProcessed = 0;
     let questionsSkipped = 0;
+    let questionsUpdated = 0;
+    let questionsInserted = 0;
     const skipReasons: string[] = [];
     const warnings: string[] = [];
 
@@ -237,42 +240,50 @@ Deno.serve(async (req) => {
       
       // Log parsed columns for debugging
       console.log(`Parsed ${columns.length} columns for row ${questionsProcessed + questionsSkipped + 1}`);
-      console.log(`question_ru (col 7): "${columns[7]?.substring(0, 50)}..."`);
-      console.log(`question_es (col 8): "${columns[8]?.substring(0, 50)}..."`);
       
+      // source_id is now in column 0 (first column)
+      // topic_number is now in column 1 (second column)
       const questionData: QuestionRow = {
-        topic_number: parseInt(columns[0]),
-        difficulty: columns[1],
-        is_premium: columns[2],
-        type: columns[3],
-        image_url: columns[4],
-        sign_code: columns[5],
-        source: columns[6],
-        question_ru: columns[7],
-        question_es: columns[8],
-        question_en: columns[9],
-        explanation_ru: columns[10],
-        explanation_es: columns[11],
-        explanation_en: columns[12],
-        tags: columns[13],
-        answer_1_ru: columns[14],
-        answer_1_es: columns[15],
-        answer_1_en: columns[16],
-        is_correct_1: columns[17],
-        answer_2_ru: columns[18],
-        answer_2_es: columns[19],
-        answer_2_en: columns[20],
-        is_correct_2: columns[21],
-        answer_3_ru: columns[22],
-        answer_3_es: columns[23],
-        answer_3_en: columns[24],
-        is_correct_3: columns[25],
-        answer_4_ru: columns[26],
-        answer_4_es: columns[27],
-        answer_4_en: columns[28],
-        is_correct_4: columns[29],
-        notes: columns[30],
+        source_id: columns[0]?.trim() || null,
+        topic_number: parseInt(columns[1]),
+        difficulty: columns[2],
+        is_premium: columns[3],
+        type: columns[4],
+        image_url: columns[5],
+        sign_code: columns[6],
+        source: columns[7],
+        question_ru: columns[8],
+        question_es: columns[9],
+        question_en: columns[10],
+        explanation_ru: columns[11],
+        explanation_es: columns[12],
+        explanation_en: columns[13],
+        tags: columns[14],
+        answer_1_ru: columns[15],
+        answer_1_es: columns[16],
+        answer_1_en: columns[17],
+        is_correct_1: columns[18],
+        answer_2_ru: columns[19],
+        answer_2_es: columns[20],
+        answer_2_en: columns[21],
+        is_correct_2: columns[22],
+        answer_3_ru: columns[23],
+        answer_3_es: columns[24],
+        answer_3_en: columns[25],
+        is_correct_3: columns[26],
+        answer_4_ru: columns[27],
+        answer_4_es: columns[28],
+        answer_4_en: columns[29],
+        is_correct_4: columns[30],
+        notes: columns[31],
       };
+      
+      // Validate source_id
+      if (!questionData.source_id || !questionData.source_id.trim()) {
+        skipReasons.push(`Вопрос пропущен: отсутствует source_id (строка ${questionsSkipped + questionsProcessed + 2})`);
+        questionsSkipped++;
+        continue;
+      }
       
       // Validate data
       if (questionData.question_es && hasCyrillic(questionData.question_es)) {
@@ -329,10 +340,12 @@ Deno.serve(async (req) => {
         ? (difficultyMap[questionData.difficulty.toLowerCase()] || 'medium')
         : 'medium';
 
-      // Insert question
+      // Upsert question (insert or update if source_id exists)
+      // Check if question exists by comparing created_at and updated_at after upsert
       const { data: question, error: questionError } = await supabase
         .from('questions_new')
-        .insert({
+        .upsert({
+          source_id: questionData.source_id.trim(),
           topic_id: topicId,
           difficulty: difficulty,
           is_premium: parseBool(questionData.is_premium),
@@ -347,16 +360,45 @@ Deno.serve(async (req) => {
           explanation_es: questionData.explanation_es || null,
           explanation_en: questionData.explanation_en || null,
           notes: questionData.notes || null,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'source_id',
+          ignoreDuplicates: false
         })
-        .select()
+        .select('id, created_at, updated_at')
         .single();
 
       if (questionError) {
-        const reason = `Ошибка вставки вопроса: ${questionError.message} (тема: ${questionData.topic_number}, difficulty: ${questionData.difficulty})`;
+        const reason = `Ошибка upsert вопроса: ${questionError.message} (source_id: ${questionData.source_id}, тема: ${questionData.topic_number})`;
         console.error(reason);
         skipReasons.push(reason);
         questionsSkipped++;
         continue;
+      }
+      
+      // Determine if question was new or updated by comparing timestamps
+      // If created_at and updated_at are very close (within 1 second), it's likely a new question
+      const createdAt = new Date(question.created_at).getTime();
+      const updatedAt = new Date(question.updated_at).getTime();
+      const timeDiff = Math.abs(updatedAt - createdAt);
+      const isNewQuestion = timeDiff < 2000; // Less than 2 seconds difference
+      
+      // Update statistics
+      if (isNewQuestion) {
+        questionsInserted++;
+      } else {
+        questionsUpdated++;
+        // Delete old answer_options for this question (if updating)
+        await supabase
+          .from('answer_options')
+          .delete()
+          .eq('question_id', question.id);
+        
+        // Delete old question_tags for this question (if updating)
+        await supabase
+          .from('question_tags')
+          .delete()
+          .eq('question_id', question.id);
       }
 
       // Insert answer options
@@ -390,7 +432,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Process tags
+      // Process tags (insert new tags)
       if (questionData.tags) {
         const tagNames = questionData.tags.split(',').map(t => t.trim().toLowerCase());
         const questionTags = [];
@@ -406,9 +448,13 @@ Deno.serve(async (req) => {
         }
 
         if (questionTags.length > 0) {
+          // Use upsert to avoid duplicates
           await supabase
             .from('question_tags')
-            .insert(questionTags);
+            .upsert(questionTags, {
+              onConflict: 'question_id,tag_id',
+              ignoreDuplicates: false
+            });
         }
       }
 
@@ -419,6 +465,8 @@ Deno.serve(async (req) => {
       success: true,
       topicsProcessed: topicsProcessed,
       questionsProcessed: questionsProcessed,
+      questionsInserted: questionsInserted,
+      questionsUpdated: questionsUpdated,
       questionsSkipped: questionsSkipped,
       skipReasons: skipReasons.slice(0, 10), // First 10 reasons
       warnings: warnings.slice(0, 20), // First 20 warnings

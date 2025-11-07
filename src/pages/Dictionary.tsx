@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageTermCard } from "@/components/LanguageTermCard";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Loader2, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
+import Layout from "@/components/Layout";
 
 interface LanguageTerm {
   id: string;
@@ -24,11 +25,20 @@ export default function Dictionary() {
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("all");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   useEffect(() => {
     fetchTerms();
   }, []);
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const fetchTerms = async () => {
     try {
@@ -68,28 +78,74 @@ export default function Dictionary() {
     }
   };
 
-  const filteredTerms = terms.filter(term => {
-    const matchesSearch = 
-      term.term_es.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      term.term_ru.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      term.description_es.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesDifficulty = selectedDifficulty === "all" || term.difficulty === selectedDifficulty;
-    
-    return matchesSearch && matchesDifficulty;
-  });
+  // Improved filtering with word-based search and relevance scoring
+  const filteredTerms = useMemo(() => {
+    if (!debouncedSearchTerm.trim()) {
+      return terms;
+    }
+
+    const searchWords = debouncedSearchTerm
+      .toLowerCase()
+      .trim()
+      .split(/\s+/)
+      .filter(word => word.length > 0);
+
+    const filtered = terms
+      .map(term => {
+        // Calculate relevance score
+        let score = 0;
+        const termEs = (term.term_es || "").toLowerCase();
+        const termRu = (term.term_ru || "").toLowerCase();
+        const descEs = (term.description_es || "").toLowerCase();
+        const descRu = (term.description_ru || "").toLowerCase();
+
+        // Check if all search words match
+        const allWordsMatch = searchWords.every(word => 
+          termEs.includes(word) ||
+          termRu.includes(word) ||
+          descEs.includes(word) ||
+          descRu.includes(word)
+        );
+
+        if (!allWordsMatch) return null;
+
+        // Calculate score based on match position and field
+        searchWords.forEach(word => {
+          // Exact match in term (highest priority)
+          if (termEs === word || termRu === word) score += 100;
+          // Starts with word in term
+          else if (termEs.startsWith(word) || termRu.startsWith(word)) score += 50;
+          // Contains word in term
+          else if (termEs.includes(word) || termRu.includes(word)) score += 30;
+          
+          // Match in description
+          if (descEs.includes(word)) score += 10;
+          if (descRu.includes(word)) score += 10;
+        });
+
+        return { term, score };
+      })
+      .filter((item): item is { term: LanguageTerm; score: number } => item !== null)
+      .sort((a, b) => b.score - a.score) // Sort by relevance
+      .map(item => item.term);
+
+    return filtered;
+  }, [terms, debouncedSearchTerm]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5">
-      <div className="container mx-auto px-4 py-12">
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5">
+        <div className="container mx-auto px-4 py-12">
         {/* Premium Header */}
         <div className="text-center mb-12 space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-success shadow-primary mb-4 animate-pulse-slow">
@@ -103,51 +159,37 @@ export default function Dictionary() {
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <span className="px-3 py-1 rounded-full bg-success/10 text-success font-medium">
-              {terms.length} términos disponibles
+              {filteredTerms.length} {debouncedSearchTerm ? "términos encontrados" : "términos disponibles"}
             </span>
+            {debouncedSearchTerm && (
+              <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground font-medium">
+                de {terms.length} total
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-8 space-y-6 max-w-4xl mx-auto">
+        {/* Search */}
+        <div className="mb-8 max-w-4xl mx-auto">
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-success transition-colors" />
             <Input
-              placeholder="Buscar términos en español o ruso..."
+              placeholder="Buscar por término o descripción..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-14 text-lg border-2 focus:border-success focus:ring-2 focus:ring-success/20 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
+              className="pl-12 pr-12 h-14 text-lg border-2 focus:border-success focus:ring-2 focus:ring-success/20 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
             />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 rounded-lg hover:bg-muted"
+                onClick={() => setSearchTerm("")}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
-
-          <Tabs value={selectedDifficulty} onValueChange={setSelectedDifficulty} className="w-full">
-            <TabsList className="w-full h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm">
-              <TabsTrigger 
-                value="all" 
-                className="flex-1 data-[state=active]:bg-gradient-success data-[state=active]:text-success-foreground data-[state=active]:shadow-primary rounded-lg px-6 py-3 text-base font-medium transition-all duration-300"
-              >
-                Todos
-              </TabsTrigger>
-              <TabsTrigger 
-                value="easy" 
-                className="flex-1 data-[state=active]:bg-gradient-success data-[state=active]:text-success-foreground data-[state=active]:shadow-primary rounded-lg px-6 py-3 text-base font-medium transition-all duration-300"
-              >
-                Fácil
-              </TabsTrigger>
-              <TabsTrigger 
-                value="medium" 
-                className="flex-1 data-[state=active]:bg-gradient-success data-[state=active]:text-success-foreground data-[state=active]:shadow-primary rounded-lg px-6 py-3 text-base font-medium transition-all duration-300"
-              >
-                Medio
-              </TabsTrigger>
-              <TabsTrigger 
-                value="hard" 
-                className="flex-1 data-[state=active]:bg-gradient-success data-[state=active]:text-success-foreground data-[state=active]:shadow-primary rounded-lg px-6 py-3 text-base font-medium transition-all duration-300"
-              >
-                Difícil
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         {/* Terms Grid */}
@@ -173,7 +215,8 @@ export default function Dictionary() {
             <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

@@ -1,5 +1,3 @@
-<<<<<<< Current (Your changes)
-=======
 # 🔄 Автоматическое применение миграций
 
 ## ✅ Система готова!
@@ -77,4 +75,3 @@ npm run supabase:apply APPLY_NOW.sql "описание миграции"
 
 - **Edge Functions**: https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/functions
 - **SQL Editor** (резервный вариант): https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/sql/new
->>>>>>> Incoming (Background Agent changes)

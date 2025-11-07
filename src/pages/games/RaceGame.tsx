@@ -14,6 +14,7 @@ import Confetti from "react-confetti";
 import { useUserContext } from "@/contexts/UserContext";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
+import { updateTermProgress } from "@/lib/termProgress";
 
 // ============================================
 // Game Configuration (from TZ)
@@ -402,9 +403,23 @@ const RaceGame = () => {
         sounds.correctAnswer();
         haptics.correctAnswer();
       }
+      // Обновляем прогресс термина (правильный ответ)
+      if (profileId && currentQuestion?.term?.id) {
+        console.log(`[RaceGame] Updating progress for term ${currentQuestion.term.id} (${currentQuestion.term.term_es}) - CORRECT`);
+        updateTermProgress(profileId, currentQuestion.term.id, true);
+      } else {
+        console.warn('[RaceGame] Cannot update progress:', { profileId, termId: currentQuestion?.term?.id });
+      }
     } else {
       sounds.wrongAnswer();
       haptics.wrongAnswer();
+      // Обновляем прогресс термина (неправильный ответ)
+      if (profileId && currentQuestion?.term?.id) {
+        console.log(`[RaceGame] Updating progress for term ${currentQuestion.term.id} (${currentQuestion.term.term_es}) - WRONG`);
+        updateTermProgress(profileId, currentQuestion.term.id, false);
+      } else {
+        console.warn('[RaceGame] Cannot update progress:', { profileId, termId: currentQuestion?.term?.id });
+      }
     }
 
     // Hide feedback and move to next question

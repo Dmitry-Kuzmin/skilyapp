@@ -7,9 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useSafeArea } from '@/hooks/useSafeArea';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { NotificationToast } from '@/components/NotificationToast';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
@@ -32,6 +34,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   // Initialize notifications for this duel
   useNotifications({ showToasts: true, playSounds: true });
+  
+  // Get safe area insets from Telegram WebApp API
+  const safeArea = useSafeArea();
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -416,6 +421,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   };
 
   const handleBoostUse = async (boostType: string, language?: 'ru' | 'en') => {
+    // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
+    // Это гарантирует, что звуки будут работать в Telegram WebApp
+    if (!sounds.isUnlocked()) {
+      console.log('[DuelBattleFullscreen] 🔓 Разблокировка AudioContext при использовании буста');
+      sounds.forceUnlock();
+    }
+    
     if (usedBoosts.includes(boostType) || isAnswered) return;
     
     const boost = boosts.find(b => b.boost_type === boostType);
@@ -481,6 +493,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   };
 
   const handleAnswer = async (optionId: string) => {
+    // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом клике в игре
+    // Это гарантирует, что звуки будут работать в Telegram WebApp
+    if (!sounds.isUnlocked()) {
+      console.log('[DuelBattleFullscreen] 🔓 Разблокировка AudioContext при первом ответе');
+      sounds.forceUnlock();
+    }
     if (isAnswered) return;
 
     setSelectedAnswer(optionId);
@@ -733,10 +751,45 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
+  // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
+  // УМЕНЬШАЕМ В 2 РАЗА для всего приложения, как просил пользователь
+  const totalTopPadding = Math.round((safeArea.top + safeArea.contentTop) / 2);
+  const totalBottomPadding = Math.round((safeArea.bottom + safeArea.contentBottom) / 2);
+  const totalLeftPadding = Math.round(safeArea.left / 2);
+  const totalRightPadding = Math.round(safeArea.right / 2);
+
+  // Логирование для отладки
+  console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
+    platform: safeArea.platform,
+    safeAreaTop: `${safeArea.top}px`,
+    safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
+    totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
+    safeAreaLeft: `${safeArea.left}px`,
+    safeAreaRight: `${safeArea.right}px`,
+    totalLeftPadding: `${totalLeftPadding}px`,
+    totalRightPadding: `${totalRightPadding}px`,
+    willApplyPadding: totalTopPadding > 0,
+  });
+
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-y-auto" 
+      style={{
+        paddingTop: `${totalTopPadding}px`,
+        paddingLeft: `${totalLeftPadding}px`,
+        paddingRight: `${totalRightPadding}px`,
+        paddingBottom: `${totalBottomPadding}px`
+      }}
+    >
       {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+      {/* Учитываем отступы для Telegram WebApp */}
+      <div 
+        className="fixed z-50 space-y-2 max-w-sm"
+        style={{
+          top: `${totalTopPadding + 16}px`,
+          right: `${totalRightPadding + 16}px`
+        }}
+      >
         <AnimatePresence mode="popLayout">
           {toastNotifications.map((notif) => (
             <NotificationToast
@@ -749,7 +802,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       </div>
 
       {/* Progress Bar - Duolingo Style */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-border">
+      {/* Учитываем отступы для Telegram WebApp */}
+      <div 
+        className="absolute left-0 right-0 h-1.5 bg-border"
+        style={{
+          top: `${totalTopPadding}px`,
+          left: `${totalLeftPadding}px`,
+          right: `${totalRightPadding}px`
+        }}
+      >
         <motion.div
           className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400 shadow-lg shadow-green-500/50"
           initial={{ width: 0 }}
@@ -759,17 +820,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       </div>
 
       {/* Exit Button - Top Left Corner */}
+      {/* Учитываем отступы для Telegram WebApp */}
       <Button
         variant="ghost"
         size="icon"
         onClick={onExit}
-        className="absolute top-2 left-2 z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
+        className="absolute z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
+        style={{
+          top: `${totalTopPadding + 8}px`,
+          left: `${totalLeftPadding + 8}px`
+        }}
       >
         <X className="h-4 w-4" />
       </Button>
 
       {/* Main Content */}
-      <div className="min-h-full flex flex-col p-3 md:p-4 pt-12 pb-6 max-w-4xl mx-auto">
+      {/* Используем единую систему отступов через CSS переменные */}
+      <div className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto">
         {/* Header - Scores & Timer - Premium Design */}
         <div className="flex items-center justify-between mb-3 md:mb-4">
           {/* Scores - Enhanced */}

@@ -58,9 +58,18 @@ declare global {
           left: number;
           right: number;
         };
+        // Прямые свойства viewport safe area (могут быть доступны напрямую)
+        viewportSafeAreaInsetTop?: number;
+        viewportSafeAreaInsetBottom?: number;
+        viewportSafeAreaInsetLeft?: number;
+        viewportSafeAreaInsetRight?: number;
         // Стабильная высота viewport без клавиатуры
         viewportStableHeight?: number;
         viewportHeight?: number;
+        // Дополнительные свойства
+        platform?: string;
+        version?: string;
+        isExpanded?: boolean;
         // События для динамических обновлений
         onEvent: (eventType: string, callback: () => void) => void;
         offEvent: (eventType: string, callback: () => void) => void;

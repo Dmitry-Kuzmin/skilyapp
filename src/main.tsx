@@ -6,6 +6,9 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import App from "./App.tsx";
 import "./index.css";
 
+// Инициализация Telegram WebApp теперь происходит в useInitTelegram hook в App.tsx
+// Это гарантирует правильный порядок инициализации
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
