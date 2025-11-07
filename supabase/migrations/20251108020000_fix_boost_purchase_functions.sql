@@ -53,27 +53,25 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_current_quantity INTEGER := 0;
+  v_current_quantity INTEGER;
+  v_record_exists BOOLEAN;
 BEGIN
-  -- Получаем текущее количество
-  SELECT COALESCE(quantity, 0) INTO v_current_quantity
-  FROM boost_inventory
-  WHERE user_id = p_user_id 
-    AND boost_type = p_boost_type;
+  -- Проверяем, существует ли запись
+  SELECT EXISTS(
+    SELECT 1 FROM boost_inventory
+    WHERE user_id = p_user_id 
+      AND boost_type = p_boost_type
+  ) INTO v_record_exists;
 
-  -- Если записи нет и мы добавляем (p_change > 0), создаем новую
-  IF v_current_quantity = 0 AND p_change > 0 THEN
+  -- Если записи нет, создаем новую
+  IF NOT v_record_exists THEN
     INSERT INTO boost_inventory (user_id, boost_type, quantity, updated_at)
-    VALUES (p_user_id, p_boost_type, p_change, NOW())
-    ON CONFLICT (user_id, boost_type) 
-    DO UPDATE SET 
-      quantity = GREATEST(0, boost_inventory.quantity + p_change),
-      updated_at = NOW();
-  -- Если запись существует, обновляем
-  ELSIF v_current_quantity > 0 THEN
+    VALUES (p_user_id, p_boost_type, GREATEST(0, p_change), NOW());
+  ELSE
+    -- Если запись существует, обновляем
     UPDATE boost_inventory
     SET 
-      quantity = GREATEST(0, quantity + p_change),
+      quantity = GREATEST(0, COALESCE(quantity, 0) + p_change),
       updated_at = NOW()
     WHERE user_id = p_user_id 
       AND boost_type = p_boost_type;
