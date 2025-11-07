@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, BookOpen, ArrowLeft, TrendingUp } from "lucide-react";
+import { Loader2, BookOpen } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Topic, TopicProgress } from "@/components/learning-map/TopicCard";
-import { ModernTopicCard } from "@/components/learning-map/ModernTopicCard";
-import { ModuleSection } from "@/components/learning-map/ModuleSection";
-import { CompactSidebar } from "@/components/learning-map/CompactSidebar";
+import { DuolingoLearningPath } from "@/components/learning-map/DuolingoLearningPath";
+import { ModuleBanner } from "@/components/learning-map/ModuleBanner";
+import { RightSidebar } from "@/components/learning-map/RightSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { calculateTopicProgress } from "@/utils/learningMap";
@@ -174,48 +174,41 @@ const LearningMap = () => {
     }
   };
 
-  // Группируем темы по модулям (каждые 5 тем = 1 модуль)
-  const topicsByModule = useMemo(() => {
-    const modules: { [key: number]: Topic[] } = {};
-    topics.forEach((topic) => {
-      const moduleNumber = Math.floor((topic.order_index - 1) / 5) + 1;
-      if (!modules[moduleNumber]) {
-        modules[moduleNumber] = [];
-      }
-      modules[moduleNumber].push(topic);
+  // Определяем следующую доступную тему
+  const nextTopic = useMemo(() => {
+    return topics.find((topic) => {
+      const prog = topicsProgress.get(topic.id);
+      return prog?.isUnlocked && !prog?.completed;
     });
-    return modules;
-  }, [topics]);
+  }, [topics, topicsProgress]);
 
-  // Рассчитываем прогресс для каждого модуля
-  const moduleProgress = useMemo(() => {
-    const progress: { [key: number]: { completed: number; total: number } } = {};
-    Object.keys(topicsByModule).forEach((moduleKey) => {
-      const moduleNumber = parseInt(moduleKey);
-      const moduleTopics = topicsByModule[moduleNumber];
-      const completed = moduleTopics.filter((topic) => {
-        const prog = topicsProgress.get(topic.id);
-        return prog?.completed;
-      }).length;
-      progress[moduleNumber] = {
-        completed,
-        total: moduleTopics.length,
-      };
-    });
-    return progress;
-  }, [topicsByModule, topicsProgress]);
+  // Определяем модуль и раздел для активной темы
+  const getModuleAndSection = (topicIndex: number) => {
+    // Группируем темы: каждые 5 тем = 1 модуль, каждая тема = 1 раздел
+    const moduleNumber = Math.floor(topicIndex / 5) + 1;
+    const sectionNumber = (topicIndex % 5) + 1;
+    return { module: moduleNumber, section: sectionNumber };
+  };
 
-  // Общий прогресс
-  const overallProgress = useMemo(() => {
-    const completed = Array.from(topicsProgress.values()).filter((p) => p.completed).length;
-    return {
-      completed,
-      total: topics.length,
-    };
-  }, [topicsProgress, topics.length]);
+  const activeTopicIndex = activeTopicId
+    ? topics.findIndex((t) => t.id === activeTopicId)
+    : nextTopic
+    ? topics.findIndex((t) => t.id === nextTopic.id)
+    : 0;
+
+  const moduleInfo =
+    activeTopicIndex >= 0
+      ? getModuleAndSection(activeTopicIndex)
+      : { module: 1, section: 1 };
 
   const handleTopicClick = (topic: Topic) => {
     navigate(`/topic/${topic.id}`);
+  };
+
+  const handleStartClick = () => {
+    if (nextTopic) {
+      navigate(`/topic/${nextTopic.id}`);
+    }
   };
 
   // Show landing page for non-authenticated users
@@ -261,63 +254,32 @@ const LearningMap = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30">
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8 lg:py-12">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Основной контент */}
-            <div className="flex-1 min-w-0 space-y-12">
-              {/* Шапка страницы */}
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                      Карта обучения
-                    </h1>
-                    <p className="text-sm md:text-base text-gray-600">
-                      Изучайте темы последовательно и готовьтесь к экзамену DGT
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hidden md:flex self-start sm:self-auto"
-                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  >
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Общий прогресс
-                  </Button>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-6 lg:py-8">
+          <div className="flex gap-6 lg:gap-8">
+            {/* Основной контент - путь обучения */}
+            <div className="flex-1 min-w-0">
+              {/* Баннер модуля (Duolingo style) */}
+              {topics.length > 0 && activeTopicIndex >= 0 && topics[activeTopicIndex] && (
+                <div className="mb-6">
+                  <ModuleBanner
+                    moduleNumber={moduleInfo.module}
+                    sectionNumber={moduleInfo.section}
+                    topicTitle={topics[activeTopicIndex].title_ru}
+                  />
                 </div>
+              )}
 
-                {/* Общий прогресс */}
-                {topics.length > 0 && (
-                  <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-gray-700">
-                        Общий прогресс
-                      </span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {overallProgress.completed}/{overallProgress.total} тем
-                      </span>
-                    </div>
-                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 rounded-full transition-all duration-700"
-                        style={{
-                          width: `${
-                            overallProgress.total > 0
-                              ? Math.round(
-                                  (overallProgress.completed / overallProgress.total) * 100
-                                )
-                              : 0
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* Заголовок урока */}
+              {nextTopic && (
+                <div className="mb-8">
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                    {nextTopic.title_ru}
+                  </h1>
+                </div>
+              )}
 
-              {/* Модули */}
+              {/* Вертикальный путь обучения в стиле Duolingo */}
               {topics.length === 0 ? (
                 <div className="text-center py-20">
                   <BookOpen className="w-20 h-20 text-gray-300 mx-auto mb-4" />
@@ -329,52 +291,23 @@ const LearningMap = () => {
                   </p>
                 </div>
               ) : (
-                Object.keys(topicsByModule)
-                  .sort((a, b) => parseInt(a) - parseInt(b))
-                  .map((moduleKey) => {
-                    const moduleNumber = parseInt(moduleKey);
-                    const moduleTopics = topicsByModule[moduleNumber];
-                    const progress = moduleProgress[moduleNumber];
-
-                    return (
-                      <ModuleSection
-                        key={moduleNumber}
-                        moduleNumber={moduleNumber}
-                        progress={progress}
-                      >
-                        {moduleTopics.map((topic) => {
-                          const progress = topicsProgress.get(topic.id);
-                          const isLocked = progress
-                            ? !progress.isUnlocked
-                            : topic.order_index > 1;
-                          const isActive = topic.id === activeTopicId;
-
-                          return (
-                            <ModernTopicCard
-                              key={topic.id}
-                              topic={topic}
-                              progress={progress}
-                              isLocked={isLocked}
-                              isActive={isActive}
-                              onClick={() => handleTopicClick(topic)}
-                            />
-                          );
-                        })}
-                      </ModuleSection>
-                    );
-                  })
+                <DuolingoLearningPath
+                  topics={topics}
+                  topicsProgress={topicsProgress}
+                  activeTopicId={activeTopicId}
+                  nextTopicId={nextTopic?.id || null}
+                  onTopicClick={handleTopicClick}
+                  onStartClick={handleStartClick}
+                />
               )}
             </div>
 
             {/* Правая боковая панель */}
             {profileId && (
-              <CompactSidebar
+              <RightSidebar
                 profileId={profileId}
                 rank={userProfile?.rank}
                 xp={userProfile?.xp}
-                completedTopics={overallProgress.completed}
-                totalTopics={overallProgress.total}
-                streak={userProfile?.streak}
               />
             )}
           </div>
