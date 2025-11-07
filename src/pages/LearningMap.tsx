@@ -1,29 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, BookOpen, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { TopicCard, Topic, TopicProgress } from "@/components/learning-map/TopicCard";
-import { ProgressTracker, ProgressStats } from "@/components/learning-map/ProgressTracker";
+import { ProgressStats } from "@/components/learning-map/ProgressTracker";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { calculateTopicProgress, calculateOverallProgress } from "@/utils/learningMap";
 import { cn } from "@/lib/utils";
 import Landing from "./Landing";
 
-// Обертка для ProgressTracker с обработкой ошибок
-const ProgressTrackerWrapper = ({ stats }: { stats: ProgressStats }) => {
-  try {
-    return <ProgressTracker stats={stats} />;
-  } catch (error) {
-    console.error('[LearningMap] Error rendering ProgressTracker:', error);
-    return (
-      <div className="p-4 rounded-lg border border-destructive/20 bg-destructive/5">
-        <p className="text-sm text-destructive">Не удалось загрузить прогресс</p>
-      </div>
-    );
-  }
-};
+// Динамическая загрузка ProgressTracker для предотвращения ошибок при загрузке модуля
+const ProgressTracker = lazy(() => 
+  import("@/components/learning-map/ProgressTracker").then(module => ({
+    default: module.ProgressTracker
+  }))
+);
 
 const LearningMap = () => {
   const navigate = useNavigate();
@@ -242,7 +235,13 @@ const LearningMap = () => {
 
         {/* Progress Tracker */}
         {overallStats && profileId && (
-          <ProgressTrackerWrapper stats={overallStats} />
+          <Suspense fallback={
+            <div className="p-4 rounded-lg border border-border/50 bg-card animate-pulse">
+              <div className="h-20 bg-muted/20 rounded" />
+            </div>
+          }>
+            <ProgressTracker stats={overallStats} />
+          </Suspense>
         )}
 
         {/* Learning Map - Vertical Path */}
