@@ -412,12 +412,16 @@ const RaceGame = () => {
     });
 
     // Обновляем время с ограничением: максимум 90 секунд (60 стартовых + 30 максимальное накопление)
+    // Это означает, что даже с бонусами от комбо время не может превысить 90 секунд
     setTimeLeft((prev) => {
-      const newTime = Math.min(
-        Math.max(prev + time_delta_ms, 0),
-        GAME_CONFIG.MAX_TIME_MS // 90 секунд - максимальное время игры
-      );
-      return newTime;
+      // Вычисляем новое время
+      const calculatedTime = prev + time_delta_ms;
+      // Ограничиваем снизу нулем (время не может быть отрицательным)
+      const clampedTime = Math.max(calculatedTime, 0);
+      // Ограничиваем сверху максимальным временем (90 секунд)
+      // Это предотвращает бесконечную игру, даже с бонусами от комбо
+      const finalTime = Math.min(clampedTime, GAME_CONFIG.MAX_TIME_MS);
+      return finalTime;
     });
 
     // Обновляем прогресс термина
@@ -750,6 +754,24 @@ const RaceGame = () => {
             transition={{ duration: 0.3 }}
             className="race-game-content space-y-4 md:space-y-6"
           >
+            {/* Desktop Exit Button - только для web app */}
+            {!isTelegramMiniApp() && (
+              <div className="hidden md:block absolute top-4 left-4 z-50">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    if (window.confirm('Вы уверены, что хотите выйти из игры? Ваш прогресс не будет сохранен.')) {
+                      endGame('manual');
+                    }
+                  }}
+                  className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            )}
+
             {/* Premium Circular Timer with Countdown */}
             <div className="pt-12 md:pt-0 flex justify-center">
               <motion.div 
@@ -1341,14 +1363,6 @@ const RaceGame = () => {
 
                 {/* Ultra-Modern Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-6">
-                  <Button
-                    onClick={startGame}
-                    size="lg"
-                    className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)]"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Играть снова
-                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => navigate("/games")}
