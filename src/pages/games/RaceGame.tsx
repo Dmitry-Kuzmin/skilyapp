@@ -344,10 +344,13 @@ const RaceGame = () => {
     const currentQuestion = session.current_question;
     
     // Мгновенные звуковые реакции для повышения вовлечения
+    // Звуки воспроизводятся сразу при ответе, до обновления состояния
     if (is_correct) {
+      // Если есть combo_bonus, значит достигнут порог комбо (3, 5 или 10 правильных ответов подряд)
       if (combo_bonus) {
+        const newComboCount = stats.combo_count + 1;
         // Комбо звук воспроизводится сразу для комбо
-        sounds.combo(stats.combo_count + 1);
+        sounds.combo(newComboCount);
         haptics.combo();
       } else {
         // Обычный звук правильного ответа
