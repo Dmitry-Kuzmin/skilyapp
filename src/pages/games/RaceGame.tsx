@@ -754,18 +754,20 @@ const RaceGame = () => {
             transition={{ duration: 0.3 }}
             className="race-game-content space-y-4 md:space-y-6"
           >
-            {/* Desktop Exit Button - только для web app */}
+            {/* Desktop Exit Button - только для web app (не показывается в Telegram Mini App) */}
             {!isTelegramMiniApp() && (
-              <div className="hidden md:block absolute top-4 left-4 z-50">
+              <div className="hidden md:flex absolute top-4 left-4 z-50">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => {
                     if (window.confirm('Вы уверены, что хотите выйти из игры? Ваш прогресс не будет сохранен.')) {
                       endGame('manual');
+                      navigate('/games');
                     }
                   }}
                   className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all"
+                  title="Выйти из игры"
                 >
                   <X className="w-5 h-5" />
                 </Button>
