@@ -1283,12 +1283,49 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 <p className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block">{myName}</p>
                 <motion.div 
                   key={myScore}
-                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-                  initial={{ scale: 1.2, y: -10 }}
-                  animate={{ scale: 1, y: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent relative"
+                  initial={{ scale: 1.3, y: -15, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 400, 
+                    damping: 15,
+                    duration: 0.4
+                  }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  {myScore}
+                  <motion.span
+                    key={`score-${myScore}`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ 
+                      scale: [0.8, 1.15, 1],
+                      opacity: [0, 1, 1],
+                      textShadow: [
+                        "0 0 0px rgba(59, 130, 246, 0)",
+                        "0 0 20px rgba(59, 130, 246, 0.8)",
+                        "0 0 0px rgba(59, 130, 246, 0)"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 0.6,
+                      ease: "easeOut"
+                    }}
+                    className="inline-block"
+                  >
+                    {myScore}
+                  </motion.span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-lg blur-xl"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ 
+                      opacity: [0, 0.6, 0],
+                      scale: [0.8, 1.2, 1.5]
+                    }}
+                    transition={{ 
+                      duration: 0.8,
+                      ease: "easeOut"
+                    }}
+                  />
                 </motion.div>
               </div>
             </motion.div>
@@ -1311,12 +1348,49 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 </p>
                 <motion.div 
                   key={opponentScore}
-                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right"
-                  initial={{ scale: 1.2, y: -10 }}
-                  animate={{ scale: 1, y: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right relative"
+                  initial={{ scale: 1.3, y: -15, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 400, 
+                    damping: 15,
+                    duration: 0.4
+                  }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  {opponentScore}
+                  <motion.span
+                    key={`opponent-score-${opponentScore}`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ 
+                      scale: [0.8, 1.15, 1],
+                      opacity: [0, 1, 1],
+                      textShadow: [
+                        "0 0 0px rgba(234, 88, 12, 0)",
+                        "0 0 20px rgba(234, 88, 12, 0.8)",
+                        "0 0 0px rgba(234, 88, 12, 0)"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 0.6,
+                      ease: "easeOut"
+                    }}
+                    className="inline-block"
+                  >
+                    {opponentScore}
+                  </motion.span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-lg blur-xl"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ 
+                      opacity: [0, 0.6, 0],
+                      scale: [0.8, 1.2, 1.5]
+                    }}
+                    transition={{ 
+                      duration: 0.8,
+                      ease: "easeOut"
+                    }}
+                  />
                 </motion.div>
               </div>
               <div className="relative">
