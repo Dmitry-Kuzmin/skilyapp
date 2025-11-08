@@ -1,3 +1,10 @@
+-- ============================================
+-- ПРИМЕНИТЬ ЭТУ МИГРАЦИЮ В SQL EDITOR
+-- ============================================
+-- Скопируйте весь этот файл и выполните в:
+-- https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/sql/new
+-- ============================================
+
 -- Исправление RLS политики для уведомлений и проверка обновления счета
 -- Проблема: уведомления не поступают, очки не начисляются
 -- Решение: упростить RLS политику и проверить обновление счета
@@ -19,10 +26,9 @@ CREATE POLICY "Users can view their own notifications"
     user_id = get_user_profile_id_for_notifications()
     OR
     -- Fallback: прямое сравнение с profile_id из JWT (для веб-пользователей)
-    user_id IN (
-      SELECT id FROM profiles
-      WHERE user_id = auth.uid()
-    )
+    (auth.uid() IS NOT NULL AND user_id IN (
+      SELECT id FROM profiles WHERE user_id = auth.uid()
+    ))
     OR
     -- Fallback: прямое сравнение с telegram_id из JWT (для Telegram)
     user_id IN (
@@ -61,7 +67,7 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' 
-    AND table_name = 'duel_notifications' 
+    AND tablename = 'duel_notifications' 
     AND policyname = 'Users can view their own notifications'
   ) THEN
     RAISE NOTICE '✅ Notifications RLS policy created successfully';
@@ -72,7 +78,7 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' 
-    AND table_name = 'duel_players' 
+    AND tablename = 'duel_players' 
     AND policyname = 'Users can update their player status'
   ) THEN
     RAISE NOTICE '✅ Duel players UPDATE policy created successfully';
