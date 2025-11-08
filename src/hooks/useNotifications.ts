@@ -28,32 +28,6 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
   const [unreadCount, setUnreadCount] = useState(0);
   const showToasts = options?.showToasts ?? true;
   const playSounds = options?.playSounds ?? true;
-
-  useEffect(() => {
-    if (!profileId) {
-      console.log('[useNotifications] No profileId, skipping subscription');
-      return;
-    }
-
-    console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
-    console.log('[useNotifications] ⚠️ Using POLLING instead of Realtime due to RLS issues');
-    
-    // Load existing notifications first
-    loadNotifications();
-
-    // ВРЕМЕННО: Используем polling вместо Realtime из-за проблем с RLS
-    // Realtime не может работать с RLS политиками для этой таблицы
-    // Polling каждые 2 секунды для проверки новых уведомлений
-    const pollingInterval = setInterval(() => {
-      loadNotifications();
-    }, 2000);
-
-    return () => {
-      console.log('[useNotifications] Cleaning up notification polling');
-      clearInterval(pollingInterval);
-    };
-  }, [profileId, showToasts, playSounds, loadNotifications]);
-
   const previousNotificationsRef = useRef<Set<string>>(new Set());
   
   const loadNotifications = useCallback(async () => {
@@ -128,6 +102,31 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       console.log('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread, 'New:', newNotifications.length);
     }
   }, [profileId, showToasts, playSounds]);
+
+  useEffect(() => {
+    if (!profileId) {
+      console.log('[useNotifications] No profileId, skipping subscription');
+      return;
+    }
+
+    console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
+    console.log('[useNotifications] ⚠️ Using POLLING instead of Realtime due to RLS issues');
+    
+    // Load existing notifications first
+    loadNotifications();
+
+    // ВРЕМЕННО: Используем polling вместо Realtime из-за проблем с RLS
+    // Realtime не может работать с RLS политиками для этой таблицы
+    // Polling каждые 2 секунды для проверки новых уведомлений
+    const pollingInterval = setInterval(() => {
+      loadNotifications();
+    }, 2000);
+
+    return () => {
+      console.log('[useNotifications] Cleaning up notification polling');
+      clearInterval(pollingInterval);
+    };
+  }, [profileId, loadNotifications]);
 
   const markAsRead = async (notificationId: string) => {
     await supabase
