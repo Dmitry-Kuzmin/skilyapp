@@ -57,7 +57,61 @@ CREATE POLICY "Users can view their own notifications"
   );
 
 -- ============================================
--- 3. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ DUEL_PLAYERS (ОБНОВЛЕНИЕ СЧЕТА)
+-- 3. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ DUELS (ИСПРАВЛЕНИЕ 500 ОШИБКИ)
+-- ============================================
+
+-- Удаляем все существующие политики для duels
+DROP POLICY IF EXISTS "Players can view their duels" ON duels;
+DROP POLICY IF EXISTS "Users can view duels they participate in" ON duels;
+DROP POLICY IF EXISTS "Anyone authenticated can view waiting duels" ON duels;
+
+-- Создаем простую политику для duels, которая работает для всех пользователей
+-- Используем функцию для получения profile_id (аналогично уведомлениям)
+CREATE OR REPLACE FUNCTION get_user_profile_id_for_duels()
+RETURNS uuid AS $$
+DECLARE
+  v_profile_id uuid;
+  v_telegram_id bigint;
+BEGIN
+  -- Пытаемся получить telegram_id из JWT claims
+  BEGIN
+    v_telegram_id := (current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint;
+  EXCEPTION WHEN OTHERS THEN
+    v_telegram_id := NULL;
+  END;
+  
+  -- Ищем profile по user_id (для веб-пользователей) или telegram_id (для Telegram)
+  SELECT id INTO v_profile_id
+  FROM profiles
+  WHERE (auth.uid() IS NOT NULL AND user_id = auth.uid())
+     OR (v_telegram_id IS NOT NULL AND telegram_id = v_telegram_id)
+  LIMIT 1;
+  
+  RETURN v_profile_id;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+-- Создаем простую политику для duels
+CREATE POLICY "Players can view their duels"
+  ON duels
+  FOR SELECT
+  USING (
+    -- Host может видеть свою дуэль
+    host_user = get_user_profile_id_for_duels()
+    OR
+    -- Игрок может видеть дуэль, если участвует в ней
+    EXISTS (
+      SELECT 1 FROM duel_players
+      WHERE duel_players.duel_id = duels.id
+      AND duel_players.user_id = get_user_profile_id_for_duels()
+    )
+    OR
+    -- Все могут видеть ожидающие дуэли (для присоединения)
+    status = 'waiting'
+  );
+
+-- ============================================
+-- 4. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ DUEL_PLAYERS (ОБНОВЛЕНИЕ СЧЕТА)
 -- ============================================
 
 -- Удаляем старые политики UPDATE
@@ -74,7 +128,7 @@ CREATE POLICY "Users can update their player status"
   WITH CHECK (true);  -- Разрешаем обновление для всех (Edge Function проверяет права)
 
 -- ============================================
--- 4. ПРОВЕРКА REALTIME PUBLICATION
+-- 5. ПРОВЕРКА REALTIME PUBLICATION
 -- ============================================
 
 -- Убеждаемся, что таблица добавлена в Realtime publication
@@ -95,7 +149,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- 5. ПРОВЕРКА
+-- 6. ПРОВЕРКА
 -- ============================================
 
 DO $$
@@ -110,6 +164,18 @@ BEGIN
     RAISE NOTICE '✅ Notifications RLS policy created successfully';
   ELSE
     RAISE WARNING '⚠️ Notifications RLS policy not found';
+  END IF;
+  
+  -- Проверяем политику для duels
+  IF EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'duels' 
+    AND policyname = 'Players can view their duels'
+  ) THEN
+    RAISE NOTICE '✅ Duels RLS policy created successfully';
+  ELSE
+    RAISE WARNING '⚠️ Duels RLS policy not found';
   END IF;
   
   -- Проверяем политику для duel_players
