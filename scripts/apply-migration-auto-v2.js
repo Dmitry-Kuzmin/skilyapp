@@ -13,8 +13,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
-const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
-const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
+// Получаем PROJECT_ID из переменных окружения или используем дефолтный
+const PROJECT_ID = process.env.VITE_SUPABASE_PROJECT_ID || 
+                   process.env.SUPABASE_PROJECT_ID || 
+                   'yffjnqegeiorunyvcxkn';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 
+                    process.env.SUPABASE_URL || 
+                    `https://${PROJECT_ID}.supabase.co`;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DB_URL = process.env.SUPABASE_DB_URL;
 
