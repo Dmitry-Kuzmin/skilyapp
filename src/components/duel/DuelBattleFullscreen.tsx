@@ -211,11 +211,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
       
+      // Используем имя соперника вместо "Соперник"
+      const displayOpponentName = opponentName && opponentName !== 'Соперник' ? opponentName : 'Соперник';
+      
       // Show notification - ВСЕГДА показываем toast, независимо от платформы
       if (isCorrect) {
-        const message = `✅ Соперник ответил правильно! +${points} очков`;
+        const message = `✅ ${displayOpponentName} ответил правильно! +${points} очков`;
         
-        console.log('[DuelBattleFullscreen] Showing success toast:', message, 'isTelegram:', isTelegram);
+        console.log('[DuelBattleFullscreen] Showing success toast:', message, 'isTelegram:', isTelegram, 'opponentName:', opponentName);
         
         // В Telegram пробуем показать через WebApp.showAlert как fallback
         if (isTelegram && webApp?.showAlert) {
@@ -229,13 +232,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
         
         // Всегда показываем toast (работает в браузере и Telegram)
+        // ВАЖНО: Для Telegram используем более заметный стиль
         toast.success(message, {
           duration: 3000,
           icon: '⚡',
           style: { 
             zIndex: 999999,
-            fontSize: isTelegram ? '16px' : '14px',
-            padding: isTelegram ? '16px' : '12px'
+            fontSize: isTelegram ? '18px' : '14px',
+            padding: isTelegram ? '20px' : '12px',
+            minWidth: isTelegram ? '320px' : '280px',
+            backgroundColor: isTelegram ? 'var(--tg-theme-bg-color, white)' : undefined,
+            color: isTelegram ? 'var(--tg-theme-text-color, black)' : undefined,
+            border: isTelegram ? '2px solid var(--tg-theme-button-color, #007AFF)' : undefined,
+            borderRadius: isTelegram ? '16px' : undefined,
+            boxShadow: isTelegram ? '0 8px 24px rgba(0,0,0,0.3)' : undefined
           }
         });
         
@@ -248,9 +258,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           }
         }
       } else {
-        const message = '❌ Соперник ошибся! Ваш шанс догнать!';
+        const message = `❌ ${displayOpponentName} ошибся! Ваш шанс догнать!`;
         
-        console.log('[DuelBattleFullscreen] Showing error toast:', message, 'isTelegram:', isTelegram);
+        console.log('[DuelBattleFullscreen] Showing error toast:', message, 'isTelegram:', isTelegram, 'opponentName:', opponentName);
         
         // В Telegram пробуем показать через WebApp.showAlert как fallback
         if (isTelegram && webApp?.showAlert) {
@@ -268,8 +278,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           icon: '🎯',
           style: { 
             zIndex: 999999,
-            fontSize: isTelegram ? '16px' : '14px',
-            padding: isTelegram ? '16px' : '12px'
+            fontSize: isTelegram ? '18px' : '14px',
+            padding: isTelegram ? '20px' : '12px',
+            minWidth: isTelegram ? '320px' : '280px',
+            backgroundColor: isTelegram ? 'var(--tg-theme-bg-color, white)' : undefined,
+            color: isTelegram ? 'var(--tg-theme-text-color, black)' : undefined,
+            border: isTelegram ? '2px solid var(--tg-theme-button-color, #007AFF)' : undefined,
+            borderRadius: isTelegram ? '16px' : undefined,
+            boxShadow: isTelegram ? '0 8px 24px rgba(0,0,0,0.3)' : undefined
           }
         });
         
@@ -292,7 +308,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       
       // Don't call loadScores() - realtime will update scores automatically
     }
-  }, [state.opponentAnswered, state.opponentAnswerData]);
+  }, [state.opponentAnswered, state.opponentAnswerData, opponentName]);
 
   // Функция проверки завершения противника и перехода к результатам
   const checkAndTransitionToResults = useCallback(async () => {

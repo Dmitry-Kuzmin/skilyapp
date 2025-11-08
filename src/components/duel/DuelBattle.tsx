@@ -190,15 +190,39 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
       
+      // Используем имя соперника вместо "Соперник"
+      const displayOpponentName = opponentName && opponentName !== 'Соперник' ? opponentName : 'Соперник';
+      
       // Show notification - ВСЕГДА показываем toast, независимо от платформы
       if (isCorrect) {
-        const message = `✅ Соперник ответил правильно! +${points} очков`;
+        const message = `✅ ${displayOpponentName} ответил правильно! +${points} очков`;
         
-        console.log('[DuelBattle] Showing success toast:', message);
+        console.log('[DuelBattle] Showing success toast:', message, 'isTelegram:', isTelegram, 'opponentName:', opponentName);
+        
+        // В Telegram пробуем показать через WebApp.showAlert как fallback
+        if (isTelegram && webApp?.showAlert) {
+          try {
+            webApp.showAlert(message);
+            console.log('[DuelBattle] ✅ Shown via Telegram WebApp.showAlert');
+          } catch (e) {
+            console.warn('[DuelBattle] Telegram showAlert error, using toast:', e);
+          }
+        }
+        
         toast.success(message, {
           duration: 3000,
           icon: '⚡',
-          style: { zIndex: 999999 }
+          style: { 
+            zIndex: 999999,
+            fontSize: isTelegram ? '18px' : '14px',
+            padding: isTelegram ? '20px' : '12px',
+            minWidth: isTelegram ? '320px' : '280px',
+            backgroundColor: isTelegram ? 'var(--tg-theme-bg-color, white)' : undefined,
+            color: isTelegram ? 'var(--tg-theme-text-color, black)' : undefined,
+            border: isTelegram ? '2px solid var(--tg-theme-button-color, #007AFF)' : undefined,
+            borderRadius: isTelegram ? '16px' : undefined,
+            boxShadow: isTelegram ? '0 8px 24px rgba(0,0,0,0.3)' : undefined
+          }
         });
         
         // Вибрация для Telegram
@@ -210,13 +234,34 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           }
         }
       } else {
-        const message = '❌ Соперник ошибся! Ваш шанс догнать!';
+        const message = `❌ ${displayOpponentName} ошибся! Ваш шанс догнать!`;
         
-        console.log('[DuelBattle] Showing error toast:', message);
+        console.log('[DuelBattle] Showing error toast:', message, 'isTelegram:', isTelegram, 'opponentName:', opponentName);
+        
+        // В Telegram пробуем показать через WebApp.showAlert как fallback
+        if (isTelegram && webApp?.showAlert) {
+          try {
+            webApp.showAlert(message);
+            console.log('[DuelBattle] ✅ Shown via Telegram WebApp.showAlert');
+          } catch (e) {
+            console.warn('[DuelBattle] Telegram showAlert error, using toast:', e);
+          }
+        }
+        
         toast.error(message, {
           duration: 2000,
           icon: '🎯',
-          style: { zIndex: 999999 }
+          style: { 
+            zIndex: 999999,
+            fontSize: isTelegram ? '18px' : '14px',
+            padding: isTelegram ? '20px' : '12px',
+            minWidth: isTelegram ? '320px' : '280px',
+            backgroundColor: isTelegram ? 'var(--tg-theme-bg-color, white)' : undefined,
+            color: isTelegram ? 'var(--tg-theme-text-color, black)' : undefined,
+            border: isTelegram ? '2px solid var(--tg-theme-button-color, #007AFF)' : undefined,
+            borderRadius: isTelegram ? '16px' : undefined,
+            boxShadow: isTelegram ? '0 8px 24px rgba(0,0,0,0.3)' : undefined
+          }
         });
         
         // Вибрация для Telegram
@@ -239,7 +284,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       // Обновляем время последней активности соперника
       lastOpponentActivityRef.current = Date.now();
     }
-  }, [state.opponentAnswered, state.opponentAnswerData]);
+  }, [state.opponentAnswered, state.opponentAnswerData, opponentName]);
 
   // Track opponent score changes with controlled notifications
   useEffect(() => {

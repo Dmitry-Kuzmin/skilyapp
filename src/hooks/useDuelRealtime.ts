@@ -153,11 +153,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status, err) => {
         console.log('[useDuelRealtime] Subscription status:', status);
         
+        if (err) {
+          console.error('[useDuelRealtime] ❌ Subscription error:', err);
+          console.error('[useDuelRealtime] Error details:', JSON.stringify(err, null, 2));
+        }
+        
         if (status === 'SUBSCRIBED') {
-          console.log('[useDuelRealtime] Successfully subscribed, checking current duel status...');
+          console.log('[useDuelRealtime] ✅ Successfully subscribed to realtime channel for duel:', duelId);
+          console.log('[useDuelRealtime] Checking current duel status...');
           
           // Check current duel status immediately after subscription
           supabase

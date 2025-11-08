@@ -12,25 +12,57 @@ const Toaster = ({ ...props }: ToasterProps) => {
   // Для Telegram WebApp применяем специальные стили
   useEffect(() => {
     if (isTelegram && typeof document !== 'undefined') {
+      console.log('[Sonner] Setting up Telegram WebApp styles');
+      
       // Добавляем класс для Telegram WebApp
       document.documentElement.classList.add('telegram-webapp');
       document.body.classList.add('telegram-webapp');
       
       // Убеждаемся, что toast контейнер имеет правильный z-index
       const style = document.createElement('style');
+      style.id = 'telegram-toast-styles';
       style.textContent = `
         [data-sonner-toaster] {
           z-index: 999999 !important;
           position: fixed !important;
+          top: 20px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          pointer-events: none !important;
         }
         [data-sonner-toast] {
           z-index: 999999 !important;
+          pointer-events: auto !important;
+          background: var(--tg-theme-bg-color, white) !important;
+          color: var(--tg-theme-text-color, black) !important;
+          border: 2px solid var(--tg-theme-button-color, #007AFF) !important;
+          border-radius: 16px !important;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+          font-size: 18px !important;
+          padding: 20px !important;
+          min-width: 320px !important;
+        }
+        html.telegram-webapp [data-sonner-toaster],
+        body.telegram-webapp [data-sonner-toaster] {
+          z-index: 999999 !important;
+          position: fixed !important;
         }
       `;
+      
+      // Удаляем старый стиль если есть
+      const oldStyle = document.getElementById('telegram-toast-styles');
+      if (oldStyle) {
+        document.head.removeChild(oldStyle);
+      }
+      
       document.head.appendChild(style);
+      console.log('[Sonner] ✅ Telegram WebApp styles applied');
       
       return () => {
-        document.head.removeChild(style);
+        const styleToRemove = document.getElementById('telegram-toast-styles');
+        if (styleToRemove) {
+          document.head.removeChild(styleToRemove);
+        }
       };
     }
   }, [isTelegram]);
