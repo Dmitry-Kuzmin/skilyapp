@@ -118,7 +118,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT', // Используем INSERT вместо * для лучшей совместимости
           schema: 'public',
           table: 'duel_answers',
           filter: `duel_id=eq.${duelId}`,

@@ -322,6 +322,178 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.opponentAnswered, state.opponentAnswerData, opponentName]);
 
+  // Fallback: Polling для проверки новых ответов соперника в Telegram WebApp
+  // Если realtime не работает, используем polling как запасной вариант
+  const lastCheckedAnswerIdRef = useRef<string | null>(null);
+  const isPollingRef = useRef(false);
+  const processedPollingAnswersRef = useRef<Set<string>>(new Set());
+  
+  useEffect(() => {
+    if (!duelId || !myPlayerId) return;
+    
+    const isTelegram = isTelegramMiniApp();
+    if (!isTelegram) return; // Polling только для Telegram WebApp
+    
+    console.log('[DuelBattleFullscreen] Starting polling fallback for opponent answers (Telegram WebApp)');
+    
+    // Загружаем последний ответ соперника при старте
+    const loadLastOpponentAnswer = async () => {
+      if (isPollingRef.current) return;
+      isPollingRef.current = true;
+      
+      try {
+        // Получаем всех игроков
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('id, user_id')
+          .eq('duel_id', duelId);
+        
+        if (!players || players.length < 2) {
+          isPollingRef.current = false;
+          return;
+        }
+        
+        const opponent = players.find((p: any) => p.user_id !== profileId);
+        if (!opponent) {
+          isPollingRef.current = false;
+          return;
+        }
+        
+        // Получаем последний ответ соперника
+        const { data: lastAnswer, error } = await supabase
+          .from('duel_answers')
+          .select('id, is_correct, points_awarded, created_at')
+          .eq('duel_id', duelId)
+          .eq('player_id', opponent.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('[DuelBattleFullscreen] Error loading last opponent answer:', error);
+          isPollingRef.current = false;
+          return;
+        }
+        
+        if (lastAnswer) {
+          // Проверяем, это новый ответ?
+          if (lastCheckedAnswerIdRef.current !== lastAnswer.id && !processedPollingAnswersRef.current.has(lastAnswer.id)) {
+            console.log('[DuelBattleFullscreen] 🎯 New opponent answer detected via polling!', lastAnswer);
+            
+            // Помечаем как обработанное
+            processedPollingAnswersRef.current.add(lastAnswer.id);
+            lastCheckedAnswerIdRef.current = lastAnswer.id;
+            
+            // Показываем уведомление напрямую через toast (fallback для Telegram WebApp)
+            const isCorrect = lastAnswer.is_correct;
+            const points = lastAnswer.points_awarded || 0;
+            const displayOpponentName = opponentName && opponentName !== 'Соперник' ? opponentName : 'Соперник';
+            const webApp = getTelegramWebApp();
+            
+            if (isCorrect) {
+              const message = `✅ ${displayOpponentName} ответил правильно! +${points} очков`;
+              
+              console.log('[DuelBattleFullscreen] Showing polling fallback toast (success):', message);
+              
+              if (webApp?.showAlert) {
+                try {
+                  webApp.showAlert(message);
+                } catch (e) {
+                  console.warn('[DuelBattleFullscreen] Telegram showAlert error:', e);
+                }
+              }
+              
+              toast.success(message, {
+                duration: 3000,
+                icon: '⚡',
+                style: { 
+                  zIndex: 999999,
+                  fontSize: '18px',
+                  padding: '20px',
+                  minWidth: '320px',
+                  backgroundColor: 'var(--tg-theme-bg-color, white)',
+                  color: 'var(--tg-theme-text-color, black)',
+                  border: '2px solid var(--tg-theme-button-color, #007AFF)',
+                  borderRadius: '16px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                }
+              });
+              
+              if (webApp?.HapticFeedback) {
+                try {
+                  webApp.HapticFeedback.notificationOccurred('success');
+                } catch (e) {
+                  console.warn('[DuelBattleFullscreen] Haptic feedback error:', e);
+                }
+              }
+            } else {
+              const message = `❌ ${displayOpponentName} ошибся! Ваш шанс догнать!`;
+              
+              console.log('[DuelBattleFullscreen] Showing polling fallback toast (error):', message);
+              
+              if (webApp?.showAlert) {
+                try {
+                  webApp.showAlert(message);
+                } catch (e) {
+                  console.warn('[DuelBattleFullscreen] Telegram showAlert error:', e);
+                }
+              }
+              
+              toast.error(message, {
+                duration: 2000,
+                icon: '🎯',
+                style: { 
+                  zIndex: 999999,
+                  fontSize: '18px',
+                  padding: '20px',
+                  minWidth: '320px',
+                  backgroundColor: 'var(--tg-theme-bg-color, white)',
+                  color: 'var(--tg-theme-text-color, black)',
+                  border: '2px solid var(--tg-theme-button-color, #007AFF)',
+                  borderRadius: '16px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                }
+              });
+              
+              if (webApp?.HapticFeedback) {
+                try {
+                  webApp.HapticFeedback.notificationOccurred('warning');
+                } catch (e) {
+                  console.warn('[DuelBattleFullscreen] Haptic feedback error:', e);
+                }
+              }
+            }
+            
+            // Звук уведомления
+            try {
+              sounds.notificationPop();
+            } catch (e) {
+              console.warn('[DuelBattleFullscreen] Sound error:', e);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Polling error:', error);
+      } finally {
+        isPollingRef.current = false;
+      }
+    };
+    
+    // Первая проверка
+    loadLastOpponentAnswer();
+    
+    // Polling каждые 2 секунды
+    const pollingInterval = setInterval(() => {
+      loadLastOpponentAnswer();
+    }, 2000);
+    
+    return () => {
+      console.log('[DuelBattleFullscreen] Stopping polling fallback');
+      clearInterval(pollingInterval);
+      isPollingRef.current = false;
+    };
+  }, [duelId, myPlayerId, profileId, opponentName]);
+
   // Функция проверки завершения противника и перехода к результатам
   const checkAndTransitionToResults = useCallback(async () => {
     if (isVerifyingRef.current) {
