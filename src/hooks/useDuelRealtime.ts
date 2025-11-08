@@ -29,10 +29,44 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const myPlayerIdRef = useRef<string | null | undefined>(myPlayerId);
   
-  // Update ref when myPlayerId changes
+  // Update ref when myPlayerId changes and reload scores
   useEffect(() => {
     myPlayerIdRef.current = myPlayerId;
-  }, [myPlayerId]);
+    
+    // Reload scores when myPlayerId becomes available
+    if (myPlayerId && duelId) {
+      console.log('[useDuelRealtime] MyPlayerId set, reloading scores:', myPlayerId);
+      supabase
+        .from('duel_players')
+        .select('id, score, correct_count')
+        .eq('duel_id', duelId)
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('[useDuelRealtime] Error reloading scores after myPlayerId set:', error);
+            return;
+          }
+          
+          if (data && data.length >= 2) {
+            const myPlayer = data.find((p: any) => p.id === myPlayerId);
+            const opponent = data.find((p: any) => p.id !== myPlayerId);
+            
+            if (myPlayer) {
+              console.log('[useDuelRealtime] ✅ Reloaded myScore:', myPlayer.score);
+              setState(prev => ({ ...prev, myScore: myPlayer.score || 0 }));
+            }
+            
+            if (opponent) {
+              console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', opponent.score);
+              setState(prev => ({ 
+                ...prev, 
+                opponentScore: opponent.score || 0,
+                opponentCorrectCount: opponent.correct_count || 0
+              }));
+            }
+          }
+        });
+    }
+  }, [myPlayerId, duelId]);
 
   useEffect(() => {
     if (!duelId) return;
@@ -171,27 +205,51 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               }
             });
 
-          // Load initial opponent score
-          if (myPlayerId) {
-            supabase
-              .from('duel_players')
-              .select('id, score, correct_count')
-              .eq('duel_id', duelId)
-              .neq('id', myPlayerId)
-              .maybeSingle()
-              .then(({ data, error }) => {
-                if (error) {
-                  console.error('[useDuelRealtime] Error loading opponent score:', error);
-                } else if (data) {
-                  console.log('[useDuelRealtime] Initial opponent score:', data.score);
-                  setState(prev => ({ 
-                    ...prev, 
-                    opponentScore: data.score || 0,
-                    opponentCorrectCount: data.correct_count || 0
-                  }));
+          // Load initial scores when subscribed - try to load even if myPlayerId is not set yet
+          const loadInitialScoresAfterSubscribe = async () => {
+            try {
+              const { data, error } = await supabase
+                .from('duel_players')
+                .select('id, user_id, score, correct_count')
+                .eq('duel_id', duelId);
+              
+              if (error) {
+                console.error('[useDuelRealtime] Error loading initial scores after subscribe:', error);
+                return;
+              }
+              
+              if (data && data.length >= 2) {
+                const currentMyPlayerId = myPlayerIdRef.current;
+                console.log('[useDuelRealtime] Loading initial scores after subscribe. myPlayerId:', currentMyPlayerId);
+                
+                // If we have myPlayerId, use it to identify players
+                if (currentMyPlayerId) {
+                  const myPlayer = data.find((p: any) => p.id === currentMyPlayerId);
+                  const opponent = data.find((p: any) => p.id !== currentMyPlayerId);
+                  
+                  if (myPlayer) {
+                    console.log('[useDuelRealtime] ✅ Initial myScore after subscribe:', myPlayer.score);
+                    setState(prev => ({ ...prev, myScore: myPlayer.score || 0 }));
+                  }
+                  
+                  if (opponent) {
+                    console.log('[useDuelRealtime] ✅ Initial opponentScore after subscribe:', opponent.score);
+                    setState(prev => ({ 
+                      ...prev, 
+                      opponentScore: opponent.score || 0,
+                      opponentCorrectCount: opponent.correct_count || 0
+                    }));
+                  }
+                } else {
+                  console.log('[useDuelRealtime] MyPlayerId not set yet, will reload when available');
                 }
-              });
-          }
+              }
+            } catch (error) {
+              console.error('[useDuelRealtime] Exception loading initial scores after subscribe:', error);
+            }
+          };
+          
+          loadInitialScoresAfterSubscribe();
         }
       });
 

@@ -18,8 +18,9 @@ export interface DuelNotification {
 }
 
 // Types of notifications to hide (progress notifications)
-// Show only results: finish, timeout
-const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
+// Show only important notifications: finish, timeout, and progress during active duels
+// Hide: start, boost, opponent_ahead, opponent_behind, reminder
+const PROGRESS_NOTIFICATION_TYPES = ['start', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
 
 export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
   const { profileId } = useUserContext();
@@ -80,10 +81,11 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             return;
           }
           
-          // Filter out progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
-          // Show only results (finish, timeout)
+          // Filter out less important notifications
+          // Show: progress (opponent's answers), finish, timeout
+          // Hide: start, boost, opponent_ahead, opponent_behind, reminder
           if (PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type)) {
-            console.log('[Notifications] ⏭️ Skipping progress notification:', newNotification.type);
+            console.log('[Notifications] ⏭️ Skipping notification type:', newNotification.type);
             return;
           }
           

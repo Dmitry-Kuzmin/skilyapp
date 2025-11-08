@@ -7,6 +7,7 @@ import { LogIn, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
+import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
 
 interface DuelJoinProps {
   onDuelJoined: (duelId: string, code: string) => void;
@@ -19,8 +20,8 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
   const [isJoining, setIsJoining] = useState(false);
 
   const handleJoinDuel = async () => {
-    if (!code || code.length !== 6) {
-      toast.error('Введите 6-значный код');
+    if (!code || code.length !== 4) {
+      toast.error('Введите 4-значный код');
       return;
     }
 
@@ -48,7 +49,9 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
       }
       onDuelJoined(data.duel.id, data.duel.code);
     } catch (error: any) {
-      toast.error(error.message || 'Дуэль не найдена');
+      const extractedError = extractErrorFromResponse(error);
+      const humanError = getHumanReadableError(extractedError, 'join');
+      toast.error(humanError);
     } finally {
       setIsJoining(false);
     }
@@ -71,20 +74,20 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
           <div className="space-y-3">
             <Label className="text-base font-semibold">Код дуэли</Label>
             <Input
-              placeholder="ABC123"
+              placeholder="AB12"
               value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              maxLength={6}
+              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))}
+              maxLength={4}
               className="text-center text-3xl tracking-wider font-black h-16 bg-primary/5"
             />
-            <p className="text-sm text-muted-foreground text-center">6 символов</p>
+            <p className="text-sm text-muted-foreground text-center">4 символа</p>
           </div>
         </div>
 
         <div className="flex gap-3 pt-4">
           <Button 
             onClick={handleJoinDuel} 
-            disabled={isJoining || code.length !== 6}
+            disabled={isJoining || code.length !== 4}
             size="lg"
             className="flex-1 h-14 text-lg"
           >

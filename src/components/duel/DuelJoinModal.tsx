@@ -7,6 +7,7 @@ import { LogIn, X, Loader2, CheckCircle2, Hash, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
+import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
 import { Separator } from '@/components/ui/separator';
 
 interface DuelJoinModalProps {
@@ -33,8 +34,8 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
   }, [open]);
 
   const handleJoin = async () => {
-    if (!code || code.length !== 6) {
-      toast.error('Введите 6-значный код');
+    if (!code || code.length < 4 || code.length > 6) {
+      toast.error('Введите код от 4 до 6 символов');
       return;
     }
 
@@ -78,19 +79,21 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
         onClose();
       }, 1500);
     } catch (error: any) {
-      toast.error(error.message || 'Дуэль не найдена');
+      const extractedError = extractErrorFromResponse(error);
+      const humanError = getHumanReadableError(extractedError, 'join');
+      toast.error(humanError);
       setStep('input');
       setIsJoining(false);
       hasAutoJoinedRef.current = false;
     }
   };
 
-  // Auto-join when code is 6 characters
+  // Auto-join when code is 4-6 characters
   useEffect(() => {
-    if (code.length === 6 && !isJoining && step === 'input' && profileId && !hasAutoJoinedRef.current) {
+    if (code.length >= 4 && code.length <= 6 && !isJoining && step === 'input' && profileId && !hasAutoJoinedRef.current) {
       // Small delay to ensure user sees the complete code
       const timer = setTimeout(async () => {
-        if (!code || code.length !== 6) return;
+        if (!code || code.length < 4 || code.length > 6) return;
         if (!profileId) {
           toast.error('Загрузка профиля...');
           return;
@@ -128,7 +131,9 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
             onClose();
           }, 1500);
         } catch (error: any) {
-          toast.error(error.message || 'Дуэль не найдена');
+          const extractedError = extractErrorFromResponse(error);
+          const humanError = getHumanReadableError(extractedError, 'join');
+          toast.error(humanError);
           setStep('input');
           setIsJoining(false);
           hasAutoJoinedRef.current = false;
@@ -186,7 +191,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
                   <div className="relative">
                     <div className="p-6 rounded-lg border-2 bg-muted/20 hover:bg-muted/30 transition-colors">
                       <Input
-                        placeholder="ABC123"
+                        placeholder="AB12 или ABC123"
                         value={code}
                         onChange={(e) => {
                           const newCode = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
@@ -194,7 +199,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
                           hasAutoJoinedRef.current = false; // Reset on change
                         }}
                         maxLength={6}
-                        className="text-center text-3xl tracking-[0.3em] font-bold h-16 bg-background border-2 focus:border-primary"
+                        className="text-center text-3xl tracking-[0.2em] font-bold h-16 bg-background border-2 focus:border-primary"
                         autoFocus
                       />
                       <div className="text-center mt-4 space-y-2">
@@ -212,7 +217,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
                             />
                           ))}
                         </div>
-                        <p className="text-xs text-muted-foreground">6 символов</p>
+                        <p className="text-xs text-muted-foreground">{code.length < 4 ? 'Введите 4-6 символов' : `${code.length} символа`}</p>
                       </div>
                     </div>
                   </div>
@@ -236,7 +241,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
                 </div>
 
                 {/* Auto-join indicator */}
-                {code.length === 6 && !isJoining && (
+                {code.length >= 4 && code.length <= 6 && !isJoining && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -253,7 +258,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
               <div className="px-6 py-4 border-t bg-muted/20">
                 <Button
                   onClick={handleJoin}
-                  disabled={isJoining || code.length !== 6}
+                  disabled={isJoining || code.length < 4 || code.length > 6}
                   size="lg"
                   className="w-full h-11 text-base font-semibold"
                 >

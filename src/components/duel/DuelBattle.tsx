@@ -72,6 +72,59 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   }, [state.duelFinished]);
 
+  // Sync opponent score from realtime - ALWAYS update when state changes
+  useEffect(() => {
+    if (typeof state.opponentScore === 'number') {
+      if (state.opponentScore !== opponentScore) {
+        console.log('[DuelBattle] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
+        setOpponentScore(state.opponentScore);
+      }
+    }
+  }, [state.opponentScore]);
+
+  // Sync my score from realtime - ALWAYS update when state changes
+  useEffect(() => {
+    if (typeof state.myScore === 'number') {
+      if (state.myScore !== myScore) {
+        console.log('[DuelBattle] ✅ Updating my score from realtime:', state.myScore, '(was:', myScore, ')');
+        setMyScore(state.myScore);
+      }
+    }
+  }, [state.myScore]);
+
+  // Periodic score refresh as fallback (every 2 seconds)
+  useEffect(() => {
+    if (!duelId || !profileId || !myPlayerId) return;
+    
+    const interval = setInterval(async () => {
+      try {
+        const { data } = await supabase
+          .from('duel_players')
+          .select('id, user_id, score')
+          .eq('duel_id', duelId);
+        
+        if (data && data.length > 0) {
+          const myPlayer = data.find(p => p.user_id === profileId);
+          const opponent = data.find(p => p.user_id !== profileId);
+          
+          if (myPlayer && typeof myPlayer.score === 'number' && myPlayer.score !== myScore) {
+            console.log('[DuelBattle] 🔄 Fallback: Updating my score from DB:', myPlayer.score);
+            setMyScore(myPlayer.score);
+          }
+          
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
+            console.log('[DuelBattle] 🔄 Fallback: Updating opponent score from DB:', opponent.score);
+            setOpponentScore(opponent.score);
+          }
+        }
+      } catch (error) {
+        console.error('[DuelBattle] Error in periodic score refresh:', error);
+      }
+    }, 2000); // Check every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, [duelId, profileId, myPlayerId, myScore, opponentScore]);
+
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);

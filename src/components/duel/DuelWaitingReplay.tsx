@@ -57,6 +57,8 @@ export function DuelWaitingReplay({
   const [isHidden, setIsHidden] = useState(initialHidden);
   const [isDuelFinished, setIsDuelFinished] = useState(false);
   const isCheckingFinishedRef = useRef(false);
+  const opponentPlayerIdRef = useRef<string | null>(null);
+  const myPlayerIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
@@ -218,49 +220,87 @@ export function DuelWaitingReplay({
       }
 
       // Get opponent's answers so far
-      const myPlayerId = await getMyPlayerId();
-      const { data: answers } = await supabase
+      // First, get all players to find opponent's player ID
+      const { data: allPlayers } = await supabase
+        .from('duel_players')
+        .select('id, user_id, score')
+        .eq('duel_id', duelId);
+      
+      if (!allPlayers || allPlayers.length < 2) {
+        console.warn('[DuelWaitingReplay] Not enough players found');
+        return;
+      }
+      
+      const myPlayer = allPlayers.find(p => p.user_id === profileId);
+      const opponent = allPlayers.find(p => p.user_id !== profileId);
+      
+      if (!myPlayer || !opponent) {
+        console.warn('[DuelWaitingReplay] Could not find my player or opponent');
+        return;
+      }
+      
+      // Store player IDs in refs for use in subscriptions
+      myPlayerIdRef.current = myPlayer.id;
+      opponentPlayerIdRef.current = opponent.id;
+      
+      console.log('[DuelWaitingReplay] Stored player IDs:', {
+        myPlayerId: myPlayerIdRef.current,
+        opponentPlayerId: opponentPlayerIdRef.current
+      });
+      
+      // Update opponent score
+      setOpponentScore(opponent.score || 0);
+      
+      // Get opponent's answers using opponent's player ID
+      const { data: answers, error: answersError } = await supabase
         .from('duel_answers')
         .select(`
           *,
           duel_questions!inner(position)
         `)
         .eq('duel_id', duelId)
-        .neq('player_id', myPlayerId)
+        .eq('player_id', opponent.id)
         .order('created_at', { ascending: true });
 
-      if (answers) {
-        const formattedAnswers = answers.map((ans: any) => ({
-          question_number: ans.duel_questions.position,
-          is_correct: ans.is_correct,
-          is_skipped: ans.is_skipped || false,
-          time_taken_ms: ans.time_taken_ms,
-          points_awarded: ans.points_awarded || 0,
-        }))
-        // Sort by question_number to ensure correct order
+      if (answersError) {
+        console.error('[DuelWaitingReplay] Error loading opponent answers:', answersError);
+        return;
+      }
+
+      if (answers && answers.length > 0) {
+        const formattedAnswers = answers.map((ans: any) => {
+          // Handle both nested and flat structure
+          const position = ans.duel_questions?.position || ans.position;
+          if (!position) {
+            console.warn('[DuelWaitingReplay] Answer without position:', ans);
+          }
+          return {
+            question_number: position,
+            is_correct: ans.is_correct,
+            is_skipped: ans.is_skipped || false,
+            time_taken_ms: ans.time_taken_ms,
+            points_awarded: ans.points_awarded || 0,
+          };
+        })
+        // Filter out answers without position and sort by question_number
+        .filter((a: any) => a.question_number)
         .sort((a, b) => a.question_number - b.question_number);
         
         console.log('[DuelWaitingReplay] Loaded opponent answers:', {
           count: formattedAnswers.length,
           answers: formattedAnswers,
+          rawAnswers: answers,
+          opponentPlayerId: opponent.id,
+          myPlayerId: myPlayer.id,
           isTelegram: typeof window !== 'undefined' && !!window.Telegram?.WebApp
         });
         
-        // Always update state, even if count seems same (data may have changed)
+        // Always update state
         setOpponentAnswers(formattedAnswers);
-        
-        // Update opponent score from database
-        const { data: players } = await supabase
-          .from('duel_players')
-          .select('score, user_id, id')
-          .eq('duel_id', duelId);
-        
-        if (players) {
-          const opponent = players.find((p: any) => p.user_id !== profileId);
-          if (opponent) {
-            setOpponentScore(opponent.score || 0);
-          }
-        }
+      } else {
+        console.log('[DuelWaitingReplay] No opponent answers found yet');
+        // Reset to empty array if no answers
+        setOpponentAnswers([]);
       }
     } catch (error) {
       console.error('Error loading opponent data:', error);
@@ -279,16 +319,37 @@ export function DuelWaitingReplay({
 
   const subscribeToOpponentProgress = async () => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    const myPlayerId = await getMyPlayerId();
     
-    if (!myPlayerId) {
-      console.error('[DuelWaitingReplay] Could not get my player ID');
+    // Get all players to find opponent's player ID
+    const { data: allPlayers } = await supabase
+      .from('duel_players')
+      .select('id, user_id')
+      .eq('duel_id', duelId);
+    
+    if (!allPlayers || allPlayers.length < 2) {
+      console.error('[DuelWaitingReplay] Could not get players for subscription');
       return;
     }
+    
+    const myPlayer = allPlayers.find(p => p.user_id === profileId);
+    const opponent = allPlayers.find(p => p.user_id !== profileId);
+    
+    if (!myPlayer || !opponent) {
+      console.error('[DuelWaitingReplay] Could not find my player or opponent for subscription');
+      return;
+    }
+    
+    const myPlayerId = myPlayer.id;
+    const opponentPlayerId = opponent.id;
+    
+    // Update refs
+    myPlayerIdRef.current = myPlayerId;
+    opponentPlayerIdRef.current = opponentPlayerId;
     
     console.log('[DuelWaitingReplay] Subscribing to opponent progress:', {
       duelId,
       myPlayerId,
+      opponentPlayerId,
       isTelegram
     });
 
@@ -306,9 +367,23 @@ export function DuelWaitingReplay({
         async (payload) => {
           const answer = payload.new as any;
           
-          // Check if it's opponent's answer
-          if (answer.player_id !== myPlayerId) {
-            console.log('[DuelWaitingReplay] Opponent answered!', answer);
+          // Use ref to get current opponent player ID (handles closure issues)
+          const currentOpponentPlayerId = opponentPlayerIdRef.current;
+          
+          if (!currentOpponentPlayerId) {
+            console.warn('[DuelWaitingReplay] Opponent player ID not set in subscription');
+            return;
+          }
+          
+          // Check if it's opponent's answer using opponent player ID from ref
+          if (answer.player_id === currentOpponentPlayerId) {
+            console.log('[DuelWaitingReplay] ✅ Opponent answered!', {
+              answerId: answer.id,
+              playerId: answer.player_id,
+              opponentPlayerId: currentOpponentPlayerId,
+              questionId: answer.duel_question_id,
+              isCorrect: answer.is_correct
+            });
 
             // Get question position
             const { data: question } = await supabase
@@ -358,44 +433,90 @@ export function DuelWaitingReplay({
                 }
               }
 
-              // Check if opponent just finished all questions
-              // Use a callback to get the latest state and check completion
-              // For Telegram WebApp, reload data immediately to ensure sync
-              const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-              
-              setOpponentAnswers(prev => {
-                // Check if this answer already exists (avoid duplicates)
-                const existingAnswer = prev.find(a => a.question_number === question.position);
-                if (existingAnswer) {
-                  console.log('[DuelWaitingReplay] Answer already exists, skipping:', question.position);
-                  return prev;
-                }
-                
-                const updated = [...prev, newAnswer];
-                // Sort by question_number to ensure correct order
-                updated.sort((a, b) => a.question_number - b.question_number);
-                
-                // Reload all data in Telegram to ensure sync (realtime may be slower)
-                if (isTelegram) {
-                  setTimeout(() => {
-                    loadOpponentData();
-                  }, 300);
-                }
-                
-                // Check if this was the last question
-                if (updated.length >= totalQuestions && !isCheckingFinishedRef.current) {
-                  console.log('[DuelWaitingReplay] Opponent answered last question - checking if finished');
-                  isCheckingFinishedRef.current = true;
+              // Reload all answers from database to ensure we have the latest state
+              // This is more reliable than trying to update state manually
+              const reloadAnswers = async () => {
+                try {
+                  const { data: reloadedAnswers, error: reloadError } = await supabase
+                    .from('duel_answers')
+                    .select(`
+                      *,
+                      duel_questions!inner(position)
+                    `)
+                    .eq('duel_id', duelId)
+                    .eq('player_id', currentOpponentPlayerId)
+                    .order('created_at', { ascending: true });
                   
-                  // Small delay to ensure answer is committed to database
-                  // Longer delay for Telegram to ensure data is synced
-                  setTimeout(async () => {
-                    await checkIfOpponentFinished();
-                    isCheckingFinishedRef.current = false;
-                  }, isTelegram ? 1200 : 800);
+                  if (reloadError) {
+                    console.error('[DuelWaitingReplay] Error reloading answers:', reloadError);
+                    // Fallback: update state manually
+                    setOpponentAnswers(prev => {
+                      const existing = prev.find(a => a.question_number === question.position);
+                      if (existing) {
+                        console.log('[DuelWaitingReplay] Answer already exists, skipping:', question.position);
+                        return prev;
+                      }
+                      const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
+                      return updated;
+                    });
+                    return;
+                  }
+                  
+                  if (reloadedAnswers && reloadedAnswers.length > 0) {
+                    const formatted = reloadedAnswers.map((ans: any) => {
+                      const position = ans.duel_questions?.position || ans.position;
+                      if (!position) {
+                        console.warn('[DuelWaitingReplay] Answer without position in reload:', ans);
+                      }
+                      return {
+                        question_number: position,
+                        is_correct: ans.is_correct,
+                        is_skipped: ans.is_skipped || false,
+                        time_taken_ms: ans.time_taken_ms,
+                        points_awarded: ans.points_awarded || 0,
+                      };
+                    })
+                    .filter((a: any) => a.question_number)
+                    .sort((a, b) => a.question_number - b.question_number);
+                    
+                    console.log('[DuelWaitingReplay] ✅ Reloaded opponent answers after new answer:', {
+                      count: formatted.length,
+                      questionNumbers: formatted.map(a => a.question_number),
+                      totalQuestions
+                    });
+                    
+                    setOpponentAnswers(formatted);
+                    
+                    // Check if opponent finished all questions
+                    if (formatted.length >= totalQuestions && !isCheckingFinishedRef.current) {
+                      console.log('[DuelWaitingReplay] Opponent answered all questions - checking if finished');
+                      isCheckingFinishedRef.current = true;
+                      
+                      const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+                      setTimeout(async () => {
+                        await checkIfOpponentFinished();
+                        isCheckingFinishedRef.current = false;
+                      }, isTelegram ? 1200 : 800);
+                    }
+                  } else {
+                    console.warn('[DuelWaitingReplay] No answers found after reload');
+                  }
+                } catch (error) {
+                  console.error('[DuelWaitingReplay] Exception reloading answers:', error);
+                  // Fallback: update state manually
+                  setOpponentAnswers(prev => {
+                    const existing = prev.find(a => a.question_number === question.position);
+                    if (existing) return prev;
+                    const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
+                    return updated;
+                  });
                 }
-                return updated;
-              });
+              };
+              
+              // Small delay to ensure answer is committed to database
+              setTimeout(() => {
+                reloadAnswers();
+              }, 300);
             }
           }
         }
@@ -411,9 +532,20 @@ export function DuelWaitingReplay({
         async (payload) => {
           const updatedPlayer = payload.new as any;
           
-          // Check if this is opponent's score update
-          if (updatedPlayer.id !== myPlayerId) {
-            console.log('[DuelWaitingReplay] Opponent score UPDATE:', updatedPlayer.score);
+          // Use ref to get current opponent player ID
+          const currentOpponentPlayerId = opponentPlayerIdRef.current;
+          
+          if (!currentOpponentPlayerId) {
+            return;
+          }
+          
+          // Check if this is opponent's score update using opponent player ID from ref
+          if (updatedPlayer.id === currentOpponentPlayerId) {
+            console.log('[DuelWaitingReplay] ✅ Opponent score UPDATE:', {
+              playerId: updatedPlayer.id,
+              opponentPlayerId: currentOpponentPlayerId,
+              score: updatedPlayer.score
+            });
             // Use server score as source of truth
             setOpponentScore(updatedPlayer.score || 0);
           }
@@ -435,8 +567,50 @@ export function DuelWaitingReplay({
             // Small delay to ensure opponent's last answer is committed to database
             await new Promise(resolve => setTimeout(resolve, 500));
             
-            // Use the same check function
+            // Check if opponent finished - this will transition to results if true
             await checkIfOpponentFinished();
+            
+            // Also check duel status directly - if both finished, go to results immediately
+            const { data: duelData } = await supabase
+              .from('duels')
+              .select('status, num_questions')
+              .eq('id', duelId)
+              .single();
+            
+            if (duelData?.status === 'finished') {
+              // Get opponent's player ID
+              const { data: players } = await supabase
+                .from('duel_players')
+                .select('id, user_id')
+                .eq('duel_id', duelId);
+              
+              if (players && players.length >= 2) {
+                const opponent = players.find((p: any) => p.user_id !== profileId);
+                if (opponent) {
+                  // Count opponent's actual answers
+                  const { count: opponentAnswers } = await supabase
+                    .from('duel_answers')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('player_id', opponent.id)
+                    .eq('duel_id', duelId);
+                  
+                  if ((opponentAnswers || 0) >= (duelData.num_questions || 0)) {
+                    console.log('[DuelWaitingReplay] ✅ Both players finished, transitioning to results');
+                    if (!isDuelFinished) {
+                      setIsDuelFinished(true);
+                      sounds.victory();
+                      toast.success('🏁 Дуэль завершена!', {
+                        description: 'Переход к результатам...',
+                        duration: 2000,
+                      });
+                      setTimeout(() => {
+                        onDuelFinished();
+                      }, 1000);
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       )
@@ -591,9 +765,11 @@ export function DuelWaitingReplay({
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Zap className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium text-muted-foreground">Ход игры</span>
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Ход игры {opponentName !== 'Соперник' ? opponentName : ''}
+                      </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground font-semibold">
                       {opponentAnswers.length} / {totalQuestions}
                     </span>
                   </div>
@@ -604,13 +780,30 @@ export function DuelWaitingReplay({
                       const questionNum = idx + 1;
                       const answer = opponentAnswers.find(a => a.question_number === questionNum);
                       const isAnswered = !!answer;
-                      // Current question is the next one after all answered questions
-                      // If opponent answered 5 questions, current question is 6 (opponentAnswers.length + 1)
-                      // For Telegram WebApp, we need to ensure we count correctly
-                      const sortedAnswers = [...opponentAnswers].sort((a, b) => a.question_number - b.question_number);
-                      const answeredCount = sortedAnswers.length;
-                      const currentQuestionNumber = answeredCount + 1;
-                      const isCurrent = questionNum === currentQuestionNumber && !isAnswered;
+                      
+                      // Determine current question: next unanswered question after all answered ones
+                      // Get all answered question numbers sorted
+                      const answeredQuestionNumbers = opponentAnswers
+                        .map(a => a.question_number)
+                        .filter(n => n >= 1 && n <= totalQuestions)
+                        .sort((a, b) => a - b);
+                      
+                      // Current question is the next unanswered question
+                      // If answered [1, 2, 3, 4], current is 5
+                      // If answered [1, 2, 4, 5], current is 3 (first gap)
+                      // If all answered, no current question
+                      let currentQuestionNumber: number | null = null;
+                      if (answeredQuestionNumbers.length < totalQuestions) {
+                        // Find first unanswered question
+                        for (let i = 1; i <= totalQuestions; i++) {
+                          if (!answeredQuestionNumbers.includes(i)) {
+                            currentQuestionNumber = i;
+                            break;
+                          }
+                        }
+                      }
+                      
+                      const isCurrent = currentQuestionNumber !== null && questionNum === currentQuestionNumber && !isAnswered;
 
                       return (
                         <motion.div

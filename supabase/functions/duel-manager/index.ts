@@ -14,7 +14,7 @@ const createDuelSchema = z.object({
 });
 
 const joinDuelSchema = z.object({
-  code: z.string().regex(/^[A-Z0-9]{6}$/, 'Invalid code format')
+  code: z.string().regex(/^[A-Z0-9]{4,6}$/, 'Invalid code format - must be 4-6 characters')
 });
 
 const submitAnswerSchema = z.object({
@@ -54,11 +54,11 @@ function fisherYatesShuffle<T>(array: T[], rng: () => number): T[] {
   return shuffled;
 }
 
-// Generate readable 6-character code
+// Generate readable 4-character code
 function generateDuelCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars
   let code = '';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 4; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
   return code;
@@ -696,18 +696,36 @@ Deno.serve(async (req) => {
 
       case 'join_duel': {
         const validated = joinDuelSchema.parse(params);
-        const { code } = validated;
+        let { code } = validated;
+        
+        // Normalize code to uppercase
+        code = code.toUpperCase().trim();
 
         const { data: duel, error: duelError } = await supabase
           .from('duels')
           .select('*')
           .eq('code', code)
-          .eq('status', 'waiting')
           .single();
 
         if (duelError || !duel) {
-          return new Response(JSON.stringify({ error: 'Duel not found or already started' }), {
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
             status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Check if duel is still waiting
+        if (duel.status !== 'waiting') {
+          return new Response(JSON.stringify({ error: 'Duel already started or finished' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Check if user is trying to join their own duel
+        if (duel.host_user === profileId) {
+          return new Response(JSON.stringify({ error: 'You cannot join your own duel. You are already the host.' }), {
+            status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }

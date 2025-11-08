@@ -104,13 +104,47 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.duelStarted, questions.length, showCountdown]);
 
-  // Update notifications when opponent answers
+  // Update notifications when opponent answers and force score refresh
   useEffect(() => {
     if (state.opponentAnswered && state.opponentAnswerData) {
       console.log('[DuelBattleFullscreen] Opponent answered:', state.opponentAnswerData);
       
       const isCorrect = state.opponentAnswerData.is_correct;
       const points = state.opponentAnswerData.points_awarded || 0;
+      
+      // Force refresh opponent score immediately when they answer
+      const refreshOpponentScore = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('duel_players')
+            .select('id, user_id, score')
+            .eq('duel_id', duelId);
+          
+          if (error) {
+            console.error('[DuelBattleFullscreen] Error refreshing opponent score:', error);
+            return;
+          }
+          
+          if (data && data.length >= 2) {
+            const opponent = data.find(p => p.user_id !== profileId);
+            if (opponent && typeof opponent.score === 'number') {
+              console.log('[DuelBattleFullscreen] 🔄 Force updating opponent score after answer:', opponent.score, '(was:', opponentScore, ')');
+              setOpponentScore(opponent.score);
+              // Also update realtime state if available
+              if (state.opponentScore !== opponent.score) {
+                console.log('[DuelBattleFullscreen] ⚠️ Realtime state mismatch, updating from DB');
+              }
+            } else {
+              console.warn('[DuelBattleFullscreen] ⚠️ Opponent not found when refreshing score');
+            }
+          }
+        } catch (error) {
+          console.error('[DuelBattleFullscreen] Exception refreshing opponent score:', error);
+        }
+      };
+      
+      // Refresh score immediately
+      refreshOpponentScore();
       
       // Show notification
       if (isCorrect) {
@@ -126,9 +160,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
       
       sounds.notificationPop();
-      // Don't call loadScores() - realtime will update scores automatically
     }
-  }, [state.opponentAnswered, state.opponentAnswerData]);
+  }, [state.opponentAnswered, state.opponentAnswerData, duelId, profileId, opponentScore, state.opponentScore]);
 
   // Handle duel completion - CRITICAL: Verify opponent actually finished before transitioning
   useEffect(() => {
@@ -202,6 +235,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       };
 
       verifyAndTransition();
+    } else if (state.duelFinished && !isWaitingForOpponent && hasFinishedMyQuestions) {
+      // Both players finished - go to results immediately
+      // This handles the case when second player finishes and duel status changes to finished
+      console.log('[DuelBattleFullscreen] ✅ Both players finished (I finished, opponent finished), transitioning to results');
+      sounds.victory();
+      toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+      setTimeout(() => {
+        onDuelFinished();
+      }, 1000);
     } else if (state.duelFinished && !isWaitingForOpponent && !hasFinishedMyQuestions) {
       // Duel finished but we haven't finished our questions - this shouldn't happen
       console.log('[DuelBattleFullscreen] Duel finished but we haven\'t finished our questions yet - ignoring');
@@ -209,13 +251,81 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // If state.duelFinished is true but we're not waiting, ignore the realtime event
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
-  // Sync opponent score from realtime
+  // Sync opponent score from realtime - ALWAYS update when state changes
   useEffect(() => {
-    if (typeof state.opponentScore === 'number' && state.opponentScore !== opponentScore) {
-      console.log('[DuelBattleFullscreen] Updating opponent score from realtime:', state.opponentScore);
-      setOpponentScore(state.opponentScore);
+    if (typeof state.opponentScore === 'number' && state.opponentScore >= 0) {
+      console.log('[DuelBattleFullscreen] 🔄 Realtime opponent score state:', state.opponentScore, 'Current:', opponentScore);
+      if (state.opponentScore !== opponentScore) {
+        console.log('[DuelBattleFullscreen] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
+        setOpponentScore(state.opponentScore);
+      }
+    } else {
+      console.log('[DuelBattleFullscreen] ⚠️ Invalid opponent score in state:', state.opponentScore);
     }
   }, [state.opponentScore, opponentScore]);
+
+  // Sync my score from realtime - ALWAYS update when state changes
+  useEffect(() => {
+    if (typeof state.myScore === 'number') {
+      if (state.myScore !== myScore) {
+        console.log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', state.myScore, '(was:', myScore, ')');
+        setMyScore(state.myScore);
+      }
+    }
+  }, [state.myScore]);
+
+  // Periodic score refresh as fallback (every 1.5 seconds) - more aggressive
+  useEffect(() => {
+    if (!duelId || !profileId || hasFinishedMyQuestions) return;
+    
+    console.log('[DuelBattleFullscreen] 🔄 Starting periodic score refresh for duel:', duelId);
+    
+    const interval = setInterval(async () => {
+      try {
+        const { data, error } = await supabase
+          .from('duel_players')
+          .select('id, user_id, score, correct_count')
+          .eq('duel_id', duelId);
+        
+        if (error) {
+          console.error('[DuelBattleFullscreen] Error fetching scores:', error);
+          return;
+        }
+        
+        if (data && data.length >= 2) {
+          const myPlayer = data.find(p => p.user_id === profileId);
+          const opponent = data.find(p => p.user_id !== profileId);
+          
+          if (myPlayer && typeof myPlayer.score === 'number') {
+            if (myPlayer.score !== myScore) {
+              console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating my score from DB:', myPlayer.score, '(was:', myScore, ')');
+              setMyScore(myPlayer.score);
+            }
+          }
+          
+          if (opponent) {
+            const newOpponentScore = typeof opponent.score === 'number' ? opponent.score : 0;
+            if (newOpponentScore !== opponentScore) {
+              console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score from DB:', newOpponentScore, '(was:', opponentScore, ')');
+              console.log('[DuelBattleFullscreen] Opponent data:', { id: opponent.id, user_id: opponent.user_id, score: opponent.score });
+              setOpponentScore(newOpponentScore);
+            }
+          } else {
+            console.warn('[DuelBattleFullscreen] ⚠️ Opponent not found in players data. All players:', data.map(p => ({ id: p.id, user_id: p.user_id })));
+          }
+        } else {
+          console.warn('[DuelBattleFullscreen] ⚠️ Not enough players found:', data?.length || 0);
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Error in periodic score refresh:', error);
+      }
+    }, 1500); // Check every 1.5 seconds - more frequent
+    
+    return () => {
+      console.log('[DuelBattleFullscreen] 🛑 Stopping periodic score refresh');
+      clearInterval(interval);
+    };
+  }, [duelId, profileId, hasFinishedMyQuestions]); // Removed myScore and opponentScore from dependencies to avoid restarting
 
   // Reload opponent name if it's still "Соперник" after initial load
   useEffect(() => {
@@ -240,14 +350,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       loadScores();
     }
   }, [duelId, profileId]);
-
-  // Sync my score from realtime
-  useEffect(() => {
-    if (typeof state.myScore === 'number' && state.myScore !== myScore) {
-      console.log('[DuelBattleFullscreen] Updating my score from realtime:', state.myScore);
-      setMyScore(state.myScore);
-    }
-  }, [state.myScore, myScore]);
 
   // Timer countdown
   useEffect(() => {
