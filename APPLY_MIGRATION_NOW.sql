@@ -55,10 +55,28 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 -- Создаем простую политику с использованием функции
 -- Функция с SECURITY DEFINER позволяет обойти проблемы с подзапросами в Realtime
+-- Добавляем fallback для случаев, когда функция возвращает NULL
 CREATE POLICY "Users can view their own notifications"
   ON duel_notifications
   FOR SELECT
-  USING (user_id = get_user_profile_id_for_notifications());
+  USING (
+    -- Используем функцию для получения profile_id
+    user_id = get_user_profile_id_for_notifications()
+    OR
+    -- Fallback: прямое сравнение с profile_id из JWT (для веб-пользователей)
+    (auth.uid() IS NOT NULL AND user_id IN (
+      SELECT id FROM profiles WHERE user_id = auth.uid()
+    ))
+    OR
+    -- Fallback: прямое сравнение с telegram_id из JWT (для Telegram)
+    user_id IN (
+      SELECT id FROM profiles
+      WHERE telegram_id = COALESCE(
+        (current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint,
+        0
+      )
+    )
+  );
 
 -- ============================================
 -- 4. ВКЛЮЧЕНИЕ REALTIME
