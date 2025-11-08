@@ -10,10 +10,18 @@
 -- Решение: использовать SECURITY DEFINER функцию для получения profile_id
 
 -- ============================================
--- 1. СОЗДАНИЕ ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ PROFILE_ID
+-- 1. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ (СНАЧАЛА УДАЛЯЕМ ПОЛИТИКИ)
 -- ============================================
 
--- Удаляем старую функцию, если есть
+-- Удаляем все существующие политики SELECT (ВАЖНО: сначала удаляем политики, которые зависят от функции)
+DROP POLICY IF EXISTS "Users can view their own notifications" ON duel_notifications;
+DROP POLICY IF EXISTS "Users can view own notifications" ON duel_notifications;
+
+-- ============================================
+-- 2. СОЗДАНИЕ ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ PROFILE_ID
+-- ============================================
+
+-- Удаляем старую функцию, если есть (теперь можно безопасно удалить, так как политики уже удалены)
 DROP FUNCTION IF EXISTS get_user_profile_id_for_notifications();
 
 -- Создаем функцию с SECURITY DEFINER для работы с Telegram пользователями
@@ -42,12 +50,8 @@ END;
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 -- ============================================
--- 2. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ
+-- 3. СОЗДАНИЕ НОВОЙ RLS ПОЛИТИКИ
 -- ============================================
-
--- Удаляем все существующие политики SELECT
-DROP POLICY IF EXISTS "Users can view their own notifications" ON duel_notifications;
-DROP POLICY IF EXISTS "Users can view own notifications" ON duel_notifications;
 
 -- Создаем простую политику с использованием функции
 -- Функция с SECURITY DEFINER позволяет обойти проблемы с подзапросами в Realtime
@@ -57,7 +61,7 @@ CREATE POLICY "Users can view their own notifications"
   USING (user_id = get_user_profile_id_for_notifications());
 
 -- ============================================
--- 3. ВКЛЮЧЕНИЕ REALTIME
+-- 4. ВКЛЮЧЕНИЕ REALTIME
 -- ============================================
 
 -- Убеждаемся, что таблица добавлена в Realtime publication
@@ -78,7 +82,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- 4. ПРОВЕРКА
+-- 5. ПРОВЕРКА
 -- ============================================
 
 -- Проверяем, что политика создана
