@@ -124,7 +124,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         (payload) => {
-          console.log('[useDuelRealtime] Answer received:', payload);
+          console.log('[useDuelRealtime] 📨 Answer received via Realtime:', payload);
+          console.log('[useDuelRealtime] Payload event:', payload.eventType);
+          console.log('[useDuelRealtime] Payload new:', payload.new);
+          console.log('[useDuelRealtime] Payload old:', payload.old);
           
           // Проверяем, что это ответ соперника, а не мой
           // ВАЖНО: Используем myPlayerIdRef.current, так как значение может обновиться после создания подписки
@@ -133,22 +136,32 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', currentMyPlayerId);
           
           if (answerPlayerId && currentMyPlayerId && answerPlayerId !== currentMyPlayerId) {
-            console.log('[useDuelRealtime] ✅ Opponent answered!', {
+            console.log('[useDuelRealtime] ✅ Opponent answered! Setting state...', {
               answerPlayerId,
               myPlayerId: currentMyPlayerId,
-              answerData: payload.new
+              answerData: payload.new,
+              isCorrect: (payload.new as any)?.is_correct,
+              points: (payload.new as any)?.points_awarded
             });
-            setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
+            
+            // Устанавливаем состояние для показа уведомления
+            setState(prev => {
+              const newState = { ...prev, opponentAnswered: true, opponentAnswerData: payload.new };
+              console.log('[useDuelRealtime] State updated:', newState);
+              return newState;
+            });
             
             // Reset after 2 seconds to ensure toast is shown
             setTimeout(() => {
+              console.log('[useDuelRealtime] Resetting opponentAnswered state');
               setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
             }, 2000);
           } else {
-            console.log('[useDuelRealtime] Own answer or player ID not set, ignoring notification', {
+            console.log('[useDuelRealtime] ⚠️ Own answer or player ID not set, ignoring notification', {
               answerPlayerId,
               myPlayerId: currentMyPlayerId,
-              isOwnAnswer: answerPlayerId === currentMyPlayerId
+              isOwnAnswer: answerPlayerId === currentMyPlayerId,
+              reason: !answerPlayerId ? 'no answerPlayerId' : !currentMyPlayerId ? 'no myPlayerId' : 'same player'
             });
           }
         }

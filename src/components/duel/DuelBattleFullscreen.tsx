@@ -203,13 +203,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Update notifications when opponent answers
   useEffect(() => {
     if (state.opponentAnswered && state.opponentAnswerData) {
-      console.log('[DuelBattleFullscreen] ✅ Opponent answered, showing notification:', state.opponentAnswerData);
+      console.log('[DuelBattleFullscreen] 🎯 Opponent answered event triggered!');
+      console.log('[DuelBattleFullscreen] State:', {
+        opponentAnswered: state.opponentAnswered,
+        opponentAnswerData: state.opponentAnswerData,
+        opponentName: opponentName
+      });
       
       const isCorrect = state.opponentAnswerData.is_correct;
       const points = state.opponentAnswerData.points_awarded || 0;
       
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
+      
+      console.log('[DuelBattleFullscreen] Platform check:', {
+        isTelegram,
+        hasWebApp: !!webApp,
+        hasShowAlert: !!webApp?.showAlert,
+        hasHapticFeedback: !!webApp?.HapticFeedback
+      });
       
       // Используем имя соперника вместо "Соперник"
       const displayOpponentName = opponentName && opponentName !== 'Соперник' ? opponentName : 'Соперник';
