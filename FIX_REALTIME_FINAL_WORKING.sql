@@ -17,12 +17,16 @@ ALTER TABLE duel_notifications ENABLE ROW LEVEL SECURITY;
 
 -- 4. СОЗДАЕМ ПОЛИТИКИ ТОЛЬКО ДЛЯ INSERT И UPDATE (не для SELECT!)
 -- Это важно - мы НЕ создаем политику SELECT
-CREATE POLICY IF NOT EXISTS "System can create notifications"
+-- Сначала удаляем, если существуют
+DROP POLICY IF EXISTS "System can create notifications" ON duel_notifications;
+DROP POLICY IF EXISTS "Users can update their own notifications" ON duel_notifications;
+
+CREATE POLICY "System can create notifications"
   ON duel_notifications
   FOR INSERT
   WITH CHECK (true);
 
-CREATE POLICY IF NOT EXISTS "Users can update their own notifications"
+CREATE POLICY "Users can update their own notifications"
   ON duel_notifications
   FOR UPDATE
   USING (true)
