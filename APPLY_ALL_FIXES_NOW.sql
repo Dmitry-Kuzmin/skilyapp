@@ -8,7 +8,36 @@
 -- ============================================
 
 -- ============================================
--- 1. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ УВЕДОМЛЕНИЙ
+-- 1. ПРОВЕРКА И СОЗДАНИЕ ФУНКЦИИ (ЕСЛИ НЕ СУЩЕСТВУЕТ)
+-- ============================================
+
+-- Убеждаемся, что функция существует
+CREATE OR REPLACE FUNCTION get_user_profile_id_for_notifications()
+RETURNS uuid AS $$
+DECLARE
+  v_profile_id uuid;
+  v_telegram_id bigint;
+BEGIN
+  -- Пытаемся получить telegram_id из JWT claims
+  BEGIN
+    v_telegram_id := (current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint;
+  EXCEPTION WHEN OTHERS THEN
+    v_telegram_id := NULL;
+  END;
+  
+  -- Ищем profile по user_id (для веб-пользователей) или telegram_id (для Telegram)
+  SELECT id INTO v_profile_id
+  FROM profiles
+  WHERE (auth.uid() IS NOT NULL AND user_id = auth.uid())
+     OR (v_telegram_id IS NOT NULL AND telegram_id = v_telegram_id)
+  LIMIT 1;
+  
+  RETURN v_profile_id;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+-- ============================================
+-- 2. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ УВЕДОМЛЕНИЙ
 -- ============================================
 
 -- Удаляем все существующие политики
@@ -17,16 +46,18 @@ DROP POLICY IF EXISTS "Users can view own notifications" ON duel_notifications;
 
 -- Создаем МАКСИМАЛЬНО ПРОСТУЮ политику без подзапросов
 -- Это критично для работы с Realtime без фильтра на клиенте
+-- ВАЖНО: Используем только функцию, без fallback, чтобы избежать mismatch
 CREATE POLICY "Users can view their own notifications"
   ON duel_notifications
   FOR SELECT
   USING (
-    -- Используем функцию для получения profile_id (основной способ)
+    -- Используем функцию для получения profile_id
+    -- Функция с SECURITY DEFINER работает для всех пользователей (веб и Telegram)
     user_id = get_user_profile_id_for_notifications()
   );
 
 -- ============================================
--- 2. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ DUEL_PLAYERS (ОБНОВЛЕНИЕ СЧЕТА)
+-- 3. ИСПРАВЛЕНИЕ RLS ПОЛИТИКИ ДЛЯ DUEL_PLAYERS (ОБНОВЛЕНИЕ СЧЕТА)
 -- ============================================
 
 -- Удаляем старые политики UPDATE
@@ -43,7 +74,7 @@ CREATE POLICY "Users can update their player status"
   WITH CHECK (true);  -- Разрешаем обновление для всех (Edge Function проверяет права)
 
 -- ============================================
--- 3. ПРОВЕРКА REALTIME PUBLICATION
+-- 4. ПРОВЕРКА REALTIME PUBLICATION
 -- ============================================
 
 -- Убеждаемся, что таблица добавлена в Realtime publication
@@ -64,7 +95,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- 4. ПРОВЕРКА
+-- 5. ПРОВЕРКА
 -- ============================================
 
 DO $$
