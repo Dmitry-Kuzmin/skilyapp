@@ -34,6 +34,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
   
+  // Статус видимости игры (для индикатора)
+  const [isGameVisible, setIsGameVisible] = useState(true);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [opponentStatus, setOpponentStatus] = useState<'online' | 'hidden' | 'offline'>('online');
+  const lastOpponentActivityRef = useRef<number>(Date.now());
+  
   // Initialize notifications for this duel
   const { notifications, markAsRead } = useNotifications({ showToasts: false, playSounds: true });
   
@@ -493,6 +499,110 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       isPollingRef.current = false;
     };
   }, [duelId, myPlayerId, profileId, opponentName]);
+
+  // Отслеживание статуса видимости игры
+  useEffect(() => {
+    setIsGameVisible(!isWaitingHidden);
+  }, [isWaitingHidden]);
+
+  // Отслеживание онлайн статуса
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log('[DuelBattleFullscreen] ✅ Connection restored');
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.log('[DuelBattleFullscreen] ❌ Connection lost');
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Отслеживание активности соперника и автоматическое завершение игры
+  useEffect(() => {
+    if (!duelId || !myPlayerId) return;
+    
+    // Обновляем время последней активности при ответе соперника
+    if (state.opponentAnswered) {
+      lastOpponentActivityRef.current = Date.now();
+      setOpponentStatus('online');
+    }
+    
+    // Проверяем статус соперника каждые 5 секунд
+    const statusCheckInterval = setInterval(async () => {
+      try {
+        // Получаем информацию о сопернике
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('id, user_id, last_activity_at')
+          .eq('duel_id', duelId);
+        
+        if (!players || players.length < 2) return;
+        
+        const opponent = players.find((p: any) => p.user_id !== profileId);
+        if (!opponent) return;
+        
+        // Проверяем последнюю активность
+        const lastActivity = opponent.last_activity_at ? new Date(opponent.last_activity_at).getTime() : 0;
+        const timeSinceActivity = Date.now() - lastActivity;
+        const timeSinceRealtimeActivity = Date.now() - lastOpponentActivityRef.current;
+        
+        // Определяем статус соперника
+        if (timeSinceActivity < 30000 || timeSinceRealtimeActivity < 30000) {
+          // Активен в последние 30 секунд
+          setOpponentStatus('online');
+        } else if (timeSinceActivity < 120000 || timeSinceRealtimeActivity < 120000) {
+          // Неактивен 30-120 секунд - возможно скрыл игру
+          setOpponentStatus('hidden');
+        } else {
+          // Неактивен более 2 минут - офлайн
+          setOpponentStatus('offline');
+          
+          // Автоматическое завершение игры если соперник неактивен более 3 минут
+          if (timeSinceActivity > 180000 || timeSinceRealtimeActivity > 180000) {
+            console.log('[DuelBattleFullscreen] ⏰ Opponent inactive for 3+ minutes, finishing duel...');
+            
+            try {
+              const { error } = await supabase.functions.invoke('duel-manager', {
+                body: {
+                  action: 'finish_duel',
+                  duel_id: duelId,
+                  profile_id: profileId,
+                  reason: 'opponent_timeout'
+                }
+              });
+              
+              if (error) {
+                console.error('[DuelBattleFullscreen] Error finishing duel:', error);
+              } else {
+                console.log('[DuelBattleFullscreen] ✅ Duel finished due to opponent timeout');
+                toast.error('Игра завершена: соперник не отвечает', { duration: 5000 });
+                setTimeout(() => {
+                  onDuelFinished();
+                }, 2000);
+              }
+            } catch (error) {
+              console.error('[DuelBattleFullscreen] Exception finishing duel:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Error checking opponent status:', error);
+      }
+    }, 5000);
+    
+    return () => {
+      clearInterval(statusCheckInterval);
+    };
+  }, [duelId, myPlayerId, profileId, state.opponentAnswered, onDuelFinished]);
 
   // Функция проверки завершения противника и перехода к результатам
   const checkAndTransitionToResults = useCallback(async () => {
@@ -1271,13 +1381,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
                   <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                {myScore > opponentScore && (
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
+                {/* Индикатор статуса игрока (мой статус) */}
+                <motion.div
+                  className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 rounded-full border-2 border-white ${
+                    isGameVisible && isOnline ? 'bg-green-500' :
+                    !isGameVisible && isOnline ? 'bg-yellow-400' :
+                    'bg-red-500'
+                  }`}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  title={
+                    isGameVisible && isOnline ? 'Вы в игре' :
+                    !isGameVisible && isOnline ? 'Игра скрыта' :
+                    'Нет сети'
+                  }
+                />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block">{myName}</p>
@@ -1397,13 +1515,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
                   <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                {opponentScore > myScore && (
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
+                {/* Индикатор статуса соперника */}
+                <motion.div
+                  className={`absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 rounded-full border-2 border-white ${
+                    opponentStatus === 'online' ? 'bg-green-500' :
+                    opponentStatus === 'hidden' ? 'bg-yellow-400' :
+                    'bg-red-500'
+                  }`}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  title={
+                    opponentStatus === 'online' ? 'Соперник в игре' :
+                    opponentStatus === 'hidden' ? 'Соперник скрыл игру' :
+                    'Соперник не в сети'
+                  }
+                />
                 {state.opponentAnswered && (
                   <motion.div
                     className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"

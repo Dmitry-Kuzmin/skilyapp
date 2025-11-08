@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
  * @param bucket - Имя bucket в Supabase Storage (по умолчанию 'questions')
  * @returns Публичный URL изображения
  */
-export function getImageUrl(imageUrl: string | null | undefined, bucket: string = 'questions'): string | null {
+export function getImageUrl(imageUrl: string | null | undefined, bucket: string = 'Image_test'): string | null {
   if (!imageUrl) return null;
 
   // Если это уже полный URL, возвращаем как есть
@@ -18,14 +18,24 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
   }
 
   // Если это путь к файлу в Supabase Storage, получаем публичный URL
-  try {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(imageUrl);
-    return data.publicUrl;
-  } catch (error) {
-    console.error(`Error getting image URL from Supabase Storage (bucket: ${bucket}, path: ${imageUrl}):`, error);
-    // Возвращаем исходный URL как fallback
-    return imageUrl;
+  // Пробуем несколько bucket'ов для совместимости
+  const buckets = [bucket, 'Image_test', 'questions'];
+  
+  for (const bucketName of buckets) {
+    try {
+      const { data } = supabase.storage.from(bucketName).getPublicUrl(imageUrl);
+      if (data?.publicUrl) {
+        console.log(`[getImageUrl] ✅ Image found in bucket '${bucketName}':`, data.publicUrl);
+        return data.publicUrl;
+      }
+    } catch (error) {
+      console.warn(`[getImageUrl] ⚠️ Error with bucket '${bucketName}':`, error);
+    }
   }
+  
+  console.error(`[getImageUrl] ❌ Image not found in any bucket (tried: ${buckets.join(', ')}), path: ${imageUrl}`);
+  // Возвращаем исходный URL как fallback
+  return imageUrl;
 }
 
 /**
