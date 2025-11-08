@@ -1255,8 +1255,10 @@ Deno.serve(async (req) => {
 
       case 'finish_duel': {
         // Get profile_id from params or use the one from request body
-        const { duel_id } = params;
+        const { duel_id, reason } = params;
         const profile_id = params.profile_id || profileId;
+
+        console.log('[finish_duel] Finishing duel:', { duel_id, profile_id, reason });
 
         // Get duel info
         const { data: duel } = await supabase
@@ -1275,6 +1277,113 @@ Deno.serve(async (req) => {
         // Check if already finished
         if (duel.status === 'finished') {
           return new Response(JSON.stringify({ message: 'Already finished', finished: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Если причина - таймаут соперника, завершаем игру принудительно
+        if (reason === 'opponent_timeout') {
+          console.log('[finish_duel] Opponent timeout - forcing duel finish');
+          
+          // Получаем всех игроков
+          const { data: allPlayers } = await supabase
+            .from('duel_players')
+            .select('id, user_id, score, correct_count, last_activity_at')
+            .eq('duel_id', duel_id);
+
+          if (!allPlayers || allPlayers.length < 2) {
+            return new Response(JSON.stringify({ error: 'Not enough players' }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          // Находим текущего игрока и соперника
+          const currentPlayer = allPlayers.find((p: any) => p.user_id === profile_id);
+          const opponentPlayer = allPlayers.find((p: any) => p.user_id !== profile_id);
+
+          if (!currentPlayer || !opponentPlayer) {
+            return new Response(JSON.stringify({ error: 'Player not found' }), {
+              status: 404,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          // Проверяем последнюю активность соперника
+          const opponentLastActivity = opponentPlayer.last_activity_at 
+            ? new Date(opponentPlayer.last_activity_at).getTime() 
+            : 0;
+          const timeSinceOpponentActivity = Date.now() - opponentLastActivity;
+
+          // Завершаем игру только если соперник неактивен более 3 минут
+          if (timeSinceOpponentActivity < 180000) {
+            console.log('[finish_duel] Opponent still active, not finishing yet');
+            return new Response(JSON.stringify({ 
+              success: false, 
+              message: 'Opponent still active',
+              timeSinceActivity: timeSinceOpponentActivity
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          console.log('[finish_duel] Opponent inactive for', timeSinceOpponentActivity, 'ms, finishing duel');
+
+          // Текущий игрок побеждает (он активен, соперник нет)
+          const winnerId = currentPlayer.id;
+
+          // Обновляем статус дуэли
+          await supabase
+            .from('duels')
+            .update({
+              status: 'finished',
+              finished_at: new Date().toISOString(),
+            })
+            .eq('id', duel_id);
+
+          // Обновляем статистику
+          await supabase.rpc('upsert_duel_stats', {
+            p_user_id: currentPlayer.user_id,
+            p_is_win: true,
+            p_is_draw: false,
+            p_score: currentPlayer.score
+          });
+
+          await supabase.rpc('upsert_duel_stats', {
+            p_user_id: opponentPlayer.user_id,
+            p_is_win: false,
+            p_is_draw: false,
+            p_score: opponentPlayer.score
+          });
+
+          // Создаем уведомление для соперника
+          await createNotification({
+            duel_id,
+            type: 'timeout',
+            title: 'Игра завершена по таймауту',
+            message: 'Вы не отвечали более 3 минут, игра завершена',
+            icon: 'clock',
+            metadata: {
+              reason: 'timeout',
+              opponent_score: currentPlayer.score,
+              your_score: opponentPlayer.score
+            }
+          }, profile_id, supabase).catch(err => {
+            console.error('[finish_duel] Error creating timeout notification:', err);
+          });
+
+          console.log('[finish_duel] Duel finished due to opponent timeout:', {
+            winnerId: currentPlayer.id,
+            winnerScore: currentPlayer.score,
+            opponentScore: opponentPlayer.score
+          });
+
+          return new Response(JSON.stringify({ 
+            success: true, 
+            finished: true,
+            reason: 'opponent_timeout',
+            winner: currentPlayer.user_id
+          }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
