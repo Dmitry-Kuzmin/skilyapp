@@ -158,9 +158,11 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           // Если ошибка "mismatch between server and client bindings"
           if (err?.message?.includes('mismatch') || err?.message?.includes('bindings')) {
             console.error('[Notifications] 🔴 Binding mismatch error detected!');
-            console.error('[Notifications] This usually means RLS policy doesn\'t match the filter');
-            console.error('[Notifications] Filter used: user_id=eq.' + profileId);
-            console.error('[Notifications] Try using a simpler RLS policy or removing the filter');
+            console.error('[Notifications] This usually means RLS policy doesn\'t match the subscription');
+            console.error('[Notifications] ⚠️ NOTE: No client-side filter is used - relying on RLS policy only');
+            console.error('[Notifications] ProfileId:', profileId);
+            console.error('[Notifications] 💡 Check: Is RLS policy using SECURITY DEFINER function?');
+            console.error('[Notifications] 💡 Check: Is table duel_notifications in supabase_realtime publication?');
           }
         }
         if (status === 'SUBSCRIBED') {
