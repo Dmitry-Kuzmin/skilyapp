@@ -161,10 +161,11 @@ const Layout = ({ children }: LayoutProps) => {
         {children}
       </main>
 
-      {/* Bottom Navigation for Mobile and Telegram */}
+      {/* Bottom Navigation for Mobile and Telegram - Hide during test session */}
       <nav className={cn(
         "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-        "md:hidden"
+        "md:hidden",
+        location.pathname === "/test-session" && "hidden"
       )}>
         <div className="grid grid-cols-5 gap-1 px-2 py-2">
           {navigation.map((item) => {

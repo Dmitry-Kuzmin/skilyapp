@@ -1,79 +1,15 @@
 import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
-import { isTelegramMiniApp } from "@/lib/telegram";
-import { useEffect } from "react";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
-  const isTelegram = isTelegramMiniApp();
-
-  // Для Telegram WebApp применяем специальные стили
-  useEffect(() => {
-    if (isTelegram && typeof document !== 'undefined') {
-      console.log('[Sonner] Setting up Telegram WebApp styles');
-      
-      // Добавляем класс для Telegram WebApp
-      document.documentElement.classList.add('telegram-webapp');
-      document.body.classList.add('telegram-webapp');
-      
-      // Убеждаемся, что toast контейнер имеет правильный z-index
-      const style = document.createElement('style');
-      style.id = 'telegram-toast-styles';
-      style.textContent = `
-        [data-sonner-toaster] {
-          z-index: 999999 !important;
-          position: fixed !important;
-          top: 20px !important;
-          left: 50% !important;
-          transform: translateX(-50%) !important;
-          pointer-events: none !important;
-        }
-        [data-sonner-toast] {
-          z-index: 999999 !important;
-          pointer-events: auto !important;
-          background: var(--tg-theme-bg-color, white) !important;
-          color: var(--tg-theme-text-color, black) !important;
-          border: 2px solid var(--tg-theme-button-color, #007AFF) !important;
-          border-radius: 16px !important;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
-          font-size: 18px !important;
-          padding: 20px !important;
-          min-width: 320px !important;
-        }
-        html.telegram-webapp [data-sonner-toaster],
-        body.telegram-webapp [data-sonner-toaster] {
-          z-index: 999999 !important;
-          position: fixed !important;
-        }
-      `;
-      
-      // Удаляем старый стиль если есть
-      const oldStyle = document.getElementById('telegram-toast-styles');
-      if (oldStyle) {
-        document.head.removeChild(oldStyle);
-      }
-      
-      document.head.appendChild(style);
-      console.log('[Sonner] ✅ Telegram WebApp styles applied');
-      
-      return () => {
-        const styleToRemove = document.getElementById('telegram-toast-styles');
-        if (styleToRemove) {
-          document.head.removeChild(styleToRemove);
-        }
-      };
-    }
-  }, [isTelegram]);
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
-      position={isTelegram ? "top-center" : "top-center"}
-      // Для Telegram используем расширенный offset сверху
-      offset={isTelegram ? "20px" : undefined}
       toastOptions={{
         classNames: {
           toast:
@@ -82,13 +18,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
-        // Для Telegram увеличиваем размер и делаем более заметным
-        style: isTelegram ? { 
-          zIndex: 999999,
-          fontSize: '16px',
-          padding: '16px',
-          minWidth: '300px'
-        } : undefined,
       }}
       {...props}
     />

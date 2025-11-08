@@ -13,16 +13,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
-// Получаем PROJECT_ID из переменных окружения или используем дефолтный
-const PROJECT_ID = process.env.VITE_SUPABASE_PROJECT_ID || 
-                   process.env.SUPABASE_PROJECT_ID || 
-                   'yffjnqegeiorunyvcxkn';
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 
-                    process.env.SUPABASE_URL || 
-                    `https://${PROJECT_ID}.supabase.co`;
-// Используем SERVICE_ROLE_KEY из переменных окружения или fallback из других скриптов
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 
-                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw';
+const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
+const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DB_URL = process.env.SUPABASE_DB_URL;
 
 async function applyMigration(sqlFile, description) {

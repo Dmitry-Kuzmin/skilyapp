@@ -118,65 +118,36 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       .on(
         'postgres_changes',
         {
-          event: 'INSERT', // Используем INSERT вместо * для лучшей совместимости
+          event: '*',
           schema: 'public',
           table: 'duel_answers',
           filter: `duel_id=eq.${duelId}`,
         },
         (payload) => {
-          console.log('[useDuelRealtime] 📨 Answer received via Realtime:', payload);
-          console.log('[useDuelRealtime] Payload event:', payload.eventType);
-          console.log('[useDuelRealtime] Payload new:', payload.new);
-          console.log('[useDuelRealtime] Payload old:', payload.old);
+          console.log('[useDuelRealtime] Answer received:', payload);
           
           // Проверяем, что это ответ соперника, а не мой
-          // ВАЖНО: Используем myPlayerIdRef.current, так как значение может обновиться после создания подписки
           const answerPlayerId = (payload.new as any)?.player_id;
-          const currentMyPlayerId = myPlayerIdRef.current;
-          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', currentMyPlayerId);
+          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', myPlayerId);
           
-          if (answerPlayerId && currentMyPlayerId && answerPlayerId !== currentMyPlayerId) {
-            console.log('[useDuelRealtime] ✅ Opponent answered! Setting state...', {
-              answerPlayerId,
-              myPlayerId: currentMyPlayerId,
-              answerData: payload.new,
-              isCorrect: (payload.new as any)?.is_correct,
-              points: (payload.new as any)?.points_awarded
-            });
+          if (answerPlayerId && myPlayerId && answerPlayerId !== myPlayerId) {
+            console.log('[useDuelRealtime] ✅ Opponent answered!');
+            setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
             
-            // Устанавливаем состояние для показа уведомления
-            setState(prev => {
-              const newState = { ...prev, opponentAnswered: true, opponentAnswerData: payload.new };
-              console.log('[useDuelRealtime] State updated:', newState);
-              return newState;
-            });
-            
-            // Reset after 2 seconds to ensure toast is shown
+            // Reset after 1 second
             setTimeout(() => {
-              console.log('[useDuelRealtime] Resetting opponentAnswered state');
               setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
-            }, 2000);
+            }, 1000);
           } else {
-            console.log('[useDuelRealtime] ⚠️ Own answer or player ID not set, ignoring notification', {
-              answerPlayerId,
-              myPlayerId: currentMyPlayerId,
-              isOwnAnswer: answerPlayerId === currentMyPlayerId,
-              reason: !answerPlayerId ? 'no answerPlayerId' : !currentMyPlayerId ? 'no myPlayerId' : 'same player'
-            });
+            console.log('[useDuelRealtime] Own answer, ignoring notification');
           }
         }
       )
-      .subscribe((status, err) => {
+      .subscribe((status) => {
         console.log('[useDuelRealtime] Subscription status:', status);
         
-        if (err) {
-          console.error('[useDuelRealtime] ❌ Subscription error:', err);
-          console.error('[useDuelRealtime] Error details:', JSON.stringify(err, null, 2));
-        }
-        
         if (status === 'SUBSCRIBED') {
-          console.log('[useDuelRealtime] ✅ Successfully subscribed to realtime channel for duel:', duelId);
-          console.log('[useDuelRealtime] Checking current duel status...');
+          console.log('[useDuelRealtime] Successfully subscribed, checking current duel status...');
           
           // Check current duel status immediately after subscription
           supabase

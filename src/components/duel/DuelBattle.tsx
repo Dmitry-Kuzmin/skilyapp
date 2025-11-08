@@ -13,8 +13,6 @@ import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Swords, Timer, Zap, Trophy, WifiOff, Wifi, Flame } from 'lucide-react';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
-import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
-import { useNotifications } from '@/hooks/useNotifications';
 
 interface DuelBattleProps {
   duelId: string;
@@ -25,72 +23,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const { profileId } = useUserContext();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
-  
-  // Initialize notifications for boost notifications
-  const { notifications, markAsRead } = useNotifications({ showToasts: false, playSounds: true });
-  
-  // Обрабатываем уведомления о бустах соперника во время игры
-  const processedBoostNotifications = useRef<Set<string>>(new Set());
-  
-  useEffect(() => {
-    // Фильтруем только уведомления о бустах для текущей дуэли
-    const boostNotifications = notifications.filter(
-      n => n.type === 'boost' && n.duel_id === duelId && !n.is_read && !processedBoostNotifications.current.has(n.id)
-    );
-    
-    if (boostNotifications.length > 0) {
-      const latestBoost = boostNotifications[0];
-      console.log('[DuelBattle] ✅ Boost notification received:', latestBoost);
-      
-      // Помечаем как обработанное
-      processedBoostNotifications.current.add(latestBoost.id);
-      
-      const isTelegram = isTelegramMiniApp();
-      const webApp = getTelegramWebApp();
-      
-      const message = latestBoost.title || 'Соперник использовал буст!';
-      
-      console.log('[DuelBattle] Showing boost toast:', message, 'isTelegram:', isTelegram);
-      
-      if (isTelegram && webApp?.showAlert) {
-        try {
-          webApp.showAlert(message);
-        } catch (e) {
-          console.warn('[DuelBattle] Telegram showAlert error:', e);
-        }
-      }
-      
-      toast.info(message, {
-        duration: 3000,
-        icon: '⚡',
-        style: { 
-          zIndex: 999999,
-          fontSize: isTelegram ? '16px' : '14px',
-          padding: isTelegram ? '16px' : '12px'
-        }
-      });
-      
-      // Вибрация для Telegram
-      if (isTelegram && webApp?.HapticFeedback) {
-        try {
-          webApp.HapticFeedback.notificationOccurred('warning');
-        } catch (e) {
-          console.warn('[DuelBattle] Haptic feedback error:', e);
-        }
-      }
-      
-      // Звук уведомления
-      try {
-        sounds.notificationPop();
-      } catch (e) {
-        console.warn('[DuelBattle] Sound error:', e);
-      }
-      
-      // Помечаем как прочитанное
-      markAsRead(latestBoost.id);
-    }
-  }, [notifications, duelId, markAsRead]);
-  
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60000); // 60 seconds
@@ -178,113 +110,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       clearInterval(checkOpponentConnection);
     };
   }, [answered]);
-
-  // Update notifications when opponent answers
-  useEffect(() => {
-    if (state.opponentAnswered && state.opponentAnswerData) {
-      console.log('[DuelBattle] ✅ Opponent answered, showing notification:', state.opponentAnswerData);
-      
-      const isCorrect = state.opponentAnswerData.is_correct;
-      const points = state.opponentAnswerData.points_awarded || 0;
-      
-      const isTelegram = isTelegramMiniApp();
-      const webApp = getTelegramWebApp();
-      
-      // Используем имя соперника вместо "Соперник"
-      const displayOpponentName = opponentName && opponentName !== 'Соперник' ? opponentName : 'Соперник';
-      
-      // Show notification - ВСЕГДА показываем toast, независимо от платформы
-      if (isCorrect) {
-        const message = `✅ ${displayOpponentName} ответил правильно! +${points} очков`;
-        
-        console.log('[DuelBattle] Showing success toast:', message, 'isTelegram:', isTelegram, 'opponentName:', opponentName);
-        
-        // В Telegram пробуем показать через WebApp.showAlert как fallback
-        if (isTelegram && webApp?.showAlert) {
-          try {
-            webApp.showAlert(message);
-            console.log('[DuelBattle] ✅ Shown via Telegram WebApp.showAlert');
-          } catch (e) {
-            console.warn('[DuelBattle] Telegram showAlert error, using toast:', e);
-          }
-        }
-        
-        toast.success(message, {
-          duration: 3000,
-          icon: '⚡',
-          style: { 
-            zIndex: 999999,
-            fontSize: isTelegram ? '18px' : '14px',
-            padding: isTelegram ? '20px' : '12px',
-            minWidth: isTelegram ? '320px' : '280px',
-            backgroundColor: isTelegram ? 'var(--tg-theme-bg-color, white)' : undefined,
-            color: isTelegram ? 'var(--tg-theme-text-color, black)' : undefined,
-            border: isTelegram ? '2px solid var(--tg-theme-button-color, #007AFF)' : undefined,
-            borderRadius: isTelegram ? '16px' : undefined,
-            boxShadow: isTelegram ? '0 8px 24px rgba(0,0,0,0.3)' : undefined
-          }
-        });
-        
-        // Вибрация для Telegram
-        if (isTelegram && webApp?.HapticFeedback) {
-          try {
-            webApp.HapticFeedback.notificationOccurred('success');
-          } catch (e) {
-            console.warn('[DuelBattle] Haptic feedback error:', e);
-          }
-        }
-      } else {
-        const message = `❌ ${displayOpponentName} ошибся! Ваш шанс догнать!`;
-        
-        console.log('[DuelBattle] Showing error toast:', message, 'isTelegram:', isTelegram, 'opponentName:', opponentName);
-        
-        // В Telegram пробуем показать через WebApp.showAlert как fallback
-        if (isTelegram && webApp?.showAlert) {
-          try {
-            webApp.showAlert(message);
-            console.log('[DuelBattle] ✅ Shown via Telegram WebApp.showAlert');
-          } catch (e) {
-            console.warn('[DuelBattle] Telegram showAlert error, using toast:', e);
-          }
-        }
-        
-        toast.error(message, {
-          duration: 2000,
-          icon: '🎯',
-          style: { 
-            zIndex: 999999,
-            fontSize: isTelegram ? '18px' : '14px',
-            padding: isTelegram ? '20px' : '12px',
-            minWidth: isTelegram ? '320px' : '280px',
-            backgroundColor: isTelegram ? 'var(--tg-theme-bg-color, white)' : undefined,
-            color: isTelegram ? 'var(--tg-theme-text-color, black)' : undefined,
-            border: isTelegram ? '2px solid var(--tg-theme-button-color, #007AFF)' : undefined,
-            borderRadius: isTelegram ? '16px' : undefined,
-            boxShadow: isTelegram ? '0 8px 24px rgba(0,0,0,0.3)' : undefined
-          }
-        });
-        
-        // Вибрация для Telegram
-        if (isTelegram && webApp?.HapticFeedback) {
-          try {
-            webApp.HapticFeedback.notificationOccurred('warning');
-          } catch (e) {
-            console.warn('[DuelBattle] Haptic feedback error:', e);
-          }
-        }
-      }
-      
-      // Звук уведомления
-      try {
-        sounds.notificationPop();
-      } catch (e) {
-        console.warn('[DuelBattle] Sound error:', e);
-      }
-      
-      // Обновляем время последней активности соперника
-      lastOpponentActivityRef.current = Date.now();
-    }
-  }, [state.opponentAnswered, state.opponentAnswerData, opponentName]);
 
   // Track opponent score changes with controlled notifications
   useEffect(() => {
@@ -735,52 +560,15 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
-                <motion.div 
+                <motion.p 
                   key={myScore}
-                  className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent relative"
-                  initial={{ scale: 1.3, y: -15, opacity: 0 }}
-                  animate={{ scale: 1, y: 0, opacity: 1 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 400, 
-                    damping: 15,
-                    duration: 0.4
-                  }}
-                  whileHover={{ scale: 1.05 }}
+                  className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <motion.span
-                    key={`score-${myScore}`}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ 
-                      scale: [0.8, 1.15, 1],
-                      opacity: [0, 1, 1],
-                      textShadow: [
-                        "0 0 0px rgba(59, 130, 246, 0)",
-                        "0 0 20px rgba(59, 130, 246, 0.8)",
-                        "0 0 0px rgba(59, 130, 246, 0)"
-                      ]
-                    }}
-                    transition={{ 
-                      duration: 0.6,
-                      ease: "easeOut"
-                    }}
-                    className="inline-block"
-                  >
-                    {myScore}
-                  </motion.span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-lg blur-xl"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ 
-                      opacity: [0, 0.6, 0],
-                      scale: [0.8, 1.2, 1.5]
-                    }}
-                    transition={{ 
-                      duration: 0.8,
-                      ease: "easeOut"
-                    }}
-                  />
-                </motion.div>
+                  {myScore}
+                </motion.p>
               </div>
             </motion.div>
 
@@ -821,52 +609,15 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[120px] ml-auto" title={opponentName}>
                   {opponentName}
                 </p>
-                <motion.div 
+                <motion.p 
                   key={opponentScore}
-                  className="text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent relative"
-                  initial={{ scale: 1.3, y: -15, opacity: 0 }}
-                  animate={{ scale: 1, y: 0, opacity: 1 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 400, 
-                    damping: 15,
-                    duration: 0.4
-                  }}
-                  whileHover={{ scale: 1.05 }}
+                  className="text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  <motion.span
-                    key={`opponent-score-${opponentScore}`}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ 
-                      scale: [0.8, 1.15, 1],
-                      opacity: [0, 1, 1],
-                      textShadow: [
-                        "0 0 0px rgba(234, 88, 12, 0)",
-                        "0 0 20px rgba(234, 88, 12, 0.8)",
-                        "0 0 0px rgba(234, 88, 12, 0)"
-                      ]
-                    }}
-                    transition={{ 
-                      duration: 0.6,
-                      ease: "easeOut"
-                    }}
-                    className="inline-block"
-                  >
-                    {opponentScore}
-                  </motion.span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-red-400/20 rounded-lg blur-xl"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ 
-                      opacity: [0, 0.6, 0],
-                      scale: [0.8, 1.2, 1.5]
-                    }}
-                    transition={{ 
-                      duration: 0.8,
-                      ease: "easeOut"
-                    }}
-                  />
-                </motion.div>
+                  {opponentScore}
+                </motion.p>
               </div>
               <div className="relative">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">

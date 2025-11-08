@@ -8,6 +8,7 @@ import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { getImageUrl } from "@/utils/imageUtils";
 
 type QuestionData = {
   id: string;
@@ -36,6 +37,66 @@ type Answer = {
   questionId: string;
   selectedAnswerId: string;
   isCorrect: boolean;
+};
+
+// Компонент для отображения изображения вопроса с обработкой ошибок
+const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      setIsLoading(true);
+      setHasError(false);
+      
+      // Получаем URL изображения
+      const url = getImageUrl(imageUrl);
+      
+      if (url) {
+        setImageSrc(url);
+        setIsLoading(false);
+      } else {
+        console.warn(`[TestResults] Could not generate URL for image: ${imageUrl}`);
+        setHasError(true);
+        setIsLoading(false);
+      }
+    };
+
+    loadImage();
+  }, [imageUrl]);
+
+  if (isLoading) {
+    return (
+      <div className="mb-4 rounded-lg overflow-hidden border border-border/50 bg-muted/20 animate-pulse">
+        <div className="w-full h-48 flex items-center justify-center">
+          <div className="text-muted-foreground text-sm">Загрузка...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError || !imageSrc) {
+    return null;
+  }
+
+  return (
+    <div className="mb-4 rounded-lg overflow-hidden border border-border/50">
+      <img 
+        src={imageSrc} 
+        alt="Pregunta" 
+        className="w-full max-h-48 object-contain bg-muted/30"
+        loading="lazy"
+        onError={() => {
+          console.error(`[TestResults] Failed to load image: ${imageSrc}`);
+          setHasError(true);
+        }}
+        onLoad={() => {
+          setIsLoading(false);
+        }}
+      />
+    </div>
+  );
 };
 
 const TestResults = () => {
@@ -270,15 +331,8 @@ const TestResults = () => {
           </div>
         </div>
 
-        {question.image_url && getImageUrl(question.image_url) && (
-          <div className="mb-4 rounded-lg overflow-hidden border border-border/50">
-            <img 
-              src={getImageUrl(question.image_url) || ''} 
-              alt="Pregunta" 
-              className="w-full max-h-48 object-contain bg-muted/30"
-              loading="lazy"
-            />
-          </div>
+        {question.image_url && (
+          <QuestionImageComponent imageUrl={question.image_url} />
         )}
 
         <div className="ml-0 sm:ml-8 space-y-3">

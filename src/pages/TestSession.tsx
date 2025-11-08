@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
-import { getImageUrl } from "@/utils/imageUtils";
+import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
 
 type QuestionData = {
   id: string;
@@ -38,6 +39,147 @@ type Answer = {
   questionId: string;
   selectedAnswerId: string;
   isCorrect: boolean;
+};
+
+// Компонент для отображения изображения вопроса с обработкой ошибок
+const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: string; compact?: boolean }) => {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadImage = async () => {
+      setIsLoading(true);
+      setHasError(false);
+      
+      // Получаем URL изображения
+      const url = getImageUrl(imageUrl);
+      
+      if (!url) {
+        console.warn(`[TestSession] Could not generate URL for image: ${imageUrl}`);
+        setHasError(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Проверяем кэш на наличие aspect ratio
+      const cachedAspectRatio = getCachedImageAspectRatio(imageUrl);
+      if (cachedAspectRatio !== null) {
+        // Изображение уже загружено, используем данные из кэша
+        setImageAspectRatio(cachedAspectRatio);
+        setImageSrc(url);
+        setIsLoading(false);
+        return;
+      }
+
+      // Загружаем изображение для определения размеров
+      const img = new Image();
+      img.onload = () => {
+        const aspectRatio = img.width / img.height;
+        setImageAspectRatio(aspectRatio);
+        setImageSrc(url);
+        setIsLoading(false);
+      };
+      img.onerror = () => {
+        console.error(`[TestSession] Failed to load image: ${url}`);
+        setHasError(true);
+        setIsLoading(false);
+      };
+      img.src = url;
+    };
+
+    loadImage();
+  }, [imageUrl]);
+
+  // Показываем загрузку только если изображение еще не загрузилось
+  if (isLoading) {
+    return (
+      <div className={`rounded-xl sm:rounded-2xl overflow-hidden border-2 border-border/30 shadow-lg bg-gradient-to-br from-muted/30 to-muted/10 animate-pulse ${compact ? 'w-full' : 'mb-4 sm:mb-6'}`}>
+        <div className={`w-full ${compact ? 'h-full min-h-[300px] md:min-h-[400px]' : 'h-48 sm:h-64 md:h-72'} flex items-center justify-center`}>
+          <div className="text-muted-foreground text-sm">Загрузка изображения...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Не показываем изображение, если произошла ошибка
+  if (hasError || !imageSrc) {
+    return null;
+  }
+
+  return (
+    <>
+      <div 
+        className={`relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-border/30 shadow-lg bg-gradient-to-br from-muted/30 to-muted/10 ${compact ? 'w-full' : 'mb-4 sm:mb-6'}`}
+      >
+        <div 
+          className="relative w-full group flex items-center justify-center overflow-hidden"
+          style={{
+            minHeight: compact ? '200px' : 'auto',
+            maxHeight: compact ? '500px' : 'none',
+          }}
+        >
+          <img 
+            src={imageSrc} 
+            alt="Вопрос" 
+            className="w-full h-full object-contain cursor-pointer transition-opacity duration-300 hover:opacity-90"
+            loading="lazy"
+            onClick={() => compact && setIsDialogOpen(true)}
+            onError={() => {
+              console.error(`[TestSession] Failed to load image: ${imageSrc}`);
+              setHasError(true);
+            }}
+            style={{
+              maxWidth: '100%',
+              maxHeight: compact ? '500px' : '288px',
+              height: 'auto',
+              width: 'auto',
+              display: 'block',
+            }}
+          />
+          {/* Кнопка увеличения изображения */}
+          {compact && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDialogOpen(true);
+              }}
+              className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/85 backdrop-blur-md text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 z-10 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95"
+            >
+              <Maximize2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Ampliar imagen</span>
+              <span className="sm:hidden">Ampliar</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Модальное окно с увеличенным изображением */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent 
+          hideCloseButton 
+          className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 bg-transparent border-none shadow-none"
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img 
+              src={imageSrc || ''} 
+              alt="Вопрос - увеличенное изображение" 
+              className="max-w-full max-h-[95vh] object-contain rounded-lg shadow-2xl"
+            />
+            <button
+              onClick={() => setIsDialogOpen(false)}
+              className="absolute top-4 right-4 bg-black/70 hover:bg-black/90 text-white rounded-full p-2.5 transition-colors z-20 shadow-lg"
+              aria-label="Закрыть"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 };
 
 const TestSession = () => {
@@ -88,9 +230,101 @@ const TestSession = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showQuestionMap]);
 
+  // Ленивая загрузка изображений при открытии карты вопросов
+  useEffect(() => {
+    if (!showQuestionMap || questions.length === 0) return;
+
+    // Загружаем изображения для карты вопросов при открытии
+    // Загружаем видимые изображения сначала (первые 12), затем остальные
+    const imagesToLoad = questions
+      .map((q, idx) => ({ url: q.image_url, idx }))
+      .filter(item => item.url) as { url: string; idx: number }[];
+    
+    // Используем функциональное обновление состояния, чтобы избежать зависимости от loadedQuestionImages
+    const loadImages = () => {
+      // Загружаем первые 12 изображений сразу (видимые блоки)
+      imagesToLoad.slice(0, 12).forEach((item, index) => {
+        setTimeout(() => {
+          preloadImage(item.url).then(() => {
+            setLoadedQuestionImages(prev => {
+              // Проверяем, не загружено ли уже изображение
+              if (prev.has(item.idx)) return prev;
+              return new Set([...prev, item.idx]);
+            });
+          }).catch(() => {});
+        }, index * 80); // Загружаем с небольшой задержкой для оптимизации
+      });
+
+      // Остальные изображения загружаем постепенно
+      imagesToLoad.slice(12).forEach((item, index) => {
+        setTimeout(() => {
+          preloadImage(item.url).then(() => {
+            setLoadedQuestionImages(prev => {
+              // Проверяем, не загружено ли уже изображение
+              if (prev.has(item.idx)) return prev;
+              return new Set([...prev, item.idx]);
+            });
+          }).catch(() => {});
+        }, 1500 + index * 150); // Начинаем через 1.5 секунды
+      });
+    };
+
+    loadImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showQuestionMap]); // Загружаем только при открытии карты вопросов
+
   useEffect(() => {
     loadQuestions();
   }, [mode, topic]);
+
+  // Предзагрузка изображений следующих и предыдущих вопросов
+  useEffect(() => {
+    if (questions.length === 0 || loading) return;
+
+    const preloadNextImages = async () => {
+      const imagesToPreload: (string | null | undefined)[] = [];
+
+      // Предзагружаем следующее изображение (если есть)
+      if (currentIndex + 1 < questions.length && questions[currentIndex + 1]?.image_url) {
+        imagesToPreload.push(questions[currentIndex + 1].image_url);
+      }
+
+      // Предзагружаем изображение через один вопрос (для еще более быстрой загрузки)
+      if (currentIndex + 2 < questions.length && questions[currentIndex + 2]?.image_url) {
+        imagesToPreload.push(questions[currentIndex + 2].image_url);
+      }
+
+      // Предзагружаем предыдущее изображение (на случай возврата назад)
+      if (currentIndex > 0 && questions[currentIndex - 1]?.image_url) {
+        imagesToPreload.push(questions[currentIndex - 1].image_url);
+      }
+
+      // Предзагружаем все изображения в фоне
+      if (imagesToPreload.length > 0) {
+        // Первое изображение предзагружаем сразу
+        preloadImage(imagesToPreload[0]).catch(() => {
+          // Игнорируем ошибки предзагрузки
+        });
+        
+        // Остальные предзагружаем с небольшой задержкой, чтобы не перегружать сеть
+        if (imagesToPreload.length > 1) {
+          setTimeout(() => {
+            imagesToPreload.slice(1).forEach((url) => {
+              preloadImage(url).catch(() => {
+                // Игнорируем ошибки предзагрузки
+              });
+            });
+          }, 200);
+        }
+      }
+    };
+
+    // Предзагружаем после небольшой задержки, чтобы текущее изображение загрузилось первым
+    // Уменьшена задержка для более быстрой предзагрузки
+    const timeoutId = setTimeout(preloadNextImages, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentIndex, questions, loading]);
 
   useEffect(() => {
     if (mode === "exam" && timeLeft > 0) {
@@ -152,6 +386,27 @@ const TestSession = () => {
       const limited = shuffled.slice(0, 30);
       
       setQuestions(limited);
+
+      // Предзагружаем первые несколько изображений для быстрого старта (текущий вопрос и соседние)
+      const firstImagesToPreload = limited
+        .slice(0, 3)
+        .map(q => q.image_url)
+        .filter(Boolean) as string[];
+      
+      if (firstImagesToPreload.length > 0) {
+        // Предзагружаем первое изображение сразу (текущий вопрос)
+        preloadImage(firstImagesToPreload[0]).catch(() => {});
+        
+        // Остальные предзагружаем с задержкой
+        firstImagesToPreload.slice(1).forEach((url, index) => {
+          setTimeout(() => {
+            preloadImage(url).catch(() => {});
+          }, (index + 1) * 300);
+        });
+      }
+
+      // Сбрасываем загруженные изображения для карты вопросов
+      setLoadedQuestionImages(new Set());
     } catch (error) {
       console.error("Error loading questions:", error);
       toast.error("Ошибка загрузки вопросов");
@@ -397,7 +652,7 @@ const TestSession = () => {
         )}>
           {/* Large Title - Bigger on mobile */}
           <div className="flex-1">
-            <h1 className="text-3xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent text-center">
+            <h1 className="text-3xl sm:text-3xl md:text-4xl font-bold text-foreground text-center">
               {mode === "exam" ? "Экзамен" : "Практика"}
             </h1>
           </div>
@@ -415,33 +670,38 @@ const TestSession = () => {
           )}
         </div>
 
-        {/* Timer and Question Map - Modern design, raised higher */}
-        <div className="mb-2 sm:mb-4 flex items-center justify-end gap-2 sm:gap-3">
-          {mode === "exam" && (
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
-              <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-              <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
-                {formatTime(timeLeft)}
-              </span>
-            </div>
-          )}
+        {/* Timer and Question Map */}
+        <div className="mb-2 sm:mb-4 flex items-center justify-between gap-2 sm:gap-3">
+          {/* Close button on mobile */}
           <button
-            onClick={() => setShowQuestionMap(true)}
-            className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden"
-            style={{
-              border: '2px solid',
-              borderColor: 'hsl(var(--border) / 0.5)',
-              position: 'relative'
-            }}
+            onClick={handleClose}
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm"
+            aria-label="Закрыть тест"
           >
-            {/* Animated progress border - прямо на рамке */}
+            <X className="w-5 h-5 text-foreground/70" />
+          </button>
+          
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+            {mode === "exam" && (
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
+                <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
+                <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+                  {formatTime(timeLeft)}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={() => setShowQuestionMap(true)}
+              className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden border-2 border-border/50"
+            >
+            {/* Animated progress border - используем accent цвет вместо primary */}
             <div
               className="absolute inset-0 rounded-xl pointer-events-none"
               style={{
                 background: `conic-gradient(
                   from -90deg,
-                  hsl(var(--primary)) 0deg,
-                  hsl(var(--primary)) ${(answers.length / questions.length) * 360}deg,
+                  hsl(var(--accent-foreground) / 0.6) 0deg,
+                  hsl(var(--accent-foreground) / 0.6) ${(answers.length / questions.length) * 360}deg,
                   transparent ${(answers.length / questions.length) * 360}deg,
                   transparent 360deg
                 )`,
@@ -449,29 +709,6 @@ const TestSession = () => {
                 WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                 WebkitMaskComposite: 'xor',
                 maskComposite: 'exclude',
-                animation: 'progress-glow 2s ease-in-out infinite',
-                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            />
-            
-            {/* Glowing effect overlay */}
-            <div
-              className="absolute inset-0 rounded-xl pointer-events-none"
-              style={{
-                background: `conic-gradient(
-                  from -90deg,
-                  hsl(var(--primary) / 0.8) 0deg,
-                  hsl(var(--primary) / 0.8) ${(answers.length / questions.length) * 360}deg,
-                  transparent ${(answers.length / questions.length) * 360}deg,
-                  transparent 360deg
-                )`,
-                padding: '2px',
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-                filter: 'blur(4px)',
-                opacity: 0.6,
-                animation: 'progress-shine 2s ease-in-out infinite',
                 transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             />
@@ -488,170 +725,326 @@ const TestSession = () => {
 
 
         {/* Question Card */}
-        <Card className="p-3 sm:p-4 md:p-6 bg-gradient-to-br from-background via-background to-primary/5 border-primary/20 shadow-xl backdrop-blur-sm">
-          {/* Question Image - Only show if image exists */}
-          {currentQuestion.image_url && getImageUrl(currentQuestion.image_url) && (
-            <div className="mb-4 sm:mb-6 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
-              <img 
-                src={getImageUrl(currentQuestion.image_url) || ''} 
-                alt="Вопрос" 
-                className="w-full max-h-48 sm:max-h-64 md:max-h-72 object-contain bg-gradient-to-br from-muted/20 to-primary/10"
-                loading="lazy"
-              />
-            </div>
-          )}
+        <Card className="p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm">
+          {/* Two-column layout: Image on left, Question & Answers on right */}
+          {currentQuestion.image_url ? (
+            <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr] gap-4 md:gap-6">
+              {/* Left Column: Image */}
+              <div className="w-full md:sticky md:top-4 md:self-start">
+                <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
+              </div>
 
-          {/* Question Text */}
-          <div className="mb-4 sm:mb-6 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-            <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-              {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
-            </h2>
-          </div>
+              {/* Right Column: Question Text & Answers */}
+              <div className="flex flex-col">
+                {/* Question Text */}
+                <div className="mb-4 sm:mb-6">
+                  <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+                    <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                      {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+                    </h2>
+                  </div>
+                </div>
 
-          {/* Translation & Explanation Buttons (Practice Only) */}
-          {mode === "practice" && (
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleTranslation}
-                className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-              >
-                <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-              </Button>
-              {displayExplanation && !showExplanation && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowExplanation(true)}
-                  className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                >
-                  <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                  Подсказка
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Answer Options */}
-          <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-            {sortedOptions.map((option) => {
-              const isSelected = selectedOption === option.id;
-              const isCorrect = option.is_correct;
-              const showResult = showExplanation && mode === "practice";
-              const displayText = showTranslation ? option.text_ru : option.text_es;
-
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => {
-                    if (mode === "exam") {
-                      // In exam mode, allow selection even after answer
-                      setSelectedOption(option.id);
-                    } else if (!showExplanation) {
-                      // In practice mode, only allow selection before explanation
-                      setSelectedOption(option.id);
-                    }
-                  }}
-                  disabled={mode === "practice" && showExplanation}
-                  className={`
-                    w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
-                    ${showResult
-                      ? isCorrect
-                        ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
-                        : isSelected
-                        ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-                        : "border-border/20 opacity-40"
-                      : isSelected
-                      ? "border-primary bg-gradient-to-r from-primary/15 to-primary/5 shadow-xl shadow-primary/30 scale-[1.02] ring-2 ring-primary/20"
-                      : "border-border/40 hover:border-primary/60 hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-                    }
-                    ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
-                  `}
-                >
-                  <div className="flex items-center justify-between gap-2 sm:gap-3">
-                    <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                      {displayText}
-                    </span>
-                    {showResult && isCorrect && (
-                      <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
-                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
-                      </div>
-                    )}
-                    {showResult && isSelected && !isCorrect && (
-                      <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
-                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
-                      </div>
+                {/* Translation & Explanation Buttons (Practice Only) */}
+                {mode === "practice" && (
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleTranslation}
+                      className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                    >
+                      <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                      <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                      <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
+                    </Button>
+                    {displayExplanation && !showExplanation && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowExplanation(true)}
+                        className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                      >
+                        <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                        Подсказка
+                      </Button>
                     )}
                   </div>
-                </button>
-              );
-            })}
-          </div>
+                )}
 
-          {/* Explanation - Only in practice mode */}
-          {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-            <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary/40 via-secondary/30 to-primary/10 border-2 border-secondary/60 shadow-lg animate-fade-in">
-              <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-                <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 shrink-0 shadow-md">
-                  <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                {/* Answer Options */}
+                <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
+                  {sortedOptions.map((option) => {
+                    const isSelected = selectedOption === option.id;
+                    const isCorrect = option.is_correct;
+                    const showResult = showExplanation && mode === "practice";
+                    const displayText = showTranslation ? option.text_ru : option.text_es;
+
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => {
+                          if (mode === "exam") {
+                            setSelectedOption(option.id);
+                          } else if (!showExplanation) {
+                            setSelectedOption(option.id);
+                          }
+                        }}
+                        disabled={mode === "practice" && showExplanation}
+                        className={`
+                          w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
+                          ${showResult
+                            ? isCorrect
+                              ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                              : isSelected
+                              ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
+                              : "border-border/20 opacity-40"
+                            : isSelected
+                            ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+                            : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
+                          }
+                          ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
+                        `}
+                      >
+                        <div className="flex items-center justify-between gap-2 sm:gap-3">
+                          <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                            {displayText}
+                          </span>
+                          {showResult && isCorrect && (
+                            <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
+                              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                          )}
+                          {showResult && isSelected && !isCorrect && (
+                            <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
+                              <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-primary uppercase tracking-wide">
-                    {showTranslation ? "Объяснение:" : "Explicación:"}
-                  </p>
-                  <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                    {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-                  </p>
+
+                {/* Explanation - Only in practice mode */}
+                {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
+                  <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
+                    <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
+                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
+                          {showTranslation ? "Объяснение:" : "Explicación:"}
+                        </p>
+                        <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                          {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Navigation Buttons */}
+                <div className="flex gap-2">
+                  {currentIndex > 0 && mode === "practice" && (
+                    <Button 
+                      onClick={prevQuestion} 
+                      variant="outline"
+                      className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
+                      size="sm"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      <span className="hidden sm:inline">Назад</span>
+                      <span className="sm:hidden">←</span>
+                    </Button>
+                  )}
+                  {mode === "practice" && showExplanation ? (
+                    <Button 
+                      onClick={nextQuestion} 
+                      className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
+                    >
+                      {currentIndex < questions.length - 1 ? (
+                        <>
+                          <span className="hidden sm:inline">Siguiente</span>
+                          <span className="sm:hidden">Siguiente</span>
+                          <ChevronRight className="w-4 h-4 ml-1" />
+                        </>
+                      ) : (
+                        <>
+                          <span className="hidden sm:inline">Finalizar ✓</span>
+                          <span className="sm:hidden">Finalizar</span>
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleAnswer} 
+                      disabled={!selectedOption} 
+                      className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
+                    >
+                      Responder
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
-          )}
+          ) : (
+            // Layout без изображения (вертикальный)
+            <>
+              {/* Question Text */}
+              <div className="mb-4 sm:mb-6">
+                <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+                  <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                    {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+                  </h2>
+                </div>
+              </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-2">
-            {currentIndex > 0 && mode === "practice" && (
-              <Button 
-                onClick={prevQuestion} 
-                variant="outline"
-                className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
-                size="sm"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Назад</span>
-                <span className="sm:hidden">←</span>
-              </Button>
-            )}
-            {mode === "practice" && showExplanation ? (
-              <Button 
-                onClick={nextQuestion} 
-                className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
-              >
-                {currentIndex < questions.length - 1 ? (
-                  <>
-                    <span className="hidden sm:inline">Siguiente</span>
-                    <span className="sm:hidden">Siguiente</span>
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </>
-                ) : (
-                  <>
-                    <span className="hidden sm:inline">Finalizar ✓</span>
-                    <span className="sm:hidden">Finalizar</span>
-                  </>
+              {/* Translation & Explanation Buttons (Practice Only) */}
+              {mode === "practice" && (
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleTranslation}
+                    className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                  >
+                    <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                    <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                    <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
+                  </Button>
+                  {displayExplanation && !showExplanation && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowExplanation(true)}
+                      className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                    >
+                      <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                      Подсказка
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Answer Options */}
+              <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
+                {sortedOptions.map((option) => {
+                  const isSelected = selectedOption === option.id;
+                  const isCorrect = option.is_correct;
+                  const showResult = showExplanation && mode === "practice";
+                  const displayText = showTranslation ? option.text_ru : option.text_es;
+
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => {
+                        if (mode === "exam") {
+                          setSelectedOption(option.id);
+                        } else if (!showExplanation) {
+                          setSelectedOption(option.id);
+                        }
+                      }}
+                      disabled={mode === "practice" && showExplanation}
+                      className={`
+                        w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
+                        ${showResult
+                          ? isCorrect
+                            ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                            : isSelected
+                            ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
+                            : "border-border/20 opacity-40"
+                          : isSelected
+                          ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+                          : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
+                        }
+                        ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
+                      `}
+                    >
+                      <div className="flex items-center justify-between gap-2 sm:gap-3">
+                        <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                          {displayText}
+                        </span>
+                        {showResult && isCorrect && (
+                          <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
+                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                        )}
+                        {showResult && isSelected && !isCorrect && (
+                          <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
+                            <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Explanation - Only in practice mode */}
+              {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
+                <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
+                    <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
+                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
+                        {showTranslation ? "Объяснение:" : "Explicación:"}
+                      </p>
+                      <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                        {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation Buttons */}
+              <div className="flex gap-2">
+                {currentIndex > 0 && mode === "practice" && (
+                  <Button 
+                    onClick={prevQuestion} 
+                    variant="outline"
+                    className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
+                    size="sm"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    <span className="hidden sm:inline">Назад</span>
+                    <span className="sm:hidden">←</span>
+                  </Button>
                 )}
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleAnswer} 
-                disabled={!selectedOption} 
-                className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 h-10 sm:h-11 md:h-12"
-              >
-                Responder
-              </Button>
-            )}
-          </div>
+                {mode === "practice" && showExplanation ? (
+                  <Button 
+                    onClick={nextQuestion} 
+                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
+                  >
+                    {currentIndex < questions.length - 1 ? (
+                      <>
+                        <span className="hidden sm:inline">Siguiente</span>
+                        <span className="sm:hidden">Siguiente</span>
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </>
+                    ) : (
+                      <>
+                        <span className="hidden sm:inline">Finalizar ✓</span>
+                        <span className="sm:hidden">Finalizar</span>
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={handleAnswer} 
+                    disabled={!selectedOption} 
+                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
+                  >
+                    Responder
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </Card>
 
         {/* Question Map Bottom Sheet */}
@@ -756,10 +1149,40 @@ const TestSession = () => {
               {/* Content - Auto height based on content with padding for legend */}
               <div className="overflow-y-auto px-4 sm:px-6 py-4 pb-24" style={{ maxHeight: isTelegramApp ? 'calc(90vh - 220px)' : 'calc(90vh - 140px)' }}>
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
-                  {questions.map((_, idx) => {
-                    const answer = answers.find((a) => a.questionId === questions[idx].id);
+                  {questions.map((question, idx) => {
+                    const answer = answers.find((a) => a.questionId === question.id);
                     const isAnswered = answer !== undefined;
                     const isCurrent = idx === currentIndex;
+                    const hasImage = !!question.image_url;
+                    const isImageLoaded = loadedQuestionImages.has(idx);
+                    const imageUrl = hasImage && isImageLoaded ? getImageUrl(question.image_url!) : null;
+                    
+                    // Определяем стили в зависимости от состояния
+                    let bgClass = '';
+                    let textClass = '';
+                    let borderClass = '';
+                    
+                    if (isCurrent) {
+                      bgClass = 'bg-accent/90';
+                      textClass = 'text-accent-foreground';
+                      borderClass = 'ring-2 ring-accent ring-offset-2';
+                    } else if (!isAnswered) {
+                      bgClass = 'bg-muted/30';
+                      textClass = 'text-muted-foreground';
+                      borderClass = 'border border-border/50';
+                    } else if (mode === "exam") {
+                      bgClass = 'bg-blue-500/80';
+                      textClass = 'text-white';
+                      borderClass = 'border-2 border-blue-500/50';
+                    } else if (answer && answer.isCorrect) {
+                      bgClass = 'bg-emerald-500/80';
+                      textClass = 'text-white';
+                      borderClass = 'border-2 border-emerald-500/50';
+                    } else if (answer) {
+                      bgClass = 'bg-red-500/80';
+                      textClass = 'text-white';
+                      borderClass = 'border-2 border-red-500/50';
+                    }
                     
                     return (
                       <button
@@ -769,23 +1192,29 @@ const TestSession = () => {
                           handleCloseModal();
                         }}
                         className={`
-                          aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200
-                          ${isCurrent 
-                            ? "ring-2 ring-primary ring-offset-2 scale-110 shadow-lg z-10 bg-primary text-primary-foreground" 
-                            : "hover:scale-105"
-                          }
-                          ${!isAnswered 
-                            ? "bg-muted/30 text-muted-foreground border border-border/50 hover:border-muted-foreground/30 hover:bg-muted/50" 
-                            : mode === "exam"
-                              ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-2 border-blue-500/50 hover:bg-blue-500/30"
-                              : answer.isCorrect
-                                ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-2 border-emerald-500/50 hover:bg-emerald-500/30"
-                                : "bg-red-500/20 text-red-700 dark:text-red-400 border-2 border-red-500/50 hover:bg-red-500/30"
-                          }
+                          relative aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 overflow-hidden
+                          ${isCurrent ? "scale-110 shadow-lg z-10" : "hover:scale-105"}
+                          ${borderClass}
                         `}
-                        title={`Вопрос ${idx + 1}${isAnswered ? (mode === "exam" ? " (отвечен)" : (answer.isCorrect ? " (правильно)" : " (неправильно)")) : ""}`}
+                        style={{
+                          backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                        }}
+                        title={`Вопрос ${idx + 1}${isAnswered ? (mode === "exam" ? " (отвечен)" : (answer && answer.isCorrect ? " (правильно)" : " (неправильно)")) : ""}`}
                       >
-                        {idx + 1}
+                        {/* Overlay для читаемости текста */}
+                        <div className={`
+                          absolute inset-0 ${bgClass} ${imageUrl ? 'bg-opacity-75' : ''}
+                          flex items-center justify-center
+                          transition-opacity duration-300
+                        `}>
+                          {/* Номер вопроса поверх изображения */}
+                          <span className={`relative z-10 ${textClass} ${isCurrent ? 'font-bold text-base sm:text-lg drop-shadow-lg' : 'drop-shadow-md'}`}>
+                            {idx + 1}
+                          </span>
+                        </div>
                       </button>
                     );
                   })}
@@ -814,7 +1243,7 @@ const TestSession = () => {
                       </>
                     )}
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded ring-2 ring-primary ring-offset-2 bg-primary text-primary-foreground" />
+                      <div className="w-4 h-4 rounded ring-2 ring-accent ring-offset-2 bg-accent text-accent-foreground" />
                       <span>Текущий</span>
                     </div>
                   </div>
