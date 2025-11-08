@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
@@ -18,77 +18,47 @@ export interface DuelNotification {
 }
 
 // Types of notifications to hide in notification center
-// Show only results (finish, timeout) in notification center
-// Progress notifications (opponent answers) should only show as toast during game, not in notification center
 const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
 
-export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
+export function useNotificationsPolling(options?: { showToasts?: boolean; playSounds?: boolean }) {
   const { profileId } = useUserContext();
   const [notifications, setNotifications] = useState<DuelNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [lastCheckedAt, setLastCheckedAt] = useState<Date>(new Date());
   const showToasts = options?.showToasts ?? true;
   const playSounds = options?.playSounds ?? true;
 
-  useEffect(() => {
-    if (!profileId) {
-      console.log('[useNotifications] No profileId, skipping subscription');
-      return;
-    }
-
-    console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
-    console.log('[useNotifications] ⚠️ Using POLLING instead of Realtime due to RLS issues');
-    
-    // Load existing notifications first
-    loadNotifications();
-
-    // ВРЕМЕННО: Используем polling вместо Realtime из-за проблем с RLS
-    // Realtime не может работать с RLS политиками для этой таблицы
-    // Polling каждые 2 секунды для проверки новых уведомлений
-    const pollingInterval = setInterval(() => {
-      loadNotifications();
-    }, 2000);
-
-    return () => {
-      console.log('[useNotifications] Cleaning up notification polling');
-      clearInterval(pollingInterval);
-    };
-  }, [profileId, showToasts, playSounds, loadNotifications]);
-
-  const previousNotificationsRef = useRef<Set<string>>(new Set());
-  
   const loadNotifications = useCallback(async () => {
     if (!profileId) {
-      console.log('[useNotifications] No profileId, skipping load');
+      console.log('[useNotificationsPolling] No profileId, skipping load');
       return;
     }
 
-    console.log('[useNotifications] Loading notifications for profileId:', profileId);
+    console.log('[useNotificationsPolling] Loading notifications for profileId:', profileId);
     
     const { data, error } = await supabase
       .from('duel_notifications')
       .select('*')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
-      .limit(100); // Load more to filter on client side
+      .limit(100);
 
     if (error) {
-      console.error('[useNotifications] Error loading notifications:', error);
-      console.error('[useNotifications] Error details:', JSON.stringify(error, null, 2));
+      console.error('[useNotificationsPolling] Error loading notifications:', error);
       return;
     }
 
-    console.log('[useNotifications] Loaded notifications:', data?.length || 0);
+    console.log('[useNotificationsPolling] Loaded notifications:', data?.length || 0);
     
     if (data) {
       // Filter out progress notifications on client side
       const filteredData = data.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
       
-      // Check for new notifications (not in previous set)
-      const currentIds = new Set(filteredData.map(n => n.id));
-      const newNotifications = filteredData.filter(n => !previousNotificationsRef.current.has(n.id));
-      
-      // Update previous set
-      previousNotificationsRef.current = currentIds;
+      // Check for new notifications
+      const newNotifications = data.filter(n => 
+        new Date(n.created_at) > lastCheckedAt && 
+        !PROGRESS_NOTIFICATION_TYPES.includes(n.type)
+      );
       
       setNotifications(filteredData);
       const unread = filteredData.filter(n => !n.is_read).length;
@@ -105,7 +75,6 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             titleText = titleText.replace(notification.icon, '').trim();
           }
           
-          console.log('[Notifications] Showing toast for new notification:', titleText);
           toast.info(titleText, {
             description: notification.message,
             duration,
@@ -125,15 +94,41 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
         });
       }
       
-      console.log('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread, 'New:', newNotifications.length);
+      setLastCheckedAt(new Date());
+      console.log('[useNotificationsPolling] Filtered notifications:', filteredData.length, 'Unread count:', unread);
     }
-  }, [profileId, showToasts, playSounds]);
+  }, [profileId, showToasts, playSounds, lastCheckedAt]);
+
+  useEffect(() => {
+    if (!profileId) {
+      console.log('[useNotificationsPolling] No profileId, skipping polling');
+      return;
+    }
+
+    console.log('[useNotificationsPolling] ✅ Setting up polling for profileId:', profileId);
+    
+    // Load immediately
+    loadNotifications();
+
+    // Poll every 2 seconds
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 2000);
+
+    return () => {
+      console.log('[useNotificationsPolling] Cleaning up polling');
+      clearInterval(interval);
+    };
+  }, [profileId, loadNotifications]);
 
   const markAsRead = async (notificationId: string) => {
     await supabase
       .from('duel_notifications')
       .update({ is_read: true })
       .eq('id', notificationId);
+    
+    // Reload notifications
+    loadNotifications();
   };
 
   const markAllAsRead = async () => {
@@ -157,3 +152,4 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     refresh: loadNotifications,
   };
 }
+
