@@ -19,6 +19,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { subtopicApi } from "@/utils/materialApi";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CreateSubtopicDialogProps {
   isOpen: boolean;
@@ -53,10 +54,34 @@ export const CreateSubtopicDialog = ({
 
     try {
       setLoading(true);
+      
+      // Get the maximum order_index for this topic to avoid conflicts
+      const { data: existingSubtopics, error: fetchError } = await supabase
+        .from("subtopics")
+        .select("order_index")
+        .eq("topic_id", topicId)
+        .order("order_index", { ascending: false })
+        .limit(1);
+
+      if (fetchError) {
+        console.warn("Could not fetch existing subtopics:", fetchError);
+      }
+
+      // Calculate next order_index
+      const nextOrderIndex = existingSubtopics && existingSubtopics.length > 0
+        ? (existingSubtopics[0].order_index || 0) + 1
+        : formData.order_index;
+
       await subtopicApi.create({
         topic_id: topicId,
-        ...formData,
+        title_ru: formData.title_ru,
+        title_es: formData.title_es,
+        title_en: formData.title_en,
+        order_index: nextOrderIndex,
+        type: formData.type,
+        is_required: formData.is_required,
       });
+      
       toast.success("Подтема создана");
       onSuccess();
       onClose();
@@ -71,7 +96,10 @@ export const CreateSubtopicDialog = ({
       });
     } catch (error: any) {
       console.error("Error creating subtopic:", error);
-      toast.error(`Ошибка создания подтемы: ${error.message}`);
+      const errorMessage = error.code === "23505" 
+        ? "Подтема с таким порядковым номером уже существует. Попробуйте еще раз."
+        : error.message;
+      toast.error(`Ошибка создания подтемы: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

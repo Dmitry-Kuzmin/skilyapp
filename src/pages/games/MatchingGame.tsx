@@ -78,8 +78,8 @@ const MatchingGame = () => {
         .select("id, term_es, term_ru");
 
       if (allTermsError) {
-        toast({
-          title: "Ошибка",
+      toast({
+        title: "Ошибка",
           description: "Не удалось загрузить термины",
           variant: "destructive",
         });
@@ -90,10 +90,10 @@ const MatchingGame = () => {
         toast({
           title: "Нет данных",
           description: "Недостаточно терминов для игры (минимум 4)",
-          variant: "destructive",
-        });
-        return;
-      }
+        variant: "destructive",
+      });
+      return;
+    }
 
       let selectedTerms: typeof allTerms = [];
 
@@ -165,13 +165,13 @@ const MatchingGame = () => {
     
     // Небольшая задержка для загрузки данных
     setTimeout(() => {
-      setIsGameActive(true);
-      setScore(0);
-      setAttempts(0);
-      setIsGameOver(false);
-      setStartTime(Date.now());
-      setSelectedSpanish(null);
-      setSelectedRussian(null);
+    setIsGameActive(true);
+    setScore(0);
+    setAttempts(0);
+    setIsGameOver(false);
+    setStartTime(Date.now());
+    setSelectedSpanish(null);
+    setSelectedRussian(null);
       setWrongSpanishIds(new Set());
       setWrongRussianIds(new Set());
       setCorrectAnswerIds(new Set());
@@ -201,7 +201,7 @@ const MatchingGame = () => {
       // Correct match - обновляем pairs и синхронизируем shuffled массивы
       setPairs(prevPairs => {
         const updatedPairs = prevPairs.map(p => 
-          p.id === selectedSpanish ? { ...p, matched: true } : p
+        p.id === selectedSpanish ? { ...p, matched: true } : p
         );
         
         // Синхронизируем shuffled массивы с обновленным состоянием
@@ -270,8 +270,8 @@ const MatchingGame = () => {
 
     // Сбрасываем выбор после небольшой задержки для визуального эффекта
     setTimeout(() => {
-      setSelectedSpanish(null);
-      setSelectedRussian(null);
+    setSelectedSpanish(null);
+    setSelectedRussian(null);
     }, 1000);
   };
 
@@ -339,11 +339,11 @@ const MatchingGame = () => {
               </div>
               <h2 className="text-xl md:text-2xl font-bold mb-2">Готовы начать?</h2>
               <p className="text-sm md:text-base text-muted-foreground mb-6">
-                Выберите испанское слово, затем его русский перевод
-              </p>
+              Выберите испанское слово, затем его русский перевод
+            </p>
               <Button size="lg" onClick={startGame} disabled={pairs.length < 4} className="shadow-lg">
-                Начать игру
-              </Button>
+              Начать игру
+            </Button>
             </div>
           </Card>
         )}
@@ -395,11 +395,11 @@ const MatchingGame = () => {
                           ease: "easeInOut"
                         }}
                       >
-                        <Button
-                          onClick={() => !pair.matched && setSelectedSpanish(pair.id)}
-                          disabled={pair.matched}
+                  <Button
+                    onClick={() => !pair.matched && setSelectedSpanish(pair.id)}
+                    disabled={pair.matched}
                           variant="outline"
-                          className={cn(
+                    className={cn(
                             "w-full text-sm md:text-base lg:text-lg h-auto min-h-[60px] md:min-h-[70px] py-3 md:py-4 pl-5 md:pl-6 pr-4 md:pr-5",
                             "break-words whitespace-normal text-left justify-start",
                             "transition-all duration-300 border-2 rounded-xl",
@@ -413,8 +413,8 @@ const MatchingGame = () => {
                               : selectedSpanish === pair.id
                               ? "bg-primary/10 border-2 border-primary shadow-md text-foreground"
                               : "bg-card border-2 border-border hover:bg-primary/5 hover:border-primary/50 hover:shadow-sm text-foreground"
-                          )}
-                        >
+                    )}
+                  >
                           {isWrong && (
                             <motion.div
                               initial={{ opacity: 0 }}
@@ -447,7 +447,7 @@ const MatchingGame = () => {
                               {pair.spanish}
                             </span>
                           </span>
-                        </Button>
+                  </Button>
                       </motion.div>
                     );
                   })}
@@ -482,11 +482,11 @@ const MatchingGame = () => {
                           ease: "easeInOut"
                         }}
                       >
-                        <Button
-                          onClick={() => !pair.matched && setSelectedRussian(pair.id)}
-                          disabled={pair.matched}
+                  <Button
+                    onClick={() => !pair.matched && setSelectedRussian(pair.id)}
+                    disabled={pair.matched}
                           variant="outline"
-                          className={cn(
+                    className={cn(
                             "w-full text-sm md:text-base lg:text-lg h-auto min-h-[60px] md:min-h-[70px] py-3 md:py-4 pl-5 md:pl-6 pr-4 md:pr-5",
                             "break-words whitespace-normal text-left justify-start",
                             "transition-all duration-300 border-2 rounded-xl",
@@ -500,8 +500,8 @@ const MatchingGame = () => {
                               : selectedRussian === pair.id
                               ? "bg-secondary/10 border-2 border-secondary shadow-md text-foreground"
                               : "bg-card border-2 border-border hover:bg-secondary/5 hover:border-secondary/50 hover:shadow-sm text-foreground"
-                          )}
-                        >
+                    )}
+                  >
                           {isWrong && (
                             <motion.div
                               initial={{ opacity: 0 }}
@@ -534,7 +534,7 @@ const MatchingGame = () => {
                               {pair.russian}
                             </span>
                           </span>
-                        </Button>
+                  </Button>
                       </motion.div>
                     );
                   })}
@@ -557,22 +557,22 @@ const MatchingGame = () => {
               <div className="space-y-3 mb-6">
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <p className="text-lg md:text-xl">
-                    Все пары найдены за <span className="font-bold text-primary">{attempts}</span> попыток
-                  </p>
+                Все пары найдены за <span className="font-bold text-primary">{attempts}</span> попыток
+              </p>
                 </div>
                 <div className="p-4 rounded-xl bg-secondary/5 border border-secondary/20">
                   <p className="text-base md:text-lg text-muted-foreground">
                     Точность: <span className="font-bold text-secondary">{((pairs.length / attempts) * 100).toFixed(0)}%</span>
-                  </p>
-                </div>
+              </p>
+            </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                 <Button onClick={startGame} size="lg" className="w-full sm:w-auto shadow-lg">
-                  Играть снова
-                </Button>
+                Играть снова
+              </Button>
                 <Button variant="outline" onClick={() => navigate("/games")} size="lg" className="w-full sm:w-auto border-2">
-                  К играм
-                </Button>
+                К играм
+              </Button>
               </div>
             </div>
           </Card>

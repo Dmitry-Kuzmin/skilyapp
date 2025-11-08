@@ -1,8 +1,8 @@
-import { Play, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Play, BookOpen, Sparkles } from "lucide-react";
 import { Topic, TopicProgress } from "./TopicCard";
 import { DuolingoPathNode } from "./DuolingoPathNode";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DuolingoLearningPathProps {
   topics: Topic[];
@@ -41,25 +41,55 @@ export const DuolingoLearningPath = ({
 
   return (
     <div className={cn("relative min-h-[600px] w-full", className)}>
-      {/* Персонаж Duolingo на пути */}
+      {/* Персонаж справа от пути (Duolingo style) */}
       {activeIndex >= 0 && (
-        <div
-          className="absolute transition-all duration-500 z-20 hidden md:block"
-          style={{
-            left: `calc(50% + ${getNodeOffset(activeIndex)}px - 80px)`,
-            top: `${activeIndex * 140 + 28}px`,
+        <motion.div
+          initial={false}
+          animate={{
+            right: "calc(50% - 200px)", // Справа от пути
+            top: `${activeIndex * 85 + 15}px`,
           }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          className="absolute z-20 hidden lg:block"
         >
           <div className="relative">
-            <div className="w-16 h-16 bg-[#58CC02] rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-              <BookOpen className="w-8 h-8 text-white" />
-            </div>
+            {/* Персонаж - упрощенная версия (можно заменить на SVG) */}
+            <motion.div
+              animate={{
+                scale: [1, 1.05, 1],
+                y: [0, -5, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+              className="relative"
+            >
+              {/* Тело персонажа */}
+              <div className="w-20 h-20 bg-gradient-to-br from-[#FFB84D] to-[#FF8C42] rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+                {/* Лицо */}
+                <div className="relative">
+                  {/* Глаза */}
+                  <div className="flex gap-2 mb-1">
+                    <div className="w-2 h-2 bg-black rounded-full"></div>
+                    <div className="w-2 h-2 bg-black rounded-full"></div>
+                  </div>
+                  {/* Улыбка */}
+                  <div className="w-6 h-3 border-2 border-black rounded-b-full border-t-0"></div>
+                </div>
+              </div>
+              {/* Голова с повязкой */}
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-8 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full border-2 border-white"></div>
+              {/* Костёр (маленький) */}
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-t from-[#FF6B35] to-[#FF8C42] rounded-t-full opacity-80"></div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* Вертикальный путь с зигзагом */}
-      <div className="relative flex flex-col items-center py-8">
+      {/* Вертикальный путь с зигзагом - уменьшены отступы */}
+      <div className="relative flex flex-col items-center py-4">
         {topics.map((topic, index) => {
           const progress = topicsProgress.get(topic.id);
           const isLocked = progress ? !progress.isUnlocked : index > 0;
@@ -70,49 +100,37 @@ export const DuolingoLearningPath = ({
           const nextNodeOffset = index < topics.length - 1 ? getNodeOffset(index + 1) : 0;
 
           return (
-            <div
+            <motion.div
               key={topic.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
               className="relative flex flex-col items-center"
               style={{
                 transform: `translateX(${nodeOffset}px)`,
-                transition: 'transform 0.3s ease',
               }}
             >
-              {/* Кнопка "ПЕРЕЙТИ СЮДА?" для следующего урока */}
-              {isNext && !isCompleted && (
-                <div className="mb-6">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-white hover:bg-gray-50 text-gray-800 border-gray-300 px-8 py-4 text-base font-semibold rounded-lg shadow-md"
-                    onClick={onStartClick}
-                  >
-                    <Play className="w-5 h-5 mr-2" />
-                    ПЕРЕЙТИ СЮДА?
-                  </Button>
-                </div>
-              )}
 
-              {/* Кривая соединительная линия для зигзага */}
+              {/* Кривая соединительная линия для зигзага - уменьшена высота */}
               {index < topics.length - 1 && (
                 <div
-                  className="relative mb-4"
-                  style={{ height: "100px", width: "220px" }}
+                  className="relative mb-1"
+                  style={{ height: "70px", width: "220px" }}
                 >
                   <svg
                     className="absolute"
                     style={{ 
                       width: "220px", 
-                      height: "100px", 
+                      height: "70px", 
                       left: '50%', 
                       transform: 'translateX(-50%)',
                       overflow: 'visible'
                     }}
-                    viewBox="0 0 220 100"
+                    viewBox="0 0 220 70"
                   >
-                    {/* Вычисляем контрольную точку для плавной кривой */}
+                    {/* Вычисляем контрольную точку для плавной кривой - адаптировано под новую высоту */}
                     <path
-                      d={`M 110 0 Q ${110 + (nextNodeOffset - nodeOffset) / 2} 50 110 100`}
+                      d={`M 110 0 Q ${110 + (nextNodeOffset - nodeOffset) / 2} 35 110 70`}
                       stroke={
                         isCompleted
                           ? "#58CC02"
@@ -131,18 +149,53 @@ export const DuolingoLearningPath = ({
               )}
 
               {/* Узел темы */}
-              <DuolingoPathNode
-                topic={topic}
-                progress={progress}
-                isLocked={isLocked}
-                isActive={isActive}
-                isNext={isNext}
-                onClick={() => onTopicClick(topic)}
-              />
-            </div>
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <DuolingoPathNode
+                  topic={topic}
+                  progress={progress}
+                  isLocked={isLocked}
+                  isActive={isActive}
+                  isNext={isNext}
+                  onClick={() => onTopicClick(topic)}
+                />
+              </motion.div>
+            </motion.div>
           );
         })}
       </div>
+      
+      {/* Кнопка "ПЕРЕЙТИ СЮДА?" внизу пути (Duolingo style) */}
+      {nextTopicId && topics.find(t => t.id === nextTopicId) && !topicsProgress.get(nextTopicId)?.completed && (
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="mt-8 flex justify-center"
+          >
+            <button
+              onClick={onStartClick}
+              className="relative bg-gradient-to-r from-[#CE82FF] to-[#8B5CF6] hover:from-[#D69FFF] hover:to-[#9D6DFF] text-white border-0 px-8 py-5 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 group"
+            >
+              {/* Иконка play в круге */}
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                  <Play className="w-6 h-6 text-white" fill="white" />
+                </div>
+                {/* Маленькая звездочка в углу */}
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-sm">
+                  <Sparkles className="w-3 h-3 text-yellow-600" fill="currentColor" />
+                </div>
+              </div>
+              <span className="font-bold text-white text-lg">ПЕРЕЙТИ СЮДА?</span>
+            </button>
+          </motion.div>
+        </AnimatePresence>
+      )}
     </div>
   );
 };

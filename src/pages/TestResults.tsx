@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen } from "lucide-react";
+import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { getImageUrl } from "@/utils/imageUtils";
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
 
 type QuestionData = {
   id: string;
@@ -120,12 +122,17 @@ const TestResults = () => {
     );
   }
 
-  const { questions, answers, mode, timeSpent } = location.state as {
+  const { questions, answers, mode, timeSpent, testId, testInfo } = location.state as {
     questions: QuestionData[];
     answers: Answer[];
     mode: string;
     timeSpent: number;
+    testId?: string;
+    testInfo?: { id: string; title: string };
   };
+
+  const [nextTest, setNextTest] = useState<{ id: string; title: string; status: string } | null>(null);
+  const [loadingNextTest, setLoadingNextTest] = useState(false);
 
   // Исправляем подсчет - используем уникальные questionId для правильного подсчета
   const correctAnswersMap = new Map<string, Answer>();
@@ -185,6 +192,66 @@ const TestResults = () => {
     .sort(([_, a], [__, b]) => (a.correct / a.total) - (b.correct / b.total))
     .slice(0, 3);
   
+  // Загружаем следующий тест, если текущий пройден
+  useEffect(() => {
+    const loadNextTest = async () => {
+      if (!testId || !profileId || mode !== 'sequential') return;
+
+      setLoadingNextTest(true);
+      try {
+        // Получаем информацию о текущем тесте
+        const { data: currentTest } = await supabase
+          .from("tests")
+          .select("min_pass_percent")
+          .eq("id", testId)
+          .single();
+
+        if (!currentTest) return;
+
+        // Проверяем, прошел ли пользователь тест
+        const minPassPercent = currentTest.min_pass_percent || 80;
+        if (percentage < minPassPercent) {
+          setLoadingNextTest(false);
+          return; // Тест не пройден, следующий не разблокирован
+        }
+
+        // Находим следующий тест
+        const { data: nextTestData } = await supabase
+          .from("tests")
+          .select("id, title_ru, title_es")
+          .eq("required_test_id", testId)
+          .order("order_index")
+          .limit(1)
+          .single();
+
+        if (!nextTestData) {
+          setLoadingNextTest(false);
+          return;
+        }
+
+        // Проверяем статус следующего теста
+        const { data: nextTestProgress } = await supabase
+          .from("user_test_progress")
+          .select("status")
+          .eq("user_id", profileId)
+          .eq("test_id", nextTestData.id)
+          .single();
+
+        setNextTest({
+          id: nextTestData.id,
+          title: nextTestData.title_ru,
+          status: nextTestProgress?.status || 'unlocked',
+        });
+      } catch (error) {
+        console.error("Error loading next test:", error);
+      } finally {
+        setLoadingNextTest(false);
+      }
+    };
+
+    loadNextTest();
+  }, [testId, profileId, mode, percentage]);
+
   // Создаем уведомление о результатах теста
   useEffect(() => {
     const createTestNotification = async () => {
@@ -394,44 +461,217 @@ const TestResults = () => {
     );
   };
 
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Запускаем конфетти при успешном прохождении
+  useEffect(() => {
+    if (passed && percentage >= 80) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [passed, percentage]);
+
   return (
     <Layout>
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.3}
+        />
+      )}
       <div className="container mx-auto px-4 py-8 max-w-4xl pb-20 md:pb-4">
-        <Card className="p-6 sm:p-8 gradient-card border-border/50 text-center mb-6">
-          <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full flex items-center justify-center animate-scale-in ${
-            passed ? "bg-emerald-500/20" : "bg-red-500/20"
-          }`}>
-            <Trophy className={`w-8 h-8 sm:w-10 sm:h-10 ${passed ? "text-emerald-500" : "text-red-500"}`} />
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-            {passed ? "🎉 ¡Test aprobado!" : "😔 Test no aprobado"}
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            {mode === "exam" ? "Modo examen" : "Modo práctica"}
-          </p>
+        {/* Главная карточка результатов с улучшенным дизайном */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="p-6 sm:p-8 border-2 text-center mb-6 relative overflow-hidden">
+            {/* Градиентный фон */}
+            <div className={cn(
+              "absolute inset-0 opacity-10",
+              passed ? "bg-gradient-to-br from-emerald-500 to-green-600" : "bg-gradient-to-br from-red-500 to-orange-600"
+            )} />
+            
+            <div className="relative z-10">
+              {/* Иконка результата с анимацией */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                className={cn(
+                  "w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-full flex items-center justify-center border-4",
+                  passed 
+                    ? "bg-emerald-500/20 border-emerald-500/30 shadow-lg shadow-emerald-500/20" 
+                    : "bg-red-500/20 border-red-500/30 shadow-lg shadow-red-500/20"
+                )}
+              >
+                {passed ? (
+                  <Crown className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-500" />
+                ) : (
+                  <Target className="w-10 h-10 sm:w-12 sm:h-12 text-red-500" />
+                )}
+              </motion.div>
 
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
-            <div className="p-3 sm:p-4 rounded-lg bg-background/50 border border-border/50">
-              <p className="text-2xl sm:text-3xl font-bold text-emerald-500">{correctCount}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Correctas</p>
-            </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-background/50 border border-border/50">
-              <p className="text-2xl sm:text-3xl font-bold text-red-500">{incorrectCount}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Errores</p>
-            </div>
-            <div className="p-3 sm:p-4 rounded-lg bg-background/50 border border-border/50">
-              <p className="text-2xl sm:text-3xl font-bold text-primary">{percentage}%</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Precisión</p>
-            </div>
-          </div>
+              {/* Заголовок */}
+              <motion.h1
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className={cn(
+                  "text-3xl sm:text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r bg-clip-text text-transparent",
+                  passed 
+                    ? "from-emerald-500 to-green-600" 
+                    : "from-red-500 to-orange-600"
+                )}
+              >
+                {passed ? "🎉 ¡Test Aprobado!" : "😔 Test No Aprobado"}
+              </motion.h1>
+              
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-muted-foreground mb-6 flex items-center justify-center gap-2"
+              >
+                {mode === "exam" ? "Modo examen" : mode === "sequential" ? "Тест последовательный" : "Modo práctica"}
+              </motion.p>
 
-          {mode === "exam" && (
-            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              <span>Tiempo: {formatTime(timeSpent)}</span>
+              {/* Статистика с улучшенным дизайном */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto mb-6"
+              >
+                <Card className="p-4 bg-gradient-to-br from-emerald-500/10 to-green-600/5 border-2 border-emerald-500/20">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <p className="text-3xl sm:text-4xl font-bold text-emerald-500">{correctCount}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Correctas</p>
+                </Card>
+                <Card className="p-4 bg-gradient-to-br from-red-500/10 to-orange-600/5 border-2 border-red-500/20">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <XCircle className="w-5 h-5 text-red-500" />
+                  </div>
+                  <p className="text-3xl sm:text-4xl font-bold text-red-500">{incorrectCount}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Errores</p>
+                </Card>
+                <Card className={cn(
+                  "p-4 border-2",
+                  passed
+                    ? "bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20"
+                    : "bg-gradient-to-br from-orange-500/10 to-red-600/5 border-orange-500/20"
+                )}>
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <TrendingUp className={cn(
+                      "w-5 h-5",
+                      passed ? "text-primary" : "text-orange-500"
+                    )} />
+                  </div>
+                  <p className={cn(
+                    "text-3xl sm:text-4xl font-bold",
+                    passed ? "text-primary" : "text-orange-500"
+                  )}>{percentage}%</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">Precisión</p>
+                </Card>
+              </motion.div>
+
+              {/* Время прохождения */}
+              {(mode === "exam" || mode === "sequential") && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-6"
+                >
+                  <Clock className="w-4 h-4" />
+                  <span>Tiempo: {formatTime(timeSpent)}</span>
+                </motion.div>
+              )}
+
+              {/* Мотивационное сообщение */}
+              {passed && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="mb-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-green-600/5 border-2 border-emerald-500/20"
+                >
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      ¡Excelente trabajo!
+                    </p>
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Continúa así y alcanzarás nuevos niveles
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Следующий тест для sequential тестов */}
+              <AnimatePresence>
+                {mode === "sequential" && nextTest && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ delay: 0.8 }}
+                    className="mt-6 p-5 rounded-xl bg-gradient-to-r from-blue-500/10 to-blue-600/5 border-2 border-blue-500/30 shadow-lg"
+                  >
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Sparkles className="w-5 h-5 text-blue-500" />
+                      <p className="font-bold text-blue-600 dark:text-blue-400">
+                        ¡Siguiente test desbloqueado!
+                      </p>
+                      <Sparkles className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">{nextTest.title}</p>
+                    <Button
+                      onClick={() => navigate(`/test/sequential/${nextTest.id}`)}
+                      className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600"
+                      size="lg"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Comenzar siguiente test
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Завершение всех тестов */}
+              {mode === "sequential" && !nextTest && percentage >= 80 && !loadingNextTest && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="mt-6 p-5 rounded-xl bg-gradient-to-r from-yellow-500/10 to-amber-600/5 border-2 border-yellow-500/30"
+                >
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Trophy className="w-6 h-6 text-yellow-500" />
+                    <p className="font-bold text-yellow-600 dark:text-yellow-400">
+                      ¡Felicidades!
+                    </p>
+                    <Trophy className="w-6 h-6 text-yellow-500" />
+                  </div>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Has completado todos los tests disponibles en este tema.
+                  </p>
+                </motion.div>
+              )}
             </div>
-          )}
-        </Card>
+          </Card>
+        </motion.div>
 
         {(incorrectCount > 0 || correctCount > 0) && (
           <div>
@@ -535,7 +775,7 @@ const TestResults = () => {
             <Button
               variant="outline"
               className="w-full mt-4"
-              onClick={() => navigate("/tests")}
+              onClick={() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests")}
             >
               <TrendingUp className="w-4 h-4 mr-2" />
               Practicar más temas
@@ -545,7 +785,7 @@ const TestResults = () => {
 
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button 
-            onClick={() => navigate("/tests")} 
+            onClick={() => navigate(mode === "sequential" ? "/tests/sequential" : "/tests")} 
             variant="outline" 
             className="flex-1"
             size="lg"

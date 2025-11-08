@@ -11,9 +11,10 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon } from "lucide-react";
+import { User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon, Shield } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileModalProps {
   open: boolean;
@@ -30,6 +31,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const { user, logout, profileId, supabaseUser } = useUserContext();
   const { setTheme, theme: currentTheme } = useTheme();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [settings, setSettings] = useState<UserSettings>({
     theme: 'light',
     language: 'ru',
@@ -43,6 +45,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const [profile, setProfile] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load user settings from database
@@ -51,6 +54,48 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       loadUserProfile();
     }
   }, [user, open, profileId]);
+
+  // Check admin access separately
+  useEffect(() => {
+    if (open && supabaseUser) {
+      checkAdminAccess();
+    } else if (!open) {
+      setIsAdmin(false);
+    }
+  }, [open, supabaseUser]);
+
+  const checkAdminAccess = async () => {
+    if (!supabaseUser) {
+      setIsAdmin(false);
+      return;
+    }
+
+    try {
+      // Get current user to ensure we have the right ID
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      
+      if (!currentUser) {
+        setIsAdmin(false);
+        return;
+      }
+
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: currentUser.id,
+        _role: 'admin'
+      });
+
+      if (error) {
+        console.error('Error checking admin access:', error);
+        setIsAdmin(false);
+        return;
+      }
+
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error('Failed to check admin access:', error);
+      setIsAdmin(false);
+    }
+  };
 
   const loadUserProfile = async () => {
     if (!user) return;
@@ -442,6 +487,32 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       </div>
 
       <Separator />
+
+      {/* Admin Panel Section - Only for Admins */}
+      {isAdmin && (
+        <>
+          <div className="space-y-3">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              Администратор
+            </h3>
+            <Button
+              className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={() => {
+                onOpenChange(false);
+                navigate('/admin');
+              }}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Админ-панель
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              Управление системой и данными
+            </p>
+          </div>
+          <Separator />
+        </>
+      )}
 
       {/* Help Section */}
       <div className="space-y-3">

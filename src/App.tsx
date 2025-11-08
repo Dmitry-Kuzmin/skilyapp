@@ -13,8 +13,12 @@ import Tests from "./pages/Tests";
 import Learning from "./pages/Learning";
 import Games from "./pages/Games";
 import NotFound from "./pages/NotFound";
-import Admin from "./pages/Admin";
+import { AdminLayout } from "./components/admin/AdminLayout";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminSync } from "./pages/admin/AdminSync";
+import { AdminImport } from "./pages/admin/AdminImport";
 import AdminEditor from "./pages/AdminEditor";
+import AdminQuestionReports from "./pages/AdminQuestionReports";
 import Achievements from "./pages/Achievements";
 import RaceGame from "./pages/games/RaceGame";
 import GuessTheSign from "./pages/games/GuessTheSign";
@@ -24,6 +28,7 @@ import FourVariantsGame from "./pages/games/FourVariantsGame";
 import RoadRace from "./pages/games/RoadRace";
 import TestSession from "./pages/TestSession";
 import TestResults from "./pages/TestResults";
+import SequentialTests from "./pages/SequentialTests";
 import RoadSigns from "./pages/RoadSigns";
 import Dictionary from "./pages/Dictionary";
 import DataImport from "./pages/DataImport";
@@ -64,8 +69,10 @@ const App = () => {
           <Route path="/topic/:id" element={<TopicDetail />} />
           <Route path="/subtopic/:id" element={<SubtopicDetail />} />
           <Route path="/tests" element={<Tests />} />
+          <Route path="/tests/sequential" element={<SequentialTests />} />
           <Route path="/test/:mode" element={<TestSession />} />
           <Route path="/test/:mode/:topic" element={<TestSession />} />
+          <Route path="/test/sequential/:testId" element={<TestSession />} />
           <Route path="/test/results" element={<TestResults />} />
           <Route path="/learning" element={<Learning />} />
           <Route path="/games" element={<Games />} />
@@ -76,8 +83,13 @@ const App = () => {
           <Route path="/games/four-variants" element={<FourVariantsGame />} />
           <Route path="/games/road-race" element={<RoadRace />} />
           <Route path="/achievements" element={<Achievements />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/editor" element={<AdminEditor />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="reports" element={<AdminQuestionReports />} />
+            <Route path="editor" element={<AdminEditor />} />
+            <Route path="sync" element={<AdminSync />} />
+            <Route path="import" element={<AdminImport />} />
+          </Route>
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />
           <Route path="/data-import" element={<DataImport />} />

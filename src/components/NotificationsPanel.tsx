@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Check, CheckCheck, Swords, Clock, Zap } from 'lucide-react';
+import { Bell, Check, CheckCheck, Swords, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useUserContext } from '@/contexts/UserContext';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
@@ -20,7 +20,32 @@ export function NotificationsPanel() {
   const { profileId } = useUserContext();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [filter, setFilter] = useState<NotificationFilter>('all');
+  const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
+
+  const toggleNotificationExpansion = (notificationId: string) => {
+    setExpandedNotifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(notificationId)) {
+        newSet.delete(notificationId);
+      } else {
+        newSet.add(notificationId);
+      }
+      return newSet;
+    });
+  };
+
+  // Calculate if message should be truncated (more than 3 lines)
+  const shouldTruncate = (message: string): boolean => {
+    // Approximate: ~50 characters per line, so 3 lines = ~150 characters
+    // But we need to account for word wrapping, so we'll use a more accurate method
+    const lines = message.split('\n');
+    if (lines.length > 3) return true;
+    // Check if any line is too long (more than ~60 chars will likely wrap)
+    const hasLongLine = lines.some(line => line.length > 60);
+    if (hasLongLine && message.length > 150) return true;
+    return message.length > 180; // Safe threshold for 3 lines
+  };
 
   // Debug logging
   useEffect(() => {
@@ -210,8 +235,8 @@ export function NotificationsPanel() {
                           transition={{ delay: index * 0.03 }}
                           onClick={() => handleNotificationClick(notification)}
                           className={cn(
-                            "p-4 rounded-xl border-2 cursor-pointer transition-all",
-                            "hover:shadow-md hover:scale-[1.02]",
+                            "p-4 rounded-xl border-2 cursor-pointer transition-all w-full max-w-full overflow-hidden",
+                            "hover:shadow-md",
                             notification.is_read
                               ? 'bg-background/50 border-border/50 opacity-60'
                               : 'bg-primary/5 border-primary/30 hover:bg-primary/10 hover:border-primary/50'
@@ -236,10 +261,10 @@ export function NotificationsPanel() {
                                 />
                               </div>
                             )}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 max-w-full overflow-hidden">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <h4 className={cn(
-                                  "font-bold text-sm line-clamp-1",
+                                  "font-bold text-sm line-clamp-1 break-words overflow-wrap-anywhere",
                                   !notification.is_read && "text-foreground"
                                 )}>
                                   {notification.title}
@@ -248,9 +273,45 @@ export function NotificationsPanel() {
                                   <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 animate-pulse" />
                                 )}
                               </div>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mb-2 leading-relaxed">
-                                {notification.message}
-                              </p>
+                              <div className="mb-2 max-w-full overflow-hidden">
+                                {shouldTruncate(notification.message) && !expandedNotifications.has(notification.id) ? (
+                                  <>
+                                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed break-all">
+                                      {notification.message}
+                                    </p>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleNotificationExpansion(notification.id);
+                                      }}
+                                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                                    >
+                                      <ChevronDown className="h-3 w-3" />
+                                      Развернуть сообщение
+                                    </button>
+                                  </>
+                                ) : shouldTruncate(notification.message) && expandedNotifications.has(notification.id) ? (
+                                  <>
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
+                                      {notification.message}
+                                    </p>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleNotificationExpansion(notification.id);
+                                      }}
+                                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+                                    >
+                                      <ChevronUp className="h-3 w-3" />
+                                      Свернуть сообщение
+                                    </button>
+                                  </>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
+                                    {notification.message}
+                                  </p>
+                                )}
+                              </div>
                               <div className="flex items-center justify-between">
                                 <p className="text-xs text-muted-foreground">
                                   {formatDistanceToNow(new Date(notification.created_at), {

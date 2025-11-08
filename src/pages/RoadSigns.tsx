@@ -95,7 +95,7 @@ export default function RoadSigns() {
     const filtered = signs
       .map(sign => {
         // Type filter
-        const matchesType = selectedType === "all" || sign.sign_type === selectedType;
+    const matchesType = selectedType === "all" || sign.sign_type === selectedType;
         if (!matchesType) return null;
 
         // If no search term, return sign with score 0
@@ -153,17 +153,17 @@ export default function RoadSigns() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 animate-spin" />
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
-        <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
+      <div className="container mx-auto px-4 py-12">
         {/* Premium Header */}
         <div className="text-center mb-12 space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-primary shadow-primary mb-4 animate-pulse-slow">
@@ -212,22 +212,22 @@ export default function RoadSigns() {
           <Tabs value={selectedType} onValueChange={setSelectedType} className="w-full">
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               <TabsList className="w-full md:w-auto h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm inline-flex min-w-max md:min-w-0">
-                <TabsTrigger 
-                  value="all" 
+              <TabsTrigger 
+                value="all" 
                   className="rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
-                >
-                  Todas
-                </TabsTrigger>
-                {signTypes.map(type => (
-                  <TabsTrigger 
-                    key={type} 
-                    value={type}
+              >
+                Todas
+              </TabsTrigger>
+              {signTypes.map(type => (
+                <TabsTrigger 
+                  key={type} 
+                  value={type}
                     className="capitalize rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
-                  >
-                    {type}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+                >
+                  {type}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             </div>
           </Tabs>
         </div>
@@ -255,8 +255,8 @@ export default function RoadSigns() {
             <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
           </div>
         )}
-        </div>
       </div>
+    </div>
     </Layout>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2 } from "lucide-react";
+import { useUserContext } from "@/contexts/UserContext";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
 import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
+import { ReportProblemModal } from "@/components/ReportProblemModal";
 
 type QuestionData = {
   id: string;
@@ -183,8 +185,9 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
 };
 
 const TestSession = () => {
-  const { mode, topic } = useParams();
+  const { mode, topic, testId } = useParams();
   const navigate = useNavigate();
+  const { profileId } = useUserContext();
   const [language, setLanguage] = useState<'ru' | 'es'>('es');
   const [showTranslation, setShowTranslation] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -199,7 +202,10 @@ const TestSession = () => {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [testInfo, setTestInfo] = useState<{ id: string; title: string } | null>(null);
+  const [startTime, setStartTime] = useState<number>(0);
   const isTelegramApp = isTelegramMiniApp();
   
   const handleCloseModal = useCallback(() => {
@@ -230,52 +236,9 @@ const TestSession = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showQuestionMap]);
 
-  // Ленивая загрузка изображений при открытии карты вопросов
-  useEffect(() => {
-    if (!showQuestionMap || questions.length === 0) return;
-
-    // Загружаем изображения для карты вопросов при открытии
-    // Загружаем видимые изображения сначала (первые 12), затем остальные
-    const imagesToLoad = questions
-      .map((q, idx) => ({ url: q.image_url, idx }))
-      .filter(item => item.url) as { url: string; idx: number }[];
-    
-    // Используем функциональное обновление состояния, чтобы избежать зависимости от loadedQuestionImages
-    const loadImages = () => {
-      // Загружаем первые 12 изображений сразу (видимые блоки)
-      imagesToLoad.slice(0, 12).forEach((item, index) => {
-        setTimeout(() => {
-          preloadImage(item.url).then(() => {
-            setLoadedQuestionImages(prev => {
-              // Проверяем, не загружено ли уже изображение
-              if (prev.has(item.idx)) return prev;
-              return new Set([...prev, item.idx]);
-            });
-          }).catch(() => {});
-        }, index * 80); // Загружаем с небольшой задержкой для оптимизации
-      });
-
-      // Остальные изображения загружаем постепенно
-      imagesToLoad.slice(12).forEach((item, index) => {
-        setTimeout(() => {
-          preloadImage(item.url).then(() => {
-            setLoadedQuestionImages(prev => {
-              // Проверяем, не загружено ли уже изображение
-              if (prev.has(item.idx)) return prev;
-              return new Set([...prev, item.idx]);
-            });
-          }).catch(() => {});
-        }, 1500 + index * 150); // Начинаем через 1.5 секунды
-      });
-    };
-
-    loadImages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showQuestionMap]); // Загружаем только при открытии карты вопросов
-
   useEffect(() => {
     loadQuestions();
-  }, [mode, topic]);
+  }, [mode, topic, testId]);
 
   // Предзагрузка изображений следующих и предыдущих вопросов
   useEffect(() => {
@@ -343,6 +306,131 @@ const TestSession = () => {
 
   const loadQuestions = async () => {
     try {
+      setLoading(true);
+      
+      // Если это sequential тест, загружаем вопросы через функцию
+      if (testId) {
+        // Получаем информацию о тесте
+        const { data: testData, error: testError } = await supabase
+          .from("tests")
+          .select(`
+            *,
+            topics (title_ru, title_es)
+          `)
+          .eq("id", testId)
+          .single();
+
+        if (testError) throw testError;
+        if (!testData) throw new Error("Test not found");
+
+        setTestInfo({
+          id: testData.id,
+          title: testData.title_ru,
+        });
+
+        // Проверяем доступность теста
+        if (profileId) {
+          const { data: progressData } = await supabase
+            .from("user_test_progress")
+            .select("*")
+            .eq("user_id", profileId)
+            .eq("test_id", testId)
+            .single();
+
+          if (progressData && progressData.status === 'locked') {
+            toast.error("Этот тест заблокирован. Пройдите предыдущие тесты.");
+            navigate("/tests/sequential");
+            return;
+          }
+
+          // Устанавливаем статус "in_progress" и время начала
+          setStartTime(Date.now());
+          await supabase
+            .from("user_test_progress")
+            .upsert({
+              user_id: profileId,
+              test_id: testId,
+              status: 'in_progress',
+              started_at: new Date().toISOString(),
+            }, {
+              onConflict: 'user_id,test_id'
+            });
+        }
+
+        // Загружаем вопросы через функцию
+        const { data: questionsData, error: questionsError } = await supabase.rpc(
+          'get_test_questions',
+          { p_test_id: testId }
+        );
+
+        if (questionsError) {
+          console.error("Error loading test questions:", questionsError);
+          throw questionsError;
+        }
+        
+        if (!questionsData || questionsData.length === 0) {
+          toast.error("Вопросы для этого теста не найдены");
+          navigate("/tests/sequential");
+          return;
+        }
+
+        // Преобразуем question_id в id для совместимости
+        const questionsWithId = questionsData.map((q: any) => ({
+          ...q,
+          id: q.question_id || q.id
+        }));
+
+        // Загружаем answer_options для каждого вопроса
+        const questionIds = questionsWithId.map((q: any) => q.id);
+        const { data: optionsData, error: optionsError } = await supabase
+          .from("answer_options")
+          .select("*")
+          .in("question_id", questionIds);
+
+        if (optionsError) throw optionsError;
+
+        // Получаем информацию о теме (уже загружена через join или загружаем отдельно)
+        let topicData = testData.topics;
+        if (!topicData && testData.topic_id) {
+          const { data: loadedTopicData } = await supabase
+            .from("topics")
+            .select("title_ru, title_es")
+            .eq("id", testData.topic_id)
+            .single();
+
+          if (loadedTopicData) {
+            topicData = loadedTopicData;
+          }
+        }
+
+        // Объединяем вопросы с опциями и темой
+        const questionsWithOptions = questionsWithId.map((q: any) => {
+          const options = (optionsData || []).filter((opt: any) => opt.question_id === q.id);
+          return {
+            ...q,
+            answer_options: options,
+            topics: topicData ? { title_ru: topicData.title_ru, title_es: topicData.title_es } : null,
+          };
+        });
+
+        setQuestions(questionsWithOptions);
+
+        // Предзагружаем первые несколько изображений для sequential тестов
+        const firstImagesToPreload = questionsWithOptions
+          .slice(0, 3)
+          .map(q => q.image_url)
+          .filter(Boolean) as string[];
+        
+        if (firstImagesToPreload.length > 0) {
+          preloadImage(firstImagesToPreload[0]).catch(() => {});
+          firstImagesToPreload.slice(1).forEach((url, index) => {
+            setTimeout(() => {
+              preloadImage(url).catch(() => {});
+            }, (index + 1) * 300);
+          });
+        }
+      } else {
+        // Старый способ загрузки вопросов (для обычных тестов)
       // Get current user profile
       const { data: { user } } = await supabase.auth.getUser();
       let profileId = null;
@@ -387,26 +475,24 @@ const TestSession = () => {
       
       setQuestions(limited);
 
-      // Предзагружаем первые несколько изображений для быстрого старта (текущий вопрос и соседние)
-      const firstImagesToPreload = limited
-        .slice(0, 3)
-        .map(q => q.image_url)
-        .filter(Boolean) as string[];
-      
-      if (firstImagesToPreload.length > 0) {
-        // Предзагружаем первое изображение сразу (текущий вопрос)
-        preloadImage(firstImagesToPreload[0]).catch(() => {});
+        // Предзагружаем первые несколько изображений для быстрого старта
+        const firstImagesToPreload = limited
+          .slice(0, 3)
+          .map(q => q.image_url)
+          .filter(Boolean) as string[];
         
-        // Остальные предзагружаем с задержкой
-        firstImagesToPreload.slice(1).forEach((url, index) => {
-          setTimeout(() => {
-            preloadImage(url).catch(() => {});
-          }, (index + 1) * 300);
-        });
+        if (firstImagesToPreload.length > 0) {
+          // Предзагружаем первое изображение сразу
+          preloadImage(firstImagesToPreload[0]).catch(() => {});
+          
+          // Остальные предзагружаем с задержкой
+          firstImagesToPreload.slice(1).forEach((url, index) => {
+            setTimeout(() => {
+              preloadImage(url).catch(() => {});
+            }, (index + 1) * 300);
+          });
+        }
       }
-
-      // Сбрасываем загруженные изображения для карты вопросов
-      setLoadedQuestionImages(new Set());
     } catch (error) {
       console.error("Error loading questions:", error);
       toast.error("Ошибка загрузки вопросов");
@@ -510,8 +596,25 @@ const TestSession = () => {
   const finishTest = async () => {
     const correctCount = answers.filter((a) => a.isCorrect).length;
     const score = Math.round((correctCount / questions.length) * 100);
+    const timeSpent = startTime > 0 ? Math.floor((Date.now() - startTime) / 1000) : (mode === "exam" ? 30 * 60 - timeLeft : 0);
 
     try {
+      // Если это sequential тест, обновляем прогресс через функцию
+      if (testId && profileId) {
+        const { error: progressError } = await supabase.rpc('update_test_progress', {
+          p_user_id: profileId,
+          p_test_id: testId,
+          p_correct_answers: correctCount,
+          p_total_questions: questions.length,
+          p_time_spent_seconds: timeSpent,
+        });
+
+        if (progressError) {
+          console.error("Error updating test progress:", progressError);
+        }
+      }
+
+      // Сохраняем в game_sessions для совместимости
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -521,10 +624,10 @@ const TestSession = () => {
           .single();
 
         if (profile) {
-          const duration = mode === "exam" ? 30 * 60 - timeLeft : 0;
+          const duration = timeSpent;
           const sessionData = {
             user_id: profile.id,
-            game_type: mode === "exam" ? "test_exam" : "test_practice",
+            game_type: testId ? "test_sequential" : (mode === "exam" ? "test_exam" : "test_practice"),
             score: Math.min(Math.max(0, score), 100), // Ensure 0-100 range
             total_questions: Math.min(Math.max(1, questions.length), 100), // Ensure 1-100 range
             duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
@@ -541,8 +644,10 @@ const TestSession = () => {
       state: {
         questions,
         answers,
-        mode,
-        timeSpent: mode === "exam" ? 30 * 60 - timeLeft : 0,
+        mode: testId ? "sequential" : mode,
+        timeSpent,
+        testId,
+        testInfo,
       },
     });
   };
@@ -653,7 +758,7 @@ const TestSession = () => {
           {/* Large Title - Bigger on mobile */}
           <div className="flex-1">
             <h1 className="text-3xl sm:text-3xl md:text-4xl font-bold text-foreground text-center">
-              {mode === "exam" ? "Экзамен" : "Практика"}
+              {testId ? (testInfo?.title || "Тест") : (mode === "exam" ? "Экзамен" : "Практика")}
             </h1>
           </div>
           
@@ -671,29 +776,19 @@ const TestSession = () => {
         </div>
 
         {/* Timer and Question Map */}
-        <div className="mb-2 sm:mb-4 flex items-center justify-between gap-2 sm:gap-3">
-          {/* Close button on mobile */}
+        <div className="mb-2 sm:mb-4 flex items-center justify-end gap-2 sm:gap-3">
+          {mode === "exam" && (
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
+              <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
+              <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+                {formatTime(timeLeft)}
+              </span>
+            </div>
+          )}
           <button
-            onClick={handleClose}
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm"
-            aria-label="Закрыть тест"
+            onClick={() => setShowQuestionMap(true)}
+            className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden border-2 border-border/50"
           >
-            <X className="w-5 h-5 text-foreground/70" />
-          </button>
-          
-          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
-            {mode === "exam" && (
-              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
-                <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-                <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
-                  {formatTime(timeLeft)}
-                </span>
-              </div>
-            )}
-            <button
-              onClick={() => setShowQuestionMap(true)}
-              className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden border-2 border-border/50"
-            >
             {/* Animated progress border - используем accent цвет вместо primary */}
             <div
               className="absolute inset-0 rounded-xl pointer-events-none"
@@ -732,7 +827,7 @@ const TestSession = () => {
               {/* Left Column: Image */}
               <div className="w-full md:sticky md:top-4 md:self-start">
                 <QuestionImageComponent imageUrl={currentQuestion.image_url} compact />
-              </div>
+            </div>
 
               {/* Right Column: Question Text & Answers */}
               <div className="flex flex-col">
@@ -745,32 +840,44 @@ const TestSession = () => {
                   </div>
                 </div>
 
-                {/* Translation & Explanation Buttons (Practice Only) */}
-                {mode === "practice" && (
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={toggleTranslation}
-                      className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                    >
-                      <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                      <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                      <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-                    </Button>
-                    {displayExplanation && !showExplanation && (
+                {/* Translation & Explanation Buttons (Practice Only) and Report Button */}
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                  {mode === "practice" && (
+                    <>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setShowExplanation(true)}
+                        onClick={toggleTranslation}
                         className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
                       >
-                        <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                        Подсказка
+                        <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                        <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                        <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
                       </Button>
-                    )}
-                  </div>
-                )}
+                      {displayExplanation && !showExplanation && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowExplanation(true)}
+                          className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                        >
+                          <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                          Подсказка
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowReportModal(true)}
+                    className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+                  >
+                    <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                    <span className="hidden sm:inline">{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
+                    <span className="sm:hidden">{language === "es" ? "Reportar" : "Проблема"}</span>
+                  </Button>
+                </div>
 
                 {/* Answer Options */}
                 <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
@@ -892,157 +999,157 @@ const TestSession = () => {
           ) : (
             // Layout без изображения (вертикальный)
             <>
-              {/* Question Text */}
+          {/* Question Text */}
               <div className="mb-4 sm:mb-6">
                 <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                  <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                    {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
-                  </h2>
+            <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+            </h2>
                 </div>
-              </div>
+          </div>
 
-              {/* Translation & Explanation Buttons (Practice Only) */}
-              {mode === "practice" && (
-                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={toggleTranslation}
-                    className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                  >
-                    <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                    <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                    <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-                  </Button>
-                  {displayExplanation && !showExplanation && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowExplanation(true)}
-                      className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                    >
-                      <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                      Подсказка
-                    </Button>
-                  )}
-                </div>
+          {/* Translation & Explanation Buttons (Practice Only) */}
+          {mode === "practice" && (
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleTranslation}
+                className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+              >
+                <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
+              </Button>
+              {displayExplanation && !showExplanation && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowExplanation(true)}
+                  className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                >
+                  <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                  Подсказка
+                </Button>
               )}
+            </div>
+          )}
 
-              {/* Answer Options */}
-              <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-                {sortedOptions.map((option) => {
-                  const isSelected = selectedOption === option.id;
-                  const isCorrect = option.is_correct;
-                  const showResult = showExplanation && mode === "practice";
-                  const displayText = showTranslation ? option.text_ru : option.text_es;
+          {/* Answer Options */}
+          <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
+            {sortedOptions.map((option) => {
+              const isSelected = selectedOption === option.id;
+              const isCorrect = option.is_correct;
+              const showResult = showExplanation && mode === "practice";
+              const displayText = showTranslation ? option.text_ru : option.text_es;
 
-                  return (
-                    <button
-                      key={option.id}
-                      onClick={() => {
-                        if (mode === "exam") {
-                          setSelectedOption(option.id);
-                        } else if (!showExplanation) {
-                          setSelectedOption(option.id);
-                        }
-                      }}
-                      disabled={mode === "practice" && showExplanation}
-                      className={`
-                        w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
-                        ${showResult
-                          ? isCorrect
-                            ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
-                            : isSelected
-                            ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
-                            : "border-border/20 opacity-40"
-                          : isSelected
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    if (mode === "exam") {
+                      setSelectedOption(option.id);
+                    } else if (!showExplanation) {
+                      setSelectedOption(option.id);
+                    }
+                  }}
+                  disabled={mode === "practice" && showExplanation}
+                  className={`
+                    w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
+                    ${showResult
+                      ? isCorrect
+                        ? "border-emerald-500 bg-gradient-to-r from-emerald-500/15 to-emerald-500/5 shadow-xl shadow-emerald-500/25 animate-fade-in"
+                        : isSelected
+                        ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
+                        : "border-border/20 opacity-40"
+                      : isSelected
                           ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
                           : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-                        }
-                        ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
-                      `}
-                    >
-                      <div className="flex items-center justify-between gap-2 sm:gap-3">
-                        <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                          {displayText}
-                        </span>
-                        {showResult && isCorrect && (
-                          <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
-                            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
-                          </div>
-                        )}
-                        {showResult && isSelected && !isCorrect && (
-                          <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
-                            <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
-                          </div>
-                        )}
+                    }
+                    ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
+                  `}
+                >
+                  <div className="flex items-center justify-between gap-2 sm:gap-3">
+                    <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                      {displayText}
+                    </span>
+                    {showResult && isCorrect && (
+                      <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                    )}
+                    {showResult && isSelected && !isCorrect && (
+                      <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-red-500/20 animate-scale-in shrink-0">
+                        <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-              {/* Explanation - Only in practice mode */}
-              {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
+          {/* Explanation - Only in practice mode */}
+          {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
                 <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
-                    <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+              <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
                       <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
                         <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
-                        {showTranslation ? "Объяснение:" : "Explicación:"}
-                      </p>
-                      <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                        {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-                      </p>
-                    </div>
-                  </div>
                 </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div className="flex gap-2">
-                {currentIndex > 0 && mode === "practice" && (
-                  <Button 
-                    onClick={prevQuestion} 
-                    variant="outline"
-                    className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
-                    size="sm"
-                  >
-                    <ChevronLeft className="w-4 h-4 mr-1" />
-                    <span className="hidden sm:inline">Назад</span>
-                    <span className="sm:hidden">←</span>
-                  </Button>
-                )}
-                {mode === "practice" && showExplanation ? (
-                  <Button 
-                    onClick={nextQuestion} 
-                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
-                  >
-                    {currentIndex < questions.length - 1 ? (
-                      <>
-                        <span className="hidden sm:inline">Siguiente</span>
-                        <span className="sm:hidden">Siguiente</span>
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </>
-                    ) : (
-                      <>
-                        <span className="hidden sm:inline">Finalizar ✓</span>
-                        <span className="sm:hidden">Finalizar</span>
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handleAnswer} 
-                    disabled={!selectedOption} 
-                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
-                  >
-                    Responder
-                  </Button>
-                )}
+                <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
+                    {showTranslation ? "Объяснение:" : "Explicación:"}
+                  </p>
+                  <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                    {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+                  </p>
+                </div>
               </div>
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex gap-2">
+            {currentIndex > 0 && mode === "practice" && (
+              <Button 
+                onClick={prevQuestion} 
+                variant="outline"
+                className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
+                size="sm"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Назад</span>
+                <span className="sm:hidden">←</span>
+              </Button>
+            )}
+            {mode === "practice" && showExplanation ? (
+              <Button 
+                onClick={nextQuestion} 
+                className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
+              >
+                {currentIndex < questions.length - 1 ? (
+                  <>
+                    <span className="hidden sm:inline">Siguiente</span>
+                    <span className="sm:hidden">Siguiente</span>
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Finalizar ✓</span>
+                    <span className="sm:hidden">Finalizar</span>
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleAnswer} 
+                disabled={!selectedOption} 
+                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
+              >
+                Responder
+              </Button>
+            )}
+          </div>
             </>
           )}
         </Card>
@@ -1149,40 +1256,10 @@ const TestSession = () => {
               {/* Content - Auto height based on content with padding for legend */}
               <div className="overflow-y-auto px-4 sm:px-6 py-4 pb-24" style={{ maxHeight: isTelegramApp ? 'calc(90vh - 220px)' : 'calc(90vh - 140px)' }}>
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
-                  {questions.map((question, idx) => {
-                    const answer = answers.find((a) => a.questionId === question.id);
+                  {questions.map((_, idx) => {
+                    const answer = answers.find((a) => a.questionId === questions[idx].id);
                     const isAnswered = answer !== undefined;
                     const isCurrent = idx === currentIndex;
-                    const hasImage = !!question.image_url;
-                    const isImageLoaded = loadedQuestionImages.has(idx);
-                    const imageUrl = hasImage && isImageLoaded ? getImageUrl(question.image_url!) : null;
-                    
-                    // Определяем стили в зависимости от состояния
-                    let bgClass = '';
-                    let textClass = '';
-                    let borderClass = '';
-                    
-                    if (isCurrent) {
-                      bgClass = 'bg-accent/90';
-                      textClass = 'text-accent-foreground';
-                      borderClass = 'ring-2 ring-accent ring-offset-2';
-                    } else if (!isAnswered) {
-                      bgClass = 'bg-muted/30';
-                      textClass = 'text-muted-foreground';
-                      borderClass = 'border border-border/50';
-                    } else if (mode === "exam") {
-                      bgClass = 'bg-blue-500/80';
-                      textClass = 'text-white';
-                      borderClass = 'border-2 border-blue-500/50';
-                    } else if (answer && answer.isCorrect) {
-                      bgClass = 'bg-emerald-500/80';
-                      textClass = 'text-white';
-                      borderClass = 'border-2 border-emerald-500/50';
-                    } else if (answer) {
-                      bgClass = 'bg-red-500/80';
-                      textClass = 'text-white';
-                      borderClass = 'border-2 border-red-500/50';
-                    }
                     
                     return (
                       <button
@@ -1192,29 +1269,23 @@ const TestSession = () => {
                           handleCloseModal();
                         }}
                         className={`
-                          relative aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200 overflow-hidden
-                          ${isCurrent ? "scale-110 shadow-lg z-10" : "hover:scale-105"}
-                          ${borderClass}
+                          aspect-square w-full rounded-lg font-semibold text-xs sm:text-sm transition-all duration-200
+                          ${isCurrent 
+                            ? "ring-2 ring-accent ring-offset-2 scale-110 shadow-lg z-10 bg-accent text-accent-foreground" 
+                            : "hover:scale-105"
+                          }
+                          ${!isAnswered 
+                            ? "bg-muted/30 text-muted-foreground border border-border/50 hover:border-muted-foreground/30 hover:bg-muted/50" 
+                            : mode === "exam"
+                              ? "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-2 border-blue-500/50 hover:bg-blue-500/30"
+                              : answer.isCorrect
+                                ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-2 border-emerald-500/50 hover:bg-emerald-500/30"
+                                : "bg-red-500/20 text-red-700 dark:text-red-400 border-2 border-red-500/50 hover:bg-red-500/30"
+                          }
                         `}
-                        style={{
-                          backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          backgroundRepeat: 'no-repeat',
-                        }}
-                        title={`Вопрос ${idx + 1}${isAnswered ? (mode === "exam" ? " (отвечен)" : (answer && answer.isCorrect ? " (правильно)" : " (неправильно)")) : ""}`}
+                        title={`Вопрос ${idx + 1}${isAnswered ? (mode === "exam" ? " (отвечен)" : (answer.isCorrect ? " (правильно)" : " (неправильно)")) : ""}`}
                       >
-                        {/* Overlay для читаемости текста */}
-                        <div className={`
-                          absolute inset-0 ${bgClass} ${imageUrl ? 'bg-opacity-75' : ''}
-                          flex items-center justify-center
-                          transition-opacity duration-300
-                        `}>
-                          {/* Номер вопроса поверх изображения */}
-                          <span className={`relative z-10 ${textClass} ${isCurrent ? 'font-bold text-base sm:text-lg drop-shadow-lg' : 'drop-shadow-md'}`}>
-                            {idx + 1}
-                          </span>
-                        </div>
+                        {idx + 1}
                       </button>
                     );
                   })}
@@ -1253,6 +1324,14 @@ const TestSession = () => {
           </>
         )}
       </div>
+
+      {/* Report Problem Modal */}
+      <ReportProblemModal
+        open={showReportModal}
+        onOpenChange={setShowReportModal}
+        questionId={currentQuestion.id}
+        questionText={showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+      />
     </Layout>
   );
 };

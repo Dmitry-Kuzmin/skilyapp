@@ -35,11 +35,29 @@ const LearningMap = () => {
 
   // Загружаем прогресс и профиль отдельно, когда profileId готов
   useEffect(() => {
-    if (isAuthenticated && profileId) {
-      loadUserProfile();
-      if (topics.length > 0) {
-        loadProgress();
-      }
+    if (isAuthenticated && profileId && topics.length > 0) {
+      // Загружаем параллельно для ускорения
+      Promise.all([
+        loadUserProfile(),
+        loadProgress()
+      ]).catch(error => {
+        console.error('[LearningMap] Error loading data:', error);
+      });
+    } else if (!isAuthenticated && topics.length > 0) {
+      // Для неавторизованных пользователей сразу показываем дефолтный прогресс
+      const defaultProgress = new Map<string, TopicProgress>();
+      topics.forEach((topic, index) => {
+        defaultProgress.set(topic.id, {
+          completed: false,
+          progressPercent: 0,
+          completedSubtopicCount: 0,
+          totalSubtopicCount: 0,
+          isUnlocked: true,
+        });
+      });
+      setTopicsProgress(defaultProgress);
+      setActiveTopicId(topics[0]?.id || null);
+      setLoading(false);
     }
   }, [isAuthenticated, profileId, topics.length]);
 
@@ -125,90 +143,90 @@ const LearningMap = () => {
         });
         setTopicsProgress(defaultProgress);
         setActiveTopicId(topics[0]?.id || null);
+        setLoading(false);
         return;
       }
 
       console.log('[LearningMap] Loading progress for profileId:', profileId);
       
-      // Быстрая проверка - есть ли вообще прогресс в базе
-      const { data: progressCheck, error: checkError } = await supabase
-        .from("user_topic_progress")
-        .select("topic_id")
-        .eq("user_id", profileId)
-        .limit(1)
-        .maybeSingle();
+      // ОПТИМИЗАЦИЯ: Загружаем весь прогресс одним запросом через RPC функцию
+      const topicIds = topics.map(t => t.id);
+      
+      const { data: progressData, error: progressError } = await supabase.rpc(
+        'get_user_topics_progress_batch',
+        {
+          p_user_id: profileId,
+          p_topic_ids: topicIds
+        }
+      );
 
-      // Если нет прогресса в базе, используем дефолтные значения
-      if (checkError || !progressCheck) {
-        const defaultProgress = new Map<string, TopicProgress>();
-        topics.forEach((topic, index) => {
-          defaultProgress.set(topic.id, {
+      if (progressError) {
+        console.error('[LearningMap] Error loading progress batch:', progressError);
+        // Fallback на старый метод, но только для первых 20 тем
+        const fallbackProgress = new Map<string, TopicProgress>();
+        const firstTopics = topics.slice(0, 20);
+        
+        for (const topic of firstTopics) {
+          try {
+            const progress = await calculateTopicProgress(profileId, topic.id);
+            fallbackProgress.set(topic.id, progress);
+          } catch (error) {
+            console.error(`[LearningMap] Error loading progress for topic ${topic.id}:`, error);
+            fallbackProgress.set(topic.id, {
+              completed: false,
+              progressPercent: 0,
+              completedSubtopicCount: 0,
+              totalSubtopicCount: 0,
+              isUnlocked: topic.order_index === 1,
+            });
+          }
+        }
+        
+        // Для остальных тем используем дефолтные значения
+        topics.slice(20).forEach((topic, index) => {
+          fallbackProgress.set(topic.id, {
             completed: false,
             progressPercent: 0,
             completedSubtopicCount: 0,
             totalSubtopicCount: 0,
-            isUnlocked: index === 0, // Только первая тема разблокирована
+            isUnlocked: false,
           });
         });
-        setTopicsProgress(defaultProgress);
-        setActiveTopicId(topics[0]?.id || null);
+        
+        setTopicsProgress(fallbackProgress);
+        const activeTopic = topics.find((topic) => {
+          const prog = fallbackProgress.get(topic.id);
+          return prog?.isUnlocked && !prog?.completed;
+        });
+        setActiveTopicId(activeTopic?.id || topics[0]?.id || null);
+        setLoading(false);
         return;
       }
 
-      // Загружаем прогресс батчами по 10 тем для оптимизации
+      // Преобразуем результат RPC в Map
       const progressMap = new Map<string, TopicProgress>();
-      const BATCH_SIZE = 10;
-      const topicsToLoad = topics.slice(0, 50); // Ограничиваем до 50 тем
-
-      for (let i = 0; i < topicsToLoad.length; i += BATCH_SIZE) {
-        const batch = topicsToLoad.slice(i, i + BATCH_SIZE);
-        const batchPromises = batch.map(async (topic) => {
-          try {
-            // Быстрая загрузка с коротким таймаутом
-            const progress = await Promise.race([
-              calculateTopicProgress(profileId, topic.id),
-              new Promise<TopicProgress>((resolve) => {
-                setTimeout(() => resolve({
-                  completed: false,
-                  progressPercent: 0,
-                  completedSubtopicCount: 0,
-                  totalSubtopicCount: 0,
-                  isUnlocked: i === 0 || progressMap.has(topicsToLoad[i - 1]?.id),
-                }), 2000); // Таймаут 2 секунды вместо 5
-              })
-            ]);
-            return { topicId: topic.id, progress };
-          } catch (error) {
-            console.error(`[LearningMap] Error loading progress for topic ${topic.id}:`, error);
-            // Возвращаем дефолтный прогресс при ошибке
-            return {
-              topicId: topic.id,
-              progress: {
-                completed: false,
-                progressPercent: 0,
-                completedSubtopicCount: 0,
-                totalSubtopicCount: 0,
-                isUnlocked: i === 0 || progressMap.has(topicsToLoad[i - 1]?.id),
-              } as TopicProgress
-            };
-          }
-        });
-
-        const batchResults = await Promise.all(batchPromises);
-        batchResults.forEach(({ topicId, progress }) => {
-          progressMap.set(topicId, progress);
+      
+      if (progressData && progressData.length > 0) {
+        progressData.forEach((row: any) => {
+          progressMap.set(row.topic_id, {
+            completed: row.completed || false,
+            progressPercent: Number(row.progress_percent) || 0,
+            completedSubtopicCount: row.completed_subtopic_count || 0,
+            totalSubtopicCount: row.total_subtopic_count || 0,
+            isUnlocked: row.is_unlocked !== false, // По умолчанию true если не false
+          });
         });
       }
 
-      // Для оставшихся тем используем дефолтные значения
-      topics.slice(50).forEach((topic, index) => {
+      // Для тем, которых нет в результате (новые темы), используем дефолтные значения
+      topics.forEach((topic, index) => {
         if (!progressMap.has(topic.id)) {
           progressMap.set(topic.id, {
             completed: false,
             progressPercent: 0,
             completedSubtopicCount: 0,
             totalSubtopicCount: 0,
-            isUnlocked: false,
+            isUnlocked: index === 0, // Только первая тема разблокирована по умолчанию
           });
         }
       });
@@ -237,6 +255,8 @@ const LearningMap = () => {
       });
       setTopicsProgress(defaultProgress);
       setActiveTopicId(topics[0]?.id || null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -321,13 +341,13 @@ const LearningMap = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-6 lg:py-8">
-          <div className="flex gap-6 lg:gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Основной контент - путь обучения */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative">
               {/* Баннер модуля (Duolingo style) */}
               {topics.length > 0 && activeTopicIndex >= 0 && topics[activeTopicIndex] && (
-                <div className="mb-6">
+                <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
                   <ModuleBanner
                     moduleNumber={moduleInfo.module}
                     sectionNumber={moduleInfo.section}
@@ -336,45 +356,42 @@ const LearningMap = () => {
                 </div>
               )}
 
-              {/* Заголовок урока */}
-              {nextTopic && (
-                <div className="mb-8">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                    {nextTopic.title_ru}
-                  </h1>
-                </div>
-              )}
-
               {/* Вертикальный путь обучения в стиле Duolingo */}
               {topics.length === 0 ? (
-                <div className="text-center py-20">
-                  <BookOpen className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                <div className="text-center py-20 animate-in fade-in duration-500">
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted/50 mb-6">
+                    <BookOpen className="w-12 h-12 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-2">
                     Темы пока не добавлены
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground max-w-md mx-auto">
                     Администратор добавит темы в ближайшее время
                   </p>
                 </div>
               ) : (
-                <DuolingoLearningPath
-                  topics={topics}
-                  topicsProgress={topicsProgress}
-                  activeTopicId={activeTopicId}
-                  nextTopicId={nextTopic?.id || null}
-                  onTopicClick={handleTopicClick}
-                  onStartClick={handleStartClick}
-                />
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <DuolingoLearningPath
+                    topics={topics}
+                    topicsProgress={topicsProgress}
+                    activeTopicId={activeTopicId}
+                    nextTopicId={nextTopic?.id || null}
+                    onTopicClick={handleTopicClick}
+                    onStartClick={handleStartClick}
+                  />
+                </div>
               )}
             </div>
 
             {/* Правая боковая панель */}
             {profileId && (
-              <RightSidebar
-                profileId={profileId}
-                rank={userProfile?.rank}
-                xp={userProfile?.xp}
-              />
+              <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                <RightSidebar
+                  profileId={profileId}
+                  rank={userProfile?.rank}
+                  xp={userProfile?.xp}
+                />
+              </div>
             )}
           </div>
         </div>

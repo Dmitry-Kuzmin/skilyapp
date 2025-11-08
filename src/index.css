@@ -2,6 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Enhanced Editor Styles */
+@layer components {
+  /* TinyMCE Editor Styles */
+  .tox-tinymce {
+    @apply border-border rounded-lg;
+  }
+  
+  .tox .tox-edit-area__iframe {
+    @apply bg-background;
+  }
+  
+  .tox .tox-menu {
+    @apply bg-card border-border;
+  }
+  
+  .tox .tox-menubar,
+  .tox .tox-toolbar,
+  .tox .tox-toolbar__primary {
+    @apply bg-card/95 backdrop-blur-sm border-b border-border;
+  }
+  
+  .tox .tox-tbtn {
+    @apply text-foreground hover:bg-muted;
+  }
+  
+  .tox .tox-tbtn--enabled {
+    @apply bg-primary/10 text-primary;
+  }
+  
+  /* Table Styles - для редактора и превью */
+  .mce-content-body table,
+  .prose table {
+    @apply w-full border-collapse my-4;
+  }
+  
+  .mce-content-body table td,
+  .mce-content-body table th,
+  .prose table td,
+  .prose table th {
+    @apply border border-border px-4 py-2;
+  }
+  
+  .mce-content-body table th,
+  .prose table th {
+    @apply bg-muted font-semibold;
+  }
+  
+  .mce-content-body table p,
+  .prose table p {
+    @apply m-0;
+  }
+  
+  /* Image Styles */
+  .mce-content-body img {
+    @apply rounded-lg shadow-md max-w-full h-auto cursor-pointer transition-opacity;
+  }
+  
+  .mce-content-body img:hover {
+    @apply opacity-90;
+  }
+}
+
 /* Telegram WebApp Theme Variables */
 :root {
   --tg-theme-bg-color: var(--background);

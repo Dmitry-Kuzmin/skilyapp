@@ -51,12 +51,17 @@ export const CreateMaterialDialog = ({
       return;
     }
 
+    if (!profileId) {
+      toast.error("Не удалось определить профиль пользователя. Пожалуйста, перезагрузите страницу.");
+      return;
+    }
+
     try {
       setLoading(true);
       const material = await materialApi.create({
         subtopic_id: subtopicId,
         ...formData,
-        updated_by: profileId || null,
+        updated_by: profileId,
       });
       toast.success("Материал создан");
       onSuccess(material.id);
@@ -70,7 +75,18 @@ export const CreateMaterialDialog = ({
       });
     } catch (error: any) {
       console.error("Error creating material:", error);
-      toast.error(`Ошибка создания материала: ${error.message}`);
+      let errorMessage = error.message || "Неизвестная ошибка";
+      
+      // Более понятные сообщения об ошибках
+      if (error.code === "23503") {
+        errorMessage = "Ошибка создания материала: неверный идентификатор пользователя. Пожалуйста, перезагрузите страницу.";
+      } else if (error.code === "23502") {
+        errorMessage = "Ошибка создания материала: не заполнены обязательные поля.";
+      } else if (error.code === "23505") {
+        errorMessage = "Ошибка создания материала: материал с такими данными уже существует.";
+      }
+      
+      toast.error(`Ошибка создания материала: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

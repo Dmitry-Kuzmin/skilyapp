@@ -57,13 +57,21 @@ export const ImageUpload = ({ materialId, onUploadComplete, className }: ImageUp
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `materials/images/${materialId}/${fileName}`;
 
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      // Upload to Supabase Storage with progress tracking
+      const uploadPromise = supabase.storage
         .from("materials")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
         });
+
+      // Simulate progress (Supabase doesn't provide real progress)
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 10, 90));
+      }, 100);
+
+      const { data, error } = await uploadPromise;
+      clearInterval(progressInterval);
 
       if (error) throw error;
 
@@ -83,9 +91,9 @@ export const ImageUpload = ({ materialId, onUploadComplete, className }: ImageUp
     } catch (error: any) {
       console.error("Error uploading image:", error);
       toast.error(`Ошибка загрузки: ${error.message}`);
+      setProgress(0);
     } finally {
       setUploading(false);
-      setProgress(0);
     }
   };
 
@@ -146,7 +154,7 @@ export const ImageUpload = ({ materialId, onUploadComplete, className }: ImageUp
             onClick={() => fileInputRef.current?.click()}
           >
             <input
-              ref={fileInputRef.current}
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               onChange={handleFileSelect}

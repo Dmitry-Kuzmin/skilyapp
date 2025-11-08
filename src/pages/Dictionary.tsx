@@ -122,7 +122,7 @@ export default function Dictionary() {
           if (descEs.includes(word)) score += 10;
           if (descRu.includes(word)) score += 10;
         });
-
+    
         return { term, score };
       })
       .filter((item): item is { term: LanguageTerm; score: number } => item !== null)
@@ -135,17 +135,17 @@ export default function Dictionary() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 animate-spin" />
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
       </Layout>
     );
   }
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5">
-        <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5">
+      <div className="container mx-auto px-4 py-12">
         {/* Premium Header */}
         <div className="text-center mb-12 space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-success shadow-primary mb-4 animate-pulse-slow">
@@ -215,8 +215,8 @@ export default function Dictionary() {
             <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
           </div>
         )}
-        </div>
       </div>
+    </div>
     </Layout>
   );
 }

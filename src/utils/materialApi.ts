@@ -157,25 +157,48 @@ export const materialApi = {
   }) {
     const htmlPreview = data.content ? generateHTMLPreview(data.content) : "";
 
+    // Initialize default TipTap content if not provided
+    const defaultContent = data.content || {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: []
+        }
+      ]
+    };
+
     const { data: result, error } = await supabase
       .from("materials")
       .insert({
-        ...data,
-        content: data.content || null,
+        subtopic_id: data.subtopic_id,
+        title_ru: data.title_ru,
+        title_es: data.title_es,
+        title_en: data.title_en,
+        content: defaultContent,
         html_preview: htmlPreview,
         type: data.type || "theory",
         is_published: data.is_published || false,
         version: 1,
         updated_by: data.updated_by || null,
+        // Legacy fields - set to empty strings for backward compatibility
+        content_ru: "",
+        content_es: "",
+        content_en: "",
       })
       .select()
       .single();
 
     if (error) throw error;
 
-    // Сохраняем первую версию
-    if (data.content && data.updated_by) {
-      await saveMaterialVersion(result.id, data.content, data.updated_by);
+    // Сохраняем первую версию (даже если контент пустой)
+    if (data.updated_by) {
+      try {
+        await saveMaterialVersion(result.id, defaultContent, data.updated_by);
+      } catch (versionError) {
+        console.warn("Failed to save initial version:", versionError);
+        // Не прерываем создание материала, если не удалось сохранить версию
+      }
     }
 
     return result;
@@ -187,17 +210,29 @@ export const materialApi = {
       title_ru?: string;
       title_es?: string;
       title_en?: string;
-      content?: any;
+      content?: string; // HTML content from TinyMCE
       html_preview?: string;
       type?: "theory" | "test" | "terms";
       is_published?: boolean;
       updated_by?: string | null;
     }
   ) {
-    // Генерируем HTML preview если контент изменился
+    // Если content это HTML строка, используем его напрямую
+    // Если это объект (старый формат TipTap JSON), конвертируем в HTML
+    let htmlContent = data.content;
     let htmlPreview = data.html_preview;
+
     if (data.content) {
-      htmlPreview = generateHTMLPreview(data.content);
+      // Если content это строка (HTML), используем напрямую
+      if (typeof data.content === 'string') {
+        htmlContent = data.content;
+        htmlPreview = data.content; // Для TinyMCE HTML и preview одинаковые
+      } else {
+        // Если это объект (старый формат TipTap), конвертируем в HTML
+        htmlPreview = generateHTMLPreview(data.content);
+        // Сохраняем JSON в content для обратной совместимости
+        htmlContent = data.content;
+      }
     }
 
     // Получаем текущую версию
@@ -209,14 +244,25 @@ export const materialApi = {
 
     const newVersion = (current?.version || 0) + 1;
 
+    // Обновляем материал
+    // content может быть строкой (HTML) или объектом (JSON для обратной совместимости)
+    const updateData: any = {
+      ...data,
+      html_preview: htmlPreview,
+      version: newVersion,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Если content это HTML строка, сохраняем её в content как JSON с полем html
+    if (typeof data.content === 'string') {
+      updateData.content = { html: data.content };
+    } else if (data.content) {
+      updateData.content = data.content;
+    }
+
     const { data: result, error } = await supabase
       .from("materials")
-      .update({
-        ...data,
-        html_preview: htmlPreview,
-        version: newVersion,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("id", id)
       .select()
       .single();
@@ -225,7 +271,7 @@ export const materialApi = {
 
     // Сохраняем версию если контент изменился
     if (data.content && data.updated_by) {
-      await saveMaterialVersion(id, data.content, data.updated_by);
+      await saveMaterialVersion(id, updateData.content, data.updated_by);
     }
 
     return result;

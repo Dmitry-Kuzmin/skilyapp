@@ -21,7 +21,16 @@ export async function saveMaterialVersion(
 ): Promise<MaterialVersion | null> {
   try {
     // Генерируем HTML preview
-    const htmlPreview = generateHTMLPreview(content);
+    // content может быть HTML строкой (новый формат) или объектом (старый формат)
+    let htmlPreview = "";
+    if (typeof content === 'string') {
+      htmlPreview = content;
+    } else if (content.html) {
+      htmlPreview = content.html;
+    } else {
+      // Старый формат TipTap JSON
+      htmlPreview = generateHTMLPreview(content);
+    }
 
     // Получаем текущую версию материала
     const { data: material } = await supabase

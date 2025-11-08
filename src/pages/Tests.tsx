@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award } from "lucide-react";
+import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -237,6 +237,29 @@ const Tests = () => {
             Выбери режим и начни подготовку к экзамену
           </p>
         </div>
+
+        {/* Sequential Tests Card */}
+        <Card
+          onClick={() => navigate("/tests/sequential")}
+          className="p-6 gradient-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] cursor-pointer group mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/20 shadow-glow">
+                <ListOrdered className="w-6 h-6 text-blue-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-1">Последовательные тесты</h3>
+                <p className="text-sm text-muted-foreground">
+                  Проходите тесты по порядку, ничего не пропуская. Каждый тест открывается после прохождения предыдущего.
+                </p>
+              </div>
+            </div>
+            <Button variant="ghost" className="group-hover:bg-primary/10">
+              Перейти
+            </Button>
+          </div>
+        </Card>
 
         {/* Test Modes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
