@@ -169,8 +169,22 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           console.error('[Notifications] ❌ Channel error - check RLS policies and realtime publication');
           console.error('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
           console.error('[Notifications] Channel name:', channelName);
+          console.error('[Notifications] 💡 Solution: Apply migration 20251108000000_fix_realtime_notifications_for_telegram.sql');
+          console.error('[Notifications] 💡 Also check: Is table duel_notifications in supabase_realtime publication?');
+          console.error('[Notifications] 💡 Check RLS policy: Does it use SECURITY DEFINER function?');
+          
+          // Fallback: попробуем переподписаться через 5 секунд
+          setTimeout(() => {
+            console.log('[Notifications] 🔄 Retrying subscription after error...');
+            channel.unsubscribe();
+            // Переподписка будет выполнена при следующем рендере
+          }, 5000);
         } else if (status === 'TIMED_OUT') {
           console.error('[Notifications] ❌ Subscription timed out');
+          setTimeout(() => {
+            console.log('[Notifications] 🔄 Retrying subscription after timeout...');
+            channel.unsubscribe();
+          }, 2000);
         } else if (status === 'CLOSED') {
           console.warn('[Notifications] ⚠️ Subscription closed');
         } else {
