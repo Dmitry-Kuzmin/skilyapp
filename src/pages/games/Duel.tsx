@@ -735,11 +735,11 @@ export default function Duel() {
                           transition={{ duration: 0.5, type: "spring" }}
                           className="space-y-5 sm:space-y-6"
                         >
-                          {/* Back Button */}
+                          {/* Back Button - Premium */}
                           <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center justify-start"
+                            className="flex items-center justify-start mb-2"
                           >
                             <Button
                               variant="ghost"
@@ -752,10 +752,10 @@ export default function Duel() {
                                 setConnectionStatus('checking');
                                 setCountdown(null);
                               }}
-                              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
+                              className="text-muted-foreground hover:text-foreground hover:bg-emerald-500/10 hover:border-emerald-500/20 border border-transparent rounded-xl px-4 py-2 transition-all duration-200 group/back"
                             >
-                              <ArrowLeft className="h-4 w-4 mr-2" />
-                              <span className="text-sm font-medium">Назад</span>
+                              <ArrowLeft className="h-4 w-4 mr-2 group-hover/back:-translate-x-1 transition-transform duration-200" />
+                              <span className="text-sm font-semibold">Назад</span>
                             </Button>
                           </motion.div>
 
