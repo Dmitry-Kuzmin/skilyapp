@@ -51,17 +51,25 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             const opponent = data.find((p: any) => p.id !== myPlayerId);
             
             if (myPlayer) {
-              console.log('[useDuelRealtime] ✅ Reloaded myScore:', myPlayer.score);
-              setState(prev => ({ ...prev, myScore: myPlayer.score || 0 }));
+              // Используем только если score не null/undefined, иначе сохраняем текущее значение
+              const newScore = typeof myPlayer.score === 'number' ? myPlayer.score : undefined;
+              if (newScore !== undefined) {
+                console.log('[useDuelRealtime] ✅ Reloaded myScore:', newScore);
+                setState(prev => ({ ...prev, myScore: newScore }));
+              }
             }
             
             if (opponent) {
-              console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', opponent.score);
-              setState(prev => ({ 
-                ...prev, 
-                opponentScore: opponent.score || 0,
-                opponentCorrectCount: opponent.correct_count || 0
-              }));
+              const newScore = typeof opponent.score === 'number' ? opponent.score : undefined;
+              const newCorrectCount = typeof opponent.correct_count === 'number' ? opponent.correct_count : undefined;
+              if (newScore !== undefined || newCorrectCount !== undefined) {
+                console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore);
+                setState(prev => ({ 
+                  ...prev, 
+                  opponentScore: newScore !== undefined ? newScore : prev.opponentScore,
+                  opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
+                }));
+              }
             }
           }
         });
@@ -121,31 +129,56 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           const updatedPlayer = payload.new as any;
           const currentMyPlayerId = myPlayerIdRef.current;
           
-          console.log('[useDuelRealtime] Player UPDATE:', {
+          console.log('[useDuelRealtime] 🔔 Player UPDATE event:', {
             updatedPlayerId: updatedPlayer.id,
+            updatedUserId: updatedPlayer.user_id,
             myPlayerId: currentMyPlayerId,
-            newScore: updatedPlayer.score
+            score: updatedPlayer.score,
+            correctCount: updatedPlayer.correct_count,
+            isMyPlayer: updatedPlayer.id === currentMyPlayerId
           });
           
-          if (!currentMyPlayerId) {
-            console.log('[useDuelRealtime] My player ID not set yet, skipping update');
-            return;
-          }
-          
-          // CRITICAL: Use ID comparison - if it's my player ID, update myScore, otherwise opponentScore
-          if (updatedPlayer.id === currentMyPlayerId) {
-            console.log('[useDuelRealtime] ✅ My score updated:', updatedPlayer.score);
-            setState(prev => ({ 
-              ...prev, 
-              myScore: updatedPlayer.score ?? prev.myScore
-            }));
+          // If myPlayerId is set, use ID comparison (most reliable)
+          if (currentMyPlayerId) {
+            if (updatedPlayer.id === currentMyPlayerId) {
+              // Это обновление моего счета
+              if (typeof updatedPlayer.score === 'number') {
+                console.log('[useDuelRealtime] ✅ Updating my score:', updatedPlayer.score);
+                setState(prev => ({ 
+                  ...prev, 
+                  myScore: updatedPlayer.score
+                }));
+              } else {
+                console.warn('[useDuelRealtime] ⚠️ My score is not a number:', updatedPlayer.score);
+              }
+            } else {
+              // Это обновление счета соперника
+              if (typeof updatedPlayer.score === 'number') {
+                console.log('[useDuelRealtime] ✅ Updating opponent score:', updatedPlayer.score);
+                setState(prev => ({ 
+                  ...prev, 
+                  opponentScore: updatedPlayer.score,
+                  opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
+                    ? updatedPlayer.correct_count 
+                    : prev.opponentCorrectCount
+                }));
+              } else {
+                console.warn('[useDuelRealtime] ⚠️ Opponent score is not a number:', updatedPlayer.score);
+              }
+            }
           } else {
-            console.log('[useDuelRealtime] ✅ Opponent score updated:', updatedPlayer.score);
-            setState(prev => ({ 
-              ...prev, 
-              opponentScore: updatedPlayer.score ?? prev.opponentScore,
-              opponentCorrectCount: updatedPlayer.correct_count ?? prev.opponentCorrectCount
-            }));
+            // myPlayerId не установлен - обновляем opponentScore как fallback
+            console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, using fallback logic');
+            if (typeof updatedPlayer.score === 'number') {
+              console.log('[useDuelRealtime] ✅ Updating score (fallback):', updatedPlayer.score);
+              setState(prev => ({
+                ...prev,
+                opponentScore: updatedPlayer.score,
+                opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
+                  ? updatedPlayer.correct_count 
+                  : prev.opponentCorrectCount
+              }));
+            }
           }
         }
       )
@@ -162,9 +195,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
           // Проверяем, что это ответ соперника, а не мой
           const answerPlayerId = (payload.new as any)?.player_id;
-          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player:', myPlayerId);
+          const currentMyPlayerId = myPlayerIdRef.current;
+          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player ID:', currentMyPlayerId);
           
-          if (answerPlayerId && myPlayerId && answerPlayerId !== myPlayerId) {
+          if (answerPlayerId && currentMyPlayerId && answerPlayerId !== currentMyPlayerId) {
             console.log('[useDuelRealtime] ✅ Opponent answered!');
             setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
             
@@ -173,7 +207,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
             }, 1000);
           } else {
-            console.log('[useDuelRealtime] Own answer, ignoring notification');
+            console.log('[useDuelRealtime] Own answer or myPlayerId not set, ignoring notification');
           }
         }
       )
@@ -191,65 +225,23 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             .maybeSingle()
             .then(({ data, error }) => {
               if (error) {
-                console.error('[useDuelRealtime] Error checking duel status:', error);
+                console.error('[useDuelRealtime] ❌ Error checking duel status:', error);
+                console.error('[useDuelRealtime] Error details:', JSON.stringify(error, null, 2));
               } else if (!data) {
-                console.warn('[useDuelRealtime] Duel not found or no access');
+                // Не логируем - это нормально на начальном этапе
               } else {
-                console.log('[useDuelRealtime] Current duel status:', data.status);
+                console.log('[useDuelRealtime] ✅ Current duel status:', data.status);
                 if (data.status === 'active') {
-                  console.log('[useDuelRealtime] Duel is already active!');
+                  console.log('[useDuelRealtime] ✅ Duel is already active!');
                   setState(prev => ({ ...prev, duelStarted: true }));
                 } else if (data.status === 'finished') {
+                  console.log('[useDuelRealtime] ✅ Duel is finished!');
                   setState(prev => ({ ...prev, duelFinished: true }));
                 }
               }
             });
 
-          // Load initial scores when subscribed - try to load even if myPlayerId is not set yet
-          const loadInitialScoresAfterSubscribe = async () => {
-            try {
-              const { data, error } = await supabase
-                .from('duel_players')
-                .select('id, user_id, score, correct_count')
-                .eq('duel_id', duelId);
-              
-              if (error) {
-                console.error('[useDuelRealtime] Error loading initial scores after subscribe:', error);
-                return;
-              }
-              
-              if (data && data.length >= 2) {
-                const currentMyPlayerId = myPlayerIdRef.current;
-                console.log('[useDuelRealtime] Loading initial scores after subscribe. myPlayerId:', currentMyPlayerId);
-                
-                // If we have myPlayerId, use it to identify players
-                if (currentMyPlayerId) {
-                  const myPlayer = data.find((p: any) => p.id === currentMyPlayerId);
-                  const opponent = data.find((p: any) => p.id !== currentMyPlayerId);
-                  
-                  if (myPlayer) {
-                    console.log('[useDuelRealtime] ✅ Initial myScore after subscribe:', myPlayer.score);
-                    setState(prev => ({ ...prev, myScore: myPlayer.score || 0 }));
-                  }
-                  
-                  if (opponent) {
-                    console.log('[useDuelRealtime] ✅ Initial opponentScore after subscribe:', opponent.score);
-                    setState(prev => ({ 
-                      ...prev, 
-                      opponentScore: opponent.score || 0,
-                      opponentCorrectCount: opponent.correct_count || 0
-                    }));
-                  }
-                } else {
-                  console.log('[useDuelRealtime] MyPlayerId not set yet, will reload when available');
-                }
-              }
-            } catch (error) {
-              console.error('[useDuelRealtime] Exception loading initial scores after subscribe:', error);
-            }
-          };
-          
-          loadInitialScoresAfterSubscribe();
+          // Счет будет загружен когда myPlayerId станет доступен через useEffect выше
         }
       });
 

@@ -75,10 +75,10 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             duel_id: newNotification.duel_id
           });
           
-          // Verify it's for this user (double-check)
+          // Проверяем, что уведомление для текущего пользователя
+          // Но не логируем предупреждение - это может быть нормально для некоторых сценариев
           if (newNotification.user_id !== profileId) {
-            console.warn('[Notifications] ⚠️ Notification user_id mismatch:', newNotification.user_id, 'vs', profileId);
-            return;
+            return; // Просто игнорируем уведомления не для нас
           }
           
           // Filter out less important notifications

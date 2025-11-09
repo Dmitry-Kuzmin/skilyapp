@@ -57,6 +57,7 @@ export function DuelWaitingReplay({
   const [isHidden, setIsHidden] = useState(initialHidden);
   const [isDuelFinished, setIsDuelFinished] = useState(false);
   const isCheckingFinishedRef = useRef(false);
+  const isDuelFinishedRef = useRef(false); // Use ref to avoid stale closures
   const opponentPlayerIdRef = useRef<string | null>(null);
   const myPlayerIdRef = useRef<string | null>(null);
 
@@ -81,8 +82,17 @@ export function DuelWaitingReplay({
     // This ensures we always have the latest state, especially when first player finishes
     // Telegram WebApp may have slower realtime updates, so we reload more frequently
     const reloadInterval = setInterval(() => {
-      loadOpponentData();
-    }, isTelegram ? 1000 : 2000); // Reload every 1 second in Telegram, 2 seconds in browser
+      if (!isDuelFinishedRef.current) {
+        loadOpponentData();
+        // Also check if opponent finished as a fallback - use force to ensure check happens
+        checkIfOpponentFinished(true).catch(err => {
+          console.error('[DuelWaitingReplay] Error in periodic check:', err);
+        });
+      } else {
+        // If finished, clear interval
+        clearInterval(reloadInterval);
+      }
+    }, isTelegram ? 1200 : 1500); // Reload every 1.2 seconds in Telegram, 1.5 seconds in browser
     
     return () => {
       clearInterval(reloadInterval);
@@ -90,77 +100,277 @@ export function DuelWaitingReplay({
   }, [duelId]);
 
   // Check if opponent finished all questions
-  const checkIfOpponentFinished = async () => {
+  const checkIfOpponentFinished = async (force = false) => {
     try {
-      if (isDuelFinished) return; // Already finished
-
-      const { data: duel } = await supabase
-        .from('duels')
-        .select('num_questions')
-        .eq('id', duelId)
-        .single();
-
-      if (!duel) return;
-
-      const { data: players } = await supabase
-        .from('duel_players')
-        .select('id, user_id')
-        .eq('duel_id', duelId);
-
-      if (!players || players.length < 2) return;
-
-      const opponent = players.find((p: any) => p.user_id !== profileId);
-      if (!opponent) return;
-
-      const { count: opponentAnswers } = await supabase
-        .from('duel_answers')
-        .select('*', { count: 'exact', head: true })
-        .eq('player_id', opponent.id)
-        .eq('duel_id', duelId);
-
-      console.log('[DuelWaitingReplay] Checking if opponent finished:', {
-        opponentAnswers: opponentAnswers || 0,
-        required: duel.num_questions
-      });
-
-      if ((opponentAnswers || 0) >= duel.num_questions) {
-        console.log('[DuelWaitingReplay] ✅ Opponent finished! Transitioning to results');
-        setIsDuelFinished(true);
-        sounds.victory();
-        toast.success('🏁 Соперник закончил!', {
-          description: 'Переход к результатам...',
-          duration: 2000,
-        });
-        setTimeout(() => {
-          onDuelFinished();
-        }, 1500);
+      // Prevent multiple simultaneous checks
+      if (isCheckingFinishedRef.current && !force) {
+        console.log('[DuelWaitingReplay] Already checking, skipping...');
+        return;
       }
-    } catch (error) {
-      console.error('[DuelWaitingReplay] Error checking if opponent finished:', error);
-    }
-  };
+      
+      // Use ref to avoid stale closure issues
+      if (isDuelFinishedRef.current || isDuelFinished) {
+        console.log('[DuelWaitingReplay] Already finished, skipping check');
+        return; // Already finished
+      }
 
-  // Check if duel is really finished - verify opponent actually completed all questions
-  const checkDuelStatus = async () => {
-    try {
+      isCheckingFinishedRef.current = true;
+
       const { data: duel } = await supabase
         .from('duels')
         .select('status, num_questions')
         .eq('id', duelId)
         .single();
 
-      if (!duel || duel.status !== 'finished') return;
+      if (!duel) {
+        isCheckingFinishedRef.current = false;
+        return;
+      }
 
+      // Check duel status first - if finished, verify opponent completed
+      if (duel.status === 'finished') {
+        console.log('[DuelWaitingReplay] Duel status is finished, verifying opponent completed all questions');
+      }
+
+      const { data: players } = await supabase
+        .from('duel_players')
+        .select('id, user_id')
+        .eq('duel_id', duelId);
+
+      if (!players || players.length < 2) {
+        isCheckingFinishedRef.current = false;
+        return;
+      }
+
+      const opponent = players.find((p: any) => p.user_id !== profileId);
+      if (!opponent) {
+        isCheckingFinishedRef.current = false;
+        return;
+      }
+
+      // Count opponent's answers - use actual data, not just count
+      const { data: opponentAnswersData, count: opponentAnswersCount } = await supabase
+        .from('duel_answers')
+        .select('id', { count: 'exact' })
+        .eq('player_id', opponent.id)
+        .eq('duel_id', duelId);
+
+      const opponentAnswers = opponentAnswersCount || 0;
+      const opponentFinished = opponentAnswers >= duel.num_questions;
+
+      console.log('[DuelWaitingReplay] Checking if opponent finished:', {
+        opponentAnswers,
+        required: duel.num_questions,
+        duelStatus: duel.status,
+        isDuelFinished,
+        isDuelFinishedRef: isDuelFinishedRef.current,
+        opponentFinished,
+        willTransition: opponentFinished || duel.status === 'finished'
+      });
+
+      // PRIORITY: If duel status is 'finished', transition immediately (most reliable)
+      if (duel.status === 'finished') {
+        if (isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] Already marked as finished (ref), skipping transition');
+          isCheckingFinishedRef.current = false;
+          return;
+        }
+        
+        console.log('[DuelWaitingReplay] ✅✅✅ Duel status is FINISHED - TRANSITIONING IMMEDIATELY', {
+          opponentAnswers,
+          required: duel.num_questions,
+          duelStatus: duel.status
+        });
+        
+        // Transition immediately
+        isDuelFinishedRef.current = true;
+        setIsDuelFinished(true);
+        isCheckingFinishedRef.current = false;
+        
+        sounds.victory();
+        toast.success('🏁 Дуэль завершена!', {
+          description: 'Переход к результатам...',
+          duration: 1500,
+        });
+        
+        // Call immediately - no delay
+        console.log('[DuelWaitingReplay] 🚀🚀🚀 Calling onDuelFinished IMMEDIATELY (status finished)...');
+        
+        // Call multiple times to ensure it works (React state updates can be batched)
+        try {
+          onDuelFinished();
+          console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 1)');
+        } catch (error) {
+          console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 1):', error);
+        }
+        
+        // Also call after microtask to ensure state update is processed
+        setTimeout(() => {
+          try {
+            onDuelFinished();
+            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 2)');
+          } catch (error) {
+            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 2):', error);
+          }
+        }, 0);
+        
+        // Final backup call
+        setTimeout(() => {
+          try {
+            onDuelFinished();
+            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 3 - backup)');
+          } catch (error) {
+            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 3):', error);
+          }
+        }, 100);
+        
+        return;
+      }
+      
+      // Also check if opponent finished (even if status is not 'finished' yet)
+      if (opponentFinished) {
+        if (isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] Already marked as finished (ref), skipping transition');
+          isCheckingFinishedRef.current = false;
+          return;
+        }
+        
+        console.log('[DuelWaitingReplay] ✅ Opponent finished (by answer count)! Transitioning to results', {
+          opponentAnswers,
+          required: duel.num_questions,
+          duelStatus: duel.status,
+          opponentFinished
+        });
+        
+        // Set both state and ref atomically
+        isDuelFinishedRef.current = true;
+        setIsDuelFinished(true);
+        isCheckingFinishedRef.current = false;
+        
+        sounds.victory();
+        toast.success('🏁 Соперник закончил!', {
+          description: 'Переход к результатам...',
+          duration: 1500,
+        });
+        
+        // Call immediately - multiple times to ensure it works
+        console.log('[DuelWaitingReplay] 🚀 Calling onDuelFinished (opponent finished by count)...');
+        try {
+          onDuelFinished();
+          console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 1)');
+        } catch (error) {
+          console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 1):', error);
+        }
+        
+        // Call after microtask
+        setTimeout(() => {
+          try {
+            onDuelFinished();
+            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 2)');
+          } catch (error) {
+            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 2):', error);
+          }
+        }, 0);
+        
+        // Final backup call
+        setTimeout(() => {
+          try {
+            onDuelFinished();
+            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 3 - backup)');
+          } catch (error) {
+            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 3):', error);
+          }
+        }, 100);
+      } else {
+        isCheckingFinishedRef.current = false;
+      }
+    } catch (error) {
+      console.error('[DuelWaitingReplay] Error checking if opponent finished:', error);
+      isCheckingFinishedRef.current = false;
+    }
+  };
+
+  // Check if duel is really finished - verify opponent actually completed all questions
+  const checkDuelStatus = async () => {
+    try {
+      // Skip if already finished
+      if (isDuelFinishedRef.current) return;
+      
+      const { data: duel } = await supabase
+        .from('duels')
+        .select('status, num_questions')
+        .eq('id', duelId)
+        .single();
+
+      if (!duel) {
+        console.log('[DuelWaitingReplay] checkDuelStatus: Duel not found');
+        return;
+      }
+
+      console.log('[DuelWaitingReplay] checkDuelStatus: Checking duel status:', duel.status);
+
+      // CRITICAL: If status is 'finished', transition immediately (most reliable)
+      if (duel.status === 'finished') {
+        if (isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] checkDuelStatus: Already finished (ref), skipping');
+          return;
+        }
+        
+        console.log('[DuelWaitingReplay] ✅✅✅ checkDuelStatus: Duel status is FINISHED - TRANSITIONING IMMEDIATELY');
+        isDuelFinishedRef.current = true;
+        setIsDuelFinished(true);
+        sounds.victory();
+        toast.success('🏁 Дуэль завершена!', {
+          description: 'Смотрите результаты',
+          duration: 2000,
+        });
+        
+        // Call immediately - multiple times
+        console.log('[DuelWaitingReplay] 🚀🚀🚀 checkDuelStatus: Calling onDuelFinished IMMEDIATELY');
+        try {
+          onDuelFinished();
+          console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called (attempt 1)');
+        } catch (error) {
+          console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error (attempt 1):', error);
+        }
+        
+        setTimeout(() => {
+          try {
+            onDuelFinished();
+            console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called (attempt 2)');
+          } catch (error) {
+            console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error (attempt 2):', error);
+          }
+        }, 0);
+        
+        setTimeout(() => {
+          try {
+            onDuelFinished();
+            console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called (attempt 3)');
+          } catch (error) {
+            console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error (attempt 3):', error);
+          }
+        }, 100);
+        return;
+      }
+
+      // If status is not 'finished', check opponent's answers as fallback
       // Get opponent's player ID
       const { data: players } = await supabase
         .from('duel_players')
         .select('id, user_id')
         .eq('duel_id', duelId);
 
-      if (!players || players.length < 2) return;
+      if (!players || players.length < 2) {
+        console.log('[DuelWaitingReplay] checkDuelStatus: Not enough players');
+        return;
+      }
 
       const opponent = players.find((p: any) => p.user_id !== profileId);
-      if (!opponent) return;
+      if (!opponent) {
+        console.log('[DuelWaitingReplay] checkDuelStatus: Opponent not found');
+        return;
+      }
 
       // Count opponent's actual answers
       const { count: opponentAnswers } = await supabase
@@ -169,26 +379,46 @@ export function DuelWaitingReplay({
         .eq('player_id', opponent.id)
         .eq('duel_id', duelId);
 
-      console.log('[DuelWaitingReplay] Initial status check:', {
-        status: duel.status,
+      console.log('[DuelWaitingReplay] checkDuelStatus: Opponent answers check:', {
         opponentAnswers: opponentAnswers || 0,
-        required: duel.num_questions
+        required: duel.num_questions,
+        status: duel.status
       });
 
-      // Only transition if opponent really finished all questions
+      // If opponent finished all questions, transition (even if status is not 'finished' yet)
       if ((opponentAnswers || 0) >= duel.num_questions) {
-        console.log('[DuelWaitingReplay] ✅ Opponent finished all questions, transitioning to results');
+        if (isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] checkDuelStatus: Already finished (ref check), skipping');
+          return;
+        }
+        
+        console.log('[DuelWaitingReplay] ✅ checkDuelStatus: Opponent finished all questions, transitioning to results');
+        isDuelFinishedRef.current = true;
         setIsDuelFinished(true);
         sounds.victory();
         toast.success('🏁 Дуэль завершена!', {
           description: 'Смотрите результаты',
           duration: 3000,
         });
-        setTimeout(() => {
+        
+        // Call immediately
+        try {
           onDuelFinished();
-        }, 1000);
+          console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called');
+        } catch (error) {
+          console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error calling onDuelFinished:', error);
+          setTimeout(() => {
+            try {
+              onDuelFinished();
+            } catch (retryError) {
+              console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error on retry:', retryError);
+            }
+          }, 200);
+        }
       } else {
-        console.log('[DuelWaitingReplay] ⚠️ Status is finished but opponent hasn\'t answered all questions yet - staying on waiting screen');
+        console.log('[DuelWaitingReplay] checkDuelStatus: Opponent hasn\'t finished yet');
+        // Also run checkIfOpponentFinished as additional check
+        await checkIfOpponentFinished(true);
       }
     } catch (error) {
       console.error('[DuelWaitingReplay] Error checking duel status:', error);
@@ -197,25 +427,91 @@ export function DuelWaitingReplay({
 
   const loadOpponentData = async () => {
     try {
-      // Get opponent info
-      const { data: players } = await supabase
-        .from('duel_players')
-        .select('*, profiles(first_name, username)')
-        .eq('duel_id', duelId);
+      // Используем Edge Function для получения игроков (обходит RLS проблемы)
+      try {
+        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'get_players',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
 
-      if (players) {
-        const opponent = players.find(p => p.user_id !== profileId);
-        const myPlayer = players.find(p => p.user_id === profileId);
-        
-        if (opponent) {
-          const opponentProfile = opponent.profiles as any;
-          setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
-          setOpponentScore(opponent.score || 0);
+        if (!edgeError && edgeData?.players) {
+          const players = edgeData.players;
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          const myPlayer = players.find((p: any) => p.user_id === profileId);
+          
+          if (opponent) {
+            // Используем имя из Edge Function (уже обработано)
+            const name = opponent.name || 'Соперник';
+            console.log('[DuelWaitingReplay] Setting opponent name from Edge Function:', {
+              name,
+              opponent: { id: opponent.id, user_id: opponent.user_id, score: opponent.score }
+            });
+            
+            // Проверяем, что имя не пустое и не "Игрок" (может быть реальное имя)
+            if (name && name.trim() && name !== 'Игрок') {
+              setOpponentName(name);
+            } else {
+              console.warn('[DuelWaitingReplay] Opponent name is empty or "Игрок", using "Соперник"');
+              setOpponentName('Соперник');
+            }
+            setOpponentScore(opponent.score || 0);
+          } else {
+            console.warn('[DuelWaitingReplay] No opponent found in Edge Function response');
+          }
+          
+          if (myPlayer) {
+            const myName = myPlayer.name || 'Вы';
+            if (myName && myName.trim() && myName !== 'Игрок') {
+              setMyName(myName);
+            } else {
+              setMyName('Вы');
+            }
+          }
+        } else {
+          console.error('[DuelWaitingReplay] Error loading players via Edge Function:', edgeError);
+          // Fallback к прямому запросу
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('*, profiles(first_name, username, telegram_username)')
+            .eq('duel_id', duelId);
+
+          if (players) {
+            const opponent = players.find(p => p.user_id !== profileId);
+            const myPlayer = players.find(p => p.user_id === profileId);
+            
+            if (opponent) {
+              const opponentProfile = opponent.profiles as any;
+              const name = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
+              console.log('[DuelWaitingReplay] Setting opponent name from direct query:', name);
+              setOpponentName(name);
+              setOpponentScore(opponent.score || 0);
+            }
+            
+            if (myPlayer) {
+              const myProfile = myPlayer.profiles as any;
+              setMyName(myProfile?.first_name || myProfile?.username || myProfile?.telegram_username || 'Вы');
+            }
+          }
         }
-        
-        if (myPlayer) {
-          const myProfile = myPlayer.profiles as any;
-          setMyName(myProfile?.first_name || myProfile?.username || 'Вы');
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Exception loading players:', error);
+        // Fallback к прямому запросу
+        const { data: players } = await supabase
+          .from('duel_players')
+          .select('*, profiles(first_name, username, telegram_username)')
+          .eq('duel_id', duelId);
+
+        if (players) {
+          const opponent = players.find(p => p.user_id !== profileId);
+          if (opponent) {
+            const opponentProfile = opponent.profiles as any;
+            const name = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
+            setOpponentName(name);
+            setOpponentScore(opponent.score || 0);
+          }
         }
       }
 
@@ -276,10 +572,10 @@ export function DuelWaitingReplay({
           }
           return {
             question_number: position,
-            is_correct: ans.is_correct,
-            is_skipped: ans.is_skipped || false,
-            time_taken_ms: ans.time_taken_ms,
-            points_awarded: ans.points_awarded || 0,
+          is_correct: ans.is_correct,
+          is_skipped: ans.is_skipped || false,
+          time_taken_ms: ans.time_taken_ms,
+          points_awarded: ans.points_awarded || 0,
           };
         })
         // Filter out answers without position and sort by question_number
@@ -292,11 +588,26 @@ export function DuelWaitingReplay({
           rawAnswers: answers,
           opponentPlayerId: opponent.id,
           myPlayerId: myPlayer.id,
+          totalQuestions,
+          allFinished: formattedAnswers.length >= totalQuestions,
           isTelegram: typeof window !== 'undefined' && !!window.Telegram?.WebApp
         });
         
         // Always update state
         setOpponentAnswers(formattedAnswers);
+        
+        // CRITICAL: Check if opponent finished after loading answers
+        if (formattedAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] 🔥 Opponent has all answers in loadOpponentData - checking finish');
+          // Small delay to ensure state is updated, then check
+          setTimeout(() => {
+            if (!isDuelFinishedRef.current) {
+              checkIfOpponentFinished(true).catch(err => {
+                console.error('[DuelWaitingReplay] Error checking finish in loadOpponentData:', err);
+              });
+            }
+          }, 100);
+        }
       } else {
         console.log('[DuelWaitingReplay] No opponent answers found yet');
         // Reset to empty array if no answers
@@ -419,90 +730,84 @@ export function DuelWaitingReplay({
                 }
               }, 200); // Small delay to ensure score is updated
 
-              // Play sound and show notification if not hidden
-              if (!isHidden) {
-                sounds.notificationPop();
-                if (answer.is_correct) {
-                  toast.info(`✅ Соперник: Вопрос ${question.position} - Правильно! (+${newAnswer.points_awarded})`, {
-                    duration: 2000,
-                  });
-                } else {
-                  toast.info(`❌ Соперник: Вопрос ${question.position} - Ошибка`, {
-                    duration: 2000,
-                  });
-                }
-              }
+              // NOTE: Уведомления показываются через useNotifications hook, не нужно дублировать здесь
+              // Только обновляем состояние и данные
 
               // Reload all answers from database to ensure we have the latest state
               // This is more reliable than trying to update state manually
-              const reloadAnswers = async () => {
-                try {
-                  const { data: reloadedAnswers, error: reloadError } = await supabase
-                    .from('duel_answers')
-                    .select(`
-                      *,
-                      duel_questions!inner(position)
-                    `)
-                    .eq('duel_id', duelId)
-                    .eq('player_id', currentOpponentPlayerId)
-                    .order('created_at', { ascending: true });
-                  
-                  if (reloadError) {
-                    console.error('[DuelWaitingReplay] Error reloading answers:', reloadError);
-                    // Fallback: update state manually
-                    setOpponentAnswers(prev => {
-                      const existing = prev.find(a => a.question_number === question.position);
-                      if (existing) {
-                        console.log('[DuelWaitingReplay] Answer already exists, skipping:', question.position);
-                        return prev;
-                      }
-                      const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
-                      return updated;
-                    });
-                    return;
-                  }
-                  
-                  if (reloadedAnswers && reloadedAnswers.length > 0) {
-                    const formatted = reloadedAnswers.map((ans: any) => {
-                      const position = ans.duel_questions?.position || ans.position;
-                      if (!position) {
-                        console.warn('[DuelWaitingReplay] Answer without position in reload:', ans);
-                      }
-                      return {
-                        question_number: position,
-                        is_correct: ans.is_correct,
-                        is_skipped: ans.is_skipped || false,
-                        time_taken_ms: ans.time_taken_ms,
-                        points_awarded: ans.points_awarded || 0,
-                      };
-                    })
-                    .filter((a: any) => a.question_number)
-                    .sort((a, b) => a.question_number - b.question_number);
-                    
-                    console.log('[DuelWaitingReplay] ✅ Reloaded opponent answers after new answer:', {
-                      count: formatted.length,
-                      questionNumbers: formatted.map(a => a.question_number),
-                      totalQuestions
-                    });
-                    
-                    setOpponentAnswers(formatted);
-                    
-                    // Check if opponent finished all questions
-                    if (formatted.length >= totalQuestions && !isCheckingFinishedRef.current) {
-                      console.log('[DuelWaitingReplay] Opponent answered all questions - checking if finished');
-                      isCheckingFinishedRef.current = true;
-                      
-                      const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-                      setTimeout(async () => {
-                        await checkIfOpponentFinished();
-                        isCheckingFinishedRef.current = false;
-                      }, isTelegram ? 1200 : 800);
+              try {
+                const { data: reloadedAnswers, error: reloadError } = await supabase
+                  .from('duel_answers')
+                  .select(`
+                    *,
+                    duel_questions!inner(position)
+                  `)
+                  .eq('duel_id', duelId)
+                  .eq('player_id', currentOpponentPlayerId)
+                  .order('created_at', { ascending: true });
+                
+                if (reloadError) {
+                  console.error('[DuelWaitingReplay] Error reloading answers:', reloadError);
+                  // Fallback: update state manually
+                  setOpponentAnswers(prev => {
+                    const existing = prev.find(a => a.question_number === question.position);
+                    if (existing) {
+                      console.log('[DuelWaitingReplay] Answer already exists, skipping:', question.position);
+                      return prev;
                     }
-                  } else {
-                    console.warn('[DuelWaitingReplay] No answers found after reload');
+                    const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
+                    return updated;
+                  });
+                } else if (reloadedAnswers && reloadedAnswers.length > 0) {
+                  const formatted = reloadedAnswers.map((ans: any) => {
+                    const position = ans.duel_questions?.position || ans.position;
+                    if (!position) {
+                      console.warn('[DuelWaitingReplay] Answer without position in reload:', ans);
+                    }
+                    return {
+                      question_number: position,
+                      is_correct: ans.is_correct,
+                      is_skipped: ans.is_skipped || false,
+                      time_taken_ms: ans.time_taken_ms,
+                      points_awarded: ans.points_awarded || 0,
+                    };
+                  })
+                  .filter((a: any) => a.question_number)
+                  .sort((a, b) => a.question_number - b.question_number);
+              
+                  console.log('[DuelWaitingReplay] ✅ Reloaded opponent answers after new answer:', {
+                    count: formatted.length,
+                    questionNumbers: formatted.map(a => a.question_number),
+                    totalQuestions,
+                    allFinished: formatted.length >= totalQuestions
+                  });
+                  
+                  setOpponentAnswers(formatted);
+                  
+                  // Check if opponent finished all questions - IMMEDIATE check
+                  if (formatted.length >= totalQuestions && !isDuelFinishedRef.current) {
+                    console.log('[DuelWaitingReplay] ⚡ Opponent answered all questions - IMMEDIATE check', {
+                      answerCount: formatted.length,
+                      totalQuestions,
+                      willCheck: !isDuelFinishedRef.current
+                    });
+                    
+                    // Immediate check without delay
+                    checkIfOpponentFinished(true).catch(err => {
+                      console.error('[DuelWaitingReplay] Error in immediate check:', err);
+                    });
+                    
+                    // Also check after delay as backup (if immediate didn't work)
+                    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+                    setTimeout(async () => {
+                      if (!isDuelFinishedRef.current) {
+                        console.log('[DuelWaitingReplay] 🔄 Backup check after delay');
+                        await checkIfOpponentFinished(true); // Force check
+                      }
+                    }, isTelegram ? 600 : 300);
                   }
-                } catch (error) {
-                  console.error('[DuelWaitingReplay] Exception reloading answers:', error);
+                } else {
+                  console.warn('[DuelWaitingReplay] No answers found after reload');
                   // Fallback: update state manually
                   setOpponentAnswers(prev => {
                     const existing = prev.find(a => a.question_number === question.position);
@@ -511,12 +816,16 @@ export function DuelWaitingReplay({
                     return updated;
                   });
                 }
-              };
-              
-              // Small delay to ensure answer is committed to database
-              setTimeout(() => {
-                reloadAnswers();
-              }, 300);
+              } catch (error) {
+                console.error('[DuelWaitingReplay] Exception reloading answers:', error);
+                // Fallback: update state manually
+                setOpponentAnswers(prev => {
+                  const existing = prev.find(a => a.question_number === question.position);
+                  if (existing) return prev;
+                  const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
+                  return updated;
+                });
+              }
             }
           }
         }
@@ -544,10 +853,36 @@ export function DuelWaitingReplay({
             console.log('[DuelWaitingReplay] ✅ Opponent score UPDATE:', {
               playerId: updatedPlayer.id,
               opponentPlayerId: currentOpponentPlayerId,
-              score: updatedPlayer.score
+              score: updatedPlayer.score,
+              correctCount: updatedPlayer.correct_count
             });
             // Use server score as source of truth
             setOpponentScore(updatedPlayer.score || 0);
+            
+            // If opponent's correct_count is set, check if they finished
+            // Get totalQuestions from duel to avoid stale closure
+            if (updatedPlayer.correct_count !== undefined && !isDuelFinishedRef.current) {
+              // Get duel to check total questions
+              const { data: duel } = await supabase
+                .from('duels')
+                .select('num_questions')
+                .eq('id', duelId)
+                .single();
+              
+              if (duel && updatedPlayer.correct_count >= duel.num_questions) {
+                console.log('[DuelWaitingReplay] 🎯 Opponent correct_count matches totalQuestions - triggering finish check', {
+                  correctCount: updatedPlayer.correct_count,
+                  totalQuestions: duel.num_questions
+                });
+                setTimeout(() => {
+                  if (!isDuelFinishedRef.current) {
+                    checkIfOpponentFinished(true).catch(err => {
+                      console.error('[DuelWaitingReplay] Error checking finish on score update:', err);
+                    });
+                  }
+                }, 100);
+              }
+            }
           }
         }
       )
@@ -561,55 +896,27 @@ export function DuelWaitingReplay({
         },
         async (payload) => {
           const duel = payload.new as any;
-          if (duel.status === 'finished' && !isDuelFinished) {
-            console.log('[DuelWaitingReplay] Duel status changed to finished - verifying opponent completed');
+          // Use ref to avoid stale closure
+          if (duel.status === 'finished' && !isDuelFinishedRef.current) {
+            console.log('[DuelWaitingReplay] 🔔 Duel status changed to finished - forcing transition check');
             
             // Small delay to ensure opponent's last answer is committed to database
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 200));
             
-            // Check if opponent finished - this will transition to results if true
-            await checkIfOpponentFinished();
-            
-            // Also check duel status directly - if both finished, go to results immediately
-            const { data: duelData } = await supabase
-              .from('duels')
-              .select('status, num_questions')
-              .eq('id', duelId)
-              .single();
-            
-            if (duelData?.status === 'finished') {
-              // Get opponent's player ID
-              const { data: players } = await supabase
-                .from('duel_players')
-                .select('id, user_id')
-                .eq('duel_id', duelId);
+            // Force check - if status is finished, transition immediately
+            try {
+              await checkIfOpponentFinished(true); // Force check even if already checking
               
-              if (players && players.length >= 2) {
-                const opponent = players.find((p: any) => p.user_id !== profileId);
-                if (opponent) {
-                  // Count opponent's actual answers
-                  const { count: opponentAnswers } = await supabase
-                    .from('duel_answers')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('player_id', opponent.id)
-                    .eq('duel_id', duelId);
-                  
-                  if ((opponentAnswers || 0) >= (duelData.num_questions || 0)) {
-                    console.log('[DuelWaitingReplay] ✅ Both players finished, transitioning to results');
-                    if (!isDuelFinished) {
-                      setIsDuelFinished(true);
-                      sounds.victory();
-                      toast.success('🏁 Дуэль завершена!', {
-                        description: 'Переход к результатам...',
-                        duration: 2000,
-                      });
-                      setTimeout(() => {
-                        onDuelFinished();
-                      }, 1000);
-                    }
-                  }
+              // Also verify by reloading data and checking again
+              setTimeout(async () => {
+                if (!isDuelFinishedRef.current) {
+                  console.log('[DuelWaitingReplay] 🔄 Status is finished but not transitioned - forcing reload and check');
+                  await loadOpponentData();
+                  await checkIfOpponentFinished(true);
                 }
-              }
+              }, 500);
+            } catch (error) {
+              console.error('[DuelWaitingReplay] Error in status update handler:', error);
             }
           }
         }

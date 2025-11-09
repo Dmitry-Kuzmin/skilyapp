@@ -3,7 +3,7 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus } from 'lucide-react';
+import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus, ArrowLeft, X } from 'lucide-react';
 import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
 import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
@@ -18,7 +18,9 @@ import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp } from '@/lib/telegram';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useDuelRealtime } from '@/hooks/useDuelRealtime';
+import { Users, Clock, Share2 } from 'lucide-react';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -47,6 +49,12 @@ export default function Duel() {
   const [isCreating, setIsCreating] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [waitTime, setWaitTime] = useState(0);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
+  const [countdown, setCountdown] = useState<number | null>(null);
+  
+  // Use realtime hook when duel is created
+  const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
   
   // Initialize notifications for duel page
   useNotifications({ showToasts: true, playSounds: true });
@@ -113,7 +121,13 @@ export default function Duel() {
   };
 
   const handleDuelFinished = () => {
+    console.log('[Duel] handleDuelFinished called - transitioning to results', {
+      currentMode: mode,
+      duelId,
+      willSetMode: 'result'
+    });
     setMode('result');
+    console.log('[Duel] Mode set to result');
   };
 
   const handleBackToMenu = () => {
@@ -142,7 +156,7 @@ export default function Duel() {
 
   // Handle inline join
   const handleInlineJoin = async (code: string) => {
-    if (!code || code.length < 4 || code.length > 6) {
+    if (!code || code.length !== 4) {
       return;
     }
 
@@ -196,14 +210,14 @@ export default function Duel() {
     }
   };
 
-  // Auto-join when code is 4-6 characters (auto-join after 4, but allow up to 6)
+  // Auto-join when code is 4 characters
   useEffect(() => {
-    if (joinCode.length >= 4 && joinCode.length <= 6 && !isJoining && profileId && !hasAutoJoinedRef.current && (isAuthenticated || isTelegramUser)) {
+    if (joinCode.length === 4 && !isJoining && profileId && !hasAutoJoinedRef.current && (isAuthenticated || isTelegramUser)) {
       const timer = setTimeout(() => {
-        if (joinCode.length >= 4 && joinCode.length <= 6 && !hasAutoJoinedRef.current) {
+        if (joinCode.length === 4 && !hasAutoJoinedRef.current) {
           handleInlineJoin(joinCode);
         }
-      }, joinCode.length === 4 ? 500 : 300); // Faster for longer codes
+      }, 500);
       
       return () => clearTimeout(timer);
     }
@@ -248,6 +262,8 @@ export default function Duel() {
       // Store duel ID and code for lobby navigation
       setDuelId(data.duel.id);
       setDuelCode(data.duel.code);
+      setConnectionStatus('checking');
+      setWaitTime(0);
       
       setIsCreating(false);
     } catch (error: any) {
@@ -271,45 +287,128 @@ export default function Duel() {
     }
   };
 
-  const handleGoToLobbyFromInline = () => {
-    // Use stored duelId and duelCode if available, otherwise find by code
-    if (duelId && duelCode) {
-      handleDuelCreated(duelId, duelCode);
-      setCreatedCode(null);
-      return;
+  const handleShare = () => {
+    if (createdCode && window.Telegram?.WebApp) {
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(`Присоединяйся к дуэли! Код: ${createdCode}`)}`;
+      (window.Telegram.WebApp as any).openTelegramLink?.(shareUrl);
     }
-
-    if (!createdCode) {
-      toast.error('Код дуэли не найден');
-      return;
-    }
-
-    // Find duel by code as fallback
-    (async () => {
-      try {
-        const { data, error } = await supabase
-          .from('duels')
-          .select('id, code')
-          .eq('code', createdCode)
-          .maybeSingle();
-        
-        if (error) {
-          throw error;
-        }
-        
-        if (data) {
-          handleDuelCreated(data.id, data.code);
-          setCreatedCode(null);
-        } else {
-          toast.error('Дуэль не найдена. Попробуйте создать новую.');
-        }
-      } catch (error: any) {
-        const extractedError = extractErrorFromResponse(error);
-        const humanError = getHumanReadableError(extractedError, 'create');
-        toast.error(humanError);
-      }
-    })();
   };
+
+  // Countdown logic
+  const startCountdown = () => {
+    console.log('[Duel] Starting countdown...');
+    setCountdown(3);
+  };
+
+  // Check duel status when created
+  useEffect(() => {
+    if (!duelId || !createdCode || !profileId) return;
+
+    let isActive = true;
+    let checkCount = 0;
+    const MAX_CHECKS = 120; // 120 seconds max
+
+    console.log('[Duel] Initializing status check for:', duelId);
+    
+    const checkStatus = async () => {
+      if (!isActive) return;
+      
+      checkCount++;
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'check_status',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+
+        if (error) {
+          console.error('[Duel] Error checking duel status:', error);
+          return;
+        }
+
+        if (!data || data.error) {
+          console.warn('[Duel] Duel not found or no access:', data?.error);
+          return;
+        }
+
+        console.log('[Duel] Duel status:', data.status);
+        
+        if (data.status === 'active') {
+          console.log('[Duel] ✅ DUEL IS ACTIVE! Starting countdown...');
+          setConnectionStatus('connected');
+          startCountdown();
+          isActive = false;
+        } else {
+          setConnectionStatus('connected');
+        }
+      } catch (err) {
+        console.error('[Duel] Exception checking status:', err);
+      }
+    };
+
+    // Immediate check
+    checkStatus();
+
+    // Then check every 500ms
+    const interval = setInterval(() => {
+      if (checkCount >= MAX_CHECKS || !isActive) {
+        clearInterval(interval);
+        return;
+      }
+      checkStatus();
+    }, 500);
+
+    return () => {
+      isActive = false;
+      clearInterval(interval);
+    };
+  }, [duelId, createdCode, profileId]);
+
+  // Handle timer
+  useEffect(() => {
+    if (!createdCode) return;
+
+    const timer = setInterval(() => {
+      setWaitTime(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [createdCode]);
+
+  useEffect(() => {
+    if (countdown === null) return;
+    
+    if (countdown === 0) {
+      console.log('[Duel] Countdown finished, starting battle!');
+      handleDuelStarted();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  // Handle opponent joined
+  useEffect(() => {
+    if (duelState.opponentJoined && createdCode) {
+      console.log('[Duel] Opponent joined!');
+      toast.success('Противник найден! Дуэль начинается через 3 секунды...');
+    }
+  }, [duelState.opponentJoined, createdCode]);
+
+  // Handle duel started from realtime
+  useEffect(() => {
+    if (duelState.duelStarted && countdown === null && createdCode) {
+      console.log('[Duel] ✅ Duel started signal from realtime!');
+      startCountdown();
+    }
+  }, [duelState.duelStarted, countdown, createdCode]);
 
   // Fullscreen modes - no Layout/Footer
   // But if hidden, show menu with widget overlay
@@ -395,82 +494,168 @@ export default function Duel() {
         />
       )}
       
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
       {isLoadingProfile && (
-        <Card className="max-w-2xl mx-auto p-12 text-center space-y-6">
-          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
-            <Swords className="w-10 h-10 text-primary" />
+        <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+            <Swords className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Загрузка профиля...</h2>
-            <p className="text-muted-foreground">Пожалуйста, подождите</p>
+            <h2 className="text-xl sm:text-2xl font-bold">Загрузка профиля...</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Пожалуйста, подождите</p>
           </div>
         </Card>
       )}
 
       {!isLoadingProfile && !isAuthenticated && !isTelegramUser && (
-        <Card className="max-w-2xl mx-auto p-12 text-center space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-            <LogIn className="w-10 h-10 text-primary" />
+        <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+            <LogIn className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               Войдите, чтобы играть
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base sm:text-lg">
               Для участия в дуэлях необходимо авторизоваться
             </p>
           </div>
-          <Button size="lg" onClick={() => setShowAuthModal(true)} className="px-8">
-            <LogIn className="mr-2 h-5 w-5" />
+          <Button size="lg" onClick={() => setShowAuthModal(true)} className="px-6 sm:px-8">
+            <LogIn className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             Войти
           </Button>
         </Card>
       )}
 
       {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
-        <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
-          {/* Hero Section */}
+        <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in">
+          {/* Hero Section - Premium Design */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center space-y-4 pb-8"
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center space-y-4 sm:space-y-6 pb-6 sm:pb-10 relative"
           >
+            {/* Animated background glow */}
+            <div className="absolute inset-0 -z-10 flex items-center justify-center">
+              <div className="w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 via-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse" />
+            </div>
+            
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-              className="w-24 h-24 mx-auto bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-primary/30"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 260, 
+                damping: 20, 
+                delay: 0.2 
+              }}
+              className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
             >
-              <Swords className="h-12 w-12 text-white" />
+              {/* Glowing ring */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-3xl blur-xl opacity-60 animate-pulse" />
+              {/* Main icon container */}
+              <div className="relative w-full h-full bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-primary/40 transform hover:scale-105 transition-transform duration-300">
+                <Swords className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 text-white drop-shadow-lg" />
+              </div>
+              {/* Shine effect */}
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/20 via-transparent to-transparent pointer-events-none" />
             </motion.div>
-            <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-primary via-blue-600 to-cyan-600 bg-clip-text text-transparent">
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-primary via-blue-600 via-cyan-500 to-primary bg-clip-text text-transparent px-2 bg-[length:200%_auto] animate-gradient"
+            >
               Дуэль знаний
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground/90 max-w-2xl mx-auto px-4 font-medium leading-relaxed"
+            >
               Сразись с друзьями в битве за знания ПДД. Победи скорость и точность!
-            </p>
+            </motion.p>
           </motion.div>
 
-          {/* Unified Action Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <Card className="p-0 border-2 border-border/50 shadow-xl rounded-3xl overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
-              <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50">
-                {/* Create Duel Section */}
-                <div className="p-8 md:p-10 bg-gradient-to-br from-emerald-50/50 via-teal-50/30 to-cyan-50/50 dark:from-emerald-950/10 dark:via-teal-950/5 dark:to-cyan-950/10">
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                        <Swords className="h-7 w-7 text-white" />
+          {/* Countdown Overlay */}
+          <AnimatePresence>
+            {countdown !== null && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center"
+              >
+                <div className="text-center space-y-8">
+                  {countdown > 0 ? (
+                    <>
+                      <motion.div 
+                        key={countdown}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="text-9xl font-black bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent"
+                      >
+                        {countdown}
+                      </motion.div>
+                      <div className="text-2xl text-muted-foreground">Приготовьтесь...</div>
+                    </>
+                  ) : (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="space-y-4"
+                    >
+                      <div className="text-8xl animate-bounce">⚔️</div>
+                      <div className="text-6xl font-black bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                        START!
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-black text-foreground">Создать дуэль</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Unified Action Card - Premium Design */}
+            <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+            <Card className="p-0 border border-border/40 shadow-2xl rounded-3xl sm:rounded-[2rem] overflow-hidden bg-gradient-to-br from-background via-background/95 to-background/90 backdrop-blur-xl relative group">
+              {/* Premium border glow */}
+              <div className="absolute inset-0 rounded-3xl sm:rounded-[2rem] bg-gradient-to-r from-primary/10 via-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+              
+              <div className={`grid ${createdCode ? 'md:grid-cols-1' : 'md:grid-cols-2'} divide-y md:divide-y-0 ${createdCode ? '' : 'md:divide-x'} divide-border/30`}>
+                {/* Create Duel Section - Premium */}
+                <div className="relative p-6 sm:p-8 md:p-10 lg:p-12 bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/80 dark:from-emerald-950/20 dark:via-teal-950/15 dark:to-cyan-950/20 overflow-hidden">
+                  {/* Animated background pattern */}
+                  <div className="absolute inset-0 opacity-5 dark:opacity-10">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(16,185,129)_1px,transparent_0)] [background-size:24px_24px]" />
+                  </div>
+                  
+                  {/* Gradient overlay */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-400/20 to-teal-500/20 rounded-full blur-3xl -z-10" />
+                  
+                  <div className="relative space-y-5 sm:space-y-6">
+                    <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+                      <motion.div 
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 flex items-center justify-center shadow-xl shadow-emerald-500/40 flex-shrink-0 ring-4 ring-emerald-500/20"
+                      >
+                        {/* Shine effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
+                        <Swords className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
+                      </motion.div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                          Создать дуэль
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
                           Создайте дуэль и пригласите друга на битву знаний
                         </p>
                       </div>
@@ -478,254 +663,545 @@ export default function Duel() {
 
                     {!createdCode ? (
                       <>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
-                            <button
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3">
+                          {/* Premium number selector */}
+                          <motion.div 
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white/80 dark:bg-emerald-950/40 backdrop-blur-sm border-2 border-emerald-200/50 dark:border-emerald-800/50 shadow-lg shadow-emerald-500/10 sm:w-auto ring-1 ring-emerald-500/20"
+                          >
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
                               onClick={() => setNumQuestions(Math.max(5, numQuestions - 5))}
                               disabled={isCreating || numQuestions <= 5}
-                              className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                              className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation disabled:hover:scale-100"
                             >
-                              <Minus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                            </button>
-                            <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300 min-w-[2rem] text-center">
+                              <Minus className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+                            </motion.button>
+                            <span className="text-lg sm:text-xl font-black text-emerald-700 dark:text-emerald-300 min-w-[3rem] text-center px-2">
                               {numQuestions}
                             </span>
-                            <button
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
                               onClick={() => setNumQuestions(Math.min(30, numQuestions + 5))}
                               disabled={isCreating || numQuestions >= 30}
-                              className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                              className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation disabled:hover:scale-100"
                             >
-                              <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                            </button>
-                          </div>
-                          <Button
-                            size="lg"
-                            onClick={() => handleActionClick(() => handleInlineCreate())}
-                            disabled={isCreating}
-                            className="flex-1 h-10 text-base font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-200 disabled:opacity-50"
+                              <Plus className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+                            </motion.button>
+                          </motion.div>
+                          
+                          <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="flex-1"
                           >
-                            {isCreating ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Создание...
-                              </>
-                            ) : (
-                              <>
-                                <Swords className="mr-2 h-4 w-4" />
-                                Создать дуэль
-                              </>
-                            )}
-                          </Button>
+                            <Button
+                              size="lg"
+                              onClick={() => handleActionClick(() => handleInlineCreate())}
+                              disabled={isCreating}
+                              className="w-full h-12 sm:h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-700 text-white shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
+                            >
+                              {/* Shine effect on hover */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                              
+                              {isCreating ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin relative z-10" />
+                                  <span className="hidden sm:inline relative z-10">Создание...</span>
+                                  <span className="sm:hidden relative z-10">Создание</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Swords className="mr-2 h-4 w-4 relative z-10" />
+                                  <span className="hidden sm:inline relative z-10">Создать дуэль</span>
+                                  <span className="sm:hidden relative z-10">Создать</span>
+                                </>
+                              )}
+                            </Button>
+                          </motion.div>
                         </div>
                       </>
                     ) : (
                       <>
-                        {/* Created State */}
-                        <div className="space-y-4">
-                          <div className="text-center space-y-3">
-                            <p className="text-sm font-semibold text-muted-foreground">Код дуэли</p>
-                            <button
-                              onClick={handleCopyCode}
-                              className="group relative inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500/50 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95"
+                        {/* Lobby State - Integrated */}
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.5, type: "spring" }}
+                          className="space-y-5 sm:space-y-6"
+                        >
+                          {/* Back Button */}
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center justify-start"
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setCreatedCode(null);
+                                setDuelId(null);
+                                setDuelCode(null);
+                                setWaitTime(0);
+                                setConnectionStatus('checking');
+                                setCountdown(null);
+                              }}
+                              className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
                             >
-                              <span className="font-mono text-4xl font-black tracking-wider text-emerald-600 dark:text-emerald-400 select-all">
-                                {createdCode}
-                              </span>
-                              <div className="flex-shrink-0">
-                                {copied ? (
-                                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                                    <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                  </div>
-                                ) : (
-                                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 flex items-center justify-center transition-colors">
-                                    <Copy className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                  </div>
-                                )}
-                              </div>
-                              {copied && (
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-emerald-600 text-white text-xs font-medium rounded-md whitespace-nowrap">
-                                  Скопировано!
-                                </div>
-                              )}
-                            </button>
-                            <p className="text-xs text-muted-foreground">
-                              {copied ? 'Код скопирован в буфер обмена' : 'Нажмите на код, чтобы скопировать'}
-                            </p>
-                          </div>
+                              <ArrowLeft className="h-4 w-4 mr-2" />
+                              <span className="text-sm font-medium">Назад</span>
+                            </Button>
+                          </motion.div>
 
-                          <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
-                            <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-sm font-semibold text-foreground mb-1">Ожидание соперника</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                  Поделитесь кодом с другом. Дуэль начнется автоматически, когда он присоединится.
-                                </p>
-                              </div>
+                          {/* Connection status */}
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex items-center justify-center gap-2 text-sm"
+                          >
+                            <motion.div
+                              className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                              animate={connectionStatus === 'connected' ? {} : { scale: [1, 1.2, 1] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                            />
+                            <span className="text-muted-foreground font-medium text-xs sm:text-sm">
+                              {connectionStatus === 'connected' ? 'Подключено к серверу' : 'Подключение...'}
+                            </span>
+                          </motion.div>
+
+                          {/* Header */}
+                          <div className="text-center space-y-4 sm:space-y-5">
+                            <motion.div
+                              animate={{ rotate: [0, 5, -5, 0] }}
+                              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                              className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 rounded-3xl flex items-center justify-center shadow-xl shadow-emerald-500/50 ring-4 ring-emerald-500/20 relative"
+                            >
+                              {/* Pulse effect */}
+                              <div className="absolute inset-0 rounded-3xl bg-emerald-500/30 animate-ping" />
+                              <Users className="h-10 w-10 sm:h-12 sm:w-12 text-white relative z-10" />
+                            </motion.div>
+                            <div className="space-y-2">
+                              <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                                Ожидание соперника
+                              </h3>
+                              <p className="text-base sm:text-lg text-muted-foreground/80 font-medium">Поделитесь кодом с другом</p>
                             </div>
                           </div>
 
-                          <Button
-                            size="lg"
-                            onClick={handleGoToLobbyFromInline}
-                            className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                          {/* Code Display - Enhanced Premium */}
+                          <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.2, type: "spring" }}
+                            className="relative"
                           >
-                            Перейти в лобби
-                          </Button>
-                        </div>
+                            {/* Enhanced glow effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/40 via-teal-500/40 to-cyan-500/40 blur-3xl opacity-70 rounded-3xl animate-pulse" />
+                            <motion.div
+                              animate={{
+                                boxShadow: [
+                                  '0 0 30px rgba(16, 185, 129, 0.4)',
+                                  '0 0 60px rgba(20, 184, 166, 0.5)',
+                                  '0 0 30px rgba(16, 185, 129, 0.4)',
+                                ],
+                              }}
+                              transition={{ duration: 3, repeat: Infinity }}
+                              className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-emerald-500/50 ring-4 ring-emerald-500/10"
+                            >
+                              <motion.div
+                                key={createdCode}
+                                initial={{ scale: 1.2, opacity: 0, rotateY: 180 }}
+                                animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                                transition={{ duration: 0.6, type: "spring" }}
+                                className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent text-center drop-shadow-lg"
+                              >
+                                {createdCode}
+                              </motion.div>
+                              <div className="flex items-center justify-center gap-3 text-sm sm:text-base text-muted-foreground font-bold uppercase tracking-widest">
+                                <motion.div
+                                  animate={{ rotate: [0, 360] }}
+                                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                >
+                                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
+                                </motion.div>
+                                Код дуэли
+                                <motion.div
+                                  animate={{ rotate: [360, 0] }}
+                                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                >
+                                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
+                                </motion.div>
+                              </div>
+                            </motion.div>
+                          </motion.div>
+
+                          {/* Action Buttons - Premium */}
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center px-2">
+                            <motion.div
+                              whileHover={{ scale: 1.02, y: -2 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="flex-1 max-w-xs mx-auto sm:mx-0"
+                            >
+                              <Button
+                                onClick={handleCopyCode}
+                                variant="outline"
+                                size="lg"
+                                className="w-full h-12 sm:h-14 text-sm sm:text-base font-black border-2 border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all shadow-lg hover:shadow-xl"
+                              >
+                                <Copy className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />
+                                Копировать код
+                              </Button>
+                            </motion.div>
+                            {isTelegramUser && (
+                              <motion.div
+                                whileHover={{ scale: 1.02, y: -2 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="flex-1 max-w-xs mx-auto sm:mx-0"
+                              >
+                                <Button
+                                  onClick={handleShare}
+                                  size="lg"
+                                  className="w-full h-12 sm:h-14 text-sm sm:text-base font-black bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-700 text-white shadow-xl hover:shadow-2xl transition-all relative overflow-hidden group"
+                                >
+                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                  <Share2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 relative z-10" />
+                                  <span className="relative z-10">Поделиться</span>
+                                </Button>
+                              </motion.div>
+                            )}
+                          </div>
+
+                          {/* Stats - Premium */}
+                          <div className="flex items-center justify-center gap-4 sm:gap-6 text-base pt-4">
+                            <motion.div
+                              initial={{ scale: 0, rotate: -180 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                              className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 dark:from-emerald-500/15 dark:to-teal-500/15 px-5 sm:px-7 py-3 sm:py-4 rounded-2xl border-2 border-emerald-500/40 shadow-lg backdrop-blur-sm"
+                            >
+                              <div className="p-2 rounded-xl bg-emerald-500/20">
+                                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
+                              </div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="font-black text-xl sm:text-2xl text-emerald-700 dark:text-emerald-300">{duelState.opponentJoined ? '2' : '1'}</span>
+                                <span className="text-muted-foreground/60 text-lg">/</span>
+                                <span className="font-black text-xl sm:text-2xl text-emerald-700 dark:text-emerald-300">2</span>
+                              </div>
+                              <span className="text-muted-foreground text-xs sm:text-sm font-medium">игроков</span>
+                            </motion.div>
+                            <motion.div
+                              initial={{ scale: 0, rotate: 180 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                              className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500/25 to-cyan-500/25 dark:from-blue-500/15 dark:to-cyan-500/15 px-5 sm:px-7 py-3 sm:py-4 rounded-2xl border-2 border-blue-500/40 shadow-lg backdrop-blur-sm"
+                            >
+                              <div className="p-2 rounded-xl bg-blue-500/20">
+                                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <span className="font-mono font-black text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
+                                {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
+                              </span>
+                            </motion.div>
+                          </div>
+
+                          {/* Opponent Joined Animation - Premium */}
+                          <AnimatePresence>
+                            {duelState.opponentJoined && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                className="relative bg-gradient-to-r from-green-500/30 via-emerald-500/30 to-green-500/30 dark:from-green-500/20 dark:via-emerald-500/20 dark:to-green-500/20 border-2 border-green-500/60 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-green-500/30 overflow-hidden"
+                              >
+                                {/* Animated background */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-green-400/20 animate-pulse" />
+                                
+                                <motion.div
+                                  animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                                  transition={{ duration: 2, repeat: Infinity }}
+                                  className="flex items-center justify-center gap-4 mb-4 relative z-10"
+                                >
+                                  <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                  >
+                                    <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-green-500" />
+                                  </motion.div>
+                                  <p className="text-green-700 dark:text-green-300 font-black text-2xl sm:text-3xl">
+                                    Соперник найден!
+                                  </p>
+                                  <motion.div
+                                    animate={{ rotate: -360 }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                  >
+                                    <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-green-500" />
+                                  </motion.div>
+                                </motion.div>
+                                <motion.p
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: 0.3 }}
+                                  className="text-foreground/90 font-bold text-base sm:text-lg text-center relative z-10"
+                                >
+                                  Приготовьтесь к битве! Битва начнется через 3 секунды... ⚔️
+                                </motion.p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          {/* Loading Animation when waiting - Premium */}
+                          {!duelState.opponentJoined && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="flex flex-col items-center justify-center gap-3 py-4"
+                            >
+                              <motion.div
+                                animate={{ 
+                                  rotate: 360,
+                                  scale: [1, 1.2, 1]
+                                }}
+                                transition={{ 
+                                  rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                                  scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+                                }}
+                                className="p-3 rounded-full bg-emerald-500/10"
+                              >
+                                <Zap className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-500" />
+                              </motion.div>
+                              <div className="flex items-center gap-2">
+                                <motion.span
+                                  animate={{ opacity: [0.5, 1, 0.5] }}
+                                  transition={{ duration: 1.5, repeat: Infinity }}
+                                  className="text-sm sm:text-base font-semibold text-muted-foreground"
+                                >
+                                  Ожидание соперника
+                                </motion.span>
+                                <motion.span
+                                  animate={{ opacity: [1, 0.3, 1] }}
+                                  transition={{ duration: 1, repeat: Infinity, delay: 0.3 }}
+                                >
+                                  ...
+                                </motion.span>
+                              </div>
+                            </motion.div>
+                          )}
+                        </motion.div>
                       </>
                     )}
                   </div>
                 </div>
 
-                {/* Join Duel Section */}
-                <div className="p-8 md:p-10 bg-gradient-to-br from-amber-50/50 via-orange-50/30 to-yellow-50/50 dark:from-amber-950/10 dark:via-orange-950/5 dark:to-yellow-950/10">
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
-                        <LogIn className="h-7 w-7 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-black text-foreground">Присоединиться</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
+                {/* Join Duel Section - Premium (Hidden when duel is created) */}
+                {!createdCode && (
+                <div className="relative p-6 sm:p-8 md:p-10 lg:p-12 bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-yellow-50/80 dark:from-amber-950/20 dark:via-orange-950/15 dark:to-yellow-950/20 overflow-hidden">
+                  {/* Animated background pattern */}
+                  <div className="absolute inset-0 opacity-5 dark:opacity-10">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(251,191,36)_1px,transparent_0)] [background-size:24px_24px]" />
+                  </div>
+                  
+                  {/* Gradient overlay */}
+                  <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-full blur-3xl -z-10" />
+                  
+                  <div className="relative space-y-5 sm:space-y-6">
+                    <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+                      <motion.div 
+                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/40 flex-shrink-0 ring-4 ring-amber-500/20"
+                      >
+                        {/* Shine effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
+                        <LogIn className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
+                      </motion.div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-amber-700 to-orange-700 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
+                          Присоединиться
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
                           Введите код дуэли от друга и начните битву
                         </p>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="join-code" className="text-sm font-semibold text-foreground">
+                    <div className="space-y-4 sm:space-y-5">
+                      <div className="space-y-3">
+                        <Label htmlFor="join-code" className="text-sm sm:text-base font-bold text-foreground/90">
                           Код дуэли
                         </Label>
                         <div className="relative">
-                          <Input
-                            id="join-code"
-                            placeholder="AB12 или ABC123"
-                            value={joinCode}
-                            onChange={(e) => {
-                              const newCode = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
-                              setJoinCode(newCode);
-                              hasAutoJoinedRef.current = false;
-                            }}
-                            maxLength={6}
-                            disabled={isJoining || (!isAuthenticated && !isTelegramUser)}
-                            className="text-center text-2xl tracking-[0.2em] font-bold h-14 bg-background border-2 focus:border-amber-500 rounded-xl disabled:opacity-50"
-                            autoFocus={false}
-                          />
-                          {isJoining && (
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                              <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex justify-center gap-1.5 pt-1">
-                          {Array.from({ length: 6 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                                i < joinCode.length
-                                  ? 'bg-amber-500 w-6'
-                                  : 'bg-muted'
-                              }`}
+                          {/* Premium input container */}
+                          <div className="relative group">
+                            <Input
+                              id="join-code"
+                              placeholder="AB12"
+                              value={joinCode}
+                              onChange={(e) => {
+                                const newCode = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+                                setJoinCode(newCode);
+                                hasAutoJoinedRef.current = false;
+                              }}
+                              maxLength={4}
+                              disabled={isJoining || (!isAuthenticated && !isTelegramUser)}
+                              className="text-center text-2xl sm:text-3xl md:text-4xl tracking-[0.25em] sm:tracking-[0.3em] font-black h-14 sm:h-16 bg-white/90 dark:bg-amber-950/30 backdrop-blur-sm border-2 border-amber-300/50 dark:border-amber-700/50 focus:border-amber-500 dark:focus:border-amber-400 focus:ring-4 focus:ring-amber-500/20 rounded-2xl disabled:opacity-50 touch-manipulation shadow-xl shadow-amber-500/10 transition-all duration-300 placeholder:text-amber-300/50 dark:placeholder:text-amber-700/50"
+                              autoFocus={false}
                             />
-                          ))}
+                            {/* Glow effect on focus */}
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-xl" />
+                            
+                            {isJoining && (
+                              <motion.div 
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2"
+                              >
+                                <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-amber-600 dark:text-amber-400" />
+                              </motion.div>
+                            )}
+                          </div>
+                          
+                          {/* Premium indicators */}
+                          <div className="flex justify-center gap-2 sm:gap-2.5 pt-3">
+                            {Array.from({ length: 4 }).map((_, i) => (
+                              <motion.div
+                                key={i}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: i * 0.1, type: "spring" }}
+                                className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
+                                  i < joinCode.length
+                                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 w-8 sm:w-10 shadow-lg shadow-amber-500/50'
+                                    : 'bg-amber-200/50 dark:bg-amber-900/30 w-2 sm:w-2.5'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          
+                          <motion.p 
+                            animate={{ opacity: joinCode.length === 4 ? 1 : 0.6 }}
+                            className="text-xs sm:text-sm text-center text-muted-foreground/80 pt-2 px-2 font-medium"
+                          >
+                            {joinCode.length < 4 ? 'Введите 4 символа' : joinCode.length === 4 ? '✨ Автоприсоединение...' : ''}
+                          </motion.p>
                         </div>
-                        <p className="text-xs text-center text-muted-foreground pt-1">
-                          {joinCode.length < 4 ? 'Введите 4-6 символов' : joinCode.length === 4 ? 'Автоприсоединение...' : 'Введите полный код'}
-                        </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                        <div className="flex items-start gap-2.5">
-                          <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            Попросите друга поделиться кодом из экрана ожидания дуэли
-                          </p>
-                        </div>
-                      </div>
-
-                      <Button
-                        size="lg"
-                        onClick={() => {
-                          if (joinCode.length >= 4 && joinCode.length <= 6) {
-                            handleInlineJoin(joinCode);
-                          }
-                        }}
-                        disabled={(joinCode.length < 4 || joinCode.length > 6) || isJoining || (!isAuthenticated && !isTelegramUser)}
-                        className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border border-amber-300/50 dark:border-amber-800/50 backdrop-blur-sm shadow-lg"
                       >
-                        {isJoining ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Присоединение...
-                          </>
-                        ) : (
-                          <>
-                            <LogIn className="mr-2 h-5 w-5" />
-                            Присоединиться
-                          </>
-                        )}
-                      </Button>
+                        <div className="flex items-start gap-3 sm:gap-4">
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30 ring-2 ring-amber-500/20">
+                            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm text-muted-foreground/90 leading-relaxed font-medium">
+                              Попросите друга поделиться кодом из экрана ожидания дуэли
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <Button
+                          size="lg"
+                          onClick={() => {
+                            if (joinCode.length === 4) {
+                              handleInlineJoin(joinCode);
+                            }
+                          }}
+                          disabled={joinCode.length !== 4 || isJoining || (!isAuthenticated && !isTelegramUser)}
+                          className="w-full h-12 sm:h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:via-amber-700 hover:to-orange-700 text-white shadow-2xl shadow-amber-500/40 hover:shadow-amber-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation relative overflow-hidden group"
+                        >
+                          {/* Shine effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                          
+                          {isJoining ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin relative z-10" />
+                              <span className="hidden sm:inline relative z-10">Присоединение...</span>
+                              <span className="sm:hidden relative z-10">Присоединение</span>
+                            </>
+                          ) : (
+                            <>
+                              <LogIn className="mr-2 h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                              <span className="relative z-10">Присоединиться</span>
+                            </>
+                          )}
+                        </Button>
+                      </motion.div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          </motion.div>
+                )}
+                </div>
+              </Card>
+            </motion.div>
 
-          {/* How to Play Section */}
+          {/* How to Play Section - Premium */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Card className="p-8 bg-gradient-to-br from-card via-card to-primary/5 border-2 border-primary/20 rounded-2xl">
-              <h3 className="text-2xl font-black mb-6 flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-white" />
+            <Card className="p-6 sm:p-8 md:p-10 bg-gradient-to-br from-card/95 via-card/90 to-primary/10 border border-primary/30 rounded-2xl sm:rounded-3xl shadow-2xl backdrop-blur-xl relative overflow-hidden group">
+              {/* Animated background glow */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/10 via-blue-500/10 to-cyan-500/10 rounded-full blur-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 -z-10" />
+              
+              <h3 className="text-2xl sm:text-3xl font-black mb-6 sm:mb-8 flex items-center gap-3 sm:gap-4">
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl shadow-primary/40 ring-4 ring-primary/20">
+                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
+                  <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-white relative z-10" />
                 </div>
-              Как играть
-            </h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="flex items-start gap-4 p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 hover:border-emerald-500/20 transition-colors">
-                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                    <Swords className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-lg mb-1">Создайте или присоединитесь</div>
-                    <div className="text-sm text-muted-foreground">Пригласите друга или введите код дуэли</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-5 rounded-xl bg-blue-500/5 border border-blue-500/10 hover:border-blue-500/20 transition-colors">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                    <Zap className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-lg mb-1">Отвечайте быстрее</div>
-                    <div className="text-sm text-muted-foreground">Бонус за скорость до +40%</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-5 rounded-xl bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/20 transition-colors">
-                  <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                    <Target className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-lg mb-1">Собирайте комбо</div>
-                    <div className="text-sm text-muted-foreground">До +20% за серию правильных ответов</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4 p-5 rounded-xl bg-yellow-500/5 border border-yellow-500/10 hover:border-yellow-500/20 transition-colors">
-                  <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                    <Trophy className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-lg mb-1">Побеждайте!</div>
-                    <div className="text-sm text-muted-foreground">Получайте награды и поднимайтесь в рейтинге</div>
-                  </div>
-                </div>
+                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                  Как играть
+                </span>
+              </h3>
+              
+              <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
+                {[
+                  { icon: Swords, title: 'Создайте или присоединитесь', desc: 'Пригласите друга или введите код дуэли', gradient: 'from-emerald-500 to-teal-600', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+                  { icon: Zap, title: 'Отвечайте быстрее', desc: 'Бонус за скорость до +40%', gradient: 'from-blue-500 to-cyan-600', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+                  { icon: Target, title: 'Собирайте комбо', desc: 'До +20% за серию правильных ответов', gradient: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+                  { icon: Trophy, title: 'Побеждайте!', desc: 'Получайте награды и поднимайтесь в рейтинге', gradient: 'from-yellow-500 to-orange-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+                ].map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 + index * 0.1 }}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className={`flex items-start gap-4 sm:gap-5 p-5 sm:p-6 rounded-2xl ${item.bg} border-2 ${item.border} hover:border-opacity-40 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-xl group/item relative overflow-hidden`}
+                    >
+                      {/* Hover glow effect */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover/item:opacity-10 transition-opacity duration-300 -z-10`} />
+                      
+                      <div className={`relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${item.gradient} rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl ring-4 ring-opacity-20 group-hover/item:scale-110 transition-transform duration-300`}>
+                        <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
+                        <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white relative z-10" />
+                      </div>
+                      <div className="min-w-0 flex-1 pt-1">
+                        <div className="font-black text-base sm:text-lg mb-1.5 text-foreground">{item.title}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground/80 leading-relaxed">{item.desc}</div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </Card>
           </motion.div>

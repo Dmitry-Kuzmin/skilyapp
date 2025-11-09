@@ -6,6 +6,7 @@ DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 
 -- Создаем новую политику, которая разрешает чтение всех профилей
 -- Это безопасно, так как мы показываем только first_name и username
+DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
 CREATE POLICY "Profiles are viewable by everyone"
   ON public.profiles
   FOR SELECT

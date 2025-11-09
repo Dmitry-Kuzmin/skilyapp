@@ -244,9 +244,49 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   const loadScores = async () => {
     try {
+      // Используем Edge Function для получения игроков (обходит RLS проблемы)
+      try {
+        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'get_players',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+
+        if (!edgeError && edgeData?.players) {
+          const players = edgeData.players;
+          const myPlayer = players.find((p: any) => p.user_id === profileId);
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          
+          // Сохраняем ID моего игрока для фильтрации realtime событий
+          if (myPlayer?.id) {
+            setMyPlayerId(myPlayer.id);
+          }
+          
+          // Используем имена из Edge Function (уже обработаны)
+          if (myPlayer?.name) {
+            setMyName(myPlayer.name);
+          }
+          if (opponent?.name) {
+            console.log('[DuelBattle] Setting opponent name from Edge Function:', opponent.name);
+            setOpponentName(opponent.name);
+          }
+          
+          setMyScore(myPlayer?.score || 0);
+          setOpponentScore(opponent?.score || 0);
+          return;
+        } else {
+          console.error('[DuelBattle] Error loading players via Edge Function:', edgeError);
+        }
+      } catch (edgeError) {
+        console.error('[DuelBattle] Exception loading players via Edge Function:', edgeError);
+      }
+      
+      // Fallback к прямому запросу
       const { data } = await supabase
         .from('duel_players')
-        .select('*, profiles(first_name, username)')
+        .select('*, profiles(first_name, username, telegram_username)')
         .eq('duel_id', duelId);
 
       if (data && data.length > 0) {
@@ -258,11 +298,22 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           setMyPlayerId(myPlayer.id);
         }
         
-        // Load player names
+        // Load player names - проверяем все возможные поля
         const myProfile = myPlayer?.profiles as any;
         const opponentProfile = opponent?.profiles as any;
-        setMyName(myProfile?.first_name || myProfile?.username || 'Ты');
-        setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
+        
+        const myNameValue = myProfile?.first_name || myProfile?.username || myProfile?.telegram_username || 'Ты';
+        const opponentNameValue = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
+        
+        console.log('[DuelBattle] Loading names:', {
+          myProfile: myProfile ? { first_name: myProfile.first_name, username: myProfile.username, telegram_username: myProfile.telegram_username } : null,
+          opponentProfile: opponentProfile ? { first_name: opponentProfile.first_name, username: opponentProfile.username, telegram_username: opponentProfile.telegram_username } : null,
+          myName: myNameValue,
+          opponentName: opponentNameValue
+        });
+        
+        setMyName(myNameValue);
+        setOpponentName(opponentNameValue);
         
         setMyScore(myPlayer?.score || 0);
         // Initial opponent score - realtime will update it

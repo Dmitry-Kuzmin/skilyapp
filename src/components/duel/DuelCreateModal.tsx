@@ -60,10 +60,10 @@ export function DuelCreateModal({ open, onClose, onDuelCreated }: DuelCreateModa
         toast.success('Дуэль создана! Код скопирован в буфер обмена 🎮');
         setTimeout(() => setCopied(false), 3000);
       } catch (error) {
-        toast.success('Дуэль создана! 🎮');
+      toast.success('Дуэль создана! 🎮');
       }
       
-      setIsCreating(false);
+        setIsCreating(false);
     } catch (error: any) {
       const extractedError = extractErrorFromResponse(error);
       const humanError = getHumanReadableError(extractedError, 'create');
@@ -268,7 +268,7 @@ export function DuelCreateModal({ open, onClose, onDuelCreated }: DuelCreateModa
                   ) : (
                     <>
                       <Swords className="mr-2 h-5 w-5" />
-                      Создать дуэль
+                  Создать дуэль
                     </>
                   )}
                 </Button>
@@ -380,7 +380,7 @@ export function DuelCreateModal({ open, onClose, onDuelCreated }: DuelCreateModa
                   onClick={handleGoToLobby}
                   size="lg"
                   className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                >
+              >
                   Перейти в лобби
                 </Button>
               </div>

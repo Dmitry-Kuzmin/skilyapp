@@ -82,6 +82,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setShowCountdown(true);
       setCountdown(3);
       
+      // Перезагружаем счет после старта дуэли
+      setTimeout(() => loadScores(), 500);
+      
       const interval = setInterval(() => {
         setCountdown(prev => {
           if (prev === null || prev <= 0) {
@@ -112,56 +115,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const isCorrect = state.opponentAnswerData.is_correct;
       const points = state.opponentAnswerData.points_awarded || 0;
       
-      // Force refresh opponent score immediately when they answer
-      const refreshOpponentScore = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('duel_players')
-            .select('id, user_id, score')
-            .eq('duel_id', duelId);
-          
-          if (error) {
-            console.error('[DuelBattleFullscreen] Error refreshing opponent score:', error);
-            return;
-          }
-          
-          if (data && data.length >= 2) {
-            const opponent = data.find(p => p.user_id !== profileId);
-            if (opponent && typeof opponent.score === 'number') {
-              console.log('[DuelBattleFullscreen] 🔄 Force updating opponent score after answer:', opponent.score, '(was:', opponentScore, ')');
-              setOpponentScore(opponent.score);
-              // Also update realtime state if available
-              if (state.opponentScore !== opponent.score) {
-                console.log('[DuelBattleFullscreen] ⚠️ Realtime state mismatch, updating from DB');
-              }
-            } else {
-              console.warn('[DuelBattleFullscreen] ⚠️ Opponent not found when refreshing score');
-            }
-          }
-        } catch (error) {
-          console.error('[DuelBattleFullscreen] Exception refreshing opponent score:', error);
-        }
-      };
-      
-      // Refresh score immediately
-      refreshOpponentScore();
-      
-      // Show notification
-      if (isCorrect) {
-        toast.info(`✅ Соперник ответил правильно! +${points} очков`, {
-          duration: 3000,
-          icon: '⚡'
-        });
-      } else {
-        toast.info('❌ Соперник ошибся! Ваш шанс догнать!', {
-          duration: 2000,
-          icon: '🎯'
-        });
+      // Обновляем счет сразу после ответа соперника
+      // Realtime должен обновить счет автоматически, но на всякий случай обновляем напрямую
+      if (state.opponentScore !== opponentScore) {
+        setOpponentScore(state.opponentScore);
       }
       
-      sounds.notificationPop();
+      // NOTE: Уведомления показываются через useNotifications hook
+      // Не нужно дублировать toast-уведомления здесь, чтобы избежать дублирования
+      // Звук также играется в useNotifications
     }
-  }, [state.opponentAnswered, state.opponentAnswerData, duelId, profileId, opponentScore, state.opponentScore]);
+  }, [state.opponentAnswered, state.opponentAnswerData, state.opponentScore, opponentScore, opponentName]);
 
   // Handle duel completion - CRITICAL: Verify opponent actually finished before transitioning
   useEffect(() => {
@@ -235,121 +199,148 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       };
 
       verifyAndTransition();
-    } else if (state.duelFinished && !isWaitingForOpponent && hasFinishedMyQuestions) {
-      // Both players finished - go to results immediately
-      // This handles the case when second player finishes and duel status changes to finished
-      console.log('[DuelBattleFullscreen] ✅ Both players finished (I finished, opponent finished), transitioning to results');
-      sounds.victory();
-      toast.success('🏁 Дуэль завершена!', { duration: 2000 });
-      setTimeout(() => {
-        onDuelFinished();
-      }, 1000);
-    } else if (state.duelFinished && !isWaitingForOpponent && !hasFinishedMyQuestions) {
-      // Duel finished but we haven't finished our questions - this shouldn't happen
-      console.log('[DuelBattleFullscreen] Duel finished but we haven\'t finished our questions yet - ignoring');
     }
-    // If state.duelFinished is true but we're not waiting, ignore the realtime event
+    
+    // CRITICAL BACKUP: If we're waiting for opponent and duel is finished, force transition
+    // This ensures transition even if DuelWaitingReplay doesn't detect it
+    if (state.duelFinished && isWaitingForOpponent && hasFinishedMyQuestions) {
+      console.log('[DuelBattleFullscreen] 🔥 BACKUP: Duel finished while waiting - forcing transition after delay');
+      // Give DuelWaitingReplay time to handle it, but force transition if it doesn't
+      const backupTimer = setTimeout(() => {
+        console.log('[DuelBattleFullscreen] 🚀 BACKUP: Forcing transition to results');
+        onDuelFinished();
+      }, 2000); // 2 second delay - if DuelWaitingReplay didn't transition, we force it
+      
+      return () => clearTimeout(backupTimer);
+    }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
-  // Sync opponent score from realtime - ALWAYS update when state changes
+  // Sync opponent score from realtime - основной способ обновления счета
   useEffect(() => {
-    if (typeof state.opponentScore === 'number' && state.opponentScore >= 0) {
-      console.log('[DuelBattleFullscreen] 🔄 Realtime opponent score state:', state.opponentScore, 'Current:', opponentScore);
-      if (state.opponentScore !== opponentScore) {
-        console.log('[DuelBattleFullscreen] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
-        setOpponentScore(state.opponentScore);
-      }
-    } else {
-      console.log('[DuelBattleFullscreen] ⚠️ Invalid opponent score in state:', state.opponentScore);
+    if (typeof state.opponentScore === 'number' && state.opponentScore >= 0 && state.opponentScore !== opponentScore) {
+      console.log('[DuelBattleFullscreen] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
+      setOpponentScore(state.opponentScore);
     }
   }, [state.opponentScore, opponentScore]);
 
-  // Sync my score from realtime - ALWAYS update when state changes
+  // Sync my score from realtime
   useEffect(() => {
-    if (typeof state.myScore === 'number') {
-      if (state.myScore !== myScore) {
-        console.log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', state.myScore, '(was:', myScore, ')');
-        setMyScore(state.myScore);
-      }
+    // Обновляем только если новое значение является валидным числом
+    if (typeof state.myScore === 'number' && state.myScore >= 0) {
+      setMyScore(prev => {
+        // Если счет меняется
+        if (prev !== state.myScore) {
+          // Если текущий счет больше 0, а новое значение 0 - это подозрительно
+          // Но обновляем, так как realtime - это источник истины
+          if (prev > 0 && state.myScore === 0) {
+            console.warn('[DuelBattleFullscreen] ⚠️ Score reset to 0 via realtime (was:', prev, ', new:', state.myScore, ')');
+          } else if (prev !== state.myScore) {
+            console.log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', state.myScore, '(was:', prev, ')');
+          }
+          return state.myScore;
+        }
+        return prev;
+      });
     }
   }, [state.myScore]);
 
-  // Periodic score refresh as fallback (every 1.5 seconds) - more aggressive
+  // Periodic score refresh as fallback (every 3 seconds) - только во время активной игры
   useEffect(() => {
     if (!duelId || !profileId || hasFinishedMyQuestions) return;
+    if (!state.duelStarted) return; // Запускаем только когда дуэль началась
     
-    console.log('[DuelBattleFullscreen] 🔄 Starting periodic score refresh for duel:', duelId);
+    console.log('[DuelBattleFullscreen] 🔄 Starting periodic score refresh');
     
     const interval = setInterval(async () => {
       try {
-        const { data, error } = await supabase
-          .from('duel_players')
-          .select('id, user_id, score, correct_count')
-          .eq('duel_id', duelId);
-        
-        if (error) {
-          console.error('[DuelBattleFullscreen] Error fetching scores:', error);
-          return;
-        }
-        
-        if (data && data.length >= 2) {
+        // Используем Edge Function для загрузки игроков
+        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'get_players',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+
+        if (edgeError) {
+          // Fallback к прямому запросу
+          const { data, error } = await supabase
+            .from('duel_players')
+            .select('id, user_id, score, correct_count')
+            .eq('duel_id', duelId);
+          
+          if (error || !data || data.length < 2) return;
+          
           const myPlayer = data.find(p => p.user_id === profileId);
           const opponent = data.find(p => p.user_id !== profileId);
           
+          if (myPlayer?.id && !myPlayerId) {
+            setMyPlayerId(myPlayer.id);
+          }
           if (myPlayer && typeof myPlayer.score === 'number') {
-            if (myPlayer.score !== myScore) {
-              console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating my score from DB:', myPlayer.score, '(was:', myScore, ')');
-              setMyScore(myPlayer.score);
-            }
+            setMyScore(myPlayer.score);
           }
+          if (opponent && typeof opponent.score === 'number') {
+            setOpponentScore(opponent.score);
+          }
+          return;
+        }
+
+        const players = edgeData?.players || [];
+        if (players.length >= 2) {
+          const myPlayer = players.find((p: any) => p.user_id === profileId);
+          const opponent = players.find((p: any) => p.user_id !== profileId);
           
-          if (opponent) {
-            const newOpponentScore = typeof opponent.score === 'number' ? opponent.score : 0;
-            if (newOpponentScore !== opponentScore) {
-              console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score from DB:', newOpponentScore, '(was:', opponentScore, ')');
-              console.log('[DuelBattleFullscreen] Opponent data:', { id: opponent.id, user_id: opponent.user_id, score: opponent.score });
-              setOpponentScore(newOpponentScore);
-            }
-          } else {
-            console.warn('[DuelBattleFullscreen] ⚠️ Opponent not found in players data. All players:', data.map(p => ({ id: p.id, user_id: p.user_id })));
+          if (myPlayer?.id && !myPlayerId) {
+            setMyPlayerId(myPlayer.id);
           }
-        } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ Not enough players found:', data?.length || 0);
+          if (myPlayer && typeof myPlayer.score === 'number') {
+            setMyScore(myPlayer.score);
+          }
+          if (opponent && typeof opponent.score === 'number') {
+            setOpponentScore(opponent.score);
+          }
+          if (myPlayer?.name) {
+            setMyName(myPlayer.name);
+          }
+          if (opponent?.name) {
+            setOpponentName(opponent.name);
+          }
         }
       } catch (error) {
-        console.error('[DuelBattleFullscreen] Error in periodic score refresh:', error);
+        // Игнорируем ошибки в периодическом обновлении
       }
-    }, 1500); // Check every 1.5 seconds - more frequent
+    }, 3000); // Проверяем каждые 3 секунды
     
     return () => {
       console.log('[DuelBattleFullscreen] 🛑 Stopping periodic score refresh');
       clearInterval(interval);
     };
-  }, [duelId, profileId, hasFinishedMyQuestions]); // Removed myScore and opponentScore from dependencies to avoid restarting
+  }, [duelId, profileId, hasFinishedMyQuestions, state.duelStarted, myPlayerId]);
 
-  // Reload opponent name if it's still "Соперник" after initial load
+  // Загружаем данные игроков при монтировании (с задержкой, чтобы игроки успели создаться)
   useEffect(() => {
-    if (!profileId || !duelId) return;
-    
-    const timer = setTimeout(() => {
-      if (opponentName === 'Соперник') {
-        console.log('[DuelBattleFullscreen] ⚠️ Opponent name is still default, reloading...');
-        loadScores();
-      } else {
-        console.log('[DuelBattleFullscreen] ✅ Opponent name is set:', opponentName);
-      }
-    }, 1000); // Wait 1 second after mount before checking
-    
-    return () => clearTimeout(timer);
-  }, [opponentName, profileId, duelId]);
-  
-  // Also reload when duelId or profileId changes
-  useEffect(() => {
+    console.log('[DuelBattleFullscreen] 🔄 useEffect: Loading scores on mount', { profileId, duelId });
     if (profileId && duelId) {
-      console.log('[DuelBattleFullscreen] DuelId or profileId changed, reloading scores...');
-      loadScores();
+      // Даем время на создание игроков в базе
+      const timer = setTimeout(() => {
+        loadScores();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [duelId, profileId]);
+
+  // Перезагружаем когда дуэль началась (игроки должны быть точно созданы)
+  useEffect(() => {
+    if (state.duelStarted && duelId && profileId) {
+      console.log('[DuelBattleFullscreen] 🔄 useEffect: Duel started, reloading scores', { myPlayerId });
+      // Увеличиваем задержку, чтобы гарантировать что игроки созданы
+      const timer = setTimeout(() => {
+        loadScores();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [state.duelStarted, duelId, profileId]);
 
   // Timer countdown
   useEffect(() => {
@@ -374,135 +365,186 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const loadQuestions = async () => {
     try {
       setLoading(true);
-      console.log('[DuelBattleFullscreen] Loading questions for duel:', duelId, 'profile:', profileId);
+      console.log('[DuelBattleFullscreen] 🔄 Loading questions for duel:', duelId, 'profile:', profileId);
       
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
       });
 
-      console.log('[DuelBattleFullscreen] Questions response:', { data, error });
+      console.log('[DuelBattleFullscreen] Questions response:', { 
+        hasData: !!data, 
+        hasError: !!error,
+        questionsCount: data?.questions?.length,
+        error: error?.message 
+      });
 
-      if (error) throw error;
-      if (data?.questions && Array.isArray(data.questions)) {
-        console.log('[DuelBattleFullscreen] Loaded questions:', data.questions.length);
+      if (error) {
+        console.error('[DuelBattleFullscreen] ❌ Error from Edge Function:', error);
+        throw error;
+      }
+      
+      if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+        console.log('[DuelBattleFullscreen] ✅ Loaded questions:', data.questions.length);
+        console.log('[DuelBattleFullscreen] First question sample:', {
+          id: data.questions[0]?.id,
+          hasSnapshot: !!data.questions[0]?.question_snapshot,
+          position: data.questions[0]?.position
+        });
         setQuestions(data.questions);
       } else {
-        console.error('[DuelBattleFullscreen] Invalid questions data:', data);
-        toast.error('Некорректные данные вопросов');
+        console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
+          hasData: !!data,
+          questionsType: typeof data?.questions,
+          questionsIsArray: Array.isArray(data?.questions),
+          questionsLength: data?.questions?.length,
+          fullData: data
+        });
+        toast.error('Некорректные данные вопросов. Попробуйте перезагрузить страницу.');
       }
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] Error loading questions:', error);
-      toast.error('Ошибка загрузки вопросов');
+    } catch (error: any) {
+      console.error('[DuelBattleFullscreen] ❌ Exception loading questions:', error);
+      console.error('[DuelBattleFullscreen] Error details:', JSON.stringify(error, null, 2));
+      toast.error(`Ошибка загрузки вопросов: ${error?.message || 'Неизвестная ошибка'}`);
     } finally {
       setLoading(false);
     }
   };
 
   const loadScores = async () => {
+    if (!duelId || !profileId) {
+      console.warn('[DuelBattleFullscreen] ⚠️ Cannot load scores: missing duelId or profileId', { duelId, profileId });
+      return;
+    }
+
+    console.log('[DuelBattleFullscreen] 🔄 Loading scores for duel:', duelId, 'profile:', profileId);
+
+    try {
+      // Используем Edge Function для загрузки игроков (обходит RLS и проблемы с транзакциями)
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'get_players',
+          duel_id: duelId,
+          profile_id: profileId
+        }
+      });
+
+      if (edgeError) {
+        console.error('[DuelBattleFullscreen] ❌ Error loading players via Edge Function:', edgeError);
+        // Fallback к прямому запросу
+        return await loadScoresDirect();
+      }
+
+      const players = edgeData?.players || [];
+      console.log('[DuelBattleFullscreen] 📊 Players data received from Edge Function:', {
+        count: players.length,
+        players: players.map((p: any) => ({ id: p.id, user_id: p.user_id, score: p.score, name: p.name }))
+      });
+
+      if (players.length >= 2) {
+        const myPlayer = players.find((p: any) => p.user_id === profileId);
+        const opponent = players.find((p: any) => p.user_id !== profileId);
+        
+        console.log('[DuelBattleFullscreen] 🔍 Found players:', {
+          myPlayer: myPlayer ? { id: myPlayer.id, score: myPlayer.score, name: myPlayer.name } : null,
+          opponent: opponent ? { id: opponent.id, score: opponent.score, name: opponent.name } : null
+        });
+        
+        // КРИТИЧНО: устанавливаем myPlayerId СРАЗУ
+        if (myPlayer?.id) {
+          console.log('[DuelBattleFullscreen] ✅ Setting myPlayerId:', myPlayer.id);
+          setMyPlayerId(myPlayer.id);
+        }
+        
+        // КРИТИЧНО: устанавливаем счета СРАЗУ
+        if (typeof myPlayer?.score === 'number') {
+          console.log('[DuelBattleFullscreen] ✅ Setting my score:', myPlayer.score);
+          setMyScore(myPlayer.score);
+        } else {
+          setMyScore(0);
+        }
+        
+        if (typeof opponent?.score === 'number') {
+          console.log('[DuelBattleFullscreen] ✅ Setting opponent score:', opponent.score);
+          setOpponentScore(opponent.score);
+        } else {
+          setOpponentScore(0);
+        }
+        
+        // Устанавливаем имена игроков
+        if (myPlayer?.name) {
+          console.log('[DuelBattleFullscreen] Setting my name:', myPlayer.name);
+          setMyName(myPlayer.name);
+        } else {
+          console.warn('[DuelBattleFullscreen] No name for my player:', myPlayer);
+        }
+        if (opponent?.name) {
+          console.log('[DuelBattleFullscreen] Setting opponent name:', opponent.name);
+          setOpponentName(opponent.name);
+        } else {
+          console.warn('[DuelBattleFullscreen] No name for opponent:', opponent);
+          // Попробуем установить имя даже если оно "Игрок" - может быть это реальное имя
+          if (opponent) {
+            setOpponentName('Соперник');
+          }
+        }
+      } else if (players.length === 1) {
+        // Только один игрок
+        const player = players[0];
+        if (player.user_id === profileId && player.id) {
+          setMyPlayerId(player.id);
+          setMyScore(typeof player.score === 'number' ? player.score : 0);
+          if (player.name) {
+            setMyName(player.name);
+          }
+        }
+      } else {
+        // Нет игроков - повторяем попытку
+        console.warn('[DuelBattleFullscreen] ⚠️ No players found! Will retry...');
+        if (state.duelStarted) {
+          setTimeout(() => {
+            console.log('[DuelBattleFullscreen] 🔄 Retrying loadScores after no players found...');
+            loadScores();
+          }, 1500);
+        }
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] ❌ Exception loading scores:', error);
+      // Fallback к прямому запросу
+      await loadScoresDirect();
+    }
+  };
+
+  // Fallback функция для прямого запроса к базе
+  const loadScoresDirect = async () => {
     try {
       const { data, error } = await supabase
         .from('duel_players')
-        .select('*, profiles(first_name, username)')
+        .select('id, user_id, score, correct_count')
         .eq('duel_id', duelId);
 
       if (error) {
-        console.error('[DuelBattleFullscreen] Error loading scores:', error);
+        console.error('[DuelBattleFullscreen] ❌ Error loading scores directly:', error);
         return;
       }
 
-      if (data && data.length > 0) {
+      if (data && data.length >= 2) {
         const myPlayer = data.find(p => p.user_id === profileId);
         const opponent = data.find(p => p.user_id !== profileId);
         
-        console.log('[DuelBattleFullscreen] Players data:', {
-          allPlayers: data.map(p => ({ user_id: p.user_id, id: p.id })),
-          myPlayer: myPlayer ? { user_id: myPlayer.user_id, id: myPlayer.id } : null,
-          opponent: opponent ? { user_id: opponent.user_id, id: opponent.id } : null,
-          profileId
-        });
-        
-        if (myPlayer?.id) setMyPlayerId(myPlayer.id);
-        
-        // Load player names - try different ways to access profile data
-        let myProfile: any = null;
-        let opponentProfile: any = null;
-        
-        // Try direct access
-        if ((myPlayer as any)?.profiles) {
-          myProfile = (myPlayer as any).profiles;
-        }
-        if ((opponent as any)?.profiles) {
-          opponentProfile = (opponent as any).profiles;
+        if (myPlayer?.id) {
+          setMyPlayerId(myPlayer.id);
+          setMyScore(myPlayer?.score || 0);
         }
         
-        // If profiles not loaded via join, fetch separately
-        // Note: This should work now with the updated RLS policy
-        if (!opponentProfile && opponent?.user_id) {
-          console.log('[DuelBattleFullscreen] ⚠️ Profile not in join, fetching separately for opponent:', opponent.user_id);
-          
-          // Try to get profile data through duel_players join first
-          const { data: playerWithProfile } = await supabase
-            .from('duel_players')
-            .select('profiles(first_name, username)')
-            .eq('id', opponent.id)
-            .eq('duel_id', duelId)
-            .single();
-          
-          if (playerWithProfile && (playerWithProfile as any).profiles) {
-            opponentProfile = (playerWithProfile as any).profiles;
-            console.log('[DuelBattleFullscreen] ✅ Got opponent profile via duel_players join:', opponentProfile);
-          } else {
-            // Fallback: direct profile query (requires RLS policy update)
-            const { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('first_name, username')
-              .eq('id', opponent.user_id)
-              .single();
-            
-            if (profileError) {
-              console.error('[DuelBattleFullscreen] ❌ Error fetching opponent profile:', profileError);
-              console.error('[DuelBattleFullscreen] Profile error details:', JSON.stringify(profileError, null, 2));
-            } else if (profileData) {
-              opponentProfile = profileData;
-              console.log('[DuelBattleFullscreen] ✅ Fetched opponent profile directly:', opponentProfile);
-            } else {
-              console.warn('[DuelBattleFullscreen] ⚠️ No profile data returned for opponent:', opponent.user_id);
-            }
-          }
+        if (opponent) {
+          setOpponentScore(opponent.score || 0);
         }
-        
-        console.log('[DuelBattleFullscreen] Loaded profiles:', {
-          myProfile,
-          opponentProfile,
-          opponentUserId: opponent?.user_id
-        });
-        
-        const myNameValue = myProfile?.first_name || myProfile?.username || 'Ты';
-        const opponentNameValue = opponentProfile?.first_name || opponentProfile?.username || 'Соперник';
-        
-        console.log('[DuelBattleFullscreen] 🔥 Setting names:', {
-          myName: myNameValue,
-          opponentName: opponentNameValue,
-          opponentProfileExists: !!opponentProfile,
-          opponentProfileData: opponentProfile
-        });
-        
-        setMyName(myNameValue);
-        setOpponentName(opponentNameValue);
-        
-        // Force a check after setting
-        setTimeout(() => {
-          console.log('[DuelBattleFullscreen] After setting, opponentName state should be:', opponentNameValue);
-        }, 100);
-        
-        // Initial scores - realtime will update them automatically
-        setMyScore(myPlayer?.score || 0);
-        setOpponentScore(opponent?.score || 0);
       }
     } catch (error) {
-      console.error('[DuelBattleFullscreen] Exception in loadScores:', error);
+      console.error('[DuelBattleFullscreen] ❌ Exception in loadScoresDirect:', error);
     }
   };
+
 
   const loadBoosts = async () => {
     try {
@@ -578,6 +620,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 3000 });
       }
 
+      // Проверяем, что вопросы загружены и текущий вопрос существует
+      if (!questions || questions.length === 0 || !questions[currentIndex]) {
+        console.error('[DuelBattleFullscreen] Cannot use boost: questions not loaded or invalid currentIndex');
+        toast.error('Вопросы не загружены');
+        return;
+      }
+
       await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'use_boost',
@@ -603,6 +652,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       sounds.forceUnlock();
     }
     if (isAnswered) return;
+    
+    // Проверяем, что вопросы загружены и текущий вопрос существует
+    if (!questions || questions.length === 0 || !questions[currentIndex]) {
+      console.error('[DuelBattleFullscreen] Cannot handle answer: questions not loaded or invalid currentIndex');
+      toast.error('Вопросы не загружены');
+      return;
+    }
 
     setSelectedAnswer(optionId);
     setIsAnswered(true);
@@ -694,6 +750,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   const handleTimeout = async () => {
     if (isAnswered) return;
+    
+    // Проверяем, что вопросы загружены и текущий вопрос существует
+    if (!questions || questions.length === 0 || !questions[currentIndex]) {
+      console.error('[DuelBattleFullscreen] Cannot handle timeout: questions not loaded or invalid currentIndex');
+      return;
+    }
+    
     setIsAnswered(true);
     sounds.wrongAnswer();
     
@@ -861,18 +924,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const totalLeftPadding = Math.round(safeArea.left / 2);
   const totalRightPadding = Math.round(safeArea.right / 2);
 
-  // Логирование для отладки
-  console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
-    platform: safeArea.platform,
-    safeAreaTop: `${safeArea.top}px`,
-    safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
-    totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
-    safeAreaLeft: `${safeArea.left}px`,
-    safeAreaRight: `${safeArea.right}px`,
-    totalLeftPadding: `${totalLeftPadding}px`,
-    totalRightPadding: `${totalRightPadding}px`,
-    willApplyPadding: totalTopPadding > 0,
-  });
+  // Логирование для отладки (отключено для уменьшения шума в консоли)
+  // Раскомментируйте для отладки safe area:
+  // console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
+  //   platform: safeArea.platform,
+  //   safeAreaTop: `${safeArea.top}px`,
+  //   safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
+  //   totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
+  //   safeAreaLeft: `${safeArea.left}px`,
+  //   safeAreaRight: `${safeArea.right}px`,
+  //   totalLeftPadding: `${totalLeftPadding}px`,
+  //   totalRightPadding: `${totalRightPadding}px`,
+  //   willApplyPadding: totalTopPadding > 0,
+  // });
 
   return (
     <div 
