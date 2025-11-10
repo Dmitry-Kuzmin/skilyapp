@@ -15,6 +15,8 @@ import { TinyMCEEditor } from "@/components/admin-editor/TinyMCEEditor";
 import { MaterialPreview } from "@/components/admin-editor/MaterialPreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { lazy, Suspense } from "react";
+import { Panel as ResizablePanel, PanelGroup as ResizablePanelGroup, PanelResizeHandle as ResizableHandle } from "react-resizable-panels";
+import { PanelLeftClose, PanelLeft, Maximize2, Minimize2 } from "lucide-react";
 import { VersionHistory } from "@/components/admin-editor/VersionHistory";
 import { CreateTopicDialog } from "@/components/admin-editor/CreateTopicDialog";
 import { CreateSubtopicDialog } from "@/components/admin-editor/CreateSubtopicDialog";
@@ -58,7 +60,9 @@ const AdminEditor = () => {
   const [selectedTopicIdForSubtopic, setSelectedTopicIdForSubtopic] = useState<string | null>(null);
   const [selectedSubtopicIdForMaterial, setSelectedSubtopicIdForMaterial] = useState<string | null>(null);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
-  const [selectedEditor, setSelectedEditor] = useState<'tinymce' | 'tiptap' | 'quill' | 'lexical'>('tinymce');
+  const [selectedEditor, setSelectedEditor] = useState<'tinymce' | 'tiptap' | 'quill' | 'lexical'>('lexical');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
   const editorRef = useRef<any>(null);
 
   // Auto-save hook
@@ -207,119 +211,147 @@ const AdminEditor = () => {
 
   return (
     <>
-    <div className={cn("flex h-[calc(100vh-80px)] bg-background", isFullscreen && "fixed inset-0 z-50")}>
-        {/* Sidebar */}
-        <EditorSidebar
-          onSelectMaterial={(materialId) => setSelectedMaterialId(materialId)}
-          selectedMaterialId={selectedMaterialId || undefined}
-          onAddTopic={handleAddTopic}
-          onAddSubtopic={handleAddSubtopic}
-          onAddMaterial={handleAddMaterial}
-          filter={filter}
-          onFilterChange={setFilter}
-          refreshTrigger={sidebarRefreshTrigger}
-        />
+    <div className={cn("h-[calc(100vh-80px)] bg-background", isFullscreen && "fixed inset-0 z-50", isFocusMode && "fixed inset-0 z-50")}>
+      <ResizablePanelGroup direction="horizontal" className="h-full">
+        {/* Sidebar - Resizable & Collapsible */}
+        {!isSidebarCollapsed && !isFocusMode && (
+          <>
+            <ResizablePanel defaultSize={20} minSize={15} maxSize={40} className="min-w-[240px]">
+              <div className="h-full border-r border-border bg-card overflow-hidden flex flex-col">
+                <EditorSidebar
+                  onSelectMaterial={(materialId) => setSelectedMaterialId(materialId)}
+                  selectedMaterialId={selectedMaterialId || undefined}
+                  onAddTopic={handleAddTopic}
+                  onAddSubtopic={handleAddSubtopic}
+                  onAddMaterial={handleAddMaterial}
+                  filter={filter}
+                  onFilterChange={setFilter}
+                  refreshTrigger={sidebarRefreshTrigger}
+                />
+              </div>
+            </ResizablePanel>
+            <ResizableHandle className="w-1 hover:w-2 transition-all bg-border" />
+          </>
+        )}
 
         {/* Main Editor Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {selectedMaterialId ? (
-            <>
-              {/* Header */}
-              <div className="border-b border-border bg-card/95 backdrop-blur-sm p-4 space-y-4 shadow-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <Input
-                      value={materialTitle}
-                      onChange={(e) => setMaterialTitle(e.target.value)}
-                      placeholder="Название материала..."
-                      className="text-lg font-semibold border-none focus-visible:ring-0 p-0 h-auto"
-                    />
-                    <div className="flex items-center gap-4">
-                      <Select value={materialType} onValueChange={(value: any) => setMaterialType(value)}>
-                        <SelectTrigger className="w-40">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="theory">Теория</SelectItem>
-                          <SelectItem value="test">Тест</SelectItem>
-                          <SelectItem value="terms">Термины</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          id="published"
-                          checked={isPublished}
-                          onCheckedChange={setIsPublished}
-                        />
-                        <Label htmlFor="published" className="text-sm">
-                          Опубликовано
-                        </Label>
-                      </div>
-                      {!isPublished && (
-                        <Badge variant="outline" className="text-xs">
-                          Черновик
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {/* Save Status */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      {saveStatus === "saved" && (
-                        <>
-                          <CheckCircle2 className="h-4 w-4 text-success" />
-                          <span>Сохранено</span>
-                        </>
-                      )}
-                      {saveStatus === "saving" && (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                          <span>Сохранение...</span>
-                        </>
-                      )}
-                      {saveStatus === "unsaved" && (
-                        <>
-                          <Circle className="h-4 w-4 text-warning" />
-                          <span>Не сохранено</span>
-                        </>
-                      )}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowVersionHistory(true)}
-                    >
-                      <HistoryIcon className="h-4 w-4 mr-2" />
-                      Версии
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowPreview(true)}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Предпросмотр
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => saveMaterial(true)}
-                      disabled={saving || saveStatus === "saved"}
-                    >
-                      {saving ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Сохранение...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Сохранить
-                        </>
-                      )}
-                    </Button>
-                  </div>
+        <ResizablePanel defaultSize={isSidebarCollapsed || isFocusMode ? 100 : 80}>
+          <div className="h-full flex flex-col overflow-hidden">
+          {/* Compact Toolbar */}
+          <div className="border-b border-border bg-card px-3 py-2 flex items-center justify-between gap-3">
+            {/* Left Side - Controls */}
+            <div className="flex items-center gap-2">
+              {!isFocusMode && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                  className="h-8 w-8 p-0"
+                  title={isSidebarCollapsed ? "Показать сайдбар" : "Скрыть сайдбар"}
+                >
+                  {isSidebarCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsFocusMode(!isFocusMode)}
+                className="h-8 w-8 p-0"
+                title={isFocusMode ? "Выйти из режима фокуса" : "Режим фокуса"}
+              >
+                {isFocusMode ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+            </div>
+            
+            {/* Center - Material Info */}
+            {selectedMaterialId && (
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <Input
+                    value={materialTitle}
+                    onChange={(e) => setMaterialTitle(e.target.value)}
+                    placeholder="Название..."
+                    className="text-sm font-medium border-none focus-visible:ring-0 px-0 h-auto max-w-[300px]"
+                  />
+                </div>
+                <Select value={materialType} onValueChange={(value: any) => setMaterialType(value)}>
+                  <SelectTrigger className="w-28 h-7 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="theory">Теория</SelectItem>
+                    <SelectItem value="test">Тест</SelectItem>
+                    <SelectItem value="terms">Термины</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="published"
+                    checked={isPublished}
+                    onCheckedChange={setIsPublished}
+                    className="scale-75"
+                  />
+                  <Label htmlFor="published" className="text-xs cursor-pointer">
+                    {isPublished ? "Опубликовано" : "Черновик"}
+                  </Label>
                 </div>
               </div>
+            )}
+            
+            {/* Right Side - Editor Tabs & Actions */}
+            <div className="flex items-center gap-2">
+              <Tabs value={selectedEditor} onValueChange={(value) => setSelectedEditor(value as any)} className="w-auto">
+                <TabsList className="h-7 p-0.5">
+                  <TabsTrigger value="tinymce" className="text-xs px-2 py-1 h-6">Tiny</TabsTrigger>
+                  <TabsTrigger value="tiptap" className="text-xs px-2 py-1 h-6">Tip</TabsTrigger>
+                  <TabsTrigger value="quill" className="text-xs px-2 py-1 h-6">Quill</TabsTrigger>
+                  <TabsTrigger value="lexical" className="text-xs px-2 py-1 h-6">Lex</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              
+              {selectedMaterialId && (
+                <>
+                  {/* Save Status */}
+                  {saveStatus === "saved" && <CheckCircle2 className="h-4 w-4 text-success" />}
+                  {saveStatus === "saving" && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+                  {saveStatus === "unsaved" && <Circle className="h-4 w-4 text-warning" />}
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowVersionHistory(true)}
+                    className="h-7 px-2"
+                  >
+                    <HistoryIcon className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPreview(true)}
+                    className="h-7 px-2"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => saveMaterial(true)}
+                    disabled={saving || saveStatus === "saved"}
+                    className="h-7"
+                  >
+                    {saving ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Save className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {selectedMaterialId ? (
+            <>
 
               {/* Editor */}
               {loading ? (
@@ -327,29 +359,21 @@ const AdminEditor = () => {
                   <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col overflow-hidden bg-background p-4">
-                  <Tabs value={selectedEditor} onValueChange={(value) => setSelectedEditor(value as 'tinymce' | 'tiptap' | 'quill' | 'lexical')} className="w-full h-full flex flex-col">
-                    <TabsList className="grid w-full grid-cols-4 mb-4">
-                      <TabsTrigger value="tinymce">TinyMCE</TabsTrigger>
-                      <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
-                      <TabsTrigger value="quill">Quill</TabsTrigger>
-                      <TabsTrigger value="lexical">Lexical</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="tinymce" className="flex-1 flex flex-col mt-0">
-                      <TinyMCEEditor
-                        content={editorContent}
-                        onChange={handleContentChange}
-                        placeholder="Начните вводить текст..."
-                        materialId={selectedMaterialId || undefined}
-                        editable={true}
-                        height={isFullscreen ? window.innerHeight - 200 : 600}
-                        onEditorReady={handleEditorReady}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="tiptap" className="flex-1 flex flex-col mt-0">
-                      <Suspense fallback={
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  {selectedEditor === 'tinymce' && (
+                    <TinyMCEEditor
+                      content={editorContent}
+                      onChange={handleContentChange}
+                      placeholder="Начните вводить текст..."
+                      materialId={selectedMaterialId || undefined}
+                      editable={true}
+                      height={window.innerHeight - 150}
+                      onEditorReady={handleEditorReady}
+                    />
+                  )}
+                  
+                  {selectedEditor === 'tiptap' && (
+                    <Suspense fallback={
                         <div className="flex-1 flex items-center justify-center">
                           <Loader2 className="w-8 h-8 text-primary animate-spin" />
                         </div>
@@ -362,46 +386,45 @@ const AdminEditor = () => {
                           editable={true}
                           height={isFullscreen ? window.innerHeight - 200 : 600}
                           onEditorReady={handleEditorReady}
-                        />
-                      </Suspense>
-                    </TabsContent>
-                    
-                    <TabsContent value="quill" className="flex-1 flex flex-col mt-0">
-                      <Suspense fallback={
-                        <div className="flex-1 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                        </div>
-                      }>
-                        <QuillEditor
-                          content={editorContent}
-                          onChange={handleContentChange}
-                          placeholder="Начните вводить текст..."
-                          materialId={selectedMaterialId || undefined}
-                          editable={true}
-                          height={isFullscreen ? window.innerHeight - 200 : 600}
-                          onEditorReady={handleEditorReady}
-                        />
-                      </Suspense>
-                    </TabsContent>
-                    
-                    <TabsContent value="lexical" className="flex-1 flex flex-col mt-0">
-                      <Suspense fallback={
-                        <div className="flex-1 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                        </div>
-                      }>
-                        <LexicalEditor
-                          content={editorContent}
-                          onChange={handleContentChange}
-                          placeholder="Начните вводить текст..."
-                          materialId={selectedMaterialId || undefined}
-                          editable={true}
-                          height={isFullscreen ? window.innerHeight - 200 : 600}
-                          onEditorReady={handleEditorReady}
-                        />
-                      </Suspense>
-                    </TabsContent>
-                  </Tabs>
+                      />
+                    </Suspense>
+                  )}
+                  
+                  {selectedEditor === 'quill' && (
+                    <Suspense fallback={
+                      <div className="flex-1 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      </div>
+                    }>
+                      <QuillEditor
+                        content={editorContent}
+                        onChange={handleContentChange}
+                        placeholder="Начните вводить текст..."
+                        materialId={selectedMaterialId || undefined}
+                        editable={true}
+                        height={window.innerHeight - 150}
+                        onEditorReady={handleEditorReady}
+                      />
+                    </Suspense>
+                  )}
+                  
+                  {selectedEditor === 'lexical' && (
+                    <Suspense fallback={
+                      <div className="flex-1 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      </div>
+                    }>
+                      <LexicalEditor
+                        content={editorContent}
+                        onChange={handleContentChange}
+                        placeholder="Начните вводить текст..."
+                        materialId={selectedMaterialId || undefined}
+                        editable={true}
+                        height={window.innerHeight - 150}
+                        onEditorReady={handleEditorReady}
+                      />
+                    </Suspense>
+                  )}
                 </div>
               )}
             </>
@@ -416,8 +439,10 @@ const AdminEditor = () => {
               </div>
             </div>
           )}
-        </div>
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
 
     {/* Modals */}
     {selectedMaterialId && (

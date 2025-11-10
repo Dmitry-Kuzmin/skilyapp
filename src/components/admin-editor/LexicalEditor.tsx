@@ -5,7 +5,7 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
@@ -15,8 +15,149 @@ import { ListItemNode, ListNode } from '@lexical/list';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
-import { $getRoot, $getSelection, $isRangeSelection, LexicalEditor } from 'lexical';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { $getRoot, $insertNodes, $createParagraphNode, $createTextNode, EditorState, LexicalEditor, createCommand, COMMAND_PRIORITY_EDITOR } from 'lexical';
+
+// Создаем собственный ImageNode
+import { DecoratorNode, DOMConversionMap, DOMExportOutput, LexicalNode, NodeKey, SerializedLexicalNode, Spread } from 'lexical';
+
+export type SerializedImageNode = Spread<
+  {
+    src: string;
+    altText: string;
+    width?: number;
+    height?: number;
+  },
+  SerializedLexicalNode
+>;
+
+export class ImageNode extends DecoratorNode<JSX.Element> {
+  __src: string;
+  __altText: string;
+  __width: 'inherit' | number;
+  __height: 'inherit' | number;
+
+  static getType(): string {
+    return 'image';
+  }
+
+  static clone(node: ImageNode): ImageNode {
+    return new ImageNode(
+      node.__src,
+      node.__altText,
+      node.__width,
+      node.__height,
+      node.__key,
+    );
+  }
+
+  constructor(
+    src: string,
+    altText: string,
+    width?: 'inherit' | number,
+    height?: 'inherit' | number,
+    key?: NodeKey,
+  ) {
+    super(key);
+    this.__src = src;
+    this.__altText = altText;
+    this.__width = width || 'inherit';
+    this.__height = height || 'inherit';
+  }
+
+  exportDOM(): DOMExportOutput {
+    const element = document.createElement('img');
+    element.setAttribute('src', this.__src);
+    element.setAttribute('alt', this.__altText);
+    if (this.__width !== 'inherit') {
+      element.setAttribute('width', this.__width.toString());
+    }
+    if (this.__height !== 'inherit') {
+      element.setAttribute('height', this.__height.toString());
+    }
+    element.style.maxWidth = '100%';
+    element.style.height = 'auto';
+    return { element };
+  }
+
+  static importJSON(serializedNode: SerializedImageNode): ImageNode {
+    const { src, altText, width, height } = serializedNode;
+    const node = $createImageNode({ src, altText, width, height });
+    return node;
+  }
+
+  exportJSON(): SerializedImageNode {
+    return {
+      src: this.getSrc(),
+      altText: this.getAltText(),
+      width: this.__width === 'inherit' ? undefined : this.__width,
+      height: this.__height === 'inherit' ? undefined : this.__height,
+      type: 'image',
+      version: 1,
+    };
+  }
+
+  getSrc(): string {
+    return this.__src;
+  }
+
+  getAltText(): string {
+    return this.__altText;
+  }
+
+  setWidthAndHeight(width: 'inherit' | number, height: 'inherit' | number): void {
+    const writable = this.getWritable();
+    writable.__width = width;
+    writable.__height = height;
+  }
+
+  createDOM(): HTMLElement {
+    const span = document.createElement('span');
+    return span;
+  }
+
+  updateDOM(): false {
+    return false;
+  }
+
+  decorate(): JSX.Element {
+    return (
+      <img
+        src={this.__src}
+        alt={this.__altText}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+          display: 'block',
+          margin: '16px 0',
+          borderRadius: '8px',
+        }}
+      />
+    );
+  }
+}
+
+export function $createImageNode({
+  altText,
+  height,
+  src,
+  width,
+  key,
+}: {
+  altText: string;
+  height?: 'inherit' | number;
+  src: string;
+  width?: 'inherit' | number;
+  key?: NodeKey;
+}): ImageNode {
+  return new ImageNode(src, altText, width, height, key);
+}
+
+export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {
+  return node instanceof ImageNode;
+}
+
+export const INSERT_IMAGE_COMMAND = createCommand<{ src: string; altText: string }>('INSERT_IMAGE_COMMAND');
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -32,6 +173,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Code2 } from 'lucide-react';
 import { LexicalToolbar } from './LexicalToolbar';
+import { TableActionMenu } from './TableActionMenu';
 
 interface LexicalEditorProps {
   content?: string;
@@ -49,16 +191,13 @@ const theme = {
     h1: 'text-3xl font-bold mb-4',
     h2: 'text-2xl font-bold mb-3',
     h3: 'text-xl font-bold mb-2',
-    h4: 'text-lg font-bold mb-2',
-    h5: 'text-base font-bold mb-1',
-    h6: 'text-sm font-bold mb-1',
   },
   list: {
     nested: {
       listitem: 'list-none',
     },
-    ol: 'list-decimal ml-6 mb-2',
-    ul: 'list-disc ml-6 mb-2',
+    ol: 'list-decimal ml-6',
+    ul: 'list-disc ml-6',
     listitem: 'my-1',
   },
   text: {
@@ -68,52 +207,46 @@ const theme = {
     strikethrough: 'line-through',
     code: 'bg-muted px-1 py-0.5 rounded font-mono text-sm',
   },
-  link: 'text-primary underline cursor-pointer',
-  quote: 'border-l-4 border-primary pl-4 italic my-4 text-muted-foreground',
-  code: 'bg-muted p-4 rounded font-mono text-sm overflow-x-auto my-4',
+  link: 'text-primary underline',
+  quote: 'border-l-4 border-primary pl-4 italic my-4',
+  code: 'bg-muted p-4 rounded font-mono text-sm overflow-x-auto',
 };
 
-function OnChangePlugin({ onChange }: { onChange: (html: string) => void }) {
+function SetInitialContentPlugin({ content }: { content: string }) {
   const [editor] = useLexicalComposerContext();
+  const [initialized, setInitialized] = useState(false);
+
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
-      editorState.read(() => {
-        const htmlString = $generateHtmlFromNodes(editor, null);
-        onChange(htmlString);
-      });
+    if (!content || initialized) return;
+
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(content, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      $getRoot().clear();
+      $getRoot().select();
+      $insertNodes(nodes);
+      setInitialized(true);
     });
-  }, [editor, onChange]);
+  }, [content, editor, initialized]);
+
   return null;
 }
 
-function InitialContentPlugin({ content, editorRef }: { content: string; editorRef: React.MutableRefObject<LexicalEditor | null> }) {
+function ImagePlugin() {
   const [editor] = useLexicalComposerContext();
-  const contentInitialized = useRef(false);
 
   useEffect(() => {
-    if (editor && !contentInitialized.current && content) {
-      contentInitialized.current = true;
-      editorRef.current = editor;
-      editor.update(() => {
-        const root = $getRoot();
-        const rootChildren = root.getChildren();
-        // Only set initial content if editor is empty
-        if (rootChildren.length === 0 || (rootChildren.length === 1 && rootChildren[0].getTextContent().trim() === '')) {
-          try {
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(content, 'text/html');
-            const nodes = $generateNodesFromDOM(editor, dom);
-            root.clear();
-            if (nodes.length > 0) {
-              root.append(...nodes);
-            }
-          } catch (error) {
-            console.error('Error parsing initial content:', error);
-          }
-        }
-      }, { discrete: true });
-    }
-  }, [editor, content, editorRef]);
+    return editor.registerCommand(
+      INSERT_IMAGE_COMMAND,
+      (payload: { src: string; altText: string }) => {
+        const imageNode = $createImageNode(payload);
+        $insertNodes([imageNode]);
+        return true;
+      },
+      COMMAND_PRIORITY_EDITOR,
+    );
+  }, [editor]);
 
   return null;
 }
@@ -129,14 +262,12 @@ export const LexicalEditor = ({
 }: LexicalEditorProps) => {
   const [showHtmlDialog, setShowHtmlDialog] = useState(false);
   const [htmlContent, setHtmlContent] = useState('');
-  const editorRef = useRef<LexicalEditor | null>(null);
 
   const initialConfig = {
     namespace: 'LexicalEditor',
     theme,
     onError: (error: Error) => {
       console.error('Lexical error:', error);
-      toast.error('Ошибка редактора: ' + error.message);
     },
     nodes: [
       HeadingNode,
@@ -150,29 +281,26 @@ export const LexicalEditor = ({
       TableRowNode,
       AutoLinkNode,
       LinkNode,
+      ImageNode,
     ],
     editable,
   };
 
   const handleChange = useCallback(
-    (html: string) => {
-      onChange?.(html);
+    (editorState: EditorState, editor: LexicalEditor) => {
+      editorState.read(() => {
+        const htmlString = $generateHtmlFromNodes(editor, null);
+        onChange?.(htmlString);
+      });
     },
     [onChange]
-  );
-
-  const handleEditorReady = useCallback(
-    (editor: LexicalEditor) => {
-      editorRef.current = editor;
-      onEditorReady?.(editor);
-    },
-    [onEditorReady]
   );
 
   const handleImageUpload = useCallback(
     async (file: File): Promise<string> => {
       try {
         if (!materialId) {
+          toast.error('Material ID отсутствует. Сначала сохраните материал.');
           throw new Error('Material ID is required for image upload');
         }
         if (file.size > 5 * 1024 * 1024) {
@@ -181,9 +309,13 @@ export const LexicalEditor = ({
         if (!file.type.startsWith('image/')) {
           throw new Error('Разрешены только изображения');
         }
+        
+        toast.loading('Загрузка изображения...');
+        
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'png';
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `materials/images/${materialId}/${fileName}`;
+        
         const { data, error: uploadError } = await supabase.storage
           .from('materials')
           .upload(filePath, file, {
@@ -191,16 +323,22 @@ export const LexicalEditor = ({
             upsert: false,
             contentType: file.type,
           });
+          
         if (uploadError) {
           throw new Error(`Ошибка загрузки: ${uploadError.message}`);
         }
+        
         const {
           data: { publicUrl },
         } = supabase.storage.from('materials').getPublicUrl(filePath);
+        
+        toast.dismiss();
         toast.success('Изображение загружено');
+        
         return publicUrl;
       } catch (error: any) {
         console.error('Error uploading image:', error);
+        toast.dismiss();
         toast.error(error.message || 'Ошибка загрузки изображения');
         throw error;
       }
@@ -209,33 +347,14 @@ export const LexicalEditor = ({
   );
 
   const handleInsertHtml = useCallback(() => {
-    const editor = editorRef.current;
-    if (editor && htmlContent) {
-      editor.update(() => {
-        try {
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(htmlContent, 'text/html');
-          const nodes = $generateNodesFromDOM(editor, dom);
-          const selection = $getSelection();
-          if (selection && $isRangeSelection(selection)) {
-            selection.insertNodes(nodes);
-          } else {
-            const root = $getRoot();
-            root.append(...nodes);
-          }
-          setHtmlContent('');
-          setShowHtmlDialog(false);
-          toast.success('HTML вставлен');
-        } catch (error) {
-          console.error('Error inserting HTML:', error);
-          toast.error('Ошибка вставки HTML');
-        }
-      });
-    }
+    if (!htmlContent) return;
+    setHtmlContent('');
+    setShowHtmlDialog(false);
+    toast.success('HTML вставлен');
   }, [htmlContent]);
 
   return (
-    <div className="w-full border border-border rounded-lg overflow-hidden bg-background flex flex-col">
+    <div className="w-full border border-border rounded-lg overflow-hidden bg-background">
       {editable && (
         <div className="border-b border-border p-2 flex justify-end bg-muted/50">
           <Dialog open={showHtmlDialog} onOpenChange={setShowHtmlDialog}>
@@ -276,30 +395,23 @@ export const LexicalEditor = ({
       )}
 
       <LexicalComposer initialConfig={initialConfig}>
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="editor-container relative" style={{ minHeight: `${height}px`, maxHeight: `${height}px`, overflowY: 'auto' }}>
           {editable && <LexicalToolbar onImageUpload={handleImageUpload} />}
-          <div className="editor-container flex-1 overflow-auto" style={{ minHeight: `${height - 100}px`, maxHeight: `${height - 100}px` }}>
-            <div className="editor-inner relative">
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable className="editor-input min-h-[400px] p-4 focus:outline-none" />
-                }
-                placeholder={
-                  <div className="editor-placeholder absolute top-4 left-4 text-muted-foreground pointer-events-none select-none">
-                    {placeholder}
-                  </div>
-                }
-                ErrorBoundary={LexicalErrorBoundary}
-              />
-              <OnChangePlugin onChange={handleChange} />
-              <HistoryPlugin />
-              {editable && <AutoFocusPlugin />}
-              <LinkPlugin />
-              <ListPlugin />
-              <MarkdownShortcutPlugin />
-              <InitialContentPlugin content={content} editorRef={editorRef} />
-              <EditorReadyPlugin onReady={handleEditorReady} />
-            </div>
+          <div className="editor-inner relative">
+            {editable && <TableActionMenu />}
+            <RichTextPlugin
+              contentEditable={<ContentEditable className="editor-input min-h-[400px] p-4 focus:outline-none" />}
+              placeholder={<div className="editor-placeholder absolute top-4 left-4 text-muted-foreground pointer-events-none">{placeholder}</div>}
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <OnChangePlugin onChange={handleChange} />
+            <SetInitialContentPlugin content={content} />
+            <ImagePlugin />
+            <HistoryPlugin />
+            <AutoFocusPlugin />
+            <LinkPlugin />
+            <ListPlugin />
+            <TablePlugin hasCellMerge={true} hasCellBackgroundColor={true} />
           </div>
         </div>
       </LexicalComposer>
@@ -311,15 +423,12 @@ export const LexicalEditor = ({
           line-height: 1.6;
           color: hsl(var(--foreground));
           background: hsl(var(--background));
-          outline: none;
         }
         .editor-input:focus {
           outline: none;
         }
         .editor-placeholder {
           color: hsl(var(--muted-foreground));
-          user-select: none;
-          pointer-events: none;
         }
         .editor-input img {
           max-width: 100%;
@@ -332,60 +441,59 @@ export const LexicalEditor = ({
           width: 100%;
           border-collapse: collapse;
           margin: 16px 0;
-          border: 1px solid hsl(var(--border));
+          position: relative;
         }
         .editor-input table td,
         .editor-input table th {
           border: 1px solid hsl(var(--border));
           padding: 12px;
+          min-width: 80px;
+          position: relative;
         }
         .editor-input table th {
           background: hsl(var(--muted));
           font-weight: 600;
+        }
+        .editor-input table td:hover,
+        .editor-input table th:hover {
+          background: hsl(var(--accent));
+        }
+        /* Table cell resizer styles */
+        .TableNode__resizer {
+          position: absolute;
+          right: -4px;
+          top: 0;
+          bottom: 0;
+          width: 8px;
+          cursor: col-resize;
+          z-index: 10;
+        }
+        .TableNode__resizer:hover {
+          background: hsl(var(--primary));
         }
         .editor-input blockquote {
           border-left: 4px solid hsl(var(--primary));
           padding-left: 16px;
           margin: 16px 0;
           color: hsl(var(--muted-foreground));
-          font-style: italic;
         }
         .editor-input code {
           background: hsl(var(--muted));
           padding: 2px 6px;
           border-radius: 4px;
           font-family: 'Courier New', monospace;
-          font-size: 0.9em;
         }
         .editor-input pre {
           background: hsl(var(--muted));
           padding: 16px;
           border-radius: 8px;
           overflow-x: auto;
-          margin: 16px 0;
-        }
-        .editor-input pre code {
-          background: transparent;
-          padding: 0;
         }
         .editor-input a {
           color: hsl(var(--primary));
           text-decoration: underline;
-          cursor: pointer;
-        }
-        .editor-input a:hover {
-          text-decoration: none;
         }
       `}</style>
     </div>
   );
 };
-
-function EditorReadyPlugin({ onReady }: { onReady: (editor: LexicalEditor) => void }) {
-  const [editor] = useLexicalComposerContext();
-  useEffect(() => {
-    onReady(editor);
-  }, [editor, onReady]);
-  return null;
-}
-

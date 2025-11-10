@@ -1,31 +1,34 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, FORMAT_ELEMENT_COMMAND, UNDO_COMMAND, REDO_COMMAND } from 'lexical';
-import { $isHeadingNode, $createHeadingNode } from '@lexical/rich-text';
-import { $isListNode, ListNode, $createListNode, $createListItemNode } from '@lexical/list';
-import { $createQuoteNode, $isQuoteNode } from '@lexical/rich-text';
-import { $createCodeNode, $isCodeNode } from '@lexical/code';
+import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, UNDO_COMMAND, REDO_COMMAND } from 'lexical';
 import { $setBlocksType } from '@lexical/selection';
-import { $findMatchingParent, mergeRegister } from '@lexical/utils';
-import { $createParagraphNode, $getRoot } from 'lexical';
-import { useEffect, useState, useCallback } from 'react';
+import { INSERT_IMAGE_COMMAND } from './LexicalEditor';
+import { $createHeadingNode, $createQuoteNode, HeadingTagType } from '@lexical/rich-text';
+import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
+import { $createCodeNode } from '@lexical/code';
+import { INSERT_TABLE_COMMAND } from '@lexical/table';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Bold,
   Italic,
   Underline,
   Strikethrough,
+  Code,
   Heading1,
   Heading2,
   Heading3,
   List,
   ListOrdered,
   Quote,
-  Code,
   Link as LinkIcon,
   Image as ImageIcon,
+  Table as TableIcon,
   AlignLeft,
   AlignCenter,
   AlignRight,
+  AlignJustify,
+  Minus,
+  Eraser,
   Undo,
   Redo,
 } from 'lucide-react';
@@ -40,157 +43,75 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
-  const [blockType, setBlockType] = useState<string>('paragraph');
+  const [isCode, setIsCode] = useState(false);
+
+  const updateToolbar = useCallback(() => {
+    const selection = $getSelection();
+    if ($isRangeSelection(selection)) {
+      setIsBold(selection.hasFormat('bold'));
+      setIsItalic(selection.hasFormat('italic'));
+      setIsUnderline(selection.hasFormat('underline'));
+      setIsStrikethrough(selection.hasFormat('strikethrough'));
+      setIsCode(selection.hasFormat('code'));
+    }
+  }, []);
 
   useEffect(() => {
-    return mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            setIsBold(selection.hasFormat('bold'));
-            setIsItalic(selection.hasFormat('italic'));
-            setIsUnderline(selection.hasFormat('underline'));
-            setIsStrikethrough(selection.hasFormat('strikethrough'));
-
-            const anchorNode = selection.anchor.getNode();
-            let element =
-              anchorNode.getKey() === 'root'
-                ? anchorNode
-                : $findMatchingParent(anchorNode, (e) => {
-                    const parent = e.getParent();
-                    return parent !== null && $getRoot() !== parent;
-                  });
-
-            if (element === null) {
-              element = anchorNode.getTopLevelElementOrThrow();
-            }
-
-            const elementKey = element.getKey();
-            const elementDOM = editor.getElementByKey(elementKey);
-
-            if (elementDOM !== null) {
-              if ($isListNode(element)) {
-                const parentList = $findMatchingParent(anchorNode, $isListNode);
-                const type = parentList ? parentList.getListType() : element.getListType();
-                setBlockType(type);
-              } else {
-                const type = $isHeadingNode(element) ? element.getTag() : element.getType();
-                if (type in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
-                  setBlockType(type);
-                } else if ($isQuoteNode(element)) {
-                  setBlockType('quote');
-                } else if ($isCodeNode(element)) {
-                  setBlockType('code');
-                } else {
-                  setBlockType('paragraph');
-                }
-              }
-            }
-          }
-        });
-      })
-    );
-  }, [editor]);
-
-  const formatText = useCallback(
-    (format: string) => {
-      editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
-    },
-    [editor]
-  );
-
-  const formatHeading = useCallback(
-    (headingSize: 'h1' | 'h2' | 'h3') => {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          $setBlocksType(selection, () => $createHeadingNode(headingSize));
-        }
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        updateToolbar();
       });
-    },
-    [editor]
-  );
+    });
+  }, [editor, updateToolbar]);
 
-  const formatParagraph = useCallback(() => {
+  const formatHeading = (tag: HeadingTagType) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        $setBlocksType(selection, () => $createParagraphNode());
+        $setBlocksType(selection, () => $createHeadingNode(tag));
       }
     });
-  }, [editor]);
+  };
 
-  const formatBulletList = useCallback(() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const listNode = $createListNode('bullet');
-        const listItemNode = $createListItemNode();
-        listNode.append(listItemNode);
-        selection.insertNodes([listNode]);
-      }
-    });
-  }, [editor]);
-
-  const formatNumberedList = useCallback(() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const listNode = $createListNode('number');
-        const listItemNode = $createListItemNode();
-        listNode.append(listItemNode);
-        selection.insertNodes([listNode]);
-      }
-    });
-  }, [editor]);
-
-  const formatQuote = useCallback(() => {
+  const formatQuote = () => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         $setBlocksType(selection, () => $createQuoteNode());
       }
     });
-  }, [editor]);
+  };
 
-  const formatCode = useCallback(() => {
+  const formatCodeBlock = () => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         $setBlocksType(selection, () => $createCodeNode());
       }
     });
-  }, [editor]);
+  };
 
-  const formatAlign = useCallback(
-    (align: 'left' | 'center' | 'right') => {
-      editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, align);
-    },
-    [editor]
-  );
+  const insertLink = () => {
+    const url = prompt('Введите URL:');
+    if (url) {
+      editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'link');
+    }
+  };
 
-  const handleImageClick = useCallback(() => {
-    if (!onImageUpload) return;
+  const handleImageInput = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
+      if (file && onImageUpload) {
         try {
-          const url = await onImageUpload(file);
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              // Insert image as HTML
-              const root = $getRoot();
-              const paragraph = $createParagraphNode();
-              paragraph.append($createParagraphNode().append($createParagraphNode()));
-              // For now, we'll use HTML insertion for images
-              // This is a simplified version - in production you'd want a proper image node
-              selection.insertText(`<img src="${url}" alt="Uploaded image" />`);
-            }
+          const imageUrl = await onImageUpload(file);
+          
+          // Вставляем изображение в редактор используя правильную команду
+          editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+            src: imageUrl,
+            altText: file.name || 'Uploaded image',
           });
         } catch (error) {
           console.error('Error inserting image:', error);
@@ -198,29 +119,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
       }
     };
     input.click();
-  }, [editor, onImageUpload]);
-
-  const handleLink = useCallback(() => {
-    const url = window.prompt('Введите URL:');
-    if (url) {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          // Lexical link handling would go here
-          // For now, this is a placeholder
-          selection.insertText(url);
-        }
-      });
-    }
-  }, [editor]);
-
-  const undo = useCallback(() => {
-    editor.dispatchCommand(UNDO_COMMAND, undefined);
-  }, [editor]);
-
-  const redo = useCallback(() => {
-    editor.dispatchCommand(REDO_COMMAND, undefined);
-  }, [editor]);
+  }, [onImageUpload, editor]);
 
   return (
     <div className="border-b border-border p-2 flex flex-wrap gap-1 bg-muted/50">
@@ -229,7 +128,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           type="button"
           variant={isBold ? 'default' : 'ghost'}
           size="sm"
-          onClick={() => formatText('bold')}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
           className="h-8 w-8 p-0"
         >
           <Bold className="h-4 w-4" />
@@ -238,7 +137,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           type="button"
           variant={isItalic ? 'default' : 'ghost'}
           size="sm"
-          onClick={() => formatText('italic')}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
           className="h-8 w-8 p-0"
         >
           <Italic className="h-4 w-4" />
@@ -247,7 +146,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           type="button"
           variant={isUnderline ? 'default' : 'ghost'}
           size="sm"
-          onClick={() => formatText('underline')}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
           className="h-8 w-8 p-0"
         >
           <Underline className="h-4 w-4" />
@@ -256,17 +155,25 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           type="button"
           variant={isStrikethrough ? 'default' : 'ghost'}
           size="sm"
-          onClick={() => formatText('strikethrough')}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')}
           className="h-8 w-8 p-0"
         >
           <Strikethrough className="h-4 w-4" />
         </Button>
+        <Button
+          type="button"
+          variant={isCode ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')}
+          className="h-8 w-8 p-0"
+        >
+          <Code className="h-4 w-4" />
+        </Button>
       </div>
-
       <div className="flex gap-1 border-r border-border pr-2 mr-2">
         <Button
           type="button"
-          variant={blockType === 'h1' ? 'default' : 'ghost'}
+          variant="ghost"
           size="sm"
           onClick={() => formatHeading('h1')}
           className="h-8 w-8 p-0"
@@ -275,7 +182,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
         </Button>
         <Button
           type="button"
-          variant={blockType === 'h2' ? 'default' : 'ghost'}
+          variant="ghost"
           size="sm"
           onClick={() => formatHeading('h2')}
           className="h-8 w-8 p-0"
@@ -284,7 +191,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
         </Button>
         <Button
           type="button"
-          variant={blockType === 'h3' ? 'default' : 'ghost'}
+          variant="ghost"
           size="sm"
           onClick={() => formatHeading('h3')}
           className="h-8 w-8 p-0"
@@ -292,82 +199,41 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           <Heading3 className="h-4 w-4" />
         </Button>
       </div>
-
       <div className="flex gap-1 border-r border-border pr-2 mr-2">
         <Button
           type="button"
-          variant={blockType === 'bullet' ? 'default' : 'ghost'}
+          variant="ghost"
           size="sm"
-          onClick={formatBulletList}
+          onClick={() => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)}
           className="h-8 w-8 p-0"
         >
           <List className="h-4 w-4" />
         </Button>
         <Button
           type="button"
-          variant={blockType === 'number' ? 'default' : 'ghost'}
+          variant="ghost"
           size="sm"
-          onClick={formatNumberedList}
+          onClick={() => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)}
           className="h-8 w-8 p-0"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
         <Button
           type="button"
-          variant={blockType === 'quote' ? 'default' : 'ghost'}
+          variant="ghost"
           size="sm"
           onClick={formatQuote}
           className="h-8 w-8 p-0"
         >
           <Quote className="h-4 w-4" />
         </Button>
-        <Button
-          type="button"
-          variant={blockType === 'code' ? 'default' : 'ghost'}
-          size="sm"
-          onClick={formatCode}
-          className="h-8 w-8 p-0"
-        >
-          <Code className="h-4 w-4" />
-        </Button>
       </div>
-
       <div className="flex gap-1 border-r border-border pr-2 mr-2">
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => formatAlign('left')}
-          className="h-8 w-8 p-0"
-        >
-          <AlignLeft className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => formatAlign('center')}
-          className="h-8 w-8 p-0"
-        >
-          <AlignCenter className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => formatAlign('right')}
-          className="h-8 w-8 p-0"
-        >
-          <AlignRight className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="flex gap-1 border-r border-border pr-2 mr-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={handleLink}
+          onClick={insertLink}
           className="h-8 w-8 p-0"
         >
           <LinkIcon className="h-4 w-4" />
@@ -376,19 +242,59 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={handleImageClick}
+          onClick={handleImageInput}
           className="h-8 w-8 p-0"
         >
           <ImageIcon className="h-4 w-4" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.dispatchCommand(INSERT_TABLE_COMMAND, { rows: '3', columns: '3' })}
+          className="h-8 w-8 p-0"
+          title="Вставить таблицу 3x3"
+        >
+          <TableIcon className="h-4 w-4" />
+        </Button>
       </div>
-
+      <div className="flex gap-1 border-r border-border pr-2 mr-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'clear')}
+          className="h-8 w-8 p-0"
+          title="Очистить форматирование"
+        >
+          <Eraser className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            editor.update(() => {
+              const selection = $getSelection();
+              if ($isRangeSelection(selection)) {
+                const hrNode = document.createElement('hr');
+                const htmlString = hrNode.outerHTML;
+                editor.dispatchCommand(FORMAT_TEXT_COMMAND as any, htmlString);
+              }
+            });
+          }}
+          className="h-8 w-8 p-0"
+          title="Горизонтальная линия"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
+      </div>
       <div className="flex gap-1">
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          onClick={undo}
+          onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
           className="h-8 w-8 p-0"
         >
           <Undo className="h-4 w-4" />
@@ -397,7 +303,7 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
           type="button"
           variant="ghost"
           size="sm"
-          onClick={redo}
+          onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
           className="h-8 w-8 p-0"
         >
           <Redo className="h-4 w-4" />
@@ -406,4 +312,3 @@ export const LexicalToolbar = ({ onImageUpload }: LexicalToolbarProps) => {
     </div>
   );
 };
-
