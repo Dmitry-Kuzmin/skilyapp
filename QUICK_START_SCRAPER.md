@@ -78,3 +78,4 @@ npm run scrape:practicavial -- --username=ваш-email@example.com --password=в
 
 См. файл `SCRAPER_PUPPETEER_README.md` для полной документации.
 
+

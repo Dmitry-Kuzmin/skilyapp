@@ -919,7 +919,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
   // ПОЛНЫЕ ОТСТУПЫ для игры дуэль (увеличены по просьбе пользователя)
-  const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop);
+  // + дополнительный отступ для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
+  const TELEGRAM_NAV_HEIGHT = 48; // Высота встроенной навигации Telegram WebApp
+  const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
+  
+  const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
   const totalBottomPadding = Math.round(safeArea.bottom + safeArea.contentBottom);
   const totalLeftPadding = Math.round(safeArea.left);
   const totalRightPadding = Math.round(safeArea.right);
