@@ -91,11 +91,13 @@ const Layout = ({ children }: LayoutProps) => {
 
   // Определяем fullscreen режимы (тесты и игры) - navbar должен быть скрыт
   const isFullscreenMode = 
-    location.pathname.includes('/test-session') || 
-    location.pathname.includes('/practice') ||
-    location.pathname.includes('/exam') ||
+    location.pathname.startsWith('/test/') || 
     location.pathname.includes('/duel') ||
-    location.pathname.includes('/race-game');
+    location.pathname.includes('/race-game') ||
+    location.pathname.includes('/guess-the-sign') ||
+    location.pathname.includes('/matching') ||
+    location.pathname.includes('/four-variants') ||
+    location.pathname.includes('/road-race');
 
   // Scroll to top on route change
   useEffect(() => {
