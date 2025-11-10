@@ -35,6 +35,11 @@ CREATE INDEX IF NOT EXISTS idx_feedback_topic ON public.ai_feedback(topic_number
 -- RLS политики
 ALTER TABLE public.ai_feedback ENABLE ROW LEVEL SECURITY;
 
+-- Удаляем старые политики если есть
+DROP POLICY IF EXISTS "Anyone can submit feedback" ON public.ai_feedback;
+DROP POLICY IF EXISTS "Users can view own feedback" ON public.ai_feedback;
+DROP POLICY IF EXISTS "Admins can view all feedback" ON public.ai_feedback;
+
 -- Все могут добавлять фидбек
 CREATE POLICY "Anyone can submit feedback"
   ON public.ai_feedback

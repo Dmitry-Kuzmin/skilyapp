@@ -32,6 +32,11 @@ CREATE INDEX IF NOT EXISTS idx_chat_history_created ON public.ai_chat_history(cr
 -- RLS
 ALTER TABLE public.ai_chat_history ENABLE ROW LEVEL SECURITY;
 
+-- Удаляем старые политики если есть
+DROP POLICY IF EXISTS "Users can view own chat history" ON public.ai_chat_history;
+DROP POLICY IF EXISTS "Users can insert own messages" ON public.ai_chat_history;
+DROP POLICY IF EXISTS "Admins can view all chat history" ON public.ai_chat_history;
+
 -- Пользователи видят только свою историю
 CREATE POLICY "Users can view own chat history"
   ON public.ai_chat_history
