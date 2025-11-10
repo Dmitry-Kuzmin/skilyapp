@@ -89,6 +89,14 @@ const Layout = ({ children }: LayoutProps) => {
     { name: t("games"), href: "/games", icon: Gamepad2 },
   ];
 
+  // Определяем fullscreen режимы (тесты и игры) - navbar должен быть скрыт
+  const isFullscreenMode = 
+    location.pathname.includes('/test-session') || 
+    location.pathname.includes('/practice') ||
+    location.pathname.includes('/exam') ||
+    location.pathname.includes('/duel') ||
+    location.pathname.includes('/race-game');
+
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -166,10 +174,11 @@ const Layout = ({ children }: LayoutProps) => {
         {children}
       </main>
 
-      {/* Bottom Navigation for Mobile and Telegram */}
+      {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) */}
       <nav className={cn(
         "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-        "md:hidden"
+        "md:hidden",
+        isFullscreenMode && "hidden"
       )}>
         <div className="grid grid-cols-5 gap-1 px-2 py-2">
           {navigation.map((item) => {

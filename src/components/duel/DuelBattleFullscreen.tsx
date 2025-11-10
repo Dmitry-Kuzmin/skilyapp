@@ -990,28 +990,29 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         />
       </div>
 
-      {/* Exit Button - Top Left Corner */}
-      {/* Учитываем отступы для Telegram WebApp */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onExit}
-        className="absolute z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
-        style={{
-          top: `${totalTopPadding + 8}px`,
-          left: `${totalLeftPadding + 8}px`
-        }}
-      >
-        <X className="h-4 w-4" />
-      </Button>
+      {/* Exit Button - Top Left Corner - Скрыта в Telegram (есть встроенная кнопка Назад) */}
+      {safeArea?.platform !== 'telegram' && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onExit}
+          className="absolute z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
+          style={{
+            top: `${totalTopPadding + 8}px`,
+            left: `${totalLeftPadding + 8}px`
+          }}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
 
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
       <div className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto">
         {/* Header - Scores & Timer - Premium Design */}
         <div className="flex items-center justify-between mb-3 md:mb-4">
-          {/* Scores - Enhanced */}
-          <div className="flex items-center gap-3 md:gap-5">
+          {/* Scores - Enhanced - Центрированы в Telegram */}
+          <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
             <motion.div 
               className="flex items-center gap-2 md:gap-3 group"
@@ -1033,7 +1034,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 )}
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block">{myName}</p>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
                 <motion.div 
                   key={myScore}
                   className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
@@ -1056,7 +1057,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             >
               <div>
                 <p 
-                  className="text-xs font-medium text-muted-foreground mb-0.5 hidden md:block text-right truncate max-w-[120px] ml-auto" 
+                  className="text-xs font-medium text-muted-foreground mb-0.5 text-right truncate max-w-[120px] ml-auto" 
                   title={opponentName}
                   key={`opponent-name-${opponentName}`}
                 >
