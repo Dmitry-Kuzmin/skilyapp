@@ -12,6 +12,7 @@ import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { UserProfilePopover } from "./UserProfilePopover";
+import { TelegramSafeAreaDebug } from "./TelegramSafeAreaDebug";
 
 interface LayoutProps {
   children: ReactNode;
@@ -97,6 +98,10 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="telegram-app-container min-h-screen flex flex-col">
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
+      
+      {/* Визуальная отладка Safe Area (только в Telegram) */}
+      <TelegramSafeAreaDebug />
+      
       {/* Top Navigation for Desktop - Hide in Telegram */}
       <header className={cn(
         "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50",

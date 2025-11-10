@@ -32,6 +32,12 @@ export const initTelegramApp = () => {
       webApp.ready();
       webApp.expand();
       
+      // Отключаем вертикальные свайпы чтобы приложение не сворачивалось при скролле
+      if (typeof webApp.disableVerticalSwipes === 'function') {
+        webApp.disableVerticalSwipes();
+        console.log('[Telegram] ✅ Vertical swipes disabled');
+      }
+      
       // Логируем состояние WebApp для отладки
       console.log('[Telegram] ✅ WebApp initialized:', {
         platform: webApp.platform,

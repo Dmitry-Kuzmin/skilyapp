@@ -25,6 +25,8 @@ declare global {
         ready: () => void;
         expand: () => void;
         close: () => void;
+        disableVerticalSwipes?: () => void;
+        enableVerticalSwipes?: () => void;
         initData?: string;
         initDataUnsafe?: {
           user?: TelegramUser;
