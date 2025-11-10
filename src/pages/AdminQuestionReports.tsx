@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, CheckCircle2, XCircle, Clock, Loader2, MessageSquare, Filter, Search, ChevronDown, ChevronUp, User, Calendar, FileText, Shield } from "lucide-react";
+import { AlertTriangle, CheckCircle2, XCircle, Clock, Loader2, MessageSquare, Filter, Search, ChevronDown, ChevronUp, User, Calendar, FileText, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getImageUrl } from "@/utils/imageUtils";
 import { cn } from "@/lib/utils";
+import { AdminAIReports } from "./admin/AdminAIReports";
 
 type ReportStatus = "pending" | "in_progress" | "resolved" | "dismissed";
 type ReportType = "wrong_translation" | "wrong_answer" | "wrong_image" | "unclear_question" | "other";
@@ -340,13 +341,28 @@ const AdminQuestionReports = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Управление отчётами</h1>
         <p className="text-muted-foreground">
-          Управление и ответы на отчёты пользователей о проблемах в вопросах
+          Отчёты пользователей и аналитика AI помощника
         </p>
       </div>
+
+      {/* Main Tabs */}
+      <Tabs defaultValue="questions" className="space-y-6">
+        <TabsList className="grid w-full max-w-[500px] grid-cols-2">
+          <TabsTrigger value="questions" className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            Отчёты о вопросах
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            ИИ отчёты
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="questions" className="space-y-6 mt-6">
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -761,6 +777,14 @@ const AdminQuestionReports = () => {
             )}
           </DialogContent>
         </Dialog>
+        
+        </TabsContent>
+
+        {/* AI Reports Tab */}
+        <TabsContent value="ai" className="space-y-6 mt-6">
+          <AdminAIReports />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

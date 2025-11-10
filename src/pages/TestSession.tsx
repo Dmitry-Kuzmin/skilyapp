@@ -163,17 +163,22 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent 
           hideCloseButton 
-          className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 bg-transparent border-none shadow-none"
+          className="w-screen h-screen max-w-none max-h-none m-0 p-0 bg-black/95 border-none"
         >
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center p-4">
             <img 
               src={imageSrc || ''} 
               alt="Вопрос - увеличенное изображение" 
-              className="max-w-full max-h-[95vh] object-contain rounded-lg shadow-2xl"
+              className="max-w-full max-h-full w-auto h-auto object-contain"
+              style={{
+                imageRendering: 'high-quality',
+                maxWidth: '100%',
+                maxHeight: '100%',
+              }}
             />
             <button
               onClick={() => setIsDialogOpen(false)}
-              className="absolute top-4 right-4 bg-black/70 hover:bg-black/90 text-white rounded-full p-2.5 transition-colors z-20 shadow-lg"
+              className="absolute top-6 right-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 transition-colors z-20 shadow-2xl"
               aria-label="Закрыть"
             >
               <X className="w-6 h-6" />

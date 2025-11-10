@@ -37,11 +37,12 @@ export const AISearchWidget = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth"
-    });
-  }, [messages]);
+  // Auto-scroll отключен - пользователь читает сверху
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({
+  //     behavior: "smooth"
+  //   });
+  // }, [messages]);
   const streamChat = async (userMessage: string) => {
     setIsLoading(true);
     const newMessages: Message[] = [...messages, {

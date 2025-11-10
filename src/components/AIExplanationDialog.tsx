@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bot, Loader2, Sparkles, Send } from "lucide-react";
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useToast } from "@/hooks/use-toast";
 
 type Message = {
   role: "user" | "assistant";
@@ -41,8 +42,47 @@ export function AIExplanationDialog({
   const [input, setInput] = useState("");
   const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
+  const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const hasAskedRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  // Отправка оценки качества ответа
+  const submitFeedback = async (messageIndex: number, rating: 1 | -1) => {
+    const message = messages[messageIndex];
+    if (!message || message.role !== 'assistant') return;
+
+    // Находим предыдущий user message для контекста
+    const userMessage = messages[messageIndex - 1]?.content || question;
+    
+    // Извлекаем номер темы из картинки
+    const topicNumber = extractTopicFromImage(imageUrl);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      await supabase.from('ai_feedback').insert({
+        user_id: session?.user?.id || null,
+        session_id: session?.user?.id || `anon_${Date.now()}`,
+        question: userMessage,
+        ai_response: message.content,
+        topic_number: topicNumber,
+        rating: rating,
+        model_used: 'groq-llama-3.3', // TODO: получать из ответа
+        used_knowledge: true, // TODO: определять из логов
+      });
+
+      // Обновляем локальное состояние
+      setMessageRatings(prev => ({ ...prev, [messageIndex]: rating }));
+      
+      toast({
+        description: rating === 1 ? "✓ Спасибо за оценку!" : "✓ Учтём для улучшения",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+    }
+  };
 
   // Определение языка ответа AI
   const detectLanguage = (text: string): 'ru' | 'es' => {
@@ -225,6 +265,31 @@ Responde SOLO con lista de 3 preguntas concretas. Solo español.`;
     }
   };
 
+  // ID беседы для группировки сообщений
+  const conversationIdRef = useRef<string>(`conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+
+  // Сохранение в историю чатов
+  const saveToHistory = async (role: 'user' | 'assistant', content: string, messageIndex: number) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const topicNumber = extractTopicFromImage(imageUrl);
+
+      await supabase.from('ai_chat_history').insert({
+        user_id: session?.user?.id || null,
+        session_id: session?.user?.id || `anon_${Date.now()}`,
+        conversation_id: conversationIdRef.current,
+        message_index: messageIndex,
+        role: role,
+        content: content,
+        topic_number: topicNumber,
+        model_used: role === 'assistant' ? 'groq-llama-3.3' : null,
+      });
+    } catch (error) {
+      console.error('Error saving to chat history:', error);
+      // Не показываем ошибку пользователю - это фоновая операция
+    }
+  };
+
   // Извлечение номера темы из названия картинки
   const extractTopicFromImage = (imageUrl: string | null | undefined): number | null => {
     if (!imageUrl) return null;
@@ -273,6 +338,11 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
       },
     ];
     setMessages(newMessages);
+    
+    // Сохраняем user message в историю
+    if (!customPrompt || messages.length > 0) { // Не сохраняем первое автоматическое сообщение
+      saveToHistory('user', userMessage, newMessages.length - 1);
+    }
 
     try {
       // Get user session token for authentication
@@ -353,6 +423,12 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
     } finally {
       setIsLoading(false);
       
+      // Сохраняем assistant message в историю (после полной генерации)
+      if (assistantMessage) {
+        const assistantIndex = newMessages.length; // index of assistant message
+        saveToHistory('assistant', assistantMessage, assistantIndex);
+      }
+      
       // Генерируем умные подсказки после первого ответа AI
       // Проверяем, что это первое объяснение (есть только 1 сообщение пользователя + 1 AI)
       if (!customPrompt && messages.length <= 1) {
@@ -377,10 +453,10 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
     askAI(userMessage);
   };
 
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  // Auto-scroll отключен - пользователь читает сверху
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // }, [messages]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -402,152 +478,152 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
-        <DialogHeader className="space-y-2 pb-3 border-b">
-          <DialogTitle className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10">
-              <Sparkles className="w-4 h-4 text-primary" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-semibold text-foreground">
-                AI Помощник
-              </span>
-              <span className="text-xs text-muted-foreground font-normal">
-                Объяснение правил DGT
-              </span>
-            </div>
+      <DialogContent className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none">
+        <DialogHeader className="px-4 py-3 border-b shrink-0">
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-muted-foreground" />
+            <span className="text-base font-medium text-foreground">
+              AI Помощник DGT
+            </span>
           </DialogTitle>
         </DialogHeader>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-4 p-4 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8 max-w-4xl mx-auto w-full">
           {messages.map((message, index) => (
-            <div key={index} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div key={index}>
               {message.role === "user" && index > 0 && (
-                <Card className="p-3 ml-auto max-w-[80%] bg-primary/5 border-primary/20">
-                  <div className="text-sm leading-relaxed font-medium prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {message.content}
-                    </ReactMarkdown>
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] bg-muted/80 rounded-2xl px-4 py-2.5">
+                    <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
                   </div>
-                </Card>
+                </div>
               )}
               {message.role === "assistant" && (
-                <Card className="p-4 bg-muted/30 border-border/40">
+                <div className="space-y-2">
                   <div className="flex gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0">
-                      <Bot className="w-4 h-4 text-primary" />
+                    <div className="flex items-center justify-center w-7 h-7 rounded-full bg-muted flex-shrink-0 mt-0.5">
+                      <Bot className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 min-w-0">
                       {message.content ? (
-                        <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-strong:text-foreground prose-p:text-foreground prose-li:text-foreground">
+                        <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-strong:font-semibold prose-strong:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground">
                           <ReactMarkdown 
                             remarkPlugins={[remarkGfm]}
                             components={{
-                              h1: ({node, ...props}) => <h1 className="text-lg font-bold mt-4 mb-2" {...props} />,
-                              h2: ({node, ...props}) => <h2 className="text-base font-bold mt-3 mb-2" {...props} />,
-                              h3: ({node, ...props}) => <h3 className="text-sm font-bold mt-2 mb-1" {...props} />,
-                              strong: ({node, ...props}) => <strong className="font-bold text-primary" {...props} />,
-                              ul: ({node, ...props}) => <ul className="list-disc list-inside space-y-1 my-2" {...props} />,
-                              ol: ({node, ...props}) => <ol className="list-decimal list-inside space-y-1 my-2" {...props} />,
-                              p: ({node, ...props}) => <p className="my-2" {...props} />,
+                              h1: ({node, ...props}) => <h1 className="text-base font-semibold mt-3 mb-2" {...props} />,
+                              h2: ({node, ...props}) => <h2 className="text-sm font-semibold mt-2 mb-1" {...props} />,
+                              h3: ({node, ...props}) => <h3 className="text-sm font-medium mt-2 mb-1" {...props} />,
+                              strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
+                              ul: ({node, ...props}) => <ul className="list-disc list-outside ml-4 space-y-1 my-2" {...props} />,
+                              ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-4 space-y-1 my-2" {...props} />,
+                              p: ({node, ...props}) => <p className="my-2 first:mt-0" {...props} />,
                             }}
                           >
                             {message.content}
                           </ReactMarkdown>
                         </div>
                       ) : (
-                        <span className="flex items-center gap-2 text-muted-foreground">
+                        <div className="flex items-center gap-2 text-muted-foreground text-sm py-2">
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Думаю...
-                        </span>
+                          <span>Думаю...</span>
+                        </div>
+                      )}
+                      
+                      {/* Feedback buttons */}
+                      {message.content && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => submitFeedback(index, 1)}
+                            disabled={!!messageRatings[index]}
+                            className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === 1 ? 'bg-muted' : ''}`}
+                          >
+                            <ThumbsUp className={`w-3.5 h-3.5 ${messageRatings[index] === 1 ? 'fill-current' : ''}`} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => submitFeedback(index, -1)}
+                            disabled={!!messageRatings[index]}
+                            className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === -1 ? 'bg-muted' : ''}`}
+                          >
+                            <ThumbsDown className={`w-3.5 h-3.5 ${messageRatings[index] === -1 ? 'fill-current' : ''}`} />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
-                </Card>
+                </div>
               )}
             </div>
           ))}
 
-          {/* Loading indicator */}
-          {isLoading && messages[messages.length - 1]?.content === "" && (
-            <Card className="p-4 bg-muted/30 border-border/40">
-              <div className="flex gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0">
-                  <Bot className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                </div>
-              </div>
-            </Card>
-          )}
           
           <div ref={messagesEndRef} />
         </div>
 
         {/* Smart AI-generated suggestions */}
         {messages.length > 0 && (
-          <div className="px-4 pb-3">
+          <div className="px-4 pb-3 shrink-0">
             {isGeneratingSuggestions && (
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-3">
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Создаю подсказки...</span>
               </div>
             )}
             {smartSuggestions.length > 0 && !isLoading && (
-              <div className="animate-in fade-in slide-in-from-bottom-3 duration-300">
-                <div className="grid grid-cols-3 gap-2.5">
-                  {smartSuggestions.map((suggestion, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => askAI(suggestion)}
-                      disabled={isLoading}
-                      className="text-xs font-medium px-4 py-3 h-auto min-h-[3rem] whitespace-normal text-left justify-start rounded-lg border-border/60 bg-card hover:bg-primary/5 hover:border-primary/40 hover:shadow-sm transition-all duration-200"
-                    >
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {smartSuggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => askAI(suggestion)}
+                    disabled={isLoading}
+                    className="text-xs font-medium px-3 py-2 whitespace-nowrap rounded-md border-border bg-background hover:bg-muted transition-colors shrink-0"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
               </div>
             )}
           </div>
         )}
 
         {/* Chat Input */}
-        <div className="p-4 border-t">
+        <div className="px-4 py-3 border-t shrink-0">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Задай свой вопрос..."
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 h-10"
             />
             <Button
               type="submit"
               disabled={!input.trim() || isLoading}
               size="icon"
-              className="flex-shrink-0"
+              className="flex-shrink-0 h-10 w-10"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
-          </form>
-          
-          {/* Close button */}
-          <div className="flex justify-center mt-3">
             <Button 
               variant="ghost" 
               onClick={handleClose}
-              className="text-sm"
+              size="icon"
+              className="flex-shrink-0 h-10 w-10 text-muted-foreground hover:text-foreground"
+              title="Закрыть"
             >
-              ✓ Понятно, закрыть
+              <span className="text-lg">✕</span>
             </Button>
-          </div>
+          </form>
         </div>
       </DialogContent>
     </Dialog>
