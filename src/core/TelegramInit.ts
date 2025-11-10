@@ -4,6 +4,7 @@ import {
   initTelegramApp, 
   getTelegramUser as getTelegramUserFromLib 
 } from "@/lib/telegram";
+import { extractDeepLink, DeepLinkData } from "@/lib/telegramNotifications";
 
 export function initTelegram() {
   if (typeof window === 'undefined') return null;
@@ -18,6 +19,13 @@ export function initTelegram() {
       console.log('[Telegram Init] WebApp detected');
       console.log('[Telegram Init] initData:', webApp.initData);
       console.log('[Telegram Init] initDataUnsafe:', webApp.initDataUnsafe);
+
+      // Обрабатываем deep link
+      const deepLink = extractDeepLink();
+      if (deepLink) {
+        console.log('[Telegram Init] Deep link detected:', deepLink);
+        handleDeepLink(deepLink);
+      }
 
       const user = getTelegramUserFromLib();
 
@@ -64,6 +72,58 @@ export function initTelegram() {
   }
 
   return null;
+}
+
+/**
+ * Обработка deep links из Telegram уведомлений
+ */
+function handleDeepLink(deepLink: DeepLinkData): void {
+  console.log('[Telegram Init] Handling deep link:', deepLink);
+
+  // Сохраняем deep link для обработки после загрузки приложения
+  sessionStorage.setItem('telegram_deeplink', JSON.stringify(deepLink));
+
+  // Навигация в зависимости от action
+  setTimeout(() => {
+    switch (deepLink.action) {
+      case 'duel':
+        if (deepLink.id) {
+          console.log('[Telegram Init] Navigating to duel:', deepLink.id);
+          window.location.href = `/games/duel?id=${deepLink.id}`;
+        }
+        break;
+      
+      case 'test':
+        if (deepLink.id) {
+          console.log('[Telegram Init] Navigating to test:', deepLink.id);
+          window.location.href = `/test?topic=${deepLink.id}`;
+        }
+        break;
+      
+      case 'learn':
+        console.log('[Telegram Init] Navigating to learn');
+        window.location.href = '/learn';
+        break;
+      
+      case 'dashboard':
+        console.log('[Telegram Init] Navigating to dashboard');
+        window.location.href = '/dashboard';
+        break;
+      
+      case 'exam-prep':
+        console.log('[Telegram Init] Navigating to exam prep');
+        window.location.href = '/exam-prep';
+        break;
+      
+      case 'daily-bonus':
+        console.log('[Telegram Init] Navigating to daily bonus');
+        window.location.href = '/daily-bonus';
+        break;
+      
+      default:
+        console.log('[Telegram Init] Unknown deep link action:', deepLink.action);
+    }
+  }, 100); // Небольшая задержка для корректной навигации
 }
 
 export function isTelegramPlatform(): boolean {

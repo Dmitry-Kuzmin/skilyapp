@@ -15,6 +15,9 @@
     "supabase:deploy": "node scripts/deploy-function.js",
     "supabase:deploy:duel-manager": "node scripts/deploy-function.js duel-manager",
     "supabase:deploy:apply-sql": "node scripts/deploy-function.js apply-sql",
+    "telegram:setup": "node scripts/setup-telegram-webhook.js",
+    "telegram:info": "node scripts/setup-telegram-webhook.js '' --info",
+    "telegram:delete": "node scripts/setup-telegram-webhook.js '' --delete",
     "scrape:practicavial": "node scripts/scrape-practicavial.js",
     "scrape:simple": "node scripts/scrape-practicavial-simple-v2-fixed.js",
     "process-pdf": "node scripts/process-pdf-to-db.js"

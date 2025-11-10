@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.apply-sql]
 verify_jwt = false
+
+[functions.telegram-bot]
+verify_jwt = false
+
+[functions.notification-sender]
+verify_jwt = false
+
+[functions.notification-cron]
+verify_jwt = false

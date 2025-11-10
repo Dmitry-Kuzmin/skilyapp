@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { sounds } from '@/lib/sounds';
+import { isAppActive, sendTelegramNotification } from '@/lib/telegramNotifications';
 
 export interface DuelNotification {
   id: string;
@@ -120,6 +121,24 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             } else {
               sounds.notificationPop();
             }
+          }
+          
+          // Отправляем в Telegram если пользователь неактивен
+          if (!isAppActive() && profileId) {
+            console.log('[Notifications] User inactive, sending to Telegram');
+            sendTelegramNotification({
+              userId: profileId,
+              templateType: newNotification.type,
+              title: titleText,
+              message: newNotification.message,
+              icon: newNotification.icon || '📢',
+              ctaText: 'Открыть',
+              ctaDeeplink: newNotification.duel_id ? `duel_${newNotification.duel_id}` : undefined,
+              variables: newNotification.metadata,
+              force: false
+            }).catch(error => {
+              console.error('[Notifications] Telegram send error:', error);
+            });
           }
         }
       )

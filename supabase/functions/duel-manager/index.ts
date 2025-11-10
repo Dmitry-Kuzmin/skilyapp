@@ -724,6 +724,70 @@ async function createNotification(body: any, profileId: string, supabase: any): 
       type: insertedNotification.type,
       title: insertedNotification.title
     });
+    
+    // ========================================
+    // Отправка в Telegram через notification-sender
+    // ВАЖНО: отправляем только важные уведомления (результаты),
+    // чтобы не создавать спам. Старт, прогресс и т.д. — только в приложении.
+    // ========================================
+    
+    // Типы уведомлений для Telegram (только важные)
+    const TELEGRAM_NOTIFICATION_TYPES = ['finish', 'timeout'];
+    
+    if (TELEGRAM_NOTIFICATION_TYPES.includes(type)) {
+      try {
+        console.log('[create_notification] 📱 Sending important notification to Telegram:', type);
+        
+        // Подготавливаем переменные для шаблона
+        const notificationVariables: Record<string, any> = {
+          ...metadata,
+          duel_id,
+          opponent_name: metadata.opponent_name || 'Игрок'
+        };
+        
+        // Определяем тип шаблона для notification-sender
+        let templateType = type;
+        if (type === 'finish') {
+          // Определяем победителя/проигравшего для правильного шаблона
+          const isWinner = metadata.is_winner || false;
+          templateType = isWinner ? 'duel_win' : 'duel_lose';
+        }
+        
+        const notificationSenderResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/notification-sender`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            user_id: opponentId,
+            template_type: templateType,
+            variables: notificationVariables,
+            title: finalTitle,
+            message: finalMessage,
+            icon: finalIcon,
+            cta_text: 'Посмотреть результаты',
+            cta_deeplink: `duel_${duel_id}`,
+            force: false // Учитываем настройки пользователя
+          })
+        });
+        
+        if (notificationSenderResponse.ok) {
+          const senderResult = await notificationSenderResponse.json();
+          console.log('[create_notification] ✅ Telegram notification sent:', senderResult);
+        } else {
+          const senderError = await notificationSenderResponse.json();
+          console.warn('[create_notification] ⚠️ Telegram notification failed:', senderError);
+          // Не бросаем ошибку - уведомление в приложении уже создано
+        }
+      } catch (telegramError: any) {
+        console.error('[create_notification] ❌ Telegram notification error:', telegramError);
+        // Не бросаем ошибку - продолжаем работу
+      }
+    } else {
+      console.log('[create_notification] ⏭️ Skipping Telegram notification for type:', type, '(only in-app)');
+    }
+    
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
