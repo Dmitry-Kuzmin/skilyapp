@@ -918,11 +918,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
-  // УМЕНЬШАЕМ В 2 РАЗА для всего приложения, как просил пользователь
-  const totalTopPadding = Math.round((safeArea.top + safeArea.contentTop) / 2);
-  const totalBottomPadding = Math.round((safeArea.bottom + safeArea.contentBottom) / 2);
-  const totalLeftPadding = Math.round(safeArea.left / 2);
-  const totalRightPadding = Math.round(safeArea.right / 2);
+  // ПОЛНЫЕ ОТСТУПЫ для игры дуэль (увеличены по просьбе пользователя)
+  const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop);
+  const totalBottomPadding = Math.round(safeArea.bottom + safeArea.contentBottom);
+  const totalLeftPadding = Math.round(safeArea.left);
+  const totalRightPadding = Math.round(safeArea.right);
 
   // Логирование для отладки (отключено для уменьшения шума в консоли)
   // Раскомментируйте для отладки safe area:
