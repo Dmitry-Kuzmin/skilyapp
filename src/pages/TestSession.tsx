@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -12,6 +12,7 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
 import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
+import { AIExplanationDialog } from "@/components/AIExplanationDialog";
 
 type QuestionData = {
   id: string;
@@ -206,6 +207,7 @@ const TestSession = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [testInfo, setTestInfo] = useState<{ id: string; title: string } | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
+  const [showAIExplanation, setShowAIExplanation] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
   
   const handleCloseModal = useCallback(() => {
@@ -308,8 +310,77 @@ const TestSession = () => {
     try {
       setLoading(true);
       
+      // Если это DGT тест, загружаем из dgt_questions
+      if (mode === 'dgt' && topic) {
+        const category = topic.toUpperCase();
+        
+        // Загружаем случайные 30 вопросов из DGT базы
+        const { data: dgtQuestions, error: dgtError } = await supabase
+          .rpc('get_random_dgt_questions', {
+            p_category: category,
+            p_limit: 30
+          });
+
+        if (dgtError) throw dgtError;
+        if (!dgtQuestions || dgtQuestions.length === 0) {
+          toast.error("Вопросы для этой категории не найдены");
+          navigate("/dgt-tests");
+          return;
+        }
+
+        // Преобразуем DGT вопросы в формат TestSession
+        const formattedQuestions = dgtQuestions.map((q: any) => ({
+          id: q.id,
+          question_ru: q.question_es,
+          question_es: q.question_es,
+          question_en: q.question_es,
+          image_url: q.image_filename || null, // Используем filename, если есть
+          explanation_ru: q.explanation_es || 'Нет объяснения',
+          explanation_es: q.explanation_es || 'Sin explicación',
+          explanation_en: q.explanation_es || 'No explanation',
+          topics: {
+            title_ru: `DGT Экзамен ${category}`,
+            title_es: `Examen DGT ${category}`,
+          },
+          answer_options: [
+            {
+              id: `${q.id}_a`,
+              question_id: q.id,
+              text_ru: q.option_a_es,
+              text_es: q.option_a_es,
+              text_en: q.option_a_es,
+              is_correct: q.correct_answer === 'a',
+              position: 1,
+            },
+            {
+              id: `${q.id}_b`,
+              question_id: q.id,
+              text_ru: q.option_b_es,
+              text_es: q.option_b_es,
+              text_en: q.option_b_es,
+              is_correct: q.correct_answer === 'b',
+              position: 2,
+            },
+            {
+              id: `${q.id}_c`,
+              question_id: q.id,
+              text_ru: q.option_c_es,
+              text_es: q.option_c_es,
+              text_en: q.option_c_es,
+              is_correct: q.correct_answer === 'c',
+              position: 3,
+            },
+          ],
+        }));
+
+        setQuestions(formattedQuestions);
+        setTestInfo({
+          id: `dgt_${category}`,
+          title: `DGT Экзамен ${category}`,
+        });
+      }
       // Если это sequential тест, загружаем вопросы через функцию
-      if (testId) {
+      else if (testId) {
         // Получаем информацию о тесте
         const { data: testData, error: testError } = await supabase
           .from("tests")
@@ -547,7 +618,7 @@ const TestSession = () => {
       console.error("Error saving progress:", error);
     }
 
-    if (mode === "practice") {
+    if (mode === "practice" || mode === "dgt") {
       setShowExplanation(true);
       if (isCorrect) {
         toast.success("¡Correcto! ✅", { duration: 2000 });
@@ -935,20 +1006,32 @@ const TestSession = () => {
 
                 {/* Explanation - Only in practice mode */}
                 {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-                  <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
-                    <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
-                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
-                          {showTranslation ? "Объяснение:" : "Explicación:"}
-                        </p>
-                        <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                          {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-                        </p>
+                  <div className="mb-3 sm:mb-4 space-y-2">
+                    <div className="p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
+                      <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
+                          <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
+                            {showTranslation ? "Объяснение:" : "Explicación:"}
+                          </p>
+                          <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                            {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+                          </p>
+                        </div>
                       </div>
                     </div>
+                    {/* AI Explanation Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAIExplanation(true)}
+                      className="w-full text-xs sm:text-sm gradient-primary text-primary-foreground hover:opacity-90"
+                    >
+                      <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
+                      {showTranslation ? "Спросить AI: объясни по-другому" : "Preguntar a IA: explica de otra manera"}
+                    </Button>
                   </div>
                 )}
 
@@ -1091,20 +1174,32 @@ const TestSession = () => {
 
           {/* Explanation - Only in practice mode */}
           {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-                <div className="mb-3 sm:mb-4 p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
-              <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-                      <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
-                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
-                    {showTranslation ? "Объяснение:" : "Explicación:"}
-                  </p>
-                  <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                    {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-                  </p>
+            <div className="mb-3 sm:mb-4 space-y-2">
+              <div className="p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
+                <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                  <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
+                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
+                      {showTranslation ? "Объяснение:" : "Explicación:"}
+                    </p>
+                    <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                      {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+                    </p>
+                  </div>
                 </div>
               </div>
+              {/* AI Explanation Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAIExplanation(true)}
+                className="w-full text-xs sm:text-sm gradient-primary text-primary-foreground hover:opacity-90"
+              >
+                <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
+                {showTranslation ? "Спросить AI: объясни по-другому" : "Preguntar a IA: explica de otra manera"}
+              </Button>
             </div>
           )}
 
@@ -1332,6 +1427,25 @@ const TestSession = () => {
         questionId={currentQuestion.id}
         questionText={showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
       />
+
+      {/* AI Explanation Dialog */}
+      {(mode === "practice" || mode === "dgt") && showExplanation && (
+        <AIExplanationDialog
+          open={showAIExplanation}
+          onClose={() => setShowAIExplanation(false)}
+          question={showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+          correctAnswer={
+            sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : 'text_es'] || ''
+          }
+          userAnswer={
+            sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : 'text_es']
+          }
+          isCorrect={sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false}
+          explanation={showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
+          topic={currentQuestion.topics?.[showTranslation ? 'title_ru' : 'title_es']}
+          imageUrl={currentQuestion.image_url}
+        />
+      )}
     </Layout>
   );
 };

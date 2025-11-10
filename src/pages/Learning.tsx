@@ -1,4 +1,4 @@
-import { BookOpen, SignpostBig, Languages, Video } from "lucide-react";
+import { BookOpen, SignpostBig, Languages, Video, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,17 @@ const Learning = () => {
   const learningModules = [
     {
       id: 1,
+      title: "Экзамены DGT",
+      description: "4000+ реальных вопросов для категорий A1, B, D с AI подсказками",
+      icon: Car,
+      progress: 0,
+      topics: 4012,
+      color: "primary",
+      path: "/dgt-tests",
+      badge: "Новое",
+    },
+    {
+      id: 2,
       title: "Учебные материалы",
       description: "Структурированный курс ПДД Испании на русском языке",
       icon: BookOpen,
@@ -20,7 +31,7 @@ const Learning = () => {
       path: "/tests",
     },
     {
-      id: 2,
+      id: 3,
       title: "Дорожные знаки",
       description: "Полный каталог испанских дорожных знаков с объяснениями",
       icon: SignpostBig,
@@ -30,7 +41,7 @@ const Learning = () => {
       path: "/road-signs",
     },
     {
-      id: 3,
+      id: 4,
       title: "Словарь терминов",
       description: "Изучай испанские термины ПДД с переводом",
       icon: Languages,
@@ -40,7 +51,7 @@ const Learning = () => {
       path: "/dictionary",
     },
     {
-      id: 4,
+      id: 5,
       title: "Видеокурс",
       description: "Эксклюзивные видеоуроки по ПДД",
       icon: Video,

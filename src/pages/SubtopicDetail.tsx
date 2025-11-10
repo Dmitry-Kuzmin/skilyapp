@@ -61,23 +61,95 @@ const SubtopicDetail = () => {
 
       // Загружаем контент в зависимости от типа подтемы
       if (subtopicData.type === "material") {
-        // Загружаем материал
-        const { data: materialData, error: materialError } = await supabase
-          .from("materials")
-          .select("*")
-          .eq("subtopic_id", id)
-          .single();
+        // Загружаем материал - проверяем связь через content_id или subtopic_id
+        let materialData = null;
+        let materialError = null;
+
+        // Сначала пробуем загрузить по content_id (если указан в подтеме)
+        if (subtopicData.content_id) {
+          const { data, error } = await supabase
+            .from("materials")
+            .select("*")
+            .eq("id", subtopicData.content_id)
+            .single();
+          
+          materialData = data;
+          materialError = error;
+        }
+
+        // Если не нашли по content_id, пробуем по subtopic_id
+        if (!materialData && !materialError) {
+          console.log("[SubtopicDetail] Trying to load material by subtopic_id:", id);
+          const { data, error } = await supabase
+            .from("materials")
+            .select("*")
+            .eq("subtopic_id", id)
+            .single();
+          
+          materialData = data;
+          materialError = error;
+          
+          if (error) {
+            console.warn("[SubtopicDetail] Error loading material by subtopic_id:", error);
+          } else if (materialData) {
+            console.log("[SubtopicDetail] Material loaded by subtopic_id:", materialData.id);
+          }
+        } else if (materialError) {
+          console.warn("[SubtopicDetail] Error loading material by content_id:", materialError);
+        }
 
         if (!materialError && materialData) {
+          console.log("[SubtopicDetail] Material loaded:", {
+            id: materialData.id,
+            hasHtmlPreview: !!materialData.html_preview,
+            hasContent: !!materialData.content,
+            contentType: typeof materialData.content,
+            hasContentRu: !!materialData.content_ru,
+          });
+
+          // Определяем контент: используем html_preview если есть, иначе content
+          let contentHtml = "";
+          
+          if (materialData.html_preview) {
+            // Используем готовый HTML preview
+            contentHtml = materialData.html_preview;
+            console.log("[SubtopicDetail] Using html_preview");
+          } else if (materialData.content) {
+            // Если content это объект с полем html
+            if (typeof materialData.content === 'object' && materialData.content !== null) {
+              if (materialData.content.html) {
+                contentHtml = materialData.content.html;
+                console.log("[SubtopicDetail] Using content.html");
+              } else {
+                // Если content это JSON (старый формат TipTap), конвертируем
+                const { generateHTMLPreview } = await import("@/utils/editor");
+                contentHtml = generateHTMLPreview(materialData.content);
+                console.log("[SubtopicDetail] Converted TipTap JSON to HTML");
+              }
+            } else if (typeof materialData.content === 'string') {
+              // Если content это строка (HTML)
+              contentHtml = materialData.content;
+              console.log("[SubtopicDetail] Using content as string");
+            }
+          } else if (materialData.content_ru) {
+            // Fallback на старые поля для обратной совместимости
+            contentHtml = materialData.content_ru;
+            console.log("[SubtopicDetail] Using content_ru (legacy)");
+          }
+
+          if (!contentHtml) {
+            console.warn("[SubtopicDetail] No content found for material:", materialData.id);
+          }
+
           setMaterial({
             id: materialData.id,
             subtopic_id: materialData.subtopic_id,
             title_ru: materialData.title_ru,
             title_es: materialData.title_es,
             title_en: materialData.title_en,
-            content_ru: materialData.content_ru,
-            content_es: materialData.content_es,
-            content_en: materialData.content_en,
+            content_ru: contentHtml, // Используем HTML контент
+            content_es: materialData.content_es || contentHtml,
+            content_en: materialData.content_en || contentHtml,
             source_pdf: materialData.source_pdf,
             images: (materialData.images as any) || [],
           });

@@ -1,16 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, BookOpen } from "lucide-react";
-import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Topic, TopicProgress } from "@/components/learning-map/TopicCard";
-import { DuolingoLearningPath } from "@/components/learning-map/DuolingoLearningPath";
-import { ModuleBanner } from "@/components/learning-map/ModuleBanner";
-import { RightSidebar } from "@/components/learning-map/RightSidebar";
+import { DynamicLearningPath } from "@/components/learning-map/DynamicLearningPath";
+import { PremiumDailyChallenges } from "@/components/learning-map/PremiumDailyChallenges";
+import { PremiumLeagueInfo } from "@/components/learning-map/PremiumLeagueInfo";
+import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
-import { calculateTopicProgress } from "@/utils/learningMap";
-import { cn } from "@/lib/utils";
 import Landing from "./Landing";
 
 const LearningMap = () => {
@@ -22,6 +20,7 @@ const LearningMap = () => {
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
   const [userProfile, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+  const [currentSubtopicIndex, setCurrentSubtopicIndex] = useState<number>(0);
 
   useEffect(() => {
     // Загружаем темы сразу, если пользователь авторизован
@@ -239,7 +238,17 @@ const LearningMap = () => {
         return prog?.isUnlocked && !prog?.completed;
       });
       
-      setActiveTopicId(activeTopic?.id || topics[0]?.id || null);
+      const activeId = activeTopic?.id || topics[0]?.id || null;
+      setActiveTopicId(activeId);
+
+      // Определяем текущий индекс подтемы на основе прогресса
+      if (activeId && profileId) {
+        const activeProgress = progressMap.get(activeId);
+        if (activeProgress) {
+          // Устанавливаем индекс следующей незавершенной подтемы
+          setCurrentSubtopicIndex(activeProgress.completedSubtopicCount || 0);
+        }
+      }
     } catch (error) {
       console.error('[LearningMap] Error loading progress:', error);
       // Fallback: показываем первую тему как доступную
@@ -260,41 +269,12 @@ const LearningMap = () => {
     }
   };
 
-  // Определяем следующую доступную тему
-  const nextTopic = useMemo(() => {
-    return topics.find((topic) => {
-      const prog = topicsProgress.get(topic.id);
-      return prog?.isUnlocked && !prog?.completed;
-    });
-  }, [topics, topicsProgress]);
-
-  // Определяем модуль и раздел для активной темы
-  const getModuleAndSection = (topicIndex: number) => {
-    // Группируем темы: каждые 5 тем = 1 модуль, каждая тема = 1 раздел
-    const moduleNumber = Math.floor(topicIndex / 5) + 1;
-    const sectionNumber = (topicIndex % 5) + 1;
-    return { module: moduleNumber, section: sectionNumber };
+  const handleTopicClick = (topicId: string) => {
+    navigate(`/topic/${topicId}`);
   };
 
-  const activeTopicIndex = activeTopicId
-    ? topics.findIndex((t) => t.id === activeTopicId)
-    : nextTopic
-    ? topics.findIndex((t) => t.id === nextTopic.id)
-    : 0;
-
-  const moduleInfo =
-    activeTopicIndex >= 0
-      ? getModuleAndSection(activeTopicIndex)
-      : { module: 1, section: 1 };
-
-  const handleTopicClick = (topic: Topic) => {
-    navigate(`/topic/${topic.id}`);
-  };
-
-  const handleStartClick = () => {
-    if (nextTopic) {
-      navigate(`/topic/${nextTopic.id}`);
-    }
+  const handleSubtopicClick = (subtopicId: string) => {
+    navigate(`/subtopic/${subtopicId}`);
   };
 
   // Show landing page for non-authenticated users
@@ -304,95 +284,72 @@ const LearningMap = () => {
 
   if (loading) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-            <p className="text-muted-foreground">Загрузка карты обучения...</p>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
+          <p className="text-muted-foreground">Загрузка карты обучения...</p>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4 max-w-md">
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
-              <BookOpen className="w-8 h-8 text-destructive" />
-            </div>
-            <h2 className="text-2xl font-bold">Ошибка загрузки</h2>
-            <p className="text-muted-foreground">{error}</p>
-            <Button onClick={() => {
-              setError(null);
-              setLoading(true);
-              loadLearningMap();
-            }}>
-              Попробовать снова
-            </Button>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <BookOpen className="w-8 h-8 text-destructive" />
           </div>
+          <h2 className="text-2xl font-bold">Ошибка загрузки</h2>
+          <p className="text-muted-foreground">{error}</p>
+          <Button onClick={() => {
+            setError(null);
+            setLoading(true);
+            loadLearningMap();
+          }}>
+            Попробовать снова
+          </Button>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
     <Layout>
-      <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Основной контент - путь обучения */}
-            <div className="flex-1 min-w-0 relative">
-              {/* Баннер модуля (Duolingo style) */}
-              {topics.length > 0 && activeTopicIndex >= 0 && topics[activeTopicIndex] && (
-                <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-                  <ModuleBanner
-                    moduleNumber={moduleInfo.module}
-                    sectionNumber={moduleInfo.section}
-                    topicTitle={topics[activeTopicIndex].title_ru}
-                  />
-                </div>
-              )}
-
-              {/* Вертикальный путь обучения в стиле Duolingo */}
+      <div className="min-h-screen bg-slate-50">
+        <div className="container mx-auto px-4 py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 lg:gap-12">
+            {/* Main learning path */}
+            <div>
               {topics.length === 0 ? (
-                <div className="text-center py-20 animate-in fade-in duration-500">
-                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-muted/50 mb-6">
-                    <BookOpen className="w-12 h-12 text-muted-foreground" />
+                <div className="text-center py-20">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-100 mb-4">
+                    <BookOpen className="w-8 h-8 text-slate-400" />
                   </div>
-                  <h3 className="text-2xl font-semibold mb-2">
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">
                     Темы пока не добавлены
                   </h3>
-                  <p className="text-muted-foreground max-w-md mx-auto">
+                  <p className="text-slate-600 max-w-md mx-auto">
                     Администратор добавит темы в ближайшее время
                   </p>
                 </div>
               ) : (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <DuolingoLearningPath
-                    topics={topics}
-                    topicsProgress={topicsProgress}
-                    activeTopicId={activeTopicId}
-                    nextTopicId={nextTopic?.id || null}
-                    onTopicClick={handleTopicClick}
-                    onStartClick={handleStartClick}
-                  />
-                </div>
+              <DynamicLearningPath
+                topics={topics}
+                topicsProgress={topicsProgress}
+                currentTopicId={activeTopicId}
+                currentSubtopicIndex={currentSubtopicIndex}
+                onSubtopicClick={handleSubtopicClick}
+                onTopicClick={handleTopicClick}
+              />
               )}
             </div>
 
-            {/* Правая боковая панель */}
-            {profileId && (
-              <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                <RightSidebar
-                  profileId={profileId}
-                  rank={userProfile?.rank}
-                  xp={userProfile?.xp}
-                />
-              </div>
-            )}
+            {/* Sidebar */}
+            <div className="space-y-4">
+              <PremiumLeagueInfo />
+              <PremiumDailyChallenges />
+            </div>
           </div>
         </div>
       </div>

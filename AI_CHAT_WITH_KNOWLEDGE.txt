@@ -1,0 +1,298 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// System prompt for AI assistant
+const systemPrompt = `Ты — эксперт по Правилам дорожного движения ИСПАНИИ и подготовке к экзамену DGT (Dirección General de Tráfico).
+
+🇪🇸 КОНТЕКСТ: Все ответы должны быть про ИСПАНСКИЕ правила и экзамен DGT.
+
+ВАЖНО:
+- Пиши ГРАМОТНО по-русски, без орфографических ошибок
+- Отвечай ТОЛЬКО про Испанию (не "в некоторых странах")
+- Штрафы — в ЕВРО, скорости — в км/ч
+- Используй испанские термины: autopista, autovía, rotonda, carril BUS
+- Будь конкретным: называй цифры, улицы, города
+
+Стиль ответа:
+- Естественный разговорный язык
+- Кратко: 2-3 абзаца
+- Сначала суть, потом детали
+- Примеры из реальной жизни в Испании
+- Без извинений и вводных фраз
+
+Отвечай на том языке, на котором спрашивают.`;
+
+// Search for relevant context in DGT knowledge base
+async function searchDGTKnowledge(query: string, topicNumber: number | null = null): Promise<string> {
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    console.log('[AI Chat] Searching DGT knowledge for:', query);
+
+    const { data, error } = await supabase
+      .rpc('search_dgt_knowledge', {
+        search_query: query,
+        topic_num: topicNumber,
+        limit_count: 3
+      });
+
+    if (error) {
+      console.error('[AI Chat] Error searching knowledge:', error);
+      return '';
+    }
+
+    if (!data || data.length === 0) {
+      console.log('[AI Chat] No relevant knowledge found');
+      return '';
+    }
+
+    console.log(`[AI Chat] Found ${data.length} relevant sections`);
+
+    // Формируем контекст из найденных разделов
+    const context = data
+      .map((doc: any) => `### ${doc.section_title}\n${doc.content}`)
+      .join('\n\n');
+
+    return context;
+  } catch (error) {
+    console.error('[AI Chat] Exception searching knowledge:', error);
+    return '';
+  }
+}
+
+// Try Groq first (faster and free)
+async function tryGroq(messages: any[], knowledge: string = '', modelName: string = 'mixtral-8x7b-32768'): Promise<Response | null> {
+  const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
+  
+  if (!GROQ_API_KEY) {
+    console.log('[AI Chat] Groq API key not found, skipping Groq');
+    return null;
+  }
+
+  try {
+    console.log(`[AI Chat] Trying Groq API with model: ${modelName}...`);
+    
+    // Добавляем знания из базы в системный промпт
+    const enhancedPrompt = knowledge 
+      ? `${systemPrompt}\n\n📚 МАТЕРИАЛ ИЗ УЧЕБНИКОВ DGT:\n${knowledge}\n\nИспользуй этот материал для точного ответа на основе официальных учебников DGT.`
+      : systemPrompt;
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [
+          { role: 'system', content: enhancedPrompt },
+          ...messages
+        ],
+        stream: true,
+        temperature: 0.5, // Снижена для более точных ответов
+        max_tokens: 2000,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[AI Chat] Groq API error with ${modelName}:`, response.status, errorText);
+      return null;
+    }
+
+    console.log(`[AI Chat] ✅ Groq API success with model: ${modelName}`);
+    return new Response(response.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+    });
+  } catch (error) {
+    console.error(`[AI Chat] Groq API exception with ${modelName}:`, error);
+    return null;
+  }
+}
+
+// Try multiple Groq models in order
+async function tryGroqWithFallback(messages: any[], knowledge: string = ''): Promise<Response | null> {
+  // List of models to try in order (prioritized for Russian language support)
+  const models = [
+    'mixtral-8x7b-32768',        // Best for Russian, fast and reliable
+    'llama-3.3-70b-versatile',   // Backup: latest but weaker Russian
+    'llama-3.1-8b-instant',      // Fastest fallback
+  ];
+
+  for (const model of models) {
+    const response = await tryGroq(messages, knowledge, model);
+    if (response) {
+      return response;
+    }
+  }
+
+  return null;
+}
+
+// Fallback to Lovable API (Gemini)
+async function tryLovable(messages: any[], knowledge: string = ''): Promise<Response | null> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  
+  if (!LOVABLE_API_KEY) {
+    console.log('[AI Chat] Lovable API key not found');
+    return null;
+  }
+
+  try {
+    console.log('[AI Chat] Trying Lovable API (Gemini)...');
+    
+    // Добавляем знания из базы в системный промпт
+    const enhancedPrompt = knowledge 
+      ? `${systemPrompt}\n\n📚 МАТЕРИАЛ ИЗ УЧЕБНИКОВ DGT:\n${knowledge}\n\nИспользуй этот материал для точного ответа на основе официальных учебников DGT.`
+      : systemPrompt;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: enhancedPrompt },
+          ...messages
+        ],
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AI Chat] Lovable API error:', response.status, errorText);
+      return null;
+    }
+
+    console.log('[AI Chat] ✅ Lovable API success');
+    return new Response(response.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+    });
+  } catch (error) {
+    console.error('[AI Chat] Lovable API exception:', error);
+    return null;
+  }
+}
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    console.log('[AI Chat] Request received:', {
+      method: req.method,
+      url: req.url,
+      hasAuth: !!req.headers.get('Authorization')
+    });
+
+    // Parse request body
+    let messages: any[] = [];
+    let topicNumber: number | null = null;
+    
+    try {
+      const body = await req.json();
+      messages = body.messages || [];
+      topicNumber = body.topicNumber || null; // Опциональный номер темы
+    } catch (parseError) {
+      console.error('[AI Chat] Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid messages format. Expected array of messages.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get authorization header (optional since verify_jwt = false)
+    const authHeader = req.headers.get('Authorization');
+    
+    // Try to get user if auth header is provided (optional)
+    if (authHeader) {
+      try {
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+          {
+            global: { headers: { Authorization: authHeader } }
+          }
+        );
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (!userError && user) {
+          console.log('[AI Chat] Authenticated user:', user.id);
+        } else {
+          console.log('[AI Chat] No authenticated user, continuing without auth');
+        }
+      } catch (authError) {
+        console.log('[AI Chat] Auth check failed, continuing without auth');
+      }
+    } else {
+      console.log('[AI Chat] No auth header provided, continuing without auth');
+    }
+
+    console.log('[AI Chat] Processing request with', messages.length, 'messages');
+
+    // Search for relevant knowledge from DGT manuals
+    const lastUserMessage = messages[messages.length - 1]?.content || '';
+    const knowledge = await searchDGTKnowledge(lastUserMessage, topicNumber);
+    
+    if (knowledge) {
+      console.log('[AI Chat] Using knowledge from DGT manuals');
+    } else {
+      console.log('[AI Chat] No relevant knowledge found, using base prompt');
+    }
+
+    // Try Lovable API (Gemini) FIRST - better for Russian, fewer errors, better grammar
+    const lovableResponse = await tryLovable(messages, knowledge);
+    if (lovableResponse) {
+      return lovableResponse;
+    }
+
+    // Fallback to Groq if Gemini unavailable
+    const groqResponse = await tryGroqWithFallback(messages, knowledge);
+    if (groqResponse) {
+      return groqResponse;
+    }
+
+    // No API available
+    console.error('[AI Chat] ❌ No AI provider available');
+    return new Response(
+      JSON.stringify({ 
+        error: 'AI service temporarily unavailable. Please configure GROQ_API_KEY or LOVABLE_API_KEY in Supabase secrets.' 
+      }),
+      { 
+        status: 503, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  } catch (e) {
+    console.error('[AI Chat] Unexpected error:', e);
+    return new Response(
+      JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }), 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+});
+

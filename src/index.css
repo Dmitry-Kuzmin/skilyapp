@@ -49,6 +49,60 @@
     @apply bg-muted font-semibold;
   }
   
+  /* Quill Editor Styles */
+  .ql-container {
+    font-family: inherit;
+    font-size: 16px;
+  }
+  
+  .ql-editor {
+    min-height: 400px;
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+  }
+  
+  .ql-toolbar {
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
+  }
+  
+  .ql-snow .ql-stroke {
+    stroke: hsl(var(--foreground));
+  }
+  
+  .ql-snow .ql-fill {
+    fill: hsl(var(--foreground));
+  }
+  
+  .ql-snow .ql-picker-label {
+    color: hsl(var(--foreground));
+  }
+  
+  .ql-snow .ql-picker-options {
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
+  }
+  
+  .ql-snow .ql-picker-item:hover {
+    background: hsl(var(--muted));
+  }
+  
+  .ql-snow .ql-picker-item.ql-selected {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  
+  /* Tiptap Editor Styles */
+  .ProseMirror {
+    outline: none;
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+  }
+  
+  .ProseMirror-focused {
+    outline: none;
+  }
+  
   .mce-content-body table p,
   .prose table p {
     @apply m-0;

@@ -11,6 +11,7 @@ import {
   LogOut,
   Bell,
   CheckCircle2,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +52,12 @@ const adminNavItems = [
     label: "Импорт данных",
     icon: Upload,
     path: "/admin/import",
+  },
+  {
+    id: "scraper",
+    label: "Скрапер PracticaVial",
+    icon: Globe,
+    path: "/admin/scraper",
   },
 ];
 

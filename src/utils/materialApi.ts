@@ -89,6 +89,23 @@ export const topicApi = {
 };
 
 /**
+ * Тип подтемы
+ */
+export interface Subtopic {
+  id: string;
+  topic_id: string;
+  title_ru: string;
+  title_es: string;
+  title_en: string;
+  order_index: number;
+  type: "material" | "test" | "terms";
+  content_id?: string;
+  is_required?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
  * CRUD операции для подтем
  */
 export const subtopicApi = {

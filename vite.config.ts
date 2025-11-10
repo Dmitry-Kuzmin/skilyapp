@@ -25,4 +25,13 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['react-quill', 'quill'],
+    esbuildOptions: {
+      jsx: 'automatic',
+    },
+  },
+  ssr: {
+    noExternal: ['react-quill'],
+  },
 }));

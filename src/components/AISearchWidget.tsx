@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 type Message = {
   role: "user" | "assistant";
   content: string;
@@ -49,11 +50,18 @@ export const AISearchWidget = () => {
     }];
     setMessages(newMessages);
     try {
+      // Get user session token for authentication (optional)
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Use session token if available, otherwise use ANON key
+      // Function supports both authenticated and anonymous requests
+      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+          Authorization: `Bearer ${authToken}`
         },
         body: JSON.stringify({
           messages: newMessages
@@ -103,10 +111,20 @@ export const AISearchWidget = () => {
       }
     } catch (error) {
       console.error("Error streaming chat:", error);
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: "Произошла ошибка. Попробуйте ещё раз."
-      }]);
+      const errorMessage = error instanceof Error ? error.message : "Произошла ошибка";
+      
+      // More specific error messages
+      if (errorMessage.includes('not authenticated') || errorMessage.includes('Unauthorized')) {
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "⚠️ Необходима авторизация. Пожалуйста, войдите в систему."
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "Произошла ошибка. Попробуйте ещё раз. Если проблема сохраняется, проверьте подключение к интернету."
+        }]);
+      }
     } finally {
       setIsLoading(false);
     }
