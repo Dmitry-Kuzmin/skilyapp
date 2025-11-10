@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useToast } from "@/hooks/use-toast";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 type Message = {
   role: "user" | "assistant";
@@ -476,10 +477,18 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
     }
   }, [open]);
 
+  const isTelegram = isTelegramMiniApp();
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none">
-        <DialogHeader className="px-4 py-3 border-b shrink-0">
+        <DialogHeader 
+          className="px-4 border-b shrink-0"
+          style={{
+            paddingTop: isTelegram ? 'calc(var(--tg-content-safe-area-inset-top, 0px) + 12px)' : '12px',
+            paddingBottom: '12px'
+          }}
+        >
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-muted-foreground" />
             <span className="text-base font-medium text-foreground">
@@ -597,7 +606,13 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
         )}
 
         {/* Chat Input */}
-        <div className="px-4 py-3 border-t shrink-0">
+        <div 
+          className="px-4 border-t shrink-0"
+          style={{
+            paddingTop: '12px',
+            paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 0px) + 12px)' : '12px',
+          }}
+        >
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               value={input}

@@ -165,7 +165,15 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
           hideCloseButton 
           className="w-screen h-screen max-w-none max-h-none m-0 p-0 bg-black/95 border-none"
         >
-          <div className="relative w-full h-full flex items-center justify-center p-4">
+          <div 
+            className="relative w-full h-full flex items-center justify-center"
+            style={{
+              paddingTop: 'max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px))',
+              paddingBottom: 'max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px))',
+              paddingLeft: 'max(env(safe-area-inset-left), 16px)',
+              paddingRight: 'max(env(safe-area-inset-right), 16px)',
+            }}
+          >
             <img 
               src={imageSrc || ''} 
               alt="Вопрос - увеличенное изображение" 
@@ -178,7 +186,11 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
             />
             <button
               onClick={() => setIsDialogOpen(false)}
-              className="absolute top-6 right-6 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 transition-colors z-20 shadow-2xl"
+              className="absolute bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 transition-colors z-20 shadow-2xl"
+              style={{
+                top: 'calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 16px)',
+                right: 'calc(max(env(safe-area-inset-right), 16px) + 16px)',
+              }}
               aria-label="Закрыть"
             >
               <X className="w-6 h-6" />
