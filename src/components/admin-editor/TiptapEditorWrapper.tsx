@@ -1,3 +1,3 @@
-import { TiptapEditor } from './TiptapEditor';
+import { TiptapEditor } from './TipTapEditor';
 export default TiptapEditor;
 
