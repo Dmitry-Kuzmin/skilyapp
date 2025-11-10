@@ -990,8 +990,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         />
       </div>
 
-      {/* Exit Button - Top Left Corner - Скрыта в Telegram (есть встроенная кнопка Назад) */}
-      {safeArea?.platform !== 'telegram' && (
+      {/* Exit Button - Top Left Corner - Скрыта на мобилке и в Telegram (есть встроенная кнопка Назад) */}
+      {safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && (
         <Button
           variant="ghost"
           size="icon"
