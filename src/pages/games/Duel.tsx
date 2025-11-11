@@ -639,56 +639,6 @@ export default function Duel() {
 
       {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
         <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in">
-          {/* Hero Section - Premium Design */}
-          <motion.div
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center space-y-4 sm:space-y-6 pb-6 sm:pb-10 relative"
-          >
-            {/* Animated background glow */}
-            <div className="absolute inset-0 -z-10 flex items-center justify-center">
-              <div className="w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-r from-primary/20 via-blue-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse" />
-            </div>
-            
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 260, 
-                damping: 20, 
-                delay: 0.2 
-              }}
-              className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
-            >
-              {/* Glowing ring */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-3xl blur-xl opacity-60 animate-pulse" />
-              {/* Main icon container */}
-              <div className="relative w-full h-full bg-gradient-to-br from-primary via-blue-600 to-cyan-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-primary/40 transform hover:scale-105 transition-transform duration-300">
-                <Swords className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 text-white drop-shadow-lg" />
-              </div>
-              {/* Shine effect */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/20 via-transparent to-transparent pointer-events-none" />
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-primary via-blue-600 via-cyan-500 to-primary bg-clip-text text-transparent px-2 bg-[length:200%_auto] animate-gradient"
-            >
-              Дуэль знаний
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground/90 max-w-2xl mx-auto px-4 font-medium leading-relaxed"
-            >
-              Сразись с друзьями в битве за знания ПДД. Победи скорость и точность!
-            </motion.p>
-          </motion.div>
 
           {/* Countdown Overlay */}
           <AnimatePresence>
