@@ -135,7 +135,7 @@ serve(async (req) => {
           referredBonus: result.referred_bonus
         });
         
-        if (result.success) {
+        if (result.success && result.result_referrer_id) {
           // Reload profile to get updated coins
           const { data: updatedProfile } = await supabase
             .from('profiles')
@@ -146,6 +146,21 @@ serve(async (req) => {
           if (updatedProfile) {
             Object.assign(profile, updatedProfile);
             console.log('[Telegram Auth] Profile updated with referral bonus. New coins:', profile.coins);
+          }
+          
+          // Send notification to referrer
+          const referredName = profile.first_name || profile.username || 'Новый пользователь';
+          const { data: notificationId, error: notifError } = await supabase.rpc('send_referral_notification', {
+            p_referrer_id: result.result_referrer_id,
+            p_referred_name: referredName,
+            p_bonus_amount: result.referred_bonus,
+            p_notification_type: 'referral_joined'
+          });
+          
+          if (notifError) {
+            console.error('[Telegram Auth] Error sending referral notification:', notifError);
+          } else {
+            console.log('[Telegram Auth] Referral notification sent:', notificationId);
           }
         }
       }
