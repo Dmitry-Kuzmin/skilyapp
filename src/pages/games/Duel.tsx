@@ -1296,23 +1296,71 @@ export default function Duel() {
                         </div>
                       </div>
 
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border border-amber-300/50 dark:border-amber-800/50 backdrop-blur-sm shadow-lg"
-                      >
-                        <div className="flex items-start gap-3 sm:gap-4">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30 ring-2 ring-amber-500/20">
-                            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      {/* Bet Warning / Preview */}
+                      <AnimatePresence>
+                        {duelPreview && duelPreview.bet_amount > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className={`p-4 sm:p-5 rounded-2xl border-2 ${
+                              userCoins >= duelPreview.bet_amount
+                                ? 'bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border-amber-500/40'
+                                : 'bg-gradient-to-br from-red-100/60 via-red-50/40 to-red-100/60 dark:from-red-950/30 dark:via-red-950/20 dark:to-red-950/30 border-red-500/40'
+                            } backdrop-blur-sm shadow-lg`}
+                          >
+                            <div className="flex items-start gap-3 sm:gap-4">
+                              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ${
+                                userCoins >= duelPreview.bet_amount
+                                  ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/30 ring-amber-500/20'
+                                  : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-500/30 ring-red-500/20'
+                              }`}>
+                                <Coins className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0 space-y-1">
+                                <p className="text-sm sm:text-base font-bold text-foreground">
+                                  {userCoins >= duelPreview.bet_amount ? '💰 Дуэль со ставкой!' : '⚠️ Недостаточно монет!'}
+                                </p>
+                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                  Ставка: <span className="font-bold text-foreground">{duelPreview.bet_amount}</span> монет
+                                </p>
+                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                  У вас: <span className={`font-bold ${userCoins >= duelPreview.bet_amount ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {userCoins}
+                                  </span> монет
+                                </p>
+                                {userCoins < duelPreview.bet_amount && (
+                                  <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">
+                                    Нужно ещё {duelPreview.bet_amount - userCoins} монет
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Hint Box - shown when no preview */}
+                      {!duelPreview && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.2 }}
+                          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border border-amber-300/50 dark:border-amber-800/50 backdrop-blur-sm shadow-lg"
+                        >
+                          <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30 ring-2 ring-amber-500/20">
+                              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs sm:text-sm text-muted-foreground/90 leading-relaxed font-medium">
+                                Попросите друга поделиться кодом из экрана ожидания дуэли
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm text-muted-foreground/90 leading-relaxed font-medium">
-                              Попросите друга поделиться кодом из экрана ожидания дуэли
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+                      )}
 
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -1326,7 +1374,7 @@ export default function Duel() {
                               handleInlineJoin(joinCode);
                             }
                           }}
-                          disabled={joinCode.length !== 4 || isJoining || (!isAuthenticated && !isTelegramUser)}
+                          disabled={joinCode.length !== 4 || isJoining || (!isAuthenticated && !isTelegramUser) || (duelPreview && duelPreview.bet_amount > userCoins)}
                           className="w-full h-12 sm:h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:via-amber-700 hover:to-orange-700 text-white shadow-2xl shadow-amber-500/40 hover:shadow-amber-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation relative overflow-hidden group"
                         >
                           {/* Shine effect */}
@@ -1337,6 +1385,12 @@ export default function Duel() {
                               <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin relative z-10" />
                               <span className="hidden sm:inline relative z-10">Присоединение...</span>
                               <span className="sm:hidden relative z-10">Присоединение</span>
+                            </>
+                          ) : duelPreview && duelPreview.bet_amount > 0 ? (
+                            <>
+                              <Coins className="mr-2 h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
+                              <span className="hidden sm:inline relative z-10">Присоединиться за {duelPreview.bet_amount} монет</span>
+                              <span className="sm:hidden relative z-10">За {duelPreview.bet_amount}</span>
                             </>
                           ) : (
                             <>
