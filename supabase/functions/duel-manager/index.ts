@@ -181,21 +181,19 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
       // Последовательные ошибки
       const errorMessages: Record<number, Array<{ title: string; message: string; icon: string }>> = {
         2: [
-          { title: `${opponentName} ошибся второй раз подряд${questionTextWithNumber}`, message: 'Сегодня удача на твоей стороне!', icon: 'x-circle' },
-          { title: `${opponentName} снова ошибся${questionTextWithNumber}`, message: 'Твой шанс вырваться вперёд!', icon: 'target' },
-          { title: `Вторая ошибка подряд от ${opponentName}`, message: 'Не упусти момент!', icon: 'zap' },
+          { title: `${opponentName} ошибся 2 раза подряд`, message: 'Твой шанс вырваться вперёд!', icon: 'target' },
+          { title: `${opponentName} снова ошибается`, message: 'Не упусти момент!', icon: 'zap' },
+          { title: `Вторая ошибка ${opponentName}`, message: 'Удача на твоей стороне!', icon: 'x-circle' },
         ],
         3: [
-          { title: `${opponentName} ошибся третий раз подряд`, message: 'Удача явно на твоей стороне!', icon: 'x-circle' },
-          { title: `Третья ошибка подряд от ${opponentName}`, message: 'Это твой шанс победить!', icon: 'trophy' },
+          { title: `${opponentName} ошибся 3 раза подряд`, message: 'Это твой шанс!', icon: 'trophy' },
           { title: `${opponentName} теряет очки`, message: 'Продолжай в том же духе!', icon: 'target' },
-          { title: `${opponentName} не везёт сегодня`, message: 'Время показать свой класс!', icon: 'zap' },
+          { title: `Третья ошибка ${opponentName}`, message: 'Время показать класс!', icon: 'zap' },
         ],
         4: [
-          { title: `${opponentName} совершил уже ${metadata.error_streak} ошибок подряд!`, message: 'Удача определённо на твоей стороне!', icon: 'x-circle' },
-          { title: `${metadata.error_streak} ошибки подряд от ${opponentName}`, message: 'Это твой момент сиять!', icon: 'trophy' },
-          { title: `${opponentName} продолжает ошибаться`, message: 'Не упусти эту возможность!', icon: 'target' },
-          { title: `${opponentName} в сложной ситуации`, message: `${metadata.error_streak} ошибки подряд. Твой шанс!`, icon: 'zap' },
+          { title: `${opponentName} ошибся ${metadata.error_streak} раза подряд!`, message: 'Твой момент!', icon: 'trophy' },
+          { title: `Серия ошибок ${opponentName}`, message: 'Не упусти возможность!', icon: 'target' },
+          { title: `${opponentName} в сложной ситуации`, message: 'Твой шанс победить!', icon: 'zap' },
         ],
       };
       const streak = metadata.error_streak >= 4 ? 4 : (metadata.error_streak >= 3 ? 3 : 2);
@@ -205,24 +203,19 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
       // Одна ошибка
       const templates = [
         { 
-          title: `${opponentName} только что совершил ошибку${questionTextWithNumber}`, 
+          title: `${opponentName} ошибся`, 
           message: 'Твой шанс догнать!', 
           icon: 'x-circle' 
         },
         { 
-          title: `${opponentName} ошибся${questionTextWithNumber}`, 
+          title: `Ошибка ${opponentName}`, 
           message: 'Используй этот момент!', 
           icon: 'target' 
         },
         { 
-          title: `${opponentName} дал неправильный ответ${questionTextWithNumber}`, 
+          title: `${opponentName} дал неверный ответ`, 
           message: 'Не упусти возможность!', 
           icon: 'zap' 
-        },
-        { 
-          title: `Ошибка от ${opponentName}${questionTextWithNumber}`, 
-          message: 'Время наверстать упущенное!', 
-          icon: 'flame' 
         },
       ];
       return templates[Math.floor(Math.random() * templates.length)];
@@ -1657,6 +1650,42 @@ Deno.serve(async (req) => {
         // If current answer is correct, combo will be used, if incorrect/skipped, points = 0
         const points = isCorrect ? calculateScore(difficulty, timeRemain, timeLimit, combo) : 0;
 
+        // ВАЖНО: Получаем данные для уведомлений ДО записи ответа
+        // Получаем все предыдущие ответы (до текущего) для расчета streak
+        const { data: previousAnswers } = await supabase
+          .from('duel_answers')
+          .select('id, is_correct')
+          .eq('player_id', player.id)
+          .eq('duel_id', duel_id)
+          .order('created_at', { ascending: false });
+        
+        // Количество ответов до текущего
+        const previousAnswersCount = previousAnswers?.length || 0;
+        
+        // Calculate error streak from PREVIOUS answers only (not including current)
+        let errorStreak = 0;
+        if (!isCorrect) {
+          errorStreak = 1; // Current answer is error
+          
+          // Count consecutive errors from previous answers
+          if (previousAnswers && previousAnswers.length > 0) {
+            for (const answer of previousAnswers) {
+              if (answer.is_correct === false) {
+                errorStreak++;
+              } else {
+                break; // Stop at first correct answer
+              }
+            }
+          }
+        }
+        
+        console.log('[submit_answer] Pre-insert notification data:', {
+          previousAnswersCount,
+          errorStreak,
+          isCorrect,
+          questionPosition: question.position
+        });
+
         // Insert answer
         await supabase.from('duel_answers').insert({
           duel_id,
@@ -1719,52 +1748,21 @@ Deno.serve(async (req) => {
             .eq('id', duel_id)
             .single();
           
-          // Get all answers BEFORE this one (to calculate streak correctly)
-          const { data: previousAnswers } = await supabase
-            .from('duel_answers')
-            .select('id, is_correct, created_at')
-            .eq('player_id', player.id)
-            .eq('duel_id', duel_id)
-            .lt('created_at', new Date().toISOString()) // Only answers before this one
-            .order('created_at', { ascending: false });
-          
           // Total answers including current one
-          const totalAnswers = (previousAnswers?.length || 0) + 1;
+          const totalAnswers = previousAnswersCount + 1;
           const progress = duel ? Math.round((totalAnswers / duel.num_questions) * 100) : 0;
           
           // Get question number from position (this is the actual question number)
           const questionNumber = question.position;
-          
-          console.log('[submit_answer] Question number and answers:', {
-            questionPosition: question.position,
-            totalAnswers,
-            previousAnswersCount: previousAnswers?.length || 0
-          });
-          
-          // Calculate error streak (consecutive errors)
-          let errorStreak = 0;
-          if (!isCorrect) {
-            // Start with current answer
-            errorStreak = 1;
-            
-            // Count consecutive errors from previous answers backwards
-            if (previousAnswers && previousAnswers.length > 0) {
-              for (const answer of previousAnswers) {
-                if (answer.is_correct === false) {
-                  errorStreak++;
-                } else {
-                  break; // Stop counting when we hit a correct answer
-                }
-              }
-            }
-          }
           
           console.log('[submit_answer] Notification metadata:', {
             is_correct: isCorrect,
             question_number: questionNumber,
             combo: finalCombo,
             error_streak: errorStreak,
-            progress
+            progress,
+            totalAnswers,
+            previousAnswersCount
           });
           
           // Always notify about progress, but include progress percentage only at milestones
