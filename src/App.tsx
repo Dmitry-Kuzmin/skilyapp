@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
+import { ReferralWelcome } from "@/components/ReferralWelcome";
 import Index from "./pages/Index";
 import LearningMap from "./pages/LearningMap";
 import TopicDetail from "./pages/TopicDetail";
@@ -43,6 +44,10 @@ const queryClient = new QueryClient();
 const App = () => {
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
+  
+  // Referral welcome state
+  const [showReferralWelcome, setShowReferralWelcome] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
 
   // Определяем basename для GitHub Pages
   // Если мы на GitHub Pages (dmitry-kuzmin.github.io), используем /sdadim-dgt-prep
@@ -50,6 +55,34 @@ const App = () => {
   const isGitHubPages = window.location.hostname === 'dmitry-kuzmin.github.io' || 
                         window.location.pathname.startsWith('/sdadim-dgt-prep');
   const basename = isGitHubPages ? '/sdadim-dgt-prep' : '/';
+
+  // Check for referral code and show welcome screen
+  useEffect(() => {
+    const checkReferralCode = () => {
+      const code = sessionStorage.getItem('referral_code');
+      if (code) {
+        console.log('[App] Referral code detected:', code);
+        setReferralCode(code);
+        setShowReferralWelcome(true);
+      }
+    };
+    
+    // Небольшая задержка чтобы deep link успел обработаться
+    setTimeout(checkReferralCode, 500);
+  }, []);
+  
+  const handleAcceptReferral = () => {
+    console.log('[App] Referral accepted, code will be used on login');
+    setShowReferralWelcome(false);
+    // Код останется в sessionStorage и будет использован при логине
+  };
+  
+  const handleDeclineReferral = () => {
+    console.log('[App] Referral declined');
+    sessionStorage.removeItem('referral_code');
+    setShowReferralWelcome(false);
+    setReferralCode(null);
+  };
 
   // Обработка редиректа из 404.html для GitHub Pages
   useEffect(() => {
@@ -66,6 +99,16 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        
+        {/* Referral Welcome Screen */}
+        {showReferralWelcome && referralCode && (
+          <ReferralWelcome
+            referralCode={referralCode}
+            onAccept={handleAcceptReferral}
+            onDecline={handleDeclineReferral}
+          />
+        )}
+        
         <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<LearningMap />} />
