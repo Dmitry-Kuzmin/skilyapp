@@ -43,6 +43,7 @@ export default function Duel() {
   const [joinCode, setJoinCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const hasAutoJoinedRef = useRef(false);
+  const [duelPreview, setDuelPreview] = useState<{bet_amount: number; num_questions: number} | null>(null);
   
   // Inline create state
   const [numQuestions, setNumQuestions] = useState(10);
@@ -234,9 +235,43 @@ export default function Duel() {
     }
   };
 
-  // Auto-join when code is 4 characters
+  // Load duel preview when code is entered
+  useEffect(() => {
+    const loadDuelPreview = async () => {
+      if (joinCode.length === 4 && profileId) {
+        try {
+          const { data, error } = await supabase
+            .from('duels')
+            .select('bet_amount, num_questions, bet_type')
+            .eq('code', joinCode.toUpperCase())
+            .single();
+          
+          if (!error && data) {
+            setDuelPreview({
+              bet_amount: data.bet_amount || 0,
+              num_questions: data.num_questions
+            });
+          }
+        } catch (e) {
+          setDuelPreview(null);
+        }
+      } else {
+        setDuelPreview(null);
+      }
+    };
+    
+    loadDuelPreview();
+  }, [joinCode, profileId]);
+  
+  // Auto-join when code is 4 characters (but only if has enough coins for bet)
   useEffect(() => {
     if (joinCode.length === 4 && !isJoining && profileId && !hasAutoJoinedRef.current && (isAuthenticated || isTelegramUser)) {
+      // Check if user has enough coins for bet
+      if (duelPreview && duelPreview.bet_amount > 0 && userCoins < duelPreview.bet_amount) {
+        toast.error(`Недостаточно монет! Нужно ${duelPreview.bet_amount}, у вас ${userCoins}`);
+        return;
+      }
+      
       const timer = setTimeout(() => {
         if (joinCode.length === 4 && !hasAutoJoinedRef.current) {
           handleInlineJoin(joinCode);
@@ -246,7 +281,7 @@ export default function Duel() {
       return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [joinCode, isJoining, profileId, isAuthenticated, isTelegramUser]);
+  }, [joinCode, isJoining, profileId, isAuthenticated, isTelegramUser, duelPreview, userCoins]);
 
   // Handle inline create
   const handleInlineCreate = async () => {
