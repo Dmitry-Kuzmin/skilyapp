@@ -141,7 +141,7 @@ export default function Referrals() {
         await navigator.clipboard.writeText(referralLink);
         setCopied(true);
         toast.success('Ссылка скопирована!');
-        haptics.buttonPressed();
+        try { haptics?.buttonPressed?.(); } catch (e) {}
         setTimeout(() => setCopied(false), 2000);
       } else {
         // Fallback for older browsers or localhost without HTTPS
@@ -160,7 +160,7 @@ export default function Referrals() {
         if (successful) {
           setCopied(true);
           toast.success('Ссылка скопирована!');
-          haptics.buttonPressed();
+          try { haptics?.buttonPressed?.(); } catch (e) {}
           setTimeout(() => setCopied(false), 2000);
         } else {
           throw new Error('execCommand failed');
@@ -189,7 +189,7 @@ export default function Referrals() {
         `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
       );
       
-      haptics.buttonPressed();
+      try { haptics?.buttonPressed?.(); } catch (e) {}
     } else {
       // Fallback for web
       handleCopyCode();

@@ -96,23 +96,32 @@ export default function InviteLanding() {
     if (!code) return;
 
     setAccepting(true);
-    haptics.buttonPressed();
+    
+    // Haptics with fallback
+    try {
+      haptics?.buttonPressed?.();
+    } catch (e) {
+      console.log('[InviteLanding] Haptics not available');
+    }
 
     // If already authenticated, show error
     if (isAuthenticated && profileId) {
       toast.error('Вы уже зарегистрированы!');
+      setAccepting(false);
       setTimeout(() => navigate('/'), 1500);
       return;
     }
 
     // Store referral code and redirect to login/registration
     sessionStorage.setItem('referral_code', code.toUpperCase());
+    console.log('[InviteLanding] Referral code stored, redirecting to home');
     toast.success('Присоединяйся! Получи +50 монет 🎁');
     
     // Small delay for animation
     await new Promise(resolve => setTimeout(resolve, 800));
     
     // Redirect to main page where user will be prompted to register
+    console.log('[InviteLanding] Navigating to home page');
     navigate('/');
   };
 
