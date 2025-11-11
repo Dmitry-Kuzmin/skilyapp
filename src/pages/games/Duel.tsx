@@ -360,6 +360,50 @@ export default function Duel() {
     }
   };
 
+  const handleCancelDuel = async () => {
+    if (!duelId || !profileId) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'cancel_duel',
+          duel_id: duelId,
+          profile_id: profileId
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        const refundAmount = data.refunded || 0;
+        
+        if (refundAmount > 0) {
+          toast.success(`Дуэль отменена! Возвращено ${refundAmount} монет`, {
+            duration: 3000
+          });
+          // Update local coin balance
+          setUserCoins(prev => prev + refundAmount);
+        } else {
+          toast.success('Дуэль отменена!', {
+            duration: 2000
+          });
+        }
+        
+        // Reset state
+        setCreatedCode(null);
+        setDuelId(null);
+        setDuelCode(null);
+        setWaitTime(0);
+        setConnectionStatus('checking');
+        setCountdown(null);
+      }
+    } catch (error: any) {
+      console.error('Error canceling duel:', error);
+      const errorMsg = error?.message || 'Не удалось отменить дуэль';
+      toast.error(errorMsg);
+    }
+  };
+
   // Countdown logic
   const startCountdown = () => {
     console.log('[Duel] Starting countdown...');
@@ -1079,6 +1123,26 @@ export default function Duel() {
                               </motion.div>
                             )}
                           </div>
+
+                          {/* Cancel Button */}
+                          {!duelState.opponentJoined && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.5 }}
+                              className="flex justify-center"
+                            >
+                              <Button
+                                onClick={handleCancelDuel}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
+                              >
+                                <X className="mr-2 h-4 w-4" />
+                                Отменить дуэль
+                              </Button>
+                            </motion.div>
+                          )}
 
                           {/* Stats - Premium */}
                           <div className="flex items-center justify-center gap-4 sm:gap-6 text-base pt-4">

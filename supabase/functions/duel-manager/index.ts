@@ -1158,6 +1158,106 @@ Deno.serve(async (req) => {
         });
       }
 
+      case 'cancel_duel': {
+        const { duel_id } = params;
+        
+        if (!duel_id) {
+          return new Response(JSON.stringify({ error: 'duel_id is required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Get duel details
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('*')
+          .eq('id', duel_id)
+          .single();
+        
+        if (duelError || !duel) {
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Check if user is the host
+        if (duel.host_user !== profileId) {
+          return new Response(JSON.stringify({ error: 'Only the host can cancel the duel' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Check if duel is still waiting (not started)
+        if (duel.status !== 'waiting') {
+          return new Response(JSON.stringify({ error: 'Cannot cancel duel that has already started or finished' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Check if opponent already joined
+        const { data: players, error: playersError } = await supabase
+          .from('duel_players')
+          .select('id, user_id')
+          .eq('duel_id', duel_id);
+        
+        if (playersError) {
+          return new Response(JSON.stringify({ error: 'Failed to check players' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        if (players && players.length > 1) {
+          return new Response(JSON.stringify({ error: 'Cannot cancel duel after opponent joined' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Refund bet to host
+        if (duel.bet_amount > 0) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('coins')
+            .eq('id', profileId)
+            .single();
+          
+          if (!profileError && profile) {
+            await supabase
+              .from('profiles')
+              .update({ coins: profile.coins + duel.bet_amount })
+              .eq('id', profileId);
+            
+            // Record refund transaction
+            await supabase
+              .from('duel_transactions')
+              .insert({
+                duel_id: duel_id,
+                user_id: profileId,
+                amount: duel.bet_amount,
+                transaction_type: 'refund'
+              });
+          }
+        }
+        
+        // Update duel status to cancelled
+        await supabase
+          .from('duels')
+          .update({ status: 'cancelled' })
+          .eq('id', duel_id);
+        
+        return new Response(JSON.stringify({ 
+          success: true,
+          refunded: duel.bet_amount 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'join_duel': {
         const validated = joinDuelSchema.parse(params);
         let { code } = validated;
