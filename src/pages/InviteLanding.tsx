@@ -142,6 +142,9 @@ export default function InviteLanding() {
           toast.error(result.message || 'Ошибка применения кода');
           setAccepting(false);
         }
+      } else {
+        toast.error('Не удалось применить реферальный код');
+        setAccepting(false);
       }
       return;
     }
