@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { motion } from 'framer-motion';
@@ -65,11 +65,22 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
-      const { data: players } = await supabase
-        .from('duel_players')
-        .select('*, profiles(first_name, username)')
-        .eq('duel_id', duelId);
+      // Load players and duel info
+      const [playersResponse, duelResponse] = await Promise.all([
+        supabase
+          .from('duel_players')
+          .select('*, profiles(first_name, username)')
+          .eq('duel_id', duelId),
+        supabase
+          .from('duels')
+          .select('bet_amount, bet_type, commission_taken, rematch_pot')
+          .eq('id', duelId)
+          .single()
+      ]);
 
+      const players = playersResponse.data;
+      const duel = duelResponse.data;
+      
       if (!players) return;
 
       const myPlayer = players.find(p => p.user_id === profileId);
@@ -82,6 +93,19 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       const myProfile = myPlayer?.profiles as any;
       const opponentProfile = opponent?.profiles as any;
       
+      // Calculate winnings if bet was placed
+      let winnings = 0;
+      let commission = 0;
+      const betAmount = duel?.bet_amount || 0;
+      
+      if (betAmount > 0) {
+        if (isWinner) {
+          const totalPot = betAmount * 2;
+          commission = Math.floor(totalPot * 0.1);
+          winnings = totalPot - commission;
+        }
+      }
+      
       setResults({
         myScore: myPlayer?.score || 0,
         myCorrect: myPlayer?.correct_count || 0,
@@ -91,15 +115,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         myName: myProfile?.first_name || myProfile?.username || 'Вы',
         isWinner,
         isDraw,
+        betAmount,
+        winnings,
+        commission,
+        rematchPot: duel?.rematch_pot || 0,
       });
       
       console.log('[DuelResult] Loaded results:', {
         myScore: myPlayer?.score,
         opponentScore: opponent?.score,
-        myCorrect: myPlayer?.correct_count,
-        opponentCorrect: opponent?.correct_count,
-        myName: myProfile?.first_name || myProfile?.username,
-        opponentName: opponentProfile?.first_name || opponentProfile?.username
+        betAmount,
+        winnings,
+        isDraw
       });
     } catch (error) {
       console.error(error);
@@ -221,6 +248,73 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
               </div>
             </motion.div>
           </div>
+          
+          {/* Betting results */}
+          {results.betAmount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className={`p-4 sm:p-6 rounded-2xl border-2 ${
+                results.isWinner 
+                  ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-amber-500/40'
+                  : results.isDraw
+                  ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/40'
+                  : 'bg-gradient-to-br from-muted/20 to-muted/10 border-muted/40'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Coins className="h-5 w-5 text-amber-500" />
+                <h3 className="font-black text-lg">
+                  {results.isWinner ? 'Выигрыш' : results.isDraw ? 'Реванш' : 'Ставка'}
+                </h3>
+              </div>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ваша ставка:</span>
+                  <span className="font-bold">-{results.betAmount}</span>
+                </div>
+                
+                {results.isWinner && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Банк:</span>
+                      <span className="font-bold">{results.betAmount * 2}</span>
+                    </div>
+                    <div className="flex justify-between text-red-500">
+                      <span>Комиссия (10%):</span>
+                      <span className="font-bold">-{results.commission}</span>
+                    </div>
+                    <div className="border-t border-amber-500/30 pt-2 mt-2"></div>
+                    <div className="flex justify-between text-lg">
+                      <span className="font-black text-green-600 dark:text-green-400">Выигрыш:</span>
+                      <span className="font-black text-green-600 dark:text-green-400">+{results.winnings}</span>
+                    </div>
+                  </>
+                )}
+                
+                {results.isDraw && results.rematchPot > 0 && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Банк реванша:</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">{results.rematchPot}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic mt-2">
+                      Ставки сохранены для реванша. Победитель заберёт всё!
+                    </p>
+                  </>
+                )}
+                
+                {!results.isWinner && !results.isDraw && (
+                  <div className="flex justify-between text-red-500">
+                    <span>Проигрыш:</span>
+                    <span className="font-bold">-{results.betAmount}</span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
           <motion.div 
             className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-2 border-yellow-500/30 rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 shadow-lg backdrop-blur-sm"

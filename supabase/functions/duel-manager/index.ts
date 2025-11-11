@@ -10,7 +10,9 @@ const corsHeaders = {
 const createDuelSchema = z.object({
   num_questions: z.number().int().min(5).max(30),
   categories: z.array(z.string().uuid()).max(10).nullable().optional(),
-  difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional()
+  difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional(),
+  bet_amount: z.number().int().min(0).max(10000).optional().default(0),
+  bet_type: z.enum(['none', 'fixed', 'custom']).optional().default('none')
 });
 
 const joinDuelSchema = z.object({
@@ -1053,7 +1055,36 @@ Deno.serve(async (req) => {
 
       case 'create_duel': {
         const validated = createDuelSchema.parse(params);
-        const { num_questions, categories, difficulty } = validated;
+        const { num_questions, categories, difficulty, bet_amount = 0, bet_type = 'none' } = validated;
+        
+        // Check if host has enough coins for bet
+        if (bet_amount > 0) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('coins')
+            .eq('id', profileId)
+            .single();
+          
+          if (profileError || !profile) {
+            return new Response(JSON.stringify({ error: 'Profile not found' }), {
+              status: 404,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
+          if ((profile.coins || 0) < bet_amount) {
+            return new Response(JSON.stringify({ error: `Insufficient coins. You need ${bet_amount} coins but only have ${profile.coins || 0}` }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
+          // Deduct bet from host
+          await supabase
+            .from('profiles')
+            .update({ coins: profile.coins - bet_amount })
+            .eq('id', profileId);
+        }
         
         // Generate unique code
         let code = generateDuelCode();
@@ -1082,11 +1113,25 @@ Deno.serve(async (req) => {
             categories,
             difficulty,
             question_seed: questionSeed,
+            bet_amount,
+            bet_type,
           })
           .select()
           .single();
 
         if (duelError) throw duelError;
+        
+        // Record bet transaction if bet_amount > 0
+        if (bet_amount > 0) {
+          await supabase
+            .from('duel_transactions')
+            .insert({
+              duel_id: duel.id,
+              user_id: profileId,
+              amount: -bet_amount,
+              transaction_type: 'bet'
+            });
+        }
 
         // Add host as player using correct user_id (which is profile.id)
         console.log('[Duel Manager] Creating host player for duel:', duel.id, 'profileId:', profileId);
@@ -1170,6 +1215,46 @@ Deno.serve(async (req) => {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
+        }
+        
+        // Check if joining player has enough coins for bet
+        const betAmount = duel.bet_amount || 0;
+        if (betAmount > 0) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('coins')
+            .eq('id', profileId)
+            .single();
+          
+          if (profileError || !profile) {
+            return new Response(JSON.stringify({ error: 'Profile not found' }), {
+              status: 404,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
+          if ((profile.coins || 0) < betAmount) {
+            return new Response(JSON.stringify({ error: `Insufficient coins for bet. You need ${betAmount} coins but only have ${profile.coins || 0}` }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          
+          // Deduct bet from joining player
+          await supabase
+            .from('profiles')
+            .update({ coins: profile.coins - betAmount })
+            .eq('id', profileId);
+          
+          // Record bet transaction
+          await supabase
+            .from('duel_transactions')
+            .insert({
+              duel_id: duel.id,
+              user_id: profileId,
+              amount: -betAmount,
+              transaction_type: 'bet'
+            });
         }
 
         console.log('[Duel Manager] Adding player to duel. DuelId:', duel.id, 'ProfileId:', profileId);
@@ -1894,6 +1979,34 @@ Deno.serve(async (req) => {
             isDraw,
             reason: allPlayersFinished ? 'both_finished' : 'timeout'
           });
+          
+          // Process coin payout if bet was placed
+          const { data: duelWithBet } = await supabase
+            .from('duels')
+            .select('bet_amount, bet_type')
+            .eq('id', duel_id)
+            .single();
+          
+          if (duelWithBet && duelWithBet.bet_amount > 0) {
+            console.log('[finish_duel] Processing coin payout:', {
+              bet_amount: duelWithBet.bet_amount,
+              bet_type: duelWithBet.bet_type,
+              isDraw
+            });
+            
+            const { data: payoutResult, error: payoutError } = await supabase.rpc('process_duel_payout', {
+              p_duel_id: duel_id,
+              p_winner_id: isDraw ? null : playersWithScores[0].user_id,
+              p_loser_id: isDraw ? null : playersWithScores[1].user_id,
+              p_is_draw: isDraw
+            });
+            
+            if (payoutError) {
+              console.error('[finish_duel] Error processing payout:', payoutError);
+            } else {
+              console.log('[finish_duel] Payout processed:', payoutResult);
+            }
+          }
 
           // Create finish notification for opponent
           const opponentPlayer = playersWithScores.find((p: any) => p.user_id !== profile_id);

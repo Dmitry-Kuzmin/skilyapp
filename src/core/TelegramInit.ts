@@ -88,8 +88,18 @@ function handleDeepLink(deepLink: DeepLinkData): void {
     switch (deepLink.action) {
       case 'duel':
         if (deepLink.id) {
-          console.log('[Telegram Init] Navigating to duel:', deepLink.id);
-          window.location.href = `/games/duel?id=${deepLink.id}`;
+          console.log('[Telegram Init] Navigating to duel with code:', deepLink.id);
+          window.location.href = `/games/duel?code=${deepLink.id}`;
+        }
+        break;
+      
+      case 'ref':
+        if (deepLink.id) {
+          console.log('[Telegram Init] Storing referral code:', deepLink.id);
+          // Сохраняем код для использования при регистрации
+          sessionStorage.setItem('referral_code', deepLink.id.toUpperCase());
+          // Перенаправляем на главную
+          window.location.href = '/';
         }
         break;
       

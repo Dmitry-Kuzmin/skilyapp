@@ -32,14 +32,15 @@ serve(async (req) => {
       platform: requestBody.platform
     });
 
-    const { user, platform = 'telegram' } = requestBody;
+    const { user, platform = 'telegram', referred_by_code } = requestBody;
 
     console.log('[Telegram Auth] Processing user:', { 
       userId: user?.id, 
       firstName: user?.first_name,
       lastName: user?.last_name,
       username: user?.username,
-      platform 
+      platform,
+      referredByCode: referred_by_code 
     });
 
     if (!user || !user.id) {
@@ -95,8 +96,60 @@ serve(async (req) => {
       profileId: profile.id,
       telegramId: profile.telegram_id,
       firstName: profile.first_name,
-      platform: profile.platform
+      platform: profile.platform,
+      hasReferralCode: !!profile.referral_code
     });
+    
+    // Generate referral code if doesn't exist
+    if (!profile.referral_code) {
+      console.log('[Telegram Auth] Generating referral code for profile:', profile.id);
+      const { data: codeResult, error: codeError } = await supabase.rpc('generate_referral_code');
+      
+      if (!codeError && codeResult) {
+        await supabase
+          .from('profiles')
+          .update({ referral_code: codeResult })
+          .eq('id', profile.id);
+        
+        profile.referral_code = codeResult;
+        console.log('[Telegram Auth] Referral code generated:', codeResult);
+      }
+    }
+    
+    // Handle referral if code provided and user is new (or hasn't been referred yet)
+    if (referred_by_code && !profile.referred_by) {
+      console.log('[Telegram Auth] Processing referral with code:', referred_by_code);
+      
+      const { data: referralResult, error: referralError } = await supabase.rpc('create_referral', {
+        p_referrer_code: referred_by_code,
+        p_referred_id: profile.id
+      });
+      
+      if (referralError) {
+        console.error('[Telegram Auth] Referral error:', referralError);
+      } else if (referralResult && referralResult.length > 0) {
+        const result = referralResult[0];
+        console.log('[Telegram Auth] Referral processed:', {
+          success: result.success,
+          message: result.message,
+          referredBonus: result.referred_bonus
+        });
+        
+        if (result.success) {
+          // Reload profile to get updated coins
+          const { data: updatedProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', profile.id)
+            .single();
+          
+          if (updatedProfile) {
+            Object.assign(profile, updatedProfile);
+            console.log('[Telegram Auth] Profile updated with referral bonus. New coins:', profile.coins);
+          }
+        }
+      }
+    }
 
     // Generate a simple JWT-like token (for demo purposes)
     // In production, use proper JWT signing

@@ -240,16 +240,25 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     try {
       console.log('[UserContext] Saving to backend with platform:', actualPlatform);
+      
+      // Check for referral code from deep link
+      const referralCode = sessionStorage.getItem('referral_code');
+      if (referralCode) {
+        console.log('[UserContext] Found referral code:', referralCode);
+      }
+      
       console.log('[UserContext] User data:', { 
         id: userData.id, 
         first_name: userData.first_name,
-        platform: actualPlatform 
+        platform: actualPlatform,
+        hasReferralCode: !!referralCode
       });
       
       const { data: result, error } = await supabase.functions.invoke('telegram-auth', {
         body: {
           user: userData,
           platform: actualPlatform,
+          referred_by_code: referralCode || undefined,
         },
       });
 
@@ -270,6 +279,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Store token if provided
       if (result?.token) {
         localStorage.setItem('telegram_token', result.token);
+      }
+      
+      // Clear referral code after successful use
+      if (referralCode) {
+        sessionStorage.removeItem('referral_code');
+        console.log('[UserContext] Referral code cleared from session');
       }
       
       console.log('[UserContext] User saved to backend successfully');
