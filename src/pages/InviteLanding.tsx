@@ -104,18 +104,52 @@ export default function InviteLanding() {
       console.log('[InviteLanding] Haptics not available');
     }
 
-    // If already authenticated, show error
+    // If already authenticated, check if already used a referral
     if (isAuthenticated && profileId) {
-      toast.error('Вы уже зарегистрированы!');
-      setAccepting(false);
-      setTimeout(() => navigate('/'), 1500);
+      // Check if user already has a referrer
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('referred_by')
+        .eq('id', profileId)
+        .single();
+      
+      if (profile?.referred_by) {
+        toast.error('Вы уже использовали реферальный код!');
+        setAccepting(false);
+        setTimeout(() => navigate('/'), 1500);
+        return;
+      }
+      
+      // User is logged in but hasn't used a referral - apply it now
+      const { data: referralResult, error: referralError } = await supabase.rpc('create_referral', {
+        p_referrer_code: code.toUpperCase(),
+        p_referred_id: profileId
+      });
+      
+      if (referralError) {
+        console.error('[InviteLanding] Referral error:', referralError);
+        toast.error('Ошибка применения реферального кода');
+        setAccepting(false);
+        return;
+      }
+      
+      if (referralResult && referralResult.length > 0) {
+        const result = referralResult[0];
+        if (result.success) {
+          toast.success(`🎉 Вы получили +${result.referred_bonus} монет!`);
+          setTimeout(() => navigate('/'), 2000);
+        } else {
+          toast.error(result.message || 'Ошибка применения кода');
+          setAccepting(false);
+        }
+      }
       return;
     }
 
-    // Store referral code and redirect to login/registration
+    // Store referral code for new user registration
     sessionStorage.setItem('referral_code', code.toUpperCase());
     console.log('[InviteLanding] Referral code stored, redirecting to home');
-    toast.success('Присоединяйся! Получи +50 монет 🎁');
+    toast.success('Регистрируйтесь и получите +50 монет! 🎁', { duration: 5000 });
     
     // Small delay for animation
     await new Promise(resolve => setTimeout(resolve, 800));
