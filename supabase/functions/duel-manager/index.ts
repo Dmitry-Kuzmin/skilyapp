@@ -1719,31 +1719,53 @@ Deno.serve(async (req) => {
             .eq('id', duel_id)
             .single();
           
-          const { data: allPlayerAnswers } = await supabase
+          // Get all answers BEFORE this one (to calculate streak correctly)
+          const { data: previousAnswers } = await supabase
             .from('duel_answers')
-            .select('id, is_correct')
+            .select('id, is_correct, created_at')
             .eq('player_id', player.id)
             .eq('duel_id', duel_id)
+            .lt('created_at', new Date().toISOString()) // Only answers before this one
             .order('created_at', { ascending: false });
           
-          const progress = duel ? Math.round(((allPlayerAnswers?.length || 0) / duel.num_questions) * 100) : 0;
+          // Total answers including current one
+          const totalAnswers = (previousAnswers?.length || 0) + 1;
+          const progress = duel ? Math.round((totalAnswers / duel.num_questions) * 100) : 0;
           
-          // Get question number (position)
-          const questionNumber = question.position || ((allPlayerAnswers?.length || 0) + 1);
+          // Get question number from position (this is the actual question number)
+          const questionNumber = question.position;
+          
+          console.log('[submit_answer] Question number and answers:', {
+            questionPosition: question.position,
+            totalAnswers,
+            previousAnswersCount: previousAnswers?.length || 0
+          });
           
           // Calculate error streak (consecutive errors)
-          // Start with current answer if it's incorrect
-          let errorStreak = !isCorrect ? 1 : 0;
-          if (!isCorrect && allPlayerAnswers && allPlayerAnswers.length > 0) {
-            // Count consecutive errors from the most recent backwards (excluding current answer)
-            for (const answer of allPlayerAnswers) {
-              if (answer.is_correct === false) {
-                errorStreak++;
-              } else {
-                break; // Stop counting when we hit a correct answer
+          let errorStreak = 0;
+          if (!isCorrect) {
+            // Start with current answer
+            errorStreak = 1;
+            
+            // Count consecutive errors from previous answers backwards
+            if (previousAnswers && previousAnswers.length > 0) {
+              for (const answer of previousAnswers) {
+                if (answer.is_correct === false) {
+                  errorStreak++;
+                } else {
+                  break; // Stop counting when we hit a correct answer
+                }
               }
             }
           }
+          
+          console.log('[submit_answer] Notification metadata:', {
+            is_correct: isCorrect,
+            question_number: questionNumber,
+            combo: finalCombo,
+            error_streak: errorStreak,
+            progress
+          });
           
           // Always notify about progress, but include progress percentage only at milestones
           const notifResult = await createNotification({
