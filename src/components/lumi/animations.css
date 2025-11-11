@@ -1,0 +1,204 @@
+/* Lumi Character Animations */
+
+@keyframes lumi-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes lumi-bounce {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  25% {
+    transform: translateY(-12px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  75% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes lumi-sway {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes lumi-antenna-wave {
+  0%, 100% {
+    transform-origin: 35px 30px;
+    transform: rotate(0deg);
+  }
+  50% {
+    transform-origin: 35px 30px;
+    transform: rotate(-10deg);
+  }
+}
+
+@keyframes lumi-antenna-wave-reverse {
+  0%, 100% {
+    transform-origin: 65px 30px;
+    transform: rotate(0deg);
+  }
+  50% {
+    transform-origin: 65px 30px;
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes lumi-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes lumi-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+/* Animation classes */
+.animate-lumi-float {
+  animation: lumi-float 3s ease-in-out infinite;
+}
+
+.animate-lumi-bounce {
+  animation: lumi-bounce 1s ease-in-out infinite;
+}
+
+.animate-lumi-sway {
+  animation: lumi-sway 2s ease-in-out infinite;
+}
+
+.animate-lumi-antenna-wave {
+  animation: lumi-antenna-wave 1.5s ease-in-out infinite;
+}
+
+.animate-lumi-antenna-wave-reverse {
+  animation: lumi-antenna-wave-reverse 1.5s ease-in-out infinite;
+}
+
+.animate-lumi-slide-in {
+  animation: lumi-slide-in 0.4s ease-out forwards;
+}
+
+.animate-lumi-slide-out {
+  animation: lumi-slide-out 0.3s ease-in forwards;
+}
+
+/* Pulse slow for glow effect */
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Sparkle effect */
+@keyframes sparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(360deg);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Message bubble animations */
+@keyframes message-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-message-appear {
+  animation: message-appear 0.3s ease-out forwards;
+}
+
+/* Typing indicator */
+@keyframes typing-dot {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: typing-dot 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Shimmer effect for progress bar */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}

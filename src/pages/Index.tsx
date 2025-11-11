@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import RankProgress from "@/components/RankProgress";
 import StatsCard from "@/components/StatsCard";
 import AchievementCard from "@/components/AchievementCard";
-import { AISearchWidget } from "@/components/AISearchWidget";
+import { LumiSearchWidget } from "@/components/lumi/LumiSearchWidget";
 import { ExamReadinessWidget } from "@/components/ExamReadinessWidget";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -297,8 +297,8 @@ const Index = () => {
           </p>
         </div>
 
-        {/* AI Search Widget */}
-        <AISearchWidget />
+        {/* Lumi Search Widget */}
+        <LumiSearchWidget />
 
         {/* Rank Progress */}
         {!loading && (

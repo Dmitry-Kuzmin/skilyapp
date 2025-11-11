@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered } from "lucide-react";
+import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,11 +8,13 @@ import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ExamReadinessCard } from "@/components/ExamReadinessCard";
 
 const Tests = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
+  const { t } = useLanguage(); // Используем существующий LanguageContext!
   const [topics, setTopics] = useState<{ 
     id: string;
     number: number;
@@ -32,13 +34,34 @@ const Tests = () => {
     averageScore: 0
   });
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [challengeBankCount, setChallengeBankCount] = useState(0);
+  const [randomQuestionCount, setRandomQuestionCount] = useState(10);
 
   useEffect(() => {
     loadTopics();
     if (isAuthenticated && profileId) {
       loadStats();
+      loadChallengeBankCount();
     }
   }, [isAuthenticated, profileId]);
+
+  const loadChallengeBankCount = async () => {
+    if (!profileId) return;
+    
+    try {
+      // @ts-ignore - user_challenge_questions not in generated types yet
+      const { count, error } = await (supabase as any)
+        .from('user_challenge_questions')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profileId)
+        .eq('mastered', false);
+
+      if (error) throw error;
+      setChallengeBankCount(count || 0);
+    } catch (error) {
+      console.error('Error loading Challenge Bank count:', error);
+    }
+  };
 
   const parseCSVRow = (row: string): string[] => {
     const result: string[] = [];
@@ -130,45 +153,39 @@ const Tests = () => {
       const topicsFromSheets = await Promise.all(
         rows.map(async (row) => {
           const columns = parseCSVRow(row);
-          // Структура CSV: id, order, slug, category_ru, category_es, category_en, name_ru, name_es, name_en, ...
-          // columns[0] = id
-          // columns[1] = order (номер темы)
-          // columns[6] = name_ru (название на русском)
           
-          if (!columns[1] || !columns[6]) return null; // Skip empty rows
+          const number = parseInt(columns[0]) || 0;
+          const name = columns[1] || `Тема ${number}`;
+          const coverImage = columns[2] || undefined;
+          const gradientFrom = columns[3] || undefined;
+          const gradientTo = columns[4] || undefined;
+          const isPremium = parseBool(columns[5]);
           
-          const topicNumber = parseInt(columns[1]); // order - это номер темы
-          if (isNaN(topicNumber)) return null;
+          const topicId = topicIdMap.get(number) || `topic-${number}`;
           
-          const topicId = topicIdMap.get(topicNumber);
-          
-          // Count questions for this topic from database
-          let questionCount = 0;
-          if (topicId) {
-            const { count } = await supabase
-              .from("questions_new")
-              .select("*", { count: 'exact', head: true })
-              .eq('topic_id', topicId);
-            questionCount = count || 0;
-          }
+          // Загружаем количество вопросов для темы
+          const { count } = await supabase
+            .from("questions_new")
+            .select("*", { count: 'exact', head: true })
+            .eq('topic_id', topicId);
           
           return {
-            id: topicId || `temp-${topicNumber}`,
-            number: topicNumber,
-            name: columns[6] || `Тема ${topicNumber}`, // name_ru из Google Sheets
-            questions: questionCount,
-            cover_image: null, // В CSV нет cover_image
-            gradient_from: '#00BFFF', // Дефолтные значения
-            gradient_to: '#39FF14',
-            is_premium: false, // В CSV нет is_premium
+            id: topicId,
+            number,
+            name,
+            questions: count || 0,
+            cover_image: coverImage,
+            gradient_from: gradientFrom,
+            gradient_to: gradientTo,
+            is_premium: isPremium,
           };
         })
       );
       
-      setTopics(topicsFromSheets.filter(t => t !== null));
+      setTopics(topicsFromSheets);
     } catch (error) {
       console.error("Error loading topics:", error);
-      toast.error("Ошибка загрузки тем");
+      toast.error("Не удалось загрузить темы");
     }
   };
 
@@ -176,43 +193,25 @@ const Tests = () => {
     if (!profileId) return;
     
     try {
-      // Загружаем реальный прогресс пользователя из user_progress
-      const { data: progressData, error: progressError } = await supabase
+      // Load user progress statistics
+      const { data, error } = await supabase
         .from("user_progress")
-        .select("is_correct, is_answered")
-        .eq("user_id", profileId)
-        .eq("is_answered", true);
+        .select("is_correct")
+        .eq("user_id", profileId);
 
-      if (progressError) throw progressError;
+      if (error) throw error;
 
-      // Загружаем сессии тестов для подсчета пройденных тестов и среднего балла
-      const { data: sessionsData, error: sessionsError } = await supabase
-        .from("game_sessions")
-        .select("score, total_questions")
-        .eq("user_id", profileId)
-        .or("game_type.eq.test_exam,game_type.eq.test_practice");
-
-      if (sessionsError) throw sessionsError;
-
-      // Подсчитываем статистику из user_progress (более точные данные)
-      const totalAnswered = progressData?.length || 0;
-      const correct = progressData?.filter(p => p.is_correct === true).length || 0;
+      const totalAnswered = data?.length || 0;
+      const correct = data?.filter((item) => item.is_correct).length || 0;
       const errors = totalAnswered - correct;
       const accuracy = totalAnswered > 0 ? Math.round((correct / totalAnswered) * 100) : 0;
 
-      // Подсчитываем средний балл из сессий
-      const completed = sessionsData?.length || 0;
-      const averageScore = completed > 0 && sessionsData
-        ? Math.round(sessionsData.reduce((sum, s) => sum + (s.score || 0), 0) / completed)
-        : 0;
-
       setStats({
-        accuracy,
-        completed,
+        ...stats,
+        totalAnswered,
         correct,
         errors,
-        totalAnswered,
-        averageScore,
+        accuracy,
       });
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -223,250 +222,270 @@ const Tests = () => {
     if (selectedTopic === "all") {
       navigate("/test/practice");
     } else {
-      navigate(`/test/practice/${selectedTopic}`);
+      navigate(`/tests/${selectedTopic}`);
     }
   };
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
+      <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-4 max-w-[1370px]">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold">Тесты DGT</h1>
-          <p className="text-muted-foreground text-lg">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{t('practiceTests')}</h1>
+          <p className="text-muted-foreground">
             Выбери режим и начни подготовку к экзамену
           </p>
         </div>
 
-        {/* Sequential Tests Card */}
-        <Card
-          onClick={() => navigate("/tests/sequential")}
-          className="p-6 gradient-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-[1.02] cursor-pointer group mb-6"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-500/20 shadow-glow">
-                <ListOrdered className="w-6 h-6 text-blue-500" />
+        {/* Practice Mode Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">{t('practiceMode')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Random - с выбором количества */}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all group"
+            >
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-14 h-14 rounded-full bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors">
+                  <Shuffle className="w-7 h-7 text-teal-600 dark:text-teal-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">{t('random')}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t('selectQuestionCount')}
+                  </p>
+                </div>
+                
+                {/* Кнопки выбора количества */}
+                <div className="grid grid-cols-4 gap-2 w-full">
+                  {[10, 20, 30, 40].map((count) => (
+                    <button
+                      key={count}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRandomQuestionCount(count);
+                      }}
+                      className={`
+                        py-2 px-3 rounded-lg text-sm font-semibold transition-all
+                        ${randomQuestionCount === count 
+                          ? 'bg-teal-500 text-white shadow-md scale-105' 
+                          : 'bg-teal-500/10 text-teal-600 dark:text-teal-400 hover:bg-teal-500/20'
+                        }
+                      `}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Кнопка запуска */}
+                <Button
+                  onClick={() => navigate(`/test/practice?count=${randomQuestionCount}`)}
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                  size="sm"
+                >
+                  {t('startTest')}
+                </Button>
               </div>
-              <div>
-                <h3 className="text-xl font-bold mb-1">Последовательные тесты</h3>
-                <p className="text-sm text-muted-foreground">
-                  Проходите тесты по порядку, ничего не пропуская. Каждый тест открывается после прохождения предыдущего.
+            </Card>
+
+            {/* Incorrectly answered - ТЕСТ из Challenge Bank */}
+            {challengeBankCount > 0 && (
+              <Card 
+                className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+                onClick={() => navigate("/test/challenge-bank")}
+              >
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="w-14 h-14 rounded-full bg-red-500/20 flex items-center justify-center group-hover:bg-red-500/30 transition-colors relative">
+                    <XCircle className="w-7 h-7 text-red-600 dark:text-red-400" />
+                    {challengeBankCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        {challengeBankCount}
+                      </span>
+                    )}
+                  </div>
+                <h3 className="font-semibold">{t('incorrectlyAnswered')} ({challengeBankCount})</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('incorrectlyAnsweredDesc')}
+                </p>
+                </div>
+              </Card>
+            )}
+
+            {/* Saved Questions - показываем только если есть сохранённые */}
+            {challengeBankCount > 0 && (
+              <Card 
+                className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+                onClick={() => navigate("/test/challenge-bank")}
+              >
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className="w-14 h-14 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/30 transition-colors relative">
+                    <Star className="w-7 h-7 text-yellow-600 dark:text-yellow-400" />
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {challengeBankCount}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold">{t('savedQuestions')}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t('savedQuestionsDesc')}
+                  </p>
+                </div>
+              </Card>
+            )}
+
+            {/* Mastery Mode - повтор пока всё правильно */}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => navigate("/test/mastery")}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                  <Trophy className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="font-semibold">{t('masteryMode')}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('masteryModeDesc')}
                 </p>
               </div>
-            </div>
-            <Button variant="ghost" className="group-hover:bg-primary/10">
-              Перейти
-            </Button>
+            </Card>
+
+            {/* Hardest questions - самые сложные */}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => navigate("/test/hardest")}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 rounded-full bg-gray-500/20 flex items-center justify-center group-hover:bg-gray-500/30 transition-colors">
+                  <AlertTriangle className="w-7 h-7 text-gray-600 dark:text-gray-400" />
+                </div>
+                <h3 className="font-semibold">{t('hardestQuestions')}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('hardestQuestionsDesc')}
+                </p>
+              </div>
+            </Card>
           </div>
-        </Card>
-
-        {/* Test Modes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Экзаменационный режим */}
-          <Card
-            onClick={() => navigate("/test/exam")}
-            className="p-8 gradient-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105 cursor-pointer group"
-          >
-            <div className="space-y-6">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center justify-center w-16 h-16 rounded-xl gradient-primary shadow-glow">
-                  <Target className="w-8 h-8 text-primary-foreground" />
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold mb-2">Экзаменационный режим</h3>
-                <p className="text-muted-foreground">Полная симуляция реального экзамена DGT</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>30 вопросов</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>30 минут</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Максимум 3 ошибки</span>
-                </div>
-              </div>
-
-              <Button
-                className="w-full shadow-primary group-hover:shadow-glow"
-                size="lg"
-              >
-                Начать тест
-              </Button>
-            </div>
-          </Card>
-
-          {/* Практический режим с выбором темы */}
-          <Card className="p-8 gradient-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-105 group">
-            <div className="space-y-6">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-secondary shadow-glow">
-                  <BookOpen className="w-8 h-8 text-secondary-foreground" />
-                </div>
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/20 text-primary">
-                  Популярно
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold mb-2">Практический режим</h3>
-                <p className="text-muted-foreground">Учись в своём темпе с подсказками</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Без ограничений</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Объяснения</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span>Прогресс сохраняется</span>
-                </div>
-              </div>
-
-              {/* Выбор темы */}
-              <div className="space-y-3">
-                <label className="text-sm font-semibold">Выберите вариант:</label>
-                <Select value={selectedTopic} onValueChange={setSelectedTopic}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Выберите тему" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все вопросы из базы</SelectItem>
-                    {topics.map((topic) => (
-                      <SelectItem key={topic.id} value={topic.id}>
-                        Тема {topic.number}: {topic.name} ({topic.questions} вопросов)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button
-                onClick={handlePracticeStart}
-                className="w-full shadow-primary group-hover:shadow-glow"
-                size="lg"
-              >
-                Начать тест
-              </Button>
-            </div>
-          </Card>
         </div>
 
-
-        {/* Stats Overview - Modern Design */}
-        <Card className="p-6 gradient-card border-border/50 shadow-lg">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-bold">Ваша статистика</h2>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {/* Точность */}
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20">
-                <div className="flex items-center justify-between mb-2">
-                  <Award className="w-5 h-5 text-primary" />
-                  <span className="text-xs font-semibold text-muted-foreground">Точность</span>
+        {/* Exam Mode Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">{t('examMode')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Exam simulator */}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => navigate("/test/exam")}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                  <Clock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <p className="text-3xl font-bold text-primary">{stats.accuracy}%</p>
-                {stats.totalAnswered > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    из {stats.totalAnswered} ответов
-                  </p>
-                )}
+                <h3 className="font-semibold">{t('examSimulator')}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('examSimulatorDesc')}
+                </p>
               </div>
+            </Card>
 
-              {/* Пройдено тестов */}
-              <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-xl p-4 border border-secondary/20">
-                <div className="flex items-center justify-between mb-2">
-                  <CheckCircle2 className="w-5 h-5 text-secondary" />
-                  <span className="text-xs font-semibold text-muted-foreground">Пройдено</span>
+            {/* Module test */}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => navigate("/tests/sequential")}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
+                  <Layers className="w-7 h-7 text-green-600 dark:text-green-400" />
                 </div>
-                <p className="text-3xl font-bold text-secondary">{stats.completed}</p>
-                <p className="text-xs text-muted-foreground mt-1">тестов</p>
+                <h3 className="font-semibold">{t('moduleTest')}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('moduleTestDesc')}
+                </p>
               </div>
+            </Card>
 
-              {/* Правильных ответов */}
-              <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-xl p-4 border border-emerald-500/20">
-                <div className="flex items-center justify-between mb-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                  <span className="text-xs font-semibold text-muted-foreground">Правильных</span>
+            {/* Final test */}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => navigate("/test/exam")}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 rounded-full bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors">
+                  <Flag className="w-7 h-7 text-teal-600 dark:text-teal-400" />
                 </div>
-                <p className="text-3xl font-bold text-emerald-500">{stats.correct}</p>
-                {stats.totalAnswered > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {Math.round((stats.correct / stats.totalAnswered) * 100)}% от всех
-                  </p>
-                )}
+                <h3 className="font-semibold">{t('finalTest')}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t('finalTestDesc')}
+                </p>
               </div>
-
-              {/* Ошибок */}
-              <div className="bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-xl p-4 border border-destructive/20">
-                <div className="flex items-center justify-between mb-2">
-                  <XCircle className="w-5 h-5 text-destructive" />
-                  <span className="text-xs font-semibold text-muted-foreground">Ошибок</span>
-                </div>
-                <p className="text-3xl font-bold text-destructive">{stats.errors}</p>
-                {stats.totalAnswered > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {Math.round((stats.errors / stats.totalAnswered) * 100)}% от всех
-                  </p>
-                )}
-              </div>
-
-              {/* Средний балл */}
-              {stats.completed > 0 && (
-                <div className="bg-gradient-to-br from-amber-500/10 to-amber-500/5 rounded-xl p-4 border border-amber-500/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <TrendingUp className="w-5 h-5 text-amber-500" />
-                    <span className="text-xs font-semibold text-muted-foreground">Средний балл</span>
-                  </div>
-                  <p className="text-3xl font-bold text-amber-500">{stats.averageScore}%</p>
-                  <p className="text-xs text-muted-foreground mt-1">по всем тестам</p>
-                </div>
-              )}
-
-              {/* Всего ответов */}
-              <div className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-xl p-4 border border-blue-500/20">
-                <div className="flex items-center justify-between mb-2">
-                  <BookOpen className="w-5 h-5 text-blue-500" />
-                  <span className="text-xs font-semibold text-muted-foreground">Всего ответов</span>
-                </div>
-                <p className="text-3xl font-bold text-blue-500">{stats.totalAnswered}</p>
-                <p className="text-xs text-muted-foreground mt-1">вопросов решено</p>
-              </div>
-            </div>
-
-            {/* Прогресс-бар точности */}
-            {stats.totalAnswered > 0 && (
-              <div className="mt-4 pt-4 border-t border-border/50">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">Прогресс точности</span>
-                  <span className="text-sm text-muted-foreground">{stats.accuracy}%</span>
-                </div>
-                <div className="h-3 bg-muted/50 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 rounded-full"
-                    style={{ width: `${stats.accuracy}%` }}
-                  />
-                </div>
-              </div>
-            )}
+            </Card>
           </div>
-        </Card>
+        </div>
+
+        {/* User Stats Card */}
+        {isAuthenticated && (
+          <Card className="p-6 mb-6">
+            <div className="space-y-6">
+              {/* Header with Level and Points */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                    Д
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{t('level')} {1}</h3>
+                    <p className="text-sm text-muted-foreground">{t('points')} {0}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground">{t('lessons')}</p>
+                  <p className="font-bold">{0}/47</p>
+                </div>
+              </div>
+
+              {/* Correct on 1st try */}
+              <div>
+                <h4 className="font-semibold mb-3">{t('correctOnFirstTry')}</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t('answeredQuestions')}</span>
+                    <span className="font-semibold">{stats.totalAnswered}/563</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{t('correctAnswers')}</span>
+                    <span className="font-semibold text-green-600 dark:text-green-400">{stats.correct}</span>
+                  </div>
+                </div>
+              </div>
+
+              <Button className="w-full" variant="outline">
+                {t('moreStatistics')}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Leaderboard */}
+        {isAuthenticated && (
+          <Card className="p-6 mb-6">
+            <h3 className="font-bold text-lg mb-4">{t('leaderboard')}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                  Д
+                </div>
+                <span className="font-semibold">{t('you')}</span>
+                <Trophy className="w-5 h-5 text-yellow-500" />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-2xl">🚗</div>
+                <span className="font-bold">0</span>
+              </div>
+            </div>
+            <Button className="w-full bg-green-600 hover:bg-green-700">
+              {t('inviteFriends')}
+            </Button>
+          </Card>
+        )}
 
         {/* Exam Readiness Card */}
         {isAuthenticated && profileId && (

@@ -11,6 +11,8 @@ import { useUserContext } from "@/contexts/UserContext";
 import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
+import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { improvementTips, encouragements } from "@/data/lumiHints";
 
 type QuestionData = {
   id: string;
@@ -533,6 +535,30 @@ const TestResults = () => {
               >
                 {passed ? "🎉 ¡Test Aprobado!" : "😔 Test No Aprobado"}
               </motion.h1>
+              
+              {/* Lumi's Comment */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="mb-4 flex items-center justify-center gap-3"
+              >
+                <LumiCharacter 
+                  size="md" 
+                  mood={percentage >= 90 ? "celebrating" : percentage >= 70 ? "happy" : percentage >= 50 ? "encouraging" : "encouraging"}
+                />
+                <div className="text-left max-w-md">
+                  <p className="text-sm font-medium text-foreground">
+                    {percentage >= 90 ? (
+                      encouragements.completed[Math.floor(Math.random() * encouragements.completed.length)]
+                    ) : percentage >= 70 ? (
+                      improvementTips.mediumScore[Math.floor(Math.random() * improvementTips.mediumScore.length)]
+                    ) : (
+                      improvementTips.lowScore[Math.floor(Math.random() * improvementTips.lowScore.length)]
+                    )}
+                  </p>
+                </div>
+              </motion.div>
               
               <motion.p
                 initial={{ opacity: 0 }}

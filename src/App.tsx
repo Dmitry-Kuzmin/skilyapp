@@ -35,6 +35,7 @@ import Dictionary from "./pages/Dictionary";
 import DataImport from "./pages/DataImport";
 import DailyBonus from "./pages/DailyBonus";
 import DGTTestsSimple from "./pages/DGTTestsSimple";
+import ChallengeBank from "./pages/ChallengeBank";
 
 const queryClient = new QueryClient();
 
@@ -72,9 +73,11 @@ const App = () => {
           <Route path="/subtopic/:id" element={<SubtopicDetail />} />
           <Route path="/tests" element={<Tests />} />
           <Route path="/tests/sequential" element={<SequentialTests />} />
+          <Route path="/tests/challenge-bank" element={<ChallengeBank />} />
           <Route path="/test/:mode" element={<TestSession />} />
           <Route path="/test/:mode/:topic" element={<TestSession />} />
           <Route path="/test/sequential/:testId" element={<TestSession />} />
+          <Route path="/test/challenge-bank" element={<TestSession />} />
           <Route path="/test/results" element={<TestResults />} />
           <Route path="/learning" element={<Learning />} />
           <Route path="/games" element={<Games />} />

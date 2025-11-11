@@ -5,6 +5,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import App from "./App.tsx";
 import "./index.css";
+import "./components/lumi/animations.css";
 
 // Инициализация Telegram WebApp теперь происходит в useInitTelegram hook в App.tsx
 // Это гарантирует правильный порядок инициализации

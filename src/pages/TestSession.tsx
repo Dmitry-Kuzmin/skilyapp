@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle, Bot } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils";
 import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
 import { AIExplanationDialog } from "@/components/AIExplanationDialog";
+import { AIWidget } from "@/components/AIWidget";
+import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 
 type QuestionData = {
   id: string;
@@ -115,10 +118,10 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
   return (
     <>
       <div 
-        className={`relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-border/30 shadow-lg bg-gradient-to-br from-muted/30 to-muted/10 ${compact ? 'w-full' : 'mb-4 sm:mb-6'}`}
+        className={`relative rounded-2xl shadow-md overflow-hidden ${compact ? 'w-full' : 'mb-4 sm:mb-6'}`}
       >
         <div 
-          className="relative w-full group flex items-center justify-center overflow-hidden"
+          className="relative w-full group"
           style={{
             minHeight: compact ? '200px' : 'auto',
             maxHeight: compact ? '500px' : 'none',
@@ -127,7 +130,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
           <img 
             src={imageSrc} 
             alt="Вопрос" 
-            className="w-full h-full object-contain cursor-pointer transition-opacity duration-300 hover:opacity-90"
+            className="w-full h-auto object-cover cursor-pointer transition-transform duration-300 hover:scale-[1.01] block"
             loading="lazy"
             onClick={() => compact && setIsDialogOpen(true)}
             onError={() => {
@@ -135,11 +138,8 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               setHasError(true);
             }}
             style={{
-              maxWidth: '100%',
+              minHeight: compact ? '200px' : '180px',
               maxHeight: compact ? '500px' : '288px',
-              height: 'auto',
-              width: 'auto',
-              display: 'block',
             }}
           />
           {/* Кнопка увеличения изображения */}
@@ -205,7 +205,11 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
 const TestSession = () => {
   const { mode, topic, testId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { profileId } = useUserContext();
+  
+  // Получаем количество вопросов из URL
+  const questionCount = parseInt(searchParams.get('count') || '30');
   const [language, setLanguage] = useState<'ru' | 'es'>('es');
   const [showTranslation, setShowTranslation] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -213,7 +217,6 @@ const TestSession = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [showExplanation, setShowExplanation] = useState(false);
   const [timeLeft, setTimeLeft] = useState(mode === "exam" ? 30 * 60 : 0);
   const [loading, setLoading] = useState(true);
   const [showQuestionMap, setShowQuestionMap] = useState(false);
@@ -225,7 +228,224 @@ const TestSession = () => {
   const [testInfo, setTestInfo] = useState<{ id: string; title: string } | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [showAIExplanation, setShowAIExplanation] = useState(false);
+  const [showChallengeBankNotification, setShowChallengeBankNotification] = useState(false);
+  const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
+  const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [showTestSettings, setShowTestSettings] = useState(false);
+  const [voiceOver, setVoiceOver] = useState(() => {
+    const saved = localStorage.getItem('test-voice-over');
+    return saved ? saved === 'true' : false; // По умолчанию ВЫКЛЮЧЕНА
+  });
+  const [answerPopularity, setAnswerPopularity] = useState(() => {
+    const saved = localStorage.getItem('test-answer-popularity');
+    return saved ? saved === 'true' : true;
+  });
+  const [ambientMusic, setAmbientMusic] = useState(() => {
+    const saved = localStorage.getItem('test-ambient-music');
+    return saved ? saved === 'true' : false;
+  });
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem('test-font-size');
+    return saved ? parseInt(saved) : 1;
+  });
+  const [testLanguage, setTestLanguage] = useState<'es' | 'ru' | 'en'>(() => {
+    const saved = localStorage.getItem('test-language');
+    return (saved as 'es' | 'ru' | 'en') || 'es';
+  });
+  
+  // Mastery Mode - отслеживаем неправильные вопросы для повторения
+  const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
+  const [masteryRound, setMasteryRound] = useState(1);
+  
   const isTelegramApp = isTelegramMiniApp();
+
+  // Сохраняем настройки в localStorage
+  useEffect(() => {
+    localStorage.setItem('test-font-size', fontSize.toString());
+  }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem('test-language', testLanguage);
+  }, [testLanguage]);
+
+  useEffect(() => {
+    localStorage.setItem('test-voice-over', voiceOver.toString());
+  }, [voiceOver]);
+
+  useEffect(() => {
+    localStorage.setItem('test-answer-popularity', answerPopularity.toString());
+  }, [answerPopularity]);
+
+  useEffect(() => {
+    localStorage.setItem('test-ambient-music', ambientMusic.toString());
+  }, [ambientMusic]);
+
+  // Ambient Music Effect - плейлист из нескольких треков
+  useEffect(() => {
+    let audioElement: HTMLAudioElement | null = null;
+    let unlockAttempted = false;
+    let currentTrackIndex = 0;
+
+    // Плейлист ambient треков (Pixabay - работают без 403)
+    const playlist = [
+      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano
+      'https://cdn.pixabay.com/audio/2022/03/15/audio_c8c6e0c057.mp3', // Lofi Study
+      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation
+      'https://cdn.pixabay.com/audio/2022/08/02/audio_6e5ad46a66.mp3', // Chill Ambient
+      'https://cdn.pixabay.com/audio/2023/12/05/audio_dd53f2ca72.mp3', // Soft Piano
+    ];
+
+    if (ambientMusic) {
+      audioElement = new Audio();
+      audioElement.volume = 0.10;
+      audioElement.crossOrigin = "anonymous";
+      
+      // Выбираем случайный первый трек
+      currentTrackIndex = Math.floor(Math.random() * playlist.length);
+      
+      // Функция для загрузки и воспроизведения трека
+      const playTrack = (index: number) => {
+        if (!audioElement) return;
+        
+        audioElement.src = playlist[index];
+        
+        const playPromise = audioElement.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              unlockAttempted = true;
+            })
+            .catch(() => {
+              // Autoplay blocked, will retry on user interaction
+            });
+        }
+      };
+
+      // Обработчик окончания трека - переход к следующему
+      const handleEnded = () => {
+        if (!audioElement) return;
+        
+        // Выбираем следующий случайный трек (не тот же самый)
+        const previousIndex = currentTrackIndex;
+        do {
+          currentTrackIndex = Math.floor(Math.random() * playlist.length);
+        } while (currentTrackIndex === previousIndex && playlist.length > 1);
+        
+        playTrack(currentTrackIndex);
+      };
+
+      audioElement.addEventListener('ended', handleEnded);
+      
+      // Пробуем запустить первый трек
+      playTrack(currentTrackIndex);
+
+      // Если autoplay заблокирован - ждем первого клика
+      const unlockAudio = () => {
+        if (audioElement && !unlockAttempted) {
+          playTrack(currentTrackIndex);
+          document.removeEventListener('click', unlockAudio);
+          document.removeEventListener('keydown', unlockAudio);
+        }
+      };
+
+      document.addEventListener('click', unlockAudio, { once: true });
+      document.addEventListener('keydown', unlockAudio, { once: true });
+    }
+
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
+      }
+    };
+  }, [ambientMusic]);
+
+  // Voice Over Effect - озвучка вопросов (только когда включена)
+  useEffect(() => {
+    // Проверяем что озвучка включена и есть вопрос
+    if (!voiceOver || !questions[currentIndex]) {
+      // Если озвучка выключена, останавливаем любую активную озвучку
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      return;
+    }
+    
+    const speakQuestion = async () => {
+      // Проверяем поддержку Web Speech API
+      if (!('speechSynthesis' in window)) {
+        console.warn('[TestSession] 🔊 Speech synthesis not supported');
+        return;
+      }
+
+      // Останавливаем предыдущую озвучку
+      window.speechSynthesis.cancel();
+
+      const currentQuestion = questions[currentIndex];
+      const questionText = testLanguage === 'ru' ? currentQuestion.question_ru : 
+                          testLanguage === 'en' ? currentQuestion.question_en :
+                          currentQuestion.question_es;
+
+      // Ждем загрузки голосов
+      await new Promise(resolve => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          resolve(voices);
+        } else {
+          window.speechSynthesis.onvoiceschanged = () => resolve(window.speechSynthesis.getVoices());
+        }
+      });
+
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Выбираем лучший голос для языка
+      let preferredVoice = null;
+      if (testLanguage === 'ru') {
+        // Для русского: ищем женский Google или Yandex голос
+        preferredVoice = voices.find(v => v.lang.startsWith('ru') && (v.name.includes('Google') || v.name.includes('Yandex') || v.name.includes('Female'))) ||
+                        voices.find(v => v.lang.startsWith('ru'));
+      } else if (testLanguage === 'en') {
+        // Для английского: ищем Google US Female
+        preferredVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google') && v.name.includes('Female')) ||
+                        voices.find(v => v.lang === 'en-US');
+      } else {
+        // Для испанского: ищем Google ES Female
+        preferredVoice = voices.find(v => v.lang === 'es-ES' && (v.name.includes('Google') || v.name.includes('Female'))) ||
+                        voices.find(v => v.lang === 'es-ES') ||
+                        voices.find(v => v.lang.startsWith('es'));
+      }
+
+      const utterance = new SpeechSynthesisUtterance(questionText);
+      utterance.lang = testLanguage === 'ru' ? 'ru-RU' : 
+                       testLanguage === 'en' ? 'en-US' : 
+                       'es-ES';
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+      
+      // Параметры для более естественной речи
+      utterance.rate = 0.85; // Немного медленнее для четкости
+      utterance.pitch = 1.05; // Чуть выше для естественности
+      utterance.volume = 0.9;
+
+      // Ждем небольшую задержку перед озвучкой
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+        console.log('[TestSession] 🔊 Speaking question with voice:', preferredVoice?.name || 'default');
+      }, 500);
+    };
+
+    speakQuestion();
+
+    // Cleanup - останавливаем озвучку при размонтировании или смене вопроса
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [voiceOver, currentIndex, questions, testLanguage]);
   
   const handleCloseModal = useCallback(() => {
     if (isClosing) return; // Предотвращаем множественные вызовы
@@ -257,7 +477,88 @@ const TestSession = () => {
 
   useEffect(() => {
     loadQuestions();
-  }, [mode, topic, testId]);
+  }, [mode, topic, testId, profileId]);
+
+  // Проверяем, добавлен ли текущий вопрос в закладки
+  useEffect(() => {
+    if (profileId && questions.length > 0 && questions[currentIndex]?.id) {
+      checkIfBookmarked();
+    }
+  }, [profileId, currentIndex, questions]);
+
+  const checkIfBookmarked = async () => {
+    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_challenge_questions')
+        .select('id')
+        .eq('user_id', profileId)
+        .eq('question_id', questions[currentIndex].id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      setIsQuestionBookmarked(!!data);
+    } catch (error) {
+      console.error('Error checking bookmark:', error);
+    }
+  };
+
+  const toggleBookmark = async () => {
+    if (!profileId || !questions.length || !questions[currentIndex]?.id || bookmarkLoading) return;
+
+    const questionId = questions[currentIndex].id;
+
+    try {
+      setBookmarkLoading(true);
+
+      if (isQuestionBookmarked) {
+        // Удаляем из закладок
+        const { error } = await supabase
+          .from('user_challenge_questions')
+          .delete()
+          .eq('user_id', profileId)
+          .eq('question_id', questionId);
+
+        if (error) throw error;
+        toast.success("Удалено из закладок");
+        setIsQuestionBookmarked(false);
+      } else {
+        // Добавляем в закладки
+        const { data: existing } = await supabase
+          .from('user_challenge_questions')
+          .select('id, times_wrong')
+          .eq('user_id', profileId)
+          .eq('question_id', questionId)
+          .maybeSingle();
+
+        if (existing) {
+          // Уже есть, просто показываем сообщение
+          toast.success("Вопрос уже в закладках");
+          setIsQuestionBookmarked(true);
+        } else {
+          // Создаем новую запись с times_wrong = 0 (добавлено вручную)
+          const { error: insertError } = await supabase
+            .from('user_challenge_questions')
+            .insert({
+              user_id: profileId,
+              question_id: questionId,
+              times_wrong: 0, // 0 означает добавлено вручную, не через ошибку
+              last_wrong_at: new Date().toISOString(),
+            });
+
+          if (insertError) throw insertError;
+          toast.success("Добавлено в закладки");
+          setIsQuestionBookmarked(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      toast.error("Не удалось изменить закладку");
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
   // Предзагрузка изображений следующих и предыдущих вопросов
   useEffect(() => {
@@ -327,8 +628,104 @@ const TestSession = () => {
     try {
       setLoading(true);
       
+      // Если это режим Challenge Bank, загружаем вопросы с ошибками
+      if (mode === 'challenge-bank' && profileId) {
+        const { data: challengeQuestions, error: challengeError } = await supabase
+          .rpc('get_challenge_bank_questions', {
+            p_user_id: profileId,
+            p_limit: 30,
+            p_only_not_mastered: true
+          });
+
+        if (challengeError) throw challengeError;
+        if (!challengeQuestions || challengeQuestions.length === 0) {
+          toast.error("Нет вопросов в Банке Сложных Вопросов");
+          navigate("/tests/challenge-bank");
+          return;
+        }
+
+        // Преобразуем Challenge Bank вопросы в формат TestSession
+        // Загружаем answer_options для каждого вопроса
+        const questionIds = challengeQuestions.map((q: any) => q.id);
+        const { data: optionsData, error: optionsError } = await supabase
+          .from("answer_options")
+          .select("*")
+          .in("question_id", questionIds);
+
+        if (optionsError) throw optionsError;
+
+        const formattedQuestions = challengeQuestions.map((q: any) => {
+          const options = (optionsData || []).filter((opt: any) => opt.question_id === q.id);
+          return {
+            ...q,
+            answer_options: options,
+            topics: q.topic_title_ru ? {
+              title_ru: q.topic_title_ru,
+              title_es: q.topic_title_es || q.topic_title_ru,
+            } : null,
+          };
+        });
+
+        setQuestions(formattedQuestions);
+        setTestInfo({
+          id: 'challenge_bank',
+          title: '💡 Банк Сложных Вопросов™',
+        });
+      }
+      // Режим Mastery - случайные вопросы для прохождения "до победного"
+      else if (mode === 'mastery') {
+        let query = supabase
+          .from("questions_new")
+          .select(`
+            *,
+            topics (title_ru, title_es),
+            answer_options (*)
+          `);
+
+        // Если указана тема
+        if (topic) {
+          query = query.eq("topic_id", topic);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        // Перемешиваем и берём заданное количество вопросов
+        const shuffled = (data || []).sort(() => Math.random() - 0.5);
+        const limited = shuffled.slice(0, questionCount);
+        
+        setQuestions(limited);
+        setTestInfo({
+          id: 'mastery_mode',
+          title: '🏆 Режим Мастерства',
+        });
+      }
+      // Режим Hardest - самые сложные вопросы
+      else if (mode === 'hardest') {
+        // TODO: Загружать из статистики самые сложные вопросы
+        // Пока загружаем случайные вопросы
+        const { data, error } = await supabase
+          .from("questions_new")
+          .select(`
+            *,
+            topics (title_ru, title_es),
+            answer_options (*)
+          `);
+
+        if (error) throw error;
+
+        // Перемешиваем и берём заданное количество
+        const shuffled = (data || []).sort(() => Math.random() - 0.5);
+        const limited = shuffled.slice(0, questionCount);
+        
+        setQuestions(limited);
+        setTestInfo({
+          id: 'hardest_questions',
+          title: '⚠️ Сложные Вопросы',
+        });
+      }
       // Если это DGT тест, загружаем из dgt_questions
-      if (mode === 'dgt' && topic) {
+      else if (mode === 'dgt' && topic) {
         const category = topic.toUpperCase();
         
         // Загружаем случайные 30 вопросов из DGT базы
@@ -557,9 +954,9 @@ const TestSession = () => {
       });
       const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
 
-      // Shuffle and limit to 30 questions (не исключаем уже отвеченные)
+      // Shuffle and limit questions (не исключаем уже отвеченные)
       const shuffled = uniqueQuestions.sort(() => Math.random() - 0.5);
-      const limited = shuffled.slice(0, 30);
+      const limited = shuffled.slice(0, questionCount);
       
       setQuestions(limited);
 
@@ -607,6 +1004,67 @@ const TestSession = () => {
     };
 
     setAnswers([...(answers || []), newAnswer]);
+    
+    // Mastery Mode: добавляем неправильные вопросы для повторения
+    if (mode === "mastery" && !isCorrect) {
+      if (!masteryWrongQuestions.includes(currentQuestion.id)) {
+        setMasteryWrongQuestions([...masteryWrongQuestions, currentQuestion.id]);
+      }
+    }
+    
+    // НЕ показываем Lumi автоматически - только по клику на floating button
+    // Это экономит токены AI
+
+    // Добавляем вопрос в Challenge Bank при первой ошибке (не в mastery mode)
+    if (!isCorrect && profileId && mode !== "mastery") {
+      try {
+        // Проверяем, первая ли это ошибка в тесте
+        const wrongAnswersInThisTest = answers.filter(a => !a.isCorrect).length;
+        const showNotification = wrongAnswersInThisTest === 0 && isFirstWrongAnswer;
+        
+        if (showNotification) {
+          setIsFirstWrongAnswer(false);
+          setShowChallengeBankNotification(true);
+          // Скрываем уведомление через 5 секунд
+          setTimeout(() => {
+            setShowChallengeBankNotification(false);
+          }, 5000);
+        }
+
+        // Добавляем или обновляем вопрос в Challenge Bank
+        const { data: existing } = await supabase
+          .from('user_challenge_questions')
+          .select('id, times_wrong')
+          .eq('user_id', profileId)
+          .eq('question_id', currentQuestion.id)
+          .maybeSingle();
+
+        if (existing) {
+          // Обновляем существующую запись
+          await supabase
+            .from('user_challenge_questions')
+            .update({
+              times_wrong: existing.times_wrong + 1,
+              last_wrong_at: new Date().toISOString(),
+              mastered: false, // Сбрасываем статус "освоено"
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', existing.id);
+        } else {
+          // Создаем новую запись
+          await supabase
+            .from('user_challenge_questions')
+            .insert({
+              user_id: profileId,
+              question_id: currentQuestion.id,
+              times_wrong: 1,
+              last_wrong_at: new Date().toISOString(),
+            });
+        }
+      } catch (error) {
+        console.error('Error adding to Challenge Bank:', error);
+      }
+    }
 
     // Save user progress
     try {
@@ -635,8 +1093,10 @@ const TestSession = () => {
       console.error("Error saving progress:", error);
     }
 
-    if (mode === "practice" || mode === "dgt") {
-      setShowExplanation(true);
+    if (mode === "practice" || mode === "dgt" || mode === "mastery") {
+      // Показываем explanation в Lumi чате и открываем AI чат
+      setShowAIExplanation(true);
+      
       if (isCorrect) {
         toast.success("¡Correcto! ✅", { duration: 2000 });
       } else {
@@ -647,7 +1107,6 @@ const TestSession = () => {
       // Don't finish test early - let user complete all questions
       // Reset selection and move to next question immediately
       setSelectedOption(null);
-      setShowExplanation(false);
       nextQuestion();
     }
   };
@@ -656,17 +1115,17 @@ const TestSession = () => {
     if (index === currentIndex) return;
     setCurrentIndex(index);
     setSelectedOption(null);
-    setShowExplanation(false);
     setShowTranslation(false);
+    setShowAIExplanation(false); // Закрываем AI чат
   };
 
   const nextQuestion = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedOption(null);
-      // Always reset explanation, especially for exam mode
-      setShowExplanation(false);
+      // Always reset translation and AI chat, especially for exam mode
       setShowTranslation(false);
+      setShowAIExplanation(false);
     } else {
       finishTest();
     }
@@ -676,12 +1135,40 @@ const TestSession = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
       setSelectedOption(null);
-      setShowExplanation(false);
       setShowTranslation(false);
+      setShowAIExplanation(false); // Закрываем AI чат
     }
   };
 
   const finishTest = async () => {
+    // MASTERY MODE: Если есть неправильные вопросы - повторяем!
+    if (mode === "mastery" && masteryWrongQuestions.length > 0) {
+      const wrongQuestionsData = questions.filter(q => masteryWrongQuestions.includes(q.id));
+      
+      if (wrongQuestionsData.length > 0) {
+        toast.info(
+          `Раунд ${masteryRound} завершён! Повторяем ${wrongQuestionsData.length} неправильных вопросов 🔄`,
+          { duration: 3000 }
+        );
+        
+        // Перезапускаем с неправильными вопросами
+        setQuestions(wrongQuestionsData);
+        setMasteryWrongQuestions([]); // Очищаем для следующего раунда
+        setMasteryRound(masteryRound + 1);
+        setCurrentIndex(0);
+        setAnswers([]);
+        setSelectedOption(null);
+        setShowTranslation(false);
+        setShowAIExplanation(false);
+        return; // НЕ завершаем тест!
+      }
+    }
+    
+    // Если Mastery Mode и все правильно - показываем поздравление!
+    if (mode === "mastery") {
+      toast.success(`🎉 ИДЕАЛЬНО! Все вопросы правильно за ${masteryRound} раундов!`, { duration: 5000 });
+    }
+    
     const correctCount = answers.filter((a) => a.isCorrect).length;
     const score = Math.round((correctCount / questions.length) * 100);
     const timeSpent = startTime > 0 ? Math.floor((Date.now() - startTime) / 1000) : (mode === "exam" ? 30 * 60 - timeLeft : 0);
@@ -802,20 +1289,24 @@ const TestSession = () => {
   const progress = questions.length > 0 ? (answers.length / questions.length) * 100 : 0;
   const errorCount = answers.filter((a) => !a.isCorrect).length;
   
-  const getQuestionText = (lang: 'ru' | 'es'): string => {
-    return lang === 'es' ? currentQuestion.question_es : currentQuestion.question_ru;
+  const getQuestionText = (lang: 'ru' | 'es' | 'en'): string => {
+    if (lang === 'ru') return currentQuestion.question_ru;
+    if (lang === 'en') return currentQuestion.question_en;
+    return currentQuestion.question_es;
   };
 
+  // Приоритет: showTranslation (кнопка) > testLanguage (настройки)
   const displayQuestion = showTranslation 
-    ? currentQuestion.question_es
-    : currentQuestion.question_es;
+    ? currentQuestion.question_ru 
+    : getQuestionText(testLanguage);
   const displayTopic = currentQuestion.topics?.title_es || 'Sin tema';
   
-  const getExplanation = (lang: 'ru' | 'es'): string | null => {
-    return lang === 'es' ? currentQuestion.explanation_es : currentQuestion.explanation_ru;
-  };
-  
-  const displayExplanation = getExplanation('es');
+  // Размеры шрифта
+  const fontSizeClasses = [
+    'text-sm sm:text-base md:text-lg', // small
+    'text-base sm:text-lg md:text-xl', // default
+    'text-lg sm:text-xl md:text-2xl',  // large
+  ];
   
   const toggleTranslation = async () => {
     setIsTransitioning(true);
@@ -837,73 +1328,153 @@ const TestSession = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-2 sm:px-4 pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 max-w-6xl pb-16 md:pb-4">
-        {/* Header Row - Title and Close button (browser only) */}
+      {/* Layout: В экзамене - центрированный широкий блок, в practice - grid с AI Widget */}
+      <div className={cn(
+        "mx-auto transition-all duration-300",
+        !isTelegramApp && mode === "practice" 
+          ? "lg:grid lg:grid-cols-[1fr_400px] lg:gap-4 lg:max-w-[1370px] lg:px-4" 
+          : mode === "exam" && !isTelegramApp
+          ? "lg:max-w-[1100px] lg:px-4"
+          : "container px-2 sm:px-4"
+      )}>
+        {/* Основной контент */}
         <div className={cn(
-          "mb-2 sm:mb-3 flex items-center justify-between",
-          isTelegramApp ? "-mt-[21px] sm:-mt-3" : "-mt-6 sm:-mt-3 md:mt-0"
+          "pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 pb-16 md:pb-4",
+          isTelegramApp && "px-2 sm:px-4"
         )}>
-          {/* Large Title - Bigger on mobile */}
-          <div className="flex-1">
-            <h1 className="text-3xl sm:text-3xl md:text-4xl font-bold text-foreground text-center">
-              {testId ? (testInfo?.title || "Тест") : (mode === "exam" ? "Экзамен" : "Практика")}
-            </h1>
-          </div>
-          
-          {/* Close button - Only in browser, not Telegram */}
+        {/* Unified Progress Bar - всё в одну линию */}
+        <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3 -mt-6 sm:-mt-3 md:mt-0">
+          {/* Close button слева - Only in browser, not Telegram */}
           {!isTelegramApp && (
             <Button
               variant="ghost"
               size="icon"
               onClick={handleClose}
-              className="ml-2 shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="shrink-0 h-10 w-10 sm:h-11 sm:w-11 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30"
             >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:h-5" />
             </Button>
           )}
-        </div>
 
-        {/* Timer and Question Map */}
-        <div className="mb-2 sm:mb-4 flex items-center justify-end gap-2 sm:gap-3">
+          {/* Timer для экзамена */}
           {mode === "exam" && (
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
-              <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-              <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
+              <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
+              <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
                 {formatTime(timeLeft)}
               </span>
             </div>
           )}
-          <button
-            onClick={() => setShowQuestionMap(true)}
-            className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden border-2 border-border/50"
-          >
-            {/* Animated progress border - используем accent цвет вместо primary */}
-            <div
-              className="absolute inset-0 rounded-xl pointer-events-none"
-              style={{
-                background: `conic-gradient(
-                  from -90deg,
-                  hsl(var(--accent-foreground) / 0.6) 0deg,
-                  hsl(var(--accent-foreground) / 0.6) ${(answers.length / questions.length) * 360}deg,
-                  transparent ${(answers.length / questions.length) * 360}deg,
-                  transparent 360deg
-                )`,
-                padding: '2px',
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            />
-            
-            {/* Content */}
-            <div className="relative z-10 flex items-center gap-2">
-              <Grid3x3 className="w-5 h-5 sm:w-6 sm:h-6 text-foreground/70" />
-              <span className="font-semibold text-foreground text-sm sm:text-base">
-                {currentIndex + 1}/{questions.length}
+
+          {/* Mastery Round Indicator */}
+          {mode === "mastery" && masteryRound > 1 && (
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-500/10 backdrop-blur-md border border-purple-500/30 shadow-sm shrink-0">
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+              <span className="font-semibold text-xs sm:text-sm text-purple-600 dark:text-purple-400">
+                Раунд {masteryRound}
               </span>
             </div>
-          </button>
+          )}
+
+          {/* Progress Bar - растягивается по центру */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            {/* Question Counter */}
+            <button
+              onClick={() => setShowQuestionMap(true)}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 border border-border/50 hover:border-accent/50 group shrink-0"
+            >
+              <Grid3x3 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-accent group-hover:scale-110 transition-transform" />
+              <span className="font-bold text-foreground text-sm sm:text-base">
+                {currentIndex + 1}<span className="text-muted-foreground text-xs sm:text-sm">/{questions.length}</span>
+              </span>
+            </button>
+
+            {/* Horizontal Progress Bar */}
+            <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px]">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
+                style={{ 
+                  width: `${((currentIndex + 1) / questions.length) * 100}%`,
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side Controls - Bookmark + Settings */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Bookmark Button */}
+            {profileId && (
+              <div className="relative">
+                <button
+                  onClick={toggleBookmark}
+                  disabled={bookmarkLoading}
+                  className={cn(
+                    "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 backdrop-blur-sm border",
+                    isQuestionBookmarked
+                      ? "bg-blue-500 border-blue-500 text-white hover:bg-blue-600"
+                      : "bg-background border-border/50 hover:bg-muted/50"
+                  )}
+                  title={isQuestionBookmarked ? "Удалить из закладок" : "Добавить в закладки"}
+                >
+                  {isQuestionBookmarked ? (
+                    <BookmarkCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                  ) : (
+                    <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
+                  )}
+                </button>
+
+                {/* Challenge Bank Notification */}
+                {showChallengeBankNotification && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 animate-lumi-slide-in">
+                    <div className="relative">
+                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-blue-500" />
+                      
+                      <div className="bg-blue-500 text-white rounded-xl shadow-2xl p-3 w-[200px]">
+                        <button
+                          onClick={() => setShowChallengeBankNotification(false)}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-blue-500 hover:bg-gray-100 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                        
+                        <p className="font-bold text-xs mb-1.5">💾 Сохранено!</p>
+                        <p className="text-[10px] opacity-90 leading-snug mb-2">
+                          Вопрос добавлен в твой банк для практики
+                        </p>
+                        <button
+                          onClick={() => {
+                            setShowChallengeBankNotification(false);
+                            navigate('/tests/challenge-bank');
+                          }}
+                          className="w-full bg-white/20 hover:bg-white/30 text-white text-[10px] font-medium py-1 rounded transition-colors"
+                        >
+                          Посмотреть банк →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Settings Menu */}
+            <TestSettingsMenu
+              open={showTestSettings}
+              onOpenChange={setShowTestSettings}
+              voiceOver={voiceOver}
+              onVoiceOverChange={setVoiceOver}
+              answerPopularity={answerPopularity}
+              onAnswerPopularityChange={setAnswerPopularity}
+              ambientMusic={ambientMusic}
+              onAmbientMusicChange={setAmbientMusic}
+              fontSize={fontSize}
+              onFontSizeChange={setFontSize}
+              language={testLanguage}
+              onLanguageChange={setTestLanguage}
+            />
+          </div>
         </div>
 
 
@@ -922,58 +1493,41 @@ const TestSession = () => {
                 {/* Question Text */}
                 <div className="mb-4 sm:mb-6">
                   <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                    <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                      {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+                    <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                      {displayQuestion}
                     </h2>
                   </div>
                 </div>
 
-                {/* Translation & Explanation Buttons (Practice Only) and Report Button */}
-                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                  {mode === "practice" && (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={toggleTranslation}
-                        className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                      >
-                        <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                        <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                        <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-                      </Button>
-                      {displayExplanation && !showExplanation && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowExplanation(true)}
-                          className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                        >
-                          <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                          Подсказка
-                        </Button>
-                      )}
-                    </>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowReportModal(true)}
-                    className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
-                  >
-                    <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                    <span className="hidden sm:inline">{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
-                    <span className="sm:hidden">{language === "es" ? "Reportar" : "Проблема"}</span>
-                  </Button>
-                </div>
+                {/* Translation Button (Practice Only) */}
+                {mode === "practice" && (
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={toggleTranslation}
+                      className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                    >
+                      <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                      <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                      <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
+                    </Button>
+                  </div>
+                )}
 
                 {/* Answer Options */}
                 <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-                  {sortedOptions.map((option) => {
+                  {sortedOptions.map((option, optionIndex) => {
                     const isSelected = selectedOption === option.id;
                     const isCorrect = option.is_correct;
-                    const showResult = showExplanation && mode === "practice";
-                    const displayText = showTranslation ? option.text_ru : option.text_es;
+                    const showResult = selectedOption !== null && mode === "practice";
+                    // Ответы тоже учитывают showTranslation (кнопка перевода)
+                    const displayText = showTranslation 
+                      ? option.text_ru 
+                      : (testLanguage === 'ru' ? option.text_ru : testLanguage === 'en' ? option.text_en : option.text_es);
+                    
+                    // Mock popularity data (в реальной версии загружать из БД)
+                    const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
 
                     return (
                       <button
@@ -981,11 +1535,12 @@ const TestSession = () => {
                         onClick={() => {
                           if (mode === "exam") {
                             setSelectedOption(option.id);
-                          } else if (!showExplanation) {
+                          } else if (!selectedOption) {
                             setSelectedOption(option.id);
+                            handleAnswer(option.id);
                           }
                         }}
-                        disabled={mode === "practice" && showExplanation}
+                        disabled={mode === "practice" && selectedOption !== null}
                         className={`
                           w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                           ${showResult
@@ -998,13 +1553,24 @@ const TestSession = () => {
                             ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
                             : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
                           }
-                          ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
+                          ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
                         `}
                       >
                         <div className="flex items-center justify-between gap-2 sm:gap-3">
-                          <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                          <span className={`flex-1 ${fontSizeClasses[fontSize]} transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                             {displayText}
                           </span>
+                          
+                          {/* Answer Popularity - как на driving-tests.org */}
+                          {answerPopularity && showResult && (
+                            <span className={cn(
+                              "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
+                              isCorrect ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" : "text-muted-foreground"
+                            )}>
+                              {mockPopularity}%
+                            </span>
+                          )}
+                          
                           {showResult && isCorrect && (
                             <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
                               <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
@@ -1021,39 +1587,35 @@ const TestSession = () => {
                   })}
                 </div>
 
-                {/* Explanation - Only in practice mode */}
-                {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-                  <div className="mb-3 sm:mb-4 space-y-2">
-                    <div className="p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
-                      <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-                        <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
-                          <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
-                            {showTranslation ? "Объяснение:" : "Explicación:"}
-                          </p>
-                          <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                            {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {/* AI Explanation Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowAIExplanation(true)}
-                      className="w-full text-xs sm:text-sm gradient-primary text-primary-foreground hover:opacity-90"
-                    >
-                      <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
-                      {showTranslation ? "Спросить AI: объясни по-другому" : "Preguntar a IA: explica de otra manera"}
-                    </Button>
-                  </div>
-                )}
+                {/* Explanation убрано - теперь показывается через Lumi */}
 
-                {/* Navigation Buttons */}
-                <div className="flex gap-2">
+                {/* Report Problem Button - под ответами */}
+                <div className="mb-4 sm:mb-5 flex justify-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowReportModal(true)}
+                    className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-md transition-all"
+                  >
+                    <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
+                    <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
+                  </Button>
+                </div>
+
+                {/* Navigation Buttons - с аватаром Lumi на мобильном */}
+                <div className="flex gap-2 items-center">
+                  {/* Lumi Avatar - только на мобильном в режиме practice */}
+                  {isTelegramApp && mode === "practice" && (
+                    <button
+                      onClick={() => setShowAIExplanation(true)}
+                      className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
+                      aria-label="Спросить Lumi"
+                    >
+                      <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
+                    </button>
+                  )}
+
                   {currentIndex > 0 && mode === "practice" && (
                     <Button 
                       onClick={prevQuestion} 
@@ -1066,7 +1628,20 @@ const TestSession = () => {
                       <span className="sm:hidden">←</span>
                     </Button>
                   )}
-                  {mode === "practice" && showExplanation ? (
+                  
+                  {/* AI Chat кнопка с Lumi - только в practice mode */}
+                  {mode === "practice" && selectedOption && (
+                    <button
+                      onClick={() => setShowAIExplanation(true)}
+                      className="w-12 sm:w-14 h-10 sm:h-11 md:h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative overflow-hidden group"
+                      title="AI помощник - объяснение"
+                    >
+                      <LumiCharacter size="md" mood="thinking" animate className="scale-90 relative z-10" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-0 group-hover:opacity-30 blur-lg transition-opacity" />
+                    </button>
+                  )}
+                  
+                  {mode === "practice" && selectedOption ? (
                     <Button 
                       onClick={nextQuestion} 
                       className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
@@ -1102,8 +1677,8 @@ const TestSession = () => {
           {/* Question Text */}
               <div className="mb-4 sm:mb-6">
                 <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-            <h2 className={`text-base sm:text-lg md:text-xl font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-              {showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+            <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              {displayQuestion}
             </h2>
                 </div>
           </div>
@@ -1121,27 +1696,22 @@ const TestSession = () => {
                 <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
                 <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
               </Button>
-              {displayExplanation && !showExplanation && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowExplanation(true)}
-                  className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                >
-                  <Lightbulb className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                  Подсказка
-                </Button>
-              )}
             </div>
           )}
 
           {/* Answer Options */}
           <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-            {sortedOptions.map((option) => {
+            {sortedOptions.map((option, optionIndex) => {
               const isSelected = selectedOption === option.id;
               const isCorrect = option.is_correct;
-              const showResult = showExplanation && mode === "practice";
-              const displayText = showTranslation ? option.text_ru : option.text_es;
+              const showResult = selectedOption !== null && mode === "practice";
+              // Ответы тоже учитывают showTranslation (кнопка перевода)
+              const displayText = showTranslation 
+                ? option.text_ru 
+                : (testLanguage === 'ru' ? option.text_ru : testLanguage === 'en' ? option.text_en : option.text_es);
+              
+              // Mock popularity data
+              const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
 
               return (
                 <button
@@ -1149,11 +1719,12 @@ const TestSession = () => {
                   onClick={() => {
                     if (mode === "exam") {
                       setSelectedOption(option.id);
-                    } else if (!showExplanation) {
+                    } else if (!selectedOption) {
                       setSelectedOption(option.id);
+                      handleAnswer(option.id);
                     }
                   }}
-                  disabled={mode === "practice" && showExplanation}
+                  disabled={mode === "practice" && selectedOption !== null}
                   className={`
                     w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                     ${showResult
@@ -1163,16 +1734,27 @@ const TestSession = () => {
                         ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
                         : "border-border/20 opacity-40"
                       : isSelected
-                          ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-                          : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
+                      ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+                      : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
                     }
-                    ${!showExplanation && "cursor-pointer active:scale-[0.99]"}
+                    ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
                   `}
                 >
                   <div className="flex items-center justify-between gap-2 sm:gap-3">
-                    <span className={`flex-1 text-xs sm:text-sm md:text-base transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                    <span className={`flex-1 ${fontSizeClasses[fontSize].replace('md:', 'sm:')} transition-opacity duration-300 leading-relaxed ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                       {displayText}
                     </span>
+                    
+                    {/* Answer Popularity - как на driving-tests.org */}
+                    {answerPopularity && showResult && (
+                      <span className={cn(
+                        "text-xs sm:text-sm font-bold px-2 py-1 rounded-md shrink-0",
+                        isCorrect ? "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30" : "text-muted-foreground"
+                      )}>
+                        {mockPopularity}%
+                      </span>
+                    )}
+                    
                     {showResult && isCorrect && (
                       <div className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500/20 animate-scale-in shrink-0">
                         <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
@@ -1189,39 +1771,22 @@ const TestSession = () => {
             })}
           </div>
 
-          {/* Explanation - Only in practice mode */}
-          {mode === "practice" && showExplanation && (showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es) && (
-            <div className="mb-3 sm:mb-4 space-y-2">
-              <div className="p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl bg-accent/10 border-2 border-accent/30 shadow-lg animate-fade-in">
-                <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-                  <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 shrink-0 shadow-md">
-                    <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-accent-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-bold mb-1 sm:mb-2 text-accent-foreground uppercase tracking-wide">
-                      {showTranslation ? "Объяснение:" : "Explicación:"}
-                    </p>
-                    <p className={`text-xs sm:text-sm md:text-base leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                      {showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              {/* AI Explanation Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAIExplanation(true)}
-                className="w-full text-xs sm:text-sm gradient-primary text-primary-foreground hover:opacity-90"
-              >
-                <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5" />
-                {showTranslation ? "Спросить AI: объясни по-другому" : "Preguntar a IA: explica de otra manera"}
-              </Button>
-            </div>
-          )}
+          {/* Explanation убрано - теперь показывается через Lumi */}
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-2">
+          {/* Navigation Buttons - с аватаром Lumi на мобильном */}
+          <div className="flex gap-2 items-center">
+            {/* Lumi Avatar - только на мобильном в режиме practice */}
+            {isTelegramApp && mode === "practice" && (
+              <button
+                onClick={() => setShowAIExplanation(true)}
+                className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
+                aria-label="Спросить Lumi"
+              >
+                <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
+              </button>
+            )}
+
             {currentIndex > 0 && mode === "practice" && (
               <Button 
                 onClick={prevQuestion} 
@@ -1234,7 +1799,7 @@ const TestSession = () => {
                 <span className="sm:hidden">←</span>
               </Button>
             )}
-            {mode === "practice" && showExplanation ? (
+            {mode === "practice" && selectedOption ? (
               <Button 
                 onClick={nextQuestion} 
                 className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
@@ -1265,6 +1830,7 @@ const TestSession = () => {
             </>
           )}
         </Card>
+        </div>
 
         {/* Question Map Bottom Sheet */}
         {showQuestionMap && (
@@ -1435,7 +2001,6 @@ const TestSession = () => {
             </div>
           </>
         )}
-      </div>
 
       {/* Report Problem Modal */}
       <ReportProblemModal
@@ -1445,24 +2010,44 @@ const TestSession = () => {
         questionText={showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
       />
 
-      {/* AI Explanation Dialog */}
-      {(mode === "practice" || mode === "dgt") && showExplanation && (
+
+      {/* AI Explanation Dialog - старый проверенный чат */}
+      {mode === "practice" && selectedOption && (
         <AIExplanationDialog
           open={showAIExplanation}
           onClose={() => setShowAIExplanation(false)}
-          question={showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+          question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
           correctAnswer={
-            sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : 'text_es'] || ''
+            sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] || ''
           }
           userAnswer={
-            sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : 'text_es']
+            sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es']
           }
           isCorrect={sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false}
-          explanation={showTranslation ? currentQuestion.explanation_ru : currentQuestion.explanation_es}
-          topic={currentQuestion.topics?.[showTranslation ? 'title_ru' : 'title_es']}
+          explanation={testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es}
+          topic={currentQuestion.topics?.[testLanguage === 'ru' ? 'title_ru' : 'title_es']}
           imageUrl={currentQuestion.image_url}
         />
       )}
+
+      {/* AI Widget справа - ВСЕГДА на desktop (как Officer Frank) */}
+      {/* AI Widget Lumi - только в режиме практики, НЕ в экзамене */}
+      {!isTelegramApp && mode === "practice" && (
+        <div className="hidden lg:block pt-3">
+          <div className="sticky top-4">
+            <AIWidget
+              explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
+              question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
+              correctAnswer={sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] || ''}
+              userAnswer={selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined}
+              isCorrect={sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false}
+              topic={currentQuestion.topics?.[testLanguage === 'ru' ? 'title_ru' : 'title_es']}
+              imageUrl={currentQuestion.image_url}
+            />
+          </div>
+        </div>
+      )}
+      </div>
     </Layout>
   );
 };
