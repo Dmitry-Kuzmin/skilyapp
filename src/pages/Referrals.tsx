@@ -50,11 +50,40 @@ export default function Referrals() {
         .eq('id', profileId)
         .single();
 
-      if (!error && data) {
+      if (error) {
+        console.error('[Referrals] Error loading data:', error);
+        toast.error('Ошибка загрузки данных');
+        return;
+      }
+
+      if (data) {
+        console.log('[Referrals] Loaded referral data:', {
+          hasCode: !!data.referral_code,
+          code: data.referral_code,
+          totalReferrals: data.total_referrals,
+          coins: data.coins
+        });
         setReferralData(data);
+        
+        // If no referral code, try to generate one
+        if (!data.referral_code) {
+          console.log('[Referrals] No referral code found, generating...');
+          const { data: newCode, error: codeError } = await supabase.rpc('generate_referral_code');
+          
+          if (!codeError && newCode) {
+            await supabase
+              .from('profiles')
+              .update({ referral_code: newCode })
+              .eq('id', profileId);
+            
+            setReferralData({ ...data, referral_code: newCode });
+            console.log('[Referrals] Generated new code:', newCode);
+          }
+        }
       }
     } catch (error) {
-      console.error('Error loading referral data:', error);
+      console.error('[Referrals] Exception loading referral data:', error);
+      toast.error('Ошибка загрузки');
     } finally {
       setLoading(false);
     }
@@ -97,16 +126,47 @@ export default function Referrals() {
   };
 
   const handleCopyCode = async () => {
-    if (!referralData?.referral_code) return;
+    if (!referralData?.referral_code) {
+      console.error('[Referrals] No referral code to copy:', referralData);
+      toast.error('Код не загружен');
+      return;
+    }
 
     try {
-      await navigator.clipboard.writeText(referralData.referral_code);
-      setCopied(true);
-      toast.success('Код скопирован!');
-      haptics.buttonPressed();
-      setTimeout(() => setCopied(false), 2000);
+      // Try modern clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(referralData.referral_code);
+        setCopied(true);
+        toast.success('Код скопирован!');
+        haptics.buttonPressed();
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for older browsers or localhost without HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = referralData.referral_code;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        textArea.remove();
+        
+        if (successful) {
+          setCopied(true);
+          toast.success('Код скопирован!');
+          haptics.buttonPressed();
+          setTimeout(() => setCopied(false), 2000);
+        } else {
+          throw new Error('execCommand failed');
+        }
+      }
     } catch (error) {
-      toast.error('Ошибка копирования');
+      console.error('[Referrals] Copy error:', error);
+      // Show code in alert as last resort
+      alert(`Ваш реферальный код:\n\n${referralData.referral_code}\n\nСкопируйте его вручную`);
     }
   };
 
