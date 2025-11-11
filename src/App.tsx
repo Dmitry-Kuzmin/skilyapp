@@ -38,6 +38,7 @@ import DailyBonus from "./pages/DailyBonus";
 import DGTTestsSimple from "./pages/DGTTestsSimple";
 import ChallengeBank from "./pages/ChallengeBank";
 import Referrals from "./pages/Referrals";
+import InviteLanding from "./pages/InviteLanding";
 
 const queryClient = new QueryClient();
 
@@ -133,6 +134,7 @@ const App = () => {
           <Route path="/games/road-race" element={<RoadRace />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/referrals" element={<Referrals />} />
+          <Route path="/join/:code" element={<InviteLanding />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="reports" element={<AdminQuestionReports />} />

@@ -132,8 +132,8 @@ export default function Referrals() {
       return;
     }
 
-    const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'yourbot';
-    const referralLink = `https://t.me/${botUsername}/app?startapp=ref_${referralData.referral_code}`;
+    // Use personal landing page link
+    const referralLink = `${window.location.origin}/join/${referralData.referral_code}`;
 
     try {
       // Try modern clipboard API
@@ -177,11 +177,13 @@ export default function Referrals() {
     if (!referralData?.referral_code) return;
 
     if (isTelegram && window.Telegram?.WebApp) {
-      // Get bot username from env or use default
+      // Get bot username and create personal landing page link
       const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'your_bot_name';
       const startParam = `ref_${referralData.referral_code}`;
       const shareUrl = `https://t.me/${botUsername}/app?startapp=${startParam}`;
-      const shareText = `🎁 Присоединяйся и получи +50 монет в подарок!\n\nИспользуй мой код: ${referralData.referral_code}\n\nИли просто нажми на ссылку:`;
+      const landingUrl = `${window.location.origin}/join/${referralData.referral_code}`;
+      
+      const shareText = `🚗 Учи ПДД со мной!\n\n🎁 Получи +50 монет в подарок при регистрации\n\n👉 Моя персональная ссылка:\n${landingUrl}\n\nИли через Telegram:`;
 
       (window.Telegram.WebApp as any).openTelegramLink?.(
         `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
@@ -252,10 +254,13 @@ export default function Referrals() {
                 </div>
                 
                 {/* Referral Link Display */}
-                <div className="bg-muted/50 dark:bg-muted/30 backdrop-blur-sm p-4 rounded-xl border border-border/50">
-                  <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Ваша ссылка</div>
-                  <div className="text-sm font-mono text-center text-foreground/80 break-all">
-                    {`https://t.me/${import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'yourbot'}/app?startapp=ref_${referralData?.referral_code || ''}`}
+                <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 backdrop-blur-sm p-4 rounded-xl border-2 border-pink-500/30">
+                  <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-2">
+                    <Sparkles className="h-3 w-3" />
+                    Персональная страница приглашения
+                  </div>
+                  <div className="text-sm font-mono text-center text-foreground/90 break-all font-bold">
+                    {`${window.location.origin}/join/${referralData?.referral_code || ''}`}
                   </div>
                 </div>
               </motion.div>
