@@ -132,18 +132,21 @@ export default function Referrals() {
       return;
     }
 
+    const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'yourbot';
+    const referralLink = `https://t.me/${botUsername}/app?startapp=ref_${referralData.referral_code}`;
+
     try {
       // Try modern clipboard API
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(referralData.referral_code);
+        await navigator.clipboard.writeText(referralLink);
         setCopied(true);
-        toast.success('Код скопирован!');
+        toast.success('Ссылка скопирована!');
         haptics.buttonPressed();
         setTimeout(() => setCopied(false), 2000);
       } else {
         // Fallback for older browsers or localhost without HTTPS
         const textArea = document.createElement('textarea');
-        textArea.value = referralData.referral_code;
+        textArea.value = referralLink;
         textArea.style.position = 'fixed';
         textArea.style.left = '-999999px';
         textArea.style.top = '-999999px';
@@ -156,7 +159,7 @@ export default function Referrals() {
         
         if (successful) {
           setCopied(true);
-          toast.success('Код скопирован!');
+          toast.success('Ссылка скопирована!');
           haptics.buttonPressed();
           setTimeout(() => setCopied(false), 2000);
         } else {
@@ -165,8 +168,8 @@ export default function Referrals() {
       }
     } catch (error) {
       console.error('[Referrals] Copy error:', error);
-      // Show code in alert as last resort
-      alert(`Ваш реферальный код:\n\n${referralData.referral_code}\n\nСкопируйте его вручную`);
+      // Show link in alert as last resort
+      alert(`Ваша реферальная ссылка:\n\n${referralLink}\n\nСкопируйте её вручную`);
     }
   };
 
@@ -239,11 +242,21 @@ export default function Referrals() {
               
               {/* Referral Code Display */}
               <motion.div
-                className="bg-white/90 dark:bg-background/90 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border-2 border-pink-500/40 shadow-xl"
-                whileHover={{ scale: 1.02 }}
+                className="space-y-3"
               >
-                <div className="text-4xl sm:text-5xl font-black tracking-wider text-center bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                  {referralData?.referral_code || 'LOADING'}
+                <div className="bg-white/90 dark:bg-background/90 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border-2 border-pink-500/40 shadow-xl">
+                  <div className="text-xs text-muted-foreground text-center mb-2 uppercase tracking-wide">Ваш код</div>
+                  <div className="text-4xl sm:text-5xl font-black tracking-wider text-center bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    {referralData?.referral_code || 'LOADING'}
+                  </div>
+                </div>
+                
+                {/* Referral Link Display */}
+                <div className="bg-muted/50 dark:bg-muted/30 backdrop-blur-sm p-4 rounded-xl border border-border/50">
+                  <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Ваша ссылка</div>
+                  <div className="text-sm font-mono text-center text-foreground/80 break-all">
+                    {`https://t.me/${import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'yourbot'}/app?startapp=ref_${referralData?.referral_code || ''}`}
+                  </div>
                 </div>
               </motion.div>
               
@@ -263,7 +276,7 @@ export default function Referrals() {
                   ) : (
                     <>
                       <Copy className="mr-2 h-5 w-5" />
-                      Копировать код
+                      Копировать ссылку
                     </>
                   )}
                 </Button>
