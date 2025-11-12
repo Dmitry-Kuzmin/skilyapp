@@ -747,18 +747,74 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const isCorrect = question.correct_option_ids.includes(optionId);
 
     try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'submit_answer',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: question.id,
-          selected_option_id: optionId,
-          time_taken_ms: 60000 - timeLeft,
-        },
-      });
+      // Retry логика с экспоненциальной задержкой для submit_answer
+      const maxRetries = 3;
+      let data: any = null;
+      let lastError: any = null;
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          // Таймаут 20 секунд на запрос (меньше чем для загрузки вопросов, т.к. это критично)
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
+          });
 
-      if (error) throw error;
+          const invokePromise = supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'submit_answer',
+              duel_id: duelId,
+              profile_id: profileId,
+              duel_question_id: question.id,
+              selected_option_id: optionId,
+              time_taken_ms: 60000 - timeLeft,
+            },
+          });
+
+          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
+          const { data: resultData, error: resultError } = result;
+
+          if (resultError) {
+            lastError = resultError;
+            console.warn(`[DuelBattleFullscreen] ⚠️ Submit answer attempt ${attempt + 1} failed:`, resultError?.message);
+            
+            // Если это не последняя попытка, ждем перед повтором
+            if (attempt < maxRetries - 1) {
+              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
+              console.log(`[DuelBattleFullscreen] ⏳ Retrying submit_answer in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw resultError;
+          }
+
+          // Успешно получили ответ
+          data = resultData;
+          console.log(`[DuelBattleFullscreen] ✅ Submit answer successful (attempt ${attempt + 1})`);
+          break; // Выходим из цикла retry
+          
+        } catch (attemptError: any) {
+          lastError = attemptError;
+          console.warn(`[DuelBattleFullscreen] ⚠️ Submit answer attempt ${attempt + 1} exception:`, attemptError?.message);
+          
+          // Если это не последняя попытка, ждем перед повтором
+          if (attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            console.log(`[DuelBattleFullscreen] ⏳ Retrying submit_answer in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            // Все попытки не удались - показываем ошибку, но продолжаем игру
+            console.error('[DuelBattleFullscreen] ❌ All submit_answer attempts failed, continuing anyway');
+            toast.error('Не удалось сохранить ответ, но игра продолжается');
+            // Продолжаем выполнение без данных от сервера
+            data = null;
+          }
+        }
+      }
+
+      if (lastError && !data) {
+        // Если все попытки не удались, продолжаем игру без обновления счета
+        console.warn('[DuelBattleFullscreen] ⚠️ Continuing without server response');
+      }
 
       // ============================================================================
       // CRITICAL: USE SERVER SCORE AND COMBO - CLIENT NEVER CALCULATES
@@ -811,6 +867,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         await loadScores();
       }
 
+      // Всегда переходим к следующему вопросу, даже если сервер не ответил
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
           setCurrentIndex(prev => prev + 1);
@@ -824,7 +881,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
       }, 1500);
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      console.error('[DuelBattleFullscreen] Error submitting answer:', error);
+      // Даже при ошибке продолжаем игру
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+          setIsAnswered(false);
+          setSelectedAnswer(null);
+          setTimeLeft(60000);
+          setUsedBoosts([]);
+          setEliminatedOptions([]);
+        } else {
+          finishDuel();
+        }
+      }, 1500);
     }
   };
 
@@ -841,18 +911,53 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     sounds.wrongAnswer();
     
     try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'submit_answer',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: questions[currentIndex].id,
-          selected_option_id: null,
-          time_taken_ms: 60000,
-        },
-      });
+      // Retry логика с экспоненциальной задержкой для timeout
+      const maxRetries = 3;
+      let data: any = null;
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
+          });
 
-      if (error) throw error;
+          const invokePromise = supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'submit_answer',
+              duel_id: duelId,
+              profile_id: profileId,
+              duel_question_id: questions[currentIndex].id,
+              selected_option_id: null,
+              time_taken_ms: 60000,
+            },
+          });
+
+          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
+          const { data: resultData, error: resultError } = result;
+
+          if (resultError) {
+            if (attempt < maxRetries - 1) {
+              const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+              console.log(`[DuelBattleFullscreen] ⏳ Retrying timeout submit in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw resultError;
+          }
+
+          data = resultData;
+          console.log(`[DuelBattleFullscreen] ✅ Timeout submit successful (attempt ${attempt + 1})`);
+          break;
+        } catch (attemptError: any) {
+          if (attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.warn('[DuelBattleFullscreen] ⚠️ Timeout submit failed, continuing anyway');
+            data = null;
+          }
+        }
+      }
 
       // Update score and combo from server (combo should be 0 for timeout)
       if (data) {
@@ -865,6 +970,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         console.log('[DuelBattleFullscreen] Timeout - Server combo:', serverCombo);
       }
       
+      // Всегда переходим к следующему вопросу, даже если сервер не ответил
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
           setCurrentIndex(prev => prev + 1);
@@ -878,7 +984,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
       }, 1500);
     } catch (error) {
-      console.error('Error on timeout:', error);
+      console.error('[DuelBattleFullscreen] Error on timeout:', error);
+      // Даже при ошибке продолжаем игру
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+          setIsAnswered(false);
+          setSelectedAnswer(null);
+          setTimeLeft(60000);
+          setUsedBoosts([]);
+          setEliminatedOptions([]);
+        } else {
+          finishDuel();
+        }
+      }, 1500);
     }
   };
 

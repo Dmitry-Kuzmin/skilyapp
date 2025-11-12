@@ -508,18 +508,74 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     const timeTaken = 60000 - timeLeft;
 
     try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'submit_answer',
-          profile_id: profileId,
-          duel_id: duelId,
-          duel_question_id: currentQuestion.id,
-          selected_option_id: optionId,
-          time_taken_ms: timeTaken,
-        },
-      });
+      // Retry логика с экспоненциальной задержкой для submit_answer
+      const maxRetries = 3;
+      let data: any = null;
+      let lastError: any = null;
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          // Таймаут 20 секунд на запрос (меньше чем для загрузки вопросов, т.к. это критично)
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
+          });
 
-      if (error) throw error;
+          const invokePromise = supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'submit_answer',
+              profile_id: profileId,
+              duel_id: duelId,
+              duel_question_id: currentQuestion.id,
+              selected_option_id: optionId,
+              time_taken_ms: timeTaken,
+            },
+          });
+
+          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
+          const { data: resultData, error: resultError } = result;
+
+          if (resultError) {
+            lastError = resultError;
+            console.warn(`[DuelBattle] ⚠️ Submit answer attempt ${attempt + 1} failed:`, resultError?.message);
+            
+            // Если это не последняя попытка, ждем перед повтором
+            if (attempt < maxRetries - 1) {
+              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
+              console.log(`[DuelBattle] ⏳ Retrying submit_answer in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw resultError;
+          }
+
+          // Успешно получили ответ
+          data = resultData;
+          console.log(`[DuelBattle] ✅ Submit answer successful (attempt ${attempt + 1})`);
+          break; // Выходим из цикла retry
+          
+        } catch (attemptError: any) {
+          lastError = attemptError;
+          console.warn(`[DuelBattle] ⚠️ Submit answer attempt ${attempt + 1} exception:`, attemptError?.message);
+          
+          // Если это не последняя попытка, ждем перед повтором
+          if (attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            console.log(`[DuelBattle] ⏳ Retrying submit_answer in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            // Все попытки не удались - показываем ошибку, но продолжаем игру
+            console.error('[DuelBattle] ❌ All submit_answer attempts failed, continuing anyway');
+            toast.error('Не удалось сохранить ответ, но игра продолжается');
+            // Продолжаем выполнение без данных от сервера
+            data = null;
+          }
+        }
+      }
+
+      if (lastError && !data) {
+        // Если все попытки не удались, продолжаем игру без обновления счета
+        console.warn('[DuelBattle] ⚠️ Continuing without server response');
+      }
 
       // ============================================================================
       // CRITICAL: USE SERVER-PROVIDED SCORE ONLY
@@ -565,6 +621,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
       }
 
+      // Всегда переходим к следующему вопросу, даже если сервер не ответил
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
           setCurrentIndex(currentIndex + 1);
@@ -573,7 +630,16 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
       }, 2500);
     } catch (error: any) {
+      console.error('[DuelBattle] Error submitting answer:', error);
       toast.error(error.message || 'Ошибка отправки ответа');
+      // Даже при ошибке продолжаем игру
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+        } else {
+          finishDuel();
+        }
+      }, 2500);
     }
   };
 
@@ -597,17 +663,54 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
 
     try {
-      const { data } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'submit_answer',
-          profile_id: profileId,
-          duel_id: duelId,
-          duel_question_id: currentQuestion.id,
-          selected_option_id: null,
-          time_taken_ms: 60000,
-          is_timeout: true,
-        },
-      });
+      // Retry логика с экспоненциальной задержкой для timeout
+      const maxRetries = 3;
+      let data: any = null;
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
+          });
+
+          const invokePromise = supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'submit_answer',
+              profile_id: profileId,
+              duel_id: duelId,
+              duel_question_id: currentQuestion.id,
+              selected_option_id: null,
+              time_taken_ms: 60000,
+              is_timeout: true,
+            },
+          });
+
+          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
+          const { data: resultData, error: resultError } = result;
+
+          if (resultError) {
+            if (attempt < maxRetries - 1) {
+              const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+              console.log(`[DuelBattle] ⏳ Retrying timeout submit in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw resultError;
+          }
+
+          data = resultData;
+          console.log(`[DuelBattle] ✅ Timeout submit successful (attempt ${attempt + 1})`);
+          break;
+        } catch (attemptError: any) {
+          if (attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            console.warn('[DuelBattle] ⚠️ Timeout submit failed, continuing anyway');
+            data = null;
+          }
+        }
+      }
 
       if (data) {
         // Update score and combo from server
@@ -626,7 +729,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
       toast.info(`⏭️ Вопрос пропущен (${newSkipCount}/3)`);
     } catch (error) {
-      console.error('Error submitting timeout:', error);
+      console.error('[DuelBattle] Error submitting timeout:', error);
     }
 
     setTimeout(() => {
