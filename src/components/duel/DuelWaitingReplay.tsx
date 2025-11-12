@@ -281,6 +281,8 @@ export function DuelWaitingReplay({
 
   // Check if opponent finished all questions
   const checkIfOpponentFinished = async (force = false) => {
+    // Сохраняем ссылку на функцию для fallback
+    checkIfOpponentFinishedRef.current = checkIfOpponentFinished;
     try {
       // Prevent multiple simultaneous checks
       if (isCheckingFinishedRef.current && !force) {
