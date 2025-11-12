@@ -263,6 +263,39 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, onDuelFinished]);
   
+  // FALLBACK для Telegram WebApp: периодическая проверка счета соперника
+  // Если Realtime не работает, обновляем счет каждые 2 секунды
+  useEffect(() => {
+    if (!duelId || !myPlayerId || !state.duelStarted) return;
+    
+    // Проверяем счет каждые 2 секунды как fallback
+    const scoreCheckInterval = setInterval(async () => {
+      try {
+        const { data: players, error } = await supabase
+          .from('duel_players')
+          .select('id, score, user_id')
+          .eq('duel_id', duelId);
+        
+        if (error) {
+          console.error('[DuelBattleFullscreen] Error checking opponent score (fallback):', error);
+          return;
+        }
+        
+        if (players && players.length >= 2) {
+          const opponent = players.find((p: any) => p.id !== myPlayerId);
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
+            console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
+            setOpponentScore(opponent.score);
+          }
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Exception in score check fallback:', error);
+      }
+    }, 2000); // Каждые 2 секунды
+    
+    return () => clearInterval(scoreCheckInterval);
+  }, [duelId, myPlayerId, state.duelStarted, opponentScore]);
+  
   // Sync my score from realtime
   useEffect(() => {
     // Обновляем только если новое значение является валидным числом
