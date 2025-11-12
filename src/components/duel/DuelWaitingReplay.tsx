@@ -1000,6 +1000,13 @@ export function DuelWaitingReplay({
       supabase.removeChannel(channel);
     };
   };
+  
+  // Сохраняем ссылки на функции для fallback механизма (после их определения)
+  useEffect(() => {
+    // Сохраняем ссылки на функции для использования в fallback useEffect
+    loadOpponentDataRef.current = loadOpponentData;
+    checkIfOpponentFinishedRef.current = checkIfOpponentFinished;
+  }, [duelId]); // Пересохраняем при изменении duelId
 
   const progress = (opponentAnswers.length / totalQuestions) * 100;
 
