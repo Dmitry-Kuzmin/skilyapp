@@ -500,37 +500,23 @@ export default function Duel() {
     return () => clearInterval(timer);
   }, [createdCode]);
 
-  useEffect(() => {
-    if (countdown === null) return;
-    
-    if (countdown === 0) {
-      console.log('[Duel] Countdown finished, starting battle!');
-      handleDuelStarted();
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown(countdown - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown]);
+  // УБРАНО: Countdown логика - дуэль начинается сразу когда стартовала
 
   // Handle opponent joined
   useEffect(() => {
     if (duelState.opponentJoined && createdCode) {
       console.log('[Duel] Opponent joined!');
-      toast.success('Противник найден! Дуэль начинается через 3 секунды...');
+      toast.success('Противник найден!');
     }
   }, [duelState.opponentJoined, createdCode]);
 
-  // Handle duel started from realtime
+  // Handle duel started from realtime - сразу переходим к битве
   useEffect(() => {
-    if (duelState.duelStarted && countdown === null && createdCode) {
-      console.log('[Duel] ✅ Duel started signal from realtime!');
-      startCountdown();
+    if (duelState.duelStarted && createdCode) {
+      console.log('[Duel] ✅ Duel started signal from realtime! Starting battle immediately...');
+      handleDuelStarted();
     }
-  }, [duelState.duelStarted, countdown, createdCode]);
+  }, [duelState.duelStarted, createdCode]);
 
   // Fullscreen modes - no Layout/Footer
   // But if hidden, show menu with widget overlay
