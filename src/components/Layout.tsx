@@ -109,8 +109,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
       
-      {/* Визуальная отладка Safe Area (только в Telegram) */}
-      <TelegramSafeAreaDebug />
+      {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
       
       {/* Top Navigation for Desktop - Hide in Telegram */}
       <header className={cn(
