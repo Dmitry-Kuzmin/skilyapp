@@ -19,6 +19,8 @@ import { DuelWidget } from './DuelWidget';
 import Layout from '@/components/Layout';
 import { getImageUrl } from '@/utils/imageUtils';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
+import { DuelSettingsMenu } from './DuelSettingsMenu';
+import { Bookmark, BookmarkCheck } from 'lucide-react';
 
 interface DuelBattleFullscreenProps {
   duelId: string;
@@ -66,6 +68,120 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
+  
+  // Settings states
+  const [showDuelSettings, setShowDuelSettings] = useState(false);
+  const [voiceOver, setVoiceOver] = useState(() => {
+    const saved = localStorage.getItem('duel-voice-over');
+    return saved ? saved === 'true' : false;
+  });
+  const [ambientMusic, setAmbientMusic] = useState(() => {
+    const saved = localStorage.getItem('duel-ambient-music');
+    return saved ? saved === 'true' : false;
+  });
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem('duel-font-size');
+    return saved ? parseInt(saved) : 1; // 0 = small, 1 = default, 2 = large
+  });
+  const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  
+  // Format time helper
+  const formatTime = (ms: number) => {
+    const seconds = Math.ceil(ms / 1000);
+    return `${seconds}s`;
+  };
+  
+  // Save settings to localStorage
+  useEffect(() => {
+    localStorage.setItem('duel-voice-over', String(voiceOver));
+  }, [voiceOver]);
+  
+  useEffect(() => {
+    localStorage.setItem('duel-ambient-music', String(ambientMusic));
+  }, [ambientMusic]);
+  
+  useEffect(() => {
+    localStorage.setItem('duel-font-size', String(fontSize));
+  }, [fontSize]);
+  
+  // Check if question is bookmarked
+  const checkIfBookmarked = async () => {
+    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_challenge_questions')
+        .select('id')
+        .eq('user_id', profileId)
+        .eq('question_id', questions[currentIndex].id)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      setIsQuestionBookmarked(!!data);
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error checking bookmark:', error);
+    }
+  };
+  
+  // Toggle bookmark
+  const toggleBookmark = async () => {
+    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
+    
+    setBookmarkLoading(true);
+    const questionId = questions[currentIndex].id;
+    
+    try {
+      if (isQuestionBookmarked) {
+        const { error } = await supabase
+          .from('user_challenge_questions')
+          .delete()
+          .eq('user_id', profileId)
+          .eq('question_id', questionId);
+        
+        if (error) throw error;
+        toast.success("Удалено из закладок");
+        setIsQuestionBookmarked(false);
+      } else {
+        const { data: existing } = await supabase
+          .from('user_challenge_questions')
+          .select('id, times_wrong')
+          .eq('user_id', profileId)
+          .eq('question_id', questionId)
+          .maybeSingle();
+        
+        if (existing) {
+          toast.success("Вопрос уже в закладках");
+          setIsQuestionBookmarked(true);
+        } else {
+          const { error: insertError } = await supabase
+            .from('user_challenge_questions')
+            .insert({
+              user_id: profileId,
+              question_id: questionId,
+              times_wrong: 0,
+              last_wrong_at: new Date().toISOString(),
+            });
+          
+          if (insertError) throw insertError;
+          toast.success("Добавлено в закладки");
+          setIsQuestionBookmarked(true);
+        }
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error toggling bookmark:', error);
+      toast.error("Не удалось изменить закладку");
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
+  
+  // Check bookmark on question change
+  useEffect(() => {
+    if (profileId && questions.length > 0 && questions[currentIndex]?.id) {
+      checkIfBookmarked();
+    }
+  }, [profileId, currentIndex, questions]);
 
   useEffect(() => {
     if (!duelId || !profileId) {
@@ -1309,20 +1425,54 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       {/* Unified Progress Bar - переиспользуемый компонент */}
       <div 
-        className="absolute left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/30 px-2 py-2"
+        className="absolute left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/30"
         style={{
           top: `${totalTopPadding}px`,
           paddingLeft: `${totalLeftPadding}px`,
-          paddingRight: `${totalRightPadding}px`
+          paddingRight: `${totalRightPadding}px`,
+          paddingTop: '8px',
+          paddingBottom: '8px'
         }}
       >
-        <QuestionProgressBar
+        <div className="max-w-4xl mx-auto px-2">
+          <QuestionProgressBar
           currentIndex={currentIndex}
           totalQuestions={questions.length}
           onClose={safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram' ? onExit : undefined}
           showClose={safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram'}
           showQuestionMap={false}
-        />
+          onToggleBookmark={profileId ? toggleBookmark : undefined}
+          isBookmarked={isQuestionBookmarked}
+          bookmarkLoading={bookmarkLoading}
+          SettingsMenuComponent={
+            <DuelSettingsMenu
+              open={showDuelSettings}
+              onOpenChange={setShowDuelSettings}
+              voiceOver={voiceOver}
+              onVoiceOverChange={setVoiceOver}
+              ambientMusic={ambientMusic}
+              onAmbientMusicChange={setAmbientMusic}
+              fontSize={fontSize}
+              onFontSizeChange={setFontSize}
+            />
+          }
+          customLeftContent={
+            <motion.div 
+              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border shrink-0"
+              animate={{ 
+                scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
+                borderColor: timeLeft < 10000 ? ['hsl(var(--border))', 'hsl(var(--destructive))', 'hsl(var(--border))'] : 'hsl(var(--border))'
+              }}
+              transition={{ duration: 0.5, repeat: timeLeft < 10000 ? Infinity : 0 }}
+            >
+              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className={`font-mono font-bold text-xs md:text-sm ${timeLeft < 10000 ? 'text-destructive' : ''}`}>
+                {formatTime(timeLeft)}
+              </span>
+            </motion.div>
+          }
+          />
+        </div>
       </div>
 
       {/* Main Content */}
@@ -1454,27 +1604,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               )}
             </AnimatePresence>
             
-            <motion.div 
-              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border"
-              animate={{ 
-                scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
-                borderColor: timeLeft < 10000 ? ['hsl(var(--border))', 'hsl(var(--destructive))', 'hsl(var(--border))'] : 'hsl(var(--border))'
-              }}
-              transition={{ duration: 0.5, repeat: timeLeft < 10000 ? Infinity : 0 }}
-            >
-              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className={`font-mono font-bold text-xs md:text-sm ${timeLeft < 10000 ? 'text-destructive' : ''}`}>
-                {Math.ceil(timeLeft / 1000)}s
-              </span>
-            </motion.div>
           </div>
-        </div>
-
-        {/* Question Progress */}
-        <div className="text-center mb-3 md:mb-4">
-          <p className="text-xs md:text-sm font-medium text-muted-foreground">
-            Вопрос <span className="text-primary font-bold">{currentIndex + 1}</span> из {questions.length}
-          </p>
         </div>
 
         {/* Boosts Section - Duolingo Style */}
