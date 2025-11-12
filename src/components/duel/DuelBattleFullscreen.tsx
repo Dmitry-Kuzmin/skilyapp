@@ -487,8 +487,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const players = edgeData?.players || [];
       console.log('[DuelBattleFullscreen] 📊 Players data received from Edge Function:', {
         count: players.length,
-        players: players.map((p: any) => ({ id: p.id, user_id: p.user_id, score: p.score, name: p.name }))
-        });
+        players: players.map((p: any) => ({ 
+          id: p.id, 
+          user_id: p.user_id, 
+          score: p.score, 
+          name: p.name,
+          hasName: !!p.name && p.name !== 'Игрок'
+        }))
+      });
+      
+      // КРИТИЧНО: Проверяем что имена получены
+      const playersWithoutNames = players.filter((p: any) => !p.name || p.name === 'Игрок');
+      if (playersWithoutNames.length > 0) {
+        console.warn('[DuelBattleFullscreen] ⚠️ Some players have no valid name from Edge Function:', playersWithoutNames);
+        // Если Edge Function не вернул имена, используем fallback
+        console.log('[DuelBattleFullscreen] 🔄 Falling back to direct query for names...');
+        await loadScoresDirect();
+        return; // Не продолжаем, так как loadScoresDirect уже установил имена
+      }
         
       if (players.length >= 2) {
         const myPlayer = players.find((p: any) => p.user_id === profileId);
@@ -520,22 +536,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           setOpponentScore(0);
         }
         
-        // Устанавливаем имена игроков
-        if (myPlayer?.name) {
-          console.log('[DuelBattleFullscreen] Setting my name:', myPlayer.name);
+        // Устанавливаем имена игроков (проверяем что имя валидно)
+        if (myPlayer?.name && myPlayer.name !== 'Игрок') {
+          console.log('[DuelBattleFullscreen] ✅ Setting my name:', myPlayer.name);
           setMyName(myPlayer.name);
         } else {
-          console.warn('[DuelBattleFullscreen] No name for my player:', myPlayer);
+          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for my player, using fallback');
+          setMyName('Вы');
         }
-        if (opponent?.name) {
-          console.log('[DuelBattleFullscreen] Setting opponent name:', opponent.name);
+        
+        if (opponent?.name && opponent.name !== 'Игрок') {
+          console.log('[DuelBattleFullscreen] ✅ Setting opponent name:', opponent.name);
           setOpponentName(opponent.name);
         } else {
-          console.warn('[DuelBattleFullscreen] No name for opponent:', opponent);
-          // Попробуем установить имя даже если оно "Игрок" - может быть это реальное имя
-          if (opponent) {
-            setOpponentName('Соперник');
-          }
+          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for opponent, using fallback');
+          setOpponentName('Соперник');
         }
       } else if (players.length === 1) {
         // Только один игрок
