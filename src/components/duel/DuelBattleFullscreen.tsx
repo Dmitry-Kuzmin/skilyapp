@@ -67,8 +67,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [opponentName, setOpponentName] = useState<string>('Соперник');
 
   useEffect(() => {
-    if (!duelId || !profileId) return;
+    if (!duelId || !profileId) {
+      console.log('[DuelBattleFullscreen] ⚠️ Missing duelId or profileId:', { duelId, profileId });
+      return;
+    }
     
+    console.log('[DuelBattleFullscreen] 🚀 Component mounted, loading data...', { duelId, profileId });
     loadQuestions();
     loadScores();
     loadBoosts();
@@ -1055,11 +1059,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }
 
   if (loading || questions.length === 0) {
+    console.log('[DuelBattleFullscreen] 📦 Showing loading screen:', {
+      loading,
+      questionsCount: questions.length,
+      duelId,
+      profileId,
+      duelStarted: state.duelStarted
+    });
+    
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
         <div className="text-center space-y-4">
           <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
           <p className="text-lg text-muted-foreground">Загрузка вопросов...</p>
+          <p className="text-sm text-muted-foreground/70">
+            {loading ? 'Загрузка данных...' : 'Ожидание вопросов...'}
+          </p>
         </div>
       </div>
     );
