@@ -93,14 +93,24 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `id=eq.${duelId}`,
         },
         (payload) => {
-          console.log('[useDuelRealtime] Duel UPDATE:', payload.new);
+          console.log('[useDuelRealtime] 🔥🔥🔥 Duel UPDATE event received!');
+          console.log('[useDuelRealtime] Payload:', payload);
+          console.log('[useDuelRealtime] Duel data:', payload.new);
           const duel = payload.new;
+          console.log('[useDuelRealtime] Duel status:', duel.status);
+          
           if (duel.status === 'active') {
-            console.log('[useDuelRealtime] Duel started!');
+            console.log('[useDuelRealtime] ✅ Duel started! Setting duelStarted=true');
             setState(prev => ({ ...prev, duelStarted: true }));
           } else if (duel.status === 'finished') {
-            console.log('[useDuelRealtime] Duel finished!');
-            setState(prev => ({ ...prev, duelFinished: true }));
+            console.log('[useDuelRealtime] ✅✅✅ Duel finished! Setting duelFinished=true');
+            setState(prev => {
+              console.log('[useDuelRealtime] Previous duelFinished:', prev.duelFinished);
+              return { ...prev, duelFinished: true };
+            });
+            console.log('[useDuelRealtime] State update dispatched for duelFinished=true');
+          } else {
+            console.log('[useDuelRealtime] ⚠️ Unexpected duel status:', duel.status);
           }
         }
       )
@@ -219,6 +229,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
           // Check current duel status immediately after subscription
           const checkStatus = async () => {
+            console.log('[useDuelRealtime] 🔍 Checking initial duel status...');
             const { data, error } = await supabase
               .from('duels')
               .select('status')
@@ -229,14 +240,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               console.error('[useDuelRealtime] ❌ Error checking duel status:', error);
               console.error('[useDuelRealtime] Error details:', JSON.stringify(error, null, 2));
             } else if (!data) {
-              // Не логируем - это нормально на начальном этапе
+              console.log('[useDuelRealtime] ⚠️ No duel data found (might be normal at start)');
             } else {
               console.log('[useDuelRealtime] ✅ Current duel status:', data.status);
               if (data.status === 'active') {
-                console.log('[useDuelRealtime] ✅ Duel is already active!');
+                console.log('[useDuelRealtime] ✅ Duel is already active! Setting duelStarted=true');
                 setState(prev => ({ ...prev, duelStarted: true }));
               } else if (data.status === 'finished') {
-                console.log('[useDuelRealtime] ✅ Duel is finished!');
+                console.log('[useDuelRealtime] ✅✅✅ Duel is already finished! Setting duelFinished=true');
                 setState(prev => ({ ...prev, duelFinished: true }));
               }
             }
