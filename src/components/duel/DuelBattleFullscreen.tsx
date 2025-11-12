@@ -1174,7 +1174,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
-      <div className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto">
+      {/* Добавлен pt-14 для отступа от панели прогресса сверху */}
+      <div className="min-h-full flex flex-col p-3 md:p-4 pb-6 pt-14 max-w-4xl mx-auto">
         {/* Header - Scores & Timer - Premium Design */}
         <div className="flex items-center justify-between mb-3 md:mb-4">
           {/* Scores - Enhanced - Центрированы в Telegram */}
