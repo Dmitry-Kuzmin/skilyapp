@@ -884,27 +884,41 @@ export function DuelWaitingReplay({
                   
                   setOpponentAnswers(formatted);
                   
-                  // Check if opponent finished all questions - IMMEDIATE check
+                  // КРИТИЧНО: Если соперник ответил на все вопросы - сразу переходим к результатам
                   if (formatted.length >= totalQuestions && !isDuelFinishedRef.current) {
-                    console.log('[DuelWaitingReplay] ⚡ Opponent answered all questions - IMMEDIATE check', {
+                    console.log('[DuelWaitingReplay] 🔥🔥🔥 Opponent answered ALL questions in reload! Transitioning IMMEDIATELY', {
                       answerCount: formatted.length,
-                      totalQuestions,
-                      willCheck: !isDuelFinishedRef.current
+                      totalQuestions
                     });
                     
-                    // Immediate check without delay
-                    checkIfOpponentFinished(true).catch(err => {
-                      console.error('[DuelWaitingReplay] Error in immediate check:', err);
+                    isDuelFinishedRef.current = true;
+                    setIsDuelFinished(true);
+                    
+                    sounds.victory();
+                    toast.success('🏁 Соперник закончил!', {
+                      description: 'Переход к результатам...',
+                      duration: 1500,
                     });
                     
-                    // Also check after delay as backup (if immediate didn't work)
-                    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-                    setTimeout(async () => {
-                      if (!isDuelFinishedRef.current) {
-                        console.log('[DuelWaitingReplay] 🔄 Backup check after delay');
-                        await checkIfOpponentFinished(true); // Force check
-                      }
-                    }, isTelegram ? 600 : 300);
+                    // Вызываем onDuelFinished немедленно
+                    onDuelFinished();
+                    
+                    // Также проверяем статус через Edge Function для надежности
+                    setTimeout(() => {
+                      supabase.functions.invoke('duel-manager', {
+                        body: {
+                          action: 'check_status',
+                          duel_id: duelId,
+                          profile_id: profileId
+                        }
+                      }).then(({ data }) => {
+                        if (data?.status === 'finished') {
+                          console.log('[DuelWaitingReplay] ✅ Edge Function confirms duel is finished');
+                        }
+                      }).catch(err => {
+                        console.error('[DuelWaitingReplay] Error in final status check:', err);
+                      });
+                    }, 500);
                   }
                 } else {
                   console.warn('[DuelWaitingReplay] No answers found after reload');
