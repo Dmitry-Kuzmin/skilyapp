@@ -148,22 +148,31 @@ export function DuelWaitingReplay({
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
     
     // Load question positions first (critical for Telegram WebApp)
+    // КРИТИЧНО: Позиции должны быть загружены ДО загрузки ответов
     const initialize = async () => {
+      console.log('[DuelWaitingReplay] 🚀 Initializing component...');
+      
+      // Шаг 1: Загружаем позиции вопросов (критично!)
       await loadQuestionPositions();
       
-      // Then load opponent data once (initial load)
-      loadOpponentData();
+      // Небольшая задержка чтобы убедиться что кэш заполнен
+      await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Subscribe to opponent progress via Realtime (вместо периодических проверок)
+      // Шаг 2: Загружаем данные соперника (использует кэш позиций)
+      await loadOpponentData();
+      
+      // Шаг 3: Подписываемся на Realtime обновления
       subscribeToOpponentProgress();
+      
+      console.log('[DuelWaitingReplay] ✅ Initialization complete');
     };
     
     // Initial load with delay for Telegram to ensure WebApp is ready
     if (isTelegram) {
-      // Small delay for Telegram WebApp to fully initialize
+      // Увеличенная задержка для Telegram WebApp чтобы убедиться что все готово
       setTimeout(() => {
         initialize();
-      }, 300);
+      }, 500);
     } else {
       initialize();
     }
@@ -383,17 +392,43 @@ export function DuelWaitingReplay({
         return;
       }
 
-      const duel = edgeData;
-
-      if (!duel) {
+      if (!edgeData) {
+        console.warn('[DuelWaitingReplay] No duel data returned from Edge Function');
         isCheckingFinishedRef.current = false;
         return;
       }
 
-      // Check duel status first - if finished, verify opponent completed
-      if (duel.status === 'finished') {
-        console.log('[DuelWaitingReplay] Duel status is finished, verifying opponent completed all questions');
+      console.log('[DuelWaitingReplay] Status check result:', {
+        status: edgeData.status,
+        finished: edgeData.finished,
+        opponentAnswers: opponentAnswers.length,
+        totalQuestions
+      });
+
+      // Check duel status first - if finished, transition immediately
+      if (edgeData.status === 'finished' || edgeData.finished === true) {
+        console.log('[DuelWaitingReplay] ✅✅✅ Duel is finished! Transitioning to results');
+        isCheckingFinishedRef.current = false;
+        isDuelFinishedRef.current = true;
+        setIsDuelFinished(true);
+        
+        try {
+          sounds.victory();
+        } catch (err) {
+          console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
+        }
+        
+        toast.success('🏁 Дуэль завершена!', {
+          description: 'Переход к результатам...',
+          duration: 1500,
+        });
+        
+        safeCallOnDuelFinished();
+        return;
       }
+
+      // If not finished, check opponent's answer count
+      const duel = edgeData;
 
       const { data: players } = await supabase
         .from('duel_players')
