@@ -100,23 +100,47 @@ export function DuelWaitingReplay({
   }, [onDuelFinished]);
 
   // Load question positions once at start - cache them for fast access
+  // КРИТИЧНО: Должна быть вызвана ПЕРЕД загрузкой ответов соперника
   const loadQuestionPositions = async () => {
     try {
-      const { data: questions } = await supabase
+      console.log('[DuelWaitingReplay] 🔄 Loading question positions for duel:', duelId);
+      
+      const { data: questions, error } = await supabase
         .from('duel_questions')
         .select('id, position')
-        .eq('duel_id', duelId);
+        .eq('duel_id', duelId)
+        .order('position', { ascending: true });
       
-      if (questions) {
+      if (error) {
+        console.error('[DuelWaitingReplay] ❌ Error loading question positions:', error);
+        // Fallback: пробуем через Edge Function
+        try {
+          const { data: edgeData } = await supabase.functions.invoke('duel-manager', {
+            body: { action: 'get_questions', duel_id: duelId, profile_id: profileId }
+          });
+          if (edgeData?.questions) {
+            const positionsMap = new Map(edgeData.questions.map((q: any) => [q.id, q.position]));
+            questionPositionsRef.current = positionsMap;
+            console.log('[DuelWaitingReplay] ✅ Loaded question positions via Edge Function:', positionsMap.size);
+          }
+        } catch (fallbackError) {
+          console.error('[DuelWaitingReplay] ❌ Fallback also failed:', fallbackError);
+        }
+        return;
+      }
+      
+      if (questions && questions.length > 0) {
         const positionsMap = new Map(questions.map(q => [q.id, q.position]));
         questionPositionsRef.current = positionsMap;
         console.log('[DuelWaitingReplay] ✅ Loaded question positions:', {
           count: questions.length,
-          positions: Array.from(positionsMap.entries())
+          positions: Array.from(positionsMap.entries()).slice(0, 5) // Показываем первые 5 для логов
         });
+      } else {
+        console.warn('[DuelWaitingReplay] ⚠️ No questions found for duel:', duelId);
       }
     } catch (error) {
-      console.error('[DuelWaitingReplay] Error loading question positions:', error);
+      console.error('[DuelWaitingReplay] ❌ Exception loading question positions:', error);
     }
   };
 
@@ -327,6 +351,7 @@ export function DuelWaitingReplay({
   }, [opponentAnswers.length, totalQuestions, duelId, profileId, safeCallOnDuelFinished]);
 
   // Check if opponent finished all questions
+  // КРИТИЧНО: Используем Edge Function вместо прямого запроса к БД (обходит RLS проблемы)
   const checkIfOpponentFinished = async (force = false) => {
     try {
       // Prevent multiple simultaneous checks
@@ -343,11 +368,22 @@ export function DuelWaitingReplay({
 
       isCheckingFinishedRef.current = true;
 
-      const { data: duel } = await supabase
-        .from('duels')
-        .select('status, num_questions')
-        .eq('id', duelId)
-        .single();
+      // Используем Edge Function вместо прямого запроса (обходит 406 ошибки)
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'check_status',
+          duel_id: duelId,
+          profile_id: profileId
+        }
+      });
+
+      if (edgeError) {
+        console.error('[DuelWaitingReplay] ❌ Error checking status via Edge Function:', edgeError);
+        isCheckingFinishedRef.current = false;
+        return;
+      }
+
+      const duel = edgeData;
 
       if (!duel) {
         isCheckingFinishedRef.current = false;
@@ -798,26 +834,38 @@ export function DuelWaitingReplay({
       }
 
       if (answers && answers.length > 0) {
+        // КРИТИЧНО: Если кэш позиций пуст, перезагружаем его
+        if (questionPositionsRef.current.size === 0) {
+          console.warn('[DuelWaitingReplay] ⚠️ Question positions cache is empty, reloading...');
+          await loadQuestionPositions();
+        }
+        
         const formattedAnswers = answers.map((ans: any) => {
           // Use cached position from questionPositionsRef
-          const position = questionPositionsRef.current.get(ans.duel_question_id);
-          if (!position) {
-            console.warn('[DuelWaitingReplay] Answer without cached position:', {
+          let position = questionPositionsRef.current.get(ans.duel_question_id);
+          
+          // Fallback: если позиция не найдена, пробуем получить из created_at (временной порядок)
+          if (!position && answers.length > 0) {
+            const sortedAnswers = [...answers].sort((a: any, b: any) => 
+              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+            position = sortedAnswers.findIndex((a: any) => a.id === ans.id) + 1;
+            console.warn('[DuelWaitingReplay] Using fallback position from created_at:', {
               answerId: ans.id,
               questionId: ans.duel_question_id,
-              cacheSize: questionPositionsRef.current.size
+              fallbackPosition: position
             });
           }
+          
           return {
             question_number: position || 0,
-          is_correct: ans.is_correct,
-          is_skipped: ans.is_skipped || false,
-          time_taken_ms: ans.time_taken_ms,
-          points_awarded: ans.points_awarded || 0,
+            is_correct: ans.is_correct,
+            is_skipped: ans.is_skipped || false,
+            time_taken_ms: ans.time_taken_ms,
+            points_awarded: ans.points_awarded || 0,
           };
         })
-        // Filter out answers without position and sort by question_number
-        .filter((a: any) => a.question_number > 0)
+        // НЕ фильтруем ответы без позиций - используем fallback позиции
         .sort((a, b) => a.question_number - b.question_number);
         
         console.log('[DuelWaitingReplay] ✅ Loaded opponent answers in loadOpponentData:', {
