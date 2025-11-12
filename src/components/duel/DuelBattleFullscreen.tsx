@@ -18,6 +18,7 @@ import { DuelWaitingReplay } from './DuelWaitingReplay';
 import { DuelWidget } from './DuelWidget';
 import Layout from '@/components/Layout';
 import { getImageUrl } from '@/utils/imageUtils';
+import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 
 interface DuelBattleFullscreenProps {
   duelId: string;
@@ -1153,48 +1154,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         </AnimatePresence>
       </div>
 
-      {/* Unified Progress Bar - как в тестах */}
+      {/* Unified Progress Bar - переиспользуемый компонент */}
       <div 
-        className="absolute left-0 right-0 z-10"
+        className="absolute left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/30 px-2 py-2"
         style={{
           top: `${totalTopPadding}px`,
           paddingLeft: `${totalLeftPadding}px`,
           paddingRight: `${totalRightPadding}px`
         }}
       >
-        <div className="flex items-center gap-2 px-2 py-2 bg-background/95 backdrop-blur-md border-b border-border/30">
-          {/* Close button - только в браузере */}
-          {safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram' && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onExit}
-              className="shrink-0 h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-
-          {/* Progress Bar Section */}
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* Question Counter - просто текст без карты */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30 shrink-0">
-              <span className="font-bold text-foreground text-sm">
-                {currentIndex + 1}<span className="text-muted-foreground text-xs">/{questions.length}</span>
-              </span>
-            </div>
-
-            {/* Horizontal Progress Bar */}
-            <div className="flex-1 h-2.5 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px]">
-              <motion.div
-                className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
-                style={{ width: `${progress}%` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-              </motion.div>
-            </div>
-          </div>
-        </div>
+        <QuestionProgressBar
+          currentIndex={currentIndex}
+          totalQuestions={questions.length}
+          onClose={safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram' ? onExit : undefined}
+          showClose={safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram'}
+          showQuestionMap={false}
+        />
       </div>
 
       {/* Main Content */}
