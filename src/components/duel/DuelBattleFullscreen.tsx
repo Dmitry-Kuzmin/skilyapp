@@ -1409,19 +1409,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
   const PROGRESS_BAR_HEIGHT = 60;
 
-  // Логирование для отладки (отключено для уменьшения шума в консоли)
-  // Раскомментируйте для отладки safe area:
-  // console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
-  //   platform: safeArea.platform,
-  //   safeAreaTop: `${safeArea.top}px`,
-  //   safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
-  //   totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
-  //   safeAreaLeft: `${safeArea.left}px`,
-  //   safeAreaRight: `${safeArea.right}px`,
-  //   totalLeftPadding: `${totalLeftPadding}px`,
-  //   totalRightPadding: `${totalRightPadding}px`,
-  //   willApplyPadding: totalTopPadding > 0,
-  // });
+  // Логирование для отладки safe area (включено для проверки отступов)
+  console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
+    platform: safeArea.platform,
+    safeAreaTop: `${safeArea.top}px`,
+    safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
+    telegramNavHeight: `${TELEGRAM_NAV_HEIGHT}px`,
+    telegramNavPadding: `${telegramNavPadding}px`,
+    totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
+    calculation: `${safeArea.top} + ${safeArea.contentTop} + ${telegramNavPadding} = ${totalTopPadding}`,
+    safeAreaLeft: `${safeArea.left}px`,
+    safeAreaRight: `${safeArea.right}px`,
+    totalLeftPadding: `${totalLeftPadding}px`,
+    totalRightPadding: `${totalRightPadding}px`,
+    progressBarTop: `${totalTopPadding}px`,
+    contentPaddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 8 : 0)}px`,
+  });
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
