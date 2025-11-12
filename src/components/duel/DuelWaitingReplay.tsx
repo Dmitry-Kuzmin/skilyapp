@@ -472,19 +472,9 @@ export function DuelWaitingReplay({
           duration: 3000,
         });
         
-        // Call immediately
-        try {
-          onDuelFinished();
-          console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called');
-        } catch (error) {
-          console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error calling onDuelFinished:', error);
-        setTimeout(() => {
-            try {
-          onDuelFinished();
-            } catch (retryError) {
-              console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error on retry:', retryError);
-            }
-          }, 200);
+        // Call using safe wrapper
+        console.log('[DuelWaitingReplay] ✅ checkDuelStatus: Calling onDuelFinished');
+        safeCallOnDuelFinished();
         }
       } else {
         console.log('[DuelWaitingReplay] checkDuelStatus: Opponent hasn\'t finished yet');
