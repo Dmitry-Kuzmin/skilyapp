@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
+import { QuestionProgressBar } from "@/components/QuestionProgressBar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -1342,139 +1343,58 @@ const TestSession = () => {
           "pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 pb-16 md:pb-4",
           isTelegramApp && "px-2 sm:px-4"
         )}>
-        {/* Unified Progress Bar - всё в одну линию */}
-        <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3 -mt-6 sm:-mt-3 md:mt-0">
-          {/* Close button слева - Only in browser, not Telegram */}
-          {!isTelegramApp && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="shrink-0 h-10 w-10 sm:h-11 sm:w-11 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30"
-            >
-              <X className="h-4 w-4 sm:h-5 sm:h-5" />
-            </Button>
-          )}
-
-          {/* Timer для экзамена */}
-          {mode === "exam" && (
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
-              <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-              <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
-                {formatTime(timeLeft)}
-              </span>
-            </div>
-          )}
-
-          {/* Mastery Round Indicator */}
-          {mode === "mastery" && masteryRound > 1 && (
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-500/10 backdrop-blur-md border border-purple-500/30 shadow-sm shrink-0">
-              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-              <span className="font-semibold text-xs sm:text-sm text-purple-600 dark:text-purple-400">
-                Раунд {masteryRound}
-              </span>
-            </div>
-          )}
-
-          {/* Progress Bar - растягивается по центру */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            {/* Question Counter */}
-          <button
-            onClick={() => setShowQuestionMap(true)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 border border-border/50 hover:border-accent/50 group shrink-0"
-            >
-              <Grid3x3 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-accent group-hover:scale-110 transition-transform" />
-              <span className="font-bold text-foreground text-sm sm:text-base">
-                {currentIndex + 1}<span className="text-muted-foreground text-xs sm:text-sm">/{questions.length}</span>
-              </span>
-            </button>
-
-            {/* Horizontal Progress Bar */}
-            <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px]">
-            <div
-                className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
-              style={{
-                  width: `${((currentIndex + 1) / questions.length) * 100}%`,
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-            </div>
-            </div>
-          </div>
-
-          {/* Right Side Controls - Bookmark + Settings */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Bookmark Button */}
-            {profileId && (
-              <div className="relative">
-                <button
-                  onClick={toggleBookmark}
-                  disabled={bookmarkLoading}
-                  className={cn(
-                    "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 backdrop-blur-sm border",
-                    isQuestionBookmarked
-                      ? "bg-blue-500 border-blue-500 text-white hover:bg-blue-600"
-                      : "bg-background border-border/50 hover:bg-muted/50"
-                  )}
-                  title={isQuestionBookmarked ? "Удалить из закладок" : "Добавить в закладки"}
-                >
-                  {isQuestionBookmarked ? (
-                    <BookmarkCheck className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </button>
-
-                {/* Challenge Bank Notification */}
-                {showChallengeBankNotification && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 animate-lumi-slide-in">
-                    <div className="relative">
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-blue-500" />
-                      
-                      <div className="bg-blue-500 text-white rounded-xl shadow-2xl p-3 w-[200px]">
-                        <button
-                          onClick={() => setShowChallengeBankNotification(false)}
-                          className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-blue-500 hover:bg-gray-100 transition-colors"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                        
-                        <p className="font-bold text-xs mb-1.5">💾 Сохранено!</p>
-                        <p className="text-[10px] opacity-90 leading-snug mb-2">
-                          Вопрос добавлен в твой банк для практики
-                        </p>
-                        <button
-                          onClick={() => {
-                            setShowChallengeBankNotification(false);
-                            navigate('/tests/challenge-bank');
-                          }}
-                          className="w-full bg-white/20 hover:bg-white/30 text-white text-[10px] font-medium py-1 rounded transition-colors"
-                        >
-                          Посмотреть банк →
-          </button>
-        </div>
-                    </div>
+        {/* Unified Progress Bar - переиспользуемый компонент */}
+        <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
+          <QuestionProgressBar
+            currentIndex={currentIndex}
+            totalQuestions={questions.length}
+            onClose={!isTelegramApp ? handleClose : undefined}
+            showClose={!isTelegramApp}
+            onShowQuestionMap={() => setShowQuestionMap(true)}
+            showQuestionMap={true}
+            onToggleBookmark={profileId ? toggleBookmark : undefined}
+            isBookmarked={isQuestionBookmarked}
+            bookmarkLoading={bookmarkLoading}
+            SettingsMenuComponent={
+              <TestSettingsMenu
+                open={showTestSettings}
+                onOpenChange={setShowTestSettings}
+                voiceOver={voiceOver}
+                onVoiceOverChange={setVoiceOver}
+                answerPopularity={answerPopularity}
+                onAnswerPopularityChange={setAnswerPopularity}
+                ambientMusic={ambientMusic}
+                onAmbientMusicChange={setAmbientMusic}
+                fontSize={fontSize}
+                onFontSizeChange={setFontSize}
+                language={testLanguage}
+                onLanguageChange={setTestLanguage}
+              />
+            }
+            customLeftContent={
+              <>
+                {/* Timer для экзамена */}
+                {mode === "exam" && (
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
+                    <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
+                    <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
+                      {formatTime(timeLeft)}
+                    </span>
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* Settings Menu */}
-            <TestSettingsMenu
-              open={showTestSettings}
-              onOpenChange={setShowTestSettings}
-              voiceOver={voiceOver}
-              onVoiceOverChange={setVoiceOver}
-              answerPopularity={answerPopularity}
-              onAnswerPopularityChange={setAnswerPopularity}
-              ambientMusic={ambientMusic}
-              onAmbientMusicChange={setAmbientMusic}
-              fontSize={fontSize}
-              onFontSizeChange={setFontSize}
-              language={testLanguage}
-              onLanguageChange={setTestLanguage}
-            />
-          </div>
+                {/* Mastery Round Indicator */}
+                {mode === "mastery" && masteryRound > 1 && (
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-500/10 backdrop-blur-md border border-purple-500/30 shadow-sm shrink-0">
+                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
+                    <span className="font-semibold text-xs sm:text-sm text-purple-600 dark:text-purple-400">
+                      Раунд {masteryRound}
+                    </span>
+                  </div>
+                )}
+              </>
+            }
+          />
         </div>
 
 
