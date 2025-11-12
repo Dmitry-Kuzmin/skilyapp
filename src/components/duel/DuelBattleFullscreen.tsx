@@ -64,6 +64,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [showCountdown, setShowCountdown] = useState(false);
   const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
   const isVerifyingRef = useRef(false);
+  const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
 
@@ -222,9 +223,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       return;
     }
 
+    // Сбрасываем флаг при монтировании
+    hasTransitionedRef.current = false;
+
     console.log('[DuelBattleFullscreen] 🔄 Starting periodic duel status check while waiting for opponent');
 
     const checkDuelStatusPeriodically = async () => {
+      // Предотвращаем множественные переходы
+      if (hasTransitionedRef.current) {
+        return;
+      }
+
       try {
         // Проверяем статус дуэли напрямую из базы данных
         const { data: duel, error } = await supabase
@@ -274,9 +283,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             opponentFinished
           });
 
-          if (opponentFinished) {
+          if (opponentFinished && !hasTransitionedRef.current) {
             console.log('[DuelBattleFullscreen] ✅✅✅ PERIODIC CHECK: Opponent finished! Transitioning to results');
-            sounds.victory();
+            hasTransitionedRef.current = true; // Помечаем что переход уже произошел
+            
+            try {
+              if (sounds?.victory) {
+                sounds.victory();
+              }
+            } catch (soundError) {
+              console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
+            }
+            
             toast.success('🏁 Дуэль завершена!', { duration: 2000 });
             // Вызываем onDuelFinished немедленно
             onDuelFinished();
@@ -297,6 +315,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     return () => {
       clearInterval(interval);
+      hasTransitionedRef.current = false; // Сбрасываем при размонтировании
       console.log('[DuelBattleFullscreen] Stopped periodic duel status check');
     };
   }, [isWaitingForOpponent, hasFinishedMyQuestions, duelId, profileId, onDuelFinished]);
