@@ -667,12 +667,13 @@ export function DuelWaitingReplay({
         return;
       }
       
-      // Store player IDs in refs for use in subscriptions
-      myPlayerIdRef.current = myPlayer.id;
+      // Store player IDs: myPlayerId as state (for useDuelRealtime re-subscription), opponent as ref
+      // КРИТИЧНО: setMyPlayerId триггерит ре-рендер и useDuelRealtime переподпишется с правильным playerId
+      setMyPlayerId(myPlayer.id);
       opponentPlayerIdRef.current = opponent.id;
       
       console.log('[DuelWaitingReplay] Stored player IDs:', {
-        myPlayerId: myPlayerIdRef.current,
+        myPlayerId: myPlayer.id,
         opponentPlayerId: opponentPlayerIdRef.current
       });
       
@@ -783,16 +784,17 @@ export function DuelWaitingReplay({
       return;
     }
     
-    const myPlayerId = myPlayer.id;
+    const myPlayerIdLocal = myPlayer.id;
     const opponentPlayerId = opponent.id;
     
-    // Update refs
-    myPlayerIdRef.current = myPlayerId;
+    // Update state and ref
+    // КРИТИЧНО: setMyPlayerId триггерит ре-рендер и useDuelRealtime переподпишется
+    setMyPlayerId(myPlayerIdLocal);
     opponentPlayerIdRef.current = opponentPlayerId;
     
     console.log('[DuelWaitingReplay] Subscribing to opponent progress:', {
       duelId,
-      myPlayerId,
+      myPlayerId: myPlayerIdLocal,
       opponentPlayerId,
       isTelegram
     });
