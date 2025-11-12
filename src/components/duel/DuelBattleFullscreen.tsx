@@ -1485,136 +1485,133 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className="flex flex-col gap-3 mb-3 md:mb-4">
-          {/* Scores Row */}
-          <div className="flex items-center justify-between">
-            {/* Scores - Enhanced - Центрированы в Telegram */}
-            <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
-              {/* My Score */}
-              <motion.div 
-                className="flex items-center gap-2 md:gap-3 group"
-                whileHover={{ scale: 1.02 }}
-                animate={myScore > opponentScore ? { 
-                  boxShadow: ['0 0 0px rgba(59, 130, 246, 0)', '0 0 20px rgba(59, 130, 246, 0.5)', '0 0 0px rgba(59, 130, 246, 0)']
-                } : {}}
-              >
-                <div className="relative">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-                    <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </div>
-                  {myScore > opponentScore && (
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
-                  )}
+        <div className="flex items-center justify-between gap-3 mb-3 md:mb-4 flex-wrap">
+          {/* Scores - Enhanced - Центрированы в Telegram */}
+          <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
+            {/* My Score */}
+            <motion.div 
+              className="flex items-center gap-2 md:gap-3 group"
+              whileHover={{ scale: 1.02 }}
+              animate={myScore > opponentScore ? { 
+                boxShadow: ['0 0 0px rgba(59, 130, 246, 0)', '0 0 20px rgba(59, 130, 246, 0.5)', '0 0 0px rgba(59, 130, 246, 0)']
+              } : {}}
+            >
+              <div className="relative">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                  <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
-                  <motion.div 
-                    key={myScore}
-                    className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-                    initial={{ scale: 1.2, y: -10 }}
-                    animate={{ scale: 1, y: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    {myScore}
-                  </motion.div>
-                </div>
-              </motion.div>
-              
-              <div className="text-xl md:text-2xl font-bold text-muted-foreground/30 px-2">VS</div>
-              
-              {/* Opponent Score */}
-              <motion.div 
-                className="flex items-center gap-2 md:gap-3 group"
-                whileHover={{ scale: 1.02 }}
-                animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
-              >
-                <div>
-                  <p 
-                    className="text-xs font-medium text-muted-foreground mb-0.5 text-right truncate max-w-[120px] ml-auto" 
-                    title={opponentName}
-                    key={`opponent-name-${opponentName}`}
-                  >
-                    {opponentName || 'Соперник'}
-                  </p>
-                  <motion.div 
-                    key={opponentScore}
-                    className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right"
-                    initial={{ scale: 1.2, y: -10 }}
-                    animate={{ scale: 1, y: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    {opponentScore}
-                  </motion.div>
-                </div>
-                <div className="relative">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-                    <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                  </div>
-                  {opponentScore > myScore && (
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
-                  )}
-                  {state.opponentAnswered && (
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: [0, 1.2, 1] }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Timer & Combo */}
-            <div className="flex items-center gap-2">
-              <AnimatePresence>
-                {combo > 1 && (
+                {myScore > opponentScore && (
                   <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0, rotate: 180 }}
-                    className="relative"
+                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
+                <motion.div 
+                  key={myScore}
+                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {myScore}
+                </motion.div>
+              </div>
+            </motion.div>
+            
+            <div className="text-xl md:text-2xl font-bold text-muted-foreground/30 px-2">VS</div>
+            
+            {/* Opponent Score */}
+            <motion.div 
+              className="flex items-center gap-2 md:gap-3 group"
+              whileHover={{ scale: 1.02 }}
+              animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
+            >
+              <div>
+                <p 
+                  className="text-xs font-medium text-muted-foreground mb-0.5 text-right truncate max-w-[120px] ml-auto" 
+                  title={opponentName}
+                  key={`opponent-name-${opponentName}`}
+                >
+                  {opponentName || 'Соперник'}
+                </p>
+                <motion.div 
+                  key={opponentScore}
+                  className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right"
+                  initial={{ scale: 1.2, y: -10 }}
+                  animate={{ scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                  {opponentScore}
+                </motion.div>
+              </div>
+              <div className="relative">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                  <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                </div>
+                {opponentScore > myScore && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+                {state.opponentAnswered && (
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.2, 1] }}
+                    transition={{ duration: 0.5 }}
                   >
-                    <Badge className="gradient-fire border-none text-white px-2 py-1 text-sm font-bold shadow-lg shadow-orange-500/50">
-                      <Flame className="w-3 h-3 mr-1 animate-pulse" />
-                      x{combo}
-                    </Badge>
-                    {/* Fire particles effect */}
-                    <motion.div
-                      className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
-                      animate={{
-                        scale: [1, 1.5, 0],
-                        opacity: [1, 0.5, 0],
-                      }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        repeatDelay: 0.5,
-                      }}
-                    />
+                    <Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
                   </motion.div>
                 )}
-              </AnimatePresence>
-            </div>
+              </div>
+            </motion.div>
           </div>
 
-          {/* Boosts Row - Compact Design */}
-          {boosts.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-1.5 flex-wrap justify-center"
-            >
+          {/* Right Side - Boosts & Combo */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Combo */}
+            <AnimatePresence>
+              {combo > 1 && (
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  exit={{ scale: 0, rotate: 180 }}
+                  className="relative"
+                >
+                  <Badge className="gradient-fire border-none text-white px-2 py-1 text-sm font-bold shadow-lg shadow-orange-500/50">
+                    <Flame className="w-3 h-3 mr-1 animate-pulse" />
+                    x{combo}
+                  </Badge>
+                  {/* Fire particles effect */}
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
+                    animate={{
+                      scale: [1, 1.5, 0],
+                      opacity: [1, 0.5, 0],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      repeatDelay: 0.5,
+                    }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Boosts - Improved Design */}
+            {boosts.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-1.5 flex-wrap"
+              >
             {boosts.map((boost) => {
               const boostConfig = {
                 fifty_fifty: { icon: Sparkles, label: '50/50', gradient: 'from-yellow-400 to-orange-500' },
@@ -1691,30 +1688,30 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     }
                   }}
                   disabled={isDisabled}
-                  whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                  whileHover={!isDisabled ? { scale: 1.08, y: -1 } : {}}
                   whileTap={!isDisabled ? { scale: 0.95 } : {}}
-                  className={`relative h-8 px-2 flex items-center gap-1 rounded-lg font-semibold text-xs transition-all shadow-sm border ${
+                  className={`relative h-9 px-2.5 flex items-center gap-1.5 rounded-xl font-semibold text-xs transition-all shadow-md border-2 ${
                     isDisabled
-                      ? 'bg-muted/30 border-border/30 opacity-40 cursor-not-allowed'
-                      : `bg-gradient-to-br ${boostConfig.gradient} text-white border-white/20 hover:shadow-md hover:border-white/40`
+                      ? 'bg-muted/40 border-border/40 opacity-50 cursor-not-allowed grayscale'
+                      : `bg-gradient-to-br ${boostConfig.gradient} text-white border-white/30 hover:shadow-lg hover:border-white/50 hover:scale-105`
                   }`}
                 >
-                  <BoostIcon className="w-3.5 h-3.5 shrink-0" />
-                  <span className="text-[11px] font-bold whitespace-nowrap">{boostConfig.label}</span>
+                  <div className={`p-1 rounded-md ${isDisabled ? 'bg-white/10' : 'bg-white/20'}`}>
+                    <BoostIcon className="w-3.5 h-3.5 shrink-0" />
+                  </div>
+                  <span className="text-xs font-bold whitespace-nowrap leading-tight">{boostConfig.label}</span>
                   {boost.boost_type === 'translate' && !isDisabled && (
-                    <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-3 w-3 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
                   )}
-                  <Badge 
-                    variant="default" 
-                    className="h-3.5 px-1 flex items-center justify-center bg-white/25 text-white border-0 text-[9px] font-bold ml-0.5 min-w-[16px] shrink-0"
-                  >
+                  <div className={`ml-0.5 h-5 px-1.5 flex items-center justify-center rounded-md ${isDisabled ? 'bg-white/10' : 'bg-white/25'} text-white text-[10px] font-bold min-w-[20px] shrink-0`}>
                     {boost.quantity}
-                  </Badge>
+                  </div>
                 </motion.button>
               );
             })}
-          </motion.div>
-        )}
+              </motion.div>
+            )}
+          </div>
         </div>
 
         {/* Question Card */}
