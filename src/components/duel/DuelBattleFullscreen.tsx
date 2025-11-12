@@ -68,7 +68,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
-  
+
   // Settings states
   const [showDuelSettings, setShowDuelSettings] = useState(false);
   const [voiceOver, setVoiceOver] = useState(() => {
@@ -100,7 +100,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   useEffect(() => {
     localStorage.setItem('duel-ambient-music', String(ambientMusic));
   }, [ambientMusic]);
-  
+
   useEffect(() => {
     localStorage.setItem('duel-font-size', String(fontSize));
   }, [fontSize]);
@@ -166,7 +166,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           if (insertError) throw insertError;
           toast.success("Добавлено в закладки");
           setIsQuestionBookmarked(true);
-        }
+          }
       }
     } catch (error) {
       console.error('[DuelBattleFullscreen] Error toggling bookmark:', error);
@@ -187,7 +187,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (!duelId || !profileId) {
       console.log('[DuelBattleFullscreen] ⚠️ Missing duelId or profileId:', { duelId, profileId });
       return;
-    }
+          }
     
     console.log('[DuelBattleFullscreen] 🚀 Component mounted, loading data...', { duelId, profileId });
     loadQuestions();
@@ -402,7 +402,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
             console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
             setOpponentScore(opponent.score);
-          }
+      }
         }
       } catch (error) {
         console.error('[DuelBattleFullscreen] Exception in score check fallback:', error);
@@ -694,7 +694,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           const trimmedName = myPlayer.name.trim();
           console.log('[DuelBattleFullscreen] ✅ Setting my name:', trimmedName);
           setMyName(trimmedName);
-        } else {
+          } else {
           console.warn('[DuelBattleFullscreen] ⚠️ No valid name for my player, using fallback. Name was:', myPlayer?.name);
           setMyName('Вы');
         }
@@ -703,7 +703,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           const trimmedName = opponent.name.trim();
           console.log('[DuelBattleFullscreen] ✅ Setting opponent name:', trimmedName);
           setOpponentName(trimmedName);
-        } else {
+            } else {
           console.warn('[DuelBattleFullscreen] ⚠️ No valid name for opponent, using fallback. Name was:', opponent?.name);
           setOpponentName('Соперник');
         }
@@ -715,8 +715,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           setMyScore(typeof player.score === 'number' ? player.score : 0);
           if (player.name) {
             setMyName(player.name);
+            }
           }
-        }
       } else {
         // Нет игроков - повторяем попытку
         console.warn('[DuelBattleFullscreen] ⚠️ No players found! Will retry...');
@@ -813,7 +813,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           first_name: p.first_name,
           username: p.username,
         })));
-
+        
         // Устанавливаем имена
         if (myPlayer?.user_id) {
           const myProfile = profilesMap.get(myPlayer.user_id);
@@ -1398,7 +1398,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
   // ПОЛНЫЕ ОТСТУПЫ для игры дуэль (увеличены по просьбе пользователя)
   // + дополнительный отступ для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
-  const TELEGRAM_NAV_HEIGHT = 48; // Высота встроенной навигации Telegram WebApp
+  const TELEGRAM_NAV_HEIGHT = 56; // Высота встроенной навигации Telegram WebApp (увеличено для предотвращения перекрытия)
   const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
   
   const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
@@ -1489,7 +1489,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             />
           }
           customLeftContent={
-            <motion.div 
+        <motion.div
               className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border shrink-0"
               animate={{ 
                 scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
@@ -1503,7 +1503,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               </span>
             </motion.div>
           }
-          />
+        />
         </div>
       </div>
 
@@ -1513,11 +1513,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto"
         style={{
-          paddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT + 8}px` // totalTopPadding + высота панели + зазор 8px
+          paddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT + (safeArea?.platform === 'telegram' ? 0 : 8)}px` // В Telegram убираем зазор между счетом и панелью прогресса
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className="flex items-center justify-between gap-3 mb-3 md:mb-4 flex-wrap">
+        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? 'mb-0' : 'mb-3 md:mb-4'}`}>
           {/* Scores - Enhanced - Центрированы в Telegram */}
           <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
@@ -1636,9 +1636,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 </motion.div>
               )}
             </AnimatePresence>
-
+            
             {/* Boosts - Premium Compact Design */}
-            {boosts.length > 0 && (
+        {boosts.length > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap">
             {boosts.map((boost) => {
               const boostConfig = {
@@ -1738,7 +1738,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               );
             })}
               </div>
-            )}
+        )}
           </div>
         </div>
 
