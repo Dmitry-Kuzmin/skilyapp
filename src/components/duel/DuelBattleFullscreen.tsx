@@ -363,50 +363,130 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }, [currentIndex]);
 
   const loadQuestions = async () => {
+    if (!duelId || !profileId) {
+      console.warn('[DuelBattleFullscreen] ⚠️ Cannot load questions: missing duelId or profileId', { duelId, profileId });
+      return;
+    }
+
     try {
       setLoading(true);
       console.log('[DuelBattleFullscreen] 🔄 Loading questions for duel:', duelId, 'profile:', profileId);
       
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
-      });
-
-      console.log('[DuelBattleFullscreen] Questions response:', { 
-        hasData: !!data, 
-        hasError: !!error,
-        questionsCount: data?.questions?.length,
-        error: error?.message 
-      });
-
-      if (error) {
-        console.error('[DuelBattleFullscreen] ❌ Error from Edge Function:', error);
-        throw error;
-      }
+      // Retry логика с экспоненциальной задержкой
+      const maxRetries = 3;
+      let lastError: any = null;
       
-      if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-        console.log('[DuelBattleFullscreen] ✅ Loaded questions:', data.questions.length);
-        console.log('[DuelBattleFullscreen] First question sample:', {
-          id: data.questions[0]?.id,
-          hasSnapshot: !!data.questions[0]?.question_snapshot,
-          position: data.questions[0]?.position
-        });
-        setQuestions(data.questions);
-      } else {
-        console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
-          hasData: !!data,
-          questionsType: typeof data?.questions,
-          questionsIsArray: Array.isArray(data?.questions),
-          questionsLength: data?.questions?.length,
-          fullData: data
-        });
-        toast.error('Некорректные данные вопросов. Попробуйте перезагрузить страницу.');
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          // Увеличиваем таймаут для каждого запроса (30 секунд)
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 30 секунд')), 30000);
+          });
+
+          const invokePromise = supabase.functions.invoke('duel-manager', {
+            body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
+          });
+
+          const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
+
+          console.log(`[DuelBattleFullscreen] Questions response (attempt ${attempt + 1}):`, { 
+            hasData: !!data, 
+            hasError: !!error,
+            questionsCount: data?.questions?.length,
+            error: error?.message 
+          });
+
+          if (error) {
+            lastError = error;
+            // Если это не последняя попытка, ждем перед повтором
+            if (attempt < maxRetries - 1) {
+              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
+              console.log(`[DuelBattleFullscreen] ⏳ Retrying in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw error;
+          }
+          
+          if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            console.log('[DuelBattleFullscreen] ✅ Loaded questions:', data.questions.length);
+            console.log('[DuelBattleFullscreen] First question sample:', {
+              id: data.questions[0]?.id,
+              hasSnapshot: !!data.questions[0]?.question_snapshot,
+              position: data.questions[0]?.position
+            });
+            setQuestions(data.questions);
+            return; // Успешно загружено
+          } else {
+            console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
+              hasData: !!data,
+              questionsType: typeof data?.questions,
+              questionsIsArray: Array.isArray(data?.questions),
+              questionsLength: data?.questions?.length,
+              fullData: data
+            });
+            // Пробуем fallback
+            break;
+          }
+        } catch (attemptError: any) {
+          lastError = attemptError;
+          console.warn(`[DuelBattleFullscreen] ⚠️ Attempt ${attempt + 1} failed:`, attemptError?.message);
+          
+          // Если это не последняя попытка, ждем перед повтором
+          if (attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            console.log(`[DuelBattleFullscreen] ⏳ Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
       }
+
+      // Если все попытки не удались, пробуем fallback
+      console.log('[DuelBattleFullscreen] 🔄 All retries failed, trying direct database query...');
+      await loadQuestionsDirect();
+      
     } catch (error: any) {
       console.error('[DuelBattleFullscreen] ❌ Exception loading questions:', error);
       console.error('[DuelBattleFullscreen] Error details:', JSON.stringify(error, null, 2));
-      toast.error(`Ошибка загрузки вопросов: ${error?.message || 'Неизвестная ошибка'}`);
+      
+      // Последняя попытка - прямой запрос
+      try {
+        await loadQuestionsDirect();
+      } catch (fallbackError) {
+        console.error('[DuelBattleFullscreen] ❌ Fallback also failed:', fallbackError);
+        toast.error(`Ошибка загрузки вопросов: ${error?.message || 'Неизвестная ошибка'}`);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fallback функция для прямого запроса к базе
+  const loadQuestionsDirect = async () => {
+    try {
+      console.log('[DuelBattleFullscreen] 🔄 Loading questions directly from database...');
+      
+      const { data, error } = await supabase
+        .from('duel_questions')
+        .select('*')
+        .eq('duel_id', duelId)
+        .order('position');
+
+      if (error) {
+        console.error('[DuelBattleFullscreen] ❌ Error loading questions directly:', error);
+        throw error;
+      }
+
+      if (data && Array.isArray(data) && data.length > 0) {
+        console.log('[DuelBattleFullscreen] ✅ Loaded questions directly:', data.length);
+        setQuestions(data);
+      } else {
+        console.error('[DuelBattleFullscreen] ❌ No questions found in database');
+        toast.error('Вопросы не найдены. Попробуйте перезагрузить страницу.');
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] ❌ Exception in loadQuestionsDirect:', error);
+      throw error;
     }
   };
 
