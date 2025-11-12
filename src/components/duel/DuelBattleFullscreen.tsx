@@ -1192,6 +1192,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const totalBottomPadding = Math.round(safeArea.bottom + safeArea.contentBottom);
   const totalLeftPadding = Math.round(safeArea.left);
   const totalRightPadding = Math.round(safeArea.right);
+  
+  // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
+  const PROGRESS_BAR_HEIGHT = 60;
 
   // Логирование для отладки (отключено для уменьшения шума в консоли)
   // Раскомментируйте для отладки safe area:
@@ -1259,8 +1262,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
-      {/* Добавлен pt-20 для отступа от панели прогресса сверху (увеличено с pt-14) */}
-      <div className="min-h-full flex flex-col p-3 md:p-4 pb-6 pt-20 max-w-4xl mx-auto">
+      {/* Динамический отступ от панели прогресса: totalTopPadding + высота панели + небольшой зазор */}
+      <div 
+        className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto"
+        style={{
+          paddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT + 8}px` // totalTopPadding + высота панели + зазор 8px
+        }}
+      >
         {/* Header - Scores & Timer - Premium Design */}
         <div className="flex items-center justify-between mb-3 md:mb-4">
           {/* Scores - Enhanced - Центрированы в Telegram */}
