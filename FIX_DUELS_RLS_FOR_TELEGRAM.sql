@@ -7,41 +7,32 @@ DROP POLICY IF EXISTS "Users can view duels they participate in" ON duels;
 DROP POLICY IF EXISTS "Players can view their duels" ON duels;
 DROP POLICY IF EXISTS "Anyone authenticated can view waiting duels" ON duels;
 
--- 2. Используем функцию get_current_profile_id() если она существует, иначе создаем упрощенную версию
-DO $$
+-- 2. Создаем функцию get_current_profile_id() если она не существует
+CREATE OR REPLACE FUNCTION get_current_profile_id()
+RETURNS uuid AS $$
+DECLARE
+  v_profile_id uuid;
 BEGIN
-  -- Проверяем существует ли функция
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_proc WHERE proname = 'get_current_profile_id'
-  ) THEN
-    -- Создаем функцию если не существует
-    CREATE OR REPLACE FUNCTION get_current_profile_id()
-    RETURNS uuid AS $$
-    DECLARE
-      v_profile_id uuid;
-    BEGIN
-      -- Пробуем получить через auth.uid()
-      SELECT id INTO v_profile_id
-      FROM profiles
-      WHERE user_id = auth.uid()
-      LIMIT 1;
-      
-      -- Если не найдено, пробуем через telegram_id
-      IF v_profile_id IS NULL THEN
-        SELECT id INTO v_profile_id
-        FROM profiles
-        WHERE telegram_id = COALESCE(
-          (current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint,
-          0
-        )
-        LIMIT 1;
-      END IF;
-      
-      RETURN v_profile_id;
-    END;
-    $$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+  -- Пробуем получить через auth.uid()
+  SELECT id INTO v_profile_id
+  FROM profiles
+  WHERE user_id = auth.uid()
+  LIMIT 1;
+  
+  -- Если не найдено, пробуем через telegram_id
+  IF v_profile_id IS NULL THEN
+    SELECT id INTO v_profile_id
+    FROM profiles
+    WHERE telegram_id = COALESCE(
+      (current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint,
+      0
+    )
+    LIMIT 1;
   END IF;
-END $$;
+  
+  RETURN v_profile_id;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 -- 3. Создаем упрощенную RLS политику для SELECT
 CREATE POLICY "Players can view their duels"
