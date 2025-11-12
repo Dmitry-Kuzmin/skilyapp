@@ -577,45 +577,97 @@ export function DuelWaitingReplay({
           }
         } else {
           console.error('[DuelWaitingReplay] Error loading players via Edge Function:', edgeError);
-          // Fallback к прямому запросу
-      const { data: players } = await supabase
+          // Fallback к прямому запросу БЕЗ JOIN (чтобы избежать ошибки 400)
+      const { data: players, error: playersError } = await supabase
         .from('duel_players')
-            .select('*, profiles(first_name, username, telegram_username)')
+        .select('id, user_id, score, correct_count')
         .eq('duel_id', duelId);
 
-      if (players) {
+      if (playersError) {
+        console.error('[DuelWaitingReplay] Error loading players:', playersError);
+        return;
+      }
+
+      if (players && players.length >= 2) {
         const opponent = players.find(p => p.user_id !== profileId);
         const myPlayer = players.find(p => p.user_id === profileId);
         
         if (opponent) {
-          const opponentProfile = opponent.profiles as any;
-              const name = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
-              console.log('[DuelWaitingReplay] Setting opponent name from direct query:', name);
-              setOpponentName(name);
           setOpponentScore(opponent.score || 0);
         }
         
-        if (myPlayer) {
-          const myProfile = myPlayer.profiles as any;
-              setMyName(myProfile?.first_name || myProfile?.username || myProfile?.telegram_username || 'Вы');
+        // Загружаем профили ОТДЕЛЬНО
+        const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
+        if (userIds.length > 0) {
+          const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, first_name, username, telegram_username')
+            .in('id', userIds);
+          
+          if (!profilesError && profiles) {
+            const profilesMap = new Map(profiles.map((p: any) => [p.id, p]));
+            
+            if (opponent?.user_id) {
+              const opponentProfile = profilesMap.get(opponent.user_id);
+              if (opponentProfile) {
+                const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+                console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
+                setOpponentName(name);
+              }
+            }
+            
+            if (myPlayer?.user_id) {
+              const myProfile = profilesMap.get(myPlayer.user_id);
+              if (myProfile) {
+                const name = myProfile.first_name || myProfile.username || myProfile.telegram_username || 'Вы';
+                setMyName(name);
+              }
             }
           }
         }
+      }
+        }
       } catch (error) {
         console.error('[DuelWaitingReplay] Exception loading players:', error);
-        // Fallback к прямому запросу
-        const { data: players } = await supabase
+        // Fallback к прямому запросу БЕЗ JOIN
+        const { data: players, error: playersError } = await supabase
           .from('duel_players')
-          .select('*, profiles(first_name, username, telegram_username)')
+          .select('id, user_id, score, correct_count')
           .eq('duel_id', duelId);
 
-        if (players) {
+        if (playersError) {
+          console.error('[DuelWaitingReplay] Error loading players in fallback:', playersError);
+          return;
+        }
+
+        if (players && players.length >= 2) {
           const opponent = players.find(p => p.user_id !== profileId);
+          const myPlayer = players.find(p => p.user_id === profileId);
+          
           if (opponent) {
-            const opponentProfile = opponent.profiles as any;
-            const name = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
-            setOpponentName(name);
             setOpponentScore(opponent.score || 0);
+          }
+          
+          // Загружаем профили ОТДЕЛЬНО
+          const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
+          if (userIds.length > 0) {
+            const { data: profiles, error: profilesError } = await supabase
+              .from('profiles')
+              .select('id, first_name, username, telegram_username')
+              .in('id', userIds);
+            
+            if (!profilesError && profiles) {
+              const profilesMap = new Map(profiles.map((p: any) => [p.id, p]));
+              
+              if (opponent?.user_id) {
+                const opponentProfile = profilesMap.get(opponent.user_id);
+                if (opponentProfile) {
+                  const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+                  console.log('[DuelWaitingReplay] ✅ Setting opponent name from fallback query:', name);
+                  setOpponentName(name);
+                }
+              }
+            }
           }
         }
       }

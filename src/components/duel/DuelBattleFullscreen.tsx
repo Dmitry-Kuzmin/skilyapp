@@ -582,47 +582,82 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Fallback функция для прямого запроса к базе
   const loadScoresDirect = async () => {
     try {
-      console.log('[DuelBattleFullscreen] 🔄 Loading scores directly from DB (with profiles)');
-      const { data, error } = await supabase
+      console.log('[DuelBattleFullscreen] 🔄 Loading scores directly from DB (separate queries)');
+      
+      // Загружаем игроков БЕЗ JOIN (чтобы избежать проблем с RLS)
+      const { data: players, error: playersError } = await supabase
         .from('duel_players')
-        .select('id, user_id, score, correct_count, profiles(first_name, username, telegram_username)')
+        .select('id, user_id, score, correct_count')
         .eq('duel_id', duelId);
 
-      if (error) {
-        console.error('[DuelBattleFullscreen] ❌ Error loading scores directly:', error);
+      if (playersError) {
+        console.error('[DuelBattleFullscreen] ❌ Error loading players:', playersError);
         return;
       }
 
-      if (data && data.length >= 2) {
-        const myPlayer = data.find(p => p.user_id === profileId);
-        const opponent = data.find(p => p.user_id !== profileId);
-        
-        if (myPlayer?.id) {
-          setMyPlayerId(myPlayer.id);
-          setMyScore(myPlayer?.score || 0);
-          
-          // Загружаем имя из профиля
-          const myProfile = myPlayer.profiles as any;
+      if (!players || players.length < 2) {
+        console.warn('[DuelBattleFullscreen] ⚠️ Not enough players found:', players?.length || 0);
+        return;
+      }
+
+      const myPlayer = players.find(p => p.user_id === profileId);
+      const opponent = players.find(p => p.user_id !== profileId);
+      
+      if (myPlayer?.id) {
+        setMyPlayerId(myPlayer.id);
+        setMyScore(myPlayer?.score || 0);
+      }
+      
+      if (opponent) {
+        setOpponentScore(opponent.score || 0);
+      }
+
+      // Загружаем профили ОТДЕЛЬНО (чтобы избежать проблем с JOIN и RLS)
+      const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
+      
+      if (userIds.length > 0) {
+        console.log('[DuelBattleFullscreen] 🔄 Loading profiles separately for userIds:', userIds);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, first_name, username, telegram_username')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error('[DuelBattleFullscreen] ❌ Error loading profiles:', profilesError);
+          return;
+        }
+
+        console.log('[DuelBattleFullscreen] ✅ Loaded profiles:', profiles?.map((p: any) => ({
+          id: p.id,
+          first_name: p.first_name,
+          username: p.username,
+          telegram_username: p.telegram_username
+        })));
+
+        // Создаем map для быстрого доступа
+        const profilesMap = new Map(profiles?.map((p: any) => [p.id, p]) || []);
+
+        // Устанавливаем имена
+        if (myPlayer?.user_id) {
+          const myProfile = profilesMap.get(myPlayer.user_id);
           if (myProfile) {
             const name = myProfile.first_name || myProfile.username || myProfile.telegram_username || 'Вы';
             console.log('[DuelBattleFullscreen] ✅ Setting my name from direct query:', name);
             setMyName(name);
           } else {
             console.warn('[DuelBattleFullscreen] ⚠️ No profile found for my player');
+            setMyName('Вы');
           }
         }
-        
-        if (opponent) {
-          setOpponentScore(opponent.score || 0);
-          
-          // Загружаем имя соперника из профиля
-          const opponentProfile = opponent.profiles as any;
+
+        if (opponent?.user_id) {
+          const opponentProfile = profilesMap.get(opponent.user_id);
           if (opponentProfile) {
             const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
             console.log('[DuelBattleFullscreen] ✅ Setting opponent name from direct query:', name);
             setOpponentName(name);
           } else {
-            console.warn('[DuelBattleFullscreen] ⚠️ No profile found for opponent, using fallback');
+            console.warn('[DuelBattleFullscreen] ⚠️ No profile found for opponent');
             setOpponentName('Соперник');
           }
         }
