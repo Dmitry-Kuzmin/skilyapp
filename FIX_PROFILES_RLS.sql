@@ -61,7 +61,8 @@ DECLARE
   policy_count INTEGER;
   policy_qual TEXT;
 BEGIN
-  SELECT COUNT(*), qual INTO policy_count, policy_qual
+  -- Сначала проверяем количество
+  SELECT COUNT(*) INTO policy_count
   FROM pg_policies
   WHERE schemaname = 'public' 
     AND tablename = 'profiles'
@@ -71,6 +72,15 @@ BEGIN
   IF policy_count = 0 THEN
     RAISE EXCEPTION '❌ Политика "Profiles are viewable by everyone" не была создана!';
   ELSE
+    -- Затем получаем условие политики
+    SELECT qual INTO policy_qual
+    FROM pg_policies
+    WHERE schemaname = 'public' 
+      AND tablename = 'profiles'
+      AND policyname = 'Profiles are viewable by everyone'
+      AND cmd = 'SELECT'
+    LIMIT 1;
+    
     RAISE NOTICE '✅ Политика "Profiles are viewable by everyone" успешно создана';
     RAISE NOTICE '📋 Условие политики: %', policy_qual;
     
