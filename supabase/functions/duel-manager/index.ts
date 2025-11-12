@@ -1377,20 +1377,32 @@ Deno.serve(async (req) => {
           .select('id')
           .eq('duel_id', duel.id);
 
+        console.log('[join_duel] ✅ Player count check:', allPlayers?.length);
+        
         if (allPlayers && allPlayers.length === 2) {
-          // Auto-start: Load ALL questions, then randomly select
-          const { data: allQuestions } = await supabase
-            .from('questions_new')
-            .select(`
-              id, question_ru, question_es, question_en, image_url, difficulty,
-              answer_options(id, text_ru, text_es, text_en, is_correct, position)
-            `);
+          console.log('[join_duel] 🚀 AUTO-START: 2 players detected, starting duel...');
+          
+          try {
+            // Auto-start: Load ALL questions, then randomly select
+            console.log('[join_duel] Loading questions...');
+            const { data: allQuestions, error: questionsError } = await supabase
+              .from('questions_new')
+              .select(`
+                id, question_ru, question_es, question_en, image_url, difficulty,
+                answer_options(id, text_ru, text_es, text_en, is_correct, position)
+              `);
 
-          if (!allQuestions || allQuestions.length === 0) {
-            throw new Error('No questions found');
-          }
+            if (questionsError) {
+              console.error('[join_duel] ❌ Error loading questions:', questionsError);
+              throw questionsError;
+            }
 
-          console.log(`[join_duel] Total questions: ${allQuestions.length}`);
+            if (!allQuestions || allQuestions.length === 0) {
+              console.error('[join_duel] ❌ No questions found in database');
+              throw new Error('No questions found');
+            }
+
+            console.log(`[join_duel] ✅ Total questions loaded: ${allQuestions.length}`);
 
           // Smart randomization: Fisher-Yates shuffle for better distribution
           // Use seed for reproducible randomness (same seed = same questions for both players)
@@ -1398,7 +1410,7 @@ Deno.serve(async (req) => {
           const shuffled = fisherYatesShuffle(allQuestions, rng);
           const selectedQuestions = shuffled.slice(0, duel.num_questions);
           
-          console.log(`[join_duel] Selected ${selectedQuestions.length} random questions using seed ${duel.question_seed}`);
+          console.log(`[join_duel] ✅ Selected ${selectedQuestions.length} random questions using seed ${duel.question_seed}`);
 
           // Insert duel questions with randomly selected set
           const duelQuestions = selectedQuestions.map((q, idx) => {
@@ -1422,13 +1434,29 @@ Deno.serve(async (req) => {
             };
           });
 
-          await supabase.from('duel_questions').insert(duelQuestions);
+          console.log('[join_duel] Inserting duel questions...', duelQuestions.length);
+          const { error: insertError } = await supabase.from('duel_questions').insert(duelQuestions);
+          
+          if (insertError) {
+            console.error('[join_duel] ❌ Error inserting duel questions:', insertError);
+            throw insertError;
+          }
+          
+          console.log('[join_duel] ✅ Duel questions inserted successfully');
 
           // Update duel status
-          await supabase
+          console.log('[join_duel] Updating duel status to active...');
+          const { error: updateError } = await supabase
             .from('duels')
             .update({ status: 'active', started_at: new Date().toISOString() })
             .eq('id', duel.id);
+          
+          if (updateError) {
+            console.error('[join_duel] ❌ Error updating duel status:', updateError);
+            throw updateError;
+          }
+          
+          console.log('[join_duel] ✅✅✅ Duel status updated to ACTIVE successfully!');
 
           // Create start notification for host (first player)
           // Wrap in try-catch to prevent notification errors from breaking duel start
@@ -1450,12 +1478,29 @@ Deno.serve(async (req) => {
             // Continue anyway - notification failure shouldn't block duel start
           }
 
+          console.log('[join_duel] ✅ Returning response with auto_started: true');
           return new Response(
             JSON.stringify({ duel: { ...duel, status: 'active' }, player, auto_started: true }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
+          } catch (autoStartError: any) {
+            console.error('[join_duel] ❌❌❌ CRITICAL ERROR in auto-start:', autoStartError);
+            console.error('[join_duel] Error message:', autoStartError?.message);
+            console.error('[join_duel] Error details:', JSON.stringify(autoStartError, null, 2));
+            // Если автостарт не удался, возвращаем ошибку
+            return new Response(JSON.stringify({ 
+              error: 'Failed to auto-start duel: ' + (autoStartError?.message || 'Unknown error'),
+              duel, 
+              player,
+              auto_started: false
+            }), {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
         }
 
+        console.log('[join_duel] Only 1 player, waiting for opponent');
         return new Response(JSON.stringify({ duel, player, auto_started: false }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

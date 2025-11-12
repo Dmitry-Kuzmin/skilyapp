@@ -214,6 +214,8 @@ export default function Duel() {
     setIsJoining(true);
 
     try {
+      console.log('[Duel] ⚡ Invoking join_duel with code:', code);
+      
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'join_duel',
@@ -222,11 +224,25 @@ export default function Duel() {
         },
       });
 
-      if (error) throw error;
+      console.log('[Duel] join_duel response:', { data, error });
+
+      if (error) {
+        console.error('[Duel] ❌ join_duel error:', error);
+        throw error;
+      }
+
+      console.log('[Duel] join_duel data:', {
+        auto_started: data.auto_started,
+        duel_status: data.duel?.status,
+        duel_id: data.duel?.id,
+        player_id: data.player?.id
+      });
 
       if (data.auto_started) {
+        console.log('[Duel] ✅ AUTO-STARTED = TRUE, duel should be active!');
         toast.success('Дуэль начинается! 🎮');
       } else {
+        console.log('[Duel] ⏳ AUTO-STARTED = FALSE, waiting for host to start');
         toast.success('Вы присоединились! Ожидание старта...');
       }
 
