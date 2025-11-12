@@ -1138,39 +1138,49 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         </AnimatePresence>
       </div>
 
-      {/* Progress Bar - Duolingo Style */}
-      {/* Учитываем отступы для Telegram WebApp */}
+      {/* Unified Progress Bar - как в тестах */}
       <div 
-        className="absolute left-0 right-0 h-1.5 bg-border"
+        className="absolute left-0 right-0 z-10"
         style={{
           top: `${totalTopPadding}px`,
-          left: `${totalLeftPadding}px`,
-          right: `${totalRightPadding}px`
+          paddingLeft: `${totalLeftPadding}px`,
+          paddingRight: `${totalRightPadding}px`
         }}
       >
-        <motion.div
-          className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400 shadow-lg shadow-green-500/50"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        />
-      </div>
+        <div className="flex items-center gap-2 px-2 py-2 bg-background/95 backdrop-blur-md border-b border-border/30">
+          {/* Close button - только в браузере */}
+          {safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram' && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onExit}
+              className="shrink-0 h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
 
-      {/* Exit Button - Top Left Corner - Скрыта на мобилке и в Telegram (есть встроенная кнопка Назад) */}
-      {safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onExit}
-          className="absolute z-10 rounded-full w-9 h-9 bg-card/80 backdrop-blur-sm hover:bg-card"
-          style={{
-            top: `${totalTopPadding + 8}px`,
-            left: `${totalLeftPadding + 8}px`
-          }}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
+          {/* Progress Bar Section */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* Question Counter - просто текст без карты */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30 shrink-0">
+              <span className="font-bold text-foreground text-sm">
+                {currentIndex + 1}<span className="text-muted-foreground text-xs">/{questions.length}</span>
+              </span>
+            </div>
+
+            {/* Horizontal Progress Bar */}
+            <div className="flex-1 h-2.5 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px]">
+              <motion.div
+                className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-green-400 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
+                style={{ width: `${progress}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       {/* Используем единую систему отступов через CSS переменные */}
