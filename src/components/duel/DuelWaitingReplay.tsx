@@ -137,19 +137,72 @@ export function DuelWaitingReplay({
   useEffect(() => {
     if (typeof realtimeState.opponentScore === 'number' && realtimeState.opponentScore >= 0) {
       setOpponentScore(realtimeState.opponentScore);
-      
-      // FALLBACK: Если счет обновился и у нас уже есть все ответы соперника,
-      // проверяем статус дуэли (на случай если Realtime не сработал)
-      if (opponentAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
-        console.log('[DuelWaitingReplay] 🔄 Opponent score updated and has all answers - checking duel status as fallback');
-        setTimeout(() => {
-          checkDuelStatus().catch(err => {
-            console.error('[DuelWaitingReplay] Error in fallback status check:', err);
-          });
-        }, 500);
-      }
     }
-  }, [realtimeState.opponentScore, opponentAnswers.length, totalQuestions]);
+  }, [realtimeState.opponentScore]);
+  
+  // КРИТИЧНО: Проверка при каждом обновлении ответов соперника
+  // Если у соперника есть все ответы - сразу переходим к результатам
+  useEffect(() => {
+    if (opponentAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
+      console.log('[DuelWaitingReplay] 🔥🔥🔥 Opponent has ALL answers! Checking if we should transition...');
+      
+      // Небольшая задержка чтобы убедиться что все данные обновлены
+      setTimeout(() => {
+        if (!isDuelFinishedRef.current) {
+          // Проверяем статус дуэли через Edge Function (надежнее чем прямой запрос)
+          supabase.functions.invoke('duel-manager', {
+            body: {
+              action: 'check_status',
+              duel_id: duelId,
+              profile_id: profileId
+            }
+          }).then(({ data, error }) => {
+            if (error) {
+              console.error('[DuelWaitingReplay] Error checking status via Edge Function:', error);
+              // Fallback: переходим к результатам если у соперника все ответы
+              if (!isDuelFinishedRef.current) {
+                console.log('[DuelWaitingReplay] 🔥 FALLBACK: Transitioning because opponent has all answers');
+                isDuelFinishedRef.current = true;
+                setIsDuelFinished(true);
+                sounds.victory();
+                toast.success('🏁 Соперник закончил!', { duration: 1500 });
+                onDuelFinished();
+              }
+              return;
+            }
+            
+            if (data?.status === 'finished' && !isDuelFinishedRef.current) {
+              console.log('[DuelWaitingReplay] ✅✅✅ Edge Function confirms duel is finished! Transitioning...');
+              isDuelFinishedRef.current = true;
+              setIsDuelFinished(true);
+              sounds.victory();
+              toast.success('🏁 Дуэль завершена!', { duration: 1500 });
+              onDuelFinished();
+            } else if (!isDuelFinishedRef.current && opponentAnswers.length >= totalQuestions) {
+              // Если статус еще не 'finished', но у соперника все ответы - переходим к результатам
+              console.log('[DuelWaitingReplay] 🔥 Opponent has all answers but status not finished - transitioning anyway');
+              isDuelFinishedRef.current = true;
+              setIsDuelFinished(true);
+              sounds.victory();
+              toast.success('🏁 Соперник закончил!', { duration: 1500 });
+              onDuelFinished();
+            }
+          }).catch(err => {
+            console.error('[DuelWaitingReplay] Exception checking status:', err);
+            // Fallback: переходим к результатам если у соперника все ответы
+            if (!isDuelFinishedRef.current && opponentAnswers.length >= totalQuestions) {
+              console.log('[DuelWaitingReplay] 🔥 EXCEPTION FALLBACK: Transitioning because opponent has all answers');
+              isDuelFinishedRef.current = true;
+              setIsDuelFinished(true);
+              sounds.victory();
+              toast.success('🏁 Соперник закончил!', { duration: 1500 });
+              onDuelFinished();
+            }
+          });
+        }
+      }, 300);
+    }
+  }, [opponentAnswers.length, totalQuestions, duelId, profileId, onDuelFinished]);
 
   // Check if opponent finished all questions
   const checkIfOpponentFinished = async (force = false) => {
