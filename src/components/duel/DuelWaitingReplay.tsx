@@ -475,7 +475,6 @@ export function DuelWaitingReplay({
         // Call using safe wrapper
         console.log('[DuelWaitingReplay] ✅ checkDuelStatus: Calling onDuelFinished');
         safeCallOnDuelFinished();
-        }
       } else {
         console.log('[DuelWaitingReplay] checkDuelStatus: Opponent hasn\'t finished yet');
         // Also run checkIfOpponentFinished as additional check
