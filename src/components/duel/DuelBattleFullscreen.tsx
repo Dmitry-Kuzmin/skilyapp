@@ -78,8 +78,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // Start countdown when duel starts
   useEffect(() => {
-    if (state.duelStarted && !showCountdown && questions.length > 0) {
-      console.log('[DuelBattleFullscreen] Duel started, starting countdown...');
+    if (state.duelStarted && !showCountdown && questions.length > 0 && !loading) {
+      console.log('[DuelBattleFullscreen] Duel started, starting countdown...', {
+        duelStarted: state.duelStarted,
+        showCountdown,
+        questionsCount: questions.length,
+        loading
+      });
       setShowCountdown(true);
       setCountdown(3);
       
@@ -93,9 +98,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             return null;
           }
           if (prev === 1) {
+            console.log('[DuelBattleFullscreen] Countdown finished, starting battle!');
             sounds.countdownFinish();
             setTimeout(() => {
               setShowCountdown(false);
+              console.log('[DuelBattleFullscreen] Countdown hidden, battle should start now');
             }, 1000);
             return 0;
           }
@@ -105,8 +112,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }, 1000);
 
       return () => clearInterval(interval);
+    } else if (state.duelStarted && !showCountdown && (questions.length === 0 || loading)) {
+      console.log('[DuelBattleFullscreen] ⚠️ Duel started but questions not ready yet:', {
+        questionsCount: questions.length,
+        loading
+      });
     }
-  }, [state.duelStarted, questions.length, showCountdown]);
+  }, [state.duelStarted, questions.length, showCountdown, loading]);
 
   // Update notifications when opponent answers and force score refresh
   useEffect(() => {
