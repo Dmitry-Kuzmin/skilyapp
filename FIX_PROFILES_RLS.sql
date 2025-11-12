@@ -4,8 +4,9 @@
 -- 
 -- ПРИМЕНИТЬ ВРУЧНУЮ В SUPABASE SQL EDITOR!
 
--- 1. Удаляем ограничивающую политику
+-- 1. Удаляем ВСЕ существующие политики SELECT для profiles (чтобы избежать конфликтов)
 DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
 
 -- 2. Убеждаемся что RLS включен
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
