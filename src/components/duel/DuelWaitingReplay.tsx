@@ -157,9 +157,10 @@ export function DuelWaitingReplay({
       return; // Не нужен fallback или уже закончили
     }
     
-    console.log('[DuelWaitingReplay] 🔄 Telegram WebApp detected - enabling fallback polling every 3 seconds');
+    console.log('[DuelWaitingReplay] 🔄 Telegram WebApp detected - enabling fallback polling every 1.5 seconds');
     
-    // В Telegram WebApp проверяем статус и ответы каждые 3 секунды как fallback
+    // В Telegram WebApp проверяем статус и ответы каждые 1.5 секунды как fallback
+    // Уменьшен интервал для более частого обновления прогресса соперника
     const fallbackInterval = setInterval(() => {
       if (isDuelFinishedRef.current) {
         // Уже закончили, не нужно проверять
@@ -183,7 +184,7 @@ export function DuelWaitingReplay({
           console.error('[DuelWaitingReplay] Fallback: Error checking opponent finished:', err);
         });
       }
-    }, 3000); // Каждые 3 секунды
+    }, 1500); // Каждые 1.5 секунды (уменьшено с 3 секунд для более частого обновления)
     
     return () => {
       console.log('[DuelWaitingReplay] 🧹 Cleaning up fallback interval');
@@ -819,19 +820,42 @@ export function DuelWaitingReplay({
         .filter((a: any) => a.question_number > 0)
         .sort((a, b) => a.question_number - b.question_number);
         
-        console.log('[DuelWaitingReplay] Loaded opponent answers:', {
+        console.log('[DuelWaitingReplay] ✅ Loaded opponent answers in loadOpponentData:', {
           count: formattedAnswers.length,
-          answers: formattedAnswers,
-          rawAnswers: answers,
+          questionNumbers: formattedAnswers.map((a: any) => a.question_number),
+          totalQuestions,
+          previousCount: opponentAnswers.length,
           opponentPlayerId: opponent.id,
           myPlayerId: myPlayer.id,
-          totalQuestions,
           allFinished: formattedAnswers.length >= totalQuestions,
           isTelegram: typeof window !== 'undefined' && !!window.Telegram?.WebApp
         });
         
-        // Always update state
-        setOpponentAnswers(formattedAnswers);
+        // КРИТИЧНО: Всегда обновляем opponentAnswers, даже если количество не изменилось
+        // Это важно для Telegram WebApp где Realtime может не работать
+        // Используем функциональное обновление для гарантии актуального состояния
+        setOpponentAnswers(prev => {
+          // Проверяем, изменилось ли что-то
+          const hasChanged = prev.length !== formattedAnswers.length || 
+            prev.some((p, idx) => {
+              const newAnswer = formattedAnswers[idx];
+              return !newAnswer || p.question_number !== newAnswer.question_number || 
+                     p.is_correct !== newAnswer.is_correct;
+            });
+          
+          if (hasChanged) {
+            console.log('[DuelWaitingReplay] 🔄 Updating opponentAnswers - state changed:', {
+              prevCount: prev.length,
+              newCount: formattedAnswers.length,
+              prevQuestions: prev.map(a => a.question_number),
+              newQuestions: formattedAnswers.map(a => a.question_number)
+            });
+            return formattedAnswers;
+          } else {
+            console.log('[DuelWaitingReplay] ⏸️ No change in opponentAnswers, keeping previous state');
+            return prev;
+          }
+        });
         
         // CRITICAL: Check if opponent finished after loading answers
         if (formattedAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
