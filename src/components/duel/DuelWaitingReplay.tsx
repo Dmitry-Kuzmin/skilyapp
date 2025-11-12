@@ -149,7 +149,7 @@ export function DuelWaitingReplay({
   
   // FALLBACK для Telegram WebApp: Периодическая проверка статуса и загрузка ответов
   // Realtime может работать нестабильно в Telegram WebApp, поэтому нужен fallback
-  // Этот useEffect должен быть после определения loadOpponentData и checkIfOpponentFinished
+  // ВАЖНО: Этот useEffect использует функции определенные ниже через refs
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
     
