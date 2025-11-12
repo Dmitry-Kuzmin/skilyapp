@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { motion } from 'framer-motion';
@@ -10,6 +10,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Progress } from '@/components/ui/progress';
+import { AIWidget } from '@/components/AIWidget';
 
 interface DuelResultProps {
   duelId: string;
@@ -21,6 +22,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const { profileId } = useUserContext();
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [myAnswers, setMyAnswers] = useState<any[]>([]);
+  const [showAIWidget, setShowAIWidget] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
 
   useEffect(() => {
     loadResults();
@@ -65,8 +69,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
-      // Load players and duel info
-      const [playersResponse, duelResponse] = await Promise.all([
+      // Load players, duel info, and answers
+      const [playersResponse, duelResponse, answersResponse] = await Promise.all([
         supabase
           .from('duel_players')
           .select('*, profiles(first_name, username)')
@@ -75,16 +79,26 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           .from('duels')
           .select('bet_amount, bet_type, commission_taken, rematch_pot')
           .eq('id', duelId)
-          .single()
+          .single(),
+        supabase
+          .from('duel_answers')
+          .select('*, duel_questions(question_snapshot)')
+          .eq('duel_id', duelId)
+          .order('created_at', { ascending: true })
       ]);
 
       const players = playersResponse.data;
       const duel = duelResponse.data;
+      const allAnswers = answersResponse.data;
       
       if (!players) return;
 
       const myPlayer = players.find(p => p.user_id === profileId);
       const opponent = players.find(p => p.user_id !== profileId);
+      
+      // Фильтруем мои ответы
+      const myPlayerAnswers = allAnswers?.filter((a: any) => a.player_id === myPlayer?.id) || [];
+      setMyAnswers(myPlayerAnswers);
 
       const isWinner = myPlayer && opponent && myPlayer.score > opponent.score;
       const isDraw = myPlayer && opponent && myPlayer.score === opponent.score;
@@ -151,8 +165,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto">
-      <div className="min-h-screen w-full max-w-2xl mx-auto px-3 py-4 space-y-3 animate-fade-in">
+    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto pt-16">
+      <div className="min-h-screen w-full max-w-2xl mx-auto px-3 py-4 pb-20 space-y-3 animate-fade-in">
         {results.isWinner && typeof window !== 'undefined' && (
           <Confetti
             width={window.innerWidth}
@@ -367,42 +381,67 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             </Card>
           </motion.div>
 
-          {/* Detailed Statistics - компактная версия */}
+          {/* Обзор вопросов - компактная версия */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
             <Accordion type="single" collapsible className="bg-card/50 rounded-xl border-2">
-              <AccordionItem value="stats" className="border-none">
+              <AccordionItem value="questions" className="border-none">
                 <AccordionTrigger className="px-4 py-2.5 hover:no-underline">
                   <div className="flex items-center gap-2 font-bold text-sm">
-                    <span>📊</span>
-                    <span>Подробная статистика</span>
+                    <span>📝</span>
+                    <span>Обзор вопросов</span>
+                    <span className="text-xs text-muted-foreground">({results.myCorrect}/{myAnswers.length})</span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-3">
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center py-1.5 border-b border-border/50">
-                      <span className="text-muted-foreground text-xs">Правильных:</span>
-                      <span className="font-bold text-success">{results.myCorrect}/10</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-border/50">
-                      <span className="text-muted-foreground text-xs">Точность:</span>
-                      <span className="font-bold text-primary">
-                        {((results.myCorrect / 10) * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-border/50">
-                      <span className="text-muted-foreground text-xs">Очков:</span>
-                      <span className="font-bold">{results.myScore}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1.5">
-                      <span className="text-muted-foreground text-xs">Разница:</span>
-                      <span className={`font-bold ${results.myScore > results.opponentScore ? 'text-success' : 'text-destructive'}`}>
-                        {results.myScore > results.opponentScore ? '+' : ''}{results.myScore - results.opponentScore}
-                      </span>
-                    </div>
+                <AccordionContent className="px-2 pb-3">
+                  <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                    {myAnswers.map((answer: any, index: number) => {
+                      const questionSnapshot = (answer.duel_questions as any)?.question_snapshot;
+                      const questionText = questionSnapshot?.question_ru || questionSnapshot?.question_es || 'Вопрос';
+                      const isCorrect = answer.is_correct;
+                      
+                      return (
+                        <div 
+                          key={answer.id}
+                          className={`p-2 rounded-lg border ${
+                            isCorrect 
+                              ? 'bg-success/5 border-success/20' 
+                              : 'bg-destructive/5 border-destructive/20'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2">
+                            {isCorrect ? (
+                              <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
+                            ) : (
+                              <XCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium line-clamp-2">{questionText.substring(0, 80)}...</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-[10px] font-semibold ${isCorrect ? 'text-success' : 'text-destructive'}`}>
+                                  {isCorrect ? 'Правильно' : 'Неправильно'}
+                                </span>
+                                {questionSnapshot && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedQuestion(questionSnapshot);
+                                      setShowAIWidget(true);
+                                    }}
+                                    className="text-[10px] text-primary hover:underline"
+                                  >
+                                    Объяснить
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-muted-foreground">+{answer.points_awarded || 0}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -455,6 +494,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         </Card>
       </motion.div>
       </div>
+      
+      {/* AI Widget для объяснения вопросов */}
+      {showAIWidget && selectedQuestion && (
+        <AIWidget
+          questionText={selectedQuestion.question_ru || selectedQuestion.question_es || ''}
+          questionImage={selectedQuestion.image_url || null}
+          onClose={() => {
+            setShowAIWidget(false);
+            setSelectedQuestion(null);
+          }}
+        />
+      )}
     </div>
   );
 }
