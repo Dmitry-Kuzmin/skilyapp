@@ -151,8 +151,25 @@ export default function Duel() {
       duelId,
       willSetMode: 'result'
     });
-    setMode('result');
-    console.log('[Duel] Mode set to result');
+    
+    // КРИТИЧНО: Проверяем, что duelId установлен перед переходом к результатам
+    if (!duelId) {
+      console.error('[Duel] ❌ ERROR: handleDuelFinished called but duelId is null! Cannot show results.');
+      toast.error('Ошибка: ID дуэли не найден');
+      return;
+    }
+    
+    // Устанавливаем режим результата - используем функциональное обновление для гарантии
+    setMode((currentMode) => {
+      if (currentMode !== 'result') {
+        console.log('[Duel] ✅ Setting mode to result (was:', currentMode, ')');
+        return 'result';
+      }
+      console.log('[Duel] Mode already set to result');
+      return currentMode;
+    });
+    
+    console.log('[Duel] ✅ Mode transition initiated, duelId:', duelId);
   };
 
   const handleBackToMenu = () => {
@@ -1495,6 +1512,13 @@ export default function Duel() {
           onRematch={() => setMode('create')}
           onBackToMenu={handleBackToMenu}
         />
+      )}
+      
+      {/* Debug: показываем состояние для отладки */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 bg-black/80 text-white p-2 text-xs rounded z-50">
+          Mode: {mode} | DuelId: {duelId ? '✅' : '❌'}
+        </div>
       )}
       
       <AuthModal
