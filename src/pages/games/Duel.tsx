@@ -264,8 +264,8 @@ export default function Duel() {
           
           if (!error && data) {
             setDuelPreview({
-              bet_amount: data.bet_amount || 0,
-              num_questions: data.num_questions
+              bet_amount: (data as any).bet_amount || 0,
+              num_questions: (data as any).num_questions || 10
             });
           }
         } catch (e) {
