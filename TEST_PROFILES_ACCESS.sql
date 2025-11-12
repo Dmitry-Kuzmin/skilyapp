@@ -6,7 +6,6 @@ SELECT
   id,
   first_name,
   username,
-  telegram_username,
   telegram_id,
   user_id,
   created_at
@@ -19,7 +18,7 @@ SELECT
   p.id as profile_id,
   p.first_name,
   p.username,
-  p.telegram_username,
+  p.telegram_id,
   dp.duel_id,
   dp.score,
   d.code as duel_code,
@@ -36,11 +35,9 @@ SELECT
   COUNT(*) as total_profiles,
   COUNT(first_name) FILTER (WHERE first_name IS NOT NULL AND first_name != '') as has_first_name,
   COUNT(username) FILTER (WHERE username IS NOT NULL AND username != '') as has_username,
-  COUNT(telegram_username) FILTER (WHERE telegram_username IS NOT NULL AND telegram_username != '') as has_telegram_username,
   COUNT(*) FILTER (WHERE 
     (first_name IS NULL OR first_name = '') 
-    AND (username IS NULL OR username = '') 
-    AND (telegram_username IS NULL OR telegram_username = '')
+    AND (username IS NULL OR username = '')
   ) as profiles_without_names
 FROM public.profiles;
 
