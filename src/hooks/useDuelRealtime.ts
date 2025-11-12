@@ -255,42 +255,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
           checkStatus();
 
-          // FALLBACK: Периодическая проверка статуса каждые 2 секунды (только если дуэль не завершена)
-          // Это нужно на случай если Realtime подписка не сработает в Telegram WebApp
-          let statusCheckInterval: NodeJS.Timeout | null = null;
-          
-          const startStatusCheck = () => {
-            statusCheckInterval = setInterval(async () => {
-              const currentState = await supabase
-                .from('duels')
-                .select('status')
-                .eq('id', duelId)
-                .maybeSingle();
-              
-              if (currentState.data?.status === 'finished') {
-                console.log('[useDuelRealtime] 🔄 FALLBACK: Duel status is finished (periodic check)');
-                setState(prev => {
-                  if (!prev.duelFinished) {
-                    return { ...prev, duelFinished: true };
-                  }
-                  return prev;
-                });
-                if (statusCheckInterval) {
-                  clearInterval(statusCheckInterval);
-                  statusCheckInterval = null;
-                }
-              }
-            }, 2000); // Проверяем каждые 2 секунды
-          };
-          
-          startStatusCheck();
-          
-          // Очищаем интервал при размонтировании
-          return () => {
-            if (statusCheckInterval) {
-              clearInterval(statusCheckInterval);
-                }
-          };
+          // УБРАНО: Fallback периодическая проверка каждые 2 секунды
+          // Это создавало избыточную нагрузку на БД
+          // Realtime подписка должна работать надежно, если нет - проблема в конфигурации Supabase
+          // Если Realtime не работает, лучше показать ошибку пользователю, чем постоянно опрашивать БД
         }
       });
 
