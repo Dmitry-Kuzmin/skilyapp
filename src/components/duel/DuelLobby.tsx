@@ -105,43 +105,22 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     return () => clearInterval(timer);
   }, [duelCode]);
 
-  // Countdown animation
-  const startCountdown = () => {
-    console.log('[DuelLobby] Starting countdown...');
-    setCountdown(3);
-  };
-
-  useEffect(() => {
-    if (countdown === null) return;
-    
-    if (countdown === 0) {
-      console.log('[DuelLobby] Countdown finished, starting battle!');
-      onDuelStarted();
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCountdown(countdown - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown, onDuelStarted]);
-
+  // УБРАНО: Countdown - дуэль начинается сразу когда стартовала
   // Handle opponent joined
   useEffect(() => {
     if (state.opponentJoined) {
       console.log('[DuelLobby] Opponent joined!');
-      toast.success('Противник найден! Дуэль начинается через 3 секунды...');
+      toast.success('Противник найден!');
     }
   }, [state.opponentJoined]);
 
-  // Handle duel started from realtime
+  // Handle duel started from realtime - сразу переходим к битве
   useEffect(() => {
-    if (state.duelStarted && countdown === null) {
-      console.log('[DuelLobby] ✅ Duel started signal from realtime!');
-      startCountdown();
+    if (state.duelStarted) {
+      console.log('[DuelLobby] ✅ Duel started signal from realtime! Starting battle immediately...');
+      onDuelStarted();
     }
-  }, [state.duelStarted, countdown]);
+  }, [state.duelStarted, onDuelStarted]);
 
   const handleStartDuel = async () => {
     if (!duelId) return;
