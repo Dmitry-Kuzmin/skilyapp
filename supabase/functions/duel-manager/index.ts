@@ -1016,7 +1016,22 @@ Deno.serve(async (req) => {
           };
         });
         
-        console.log('[Duel Manager] ✅ Found players:', formattedPlayers.length, formattedPlayers.map((p: any) => ({ id: p.id, name: p.name })));
+        console.log('[Duel Manager] ✅ Found players:', formattedPlayers.length);
+        console.log('[Duel Manager] Players with names:', formattedPlayers.map((p: any) => ({ 
+          id: p.id, 
+          user_id: p.user_id, 
+          name: p.name,
+          score: p.score 
+        })));
+        
+        // КРИТИЧНО: Проверяем что все игроки имеют имена
+        const playersWithoutNames = formattedPlayers.filter((p: any) => !p.name || p.name === 'Игрок');
+        if (playersWithoutNames.length > 0) {
+          console.warn('[Duel Manager] ⚠️ Some players have no valid name:', playersWithoutNames.map((p: any) => ({ 
+            id: p.id, 
+            user_id: p.user_id 
+          })));
+        }
         
         return new Response(JSON.stringify({ players: formattedPlayers }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

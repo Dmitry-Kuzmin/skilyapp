@@ -567,9 +567,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Fallback функция для прямого запроса к базе
   const loadScoresDirect = async () => {
     try {
+      console.log('[DuelBattleFullscreen] 🔄 Loading scores directly from DB (with profiles)');
       const { data, error } = await supabase
         .from('duel_players')
-        .select('id, user_id, score, correct_count')
+        .select('id, user_id, score, correct_count, profiles(first_name, username, telegram_username)')
         .eq('duel_id', duelId);
 
       if (error) {
@@ -583,11 +584,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         
         if (myPlayer?.id) {
           setMyPlayerId(myPlayer.id);
-        setMyScore(myPlayer?.score || 0);
+          setMyScore(myPlayer?.score || 0);
+          
+          // Загружаем имя из профиля
+          const myProfile = myPlayer.profiles as any;
+          if (myProfile) {
+            const name = myProfile.first_name || myProfile.username || myProfile.telegram_username || 'Вы';
+            console.log('[DuelBattleFullscreen] ✅ Setting my name from direct query:', name);
+            setMyName(name);
+          } else {
+            console.warn('[DuelBattleFullscreen] ⚠️ No profile found for my player');
+          }
         }
         
         if (opponent) {
           setOpponentScore(opponent.score || 0);
+          
+          // Загружаем имя соперника из профиля
+          const opponentProfile = opponent.profiles as any;
+          if (opponentProfile) {
+            const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+            console.log('[DuelBattleFullscreen] ✅ Setting opponent name from direct query:', name);
+            setOpponentName(name);
+          } else {
+            console.warn('[DuelBattleFullscreen] ⚠️ No profile found for opponent, using fallback');
+            setOpponentName('Соперник');
+          }
         }
       }
     } catch (error) {
