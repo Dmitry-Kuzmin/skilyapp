@@ -19,7 +19,6 @@ interface DuelLobbyProps {
 export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCancel }: DuelLobbyProps) {
   const { profileId, platform } = useUserContext();
   const [waitTime, setWaitTime] = useState(0);
-  const [countdown, setCountdown] = useState<number | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
   const { state } = useDuelRealtime(duelId);
 
@@ -62,9 +61,9 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
         console.log('[DuelLobby] Duel status:', data.status);
         
         if (data.status === 'active') {
-          console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting countdown...');
+          console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting battle...');
           setConnectionStatus('connected');
-          startCountdown();
+          onDuelStarted();
           isActive = false; // Stop checking
         } else {
           setConnectionStatus('connected');
