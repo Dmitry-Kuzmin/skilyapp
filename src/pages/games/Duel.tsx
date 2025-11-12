@@ -52,7 +52,6 @@ export default function Duel() {
   const [copied, setCopied] = useState(false);
   const [waitTime, setWaitTime] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
-  const [countdown, setCountdown] = useState<number | null>(null);
   
   // Betting state
   const [betType, setBetType] = useState<'none' | 'fixed' | 'custom'>('none');
@@ -412,7 +411,6 @@ export default function Duel() {
         setDuelCode(null);
         setWaitTime(0);
         setConnectionStatus('checking');
-        setCountdown(null);
       }
     } catch (error: any) {
       console.error('Error canceling duel:', error);
@@ -422,10 +420,7 @@ export default function Duel() {
   };
 
   // Countdown logic
-  const startCountdown = () => {
-    console.log('[Duel] Starting countdown...');
-    setCountdown(3);
-  };
+  // УБРАНО: startCountdown - дуэль начинается сразу без задержки
 
   // Check duel status when created
   useEffect(() => {
@@ -464,9 +459,9 @@ export default function Duel() {
         console.log('[Duel] Duel status:', data.status);
         
         if (data.status === 'active') {
-          console.log('[Duel] ✅ DUEL IS ACTIVE! Starting countdown...');
+          console.log('[Duel] ✅ DUEL IS ACTIVE! Starting battle immediately...');
           setConnectionStatus('connected');
-          startCountdown();
+          handleDuelStarted();
           isActive = false;
         } else {
           setConnectionStatus('connected');
@@ -657,44 +652,7 @@ export default function Duel() {
       {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
         <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in">
 
-          {/* Countdown Overlay */}
-          <AnimatePresence>
-            {countdown !== null && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center"
-              >
-                <div className="text-center space-y-8">
-                  {countdown > 0 ? (
-                    <>
-                      <motion.div 
-                        key={countdown}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="text-9xl font-black bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent"
-                      >
-                        {countdown}
-                      </motion.div>
-                      <div className="text-2xl text-muted-foreground">Приготовьтесь...</div>
-                    </>
-                  ) : (
-                    <motion.div 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="space-y-4"
-                    >
-                      <div className="text-8xl animate-bounce">⚔️</div>
-                      <div className="text-6xl font-black bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
-                        START!
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* УБРАНО: Countdown Overlay - дуэль начинается сразу без задержки */}
 
           {/* Unified Action Card - Premium Design */}
             <motion.div
@@ -964,7 +922,6 @@ export default function Duel() {
                                 setDuelCode(null);
                                 setWaitTime(0);
                                 setConnectionStatus('checking');
-                                setCountdown(null);
                               }}
                               className="text-muted-foreground hover:text-foreground hover:bg-emerald-500/10 hover:border-emerald-500/20 border border-transparent rounded-xl px-4 py-2 transition-all duration-200 group/back"
                             >
