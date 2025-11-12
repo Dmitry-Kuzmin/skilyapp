@@ -910,34 +910,51 @@ Deno.serve(async (req) => {
         }
         
         // Загружаем профили отдельно для каждого игрока
+        // ВАЖНО: Загружаем по одному, чтобы избежать проблем с RLS и .in()
         const userIds = players.map((p: any) => p.user_id).filter(Boolean);
         const profilesMap = new Map();
         
         if (userIds.length > 0) {
-          const { data: profiles, error: profilesError } = await supabase
-            .from('profiles')
-            .select('id, first_name, username, telegram_id')
-            .in('id', userIds);
+          console.log('[get_players] Loading profiles one by one for userIds:', userIds);
+          
+          // Загружаем профили по одному через Promise.all (более надежно чем .in())
+          const profilePromises = userIds.map(async (userId) => {
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('id, first_name, username, telegram_id')
+              .eq('id', userId)
+              .single();
+            
+            if (error) {
+              console.error(`[get_players] ❌ Error loading profile for ${userId}:`, {
+                error: error.message,
+                code: error.code,
+                details: error.details
+              });
+              return null;
+            }
+            
+            return { userId, profile };
+          });
+          
+          const profileResults = await Promise.all(profilePromises);
+          
+          profileResults.forEach((result) => {
+            if (result && result.profile) {
+              profilesMap.set(result.userId, result.profile);
+            }
+          });
           
           console.log('[get_players] Profiles query result:', {
             userIds,
-            profilesCount: profiles?.length || 0,
-            error: profilesError?.message,
-            profiles: profiles?.map((p: any) => ({
-              id: p.id,
+            profilesCount: profilesMap.size,
+            profiles: Array.from(profilesMap.entries()).map(([id, p]: [string, any]) => ({
+              id,
               first_name: p.first_name,
               username: p.username,
               has_telegram_id: !!p.telegram_id
             }))
           });
-          
-          if (!profilesError && profiles) {
-            profiles.forEach((profile: any) => {
-              profilesMap.set(profile.id, profile);
-            });
-          } else if (profilesError) {
-            console.error('[get_players] Error loading profiles:', profilesError);
-          }
         }
         
         // Format players with names
