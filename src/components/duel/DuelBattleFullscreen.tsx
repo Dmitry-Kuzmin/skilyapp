@@ -222,8 +222,41 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (typeof state.opponentScore === 'number' && state.opponentScore >= 0 && state.opponentScore !== opponentScore) {
       console.log('[DuelBattleFullscreen] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
       setOpponentScore(state.opponentScore);
+      
+      // FALLBACK: Если мы ждем соперника и счет обновился, проверяем статус дуэли
+      // (на случай если Realtime подписка на статус не сработала)
+      if (isWaitingForOpponent && hasFinishedMyQuestions && !hasTransitionedRef.current) {
+        console.log('[DuelBattleFullscreen] 🔄 Opponent score updated while waiting - checking duel status as fallback');
+        setTimeout(async () => {
+          try {
+            const { data: duel } = await supabase
+              .from('duels')
+              .select('status, num_questions')
+              .eq('id', duelId)
+              .single();
+            
+            if (duel?.status === 'finished' && !hasTransitionedRef.current) {
+              console.log('[DuelBattleFullscreen] ✅✅✅ FALLBACK: Duel status is finished! Transitioning to results');
+              hasTransitionedRef.current = true;
+              
+              try {
+                if (sounds?.victory) {
+                  sounds.victory();
+                }
+              } catch (soundError) {
+                console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
+              }
+              
+              toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+              onDuelFinished();
+            }
+          } catch (error) {
+            console.error('[DuelBattleFullscreen] Error in fallback status check:', error);
+          }
+        }, 500);
+      }
     }
-  }, [state.opponentScore, opponentScore]);
+  }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, onDuelFinished]);
 
   // Sync my score from realtime
   useEffect(() => {
