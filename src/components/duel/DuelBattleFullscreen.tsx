@@ -1715,6 +1715,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             })}
           </motion.div>
         )}
+        </div>
 
         {/* Question Card */}
         <motion.div
