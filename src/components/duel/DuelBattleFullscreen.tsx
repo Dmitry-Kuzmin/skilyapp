@@ -60,8 +60,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }>>([]);
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
   const [hasFinishedMyQuestions, setHasFinishedMyQuestions] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const [showCountdown, setShowCountdown] = useState(false);
   const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
   const isVerifyingRef = useRef(false);
   const hasTransitionedRef = useRef(false);
