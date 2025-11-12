@@ -137,8 +137,19 @@ export function DuelWaitingReplay({
   useEffect(() => {
     if (typeof realtimeState.opponentScore === 'number' && realtimeState.opponentScore >= 0) {
       setOpponentScore(realtimeState.opponentScore);
+      
+      // FALLBACK: Если счет обновился и у нас уже есть все ответы соперника,
+      // проверяем статус дуэли (на случай если Realtime не сработал)
+      if (opponentAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
+        console.log('[DuelWaitingReplay] 🔄 Opponent score updated and has all answers - checking duel status as fallback');
+        setTimeout(() => {
+          checkDuelStatus().catch(err => {
+            console.error('[DuelWaitingReplay] Error in fallback status check:', err);
+          });
+        }, 500);
+      }
     }
-  }, [realtimeState.opponentScore]);
+  }, [realtimeState.opponentScore, opponentAnswers.length, totalQuestions]);
 
   // Check if opponent finished all questions
   const checkIfOpponentFinished = async (force = false) => {

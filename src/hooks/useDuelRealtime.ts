@@ -218,30 +218,57 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           console.log('[useDuelRealtime] Successfully subscribed, checking current duel status...');
           
           // Check current duel status immediately after subscription
-          supabase
-            .from('duels')
-            .select('status')
-            .eq('id', duelId)
-            .maybeSingle()
-            .then(({ data, error }) => {
-              if (error) {
-                console.error('[useDuelRealtime] ❌ Error checking duel status:', error);
-                console.error('[useDuelRealtime] Error details:', JSON.stringify(error, null, 2));
-              } else if (!data) {
-                // Не логируем - это нормально на начальном этапе
-              } else {
-                console.log('[useDuelRealtime] ✅ Current duel status:', data.status);
-                if (data.status === 'active') {
-                  console.log('[useDuelRealtime] ✅ Duel is already active!');
-                  setState(prev => ({ ...prev, duelStarted: true }));
-                } else if (data.status === 'finished') {
-                  console.log('[useDuelRealtime] ✅ Duel is finished!');
-                  setState(prev => ({ ...prev, duelFinished: true }));
-                }
+          const checkStatus = async () => {
+            const { data, error } = await supabase
+              .from('duels')
+              .select('status')
+              .eq('id', duelId)
+              .maybeSingle();
+            
+            if (error) {
+              console.error('[useDuelRealtime] ❌ Error checking duel status:', error);
+              console.error('[useDuelRealtime] Error details:', JSON.stringify(error, null, 2));
+            } else if (!data) {
+              // Не логируем - это нормально на начальном этапе
+            } else {
+              console.log('[useDuelRealtime] ✅ Current duel status:', data.status);
+              if (data.status === 'active') {
+                console.log('[useDuelRealtime] ✅ Duel is already active!');
+                setState(prev => ({ ...prev, duelStarted: true }));
+              } else if (data.status === 'finished') {
+                console.log('[useDuelRealtime] ✅ Duel is finished!');
+                setState(prev => ({ ...prev, duelFinished: true }));
               }
-            });
-
-          // Счет будет загружен когда myPlayerId станет доступен через useEffect выше
+            }
+          };
+          
+          checkStatus();
+          
+          // FALLBACK: Периодическая проверка статуса каждые 2 секунды (только если дуэль не завершена)
+          // Это нужно на случай если Realtime подписка не сработает в Telegram WebApp
+          const statusCheckInterval = setInterval(async () => {
+            const currentState = await supabase
+              .from('duels')
+              .select('status')
+              .eq('id', duelId)
+              .maybeSingle();
+            
+            if (currentState.data?.status === 'finished') {
+              console.log('[useDuelRealtime] 🔄 FALLBACK: Duel status is finished (periodic check)');
+              setState(prev => {
+                if (!prev.duelFinished) {
+                  return { ...prev, duelFinished: true };
+                }
+                return prev;
+              });
+              clearInterval(statusCheckInterval);
+            }
+          }, 2000); // Проверяем каждые 2 секунды
+          
+          // Очищаем интервал при размонтировании
+          return () => {
+            clearInterval(statusCheckInterval);
+          };
         }
       });
 
