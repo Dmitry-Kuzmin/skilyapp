@@ -1329,14 +1329,14 @@ const TestSession = () => {
   return (
     <Layout>
       {/* Layout: В экзамене - центрированный широкий блок, в practice - grid с AI Widget */}
-      <div className={cn(
+        <div className={cn(
         "mx-auto transition-all duration-300",
         !isTelegramApp && mode === "practice" 
           ? "lg:grid lg:grid-cols-[1fr_400px] lg:gap-4 lg:max-w-[1370px] lg:px-4" 
           : mode === "exam" && !isTelegramApp
           ? "lg:max-w-[1100px] lg:px-4"
           : "container px-2 sm:px-4"
-      )}>
+        )}>
         {/* Основной контент */}
         <div className={cn(
           "pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 pb-16 md:pb-4",
@@ -1379,8 +1379,8 @@ const TestSession = () => {
           {/* Progress Bar - растягивается по центру */}
           <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             {/* Question Counter */}
-            <button
-              onClick={() => setShowQuestionMap(true)}
+          <button
+            onClick={() => setShowQuestionMap(true)}
               className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm hover:shadow-md transition-all cursor-pointer active:scale-95 border border-border/50 hover:border-accent/50 group shrink-0"
             >
               <Grid3x3 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-accent group-hover:scale-110 transition-transform" />
@@ -1391,14 +1391,14 @@ const TestSession = () => {
 
             {/* Horizontal Progress Bar */}
             <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px]">
-              <div
+            <div
                 className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
-                style={{ 
+              style={{
                   width: `${((currentIndex + 1) / questions.length) * 100}%`,
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-              </div>
+            </div>
             </div>
           </div>
 
@@ -1451,8 +1451,8 @@ const TestSession = () => {
                           className="w-full bg-white/20 hover:bg-white/30 text-white text-[10px] font-medium py-1 rounded transition-colors"
                         >
                           Посмотреть банк →
-                        </button>
-                      </div>
+          </button>
+        </div>
                     </div>
                   </div>
                 )}
@@ -1500,19 +1500,19 @@ const TestSession = () => {
                 </div>
 
                 {/* Translation Button (Practice Only) */}
-                {mode === "practice" && (
+                  {mode === "practice" && (
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={toggleTranslation}
-                      className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                    >
-                      <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                      <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                      <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-                    </Button>
-                  </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={toggleTranslation}
+                        className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
+                      >
+                        <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
+                        <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
+                        <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
+                  </Button>
+                </div>
                 )}
 
                 {/* Answer Options */}
@@ -1591,16 +1591,16 @@ const TestSession = () => {
 
                 {/* Report Problem Button - под ответами */}
                 <div className="mb-4 sm:mb-5 flex justify-center">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                    <Button
+                      variant="outline"
+                      size="sm"
                     onClick={() => setShowReportModal(true)}
                     className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-md transition-all"
-                  >
+                    >
                     <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
                     <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
-                  </Button>
-                </div>
+                    </Button>
+                  </div>
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
@@ -1734,8 +1734,8 @@ const TestSession = () => {
                         ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
                         : "border-border/20 opacity-40"
                       : isSelected
-                      ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-                      : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
+                          ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+                          : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
                     }
                     ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
                   `}

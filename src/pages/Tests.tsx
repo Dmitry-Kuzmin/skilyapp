@@ -164,10 +164,10 @@ const Tests = () => {
           const topicId = topicIdMap.get(number) || `topic-${number}`;
           
           // Загружаем количество вопросов для темы
-          const { count } = await supabase
-            .from("questions_new")
-            .select("*", { count: 'exact', head: true })
-            .eq('topic_id', topicId);
+            const { count } = await supabase
+              .from("questions_new")
+              .select("*", { count: 'exact', head: true })
+              .eq('topic_id', topicId);
           
           return {
             id: topicId,
@@ -242,14 +242,14 @@ const Tests = () => {
           <h2 className="text-xl font-bold mb-4">{t('practiceMode')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Random - с выбором количества */}
-            <Card 
+        <Card
               className="p-5 hover:shadow-lg transition-all group"
-            >
+        >
               <div className="flex flex-col items-center text-center space-y-4">
                 <div className="w-14 h-14 rounded-full bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors">
                   <Shuffle className="w-7 h-7 text-teal-600 dark:text-teal-400" />
                 </div>
-                <div>
+              <div>
                   <h3 className="font-semibold mb-1">{t('random')}</h3>
                   <p className="text-xs text-muted-foreground">
                     {t('selectQuestionCount')}
@@ -276,18 +276,18 @@ const Tests = () => {
                       {count}
                     </button>
                   ))}
-                </div>
+              </div>
 
                 {/* Кнопка запуска */}
-                <Button
+              <Button
                   onClick={() => navigate(`/test/practice?count=${randomQuestionCount}`)}
                   className="w-full bg-teal-600 hover:bg-teal-700 text-white"
                   size="sm"
-                >
+              >
                   {t('startTest')}
-                </Button>
-              </div>
-            </Card>
+              </Button>
+            </div>
+          </Card>
 
             {/* Incorrectly answered - ТЕСТ из Challenge Bank */}
             {challengeBankCount > 0 && (
@@ -323,8 +323,8 @@ const Tests = () => {
                     <Star className="w-7 h-7 text-yellow-600 dark:text-yellow-400" />
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {challengeBankCount}
-                    </span>
-                  </div>
+                </span>
+              </div>
                   <h3 className="font-semibold">{t('savedQuestions')}</h3>
                   <p className="text-xs text-muted-foreground">
                     {t('savedQuestionsDesc')}
@@ -364,7 +364,7 @@ const Tests = () => {
                 </p>
               </div>
             </Card>
-          </div>
+            </div>
         </div>
 
         {/* Exam Mode Section */}
@@ -383,7 +383,7 @@ const Tests = () => {
                 <h3 className="font-semibold">{t('examSimulator')}</h3>
                 <p className="text-xs text-muted-foreground">
                   {t('examSimulatorDesc')}
-                </p>
+                  </p>
               </div>
             </Card>
 
@@ -415,11 +415,11 @@ const Tests = () => {
                 <h3 className="font-semibold">{t('finalTest')}</h3>
                 <p className="text-xs text-muted-foreground">
                   {t('finalTestDesc')}
-                </p>
+                  </p>
               </div>
             </Card>
           </div>
-        </div>
+              </div>
 
         {/* User Stats Card */}
         {isAuthenticated && (
@@ -453,7 +453,7 @@ const Tests = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">{t('correctAnswers')}</span>
                     <span className="font-semibold text-green-600 dark:text-green-400">{stats.correct}</span>
-                  </div>
+                </div>
                 </div>
               </div>
 
@@ -475,16 +475,16 @@ const Tests = () => {
                 </div>
                 <span className="font-semibold">{t('you')}</span>
                 <Trophy className="w-5 h-5 text-yellow-500" />
-              </div>
+                </div>
               <div className="flex items-center gap-2">
                 <div className="text-2xl">🚗</div>
                 <span className="font-bold">0</span>
               </div>
-            </div>
+          </div>
             <Button className="w-full bg-green-600 hover:bg-green-700">
               {t('inviteFriends')}
             </Button>
-          </Card>
+        </Card>
         )}
 
         {/* Exam Readiness Card */}
