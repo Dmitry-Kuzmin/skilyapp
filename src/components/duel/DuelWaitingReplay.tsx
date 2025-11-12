@@ -204,11 +204,22 @@ export function DuelWaitingReplay({
           return;
         }
         
+        // Дополнительная проверка: убеждаемся что соперник действительно закончил
+        const opponentReallyFinished = opponentAnswers >= duel.num_questions;
+        
         console.log('[DuelWaitingReplay] ✅✅✅ Duel status is FINISHED - TRANSITIONING IMMEDIATELY', {
           opponentAnswers,
           required: duel.num_questions,
-          duelStatus: duel.status
+          duelStatus: duel.status,
+          opponentReallyFinished
         });
+        
+        // Переходим только если соперник действительно закончил
+        if (!opponentReallyFinished) {
+          console.log('[DuelWaitingReplay] ⚠️ Duel status is finished but opponent hasn\'t completed all questions yet');
+          isCheckingFinishedRef.current = false;
+          return;
+        }
         
         // Transition immediately
         isDuelFinishedRef.current = true;

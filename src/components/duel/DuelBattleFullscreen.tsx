@@ -215,6 +215,92 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
+  // КРИТИЧНО: Периодическая проверка статуса дуэли когда ожидаем соперника
+  // Это гарантирует переход к результатам даже если realtime не сработал
+  useEffect(() => {
+    if (!isWaitingForOpponent || !hasFinishedMyQuestions || !duelId || !profileId) {
+      return;
+    }
+
+    console.log('[DuelBattleFullscreen] 🔄 Starting periodic duel status check while waiting for opponent');
+
+    const checkDuelStatusPeriodically = async () => {
+      try {
+        // Проверяем статус дуэли напрямую из базы данных
+        const { data: duel, error } = await supabase
+          .from('duels')
+          .select('status, num_questions')
+          .eq('id', duelId)
+          .single();
+
+        if (error) {
+          console.error('[DuelBattleFullscreen] Error checking duel status:', error);
+          return;
+        }
+
+        // Если дуэль завершена, проверяем что соперник действительно закончил
+        if (duel?.status === 'finished') {
+          console.log('[DuelBattleFullscreen] ✅ Duel status is finished, verifying opponent completed');
+
+          // Получаем игроков
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('id, user_id')
+            .eq('duel_id', duelId);
+
+          if (!players || players.length < 2) {
+            return;
+          }
+
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          if (!opponent) {
+            return;
+          }
+
+          // Проверяем количество ответов соперника
+          const { count: opponentAnswers } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', opponent.id)
+            .eq('duel_id', duelId);
+
+          const requiredAnswers = duel.num_questions || 10;
+          const opponentFinished = (opponentAnswers || 0) >= requiredAnswers;
+
+          console.log('[DuelBattleFullscreen] Periodic check:', {
+            duelStatus: duel.status,
+            opponentAnswers: opponentAnswers || 0,
+            required: requiredAnswers,
+            opponentFinished
+          });
+
+          if (opponentFinished) {
+            console.log('[DuelBattleFullscreen] ✅✅✅ PERIODIC CHECK: Opponent finished! Transitioning to results');
+            sounds.victory();
+            toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+            // Вызываем onDuelFinished немедленно
+            onDuelFinished();
+          }
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Error in periodic status check:', error);
+      }
+    };
+
+    // Проверяем сразу при монтировании
+    checkDuelStatusPeriodically();
+
+    // Затем проверяем каждые 1.5 секунды
+    const interval = setInterval(() => {
+      checkDuelStatusPeriodically();
+    }, 1500);
+
+    return () => {
+      clearInterval(interval);
+      console.log('[DuelBattleFullscreen] Stopped periodic duel status check');
+    };
+  }, [isWaitingForOpponent, hasFinishedMyQuestions, duelId, profileId, onDuelFinished]);
+
   // Sync opponent score from realtime - основной способ обновления счета
   useEffect(() => {
     if (typeof state.opponentScore === 'number' && state.opponentScore >= 0 && state.opponentScore !== opponentScore) {
