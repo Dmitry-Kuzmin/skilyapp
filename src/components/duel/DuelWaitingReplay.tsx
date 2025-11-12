@@ -64,6 +64,9 @@ export function DuelWaitingReplay({
   // КРИТИЧНО: Используем state вместо ref для myPlayerId, чтобы useDuelRealtime мог переподписаться
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const questionPositionsRef = useRef<Map<string, number>>(new Map()); // Cache question positions
+  // Refs для функций чтобы использовать в fallback useEffect
+  const loadOpponentDataRef = useRef<(() => Promise<void>) | null>(null);
+  const checkIfOpponentFinishedRef = useRef<((force?: boolean) => Promise<void>) | null>(null);
   
   // Используем useDuelRealtime для получения статуса дуэли через Realtime (вместо периодических проверок)
   // КРИТИЧНО: Передаем myPlayerId как state, а не ref.current
@@ -141,41 +144,52 @@ export function DuelWaitingReplay({
       initialize();
     }
     
-    // FALLBACK для Telegram WebApp: Периодическая проверка статуса и загрузка ответов
-    // Realtime может работать нестабильно в Telegram WebApp, поэтому нужен fallback
+    // УБРАНО: Fallback логика перенесена в отдельный useEffect после определения функций
+  }, [duelId]);
+  
+  // FALLBACK для Telegram WebApp: Периодическая проверка статуса и загрузка ответов
+  // Realtime может работать нестабильно в Telegram WebApp, поэтому нужен fallback
+  // Этот useEffect должен быть после определения loadOpponentData и checkIfOpponentFinished
+  useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    let fallbackInterval: NodeJS.Timeout | null = null;
     
-    if (isTelegram) {
-      console.log('[DuelWaitingReplay] 🔄 Telegram WebApp detected - enabling fallback polling every 3 seconds');
-      // В Telegram WebApp проверяем статус и ответы каждые 3 секунды как fallback
-      fallbackInterval = setInterval(() => {
-        if (isDuelFinishedRef.current) {
-          // Уже закончили, не нужно проверять
-          return;
-        }
-        
-        console.log('[DuelWaitingReplay] 🔄 Fallback: Checking opponent progress (Telegram WebApp)');
-        
-        // Проверяем статус дуэли и загружаем ответы соперника
-        loadOpponentData().catch(err => {
-          console.error('[DuelWaitingReplay] Fallback: Error loading opponent data:', err);
-        });
-        
-        // Также проверяем статус через Edge Function
-        checkIfOpponentFinished(false).catch(err => {
-          console.error('[DuelWaitingReplay] Fallback: Error checking opponent finished:', err);
-        });
-      }, 3000); // Каждые 3 секунды
+    if (!isTelegram || isDuelFinishedRef.current) {
+      return; // Не нужен fallback или уже закончили
     }
     
-    return () => {
-      if (fallbackInterval) {
-        console.log('[DuelWaitingReplay] 🧹 Cleaning up fallback interval');
+    console.log('[DuelWaitingReplay] 🔄 Telegram WebApp detected - enabling fallback polling every 3 seconds');
+    
+    // В Telegram WebApp проверяем статус и ответы каждые 3 секунды как fallback
+    const fallbackInterval = setInterval(() => {
+      if (isDuelFinishedRef.current) {
+        // Уже закончили, не нужно проверять
         clearInterval(fallbackInterval);
+        return;
       }
+      
+      console.log('[DuelWaitingReplay] 🔄 Fallback: Checking opponent progress (Telegram WebApp)');
+      
+      // Проверяем статус дуэли и загружаем ответы соперника
+      // Используем refs для доступа к функциям
+      if (loadOpponentDataRef.current) {
+        loadOpponentDataRef.current().catch(err => {
+          console.error('[DuelWaitingReplay] Fallback: Error loading opponent data:', err);
+        });
+      }
+      
+      // Также проверяем статус через Edge Function
+      if (checkIfOpponentFinishedRef.current) {
+        checkIfOpponentFinishedRef.current(false).catch(err => {
+          console.error('[DuelWaitingReplay] Fallback: Error checking opponent finished:', err);
+        });
+      }
+    }, 3000); // Каждые 3 секунды
+    
+    return () => {
+      console.log('[DuelWaitingReplay] 🧹 Cleaning up fallback interval');
+      clearInterval(fallbackInterval);
     };
-  }, [duelId]);
+  }, [duelId, isDuelFinished]); // Зависимости для перезапуска при изменении
   
   // Используем Realtime статус дуэли для перехода к результатам (вместо периодических проверок)
   useEffect(() => {
@@ -517,6 +531,8 @@ export function DuelWaitingReplay({
   };
 
   const loadOpponentData = async () => {
+    // Сохраняем ссылку на функцию для fallback
+    loadOpponentDataRef.current = loadOpponentData;
     try {
       // Используем Edge Function для получения игроков (обходит RLS проблемы)
       try {
