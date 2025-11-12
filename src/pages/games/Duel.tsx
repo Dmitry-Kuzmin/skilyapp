@@ -665,7 +665,7 @@ export default function Duel() {
           {/* УБРАНО: Countdown Overlay - дуэль начинается сразу без задержки */}
 
           {/* Unified Action Card - Premium Design */}
-            <motion.div
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -687,7 +687,7 @@ export default function Duel() {
                   
                   <div className="relative space-y-5 sm:space-y-6">
                     <div className="flex items-start sm:items-center gap-4 sm:gap-5">
-                      <motion.div 
+            <motion.div
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.95 }}
                         className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 flex items-center justify-center shadow-xl shadow-emerald-500/40 flex-shrink-0 ring-4 ring-emerald-500/20"
@@ -695,7 +695,7 @@ export default function Duel() {
                         {/* Shine effect */}
                         <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
                         <Swords className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
-                      </motion.div>
+            </motion.div>
                       <div className="min-w-0 flex-1">
                         <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
                           Создать дуэль
@@ -718,14 +718,14 @@ export default function Duel() {
                           <span className="font-bold text-muted-foreground">Ваш баланс:</span>
                           <span className="font-black text-amber-600 dark:text-amber-400">{userCoins}</span>
                           <span className="text-muted-foreground">монет</span>
-                        </motion.div>
-                        
+          </motion.div>
+
                         <div className="space-y-4">
                           {/* Number of questions */}
                           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
-                            <motion.div 
+            <motion.div
                               initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.5 }}
                               className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white/80 dark:bg-emerald-950/40 backdrop-blur-sm border-2 border-emerald-200/50 dark:border-emerald-800/50 shadow-lg shadow-emerald-500/10 shrink-0 ring-1 ring-emerald-500/20 w-full sm:w-auto"
                             >
@@ -751,19 +751,19 @@ export default function Duel() {
                                 <Plus className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
                               </motion.button>
                             </motion.div>
-                          </div>
+                </div>
                           
                           {/* Betting options */}
-                          <motion.div
+                    <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
                             className="space-y-3"
-                          >
+                    >
                             <div className="flex items-center gap-2">
                               <Coins className="h-4 w-4 text-amber-500" />
                               <span className="text-sm font-bold text-muted-foreground">Ставка (опционально)</span>
-                            </div>
+                </div>
                             
                             {/* Bet type selector */}
                             <div className="flex gap-2">
@@ -859,13 +859,13 @@ export default function Duel() {
                                     <p className="font-semibold text-foreground">
                                       Банк: <span className="text-amber-600 dark:text-amber-400">{betAmount * 2}</span> монет
                                     </p>
-                                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground">
                                       Победитель: <span className="text-green-600 dark:text-green-400 font-bold">{Math.floor(betAmount * 2 * 0.9)}</span> (комиссия 10%)
                                     </p>
                                     <p className="text-muted-foreground">
                                       При ничьей: ставки переносятся на реванш
-                                    </p>
-                                  </div>
+                    </p>
+              </div>
                                 </div>
                               </motion.div>
                             )}
@@ -878,8 +878,8 @@ export default function Duel() {
                             transition={{ delay: 0.7 }}
                             className="w-full"
                           >
-                            <Button
-                              size="lg"
+            <Button
+              size="lg"
                               onClick={() => handleActionClick(() => handleInlineCreate())}
                               disabled={isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > userCoins)}
                               className="w-full h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-700 text-white shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
@@ -904,9 +904,9 @@ export default function Duel() {
                                   </span>
                                 </>
                               )}
-                            </Button>
+                    </Button>
                           </motion.div>
-                        </div>
+                  </div>
                       </>
                     ) : (
                       <>
@@ -938,14 +938,14 @@ export default function Duel() {
                               <ArrowLeft className="h-4 w-4 mr-2 group-hover/back:-translate-x-1 transition-transform duration-200" />
                               <span className="text-sm font-semibold">Назад</span>
                             </Button>
-                          </motion.div>
+            </motion.div>
 
                           {/* Connection status */}
-                          <motion.div
+            <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="flex items-center justify-center gap-2 text-sm"
-                          >
+            >
                             <motion.div
                               className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
                               animate={connectionStatus === 'connected' ? {} : { scale: [1, 1.2, 1] }}
@@ -972,11 +972,11 @@ export default function Duel() {
                                 Ожидание соперника
                               </h3>
                               <p className="text-base sm:text-lg text-muted-foreground/80 font-medium">Поделитесь кодом с другом</p>
-                            </div>
+                    </div>
                           </div>
 
                           {/* Code Display - Enhanced Premium */}
-                          <motion.div
+                    <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ delay: 0.2, type: "spring" }}
@@ -994,7 +994,7 @@ export default function Duel() {
                               }}
                               transition={{ duration: 3, repeat: Infinity }}
                               className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-emerald-500/50 ring-4 ring-emerald-500/10"
-                            >
+                    >
                               <motion.div
                                 key={createdCode}
                                 initial={{ scale: 1.2, opacity: 0, rotateY: 180 }}
@@ -1017,8 +1017,8 @@ export default function Duel() {
                                   transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                                 >
                                   <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
-                                </motion.div>
-                              </div>
+                    </motion.div>
+                </div>
                             </motion.div>
                           </motion.div>
 
@@ -1029,15 +1029,15 @@ export default function Duel() {
                               whileTap={{ scale: 0.98 }}
                               className="flex-1 max-w-xs mx-auto sm:mx-0"
                             >
-                              <Button
+            <Button
                                 onClick={handleCopyCode}
-                                variant="outline"
+                      variant="outline"
                                 size="lg"
                                 className="w-full h-12 sm:h-14 text-sm sm:text-base font-black border-2 border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all shadow-lg hover:shadow-xl"
-                              >
+                    >
                                 <Copy className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />
                                 Копировать код
-                              </Button>
+                    </Button>
                             </motion.div>
                             {isTelegramUser && (
                               <motion.div
@@ -1056,7 +1056,7 @@ export default function Duel() {
                                 </Button>
                               </motion.div>
                             )}
-                          </div>
+                </div>
 
                           {/* Cancel Button */}
                           {!duelState.opponentJoined && (
@@ -1088,7 +1088,7 @@ export default function Duel() {
                             >
                               <div className="p-2 rounded-xl bg-emerald-500/20">
                                 <Users className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
-                              </div>
+                </div>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="font-black text-xl sm:text-2xl text-emerald-700 dark:text-emerald-300">{duelState.opponentJoined ? '2' : '1'}</span>
                                 <span className="text-muted-foreground/60 text-lg">/</span>
@@ -1108,13 +1108,13 @@ export default function Duel() {
                               <span className="font-mono font-black text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
                                 {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
                               </span>
-                            </motion.div>
-                          </div>
+            </motion.div>
+          </div>
 
                           {/* Opponent Joined Animation - Premium */}
                           <AnimatePresence>
                             {duelState.opponentJoined && (
-                              <motion.div
+          <motion.div
                                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.8 }}
@@ -1147,7 +1147,7 @@ export default function Duel() {
                                 </motion.div>
                                 <motion.p
                                   initial={{ opacity: 0, y: 10 }}
-                                  animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
                                   transition={{ delay: 0.3 }}
                                   className="text-foreground/90 font-bold text-base sm:text-lg text-center relative z-10"
                                 >
@@ -1191,7 +1191,7 @@ export default function Duel() {
                                 >
                                   ...
                                 </motion.span>
-                              </div>
+                </div>
                             </motion.div>
                           )}
                         </motion.div>
@@ -1225,12 +1225,12 @@ export default function Duel() {
                       <div className="min-w-0 flex-1">
                         <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-amber-700 to-orange-700 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
                           Присоединиться
-                        </h3>
+            </h3>
                         <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
                           Введите код дуэли от друга и начните битву
                         </p>
-                      </div>
-                    </div>
+                  </div>
+                  </div>
 
                     <div className="space-y-4 sm:space-y-5">
                       <div className="space-y-3">
@@ -1266,7 +1266,7 @@ export default function Duel() {
                                 <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-amber-600 dark:text-amber-400" />
                               </motion.div>
                             )}
-                          </div>
+                </div>
                           
                           {/* Premium indicators */}
                           <div className="flex justify-center gap-2 sm:gap-2.5 pt-3">
@@ -1283,7 +1283,7 @@ export default function Duel() {
                                 }`}
                               />
                             ))}
-                          </div>
+              </div>
                           
                           <motion.p 
                             animate={{ opacity: joinCode.length === 4 ? 1 : 0.6 }}
@@ -1291,8 +1291,8 @@ export default function Duel() {
                           >
                             {joinCode.length < 4 ? 'Введите 4 символа' : joinCode.length === 4 ? '✨ Автоприсоединение...' : ''}
                           </motion.p>
-                        </div>
-                      </div>
+                  </div>
+                </div>
 
                       {/* Bet Warning / Preview */}
                       <AnimatePresence>
@@ -1315,7 +1315,7 @@ export default function Duel() {
                                   : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-500/30 ring-red-500/20'
                               }`}>
                                 <Coins className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                              </div>
+              </div>
                               <div className="flex-1 min-w-0 space-y-1">
                                 <p className="text-sm sm:text-base font-bold text-foreground">
                                   {userCoins >= duelPreview.bet_amount ? '💰 Дуэль со ставкой!' : '⚠️ Недостаточно монет!'}
@@ -1333,8 +1333,8 @@ export default function Duel() {
                                     Нужно ещё {duelPreview.bet_amount - userCoins} монет
                                   </p>
                                 )}
-                              </div>
-                            </div>
+                  </div>
+                </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
@@ -1350,13 +1350,13 @@ export default function Duel() {
                           <div className="flex items-start gap-3 sm:gap-4">
                             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30 ring-2 ring-amber-500/20">
                               <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                            </div>
+              </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs sm:text-sm text-muted-foreground/90 leading-relaxed font-medium">
                                 Попросите друга поделиться кодом из экрана ожидания дуэли
                               </p>
-                            </div>
-                          </div>
+                </div>
+              </div>
                         </motion.div>
                       )}
 
@@ -1457,8 +1457,8 @@ export default function Duel() {
                     </motion.div>
                   );
                 })}
-              </div>
-            </Card>
+            </div>
+          </Card>
           </motion.div>
         </div>
       )}

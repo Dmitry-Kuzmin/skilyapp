@@ -75,8 +75,8 @@ try {
     // (авторизация может быть сохранена в другом месте)
     try {
       execSync(`${SUPABASE_CMD} projects list`, { stdio: 'ignore' });
-      console.log('✅ Авторизован\n');
-    } catch (error) {
+    console.log('✅ Авторизован\n');
+  } catch (error) {
       console.warn('⚠️  Авторизация не проверена (может потребоваться при деплое)');
       console.log('💡 Если деплой не удастся, выполните авторизацию:');
       console.log('   npx supabase login');
@@ -97,10 +97,10 @@ try {
   
   try {
     execSync(`${SUPABASE_CMD} functions deploy ${FUNCTION_NAME}`, {
-      stdio: 'inherit',
+    stdio: 'inherit',
       cwd: projectRoot,
       env: deployEnv
-    });
+  });
   } catch (error) {
     console.error(`\n❌ Ошибка при деплое функции ${FUNCTION_NAME}`);
     console.error('💡 Возможные причины:');

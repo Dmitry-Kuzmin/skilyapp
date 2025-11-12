@@ -211,24 +211,24 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
             {/* Action Buttons - Simplified */}
             <div className="flex flex-col gap-2 justify-center px-4">
-              <Button
-                onClick={handleCopyCode}
-                variant="outline"
-                size="lg"
-                className="w-full h-12 text-sm font-bold border-2 hover:bg-primary/10"
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Копировать код
-              </Button>
-              {platform === 'telegram' && (
                 <Button
-                  onClick={handleShare}
+                  onClick={handleCopyCode}
+                  variant="outline"
                   size="lg"
-                  className="w-full h-12 text-sm font-bold bg-gradient-to-r from-primary to-purple-500"
+                className="w-full h-12 text-sm font-bold border-2 hover:bg-primary/10"
                 >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Поделиться
+                <Copy className="mr-2 h-4 w-4" />
+                  Копировать код
                 </Button>
+              {platform === 'telegram' && (
+                  <Button
+                    onClick={handleShare}
+                    size="lg"
+                  className="w-full h-12 text-sm font-bold bg-gradient-to-r from-primary to-purple-500"
+                  >
+                  <Share2 className="mr-2 h-4 w-4" />
+                    Поделиться
+                  </Button>
               )}
             </div>
 
@@ -248,20 +248,20 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
             </div>
 
             {/* Opponent Joined - Simplified */}
-            {state.opponentJoined && (
+              {state.opponentJoined && (
               <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 rounded-xl p-4">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <Sparkles className="h-5 w-5 text-green-500" />
                   <p className="text-green-500 font-bold text-lg">
-                    Соперник найден!
-                  </p>
+                      Соперник найден!
+                    </p>
                   <Sparkles className="h-5 w-5 text-green-500" />
                 </div>
                 <p className="text-muted-foreground text-sm text-center">
                   Начинаем битву...
                 </p>
               </div>
-            )}
+              )}
 
             {/* Loading Animation when waiting - Simplified */}
             {!state.opponentJoined && (

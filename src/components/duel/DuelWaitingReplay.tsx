@@ -397,7 +397,7 @@ export function DuelWaitingReplay({
         // Call after microtask
         setTimeout(() => {
           try {
-            onDuelFinished();
+          onDuelFinished();
             console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 2)');
           } catch (error) {
             console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 2):', error);
@@ -539,9 +539,9 @@ export function DuelWaitingReplay({
           console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called');
         } catch (error) {
           console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error calling onDuelFinished:', error);
-          setTimeout(() => {
+        setTimeout(() => {
             try {
-              onDuelFinished();
+          onDuelFinished();
             } catch (retryError) {
               console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error on retry:', retryError);
             }
@@ -605,25 +605,25 @@ export function DuelWaitingReplay({
         } else {
           console.error('[DuelWaitingReplay] Error loading players via Edge Function:', edgeError);
           // Fallback к прямому запросу
-          const { data: players } = await supabase
-            .from('duel_players')
+      const { data: players } = await supabase
+        .from('duel_players')
             .select('*, profiles(first_name, username, telegram_username)')
-            .eq('duel_id', duelId);
+        .eq('duel_id', duelId);
 
-          if (players) {
-            const opponent = players.find(p => p.user_id !== profileId);
-            const myPlayer = players.find(p => p.user_id === profileId);
-            
-            if (opponent) {
-              const opponentProfile = opponent.profiles as any;
+      if (players) {
+        const opponent = players.find(p => p.user_id !== profileId);
+        const myPlayer = players.find(p => p.user_id === profileId);
+        
+        if (opponent) {
+          const opponentProfile = opponent.profiles as any;
               const name = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
               console.log('[DuelWaitingReplay] Setting opponent name from direct query:', name);
               setOpponentName(name);
-              setOpponentScore(opponent.score || 0);
-            }
-            
-            if (myPlayer) {
-              const myProfile = myPlayer.profiles as any;
+          setOpponentScore(opponent.score || 0);
+        }
+        
+        if (myPlayer) {
+          const myProfile = myPlayer.profiles as any;
               setMyName(myProfile?.first_name || myProfile?.username || myProfile?.telegram_username || 'Вы');
             }
           }
@@ -706,10 +706,10 @@ export function DuelWaitingReplay({
           }
           return {
             question_number: position || 0,
-            is_correct: ans.is_correct,
-            is_skipped: ans.is_skipped || false,
-            time_taken_ms: ans.time_taken_ms,
-            points_awarded: ans.points_awarded || 0,
+          is_correct: ans.is_correct,
+          is_skipped: ans.is_skipped || false,
+          time_taken_ms: ans.time_taken_ms,
+          points_awarded: ans.points_awarded || 0,
           };
         })
         // Filter out answers without position and sort by question_number
@@ -917,12 +917,12 @@ export function DuelWaitingReplay({
                       description: 'Переход к результатам...',
                       duration: 1500,
                     });
-                    
+                
                     // Вызываем onDuelFinished немедленно
                     onDuelFinished();
                     
                     // Также проверяем статус через Edge Function для надежности
-                    setTimeout(() => {
+                  setTimeout(() => {
                       supabase.functions.invoke('duel-manager', {
                         body: {
                           action: 'check_status',
@@ -945,8 +945,8 @@ export function DuelWaitingReplay({
                     const existing = prev.find(a => a.question_number === position);
                     if (existing) return prev;
                     const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
-                    return updated;
-                  });
+                return updated;
+              });
                 }
               } catch (error) {
                 console.error('[DuelWaitingReplay] Exception reloading answers:', error);

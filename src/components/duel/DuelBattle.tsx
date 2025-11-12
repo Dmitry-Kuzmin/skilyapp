@@ -234,12 +234,12 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           });
 
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'get_questions',
-              duel_id: duelId,
-              profile_id: profileId
-            }
-          });
+        body: {
+          action: 'get_questions',
+          duel_id: duelId,
+          profile_id: profileId
+        }
+      });
 
           const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
@@ -254,12 +254,12 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
             throw error;
           }
 
-          if (data?.questions && data.questions.length > 0) {
+      if (data?.questions && data.questions.length > 0) {
             console.log('[DuelBattle] ✅ Loaded', data.questions.length, 'questions');
-            setQuestions(data.questions);
+        setQuestions(data.questions);
             return; // Успешно загружено
-          } else {
-            console.warn('[DuelBattle] No questions found');
+      } else {
+        console.warn('[DuelBattle] No questions found');
             // Пробуем fallback
             break;
           }
@@ -521,15 +521,15 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           });
 
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'submit_answer',
-              profile_id: profileId,
-              duel_id: duelId,
-              duel_question_id: currentQuestion.id,
-              selected_option_id: optionId,
-              time_taken_ms: timeTaken,
-            },
-          });
+        body: {
+          action: 'submit_answer',
+          profile_id: profileId,
+          duel_id: duelId,
+          duel_question_id: currentQuestion.id,
+          selected_option_id: optionId,
+          time_taken_ms: timeTaken,
+        },
+      });
 
           const result = await Promise.race([invokePromise, timeoutPromise]) as any;
           const { data: resultData, error: resultError } = result;
@@ -674,16 +674,16 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           });
 
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'submit_answer',
-              profile_id: profileId,
-              duel_id: duelId,
-              duel_question_id: currentQuestion.id,
-              selected_option_id: null,
-              time_taken_ms: 60000,
-              is_timeout: true,
-            },
-          });
+        body: {
+          action: 'submit_answer',
+          profile_id: profileId,
+          duel_id: duelId,
+          duel_question_id: currentQuestion.id,
+          selected_option_id: null,
+          time_taken_ms: 60000,
+          is_timeout: true,
+        },
+      });
 
           const result = await Promise.race([invokePromise, timeoutPromise]) as any;
           const { data: resultData, error: resultError } = result;

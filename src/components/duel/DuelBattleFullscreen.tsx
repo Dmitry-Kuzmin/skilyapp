@@ -262,7 +262,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
     }
   }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, onDuelFinished]);
-
+  
   // Sync my score from realtime
   useEffect(() => {
     // Обновляем только если новое значение является валидным числом
@@ -294,7 +294,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (profileId && duelId) {
       // Даем время на создание игроков в базе
       const timer = setTimeout(() => {
-        loadScores();
+      loadScores();
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -354,8 +354,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           });
 
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
-          });
+        body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
+      });
 
           const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
@@ -385,9 +385,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               hasSnapshot: !!data.questions[0]?.question_snapshot,
               position: data.questions[0]?.position
             });
-            setQuestions(data.questions);
+        setQuestions(data.questions);
             return; // Успешно загружено
-          } else {
+      } else {
             console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
               hasData: !!data,
               questionsType: typeof data?.questions,
@@ -463,8 +463,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const loadScores = async () => {
     if (!duelId || !profileId) {
       console.warn('[DuelBattleFullscreen] ⚠️ Cannot load scores: missing duelId or profileId', { duelId, profileId });
-      return;
-    }
+        return;
+      }
 
     console.log('[DuelBattleFullscreen] 🔄 Loading scores for duel:', duelId, 'profile:', profileId);
 
@@ -488,8 +488,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       console.log('[DuelBattleFullscreen] 📊 Players data received from Edge Function:', {
         count: players.length,
         players: players.map((p: any) => ({ id: p.id, user_id: p.user_id, score: p.score, name: p.name }))
-      });
-
+        });
+        
       if (players.length >= 2) {
         const myPlayer = players.find((p: any) => p.user_id === profileId);
         const opponent = players.find((p: any) => p.user_id !== profileId);
@@ -509,14 +509,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         if (typeof myPlayer?.score === 'number') {
           console.log('[DuelBattleFullscreen] ✅ Setting my score:', myPlayer.score);
           setMyScore(myPlayer.score);
-        } else {
+          } else {
           setMyScore(0);
         }
         
         if (typeof opponent?.score === 'number') {
           console.log('[DuelBattleFullscreen] ✅ Setting opponent score:', opponent.score);
           setOpponentScore(opponent.score);
-        } else {
+            } else {
           setOpponentScore(0);
         }
         
@@ -551,7 +551,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // Нет игроков - повторяем попытку
         console.warn('[DuelBattleFullscreen] ⚠️ No players found! Will retry...');
         if (state.duelStarted) {
-          setTimeout(() => {
+        setTimeout(() => {
             console.log('[DuelBattleFullscreen] 🔄 Retrying loadScores after no players found...');
             loadScores();
           }, 1500);
@@ -583,7 +583,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         
         if (myPlayer?.id) {
           setMyPlayerId(myPlayer.id);
-          setMyScore(myPlayer?.score || 0);
+        setMyScore(myPlayer?.score || 0);
         }
         
         if (opponent) {
@@ -730,15 +730,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           });
 
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'submit_answer',
-              duel_id: duelId,
-              profile_id: profileId,
-              duel_question_id: question.id,
-              selected_option_id: optionId,
-              time_taken_ms: 60000 - timeLeft,
-            },
-          });
+        body: {
+          action: 'submit_answer',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: question.id,
+          selected_option_id: optionId,
+          time_taken_ms: 60000 - timeLeft,
+        },
+      });
 
           const result = await Promise.race([invokePromise, timeoutPromise]) as any;
           const { data: resultData, error: resultError } = result;
@@ -892,15 +892,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           });
 
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'submit_answer',
-              duel_id: duelId,
-              profile_id: profileId,
-              duel_question_id: questions[currentIndex].id,
-              selected_option_id: null,
-              time_taken_ms: 60000,
-            },
-          });
+        body: {
+          action: 'submit_answer',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
+          selected_option_id: null,
+          time_taken_ms: 60000,
+        },
+      });
 
           const result = await Promise.race([invokePromise, timeoutPromise]) as any;
           const { data: resultData, error: resultError } = result;

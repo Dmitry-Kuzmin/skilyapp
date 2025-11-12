@@ -396,8 +396,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       }
                     }}
                   >
-                    <Coins className="w-4 h-4 text-gold" />
-                    <span className="text-sm font-semibold">{coins}</span>
+                <Coins className="w-4 h-4 text-gold" />
+                <span className="text-sm font-semibold">{coins}</span>
                     <History className="w-3 h-3 text-muted-foreground ml-0.5" />
                   </button>
                 </PopoverTrigger>
@@ -454,7 +454,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         ))}
                       </div>
                     )}
-                  </div>
+              </div>
                 </PopoverContent>
               </Popover>
               

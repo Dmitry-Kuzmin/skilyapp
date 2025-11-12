@@ -161,9 +161,9 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
     if (metadata.combo && metadata.combo >= 3) {
       const templates = [
         { 
-          title: `${opponentName} ответил правильно ${metadata.combo} раза подряд!`, 
-          message: 'Отличная серия! Продолжайте бороться!', 
-          icon: 'lightbulb' 
+        title: `${opponentName} ответил правильно ${metadata.combo} раза подряд!`,
+        message: 'Отличная серия! Продолжайте бороться!',
+        icon: 'lightbulb'
         },
         { 
           title: `${opponentName} набирает обороты!`, 
@@ -203,9 +203,9 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
       // Одна ошибка
       const templates = [
         { 
-          title: `${opponentName} ошибся`, 
-          message: 'Твой шанс догнать!', 
-          icon: 'x-circle' 
+        title: `${opponentName} ошибся`,
+        message: 'Твой шанс догнать!',
+        icon: 'x-circle'
         },
         { 
           title: `Ошибка ${opponentName}`, 
@@ -258,7 +258,7 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
         { 
           title: `${opponentName} ответил правильно${questionNumberText}`, 
           message: questionNumber === 1 ? 'Игра набирает обороты!' : 'Продолжайте бороться!', 
-          icon: 'check-circle' 
+        icon: 'check-circle'
         },
         { 
           title: `${opponentName} дал правильный ответ${questionNumberText}`, 
@@ -338,9 +338,9 @@ const notificationTemplates: Record<string, (metadata: any) => { title: string; 
     if (metadata.is_winner === false) {
       const templates = [
         { 
-          title: `${opponentName} закончил игру`, 
-          message: `С ${correctAnswers} правильными ответами! Результаты готовы.`, 
-          icon: 'flag' 
+        title: `${opponentName} закончил игру`,
+        message: `С ${correctAnswers} правильными ответами! Результаты готовы.`,
+        icon: 'flag'
         },
         { 
           title: `${opponentName} завершил дуэль`, 
@@ -1131,9 +1131,9 @@ Deno.serve(async (req) => {
         const { data: hostPlayer, error: playerError } = await supabase
           .from('duel_players')
           .insert({
-            duel_id: duel.id,
-            user_id: profileId,  // This is profile.id
-            is_host: true,
+          duel_id: duel.id,
+          user_id: profileId,  // This is profile.id
+          is_host: true,
           })
           .select()
           .single();
@@ -1309,7 +1309,7 @@ Deno.serve(async (req) => {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        
+
         // Check if joining player has enough coins for bet
         const betAmount = duel.bet_amount || 0;
         if (betAmount > 0) {
@@ -1378,29 +1378,29 @@ Deno.serve(async (req) => {
           .eq('duel_id', duel.id);
 
         console.log('[join_duel] ✅ Player count check:', allPlayers?.length);
-        
+
         if (allPlayers && allPlayers.length === 2) {
           console.log('[join_duel] 🚀 AUTO-START: 2 players detected, starting duel...');
           
           try {
-            // Auto-start: Load ALL questions, then randomly select
+          // Auto-start: Load ALL questions, then randomly select
             console.log('[join_duel] Loading questions...');
             const { data: allQuestions, error: questionsError } = await supabase
-              .from('questions_new')
-              .select(`
-                id, question_ru, question_es, question_en, image_url, difficulty,
-                answer_options(id, text_ru, text_es, text_en, is_correct, position)
-              `);
+            .from('questions_new')
+            .select(`
+              id, question_ru, question_es, question_en, image_url, difficulty,
+              answer_options(id, text_ru, text_es, text_en, is_correct, position)
+            `);
 
             if (questionsError) {
               console.error('[join_duel] ❌ Error loading questions:', questionsError);
               throw questionsError;
             }
 
-            if (!allQuestions || allQuestions.length === 0) {
+          if (!allQuestions || allQuestions.length === 0) {
               console.error('[join_duel] ❌ No questions found in database');
-              throw new Error('No questions found');
-            }
+            throw new Error('No questions found');
+          }
 
             console.log(`[join_duel] ✅ Total questions loaded: ${allQuestions.length}`);
 

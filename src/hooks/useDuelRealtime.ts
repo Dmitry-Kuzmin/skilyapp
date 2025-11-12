@@ -165,13 +165,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               // Это обновление счета соперника
               if (typeof updatedPlayer.score === 'number') {
                 console.log('[useDuelRealtime] ✅ Updating opponent score:', updatedPlayer.score);
-                setState(prev => ({ 
-                  ...prev, 
+            setState(prev => ({ 
+              ...prev, 
                   opponentScore: updatedPlayer.score,
                   opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
                     ? updatedPlayer.correct_count 
                     : prev.opponentCorrectCount
-                }));
+            }));
               } else {
                 console.warn('[useDuelRealtime] ⚠️ Opponent score is not a number:', updatedPlayer.score);
               }
@@ -181,13 +181,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, using fallback logic');
             if (typeof updatedPlayer.score === 'number') {
               console.log('[useDuelRealtime] ✅ Updating score (fallback):', updatedPlayer.score);
-              setState(prev => ({
-                ...prev,
+            setState(prev => ({ 
+              ...prev, 
                 opponentScore: updatedPlayer.score,
                 opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
                   ? updatedPlayer.correct_count 
                   : prev.opponentCorrectCount
-              }));
+            }));
             }
           }
         }
@@ -231,30 +231,30 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           const checkStatus = async () => {
             console.log('[useDuelRealtime] 🔍 Checking initial duel status...');
             const { data, error } = await supabase
-              .from('duels')
-              .select('status')
-              .eq('id', duelId)
+            .from('duels')
+            .select('status')
+            .eq('id', duelId)
               .maybeSingle();
             
-            if (error) {
+              if (error) {
               console.error('[useDuelRealtime] ❌ Error checking duel status:', error);
               console.error('[useDuelRealtime] Error details:', JSON.stringify(error, null, 2));
-            } else if (!data) {
+              } else if (!data) {
               console.log('[useDuelRealtime] ⚠️ No duel data found (might be normal at start)');
-            } else {
+              } else {
               console.log('[useDuelRealtime] ✅ Current duel status:', data.status);
-              if (data.status === 'active') {
+                if (data.status === 'active') {
                 console.log('[useDuelRealtime] ✅ Duel is already active! Setting duelStarted=true');
-                setState(prev => ({ ...prev, duelStarted: true }));
-              } else if (data.status === 'finished') {
+                  setState(prev => ({ ...prev, duelStarted: true }));
+                } else if (data.status === 'finished') {
                 console.log('[useDuelRealtime] ✅✅✅ Duel is already finished! Setting duelFinished=true');
-                setState(prev => ({ ...prev, duelFinished: true }));
+                  setState(prev => ({ ...prev, duelFinished: true }));
+                }
               }
-            }
           };
           
           checkStatus();
-          
+
           // FALLBACK: Периодическая проверка статуса каждые 2 секунды (только если дуэль не завершена)
           // Это нужно на случай если Realtime подписка не сработает в Telegram WebApp
           let statusCheckInterval: NodeJS.Timeout | null = null;
@@ -289,7 +289,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           return () => {
             if (statusCheckInterval) {
               clearInterval(statusCheckInterval);
-            }
+                }
           };
         }
       });

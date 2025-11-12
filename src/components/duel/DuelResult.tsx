@@ -72,8 +72,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       // Load players, duel info, and answers
       const [playersResponse, duelResponse, answersResponse] = await Promise.all([
         supabase
-          .from('duel_players')
-          .select('*, profiles(first_name, username)')
+        .from('duel_players')
+        .select('*, profiles(first_name, username)')
           .eq('duel_id', duelId),
         supabase
           .from('duels')
@@ -90,7 +90,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       const players = playersResponse.data;
       const duel = duelResponse.data;
       const allAnswers = answersResponse.data;
-      
+
       if (!players) return;
 
       const myPlayer = players.find(p => p.user_id === profileId);
@@ -167,22 +167,22 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto pt-16">
       <div className="min-h-screen w-full max-w-2xl mx-auto px-3 py-4 pb-20 space-y-3 animate-fade-in">
-        {results.isWinner && typeof window !== 'undefined' && (
-          <Confetti
-            width={window.innerWidth}
-            height={window.innerHeight}
-            recycle={false}
+      {results.isWinner && typeof window !== 'undefined' && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
             numberOfPieces={300}
-            gravity={0.3}
-          />
-        )}
+          gravity={0.3}
+        />
+      )}
 
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.5 }}
-          className="w-full"
-        >
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", duration: 0.5 }}
+        className="w-full"
+      >
           <Card className="p-4 text-center space-y-3 bg-gradient-to-br from-card via-card to-card/50 border-2 shadow-2xl">
           <div>
             {results.isWinner && (
@@ -435,11 +435,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                                     Объяснить
                                   </button>
                                 )}
-                              </div>
-                            </div>
+                    </div>
+                    </div>
                             <span className="text-[10px] text-muted-foreground">+{answer.points_awarded || 0}</span>
-                          </div>
-                        </div>
+                    </div>
+                    </div>
                       );
                     })}
                   </div>
@@ -455,28 +455,28 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             transition={{ delay: 0.9 }}
           >
             <div className="flex gap-2">
-              <Button 
-                onClick={() => {
-                  haptics.buttonClick();
-                  onRematch();
-                }} 
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                onRematch();
+              }} 
                 className="flex-1 h-11 text-sm font-bold" 
-                size="lg"
-              >
+              size="lg"
+            >
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Реванш
-              </Button>
-              <Button 
-                onClick={() => {
-                  haptics.buttonClick();
-                  handleShare();
-                }} 
-                variant="outline" 
-                size="lg" 
+              Реванш
+            </Button>
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                handleShare();
+              }} 
+              variant="outline" 
+              size="lg" 
                 className="h-11 px-4"
-              >
+            >
                 <Share2 className="h-4 w-4" />
-              </Button>
+            </Button>
             </div>
             <Button 
               onClick={() => {
