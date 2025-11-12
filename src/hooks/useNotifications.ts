@@ -37,7 +37,6 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     }
 
     console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
-    console.log('[useNotifications] Profile ID type:', typeof profileId, 'value:', profileId);
     
     // Load existing notifications first
     loadNotifications();
@@ -49,7 +48,6 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     
     // Создаем канал с уникальным именем
     const channelName = `duel_notifications_${profileId}`;
-    console.log('[useNotifications] Channel name:', channelName);
     
     const channel = supabase
       .channel(channelName)
@@ -161,30 +159,26 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
         }
       )
       .subscribe((status, err) => {
-        console.log('[Notifications] Realtime subscription status:', status, 'for profileId:', profileId);
-        if (err) {
-          console.error('[Notifications] ❌ Realtime subscription error:', err);
-          console.error('[Notifications] Error details:', JSON.stringify(err, null, 2));
-          console.error('[Notifications] Error message:', err?.message);
-          
-          // Если ошибка "mismatch between server and client bindings"
-          if (err?.message?.includes('mismatch') || err?.message?.includes('bindings')) {
-            console.error('[Notifications] 🔴 Binding mismatch error detected!');
-            console.error('[Notifications] This usually means RLS policy doesn\'t match the filter');
-            console.error('[Notifications] Filter used: user_id=eq.' + profileId);
-            console.error('[Notifications] Try using a simpler RLS policy or removing the filter');
-          }
-        }
         if (status === 'SUBSCRIBED') {
           console.log('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
+        } else if (err) {
+          // Логируем только серьезные ошибки (не mismatch, так как RLS политика исправлена)
+          if (!err?.message?.includes('mismatch') && !err?.message?.includes('bindings')) {
+            console.error('[Notifications] ❌ Realtime subscription error:', err);
+            console.error('[Notifications] Error message:', err?.message);
+          } else {
+            // Mismatch ошибки больше не должны возникать после исправления RLS
+            console.warn('[Notifications] ⚠️ Binding mismatch (should be fixed by RLS policy update)');
+          }
         } else if (status === 'CHANNEL_ERROR') {
           console.error('[Notifications] ❌ Channel error - check RLS policies and realtime publication');
           console.error('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
           console.error('[Notifications] Channel name:', channelName);
         } else if (status === 'TIMED_OUT') {
-          console.error('[Notifications] ❌ Subscription timed out');
+          console.warn('[Notifications] ⚠️ Subscription timed out - will retry on next mount');
         } else if (status === 'CLOSED') {
-          console.warn('[Notifications] ⚠️ Subscription closed');
+          // CLOSED статус нормален при размонтировании компонента
+          console.log('[Notifications] Subscription closed (normal on unmount)');
         } else {
           console.log('[Notifications] Subscription status:', status);
         }
