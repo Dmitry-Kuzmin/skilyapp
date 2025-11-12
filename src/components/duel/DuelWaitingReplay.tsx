@@ -141,9 +141,40 @@ export function DuelWaitingReplay({
       initialize();
     }
     
-    // УБРАНО: Периодическая перезагрузка - теперь используется только Realtime подписка
-    // Realtime подписка на duel_answers и duel_players обновляет данные мгновенно
-    // Это намного эффективнее чем периодические запросы каждые 1.2-1.5 секунды
+    // FALLBACK для Telegram WebApp: Периодическая проверка статуса и загрузка ответов
+    // Realtime может работать нестабильно в Telegram WebApp, поэтому нужен fallback
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+    let fallbackInterval: NodeJS.Timeout | null = null;
+    
+    if (isTelegram) {
+      console.log('[DuelWaitingReplay] 🔄 Telegram WebApp detected - enabling fallback polling every 3 seconds');
+      // В Telegram WebApp проверяем статус и ответы каждые 3 секунды как fallback
+      fallbackInterval = setInterval(() => {
+        if (isDuelFinishedRef.current) {
+          // Уже закончили, не нужно проверять
+          return;
+        }
+        
+        console.log('[DuelWaitingReplay] 🔄 Fallback: Checking opponent progress (Telegram WebApp)');
+        
+        // Проверяем статус дуэли и загружаем ответы соперника
+        loadOpponentData().catch(err => {
+          console.error('[DuelWaitingReplay] Fallback: Error loading opponent data:', err);
+        });
+        
+        // Также проверяем статус через Edge Function
+        checkIfOpponentFinished(false).catch(err => {
+          console.error('[DuelWaitingReplay] Fallback: Error checking opponent finished:', err);
+        });
+      }, 3000); // Каждые 3 секунды
+    }
+    
+    return () => {
+      if (fallbackInterval) {
+        console.log('[DuelWaitingReplay] 🧹 Cleaning up fallback interval');
+        clearInterval(fallbackInterval);
+      }
+    };
   }, [duelId]);
   
   // Используем Realtime статус дуэли для перехода к результатам (вместо периодических проверок)
