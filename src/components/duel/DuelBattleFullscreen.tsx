@@ -76,49 +76,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     loadBoosts();
   }, [duelId, profileId]);
 
-  // Start countdown when duel starts
+  // УБРАНО: Countdown - битва начинается сразу когда дуэль стартовала
+  // Перезагружаем счет после старта дуэли
   useEffect(() => {
-    if (state.duelStarted && !showCountdown && questions.length > 0 && !loading) {
-      console.log('[DuelBattleFullscreen] Duel started, starting countdown...', {
-        duelStarted: state.duelStarted,
-        showCountdown,
-        questionsCount: questions.length,
-        loading
-      });
-      setShowCountdown(true);
-      setCountdown(3);
-      
-      // Перезагружаем счет после старта дуэли
+    if (state.duelStarted && questions.length > 0 && !loading) {
+      console.log('[DuelBattleFullscreen] Duel started, loading scores...');
       setTimeout(() => loadScores(), 500);
-      
-      const interval = setInterval(() => {
-        setCountdown(prev => {
-          if (prev === null || prev <= 0) {
-            clearInterval(interval);
-            return null;
-          }
-          if (prev === 1) {
-            console.log('[DuelBattleFullscreen] Countdown finished, starting battle!');
-            sounds.countdownFinish();
-            setTimeout(() => {
-              setShowCountdown(false);
-              console.log('[DuelBattleFullscreen] Countdown hidden, battle should start now');
-            }, 1000);
-            return 0;
-          }
-          sounds.countdownTick();
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(interval);
-    } else if (state.duelStarted && !showCountdown && (questions.length === 0 || loading)) {
-      console.log('[DuelBattleFullscreen] ⚠️ Duel started but questions not ready yet:', {
-        questionsCount: questions.length,
-        loading
-      });
     }
-  }, [state.duelStarted, questions.length, showCountdown, loading]);
+  }, [state.duelStarted, questions.length, loading]);
 
   // Update notifications when opponent answers and force score refresh
   useEffect(() => {
@@ -1110,46 +1075,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   //   willApplyPadding: totalTopPadding > 0,
   // });
 
-  // Показываем countdown overlay если он активен
-  if (showCountdown && countdown !== null) {
-    return (
-      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center animate-fade-in">
-        <div className="text-center space-y-8">
-          {countdown > 0 ? (
-            <>
-              <motion.div 
-                key={countdown}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 1.5, opacity: 0 }}
-                className="text-9xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse"
-              >
-                {countdown}
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-2xl text-muted-foreground"
-              >
-                Приготовьтесь к битве!
-              </motion.div>
-            </>
-          ) : (
-            <motion.div 
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="space-y-4 animate-fade-in"
-            >
-              <div className="text-8xl animate-bounce">⚔️</div>
-              <div className="text-6xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
-                START!
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </div>
-    );
-  }
+  // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
   return (
     <div 

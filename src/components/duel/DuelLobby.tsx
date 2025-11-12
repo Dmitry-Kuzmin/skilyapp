@@ -178,33 +178,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     }
   };
 
-  // Countdown overlay
-  if (countdown !== null) {
-    return (
-      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center animate-fade-in">
-        <div className="text-center space-y-8">
-          {countdown > 0 ? (
-            <>
-              <div 
-                key={countdown}
-                className="text-9xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse"
-              >
-                {countdown}
-              </div>
-              <div className="text-2xl text-muted-foreground">Приготовьтесь...</div>
-            </>
-          ) : (
-            <div className="space-y-4 animate-fade-in">
-              <div className="text-8xl animate-bounce">⚔️</div>
-              <div className="text-6xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
-                START!
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
+  // УБРАНО: Countdown экран - дуэль начинается сразу без задержки
 
   if (duelCode) {
     return (
