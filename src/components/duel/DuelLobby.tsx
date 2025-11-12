@@ -22,24 +22,15 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
   const { state } = useDuelRealtime(duelId);
 
-  // Check duel status immediately on mount and continuously
+  // Проверяем статус дуэли один раз при монтировании (fallback)
+  // Основная логика через useDuelRealtime - он подписывается на изменения через Realtime
   useEffect(() => {
     if (!duelId) return;
 
-    let isActive = true;
-    let checkCount = 0;
-    const MAX_CHECKS = 60; // 60 seconds max
-
-    console.log('[DuelLobby] Initializing status check for:', duelId);
+    console.log('[DuelLobby] Initializing - checking initial status for:', duelId);
     
-    const checkStatus = async () => {
-      if (!isActive) return;
-      
-      checkCount++;
-      console.log(`[DuelLobby] Status check #${checkCount} for duel:`, duelId);
-      
+    const checkInitialStatus = async () => {
       try {
-        // Use edge function to check status (bypasses RLS issues)
         const { data, error } = await supabase.functions.invoke('duel-manager', {
           body: {
             action: 'check_status',
@@ -49,50 +40,30 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
         });
 
         if (error) {
-          console.error('[DuelLobby] Error checking duel status:', error);
+          console.error('[DuelLobby] Error checking initial status:', error);
           return;
         }
 
-        if (!data || data.error) {
-          console.warn('[DuelLobby] Duel not found or no access:', data?.error);
-          return;
-        }
-
-        console.log('[DuelLobby] Duel status:', data.status);
-        
-        if (data.status === 'active') {
-          console.log('[DuelLobby] ✅ DUEL IS ACTIVE! Starting battle...');
+        if (data?.status === 'active') {
+          console.log('[DuelLobby] ✅ Duel already active! Starting battle...');
           setConnectionStatus('connected');
           onDuelStarted();
-          isActive = false; // Stop checking
         } else {
           setConnectionStatus('connected');
         }
       } catch (err) {
-        console.error('[DuelLobby] Exception checking status:', err);
+        console.error('[DuelLobby] Exception checking initial status:', err);
+        setConnectionStatus('connected'); // Set connected anyway
       }
     };
 
-    // Immediate check
-    checkStatus();
-
-    // ОПТИМИЗИРОВАНО: проверяем каждые 2 секунды вместо 500ms (слишком часто)
-    // useDuelRealtime уже подписывается на изменения через Realtime
-    const interval = setInterval(() => {
-      if (checkCount >= MAX_CHECKS) {
-        clearInterval(interval);
-        console.log('[DuelLobby] Max checks reached, stopping polling');
-        return;
-      }
-      checkStatus();
-    }, 2000); // Увеличено с 500ms до 2000ms
-
-    return () => {
-      isActive = false;
-      clearInterval(interval);
-      console.log('[DuelLobby] Cleanup: stopped status polling');
-    };
-  }, [duelId]);
+    // Проверяем один раз при монтировании
+    checkInitialStatus();
+    
+    // УБРАНО: setInterval для периодической проверки
+    // useDuelRealtime уже подписывается на изменения через Realtime и обновляет state.duelStarted
+    // Это избыточно и создает лишнюю нагрузку
+  }, [duelId, profileId, onDuelStarted]);
 
   // Handle timer
   useEffect(() => {

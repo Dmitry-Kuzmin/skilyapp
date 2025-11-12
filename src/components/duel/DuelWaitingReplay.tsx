@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -59,6 +59,7 @@ export function DuelWaitingReplay({
   const [isDuelFinished, setIsDuelFinished] = useState(false);
   const isCheckingFinishedRef = useRef(false);
   const isDuelFinishedRef = useRef(false); // Use ref to avoid stale closures
+  const onDuelFinishedCalledRef = useRef(false); // Предотвращаем множественные вызовы
   const opponentPlayerIdRef = useRef<string | null>(null);
   // КРИТИЧНО: Используем state вместо ref для myPlayerId, чтобы useDuelRealtime мог переподписаться
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
@@ -67,6 +68,33 @@ export function DuelWaitingReplay({
   // Используем useDuelRealtime для получения статуса дуэли через Realtime (вместо периодических проверок)
   // КРИТИЧНО: Передаем myPlayerId как state, а не ref.current
   const { state: realtimeState } = useDuelRealtime(duelId, myPlayerId);
+
+  // Оптимизированная функция для безопасного вызова onDuelFinished (только один раз)
+  const safeCallOnDuelFinished = useCallback(() => {
+    if (onDuelFinishedCalledRef.current) {
+      console.log('[DuelWaitingReplay] ⚠️ onDuelFinished already called, skipping');
+      return;
+    }
+    
+    onDuelFinishedCalledRef.current = true;
+    isDuelFinishedRef.current = true;
+    setIsDuelFinished(true);
+    
+    try {
+      sounds.victory();
+      toast.success('🏁 Дуэль завершена!', {
+        description: 'Переход к результатам...',
+        duration: 1500,
+      });
+      
+      console.log('[DuelWaitingReplay] ⚡ Calling onDuelFinished (single call)');
+      onDuelFinished();
+    } catch (error) {
+      console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished:', error);
+      // Reset ref on error so it can be retried
+      onDuelFinishedCalledRef.current = false;
+    }
+  }, [onDuelFinished]);
 
   // Load question positions once at start - cache them for fast access
   const loadQuestionPositions = async () => {
@@ -143,11 +171,9 @@ export function DuelWaitingReplay({
         duration: 1500,
       });
       
-      console.log('[DuelWaitingReplay] ⚡ Invoking onDuelFinished callback...');
-      onDuelFinished();
-      console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully');
+      safeCallOnDuelFinished();
     }
-  }, [realtimeState.duelFinished, onDuelFinished]);
+  }, [realtimeState.duelFinished, safeCallOnDuelFinished]);
   
   // Используем Realtime счет соперника (вместо периодических проверок)
   useEffect(() => {
@@ -180,9 +206,7 @@ export function DuelWaitingReplay({
                 console.log('[DuelWaitingReplay] 🔥 FALLBACK: Transitioning because opponent has all answers');
                 isDuelFinishedRef.current = true;
                 setIsDuelFinished(true);
-                sounds.victory();
-                toast.success('🏁 Соперник закончил!', { duration: 1500 });
-                onDuelFinished();
+                safeCallOnDuelFinished();
               }
               return;
             }
@@ -191,34 +215,24 @@ export function DuelWaitingReplay({
               console.log('[DuelWaitingReplay] ✅✅✅ Edge Function confirms duel is finished! Transitioning...');
               isDuelFinishedRef.current = true;
               setIsDuelFinished(true);
-              sounds.victory();
-              toast.success('🏁 Дуэль завершена!', { duration: 1500 });
-              onDuelFinished();
+              safeCallOnDuelFinished();
             } else if (!isDuelFinishedRef.current && opponentAnswers.length >= totalQuestions) {
               // Если статус еще не 'finished', но у соперника все ответы - переходим к результатам
               console.log('[DuelWaitingReplay] 🔥 Opponent has all answers but status not finished - transitioning anyway');
-              isDuelFinishedRef.current = true;
-              setIsDuelFinished(true);
-              sounds.victory();
-              toast.success('🏁 Соперник закончил!', { duration: 1500 });
-              onDuelFinished();
+              safeCallOnDuelFinished();
             }
           }).catch(err => {
             console.error('[DuelWaitingReplay] Exception checking status:', err);
             // Fallback: переходим к результатам если у соперника все ответы
             if (!isDuelFinishedRef.current && opponentAnswers.length >= totalQuestions) {
               console.log('[DuelWaitingReplay] 🔥 EXCEPTION FALLBACK: Transitioning because opponent has all answers');
-              isDuelFinishedRef.current = true;
-              setIsDuelFinished(true);
-              sounds.victory();
-              toast.success('🏁 Соперник закончил!', { duration: 1500 });
-              onDuelFinished();
+              safeCallOnDuelFinished();
             }
           });
         }
       }, 300);
     }
-  }, [opponentAnswers.length, totalQuestions, duelId, profileId, onDuelFinished]);
+  }, [opponentAnswers.length, totalQuestions, duelId, profileId, safeCallOnDuelFinished]);
 
   // Check if opponent finished all questions
   const checkIfOpponentFinished = async (force = false) => {
@@ -325,36 +339,9 @@ export function DuelWaitingReplay({
           duration: 1500,
         });
         
-        // Call immediately - no delay
-        console.log('[DuelWaitingReplay] 🚀🚀🚀 Calling onDuelFinished IMMEDIATELY (status finished)...');
-        
-        // Call multiple times to ensure it works (React state updates can be batched)
-        try {
-          onDuelFinished();
-          console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 1)');
-        } catch (error) {
-          console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 1):', error);
-        }
-        
-        // Also call after microtask to ensure state update is processed
-        setTimeout(() => {
-          try {
-            onDuelFinished();
-            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 2)');
-          } catch (error) {
-            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 2):', error);
-          }
-        }, 0);
-        
-        // Final backup call
-        setTimeout(() => {
-          try {
-            onDuelFinished();
-            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 3 - backup)');
-          } catch (error) {
-            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 3):', error);
-          }
-        }, 100);
+        // Call once using safe wrapper
+        console.log('[DuelWaitingReplay] 🚀🚀🚀 Calling onDuelFinished (status finished)...');
+        safeCallOnDuelFinished();
         
         return;
       }
@@ -385,34 +372,9 @@ export function DuelWaitingReplay({
           duration: 1500,
         });
         
-        // Call immediately - multiple times to ensure it works
+        // Call once using safe wrapper
         console.log('[DuelWaitingReplay] 🚀 Calling onDuelFinished (opponent finished by count)...');
-        try {
-          onDuelFinished();
-          console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 1)');
-        } catch (error) {
-          console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 1):', error);
-        }
-        
-        // Call after microtask
-        setTimeout(() => {
-          try {
-          onDuelFinished();
-            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 2)');
-          } catch (error) {
-            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 2):', error);
-          }
-        }, 0);
-        
-        // Final backup call
-        setTimeout(() => {
-          try {
-            onDuelFinished();
-            console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully (attempt 3 - backup)');
-          } catch (error) {
-            console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished (attempt 3):', error);
-          }
-        }, 100);
+        safeCallOnDuelFinished();
       } else {
         isCheckingFinishedRef.current = false;
       }
@@ -458,31 +420,8 @@ export function DuelWaitingReplay({
         });
         
         // Call immediately - multiple times
-        console.log('[DuelWaitingReplay] 🚀🚀🚀 checkDuelStatus: Calling onDuelFinished IMMEDIATELY');
-        try {
-          onDuelFinished();
-          console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called (attempt 1)');
-        } catch (error) {
-          console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error (attempt 1):', error);
-        }
-        
-        setTimeout(() => {
-          try {
-            onDuelFinished();
-            console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called (attempt 2)');
-          } catch (error) {
-            console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error (attempt 2):', error);
-          }
-        }, 0);
-        
-        setTimeout(() => {
-          try {
-            onDuelFinished();
-            console.log('[DuelWaitingReplay] ✅ checkDuelStatus: onDuelFinished called (attempt 3)');
-          } catch (error) {
-            console.error('[DuelWaitingReplay] ❌ checkDuelStatus: Error (attempt 3):', error);
-          }
-        }, 100);
+        console.log('[DuelWaitingReplay] 🚀🚀🚀 checkDuelStatus: Calling onDuelFinished');
+        safeCallOnDuelFinished();
         return;
       }
 
@@ -919,7 +858,7 @@ export function DuelWaitingReplay({
                     });
                 
                     // Вызываем onDuelFinished немедленно
-                    onDuelFinished();
+                    safeCallOnDuelFinished();
                     
                     // Также проверяем статус через Edge Function для надежности
                   setTimeout(() => {

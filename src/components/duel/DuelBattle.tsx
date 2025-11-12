@@ -92,38 +92,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   }, [state.myScore]);
 
-  // Periodic score refresh as fallback (every 2 seconds)
-  useEffect(() => {
-    if (!duelId || !profileId || !myPlayerId) return;
-    
-    const interval = setInterval(async () => {
-      try {
-        const { data } = await supabase
-          .from('duel_players')
-          .select('id, user_id, score')
-          .eq('duel_id', duelId);
-        
-        if (data && data.length > 0) {
-          const myPlayer = data.find(p => p.user_id === profileId);
-          const opponent = data.find(p => p.user_id !== profileId);
-          
-          if (myPlayer && typeof myPlayer.score === 'number' && myPlayer.score !== myScore) {
-            console.log('[DuelBattle] 🔄 Fallback: Updating my score from DB:', myPlayer.score);
-            setMyScore(myPlayer.score);
-          }
-          
-          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
-            console.log('[DuelBattle] 🔄 Fallback: Updating opponent score from DB:', opponent.score);
-            setOpponentScore(opponent.score);
-          }
-        }
-      } catch (error) {
-        console.error('[DuelBattle] Error in periodic score refresh:', error);
-      }
-    }, 2000); // Check every 2 seconds
-    
-    return () => clearInterval(interval);
-  }, [duelId, profileId, myPlayerId, myScore, opponentScore]);
+  // УБРАНО: Периодическое обновление счета каждые 2 секунды
+  // useDuelRealtime уже обновляет счет через Realtime подписку мгновенно
+  // Это избыточно и создает лишнюю нагрузку на БД и сеть
 
   useEffect(() => {
     const handleOnline = () => {
