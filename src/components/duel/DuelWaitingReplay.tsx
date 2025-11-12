@@ -118,18 +118,32 @@ export function DuelWaitingReplay({
   
   // Используем Realtime статус дуэли для перехода к результатам (вместо периодических проверок)
   useEffect(() => {
+    console.log('[DuelWaitingReplay] Realtime state check:', { 
+      duelFinished: realtimeState.duelFinished, 
+      isDuelFinishedRef: isDuelFinishedRef.current,
+      willTransition: realtimeState.duelFinished && !isDuelFinishedRef.current
+    });
+    
     if (realtimeState.duelFinished && !isDuelFinishedRef.current) {
       console.log('[DuelWaitingReplay] ✅✅✅ REALTIME: Duel finished! Transitioning to results');
+      console.log('[DuelWaitingReplay] Calling onDuelFinished...');
       isDuelFinishedRef.current = true;
       setIsDuelFinished(true);
       
-      sounds.victory();
+      try {
+        sounds.victory();
+      } catch (err) {
+        console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
+      }
+      
       toast.success('🏁 Дуэль завершена!', {
         description: 'Переход к результатам...',
         duration: 1500,
       });
       
+      console.log('[DuelWaitingReplay] ⚡ Invoking onDuelFinished callback...');
       onDuelFinished();
+      console.log('[DuelWaitingReplay] ✅ onDuelFinished called successfully');
     }
   }, [realtimeState.duelFinished, onDuelFinished]);
   

@@ -145,7 +145,7 @@ export default function Duel() {
   };
 
   const handleDuelFinished = () => {
-    console.log('[Duel] handleDuelFinished called - transitioning to results', {
+    console.log('[Duel] 🎯🎯🎯 handleDuelFinished called - transitioning to results', {
       currentMode: mode,
       duelId,
       willSetMode: 'result'
@@ -158,17 +158,25 @@ export default function Duel() {
       return;
     }
     
+    console.log('[Duel] ✅ duelId is valid, proceeding with mode change...');
+    
     // Устанавливаем режим результата - используем функциональное обновление для гарантии
     setMode((currentMode) => {
+      console.log('[Duel] 🔄 setMode callback executing. Current mode:', currentMode);
       if (currentMode !== 'result') {
-        console.log('[Duel] ✅ Setting mode to result (was:', currentMode, ')');
+        console.log('[Duel] ✅✅✅ Setting mode to result (was:', currentMode, ')');
         return 'result';
       }
-      console.log('[Duel] Mode already set to result');
+      console.log('[Duel] ⚠️ Mode already set to result, no change needed');
       return currentMode;
     });
     
     console.log('[Duel] ✅ Mode transition initiated, duelId:', duelId);
+    
+    // Force re-render check after small delay
+    setTimeout(() => {
+      console.log('[Duel] 🔍 Post-transition check - current mode should be "result"');
+    }, 100);
   };
 
   const handleBackToMenu = () => {
