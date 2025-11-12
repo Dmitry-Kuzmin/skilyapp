@@ -60,11 +60,13 @@ export function DuelWaitingReplay({
   const isCheckingFinishedRef = useRef(false);
   const isDuelFinishedRef = useRef(false); // Use ref to avoid stale closures
   const opponentPlayerIdRef = useRef<string | null>(null);
-  const myPlayerIdRef = useRef<string | null>(null);
+  // КРИТИЧНО: Используем state вместо ref для myPlayerId, чтобы useDuelRealtime мог переподписаться
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const questionPositionsRef = useRef<Map<string, number>>(new Map()); // Cache question positions
   
   // Используем useDuelRealtime для получения статуса дуэли через Realtime (вместо периодических проверок)
-  const { state: realtimeState } = useDuelRealtime(duelId, myPlayerIdRef.current);
+  // КРИТИЧНО: Передаем myPlayerId как state, а не ref.current
+  const { state: realtimeState } = useDuelRealtime(duelId, myPlayerId);
 
   // Load question positions once at start - cache them for fast access
   const loadQuestionPositions = async () => {
