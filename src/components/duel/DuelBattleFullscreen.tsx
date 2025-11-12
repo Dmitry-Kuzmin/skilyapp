@@ -497,9 +497,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       });
       
       // КРИТИЧНО: Проверяем что имена получены
-      const playersWithoutNames = players.filter((p: any) => !p.name || p.name === 'Игрок');
+      const playersWithoutNames = players.filter((p: any) => !p.name || p.name === 'Игрок' || p.name.trim() === '');
       if (playersWithoutNames.length > 0) {
-        console.warn('[DuelBattleFullscreen] ⚠️ Some players have no valid name from Edge Function:', playersWithoutNames);
+        console.warn('[DuelBattleFullscreen] ⚠️ Some players have no valid name from Edge Function:', playersWithoutNames.map((p: any) => ({ 
+          user_id: p.user_id, 
+          name: p.name,
+          hasName: !!p.name && p.name !== 'Игрок'
+        })));
         // Если Edge Function не вернул имена, используем fallback
         console.log('[DuelBattleFullscreen] 🔄 Falling back to direct query for names...');
         await loadScoresDirect();
@@ -511,8 +515,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const opponent = players.find((p: any) => p.user_id !== profileId);
         
         console.log('[DuelBattleFullscreen] 🔍 Found players:', {
-          myPlayer: myPlayer ? { id: myPlayer.id, score: myPlayer.score, name: myPlayer.name } : null,
-          opponent: opponent ? { id: opponent.id, score: opponent.score, name: opponent.name } : null
+          myPlayer: myPlayer ? { id: myPlayer.id, score: myPlayer.score, name: myPlayer.name, nameLength: myPlayer.name?.length } : null,
+          opponent: opponent ? { id: opponent.id, score: opponent.score, name: opponent.name, nameLength: opponent.name?.length } : null
         });
         
         // КРИТИЧНО: устанавливаем myPlayerId СРАЗУ
@@ -536,20 +540,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           setOpponentScore(0);
         }
         
-        // Устанавливаем имена игроков (проверяем что имя валидно)
-        if (myPlayer?.name && myPlayer.name !== 'Игрок') {
-          console.log('[DuelBattleFullscreen] ✅ Setting my name:', myPlayer.name);
-          setMyName(myPlayer.name);
+        // Устанавливаем имена игроков (проверяем что имя валидно и не пустое)
+        if (myPlayer?.name && myPlayer.name.trim() && myPlayer.name !== 'Игрок' && myPlayer.name.trim() !== 'Игрок') {
+          const trimmedName = myPlayer.name.trim();
+          console.log('[DuelBattleFullscreen] ✅ Setting my name:', trimmedName);
+          setMyName(trimmedName);
         } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for my player, using fallback');
+          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for my player, using fallback. Name was:', myPlayer?.name);
           setMyName('Вы');
         }
         
-        if (opponent?.name && opponent.name !== 'Игрок') {
-          console.log('[DuelBattleFullscreen] ✅ Setting opponent name:', opponent.name);
-          setOpponentName(opponent.name);
+        if (opponent?.name && opponent.name.trim() && opponent.name !== 'Игрок' && opponent.name.trim() !== 'Игрок') {
+          const trimmedName = opponent.name.trim();
+          console.log('[DuelBattleFullscreen] ✅ Setting opponent name:', trimmedName);
+          setOpponentName(trimmedName);
         } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for opponent, using fallback');
+          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for opponent, using fallback. Name was:', opponent?.name);
           setOpponentName('Соперник');
         }
       } else if (players.length === 1) {
@@ -627,7 +633,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             .single();
           
           if (error) {
-            console.error(`[DuelBattleFullscreen] ❌ Error loading profile for ${userId}:`, error);
+            console.error(`[DuelBattleFullscreen] ❌ Error loading profile for ${userId}:`, {
+              error: error.message,
+              code: error.code,
+              details: error.details,
+              hint: error.hint
+            });
+            return null;
+          }
+          
+          if (!profile) {
+            console.warn(`[DuelBattleFullscreen] ⚠️ Profile not found for userId: ${userId}`);
             return null;
           }
           
