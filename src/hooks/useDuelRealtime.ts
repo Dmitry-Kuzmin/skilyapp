@@ -246,28 +246,39 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           
           // FALLBACK: Периодическая проверка статуса каждые 2 секунды (только если дуэль не завершена)
           // Это нужно на случай если Realtime подписка не сработает в Telegram WebApp
-          const statusCheckInterval = setInterval(async () => {
-            const currentState = await supabase
-              .from('duels')
-              .select('status')
-              .eq('id', duelId)
-              .maybeSingle();
-            
-            if (currentState.data?.status === 'finished') {
-              console.log('[useDuelRealtime] 🔄 FALLBACK: Duel status is finished (periodic check)');
-              setState(prev => {
-                if (!prev.duelFinished) {
-                  return { ...prev, duelFinished: true };
+          let statusCheckInterval: NodeJS.Timeout | null = null;
+          
+          const startStatusCheck = () => {
+            statusCheckInterval = setInterval(async () => {
+              const currentState = await supabase
+                .from('duels')
+                .select('status')
+                .eq('id', duelId)
+                .maybeSingle();
+              
+              if (currentState.data?.status === 'finished') {
+                console.log('[useDuelRealtime] 🔄 FALLBACK: Duel status is finished (periodic check)');
+                setState(prev => {
+                  if (!prev.duelFinished) {
+                    return { ...prev, duelFinished: true };
+                  }
+                  return prev;
+                });
+                if (statusCheckInterval) {
+                  clearInterval(statusCheckInterval);
+                  statusCheckInterval = null;
                 }
-                return prev;
-              });
-              clearInterval(statusCheckInterval);
-            }
-          }, 2000); // Проверяем каждые 2 секунды
+              }
+            }, 2000); // Проверяем каждые 2 секунды
+          };
+          
+          startStatusCheck();
           
           // Очищаем интервал при размонтировании
           return () => {
-            clearInterval(statusCheckInterval);
+            if (statusCheckInterval) {
+              clearInterval(statusCheckInterval);
+            }
           };
         }
       });
