@@ -922,41 +922,9 @@ export function DuelWaitingReplay({
           }
         }
       )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'duels',
-          filter: `id=eq.${duelId}`,
-        },
-        async (payload) => {
-          const duel = payload.new as any;
-          // Use ref to avoid stale closure
-          if (duel.status === 'finished' && !isDuelFinishedRef.current) {
-            console.log('[DuelWaitingReplay] 🔔 Duel status changed to finished - forcing transition check');
-            
-            // Small delay to ensure opponent's last answer is committed to database
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
-            // Force check - if status is finished, transition immediately
-            try {
-              await checkIfOpponentFinished(true); // Force check even if already checking
-              
-              // Also verify by reloading data and checking again
-              setTimeout(async () => {
-                if (!isDuelFinishedRef.current) {
-                  console.log('[DuelWaitingReplay] 🔄 Status is finished but not transitioned - forcing reload and check');
-                  await loadOpponentData();
-                  await checkIfOpponentFinished(true);
-                }
-              }, 500);
-            } catch (error) {
-              console.error('[DuelWaitingReplay] Error in status update handler:', error);
-            }
-          }
-        }
-      )
+      // УБРАНО: Подписка на UPDATE дуэли - теперь используется useDuelRealtime
+      // useDuelRealtime уже подписывается на изменения статуса дуэли через Realtime
+      // Это предотвращает дублирование подписок и улучшает производительность
       .subscribe();
 
     return () => {
