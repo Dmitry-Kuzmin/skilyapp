@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
+import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { 
   Clock, 
   Trophy, 
@@ -61,6 +62,9 @@ export function DuelWaitingReplay({
   const opponentPlayerIdRef = useRef<string | null>(null);
   const myPlayerIdRef = useRef<string | null>(null);
   const questionPositionsRef = useRef<Map<string, number>>(new Map()); // Cache question positions
+  
+  // Используем useDuelRealtime для получения статуса дуэли через Realtime (вместо периодических проверок)
+  const { state: realtimeState } = useDuelRealtime(duelId, myPlayerIdRef.current);
 
   // Load question positions once at start - cache them for fast access
   const loadQuestionPositions = async () => {
@@ -90,10 +94,11 @@ export function DuelWaitingReplay({
     const initialize = async () => {
       await loadQuestionPositions();
       
-      // Then load opponent data
+      // Then load opponent data once (initial load)
       loadOpponentData();
+      
+      // Subscribe to opponent progress via Realtime (вместо периодических проверок)
       subscribeToOpponentProgress();
-      checkDuelStatus();
     };
     
     // Initial load with delay for Telegram to ensure WebApp is ready
@@ -106,26 +111,34 @@ export function DuelWaitingReplay({
       initialize();
     }
     
-    // Periodically reload opponent data to catch any missed answers
-    // This ensures we always have the latest state, especially when first player finishes
-    // Telegram WebApp may have slower realtime updates, so we reload more frequently
-    const reloadInterval = setInterval(() => {
-      if (!isDuelFinishedRef.current) {
-        loadOpponentData();
-        // Also check if opponent finished as a fallback - use force to ensure check happens
-        checkIfOpponentFinished(true).catch(err => {
-          console.error('[DuelWaitingReplay] Error in periodic check:', err);
-        });
-      } else {
-        // If finished, clear interval
-        clearInterval(reloadInterval);
-      }
-    }, isTelegram ? 1200 : 1500); // Reload every 1.2 seconds in Telegram, 1.5 seconds in browser
-    
-    return () => {
-      clearInterval(reloadInterval);
-    };
+    // УБРАНО: Периодическая перезагрузка - теперь используется только Realtime подписка
+    // Realtime подписка на duel_answers и duel_players обновляет данные мгновенно
+    // Это намного эффективнее чем периодические запросы каждые 1.2-1.5 секунды
   }, [duelId]);
+  
+  // Используем Realtime статус дуэли для перехода к результатам (вместо периодических проверок)
+  useEffect(() => {
+    if (realtimeState.duelFinished && !isDuelFinishedRef.current) {
+      console.log('[DuelWaitingReplay] ✅✅✅ REALTIME: Duel finished! Transitioning to results');
+      isDuelFinishedRef.current = true;
+      setIsDuelFinished(true);
+      
+      sounds.victory();
+      toast.success('🏁 Дуэль завершена!', {
+        description: 'Переход к результатам...',
+        duration: 1500,
+      });
+      
+      onDuelFinished();
+    }
+  }, [realtimeState.duelFinished, onDuelFinished]);
+  
+  // Используем Realtime счет соперника (вместо периодических проверок)
+  useEffect(() => {
+    if (typeof realtimeState.opponentScore === 'number' && realtimeState.opponentScore >= 0) {
+      setOpponentScore(realtimeState.opponentScore);
+    }
+  }, [realtimeState.opponentScore]);
 
   // Check if opponent finished all questions
   const checkIfOpponentFinished = async (force = false) => {
@@ -748,23 +761,9 @@ export function DuelWaitingReplay({
                 points_awarded: answer.points_awarded || 0,
               };
 
-              // Load actual score from database (server is source of truth)
-              // This ensures we get the correct score even if realtime update is delayed
-              // Small delay to ensure server has updated the score after inserting the answer
-              setTimeout(async () => {
-                const { data: players } = await supabase
-                  .from('duel_players')
-                  .select('score, user_id, id')
-                  .eq('duel_id', duelId);
-                
-                if (players) {
-                  const opponent = players.find((p: any) => p.user_id !== profileId);
-                  if (opponent) {
-                    console.log('[DuelWaitingReplay] Loading opponent score from DB:', opponent.score);
-                    setOpponentScore(opponent.score || 0);
-                  }
-                }
-              }, 200); // Small delay to ensure score is updated
+              // УБРАНО: Прямой запрос к базе для обновления счета
+              // Теперь счет обновляется через Realtime подписку на duel_players (useDuelRealtime)
+              // Это намного эффективнее и быстрее
 
               // NOTE: Уведомления показываются через useNotifications hook, не нужно дублировать здесь
               // Только обновляем состояние и данные

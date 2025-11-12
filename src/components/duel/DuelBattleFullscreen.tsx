@@ -228,109 +228,31 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
-  // КРИТИЧНО: Периодическая проверка статуса дуэли когда ожидаем соперника
-  // Это гарантирует переход к результатам даже если realtime не сработал
+  // КРИТИЧНО: Переход к результатам через Realtime подписку (state.duelFinished)
+  // useDuelRealtime уже подписывается на изменения статуса дуэли через Realtime
+  // Это намного эффективнее чем периодические проверки
   useEffect(() => {
-    if (!isWaitingForOpponent || !hasFinishedMyQuestions || !duelId || !profileId) {
+    if (!isWaitingForOpponent || !hasFinishedMyQuestions) {
       return;
     }
 
-    // Сбрасываем флаг при монтировании
-    hasTransitionedRef.current = false;
-
-    console.log('[DuelBattleFullscreen] 🔄 Starting periodic duel status check while waiting for opponent');
-
-    const checkDuelStatusPeriodically = async () => {
-      // Предотвращаем множественные переходы
-      if (hasTransitionedRef.current) {
-        return;
-      }
-
+    // Используем state.duelFinished из useDuelRealtime (Realtime подписка)
+    if (state.duelFinished && !hasTransitionedRef.current) {
+      console.log('[DuelBattleFullscreen] ✅✅✅ REALTIME: Duel finished! Transitioning to results');
+      hasTransitionedRef.current = true;
+      
       try {
-        // Проверяем статус дуэли напрямую из базы данных
-        const { data: duel, error } = await supabase
-          .from('duels')
-          .select('status, num_questions')
-          .eq('id', duelId)
-          .single();
-
-        if (error) {
-          console.error('[DuelBattleFullscreen] Error checking duel status:', error);
-          return;
+        if (sounds?.victory) {
+          sounds.victory();
         }
-
-        // Если дуэль завершена, проверяем что соперник действительно закончил
-        if (duel?.status === 'finished') {
-          console.log('[DuelBattleFullscreen] ✅ Duel status is finished, verifying opponent completed');
-
-          // Получаем игроков
-          const { data: players } = await supabase
-            .from('duel_players')
-            .select('id, user_id')
-            .eq('duel_id', duelId);
-
-          if (!players || players.length < 2) {
-            return;
-          }
-
-          const opponent = players.find((p: any) => p.user_id !== profileId);
-          if (!opponent) {
-            return;
-          }
-
-          // Проверяем количество ответов соперника
-          const { count: opponentAnswers } = await supabase
-            .from('duel_answers')
-            .select('*', { count: 'exact', head: true })
-            .eq('player_id', opponent.id)
-            .eq('duel_id', duelId);
-
-          const requiredAnswers = duel.num_questions || 10;
-          const opponentFinished = (opponentAnswers || 0) >= requiredAnswers;
-
-          console.log('[DuelBattleFullscreen] Periodic check:', {
-            duelStatus: duel.status,
-            opponentAnswers: opponentAnswers || 0,
-            required: requiredAnswers,
-            opponentFinished
-          });
-
-          if (opponentFinished && !hasTransitionedRef.current) {
-            console.log('[DuelBattleFullscreen] ✅✅✅ PERIODIC CHECK: Opponent finished! Transitioning to results');
-            hasTransitionedRef.current = true; // Помечаем что переход уже произошел
-            
-            try {
-              if (sounds?.victory) {
-                sounds.victory();
-              }
-            } catch (soundError) {
-              console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
-            }
-            
-            toast.success('🏁 Дуэль завершена!', { duration: 2000 });
-            // Вызываем onDuelFinished немедленно
-            onDuelFinished();
-          }
-        }
-      } catch (error) {
-        console.error('[DuelBattleFullscreen] Error in periodic status check:', error);
+      } catch (soundError) {
+        console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
       }
-    };
-
-    // Проверяем сразу при монтировании
-    checkDuelStatusPeriodically();
-
-    // Затем проверяем каждые 1.5 секунды
-    const interval = setInterval(() => {
-      checkDuelStatusPeriodically();
-    }, 1500);
-
-    return () => {
-      clearInterval(interval);
-      hasTransitionedRef.current = false; // Сбрасываем при размонтировании
-      console.log('[DuelBattleFullscreen] Stopped periodic duel status check');
-    };
-  }, [isWaitingForOpponent, hasFinishedMyQuestions, duelId, profileId, onDuelFinished]);
+      
+      toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+      onDuelFinished();
+    }
+  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished]);
 
   // Sync opponent score from realtime - основной способ обновления счета
   useEffect(() => {
@@ -361,79 +283,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.myScore]);
 
-  // Periodic score refresh as fallback (every 3 seconds) - только во время активной игры
-  useEffect(() => {
-    if (!duelId || !profileId || hasFinishedMyQuestions) return;
-    if (!state.duelStarted) return; // Запускаем только когда дуэль началась
-    
-    console.log('[DuelBattleFullscreen] 🔄 Starting periodic score refresh');
-    
-    const interval = setInterval(async () => {
-      try {
-        // Используем Edge Function для загрузки игроков
-        const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'get_players',
-            duel_id: duelId,
-            profile_id: profileId
-          }
-        });
-
-        if (edgeError) {
-          // Fallback к прямому запросу
-          const { data, error } = await supabase
-            .from('duel_players')
-            .select('id, user_id, score, correct_count')
-            .eq('duel_id', duelId);
-          
-          if (error || !data || data.length < 2) return;
-          
-          const myPlayer = data.find(p => p.user_id === profileId);
-          const opponent = data.find(p => p.user_id !== profileId);
-          
-          if (myPlayer?.id && !myPlayerId) {
-            setMyPlayerId(myPlayer.id);
-          }
-          if (myPlayer && typeof myPlayer.score === 'number') {
-            setMyScore(myPlayer.score);
-          }
-          if (opponent && typeof opponent.score === 'number') {
-            setOpponentScore(opponent.score);
-          }
-          return;
-        }
-
-        const players = edgeData?.players || [];
-        if (players.length >= 2) {
-          const myPlayer = players.find((p: any) => p.user_id === profileId);
-          const opponent = players.find((p: any) => p.user_id !== profileId);
-          
-          if (myPlayer?.id && !myPlayerId) {
-            setMyPlayerId(myPlayer.id);
-          }
-          if (myPlayer && typeof myPlayer.score === 'number') {
-            setMyScore(myPlayer.score);
-          }
-          if (opponent && typeof opponent.score === 'number') {
-            setOpponentScore(opponent.score);
-          }
-          if (myPlayer?.name) {
-            setMyName(myPlayer.name);
-          }
-          if (opponent?.name) {
-            setOpponentName(opponent.name);
-          }
-        }
-      } catch (error) {
-        // Игнорируем ошибки в периодическом обновлении
-      }
-    }, 3000); // Проверяем каждые 3 секунды
-    
-    return () => {
-      console.log('[DuelBattleFullscreen] 🛑 Stopping periodic score refresh');
-      clearInterval(interval);
-    };
-  }, [duelId, profileId, hasFinishedMyQuestions, state.duelStarted, myPlayerId]);
+  // УБРАНО: Периодическое обновление счета - теперь используется Realtime через useDuelRealtime
+  // useDuelRealtime уже подписывается на изменения duel_players через postgres_changes
+  // Это намного эффективнее и быстрее чем периодические запросы каждые 3 секунды
 
   // Загружаем данные игроков при монтировании (с задержкой, чтобы игроки успели создаться)
   useEffect(() => {
