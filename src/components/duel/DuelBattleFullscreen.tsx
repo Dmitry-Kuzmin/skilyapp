@@ -1246,6 +1246,47 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   //   willApplyPadding: totalTopPadding > 0,
   // });
 
+  // Показываем countdown overlay если он активен
+  if (showCountdown && countdown !== null) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+        <div className="text-center space-y-8">
+          {countdown > 0 ? (
+            <>
+              <motion.div 
+                key={countdown}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 1.5, opacity: 0 }}
+                className="text-9xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse"
+              >
+                {countdown}
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-2xl text-muted-foreground"
+              >
+                Приготовьтесь к битве!
+              </motion.div>
+            </>
+          ) : (
+            <motion.div 
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="space-y-4 animate-fade-in"
+            >
+              <div className="text-8xl animate-bounce">⚔️</div>
+              <div className="text-6xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                START!
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 overflow-y-auto" 
