@@ -338,7 +338,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       // Fallback к прямому запросу
       const { data } = await supabase
         .from('duel_players')
-        .select('*, profiles(first_name, username, telegram_username)')
+        .select('*, profiles(first_name, username)')
         .eq('duel_id', duelId);
 
       if (data && data.length > 0) {
@@ -354,12 +354,12 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         const myProfile = myPlayer?.profiles as any;
         const opponentProfile = opponent?.profiles as any;
         
-        const myNameValue = myProfile?.first_name || myProfile?.username || myProfile?.telegram_username || 'Ты';
-        const opponentNameValue = opponentProfile?.first_name || opponentProfile?.username || opponentProfile?.telegram_username || 'Соперник';
+        const myNameValue = myProfile?.first_name || myProfile?.username || 'Ты';
+        const opponentNameValue = opponentProfile?.first_name || opponentProfile?.username || 'Соперник';
         
         console.log('[DuelBattle] Loading names:', {
-          myProfile: myProfile ? { first_name: myProfile.first_name, username: myProfile.username, telegram_username: myProfile.telegram_username } : null,
-          opponentProfile: opponentProfile ? { first_name: opponentProfile.first_name, username: opponentProfile.username, telegram_username: opponentProfile.telegram_username } : null,
+          myProfile: myProfile ? { first_name: myProfile.first_name, username: myProfile.username } : null,
+          opponentProfile: opponentProfile ? { first_name: opponentProfile.first_name, username: opponentProfile.username } : null,
           myName: myNameValue,
           opponentName: opponentNameValue
         });

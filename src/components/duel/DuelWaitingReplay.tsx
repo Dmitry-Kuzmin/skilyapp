@@ -603,7 +603,7 @@ export function DuelWaitingReplay({
           const profilePromises = userIds.map(async (userId) => {
             const { data: profile, error } = await supabase
               .from('profiles')
-              .select('id, first_name, username, telegram_username')
+              .select('id, first_name, username')
               .eq('id', userId)
               .single();
             
@@ -627,7 +627,7 @@ export function DuelWaitingReplay({
           if (opponent?.user_id) {
             const opponentProfile = profilesMap.get(opponent.user_id);
             if (opponentProfile) {
-              const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+              const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
               console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
               setOpponentName(name);
             }
@@ -636,7 +636,7 @@ export function DuelWaitingReplay({
           if (myPlayer?.user_id) {
             const myProfile = profilesMap.get(myPlayer.user_id);
             if (myProfile) {
-              const name = myProfile.first_name || myProfile.username || myProfile.telegram_username || 'Вы';
+              const name = myProfile.first_name || myProfile.username || 'Вы';
               setMyName(name);
             }
           }
@@ -671,7 +671,7 @@ export function DuelWaitingReplay({
             const profilePromises = userIds.map(async (userId) => {
               const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('id, first_name, username, telegram_username')
+                .select('id, first_name, username')
                 .eq('id', userId)
                 .single();
               
@@ -695,7 +695,7 @@ export function DuelWaitingReplay({
             if (opponent?.user_id) {
               const opponentProfile = profilesMap.get(opponent.user_id);
               if (opponentProfile) {
-                const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+                const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
                 console.log('[DuelWaitingReplay] ✅ Setting opponent name from fallback query:', name);
                 setOpponentName(name);
               }

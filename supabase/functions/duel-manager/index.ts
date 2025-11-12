@@ -438,7 +438,7 @@ async function getOpponentName(opponentId: string, supabase: any): Promise<strin
     // Попробуем получить профиль по ID
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('id, first_name, username, telegram_username, telegram_id, user_id')
+      .select('id, first_name, username, telegram_id, user_id')
       .eq('id', opponentId)
       .single();
 
@@ -452,14 +452,13 @@ async function getOpponentName(opponentId: string, supabase: any): Promise<strin
         user_id: profile.user_id,
         first_name: profile.first_name,
         username: profile.username,
-        telegram_username: profile.telegram_username,
         has_telegram_id: !!profile.telegram_id
       } : null
     });
 
     if (profile) {
-      // Приоритет: first_name > username > telegram_username > "Игрок"
-      let name = profile.first_name || profile.username || profile.telegram_username;
+      // Приоритет: first_name > username > "Игрок"
+      let name = profile.first_name || profile.username;
       
       if (name && name.trim()) {
         name = name.trim();
@@ -917,7 +916,7 @@ Deno.serve(async (req) => {
         if (userIds.length > 0) {
           const { data: profiles, error: profilesError } = await supabase
             .from('profiles')
-            .select('id, first_name, username, telegram_username, telegram_id')
+            .select('id, first_name, username, telegram_id')
             .in('id', userIds);
           
           console.log('[get_players] Profiles query result:', {
@@ -928,7 +927,6 @@ Deno.serve(async (req) => {
               id: p.id,
               first_name: p.first_name,
               username: p.username,
-              telegram_username: p.telegram_username,
               has_telegram_id: !!p.telegram_id
             }))
           });
@@ -952,22 +950,19 @@ Deno.serve(async (req) => {
             hasProfile: !!profile,
             profile: profile ? {
               first_name: profile.first_name,
-              username: profile.username,
-              telegram_username: profile.telegram_username
+              username: profile.username
             } : null
           });
           
           let name: string | null = null;
           
           if (profile) {
-            // Приоритет: first_name > username > telegram_username
+            // Приоритет: first_name > username
             // Проверяем все поля отдельно, чтобы не пропустить имя
             if (profile.first_name && profile.first_name.trim() && profile.first_name !== 'Игрок') {
               name = profile.first_name.trim();
             } else if (profile.username && profile.username.trim() && profile.username !== 'Игрок') {
               name = profile.username.trim();
-            } else if (profile.telegram_username && profile.telegram_username.trim() && profile.telegram_username !== 'Игрок') {
-              name = profile.telegram_username.trim();
             }
             
             // Если имя не найдено или пустое, используем fallback
@@ -976,8 +971,7 @@ Deno.serve(async (req) => {
                 profile: {
                   id: profile.id,
                   first_name: profile.first_name,
-                  username: profile.username,
-                  telegram_username: profile.telegram_username
+                  username: profile.username
                 }
               });
               name = 'Игрок';
