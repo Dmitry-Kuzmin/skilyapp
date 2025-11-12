@@ -228,14 +228,18 @@ export function DuelWaitingReplay({
   }, [realtimeState.opponentScore]);
   
   // КРИТИЧНО: Проверка при каждом обновлении ответов соперника
-  // Если у соперника есть все ответы - сразу переходим к результатам
+  // Если у соперника есть все ответы - проверяем статус и переходим к результатам
   useEffect(() => {
     if (opponentAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
       console.log('[DuelWaitingReplay] 🔥🔥🔥 Opponent has ALL answers! Checking if we should transition...');
+      console.log('[DuelWaitingReplay] Opponent answers:', opponentAnswers.length, 'Required:', totalQuestions);
       
-      // Небольшая задержка чтобы убедиться что все данные обновлены
+      // Увеличенная задержка чтобы убедиться что все данные обновлены в БД
+      // Это важно для race condition - когда второй игрок только что закончил
       setTimeout(() => {
         if (!isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] Checking duel status via Edge Function...');
+          
           // Проверяем статус дуэли через Edge Function (надежнее чем прямой запрос)
           supabase.functions.invoke('duel-manager', {
             body: {
@@ -245,10 +249,10 @@ export function DuelWaitingReplay({
             }
           }).then(({ data, error }) => {
             if (error) {
-              console.error('[DuelWaitingReplay] Error checking status via Edge Function:', error);
+              console.error('[DuelWaitingReplay] ❌ Error checking status via Edge Function:', error);
               // Fallback: переходим к результатам если у соперника все ответы
               if (!isDuelFinishedRef.current) {
-                console.log('[DuelWaitingReplay] 🔥 FALLBACK: Transitioning because opponent has all answers');
+                console.log('[DuelWaitingReplay] 🔥 FALLBACK: Transitioning because opponent has all answers (error case)');
                 isDuelFinishedRef.current = true;
                 setIsDuelFinished(true);
                 safeCallOnDuelFinished();
@@ -256,26 +260,68 @@ export function DuelWaitingReplay({
               return;
             }
             
+            console.log('[DuelWaitingReplay] Status check response:', {
+              status: data?.status,
+              finished: data?.finished,
+              opponentAnswers: opponentAnswers.length,
+              totalQuestions
+            });
+            
             if (data?.status === 'finished' && !isDuelFinishedRef.current) {
               console.log('[DuelWaitingReplay] ✅✅✅ Edge Function confirms duel is finished! Transitioning...');
               isDuelFinishedRef.current = true;
               setIsDuelFinished(true);
+              
+              try {
+                sounds.victory();
+              } catch (err) {
+                console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
+              }
+              
+              toast.success('🏁 Дуэль завершена!', {
+                description: 'Переход к результатам...',
+                duration: 1500,
+              });
+              
               safeCallOnDuelFinished();
             } else if (!isDuelFinishedRef.current && opponentAnswers.length >= totalQuestions) {
-              // Если статус еще не 'finished', но у соперника все ответы - переходим к результатам
-              console.log('[DuelWaitingReplay] 🔥 Opponent has all answers but status not finished - transitioning anyway');
-              safeCallOnDuelFinished();
+              // Если статус еще не 'finished', но у соперника все ответы - ждем еще немного и переходим
+              console.log('[DuelWaitingReplay] ⏳ Opponent has all answers but status not finished yet, waiting 500ms...');
+              
+              // Дополнительная задержка для обновления статуса в БД
+              setTimeout(() => {
+                if (!isDuelFinishedRef.current) {
+                  console.log('[DuelWaitingReplay] 🔥 Transitioning anyway - opponent has all answers');
+                  isDuelFinishedRef.current = true;
+                  setIsDuelFinished(true);
+                  
+                  try {
+                    sounds.victory();
+                  } catch (err) {
+                    console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
+                  }
+                  
+                  toast.success('🏁 Дуэль завершена!', {
+                    description: 'Переход к результатам...',
+                    duration: 1500,
+                  });
+                  
+                  safeCallOnDuelFinished();
+                }
+              }, 500);
             }
           }).catch(err => {
-            console.error('[DuelWaitingReplay] Exception checking status:', err);
+            console.error('[DuelWaitingReplay] ❌ Exception checking status:', err);
             // Fallback: переходим к результатам если у соперника все ответы
             if (!isDuelFinishedRef.current && opponentAnswers.length >= totalQuestions) {
               console.log('[DuelWaitingReplay] 🔥 EXCEPTION FALLBACK: Transitioning because opponent has all answers');
+              isDuelFinishedRef.current = true;
+              setIsDuelFinished(true);
               safeCallOnDuelFinished();
             }
           });
         }
-      }, 300);
+      }, 500); // Увеличена задержка с 300ms до 500ms
     }
   }, [opponentAnswers.length, totalQuestions, duelId, profileId, safeCallOnDuelFinished]);
 

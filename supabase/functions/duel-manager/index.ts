@@ -2064,49 +2064,68 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Small delay to ensure current player's last answer is fully committed
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // CRITICAL: Delay to ensure current player's last answer is fully committed to database
+        // Increased delay for second player to avoid race condition
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Check if both players finished by counting their answers
         // IMPORTANT: Count answers AFTER current player's last answer is saved
-        let allPlayersFinished = true;
-        const playerAnswerCounts: { [playerId: string]: number } = {};
+        // We'll check twice with a delay to handle race conditions
+        let allPlayersFinished = false;
+        let playerAnswerCounts: { [playerId: string]: number } = {};
         
-        // Count answers for each player - verify ALL players have answered ALL questions
-        for (const player of allPlayers) {
-          const { count: playerAnswers } = await supabase
-            .from('duel_answers')
-            .select('*', { count: 'exact', head: true })
-            .eq('player_id', player.id)
-            .eq('duel_id', duel_id);
+        // First check
+        const checkPlayersFinished = async (): Promise<boolean> => {
+          let allFinished = true;
+          const counts: { [playerId: string]: number } = {};
+          
+          for (const player of allPlayers) {
+            const { count: playerAnswers } = await supabase
+              .from('duel_answers')
+              .select('*', { count: 'exact', head: true })
+              .eq('player_id', player.id)
+              .eq('duel_id', duel_id);
 
-          const answerCount = playerAnswers || 0;
-          playerAnswerCounts[player.id] = answerCount;
+            const answerCount = playerAnswers || 0;
+            counts[player.id] = answerCount;
 
-          console.log('[finish_duel] Player answer count:', {
-            playerId: player.id,
-            userId: player.user_id,
-            answerCount,
-            required: duel.num_questions,
-            hasFinished: answerCount >= duel.num_questions
-          });
-
-          // CRITICAL: ALL players must have answered ALL questions
-          if (answerCount < duel.num_questions) {
-            allPlayersFinished = false;
-            console.log('[finish_duel] Player has not finished:', {
+            console.log('[finish_duel] Player answer count:', {
               playerId: player.id,
-              answers: answerCount,
-              required: duel.num_questions
+              userId: player.user_id,
+              answerCount,
+              required: duel.num_questions,
+              hasFinished: answerCount >= duel.num_questions
             });
+
+            if (answerCount < duel.num_questions) {
+              allFinished = false;
+            }
+          }
+          
+          playerAnswerCounts = counts;
+          return allFinished;
+        };
+        
+        // First check
+        allPlayersFinished = await checkPlayersFinished();
+        
+        // If not finished, wait a bit more and check again (race condition protection)
+        if (!allPlayersFinished) {
+          console.log('[finish_duel] First check: not all finished, waiting 300ms and rechecking...');
+          await new Promise(resolve => setTimeout(resolve, 300));
+          allPlayersFinished = await checkPlayersFinished();
+          
+          if (allPlayersFinished) {
+            console.log('[finish_duel] ✅ Second check: all players finished!');
           }
         }
 
-        console.log('[finish_duel] All players finished check:', {
+        console.log('[finish_duel] Final all players finished check:', {
           allPlayersFinished,
           playerAnswerCounts,
           requiredAnswers: duel.num_questions,
-          currentPlayerId: currentPlayer.id
+          currentPlayerId: currentPlayer.id,
+          currentPlayerAnswers: playerAnswerCounts[currentPlayer.id] || 0
         });
 
         // Check timeout (10 minutes after start or 15 minutes total)
