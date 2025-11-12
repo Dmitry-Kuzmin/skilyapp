@@ -596,32 +596,48 @@ export function DuelWaitingReplay({
           setOpponentScore(opponent.score || 0);
         }
         
-        // Загружаем профили ОТДЕЛЬНО
+        // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
         const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
         if (userIds.length > 0) {
-          const { data: profiles, error: profilesError } = await supabase
-            .from('profiles')
-            .select('id, first_name, username, telegram_username')
-            .in('id', userIds);
-          
-          if (!profilesError && profiles) {
-            const profilesMap = new Map(profiles.map((p: any) => [p.id, p]));
+          // Загружаем профили по одному через Promise.all
+          const profilePromises = userIds.map(async (userId) => {
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('id, first_name, username, telegram_username')
+              .eq('id', userId)
+              .single();
             
-            if (opponent?.user_id) {
-              const opponentProfile = profilesMap.get(opponent.user_id);
-              if (opponentProfile) {
-                const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
-                console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
-                setOpponentName(name);
-              }
+            if (error) {
+              console.error(`[DuelWaitingReplay] ❌ Error loading profile for ${userId}:`, error);
+              return null;
             }
             
-            if (myPlayer?.user_id) {
-              const myProfile = profilesMap.get(myPlayer.user_id);
-              if (myProfile) {
-                const name = myProfile.first_name || myProfile.username || myProfile.telegram_username || 'Вы';
-                setMyName(name);
-              }
+            return { userId, profile };
+          });
+          
+          const profileResults = await Promise.all(profilePromises);
+          const profilesMap = new Map();
+          
+          profileResults.forEach((result) => {
+            if (result && result.profile) {
+              profilesMap.set(result.userId, result.profile);
+            }
+          });
+          
+          if (opponent?.user_id) {
+            const opponentProfile = profilesMap.get(opponent.user_id);
+            if (opponentProfile) {
+              const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+              console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
+              setOpponentName(name);
+            }
+          }
+          
+          if (myPlayer?.user_id) {
+            const myProfile = profilesMap.get(myPlayer.user_id);
+            if (myProfile) {
+              const name = myProfile.first_name || myProfile.username || myProfile.telegram_username || 'Вы';
+              setMyName(name);
             }
           }
         }
@@ -648,24 +664,40 @@ export function DuelWaitingReplay({
             setOpponentScore(opponent.score || 0);
           }
           
-          // Загружаем профили ОТДЕЛЬНО
+          // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
           const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
           if (userIds.length > 0) {
-            const { data: profiles, error: profilesError } = await supabase
-              .from('profiles')
-              .select('id, first_name, username, telegram_username')
-              .in('id', userIds);
-            
-            if (!profilesError && profiles) {
-              const profilesMap = new Map(profiles.map((p: any) => [p.id, p]));
+            // Загружаем профили по одному через Promise.all
+            const profilePromises = userIds.map(async (userId) => {
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('id, first_name, username, telegram_username')
+                .eq('id', userId)
+                .single();
               
-              if (opponent?.user_id) {
-                const opponentProfile = profilesMap.get(opponent.user_id);
-                if (opponentProfile) {
-                  const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
-                  console.log('[DuelWaitingReplay] ✅ Setting opponent name from fallback query:', name);
-                  setOpponentName(name);
-                }
+              if (error) {
+                console.error(`[DuelWaitingReplay] ❌ Error loading profile for ${userId} (fallback):`, error);
+                return null;
+              }
+              
+              return { userId, profile };
+            });
+            
+            const profileResults = await Promise.all(profilePromises);
+            const profilesMap = new Map();
+            
+            profileResults.forEach((result) => {
+              if (result && result.profile) {
+                profilesMap.set(result.userId, result.profile);
+              }
+            });
+            
+            if (opponent?.user_id) {
+              const opponentProfile = profilesMap.get(opponent.user_id);
+              if (opponentProfile) {
+                const name = opponentProfile.first_name || opponentProfile.username || opponentProfile.telegram_username || 'Соперник';
+                console.log('[DuelWaitingReplay] ✅ Setting opponent name from fallback query:', name);
+                setOpponentName(name);
               }
             }
           }

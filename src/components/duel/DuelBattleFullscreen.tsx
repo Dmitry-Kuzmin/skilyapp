@@ -612,30 +612,43 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         setOpponentScore(opponent.score || 0);
       }
 
-      // Загружаем профили ОТДЕЛЬНО (чтобы избежать проблем с JOIN и RLS)
+      // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
       const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
       
       if (userIds.length > 0) {
-        console.log('[DuelBattleFullscreen] 🔄 Loading profiles separately for userIds:', userIds);
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, first_name, username, telegram_username')
-          .in('id', userIds);
+        console.log('[DuelBattleFullscreen] 🔄 Loading profiles one by one for userIds:', userIds);
+        
+        // Загружаем профили по одному через Promise.all
+        const profilePromises = userIds.map(async (userId) => {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('id, first_name, username, telegram_username')
+            .eq('id', userId)
+            .single();
+          
+          if (error) {
+            console.error(`[DuelBattleFullscreen] ❌ Error loading profile for ${userId}:`, error);
+            return null;
+          }
+          
+          return { userId, profile };
+        });
+        
+        const profileResults = await Promise.all(profilePromises);
+        const profilesMap = new Map();
+        
+        profileResults.forEach((result) => {
+          if (result && result.profile) {
+            profilesMap.set(result.userId, result.profile);
+          }
+        });
 
-        if (profilesError) {
-          console.error('[DuelBattleFullscreen] ❌ Error loading profiles:', profilesError);
-          return;
-        }
-
-        console.log('[DuelBattleFullscreen] ✅ Loaded profiles:', profiles?.map((p: any) => ({
-          id: p.id,
+        console.log('[DuelBattleFullscreen] ✅ Loaded profiles:', Array.from(profilesMap.entries()).map(([id, p]: [string, any]) => ({
+          id,
           first_name: p.first_name,
           username: p.username,
           telegram_username: p.telegram_username
         })));
-
-        // Создаем map для быстрого доступа
-        const profilesMap = new Map(profiles?.map((p: any) => [p.id, p]) || []);
 
         // Устанавливаем имена
         if (myPlayer?.user_id) {
