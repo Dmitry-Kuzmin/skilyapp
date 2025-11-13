@@ -1039,6 +1039,7 @@ const TestSession = () => {
         }
 
         // Добавляем или обновляем вопрос в Challenge Bank
+        // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
         const { data: existing, error: selectError } = await supabase
           .from('user_challenge_questions')
           .select('id, times_wrong')
@@ -1052,6 +1053,7 @@ const TestSession = () => {
 
         if (existing) {
           // Обновляем существующую запись
+          // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
           const { error: updateError } = await supabase
             .from('user_challenge_questions')
             .update({
@@ -1069,6 +1071,7 @@ const TestSession = () => {
           }
         } else {
           // Создаем новую запись
+          // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
           const { error: insertError } = await supabase
             .from('user_challenge_questions')
             .insert({
