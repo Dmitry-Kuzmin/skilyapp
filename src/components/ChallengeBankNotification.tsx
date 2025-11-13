@@ -40,7 +40,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           }}
           className="fixed z-[100] w-56 sm:w-60"
         >
-          {/* Пульсирующая точка СРАЗУ под кнопкой */}
+          {/* Пульсирующая точка НА иконке */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
@@ -52,13 +52,13 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.2,
               ease: "backOut"
             }}
-            className="absolute top-0 right-[14px] w-[10px] h-[10px] rounded-full bg-primary z-10"
+            className="absolute -top-[20px] right-[14px] w-[10px] h-[10px] rounded-full bg-white z-10"
             style={{ 
-              boxShadow: '0 0 0 0 rgba(139, 92, 246, 0.4)'
+              boxShadow: '0 0 0 2px #3b82f6, 0 0 8px rgba(59, 130, 246, 0.5)'
             }}
           >
-            {/* Белый центр */}
-            <div className="absolute inset-[2px] rounded-full bg-white" />
+            {/* Синий центр */}
+            <div className="absolute inset-[2px] rounded-full bg-blue-500" />
             
             {/* Пульсирующие кольца */}
             <motion.div
@@ -71,7 +71,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 repeat: Infinity,
                 ease: "easeOut"
               }}
-              className="absolute inset-0 rounded-full bg-primary"
+              className="absolute inset-0 rounded-full bg-blue-500"
             />
             <motion.div
               animate={{ 
@@ -84,7 +84,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 ease: "easeOut",
                 delay: 0.4
               }}
-              className="absolute inset-0 rounded-full bg-primary"
+              className="absolute inset-0 rounded-full bg-blue-500"
             />
           </motion.div>
           
@@ -149,10 +149,10 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 transition={{ delay: 0.75 }}
                 className="flex-1 min-w-0"
               >
-                <p className="text-white/70 text-[9px] leading-tight font-medium">
-                  Добавлено в
+                <p className="text-white/80 text-[10px] leading-tight">
+                  Вопрос добавлен в
                 </p>
-                <p className="text-white font-semibold text-[12px] leading-tight mt-0.5">
+                <p className="text-white font-bold text-[13px] leading-tight mt-0.5">
                   Банк Вопросов™
                 </p>
               </motion.div>

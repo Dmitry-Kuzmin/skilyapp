@@ -234,6 +234,7 @@ const TestSession = () => {
   const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
   const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [hasAddedToBank, setHasAddedToBank] = useState(false); // Флаг что хотя бы один вопрос добавлен
   const [showTestSettings, setShowTestSettings] = useState(false);
   const [voiceOver, setVoiceOver] = useState(() => {
     const saved = localStorage.getItem('test-voice-over');
@@ -484,9 +485,14 @@ const TestSession = () => {
   // Проверяем, добавлен ли текущий вопрос в закладки
   useEffect(() => {
     if (profileId && questions.length > 0 && questions[currentIndex]?.id) {
-      checkIfBookmarked();
+      // Если уже был хотя бы один неправильный ответ в тесте, автоматически отмечаем все вопросы
+      if (hasAddedToBank) {
+        setIsQuestionBookmarked(true);
+      } else {
+        checkIfBookmarked();
+      }
     }
-  }, [profileId, currentIndex, questions]);
+  }, [profileId, currentIndex, questions, hasAddedToBank]);
 
   const checkIfBookmarked = async () => {
     if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
@@ -1033,12 +1039,16 @@ const TestSession = () => {
           console.log('[Challenge Bank] Показываем уведомление!');
           setIsFirstWrongAnswer(false);
           setShowChallengeBankNotification(true);
+          setHasAddedToBank(true); // Устанавливаем флаг
           // Обновляем состояние кнопки закладки
           setIsQuestionBookmarked(true);
           // Скрываем уведомление через 5 секунд
           setTimeout(() => {
             setShowChallengeBankNotification(false);
           }, 5000);
+        } else if (hasAddedToBank) {
+          // Если уже добавляли в банк, просто отмечаем вопрос без уведомления
+          setIsQuestionBookmarked(true);
         }
 
         // Добавляем или обновляем вопрос в Challenge Bank
