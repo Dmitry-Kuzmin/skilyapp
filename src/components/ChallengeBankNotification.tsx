@@ -40,7 +40,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             top: `${position.top - dotSize / 2}px`,
             right: `${position.right}px` 
           }}
-          className="absolute z-40 w-64 sm:w-72"
+          className="fixed z-50 w-64 sm:w-72"
         >
           {/* Пульсирующая точка */}
           <motion.div
