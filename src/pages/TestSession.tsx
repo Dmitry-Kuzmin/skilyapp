@@ -2183,8 +2183,8 @@ const TestSession = () => {
       {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
       {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
       {!isTelegramApp && mode === "practice" && (
-        <div className="hidden lg:block pt-3">
-          <div className="sticky top-4">
+        <div className="hidden lg:flex lg:flex-col pt-3">
+          <div className="sticky top-4 flex-1">
             <AIWidget
               explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
               question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
