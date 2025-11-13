@@ -1123,8 +1123,8 @@ const TestSession = () => {
     }
 
     if (mode === "practice" || mode === "dgt" || mode === "mastery") {
-      // Показываем explanation в Lumi чате и открываем AI чат
-      setShowAIExplanation(true);
+      // НЕ открываем Lumi автоматически - только по клику пользователя
+      // setShowAIExplanation(true); // ОТКЛЮЧЕНО для лучшего UX
       
       if (isCorrect) {
         toast.success("¡Correcto! ✅", { duration: 2000 });
