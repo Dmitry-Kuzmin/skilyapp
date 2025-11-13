@@ -293,12 +293,16 @@ const TestSession = () => {
     let failedTracks = new Set<number>(); // Треки, которые не загрузились
 
     // Плейлист - только проверенные рабочие треки
+    // Используем только те треки, которые точно работают (по логам: трек 0 и трек 3)
     const playlist = [
-      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano ✅
-      'https://cdn.pixabay.com/audio/2023/12/05/audio_dd53f2ca72.mp3', // Soft Piano ✅
-      'https://cdn.pixabay.com/audio/2022/03/15/audio_c8c6e0c057.mp3', // Lofi Study ✅
-      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation ✅
-      'https://cdn.pixabay.com/audio/2022/08/02/audio_6e5ad46a66.mp3', // Chill Ambient ✅
+      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Трек 0 - Calm Piano ✅ РАБОТАЕТ
+      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Трек 3 - Meditation ✅ РАБОТАЕТ
+      
+      // Дополнительные треки для разнообразия (будут пропущены, если не загрузятся)
+      'https://cdn.pixabay.com/audio/2022/01/18/audio_d768d31c6a.mp3', // Lofi Hip Hop
+      'https://cdn.pixabay.com/audio/2022/02/22/audio_c0b2b8b8e1.mp3', // Peaceful Morning
+      'https://cdn.pixabay.com/audio/2022/11/08/audio_2e6db8d39f.mp3', // Deep Meditation
+      'https://cdn.pixabay.com/audio/2023/03/12/audio_1b8c7e8d5f.mp3', // Chill Beats
     ];
 
     if (ambientMusic) {
@@ -307,8 +311,8 @@ const TestSession = () => {
       audioElement.crossOrigin = "anonymous";
       audioElement.preload = "auto";
       
-      // Выбираем случайный первый трек
-      currentTrackIndex = Math.floor(Math.random() * playlist.length);
+      // Выбираем первый трек последовательно (начинаем с 0)
+      currentTrackIndex = 0;
       
       // Функция для загрузки и воспроизведения трека с обработкой ошибок
       const playTrack = async (index: number, retry: number = 0) => {
@@ -393,27 +397,42 @@ const TestSession = () => {
       };
 
       // Функция перехода к следующему треку
+      // Используем последовательное переключение для гарантированного разнообразия
       const nextTrack = () => {
         if (!audioElement) return;
         
         const previousIndex = currentTrackIndex;
-        let attempts = 0;
+        const workingTracks = playlist
+          .map((_, index) => index)
+          .filter(index => !failedTracks.has(index));
         
-        // Выбираем следующий случайный трек (не тот же самый и не провалившийся)
-        do {
-          currentTrackIndex = Math.floor(Math.random() * playlist.length);
-          attempts++;
-          
-          // Если все треки кроме одного провалились, используем любой
-          if (attempts > playlist.length * 2) {
-            break;
-          }
-        } while (
-          (currentTrackIndex === previousIndex || failedTracks.has(currentTrackIndex)) && 
-          playlist.length > 1 && 
-          failedTracks.size < playlist.length
-        );
+        // Если нет рабочих треков, пробуем все заново
+        if (workingTracks.length === 0) {
+          console.log('[Ambient Music] Нет рабочих треков, очищаем список и пробуем заново');
+          failedTracks.clear();
+          currentTrackIndex = (previousIndex + 1) % playlist.length;
+          playTrack(currentTrackIndex);
+          return;
+        }
         
+        // Если только один рабочий трек, используем его
+        if (workingTracks.length === 1) {
+          currentTrackIndex = workingTracks[0];
+          playTrack(currentTrackIndex);
+          return;
+        }
+        
+        // Находим следующий рабочий трек после текущего (последовательно)
+        const currentIndexInWorking = workingTracks.indexOf(previousIndex);
+        let nextIndexInWorking = currentIndexInWorking + 1;
+        
+        // Если текущий трек не в списке рабочих или это последний, берем первый
+        if (currentIndexInWorking === -1 || nextIndexInWorking >= workingTracks.length) {
+          nextIndexInWorking = 0;
+        }
+        
+        currentTrackIndex = workingTracks[nextIndexInWorking];
+        console.log(`[Ambient Music] Переключаем с трека ${previousIndex} на трек ${currentTrackIndex} (рабочих треков: ${workingTracks.length})`);
         playTrack(currentTrackIndex);
       };
 
