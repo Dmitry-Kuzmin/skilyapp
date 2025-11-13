@@ -17,6 +17,7 @@ import { AIExplanationDialog } from "@/components/AIExplanationDialog";
 import { AIWidget } from "@/components/AIWidget";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
+import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
 
 type QuestionData = {
   id: string;
@@ -1968,6 +1969,12 @@ const TestSession = () => {
         </div>
       )}
       </div>
+
+      {/* Challenge Bank Notification */}
+      <ChallengeBankNotification
+        isVisible={showChallengeBankNotification}
+        onClose={() => setShowChallengeBankNotification(false)}
+      />
     </Layout>
   );
 };
