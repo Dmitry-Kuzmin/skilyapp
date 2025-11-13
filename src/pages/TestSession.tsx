@@ -1020,30 +1020,39 @@ const TestSession = () => {
     // Добавляем вопрос в Challenge Bank при первой ошибке (не в mastery mode)
     if (!isCorrect && profileId && mode !== "mastery") {
       try {
+        console.log('[Challenge Bank] Условия: isCorrect=', isCorrect, 'profileId=', profileId, 'mode=', mode);
+        
         // Проверяем, первая ли это ошибка в тесте
         const wrongAnswersInThisTest = answers.filter(a => !a.isCorrect).length;
         const showNotification = wrongAnswersInThisTest === 0 && isFirstWrongAnswer;
         
+        console.log('[Challenge Bank] wrongAnswersInThisTest=', wrongAnswersInThisTest, 'isFirstWrongAnswer=', isFirstWrongAnswer, 'showNotification=', showNotification);
+        
         if (showNotification) {
+          console.log('[Challenge Bank] Показываем уведомление!');
           setIsFirstWrongAnswer(false);
           setShowChallengeBankNotification(true);
-          // Скрываем уведомление через 5 секунд
+          // Скрываем уведомление через 8 секунд (увеличено с 5 для лучшей видимости)
           setTimeout(() => {
             setShowChallengeBankNotification(false);
-          }, 5000);
+          }, 8000);
         }
 
         // Добавляем или обновляем вопрос в Challenge Bank
-        const { data: existing } = await supabase
+        const { data: existing, error: selectError } = await supabase
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
           .eq('question_id', currentQuestion.id)
           .maybeSingle();
 
+        if (selectError) {
+          console.error('[Challenge Bank] Ошибка при проверке существующего вопроса:', selectError);
+        }
+
         if (existing) {
           // Обновляем существующую запись
-          await supabase
+          const { error: updateError } = await supabase
             .from('user_challenge_questions')
             .update({
               times_wrong: existing.times_wrong + 1,
@@ -1052,9 +1061,15 @@ const TestSession = () => {
               updated_at: new Date().toISOString(),
             })
             .eq('id', existing.id);
+          
+          if (updateError) {
+            console.error('[Challenge Bank] Ошибка при обновлении:', updateError);
+          } else {
+            console.log('[Challenge Bank] Вопрос обновлен в БД');
+          }
         } else {
           // Создаем новую запись
-          await supabase
+          const { error: insertError } = await supabase
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -1062,10 +1077,18 @@ const TestSession = () => {
               times_wrong: 1,
               last_wrong_at: new Date().toISOString(),
             });
+          
+          if (insertError) {
+            console.error('[Challenge Bank] Ошибка при вставке:', insertError);
+          } else {
+            console.log('[Challenge Bank] Новый вопрос добавлен в БД');
+          }
         }
       } catch (error) {
-        console.error('Error adding to Challenge Bank:', error);
+        console.error('[Challenge Bank] Общая ошибка:', error);
       }
+    } else {
+      console.log('[Challenge Bank] Условия не выполнены: isCorrect=', isCorrect, 'profileId=', !!profileId, 'mode=', mode);
     }
 
     // Save user progress
