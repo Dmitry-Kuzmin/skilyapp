@@ -1,0 +1,241 @@
+{
+  "topicNumber": 1,
+  "testNumber": 10,
+  "itemsAnalyzed": 30,
+  "rawItemsCount": 60,
+  "stagePresent": true,
+  "reason": "no-questions-found",
+  "debugItems": [
+    {
+      "index": 0,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 1 Los vehículos prioritarios, ¿tienen prioridad de paso sobre el resto de los usuarios de la vía? A Sí, siempre. B No, nunca. C Sólo cuando circulen en servicio de urgencia. Vídeo respu"
+    },
+    {
+      "index": 1,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 2 Cuando un carril está delimitado a ambos lados por doble línea discontinua, ¿qué deben hacer los conductores? A Utilizarlo sólo para adelantar a una velocidad máxima de 80 kilómetros "
+    },
+    {
+      "index": 2,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 3 ¿Pueden influir otros factores en un accidente, cuando las condiciones climatológicas son adversas? A No. B Sí, el mal estado de la vía, únicamente. C Sí, el conductor, si conduce a u"
+    },
+    {
+      "index": 3,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 4 Los conductores, ¿están obligados a colaborar en las pruebas de detección de emisión de ruidos de sus vehículos? A Solo cuando pasen la revisión periódica en una estación ITV. B No. C"
+    },
+    {
+      "index": 4,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 5 En una travesía de dos carriles para cada sentido de la marcha, ¿puede circular por el carril izquierdo de su sentido para girar a la izquierda? A No, porque en la travesía se debe ci"
+    },
+    {
+      "index": 5,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 6 Un ciclomotor es un vehículo de dos o más ruedas con una velocidad máxima no superior a 45 kilómetros por hora y un motor de combustión interna de cilindrada... A superior a 50 centímetros cúbicos. B no superior a 50 centímetros cúbicos. C superior a 50 e inferior a 125 centímetros cúbicos. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/e03cae0d-e2e3-40fa-a136-3af77e211105-1649181345-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/e03cae0d-e2e3-40fa-a136-3af77e211105-1649181345-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 6,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 7 Un vehículo de dos ruedas provisto de un motor de combustión interna podrá ser catalogado como motocicleta siempre que... A su cilindrada sea superior a 50 centímetros cúbicos. B pueda alcanzar una velocidad máxima superior a 40 km/h. C disponga de al menos dos plazas, incluida la del conductor. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/399ff264-ee6c-4ea1-b143-5b62c4734ae2-1649181816-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/399ff264-ee6c-4ea1-b143-5b62c4734ae2-1649181816-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 7,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 8 ¿Está permitido que un turismo utilice un tramo de carril reservado para autobuses, delimitado por línea discontinua? A Sí, para realizar alguna maniobra que no sea parar, estacionar,"
+    },
+    {
+      "index": 8,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 9 Un vehículo de dos ruedas que, por construcción desarrolla una velocidad máxima superior a 45 kilómetros por hora, es... A una motocicleta. B un ciclomotor. C una bicicleta. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/9210b6fd-8677-4752-8919-7d32f42c57c9-1649181672-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/9210b6fd-8677-4752-8919-7d32f42c57c9-1649181672-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 9,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 10 Cuando se acerca a un puente móvil. ¿Qué debe hacer? A Aumentar la velocidad y pasar rápidamente. B Detener mi vehículo antes de pasar. C Disminuir la velocidad y conducir con más at"
+    },
+    {
+      "index": 10,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 11 Si conduce una motocicleta por esta vía, ¿está permitido circular por el carril situado más a la izquierda? A No, únicamente puede circular por el arcén. B No, sólo puede utilizar el"
+    },
+    {
+      "index": 11,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 12 Un turismo con remolque, ¿tiene permitido circular por un carril adicional? A No. B Sí. C Solo si el remolque es ligero. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora"
+    },
+    {
+      "index": 12,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 13 En una vía urbana, cuando utilice el carril que más convenga a su destino, ¿puede abandonar dicho carril? A Sí, para prepararse a cambiar de dirección, adelantar, parar o estacionar."
+    },
+    {
+      "index": 13,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 14 Los ciclomotores, ¿pueden circular por el arcén en columna de a dos? A Sí, de forma excepcional cuando el arcén sea transitable y suficiente. B Sí, siempre. C No, nunca. Vídeo respue"
+    },
+    {
+      "index": 14,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 15 En un descenso prolongado con curvas y cuando razones de seguridad lo permitan, ¿podrán circular los ciclistas por la parte derecha de la calzada que necesiten? A No, siempre utiliza"
+    },
+    {
+      "index": 15,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 16 ¿Puede utilizar las manos para hablar por teléfono mientras se encuentra detenido ante un semáforo? A Solo mientras el semáforo este en rojo. B No. C Sí. Vídeo respuesta Vídeo tema E"
+    },
+    {
+      "index": 16,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 17 En este tramo de autovía, ¿se puede circular a más de 100 km/h para adelantar? A No. B Sí, hasta 120 km/h. C Solo turismos y motocicletas. Vídeo respuesta Vídeo tema Esquema Libro Re"
+    },
+    {
+      "index": 17,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 18 ¿Qué precauciones, entre otras, debe adoptar al cargar combustible en el vehículo? A Apagar las luces, pero pueden estar encendidos otros sistemas eléctricos como la radio. B Apagar "
+    },
+    {
+      "index": 18,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 19 Se circula a velocidad adecuada cuando se... A circula muy despacio. B adapta la velocidad a las condiciones del conductor, del vehículo y del medio. C respetan los límites máximos de velocidad establecidos. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/aa2f6b39-e362-4093-ac83-4e59cd9da8cc-1658136404-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/aa2f6b39-e362-4093-ac83-4e59cd9da8cc-1658136404-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 19,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 20 Cuando un peatón arrastra o tira de un ciclomotor, ¿qué señales tiene que obedecer? A Las que afectan a los conductores de vehículos. B Las que afectan a los peatones. C Únicamente l"
+    },
+    {
+      "index": 20,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 21 A los peatones que utilicen monopatines o patines en ningún caso les está permitido... A ser arrastrados por otros vehículos. B circular por el arcén de una travesía. C circular a paso de persona por las aceras. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/dfefbe0a-d9a2-4ada-ae09-af8298e3c0ac-1652277960-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/dfefbe0a-d9a2-4ada-ae09-af8298e3c0ac-1652277960-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 21,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 22 A partir de la señal de la fotografía, ¿qué distancia de seguridad es obligatorio mantener, como mínimo, con una motocicleta? A La que permita al vehículo que circula detrás adelanta"
+    },
+    {
+      "index": 22,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 23 ¿Cuál es la velocidad máxima permitida a un turismo en carretera convencional de doble sentido con arcén pavimentado de más de 1,50 metros de ancho? A 100 km/h. B Depende del número "
+    },
+    {
+      "index": 23,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 24 En una carretera de tres carriles de circulación y doble sentido, ¿para qué se utiliza el carril central? A Como un carril de sentido contrario a la circulación. B Para realizar adel"
+    },
+    {
+      "index": 24,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 25 Está prohibido conducir... A utilizando cascos o auriculares conectados a aparatos receptores o reproductores de sonido. B más de una hora seguida sin descansar. C más de una hora seguida sin descansar, pero sólo en vía urbana. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/b12ab2f5-d97b-44de-8fa2-1db829ed9658-1649351771-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/b12ab2f5-d97b-44de-8fa2-1db829ed9658-1649351771-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 25,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 26 ¿Puede el vehículo de movilidad personal tener sillín? A No porque ya no se consideraría vehículo de movilidad personal. B Sí. C Sí, si está dotado de sistema de autoequilibrado. Víd"
+    },
+    {
+      "index": 26,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 27 En una carretera convencional, ¿a qué velocidad deben ir los animales conducidos en rebaño? A Al paso. B A la mitad de la mínima permitida en la vía por la que transiten. C Al galope"
+    },
+    {
+      "index": 27,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 28 Se ve obligado a trasladar en su turismo a un herido. ¿Debe respetar las normas de circulación? A Sí, pero sólo las que regulan las intersecciones. B No, sólo debe respetar las señal"
+    },
+    {
+      "index": 28,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 29 A un vehículo prioritario que circula en servicio de urgencia se le facilitará el paso... A apartándose siempre a la derecha de la calzada. B deteniendo siempre el vehículo en el lado izquierdo de la calzada. C adoptando las medidas adecuadas según las circunstancias del momento. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/948c656a-135c-4dd0-ac49-862808d69b00-1657732385-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/948c656a-135c-4dd0-ac49-862808d69b00-1657732385-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 29,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 30 Si en un tramo de gran pendiente se encuentran dos vehículos en una zona estrecha donde no pueden cruzarse, ¿qué vehículo tendrá preferencia de paso, como norma general? A El que ten"
+    }
+  ]
+}

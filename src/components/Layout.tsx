@@ -13,6 +13,7 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { UserProfilePopover } from "./UserProfilePopover";
 import { TelegramSafeAreaDebug } from "./TelegramSafeAreaDebug";
+import { Footer } from "./Footer";
 
 interface LayoutProps {
   children: ReactNode;
@@ -174,6 +175,9 @@ const Layout = ({ children }: LayoutProps) => {
       >
         {children}
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) */}
       <nav className={cn(

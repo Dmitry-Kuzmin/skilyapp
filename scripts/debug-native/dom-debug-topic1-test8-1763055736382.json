@@ -1,0 +1,244 @@
+{
+  "topicNumber": 1,
+  "testNumber": 8,
+  "itemsAnalyzed": 30,
+  "rawItemsCount": 60,
+  "stagePresent": true,
+  "reason": "no-questions-found",
+  "debugItems": [
+    {
+      "index": 0,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 1 Circular por una autopista a 120 km/h con lluvia intensa, es circular a una velocidad... A adecuada. B prohibida. C inadecuada. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/9db65c74-d2d8-4895-8fa6-e6c0c4e4010d-1658136516-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/9db65c74-d2d8-4895-8fa6-e6c0c4e4010d-1658136516-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 1,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 2 Si se pretende adelantar a este vehículo, ¿está permitido disminuir la distancia de seguridad? A Sí, para hacer el adelantamiento más seguro. B Sí, porque así tiene mejor visión del s"
+    },
+    {
+      "index": 2,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 3 Los peatones que quieran atravesar una glorieta en la que no exista paso para peatones, están obligados a... A rodearla. B cruzarla por el camino más recto posible. C caminar por el borde interior de la isleta central. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/119f82bf-49a5-4f9b-9866-5ea1db095bc2-1652277826-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/119f82bf-49a5-4f9b-9866-5ea1db095bc2-1652277826-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 3,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 4 Si no existe paso señalizado, ¿cómo deben cruzar la calzada los peatones? A Caminando perpendicularmente al eje de la calzada. B En diagonal, para ver y ser vistos mejor por los condu"
+    },
+    {
+      "index": 4,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 5 Los peatones que circulen por el arcén en vías fuera de poblado, ¿cuándo deberán utilizar un elemento luminoso o reflectante homologado? A Cuando existan condiciones meteorológicas qu"
+    },
+    {
+      "index": 5,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 6 En una autopista, ¿cuál es la velocidad máxima a la que está permitido circular a una furgoneta que transporta mercancías? A 100 km/h. B 90 km/h. C 120 km/h. Vídeo respuesta Vídeo tem"
+    },
+    {
+      "index": 6,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 7 Al aproximarse a un autobús en situación de parada, ¿qué precauciones se deben tomar? A Mantener la velocidad y estar atento al cumplimiento de la señalización vertical. B Ninguna si "
+    },
+    {
+      "index": 7,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 8 Si circula en esta vía con tráfico denso, no puede cambiar de carril para... A adelantar. B girar a la derecha. C salir de la calzada. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/66a4f92c-103f-4f7f-a36f-bcbe129daea1-1652271778-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/66a4f92c-103f-4f7f-a36f-bcbe129daea1-1652271778-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 8,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 9 En esta vía, para adelantar al camión, ¿a qué velocidad puede circular como máximo el turismo? A A 140 km/h. B A 110 km/h. C A 120 km/h. Vídeo respuesta Vídeo tema Esquema Libro Repor"
+    },
+    {
+      "index": 9,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 10 En esta intersección, ¿Qué vehículo pasará primero? A El rojo. B El amarillo. C El azul. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora"
+    },
+    {
+      "index": 10,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 11 En vías interurbanas con tres o más carriles para el mismo sentido de la marcha, un conjunto de vehículos de más de 7 metros, ¿podrá utilizar el carril inmediato al derecho? A Sí, si"
+    },
+    {
+      "index": 11,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 12 En un paso de peatones señalizado, que no esté regulado por agente ni semáforo, los peatones sólo deben penetrar en la calzada cuando... A la distancia y velocidad de los vehículos permita hacerlo con seguridad. B no exista ningún vehículo cerca del paso. C los conductores indique con movimientos del brazo que pueden cruzar. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/d93608fb-b68d-4b01-8654-b4e9e196c036-1652277794-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/d93608fb-b68d-4b01-8654-b4e9e196c036-1652277794-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 12,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 13 En esta vía urbana con tres carriles para cada sentido, ¿cuál es la velocidad máxima permitida? A 60 km/h, porque tiene tres carriles. B 40 km/h, porque tiene pasos de peatones. C 50"
+    },
+    {
+      "index": 13,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 14 En una vía interurbana, el conductor de un ciclomotor, ¿puede adelantar a un tractor agrícola que circula por el arcén? A Sí, en todo caso. B No, los vehículos que circulan por el ar"
+    },
+    {
+      "index": 14,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 15 ¿Qué es un cuadriciclo ligero? A Un automóvil de cuatro ruedas cuya masa en vacio es inferior o igual a 400 kg. B Un vehículo de motor de cuatro ruedas con cilindrada no superior a 5"
+    },
+    {
+      "index": 15,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 16 ¿Cuándo debe aumentarse la distancia de seguridad? A Cuando aumente la velocidad de circulación de los vehículos. B Cuando quiera adelantar. C Cuando disminuya la velocidad de circul"
+    },
+    {
+      "index": 16,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 17 En esta vía, la velocidad mínima permitida a los turismos es de... A 75 Km/h. B 90 Km/h. C 60 Km/h. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/45989579-77c1-4013-b2a2-4575e6432244-1653062313-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/45989579-77c1-4013-b2a2-4575e6432244-1653062313-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 17,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 18 Como norma general, en un tramo de vía estrecho de gran pendiente debe ceder el paso... A el vehículo que sube. B el vehículo que baja. C el vehículo más ligero. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/a0618269-9cb6-4d3b-bb40-e6572afaead6-1657732704-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/a0618269-9cb6-4d3b-bb40-e6572afaead6-1657732704-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 18,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 19 ¿Está permitido realizar competiciones de velocidad en las vías públicas? A No, nunca. B Sí, en vías acotadas para ello por la autoridad competente. C Sí, pero todas estas pruebas au"
+    },
+    {
+      "index": 19,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 20 En una vía urbana con un carril en cada sentido, deberá circular... A lo más cerca posible del borde derecho de la calzada. B por la zona que mejor convenga. C por el centro de la calzada, en tramos rectos. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/caacb2e2-3dca-44dd-9aa2-6d714537b83f-1650387076-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/caacb2e2-3dca-44dd-9aa2-6d714537b83f-1650387076-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 20,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 21 En esta vía de doble sentido, ¿qué vehículos deben dejar una separación mínima de 50 metros con el vehículo de delante cuando no pretendan adelantar? A Todos los camiones, con indepe"
+    },
+    {
+      "index": 21,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 22 Circular a velocidad inferior a la mínima permitida sin causa justificada, ¿es peligroso? A Sí, porque lo más seguro es circular a la velocidad máxima permitida. B No, porque circula"
+    },
+    {
+      "index": 22,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 23 En una vía fuera de poblado que no disponga de zona peatonal, como norma general, ¿por qué lado deben circular los peatones? A Por su izquierda o, por su derecha, indistintamente. B "
+    },
+    {
+      "index": 23,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 24 ¿Puede utilizar el carril bus para adelantar a otro vehículo? A No, está prohibido. B Sólo si la línea blanca que lo delimita es discontinua. C Sí, si no circula ningún autobús por e"
+    },
+    {
+      "index": 24,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 25 En este cruce, ¿puede pasar cuando se enciende la luz verde? A Sí, siempre, porque tengo preferencia. B Sí, pero debo esperar hasta poder pasar sin bloquearlo. C Sí, pero debe ceder "
+    },
+    {
+      "index": 25,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 26 Circular a una velocidad inadecuada... A No influye en el riesgo de sufrir un accidente si la vía está en buen estado. B Reduce el riesgo de sufrir un accidente. C Incrementa el riesgo de sufrir un accidente de tráfico. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/453cface-471a-49c6-aac4-319f556f718b-1658136547-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/453cface-471a-49c6-aac4-319f556f718b-1658136547-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 26,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 27 El turismo blanco circula a 90 km/h. ¿El vehículo verde puede adelantarlo? A Sí, porque puede circular hasta 120 km/h. B No, porque lo prohíbe la línea discontinua. C No, porque el v"
+    },
+    {
+      "index": 27,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 28 En esta vía se ha habilitado un carril adicional circunstancial, ¿a qué velocidad, como mínimo, deberán circular por dicho carril? A 60 km/h o inferior si así estuviese señalizado. B"
+    },
+    {
+      "index": 28,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 29 En una carretera convencional sin separación física de los dos sentidos de circulación, un turismo, ¿puede superar la velocidad máxima genérica para adelantar a un vehículo que circu"
+    },
+    {
+      "index": 29,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 30 ¿Cuál es la velocidad máxima de un furgón de hasta 3.500 kg en autopista? A 100 km/h. B 90 km/h. C 80 km/h. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora"
+    }
+  ]
+}

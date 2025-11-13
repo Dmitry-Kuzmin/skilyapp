@@ -110,6 +110,22 @@ const translations: Record<Language, Record<string, string>> = {
     inviteFriends: "INVITAR AMIGOS",
     selectQuestionCount: "Elige el número de preguntas",
     startTest: "Comenzar test",
+    
+    // Footer
+    footer: {
+      companyDescription: "Plataforma educativa para la preparación de exámenes DGT en España",
+      address: "Rusia, Moscú, Ciudad 122",
+      contact: "Contacto: support@sdadim.com",
+      legal: "Legal",
+      terms: "Términos y condiciones",
+      privacy: "Política de privacidad",
+      subscriptionTerms: "Términos de suscripción",
+      resources: "Recursos",
+      support: "Soporte",
+      supportEmail: "support@sdadim.com",
+      copyright: "© 2025 Sdadim. Todos los derechos reservados.",
+      rightsReserved: "Todos los derechos reservados",
+    },
   },
   en: {
     // Navigation
@@ -207,6 +223,22 @@ const translations: Record<Language, Record<string, string>> = {
     inviteFriends: "INVITE FRIENDS",
     selectQuestionCount: "Select number of questions",
     startTest: "Start test",
+    
+    // Footer
+    footer: {
+      companyDescription: "Educational platform for DGT exam preparation in Spain",
+      address: "Russia, Moscow, City 122",
+      contact: "Contact: support@sdadim.com",
+      legal: "Legal",
+      terms: "Terms and conditions",
+      privacy: "Privacy policy",
+      subscriptionTerms: "Subscription terms",
+      resources: "Resources",
+      support: "Support",
+      supportEmail: "support@sdadim.com",
+      copyright: "© 2025 Sdadim. All rights reserved.",
+      rightsReserved: "All rights reserved",
+    },
   },
   ru: {
     // Navigation
@@ -304,6 +336,22 @@ const translations: Record<Language, Record<string, string>> = {
     inviteFriends: "ПРИГЛАСИТЬ ДРУЗЕЙ",
     selectQuestionCount: "Выбери количество вопросов",
     startTest: "Начать тест",
+    
+    // Footer
+    footer: {
+      companyDescription: "Образовательная платформа для подготовки к экзаменам DGT в Испании",
+      address: "Россия, Москва, Сити 122",
+      contact: "Контакты: support@sdadim.com",
+      legal: "Правовая информация",
+      terms: "Условия использования",
+      privacy: "Политика конфиденциальности",
+      subscriptionTerms: "Условия подписки",
+      resources: "Ресурсы",
+      support: "Поддержка",
+      supportEmail: "support@sdadim.com",
+      copyright: "© 2025 Sdadim. Все права защищены.",
+      rightsReserved: "Все права защищены",
+    },
   },
 };
 
@@ -367,7 +415,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    const keys = key.split('.');
+    let value: any = translations[language];
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        return key;
+      }
+    }
+    
+    return typeof value === 'string' ? value : key;
   };
 
   return (

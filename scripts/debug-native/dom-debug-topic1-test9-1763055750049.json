@@ -1,0 +1,244 @@
+{
+  "topicNumber": 1,
+  "testNumber": 9,
+  "itemsAnalyzed": 30,
+  "rawItemsCount": 60,
+  "stagePresent": true,
+  "reason": "no-questions-found",
+  "debugItems": [
+    {
+      "index": 0,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 1 Por obras en la calzada se ha abierto un carril en sentido contrario al normal. ¿Puede circular por él un turismo con remolque? A Sí, pero solo si el remolque es ligero. B No, sólo pu"
+    },
+    {
+      "index": 1,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 2 En una curva de reducida visibilidad, se debe... A frenar en toda la curva. B circular lo más cerca posible del borde derecho de la calzada. C pisar el embrague en toda la curva. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/cd3cfa89-c158-4b98-a1e2-c48328774c5c-1650386933-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/cd3cfa89-c158-4b98-a1e2-c48328774c5c-1650386933-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 2,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 3 En una vía urbana de un único carril por sentido de circulación, ¿se puede circular a una velocidad máxima de 50 kilómetros por hora? A No, en ningún caso, en este tipo de vías la vel"
+    },
+    {
+      "index": 3,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 4 ¿Puede circular con su motocicleta por un carril bus señalizado con línea longitudinal continua? A Solo para adelantar y durante el recorrido indispensable. B Sí, cuando la circulació"
+    },
+    {
+      "index": 4,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 5 En un túnel, si circula sin intención de adelantar, debe mantener con el vehículo que circula delante una distancia... A de 50 metros cuando circule por debajo de la velocidad máxima permitida. B de, al menos, 100 metros. C de, al menos, 150 metros. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/93ff4ff3-40c3-400c-9d15-095eab3f3ec1-1652271625-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/93ff4ff3-40c3-400c-9d15-095eab3f3ec1-1652271625-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 5,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 6 El uso del teléfono móvil mientras se conduce, ¿Cuándo está permitido? A Sólo cuando se disponga de un dispositivo \"manos libres\". B Nunca, porque puede producir distracciones. C Siem"
+    },
+    {
+      "index": 6,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 7 ¿Qué alumbrado debe llevar encendido un vehículo que circule por un carril de sentido normal, cuando el contiguo este habilitado para la circulación en sentido contrario al habitual? "
+    },
+    {
+      "index": 7,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 8 La velocidad máxima, con carácter general, para un vehículo especial es de... A 45 kilómetros por hora. B 40 kilómetros por hora. C 60 kilómetros por hora. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/eba098dd-6b2c-4d0b-8292-88cfb20469c3-1653072669-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/eba098dd-6b2c-4d0b-8292-88cfb20469c3-1653072669-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 8,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 9 Durante el día, utilizará la luz de corto alcance o de cruce de su turismo cuando circule... A por un carril reservado para autobuses. B por un carril habilitado en sentido contrario al habitual. C por un carril para vehículos con alta ocupación (VAO). Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/8d1a1c7b-a07c-45c9-a700-570a4a0fb3e8-1652201182-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/8d1a1c7b-a07c-45c9-a700-570a4a0fb3e8-1652201182-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 9,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 10 Estos vehículos circulan por un carril habilitado en sentido contrario al habitual. ¿Pueden desplazarse al carril normal de circulación? A Sí, siempre que al hacerlo, no derriben los"
+    },
+    {
+      "index": 10,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 11 Ante este semáforo apagado, ¿qué debe hacer? A Pasar sin detenerme. B Ceder el paso a los vehículos que vengan por la derecha. C Detenerme y después ceder el paso. Vídeo respuesta Ví"
+    },
+    {
+      "index": 11,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 12 Se considera conductor a la persona... A Que maneja el mecanismo de dirección o va al mando del vehículo. B Que conduce a pie un ciclo o un ciclomotor de dos ruedas. C Que maneja el volante de un vehículo cuando circula en practicas. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/4f08801c-727d-42b0-b07b-8bbb07d67db4-1649253991-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/4f08801c-727d-42b0-b07b-8bbb07d67db4-1649253991-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 12,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 13 ¿Tiene prioridad de paso una ambulancia que circule con las señales luminosas apagadas? A No. B Solo tiene preferencia en las vías urbanas. C Sí, tiene preferencia en todo tipo de ví"
+    },
+    {
+      "index": 13,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 14 Entre otras precauciones, ¿de qué debe asegurarse el conductor de un vehículo que tenga que ceder el paso antes de continuar su marcha? A Basta con que el conductor que tiene la prio"
+    },
+    {
+      "index": 14,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 15 ¿Puede adelantar a un vehículo que circule en esta vía a 70 kilómetros por hora? A Sí, cuando no coincida esa velocidad con la genérica de la vía. B No. C Sí, a 90 kilómetros por hor"
+    },
+    {
+      "index": 15,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 16 Los vehículos de movilidad personal (VMP), ¿deben disponer de un sistema de frenado que permita desacelerar el vehículo hasta su total detención? A No; el sistema de frenado es un el"
+    },
+    {
+      "index": 16,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 17 Un turismo con remolque ligero, ¿puede circular por un carril abierto a la circulación en sentido contrario al habitual? A Sí, cuando haya sido abierto por razones de fluidez de la c"
+    },
+    {
+      "index": 17,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 18 En vía urbana con varios carriles para cada sentido, ¿por cuál de ellos circulará como norma general? A Por el que más convenga a su destino, estén o no delimitados los carriles. B P"
+    },
+    {
+      "index": 18,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 19 Si se encuentra detenido ante una señal de stop, ¿puede utilizar su teléfono móvil? A Sí, ya que el vehículo está detenido. B No, de ninguna manera. C Solo con un dispositivo de mano"
+    },
+    {
+      "index": 19,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 20 En los tramos de vía en los que, por su estrechez, no se puedan cruzar dos vehículos, tiene preferencia de paso el vehículo que... A tenga menores dificultades de maniobra. B circule por una vía descendente. C entre primero en el paso estrecho. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/77fd663e-1e3b-47ce-8ed9-8fcfeaf14325-1657732424-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/77fd663e-1e3b-47ce-8ed9-8fcfeaf14325-1657732424-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 20,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 21 El carril reversible está abierto. ¿Puede atravesar la línea doble discontinua de la izquierda para adelantar? A Sí, porque la línea es discontinua. B No C Sí, porque el carril de la"
+    },
+    {
+      "index": 21,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 22 Una fila escolar va a cruzar la calzada, ¿es obligatorio cederle el paso? A No. B Solo si cruza por un paso para peatones. C Sí. Vídeo respuesta Vídeo tema Esquema Libro Reportar una"
+    },
+    {
+      "index": 22,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 23 ¿Puede usar el teléfono móvil mientras conduce con cualquier dispositivo de manos libres? A Sí, mientras se pueda hacer sin emplear las manos, ni usar cascos o auriculares. B No, nun"
+    },
+    {
+      "index": 23,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 24 ¿Circula correctamente el vehículo amarillo? A Sí, porque circula a más de 70 km/h. B Si, porque puede circular por el carril que más convenga a su destino. C No, porque está libre e"
+    },
+    {
+      "index": 24,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 25 Mantener la distancia de seguridad adecuada, sobre todo en ciudad, ¿es una recomendación válida para evitar accidentes con las motocicletas? A Sí, porque se pueden evitar alcances. B"
+    },
+    {
+      "index": 25,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 26 En esta intersección sin señalizar, los tres vehículos van a seguir circulando de frente, ¿cuál de ellos tiene preferencia entre los demás? A El vehículo azul. B El vehículo amarillo"
+    },
+    {
+      "index": 26,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 27 Si debido a una avería, un turismo circula a velocidad anormalmente reducida, sin interrumpir la circulación, ¿por dónde debe circular? A Por el arcén, obligatoriamente. B No podrá s"
+    },
+    {
+      "index": 27,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 28 Un vehículo circula a velocidad anormalmente reducida cuando... A no se adapta a las circunstancias de la vía. B circula a velocidad inferior a la del resto de los conductores. C circula a velocidad inferior a la mínima permitida en esa vía. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/f6828be2-de5c-45b6-8a62-34b4dd1c65d5-1653072934-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/f6828be2-de5c-45b6-8a62-34b4dd1c65d5-1653072934-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 28,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 29 El conductor del turismo amarillo... A circula por un carril reversible. B no puede utilizar el carril por el que circula. C debe llevar al menos dos ocupantes para utilizar el carril por el que circula. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/aa780f64-3ad4-4d3a-ae47-5f5f4b61cbe0-1652199899-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/aa780f64-3ad4-4d3a-ae47-5f5f4b61cbe0-1652199899-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 29,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 30 Si circula por un túnel con un conjunto de vehículos de menos de 3.500 kg de MMA, ¿qué separación debe de dejar con el vehículo de delante si no pretende adelantar? A Al menos 150 me"
+    }
+  ]
+}

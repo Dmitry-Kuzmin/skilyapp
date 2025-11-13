@@ -1,0 +1,241 @@
+{
+  "topicNumber": 1,
+  "testNumber": 5,
+  "itemsAnalyzed": 30,
+  "rawItemsCount": 60,
+  "stagePresent": true,
+  "reason": "no-questions-found",
+  "debugItems": [
+    {
+      "index": 0,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 1 En esta calle no hay señal de limitación de velocidad. ¿A qué velocidad máxima se puede circular? A 40 km/h. B 60 km/h. C 30 km/h. Vídeo respuesta Vídeo tema Esquema Libro Reportar un"
+    },
+    {
+      "index": 1,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 2 ¿Qué dispositivos luminosos son obligatorios en un patinete eléctrico? A Ninguno. B Una luz delantera, otra trasera y la luz de freno opcional. C Una luz delantera, otra trasera y la "
+    },
+    {
+      "index": 2,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 3 Si no obstaculiza la marcha de otro vehículo que le sigue, ¿actúa correctamente? A Sí, porque deja libre el carril izquierdo para los adelantamientos. B Sí. C No, debe circular por el"
+    },
+    {
+      "index": 3,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 4 La habilitación de uno o varios carriles para la circulación VAO, ¿será siempre temporal y con horario fijo? A No, podrá ser permanente y con un horario en función de las necesidades "
+    },
+    {
+      "index": 4,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 5 En vías interurbanas con tres carriles para el mismo sentido, ¿le está permitido circular por el carril izquierdo a un turismo con remolque? A Sí, pero sólo para adelantar a otros veh"
+    },
+    {
+      "index": 5,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 6 En las zonas urbanas, ¿por dónde están obligados a circular los peatones, como norma general? A Es indiferente. B Por la calzada. C Por las aceras. Vídeo respuesta Vídeo tema Esquema "
+    },
+    {
+      "index": 6,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 7 De acuerdo con la señalización, ¿es correcto utilizar el alumbrado del vehículo? A Sí, al menos, la luz de cruce porque el vehículo circula por un carril reversible. B No, porque es d"
+    },
+    {
+      "index": 7,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 8 En una vía fuera de poblado en la que no existe zona peatonal ni arcén practicable, ¿está permitido que un peatón circule por la calzada? A No. B Sí, siempre que tome las debidas prec"
+    },
+    {
+      "index": 8,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 9 En una travesía, ¿cuál es la velocidad máxima permitida para una motocicleta? A 45 kilómetros por hora. B 50 kilómetros por hora. C 80 kilómetros por hora. Vídeo respuesta Vídeo tema "
+    },
+    {
+      "index": 9,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 10 Un vehículo prioritario circula haciendo uso únicamente de las señales luminosas especiales, ¿es obligatorio facilitarle el paso? A No, si no usa también las señales acústicas especi"
+    },
+    {
+      "index": 10,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 11 Los animales tienen prioridad de paso sobre los vehículos... A en las cañadas debidamente señalizadas. B en los tramos regulados por la señal de peligro por la proximidad de un lugar de paso de animales. C cuando circulen en rebaño y estén dirigidos por un pastor. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/ab50bb9f-550c-4392-964f-0cb201dadbd1-1657732057-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/ab50bb9f-550c-4392-964f-0cb201dadbd1-1657732057-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 11,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 12 En autovía, ¿Puede un turismo aumentar la velocidad máxima permitida para adelantar? A En autopista si, en autovía no. B No, porque está prohibido. C Sí, en 20 kilómetros por hora má"
+    },
+    {
+      "index": 12,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 13 Está prohibido arrojar a la vía objetos... A únicamente si pueden entorpecer la libre circulación. B que puedan deteriorar la vía o sus instalaciones. C solamente si pueden deteriorar la vía. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/9e2ae360-5905-40e7-b08c-055794610159-1649351485-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/9e2ae360-5905-40e7-b08c-055794610159-1649351485-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 13,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 14 En una carretera convencional, la velocidad máxima a la que puede circular un automóvil derivado de turismo es de... A 80 km/h. B 90 km/h. C 100 km/h. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/39fa2fad-9b94-4b7d-accd-d346394f8fce-1653062237-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/39fa2fad-9b94-4b7d-accd-d346394f8fce-1653062237-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 14,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 15 Para el computo de carriles, no se tendrán en cuenta los carriles... A reversibles. B adicionales. C Reservados a determinados vehículos. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/19892730-d93e-4904-b4b8-f23301015a0d-1651514466-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/19892730-d93e-4904-b4b8-f23301015a0d-1651514466-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 15,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 16 En esta vía urbana que dispone de plataforma única de calzada y acera, en la que no existe señalización específica de velocidad, ¿a qué velocidad máxima se puede circular? A A 20 km/"
+    },
+    {
+      "index": 16,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 17 ¿En qué caso debe aumentarse la distancia de seguridad? A Al aumentar la velocidad de circulación de los vehículos. B Al preparar un adelantamiento. C Al disminuir la velocidad de ci"
+    },
+    {
+      "index": 17,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 18 ¿Por qué tipo de vías tienen prohibida la circulación los ciclomotores? A Por todas las vías situadas fuera de poblado. B Por las autopistas y autovías. C Por las carreteras convenci"
+    },
+    {
+      "index": 18,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 19 Fuera de poblado, deben circular por la calzada y no por el arcén todos los automóviles y... A todos los vehículos especiales. B los vehículos especiales con MMA superior a 3.500 kilogramos. C los vehículos especiales con MMA no superior a 3.500 kilogramos. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/c5c52429-ed42-444c-9731-03a0c6b000bb-1650387012-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/c5c52429-ed42-444c-9731-03a0c6b000bb-1650387012-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 19,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 20 Circula con su turismo por esta carretera que tiene un arcén de menos de 1,5 metros, ¿cuál es la velocidad máxima permitida? A 80 km/h. B 90 km/h. C 100 km/h. Vídeo respuesta Vídeo t"
+    },
+    {
+      "index": 20,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 21 El ciclista de la fotografía, ¿circula correctamente? A Sí, pues sólo cuando le adelanta un vehículo debe circular junto al borde derecho de la calzada. B Sí, pues lo hace junto al b"
+    },
+    {
+      "index": 21,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 22 ¿A qué velocidad máxima tiene permitido circular un ciclomotor por esta carretera convencional con un carril para cada sentido de la circulación? A 60 kilómetros por hora. B 45 kilóm"
+    },
+    {
+      "index": 22,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 23 Un vehículo prioritario, ¿tiene prioridad de paso sobre los demás usuarios de la vía en una intersección? A No, en ningún caso. B Sí, siempre. C Solo cuando circule en servicio de ur"
+    },
+    {
+      "index": 23,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 24 Circula con un turismo por una autovía con tráfico muy denso, ¿está permitido circular por el arcén para tomar la siguiente salida? A No. B Sí, para facilitar la fluidez. C Sí, con l"
+    },
+    {
+      "index": 24,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 25 Por una autovía, ¿puede circular un ciclomotor? A No. B Depende de la velocidad a la que circule. C Sí, por el arcén. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora"
+    },
+    {
+      "index": 25,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 26 Los vehículos prioritarios que circulen en servicio urgente advertirán su presencia... A con la utilización simultánea de la señal de emergencia y la señal acústica. B mediante la utilización simultánea de la señal luminosa y la señal acústica. C solamente con la señal acústica. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/1782c830-1edb-47de-a96b-e780a4872997-1657732107-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/1782c830-1edb-47de-a96b-e780a4872997-1657732107-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 26,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 27 Los conductores deben ceder el paso a los animales... A cuando vayan a girar con su vehículo para entrar en otra vía y haya animales cruzándola, aunque no exista paso para éstos. B siempre que se crucen sus trayectorias. C únicamente en las cañadas debidamente señalizadas. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/44191510-8d66-4df1-af6c-b48583c099f4-1657732002-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/44191510-8d66-4df1-af6c-b48583c099f4-1657732002-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 27,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 28 ¿Está permitido que las motocicletas circulen por un carril VAO? A No, porque las motocicletas no se consideran vehículos de alta ocupación. B No, porque por estos carriles solo pued"
+    },
+    {
+      "index": 28,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 29 Con niebla, ¿debe modificar su velocidad? A Sí, reduciéndola para adaptarla al espacio visible. B No es necesario. C Sólo cuando hay niebla muy espesa. Vídeo respuesta Vídeo tema Esq"
+    },
+    {
+      "index": 29,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 30 En vías urbanas de dos carriles o más por sentido, ¿cuál es la velocidad máxima permitida para motocicletas? A 50 km/h. B 60 km/h. C 45 km/h. Vídeo respuesta Vídeo tema Esquema Libro"
+    }
+  ]
+}

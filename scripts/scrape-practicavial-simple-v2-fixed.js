@@ -295,15 +295,48 @@ async function extractQuestionsFromDom(page, topicNumber, testNumber) {
           }
         }
         
+        const rawTextNormalized = normalize(container.innerText || '');
+        const sanitizedText = rawTextNormalized
+          .replace(/^Ampliar imagen\s*\d+\s*/i, '')
+          .replace(/(Vídeo respuesta|Video respuesta|Vídeo tema|Video tema|Esquema|Libro|Reportar una mejora|Reportar un[a]? mejora).*$/i, '')
+          .trim();
+        
+        const dataHintElements = Array.from(container.querySelectorAll('[data-question_id], [data-question-id], [data-answer_id], [data-answer-id], [data-answer]')).slice(0, 5);
+        const dataHints = dataHintElements.map((el) => {
+          const dataset = {};
+          if (el.dataset) {
+            Object.keys(el.dataset).forEach((key) => {
+              dataset[key] = el.dataset[key];
+            });
+          }
+          return {
+            tag: el.tagName,
+            classes: el.classList ? Array.from(el.classList).slice(0, 5) : [],
+            dataset,
+          };
+        });
+        
+        if ((!questionText || questionText.length < 8) && sanitizedText) {
+          const answerStartMatch = sanitizedText.match(/\s[A-E]\s*[).:\-–]?\s/);
+          if (answerStartMatch) {
+            const possibleQuestion = sanitizedText.slice(0, answerStartMatch.index).trim();
+            if (possibleQuestion.length > 5) {
+              questionText = possibleQuestion;
+            }
+          }
+        }
+        
         if (!questionText) {
           if (debugItems.length < 40) {
             debugItems.push({
               index,
               skipped: true,
               reason: 'no-question-text',
-              rawText: normalize(container.innerText || ''),
-              html: container.outerHTML ? container.outerHTML.slice(0, 500) : null,
+              rawText: rawTextNormalized,
+              sanitizedText: sanitizedText,
+              html: container.outerHTML ? container.outerHTML.slice(0, 4000) : null,
               classList: container.classList ? Array.from(container.classList) : null,
+              dataHints,
             });
           }
           return;
@@ -391,6 +424,46 @@ async function extractQuestionsFromDom(page, topicNumber, testNumber) {
           });
         }
         
+        if (answers.length < 2 && sanitizedText) {
+          const answerMatches = [];
+          const letterRegex = /\s([A-E])\s*[).:\-–]?\s*/g;
+          let letterMatch;
+          while ((letterMatch = letterRegex.exec(sanitizedText)) !== null) {
+            answerMatches.push({
+              letter: letterMatch[1],
+              index: letterMatch.index,
+              tokenLen: letterMatch[0].length,
+            });
+          }
+          
+          if (answerMatches.length >= 2) {
+            answers.length = 0;
+            for (let i = 0; i < answerMatches.length; i++) {
+              const current = answerMatches[i];
+              const start = current.index + current.tokenLen;
+              const end = i + 1 < answerMatches.length ? answerMatches[i + 1].index : sanitizedText.length;
+              let answerText = sanitizedText.slice(start, end).trim();
+              if (!answerText) continue;
+              
+              answers.push({
+                text: answerText,
+                is_correct: false,
+                order: answers.length + 1,
+                letter: current.letter,
+                answer_id: null,
+                name: null,
+              });
+            }
+            
+            if ((!questionText || questionText.length < 8) && answerMatches.length) {
+              const possibleQuestion = sanitizedText.slice(0, answerMatches[0].index).trim();
+              if (possibleQuestion.length > 5) {
+                questionText = possibleQuestion;
+              }
+            }
+          }
+        }
+        
         if (answers.length < 2) {
           if (debugItems.length < 40) {
             debugItems.push({
@@ -398,7 +471,11 @@ async function extractQuestionsFromDom(page, topicNumber, testNumber) {
               skipped: true,
               reason: 'not-enough-answers',
               answersFound: answers.length,
-              containerText: normalize(container.innerText || '').slice(0, 200),
+              containerText: rawTextNormalized.slice(0, 200),
+              sanitizedText: sanitizedText,
+              html: container.outerHTML ? container.outerHTML.slice(0, 4000) : null,
+              classList: container.classList ? Array.from(container.classList) : null,
+              dataHints,
             });
           }
           return;
@@ -412,9 +489,11 @@ async function extractQuestionsFromDom(page, topicNumber, testNumber) {
             question_text: questionText.slice(0, 200),
             answers_count: answers.length,
             first_answer: answers[0]?.text || null,
-            html: container.outerHTML ? container.outerHTML.slice(0, 800) : null,
+            sanitizedText: sanitizedText,
+            html: container.outerHTML ? container.outerHTML.slice(0, 4000) : null,
             classList: container.classList ? Array.from(container.classList) : null,
             hasImage: !!imageUrl,
+            dataHints,
           });
         }
         

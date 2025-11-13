@@ -1,0 +1,232 @@
+{
+  "topicNumber": 1,
+  "testNumber": 2,
+  "itemsAnalyzed": 30,
+  "rawItemsCount": 60,
+  "stagePresent": true,
+  "reason": "no-questions-found",
+  "debugItems": [
+    {
+      "index": 0,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 1 La velocidad máxima para un vehículo mixto adaptable en autopista es... A 120 km/h. B 100 km/h. C 90 km/h. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/05c55a86-c6f1-4f26-849c-750929c9761d-1653064183-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/05c55a86-c6f1-4f26-849c-750929c9761d-1653064183-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 1,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 2 Un turismo con el distintivo ambiental de la imagen, clasificado como C, ¿está autorizado a circular por un carril VAO si su único ocupante es el conductor? A Sí, siempre que lleve el"
+    },
+    {
+      "index": 2,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 3 En una vía de doble sentido, ¿por qué lado de una isleta se circulará? A Por su derecha. B Por su izquierda. C Por su derecha o por su izquierda, indistintamente. Vídeo respuesta Víde"
+    },
+    {
+      "index": 3,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 4 En autopista, ¿a qué velocidad máxima puede circular una motocicleta? A 120 km/h, pudiendo alcanzar 140 km/h para adelantar. B 120 km/h. C 100 km/h. Vídeo respuesta Vídeo tema Esquema"
+    },
+    {
+      "index": 4,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 5 No se tienen en cuenta, a efectos de la normal utilización, los carriles... A reservados a ciertas maniobras. B reversibles. C especiales. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/ddf9cfcd-04ba-48c1-a872-c1afc8344fe8-1651514666-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/ddf9cfcd-04ba-48c1-a872-c1afc8344fe8-1651514666-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 5,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 6 Un conjunto de turismo con remolque ligero, que mide menos de 7 metros, ¿por dónde debe circular? A Por el carril de la derecha, por ser este el único permitido para remolques. B Por "
+    },
+    {
+      "index": 6,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 7 Los peatones, ¿tienen los mismos derechos que los vehículos para utilizar las vías públicas? A No. B Si. C Solo en las calles residenciales. Vídeo respuesta Vídeo tema Esquema Libro R"
+    },
+    {
+      "index": 7,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 8 En esta autopista, el vehículo que circula por el carril izquierdo y no está adelantando, ¿circula correctamente? A Sí, porque no impide el paso a otros vehículos. B No, porque debe c"
+    },
+    {
+      "index": 8,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 9 ¿Cuál es el número máximo de plazas autorizadas, incluida la del conductor, que puede tener una furgoneta para poder circular? A 9 plazas. B 3 plazas. C 5 plazas. Vídeo respuesta Víde"
+    },
+    {
+      "index": 9,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 10 Cuando viaje con su mascota, ¿en qué lugar del vehículo podrá situarla para evitar que interfiera en la conducción? A En el asiento delantero ya que si dispone de airbag frontal esta"
+    },
+    {
+      "index": 10,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 11 Cuando no exista zona peatonal o ésta no sea practicable, los peatones, ¿pueden circular por el arcén? A No, deben circular por la calzada. B Sólo en vías urbanas; fuera de poblado n"
+    },
+    {
+      "index": 11,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 12 ¿Qué indica esta señal? A Que solo pueden circular autobuses y motocicletas por ese carril. B Que el carril está destinado exclusivamente a vehículos que tengan más de 2 plazas, aunq"
+    },
+    {
+      "index": 12,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 13 Como norma general, fuera de poblado, ¿por qué lado de la vía deberán circular los peatones? A Por su izquierda. B Si existe arcén, indistintamente por su derecha o por su izquierda."
+    },
+    {
+      "index": 13,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 14 Conduce un camión de 3.000 kg de MMA. ¿Qué distancia debe dejar en este tramo de carretera? A 50 metros. B La distancia de seguridad. C La distancia que permita a otros vehículos ade"
+    },
+    {
+      "index": 14,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 15 Los vehículos de movilidad personal para transporte de personas, ¿deben llevar catadióptricos? A Sí, y sustituirán al alumbrado en condiciones de baja visibilidad. B Sí, llevarán cat"
+    },
+    {
+      "index": 15,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 16 En un tramo de vía de doble sentido, si no va a adelantar, ¿en qué caso deberá guardar una distancia mínima de 50 metros con el vehículo de delante? A Cuando conduzca un camión de 3."
+    },
+    {
+      "index": 16,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 17 ¿Está permitida la circulación de cabezas de ganado, aisladas o en rebaño, por una carretera convencional? A Solo cuando no exista vía pecuaria practicable. B Sí, aunque siempre debe"
+    },
+    {
+      "index": 17,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 18 ¿Por dónde debe circular un rebaño de animales? A Por el borde izquierdo de la vía, sin ocupar nunca más de la mitad de la parte izquierda de la calzada. B Por el borde derecho de la"
+    },
+    {
+      "index": 18,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 19 Este turismo está averiado y circula muy despacio dificultando la circulación. ¿Puede circular por el arcén? A No, porque está prohibido. B Sí, para facilitar el paso. C Solo si el a"
+    },
+    {
+      "index": 19,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 20 Si un vehículo no prioritario efectúa un servicio de los normalmente reservados a los prioritarios y así lo advierte su conductor con señales acústicas y luminosas, los demás conductores... A le facilitarán el paso, llegando a detenerse si fuera preciso. B no están obligados a facilitarle el paso, al no tratarse de un vehículo prioritario. C se apartaran a la derecha, pero en ningún caso detendrán sus vehículos. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/e3958fc1-f99d-4988-af5b-239d428282ce-1657732343-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/e3958fc1-f99d-4988-af5b-239d428282ce-1657732343-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 20,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 21 ¿Por dónde se debe circular en un cambio de rasante de reducida visibilidad? A Por donde más convenga a mi destino. B Por la izquierda, aunque se invada parte del centro de la calzad"
+    },
+    {
+      "index": 21,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 22 Como norma general, ¿cuál es la parte de la carretera destinada a la circulación de turismos? A La calzada. B La mediana. C Los carriles y arcenes. Vídeo respuesta Vídeo tema Esquema"
+    },
+    {
+      "index": 22,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 23 Estos ciclistas circulan en columna de a dos, ¿circulan correctamente? A Sí. B No, porque deben circular por la calzada, sin invadir el arcén. C No, porque deben circular en hilera s"
+    },
+    {
+      "index": 23,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 24 ¿Quién tiene preferencia de paso en esta intersección sin señalizar y por qué motivo? A El tranvía, porque circula sobre raíles. B El turismo, porque circula por la vía pavimentada. "
+    },
+    {
+      "index": 24,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 25 Si el conductor del ciclomotor decide adelantar al tractor, debe de tener en cuenta que... A deberá realizar la maniobra sin salirse del arcén. B no podrá circular en paralelo con el tractor más de 15 segundos o 200 metros. C no podrá adelantar mientras circulen vehículos en sentido contrario. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/81b4341d-81e9-4354-a1df-d50dc3bb2db2-1652207384-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/81b4341d-81e9-4354-a1df-d50dc3bb2db2-1652207384-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 25,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 26 En una autovía, ¿a qué velocidad máxima está permitido circular a un turismo con un remolque de 700 kg de MMA? A A 80 km/h. B A 100 km/h. C A 90 km/h. Vídeo respuesta Vídeo tema Esqu"
+    },
+    {
+      "index": 26,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 27 Un turismo con remolque, ¿cuándo puede utilizar el tercer carril circulando fuera de poblado si tiene tres carriles para el mismo sentido? A Cuando pretenda adelantar. B Cuando el co"
+    },
+    {
+      "index": 27,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 28 Al cruzar un arcén por el que circulan peatones en una zona en la que no existe zona peatonal, ¿qué debe hacer? A Ceder el paso a los peatones, pues tienen preferencia. B Avisar a lo"
+    },
+    {
+      "index": 28,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 29 Para incorporarse a la vía principal, un turismo tiene que atravesar un carril bici debidamente señalizado; ¿deberá ceder el paso a los ciclistas que circulan por el mismo? A Sí; los"
+    },
+    {
+      "index": 29,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 30 El conductor de una motocicleta, ¿puede circular en el mismo carril que la otra motocicleta que está circulando en paralelo? A No. B Sí, en columna de a dos orillándose todo lo posib"
+    }
+  ]
+}

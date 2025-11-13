@@ -1,0 +1,238 @@
+{
+  "topicNumber": 1,
+  "testNumber": 3,
+  "itemsAnalyzed": 30,
+  "rawItemsCount": 60,
+  "stagePresent": true,
+  "reason": "no-questions-found",
+  "debugItems": [
+    {
+      "index": 0,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 1 Un ciclomotor ocupado por dos personas, ¿puede utilizar normalmente un carril VAO? A No. B Sí, porque van dos personas. C Sí, si circula por el arcén. Vídeo respuesta Vídeo tema Esque"
+    },
+    {
+      "index": 1,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 2 ¿Cuál es la velocidad máxima a la que puede circular un ciclomotor? A 70 km/h. B 45 km/h, pudiendo superarla en 20 km/h para adelantar. C 45 km/h. Vídeo respuesta Vídeo tema Esquema L"
+    },
+    {
+      "index": 2,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 3 En un estrechamiento sin señales de prioridad se encuentran un turismo que arrastra un remolque y un autobús, sin que se sepa cual entró primero, ¿qué vehículo tiene preferencia? A El"
+    },
+    {
+      "index": 3,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 4 Un turismo que arrastra un remolque ligero, ¿a qué velocidad máxima puede circular por autopista o autovía? A A 100 km/h. B A 80 km/h. C A 90 km/h. Vídeo respuesta Vídeo tema Esquema "
+    },
+    {
+      "index": 4,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 5 Modificar la señalización de la vía... A está permitido siempre que la modificación ayude a aclarar el sentido de la señalización. B no está prohibido, pero no es recomendable. C está prohibido, salvo por causa justificada. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/63cb1926-7b33-4c60-9d01-c2e6b32e40ab-1649351396-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/63cb1926-7b33-4c60-9d01-c2e6b32e40ab-1649351396-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 5,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 6 En una autopista en caso de avería, ¿está permitido que circule por el arcén izquierdo? A Sí, cuando el vehículo haya sufrido la avería circulando por el carril izquierdo. B No, porqu"
+    },
+    {
+      "index": 6,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 7 En una carretera cuya velocidad genérica es de 90 km/h, ¿qué velocidad se considera anormalmente reducida para un turismo? A La inferior a 55 km/h. B La inferior a 60 km/h. C La infer"
+    },
+    {
+      "index": 7,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 8 Circula con su turismo por una vía que se cruza con un carril bici, ¿debe ceder el paso a los ciclistas? A Sí, siempre. B Sólo cuando se aproximen por la derecha. C No, los ciclistas "
+    },
+    {
+      "index": 8,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 9 Los conductores que llegan a un puente móvil cerrado o con la barrera o semibarrera en movimiento, deben... A dar la vuelta y buscar otro itinerario. B detenerse uno detrás de otro en el carril adecuado. C acelerar y pasar cuanto antes. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/f8f4083b-c163-4b4d-bdc7-f278a92bf58d-1657731408-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/f8f4083b-c163-4b4d-bdc7-f278a92bf58d-1657731408-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 9,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 10 ¿Puede circular un turismo por un carril BUS señalizado con línea longitudinal continua? A No. B Sí, cuando el carril está en vía urbana. C Sí, para girar a la derecha. Vídeo respues"
+    },
+    {
+      "index": 10,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 11 ¿Está permitido circular por una autovía, sin causa justificada, por debajo del límite mínimo de velocidad establecido para dicha vía? A No, porque es una velocidad anormalmente redu"
+    },
+    {
+      "index": 11,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 12 En una vía interurbana sin arcén, ¿por dónde debe circular un ciclomotor? A Por el centro del carril derecho. B Por el carril izquierdo, ocupando la parte imprescindible de la calzad"
+    },
+    {
+      "index": 12,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 13 Un conductor gira con su vehículo para entrar en otra vía, ¿debe ceder el paso a un peatón que está cruzándola? A No, salvo que exista un paso para peatones. B Sí, aunque no exista u"
+    },
+    {
+      "index": 13,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 14 En esta situación, usted no quiere adelantar al camión. ¿Qué distancia debe dejar? A La distancia para que otro vehículo pueda adelantar. B La distancia de seguridad. C 50 metros. Ví"
+    },
+    {
+      "index": 14,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 15 En vías interurbanas con tres carriles para el mismo sentido, ¿puede un turismo circular por el carril izquierdo? A Sí, cuando las circunstancias del tráfico o de la vía lo aconsejen"
+    },
+    {
+      "index": 15,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 16 Son remolques ligeros aquellos cuya MMA… A Es igual a 750 Kg. B Supera los 750 Kg. C No supera los 750 kg. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/f869f160-a1da-4046-9d25-4beb09832758-1649181098-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/f869f160-a1da-4046-9d25-4beb09832758-1649181098-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 16,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 17 Como norma general, ¿Qué vehículos tienen permitida la circulación por las aceras? A Las bicicletas y los vehículos de movilidad personal. B Ninguno. C Las motocicletas y ciclomotore"
+    },
+    {
+      "index": 17,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 18 Si no pretende adelantar, ¿dónde no es necesario dejar con el vehículo de delante una separación que permita ser adelantando con seguridad por los vehículos que le sigan? A En vías i"
+    },
+    {
+      "index": 18,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 19 ¿Qué vehículos ocupados con solo el conductor, pueden circular por el carril de alta ocupación (Bus Vao)? A Los vehículos que ostenten la señal V-15. B Los turismos con remolque. C T"
+    },
+    {
+      "index": 19,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 20 En vías divididas en tres calzadas, la central podrá estar destinada a la circulación en... A los dos sentidos o en sentido único, según disponga la señalización. B sentido único, en cualquier caso. C los dos sentidos, siempre. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/46d7f60c-94a2-4345-b38f-c9ecbcb27466-1650649124-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/46d7f60c-94a2-4345-b38f-c9ecbcb27466-1650649124-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 20,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 21 En una glorieta regulada exclusivamente por esta señal, ¿quién tiene prioridad de paso? A El vehículo que se encuentra dentro de la calzada circular. B El vehículo que pretende acced"
+    },
+    {
+      "index": 21,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 22 En relación con la seguridad vial, ¿por qué es importante no superar la velocidad máxima genérica de 50 km/h en vía urbana? A Porque a menor velocidad, menor es también el consumo de"
+    },
+    {
+      "index": 22,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 23 Un vehículo derivado de turismo y un camión entran a la vez en un tramo muy estrecho de la calzada sin señalizar, ¿qué vehículo está obligado a retroceder? A El vehículo derivado de "
+    },
+    {
+      "index": 23,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 24 ¿En qué vías es obligatorio dejar la distancia de seguridad con el vehículo que circula delante para permitir que otro pueda adelantar? A En autopistas y autovías. B En carreteras co"
+    },
+    {
+      "index": 24,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 25 En esta autovía, el turismo está adelantando, ¿a qué velocidad máxima se puede circular para adelantar? A A 140 km/h. B A 130 km/h. C A 120 km/h. Vídeo respuesta Vídeo tema Esquema L"
+    },
+    {
+      "index": 25,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 26 Al aproximarse a un paso a nivel o a un puente móvil debe... A extremar la precaución y circular a una velocidad moderada. B circular a la velocidad máxima para pasar lo antes posible. C detenerse en todo caso. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/c4060588-6f8b-4155-a827-2f6de56c1d4a-1658137485-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/c4060588-6f8b-4155-a827-2f6de56c1d4a-1658137485-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 26,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 27 En esta intersección sin señalizar, ¿qué vehículo pasará primero? A El turismo. B El camión. C El ciclomotor. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora"
+    },
+    {
+      "index": 27,
+      "skipped": true,
+      "reason": "no-question-text",
+      "rawText": "Ampliar imagen 28 En una carretera convencional, se prohíbe circular a los turismos a una velocidad inferior a... A 60 km/h. B 45 km/h. C 55 km/h. Vídeo respuesta Vídeo tema Esquema Libro Reportar una mejora",
+      "html": "<div class=\"simula-slider-items\">\n    <div class=\"fallos-color-wrapper\">\n        <div class=\"row\">\n            <div class=\"col-lg-4\">\n                <div class=\"fallos-thumb\">\n                    <img src=\"/question/4e76f8b3-8d31-4df2-a6bf-54f006b69dab-1653063860-i.jpg\" alt=\"\" class=\"pop-image full-image\"><br>\n                    <a href=\"javascript:void(0);\" data-src=\"/question/4e76f8b3-8d31-4df2-a6bf-54f006b69dab-1653063860-i.jpg\" class=\"pop-image-message\"><i class=\"fa fa-search-plus\"></i> Am",
+      "classList": [
+        "simula-slider-items"
+      ]
+    },
+    {
+      "index": 28,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 29 En una carretera convencional con tres carriles para cada uno de los sentidos y separación física de los mismos, ¿a qué velocidad máxima le está permitido circular a un turismo para "
+    },
+    {
+      "index": 29,
+      "skipped": true,
+      "reason": "not-enough-answers",
+      "answersFound": 0,
+      "containerText": "Ampliar imagen 30 En la vía que se observa en la fotografía, ¿qué carril debe utilizar para circular, como norma general? A Cualquiera de los carriles de mi sentido de la marcha. B El carril situado m"
+    }
+  ]
+}
