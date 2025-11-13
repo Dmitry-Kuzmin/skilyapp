@@ -296,31 +296,96 @@ const TestSession = () => {
     let handleEndedRef: (() => void) | null = null;
     let handleErrorRef: (() => void) | null = null;
     let handleTimeUpdateRef: (() => void) | null = null;
+    let playlist: string[] = []; // Будет загружен из Supabase Storage
 
-    // Плейлист - только Pixabay треки (надежный источник с прямым доступом)
-    // Увеличен выбор треков для разнообразия
-    const playlist = [
-      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano
-      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation
-      'https://cdn.pixabay.com/audio/2022/03/15/audio_c610232531.mp3', // Ambient Relaxation
-      'https://cdn.pixabay.com/audio/2022/08/02/audio_884fe50c21.mp3', // Deep Focus
-      'https://cdn.pixabay.com/audio/2023/02/28/audio_c6b0c2b99f.mp3', // Peaceful Piano
-      'https://cdn.pixabay.com/audio/2022/10/18/audio_2c7cc83d72.mp3', // Soft Background
-      'https://cdn.pixabay.com/audio/2023/06/12/audio_9a2d2a5dfa.mp3', // Calm Atmosphere
-      'https://cdn.pixabay.com/audio/2022/09/05/audio_49bc6fa4d8.mp3', // Gentle Waves
-    ];
+    // Загрузка плейлиста из Supabase Storage
+    const loadPlaylist = async () => {
+      try {
+        console.log('[Ambient Music] Загрузка плейлиста из Supabase Storage...');
+        
+        const { data, error } = await supabase.storage
+          .from('ambient-music')
+          .list('', {
+            limit: 100,
+            sortBy: { column: 'name', order: 'asc' }
+          });
+
+        if (error) {
+          console.error('[Ambient Music] ❌ Ошибка загрузки плейлиста:', error);
+          // Fallback: используем 2 проверенных Pixabay трека
+          playlist = [
+            'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+            'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3',
+          ];
+          console.log('[Ambient Music] Используем fallback плейлист (2 трека)');
+          return playlist;
+        }
+
+        if (!data || data.length === 0) {
+          console.warn('[Ambient Music] ⚠️ Bucket пустой, используем fallback');
+          // Fallback: используем 2 проверенных Pixabay трека
+          playlist = [
+            'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+            'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3',
+          ];
+          return playlist;
+        }
+
+        // Фильтруем только аудио файлы и получаем public URLs
+        const audioFiles = data.filter(file => 
+          file.name.endsWith('.mp3') || 
+          file.name.endsWith('.wav') || 
+          file.name.endsWith('.ogg')
+        );
+
+        if (audioFiles.length === 0) {
+          console.warn('[Ambient Music] ⚠️ Нет аудио файлов в bucket, используем fallback');
+          playlist = [
+            'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+            'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3',
+          ];
+          return playlist;
+        }
+
+        // Получаем public URLs для всех файлов
+        playlist = audioFiles.map(file => {
+          const { data: { publicUrl } } = supabase.storage
+            .from('ambient-music')
+            .getPublicUrl(file.name);
+          return publicUrl;
+        });
+
+        console.log(`[Ambient Music] ✅ Плейлист загружен: ${playlist.length} треков из Supabase Storage`);
+        return playlist;
+      } catch (error) {
+        console.error('[Ambient Music] ❌ Критическая ошибка загрузки:', error);
+        // Fallback
+        playlist = [
+          'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+          'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3',
+        ];
+        return playlist;
+      }
+    };
 
     if (ambientMusic) {
-      audioElement = new Audio();
-      audioElement.volume = 0.10;
-      // НЕ устанавливаем crossOrigin - это вызывает CORS проблемы
-      audioElement.preload = "auto";
-      audioElement.loop = false; // ВАЖНО: отключаем зацикливание для автоматического переключения
-      
-      // Выбираем первый трек последовательно (начинаем с 0)
-      currentTrackIndex = 0;
-      
-      // Функция для загрузки и воспроизведения трека с обработкой ошибок
+      // Сначала загружаем плейлист, затем инициализируем аудио
+      loadPlaylist().then(() => {
+        if (playlist.length === 0) {
+          console.error('[Ambient Music] ❌ Плейлист пустой после загрузки');
+          return;
+        }
+
+        audioElement = new Audio();
+        audioElement.volume = 0.10;
+        // НЕ устанавливаем crossOrigin для Supabase Storage
+        audioElement.preload = "auto";
+        audioElement.loop = false; // ВАЖНО: отключаем зацикливание для автоматического переключения
+        
+        // Выбираем первый трек последовательно (начинаем с 0)
+        currentTrackIndex = 0;
+        
+        // Функция для загрузки и воспроизведения трека с обработкой ошибок
       const playTrack = async (index: number, retry: number = 0) => {
         if (!audioElement) return;
         
@@ -510,9 +575,10 @@ const TestSession = () => {
         }
       };
 
-      document.addEventListener('click', unlockAudio, { once: true });
-      document.addEventListener('keydown', unlockAudio, { once: true });
-      document.addEventListener('touchstart', unlockAudio, { once: true });
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('keydown', unlockAudio, { once: true });
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+      });
     }
 
     return () => {
