@@ -297,28 +297,23 @@ const TestSession = () => {
     let handleErrorRef: (() => void) | null = null;
     let handleTimeUpdateRef: (() => void) | null = null;
 
-    // Плейлист - проверенные рабочие треки из надежных источников
-    // Используем бесплатную музыку с лицензией CC0 (Public Domain)
+    // Плейлист - только Pixabay треки (надежный источник с прямым доступом)
+    // Увеличен выбор треков для разнообразия
     const playlist = [
-      // Pixabay треки (работают стабильно с прямыми ссылками)
-      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano ✅
-      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation ✅
-      
-      // Бесплатная ambient музыка от Incompetech (royalty-free)
-      'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ambient%20-%20Healing%20Frequency.mp3',
-      'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ambient%20-%20Meditation%20Impromptu%2001.mp3',
-      'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ambient%20-%20Meditation%20Impromptu%2002.mp3',
-      
-      // Бесплатная фоновая музыка (альтернативные источники)
-      'https://www.bensound.com/bensound-music/bensound-slowmotion.mp3',
-      'https://www.bensound.com/bensound-music/bensound-relaxing.mp3',
-      'https://www.bensound.com/bensound-music/bensound-pianomoment.mp3',
+      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano
+      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation
+      'https://cdn.pixabay.com/audio/2022/03/15/audio_c610232531.mp3', // Ambient Relaxation
+      'https://cdn.pixabay.com/audio/2022/08/02/audio_884fe50c21.mp3', // Deep Focus
+      'https://cdn.pixabay.com/audio/2023/02/28/audio_c6b0c2b99f.mp3', // Peaceful Piano
+      'https://cdn.pixabay.com/audio/2022/10/18/audio_2c7cc83d72.mp3', // Soft Background
+      'https://cdn.pixabay.com/audio/2023/06/12/audio_9a2d2a5dfa.mp3', // Calm Atmosphere
+      'https://cdn.pixabay.com/audio/2022/09/05/audio_49bc6fa4d8.mp3', // Gentle Waves
     ];
 
     if (ambientMusic) {
       audioElement = new Audio();
       audioElement.volume = 0.10;
-      audioElement.crossOrigin = "anonymous";
+      // НЕ устанавливаем crossOrigin - это вызывает CORS проблемы
       audioElement.preload = "auto";
       audioElement.loop = false; // ВАЖНО: отключаем зацикливание для автоматического переключения
       
