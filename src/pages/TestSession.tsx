@@ -181,7 +181,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               alt="Вопрос - увеличенное изображение" 
               className="max-w-full max-h-full w-auto h-auto object-contain"
               style={{
-                imageRendering: 'high-quality',
+                imageRendering: 'smooth',
                 maxWidth: '100%',
                 maxHeight: '100%',
               }}
