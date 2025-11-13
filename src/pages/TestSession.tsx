@@ -1033,10 +1033,12 @@ const TestSession = () => {
           console.log('[Challenge Bank] Показываем уведомление!');
           setIsFirstWrongAnswer(false);
           setShowChallengeBankNotification(true);
-          // Скрываем уведомление через 8 секунд (увеличено с 5 для лучшей видимости)
+          // Обновляем состояние кнопки закладки
+          setIsQuestionBookmarked(true);
+          // Скрываем уведомление через 5 секунд
           setTimeout(() => {
             setShowChallengeBankNotification(false);
-          }, 8000);
+          }, 5000);
         }
 
         // Добавляем или обновляем вопрос в Challenge Bank
