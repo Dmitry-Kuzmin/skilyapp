@@ -1581,11 +1581,11 @@ const TestSession = () => {
                     </Button>
                   )}
                   
-                  {/* AI Chat кнопка с Lumi - только в practice mode */}
+                  {/* AI Chat кнопка с Lumi - только в practice mode и только на мобильных (на десктопе виджет справа) */}
                   {mode === "practice" && selectedOption && (
                     <button
                       onClick={() => setShowAIExplanation(true)}
-                      className="w-12 sm:w-14 h-10 sm:h-11 md:h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative overflow-hidden group"
+                      className="w-12 sm:w-14 h-10 sm:h-11 md:h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative overflow-hidden group lg:hidden"
                       title="AI помощник - объяснение"
                     >
                       <LumiCharacter size="md" mood="thinking" animate className="scale-90 relative z-10" />
