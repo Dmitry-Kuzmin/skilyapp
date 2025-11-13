@@ -39,7 +39,7 @@ export default function Terms() {
         },
         {
           title: "7. Конфиденциальность пользователей",
-          content: `Мы ценим вашу конфиденциальность и понимаем ваши опасения по поводу конфиденциальности. Наша Политика конфиденциальности включена в настоящее Соглашение и регулирует вашу передачу информации на нашу Платформу.`
+          content: `Мы ценим вашу конфиденциальность и понимаем ваши опасения по поводу конфиденциальности. Наша Политика конфиденциальности включена в настоящее Соглашение и регулирует вашу передачу информации на нашу Платформу. Пожалуйста, ознакомьтесь с нашей Политикой конфиденциальности, чтобы понять наши практики конфиденциальности. Вся информация, которую мы собираем, подпадает под нашу Политику конфиденциальности, и используя Платформу, вы соглашаетесь со всеми действиями, предпринятыми нами в отношении вашей информации в соответствии с Политикой конфиденциальности.`
         },
         {
           title: "8. Использование Платформы",
@@ -131,7 +131,7 @@ AL HACER CLIC EN "ACEPTO", AL SUSCRIBIRSE A LA PLATAFORMA Y AL ACCEDER O USAR LA
         },
         {
           title: "7. Privacidad del usuario",
-          content: `Valoramos su privacidad y entendemos sus preocupaciones de privacidad. Nuestra Política de Privacidad está incorporada en este Acuerdo y rige su envío de información a nuestra Plataforma.`
+          content: `Valoramos su privacidad y entendemos sus preocupaciones de privacidad. Nuestra Política de Privacidad está incorporada en este Acuerdo y rige su envío de información a nuestra Plataforma. Por favor, revise nuestra Política de Privacidad para que pueda entender nuestras prácticas de privacidad. Toda la información que recopilamos está sujeta a nuestra Política de Privacidad, y al usar la Plataforma usted consiente todas las acciones tomadas por nosotros con respecto a su información en cumplimiento de la Política de Privacidad.`
         },
         {
           title: "8. Uso de la Plataforma",
@@ -225,7 +225,7 @@ By clicking "I agree", subscribing to the Platform, and accessing or using the P
         },
         {
           title: "7. User Privacy",
-          content: `We value your privacy and understand your privacy concerns. Our Privacy Policy is incorporated into this Agreement, and it governs your submission of information to our Platform.`
+          content: `We value your privacy and understand your privacy concerns. Our Privacy Policy is incorporated into this Agreement, and it governs your submission of information to our Platform. Please review our Privacy Policy so that you may understand our privacy practices. All information we collect is subject to our Privacy Policy, and by using the Platform you consent to all actions taken by us with respect to your information in compliance with the Privacy Policy.`
         },
         {
           title: "8. Use of the Platform",
