@@ -90,14 +90,14 @@ export const TelegramNavigation = () => {
       
       if (isMobile && webApp.contentSafeAreaInset) {
         // Используем contentSafeAreaInset.top из Telegram API
-        // Добавляем дополнительные 20px для прогресс-бара
-        contentTop = Math.round((webApp.contentSafeAreaInset.top || 0) + 20);
-        contentBottom = Math.round((webApp.contentSafeAreaInset.bottom || 0));
+        // УМЕНЬШАЕМ В 2 РАЗА, как просил пользователь
+        contentTop = Math.round((webApp.contentSafeAreaInset.top || 0) / 2);
+        contentBottom = Math.round((webApp.contentSafeAreaInset.bottom || 0) / 2);
       } else if (isMobile && webApp.safeAreaInset) {
         // Fallback: используем safeAreaInset если contentSafeAreaInset недоступен
-        // Добавляем дополнительные 20px для прогресс-бара
-        contentTop = Math.round((webApp.safeAreaInset.top || 0) + 20);
-        contentBottom = Math.round((webApp.safeAreaInset.bottom || 0));
+        // УМЕНЬШАЕМ В 2 РАЗА
+        contentTop = Math.round((webApp.safeAreaInset.top || 0) / 2);
+        contentBottom = Math.round((webApp.safeAreaInset.bottom || 0) / 2);
       }
       // Для десктопа contentTop и contentBottom остаются 0
       
