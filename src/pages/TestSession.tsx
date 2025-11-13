@@ -293,6 +293,9 @@ const TestSession = () => {
     let failedTracks = new Set<number>(); // Треки, которые не загрузились
     let trackTimeout: NodeJS.Timeout | null = null; // Таймер для принудительного переключения
     const MAX_TRACK_DURATION = 5 * 60 * 1000; // Максимальная длительность трека: 5 минут
+    let handleEndedRef: (() => void) | null = null;
+    let handleErrorRef: (() => void) | null = null;
+    let handleTimeUpdateRef: (() => void) | null = null;
 
     // Плейлист - только проверенные рабочие треки
     // Используем только те треки, которые точно работают (по логам: трек 0 и трек 3)
@@ -459,7 +462,7 @@ const TestSession = () => {
       };
 
       // Обработчик окончания трека - переход к следующему
-      const handleEnded = () => {
+      handleEndedRef = () => {
         if (!audioElement) return;
         
         // Очищаем таймер, так как трек закончился естественным образом
@@ -473,7 +476,7 @@ const TestSession = () => {
       };
       
       // Обработчик для отслеживания прогресса (на случай если ended не сработает)
-      const handleTimeUpdate = () => {
+      handleTimeUpdateRef = () => {
         if (!audioElement) return;
         
         // Если трек почти закончился (осталось меньше 1 секунды), переключаем
@@ -483,16 +486,16 @@ const TestSession = () => {
       };
 
       // Обработчик ошибки воспроизведения
-      const handleError = () => {
+      handleErrorRef = () => {
         if (!audioElement) return;
         console.warn('[Ambient Music] Ошибка воспроизведения, переключаем трек');
         failedTracks.add(currentTrackIndex);
         nextTrack();
       };
 
-      audioElement.addEventListener('ended', handleEnded);
-      audioElement.addEventListener('error', handleError);
-      audioElement.addEventListener('timeupdate', handleTimeUpdate);
+      audioElement.addEventListener('ended', handleEndedRef);
+      audioElement.addEventListener('error', handleErrorRef);
+      audioElement.addEventListener('timeupdate', handleTimeUpdateRef);
       
       // Пробуем запустить первый трек
       playTrack(currentTrackIndex);
@@ -520,9 +523,9 @@ const TestSession = () => {
       }
       
       if (audioElement) {
-        audioElement.removeEventListener('ended', handleEnded);
-        audioElement.removeEventListener('error', handleError);
-        audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+        if (handleEndedRef) audioElement.removeEventListener('ended', handleEndedRef);
+        if (handleErrorRef) audioElement.removeEventListener('error', handleErrorRef);
+        if (handleTimeUpdateRef) audioElement.removeEventListener('timeupdate', handleTimeUpdateRef);
         audioElement.pause();
         audioElement.src = '';
         audioElement = null;
