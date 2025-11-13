@@ -18,13 +18,15 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
       const rect = bookmarkButton.getBoundingClientRect();
       
       setPosition({
-        top: rect.bottom + 8, // Минимальный отступ
+        top: rect.bottom + 8,
         right: window.innerWidth - rect.right,
       });
     }
   }, [isVisible]);
 
-  const lineHeight = 20; // Еще короче
+  const dotSize = 10;
+  const lineHeight = 18;
+  const triangleSize = 10;
 
   return (
     <AnimatePresence>
@@ -35,7 +37,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           style={{ 
-            top: `${position.top}px`, 
+            top: `${position.top - dotSize / 2}px`,
             right: `${position.right}px` 
           }}
           className="fixed z-[100] w-56 sm:w-60"
@@ -43,18 +45,15 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           {/* Пульсирующая точка НА иконке */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ 
-              scale: 1,
-              opacity: 1
-            }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{ 
               duration: 0.3,
               delay: 0.2,
               ease: "backOut"
             }}
-            className="absolute -top-[20px] right-[14px] w-[10px] h-[10px] rounded-full bg-white z-10"
+            className="absolute -top-[20px] right-[14px] w-[10px] h-[10px] rounded-full bg-white z-20"
             style={{ 
-              boxShadow: '0 0 0 2px #3b82f6, 0 0 8px rgba(59, 130, 246, 0.5)'
+              boxShadow: '0 0 0 2px #3b82f6, 0 0 10px rgba(59, 130, 246, 0.5)'
             }}
           >
             {/* Синий центр */}
@@ -88,16 +87,20 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             />
           </motion.div>
           
-          {/* Короткая вертикальная линия */}
+          {/* Вертикальная линия ОТ точки */}
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: lineHeight, opacity: 1 }}
+            initial={{ scaleY: 0, opacity: 0 }}
+            animate={{ scaleY: 1, opacity: 1 }}
             transition={{ 
               duration: 0.4, 
               delay: 0.3,
               ease: "easeOut"
             }}
-            className="absolute top-[10px] right-[18px] w-[2px] bg-primary origin-top"
+            className="absolute right-[18px] w-[2px] bg-primary origin-top z-10"
+            style={{ 
+              top: `-${dotSize / 2}px`,
+              height: `${lineHeight}px`
+            }}
           />
           
           {/* Треугольник-указатель */}
@@ -109,8 +112,10 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               duration: 0.2,
               ease: "backOut"
             }}
-            className="absolute right-[14px] w-[10px] h-[10px] bg-primary transform rotate-45"
-            style={{ top: `${lineHeight + 3}px` }}
+            className="absolute right-[14px] w-[10px] h-[10px] bg-primary transform rotate-45 z-10"
+            style={{ 
+              top: `${lineHeight - dotSize / 2 - 5}px`
+            }}
           />
           
           {/* Компактное уведомление */}
@@ -127,7 +132,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             onClick={onClose}
             className="bg-primary rounded-lg p-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
             style={{ 
-              marginTop: `${lineHeight + 8}px`,
+              marginTop: `${lineHeight - dotSize / 2 + 6}px`,
               boxShadow: '0 8px 32px rgba(139, 92, 246, 0.24)'
             }}
           >
