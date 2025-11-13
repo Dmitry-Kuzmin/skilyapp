@@ -162,7 +162,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
   return (
     <Card className={cn(
       "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
-      "max-h-[calc(100vh-12rem)] h-fit"
+      isExpanded ? "h-[calc(100vh-2rem)]" : "h-[500px]"
     )}>
       {/* Header - чистый стиль как у Officer Frank */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
@@ -174,6 +174,15 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             <h3 className="font-bold text-base text-foreground">Привет! Я Lumi 💡</h3>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+          onClick={() => setIsExpanded(!isExpanded)}
+          title={isExpanded ? "Свернуть" : "Развернуть"}
+        >
+          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </Button>
       </div>
 
       {/* Messages Area */}

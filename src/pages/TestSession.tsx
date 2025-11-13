@@ -1404,13 +1404,13 @@ const TestSession = () => {
             customLeftContent={
               <>
                 {/* Timer для экзамена */}
-                {mode === "exam" && (
+            {mode === "exam" && (
                   <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
                     <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
                     <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
-                      {formatTime(timeLeft)}
-                    </span>
-                  </div>
+                    {formatTime(timeLeft)}
+                  </span>
+                </div>
                 )}
 
                 {/* Mastery Round Indicator */}
@@ -1419,8 +1419,8 @@ const TestSession = () => {
                     <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
                     <span className="font-semibold text-xs sm:text-sm text-purple-600 dark:text-purple-400">
                       Раунд {masteryRound}
-                    </span>
-                  </div>
+            </span>
+          </div>
                 )}
               </>
             }
@@ -1478,9 +1478,9 @@ const TestSession = () => {
                     
                     // Mock popularity data (в реальной версии загружать из БД)
                     const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
-
-                    return (
-                      <button
+              
+              return (
+                <button
                         key={option.id}
                         onClick={() => {
                           if (mode === "exam") {
@@ -1491,7 +1491,7 @@ const TestSession = () => {
                           }
                         }}
                         disabled={mode === "practice" && selectedOption !== null}
-                        className={`
+                  className={`
                           w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                           ${showResult
                             ? isCorrect
@@ -1502,7 +1502,7 @@ const TestSession = () => {
                             : isSelected
                             ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
                             : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-                          }
+                    }
                           ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
                         `}
                       >
@@ -1532,10 +1532,10 @@ const TestSession = () => {
                             </div>
                           )}
                         </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                </button>
+              );
+            })}
+        </div>
 
                 {/* Explanation убрано - теперь показывается через Lumi */}
 
@@ -1550,7 +1550,7 @@ const TestSession = () => {
                     <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
                     <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
                     </Button>
-                  </div>
+            </div>
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
@@ -1780,7 +1780,7 @@ const TestSession = () => {
             </>
           )}
         </Card>
-        </div>
+      </div>
 
         {/* Question Map Bottom Sheet */}
         {showQuestionMap && (
