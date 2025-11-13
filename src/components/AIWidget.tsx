@@ -167,7 +167,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       {/* Header - чистый стиль как у Officer Frank */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
         <div className="flex items-center gap-3">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative overflow-hidden">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative">
             <LumiCharacter size="md" mood="happy" animate />
           </div>
           <div>
