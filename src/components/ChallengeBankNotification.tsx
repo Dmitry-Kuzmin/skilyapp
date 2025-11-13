@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { Lightbulb } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface ChallengeBankNotificationProps {
@@ -25,8 +26,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
   }, [isVisible]);
 
   const dotSize = 10;
-  const lineHeight = 18;
-  const triangleSize = 10;
+  const lineHeight = 20;
 
   return (
     <AnimatePresence>
@@ -40,9 +40,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             top: `${position.top - dotSize / 2}px`,
             right: `${position.right}px` 
           }}
-          className="fixed z-40 w-56 sm:w-64"
+          className="fixed z-40 w-64 sm:w-72"
         >
-          {/* Пульсирующая точка ТОЧНО ПО ЦЕНТРУ иконки */}
+          {/* Пульсирующая точка */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -54,12 +54,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             className="absolute -top-[20px] w-[10px] h-[10px] rounded-full bg-white"
             style={{ 
               right: `${position.buttonWidth / 2 - dotSize / 2}px`,
-              boxShadow: '0 0 0 2px #3b82f6, 0 0 10px rgba(59, 130, 246, 0.5)',
+              boxShadow: '0 0 0 2px #f97316, 0 0 10px rgba(249, 115, 22, 0.5)',
               zIndex: 1
             }}
           >
-            {/* Синий центр */}
-            <div className="absolute inset-[2px] rounded-full bg-blue-500" />
+            {/* Оранжевый центр */}
+            <div className="absolute inset-[2px] rounded-full bg-orange-500" />
             
             {/* Пульсирующие кольца */}
             <motion.div
@@ -73,7 +73,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 ease: "easeOut",
                 repeatType: "loop"
               }}
-              className="absolute inset-0 rounded-full border-2 border-blue-500"
+              className="absolute inset-0 rounded-full border-2 border-orange-500"
               style={{ willChange: 'transform, opacity' }}
             />
             <motion.div
@@ -88,12 +88,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 delay: 0.6,
                 repeatType: "loop"
               }}
-              className="absolute inset-0 rounded-full border-2 border-blue-500"
+              className="absolute inset-0 rounded-full border-2 border-orange-500"
               style={{ willChange: 'transform, opacity' }}
             />
           </motion.div>
           
-          {/* Вертикальная линия ОТ точки */}
+          {/* Вертикальная линия */}
           <motion.div
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: 1 }}
@@ -123,13 +123,13 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             }}
             className="absolute w-[10px] h-[10px] bg-white transform rotate-45"
             style={{ 
-              right: `${position.buttonWidth / 2 - triangleSize / 2}px`,
+              right: `${position.buttonWidth / 2 - 5}px`,
               top: `${lineHeight - dotSize / 2 - 5}px`,
               zIndex: 1
             }}
           />
           
-          {/* Уведомление - белый фон, синий текст */}
+          {/* Уведомление в стиле Lumi */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -141,27 +141,37 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.6
             }}
             onClick={onClose}
-            className="bg-white rounded-xl px-4 py-3 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform border border-blue-100"
+            className="bg-white rounded-xl px-3 py-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform border border-orange-100"
             style={{ 
               marginTop: `${lineHeight - dotSize / 2 + 6}px`,
-              boxShadow: '0 10px 40px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)',
+              boxShadow: '0 10px 40px rgba(249, 115, 22, 0.12)',
               zIndex: 1,
               willChange: 'transform, opacity'
             }}
           >
-            {/* Текст - синий, выровнен влево */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-            >
-              <p className="text-blue-600/70 text-[10px] leading-tight font-medium">
-                Мы добавили этот вопрос в ваш
-              </p>
-              <p className="text-blue-600 font-bold text-[14px] leading-tight mt-1">
-                Банк Вопросов™
-              </p>
-            </motion.div>
+            <div className="flex items-start gap-2">
+              {/* Аватар Lumi */}
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.7, type: 'spring', stiffness: 600 }}
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md"
+              >
+                <Lightbulb className="w-4 h-4 text-white fill-white" />
+              </motion.div>
+              
+              {/* Текст от Lumi */}
+              <motion.div 
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8, duration: 0.3 }}
+                className="flex-1 min-w-0"
+              >
+                <p className="text-gray-700 text-[11px] leading-relaxed">
+                  Я сохранила этот вопрос в твой <span className="font-bold text-orange-600">Банк Вопросов™</span> для практики! 💡
+                </p>
+              </motion.div>
+            </div>
           </motion.div>
         </motion.div>
       )}
