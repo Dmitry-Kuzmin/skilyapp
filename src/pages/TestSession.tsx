@@ -1726,8 +1726,8 @@ const TestSession = () => {
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
-                  {/* Lumi Avatar - только на мобильном в режиме practice (всегда видна) */}
-                  {isTelegramApp && mode === "practice" && (
+                  {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
+                  {mode === "practice" && (
                     <button
                       onClick={() => setShowAIExplanation(true)}
                       className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
@@ -1872,8 +1872,8 @@ const TestSession = () => {
 
           {/* Navigation Buttons - с аватаром Lumi на мобильном */}
           <div className="flex gap-2 items-center">
-            {/* Lumi Avatar - только на мобильном в режиме practice (всегда видна) */}
-            {isTelegramApp && mode === "practice" && (
+            {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
+            {mode === "practice" && (
               <button
                 onClick={() => setShowAIExplanation(true)}
                 className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
@@ -2115,10 +2115,10 @@ const TestSession = () => {
       )}
 
       {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
-      {/* На маленьких экранах - снизу, на больших - справа */}
+      {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
       {!isTelegramApp && mode === "practice" && (
-        <div className="pt-3 lg:pt-3">
-          <div className="lg:sticky lg:top-4">
+        <div className="hidden lg:block pt-3">
+          <div className="sticky top-4">
             <AIWidget
               explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
               question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
