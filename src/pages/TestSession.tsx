@@ -1608,16 +1608,9 @@ const TestSession = () => {
         )}>
         {/* Основной контент */}
         <div className={cn(
-          "pt-0 sm:pt-1 md:pt-3 pb-2 md:pb-3 relative",
+          "pt-0 sm:pt-1 md:pt-3 pb-2 md:pb-3",
           isTelegramApp && "px-2 sm:px-4 !pt-12"
         )}>
-        
-        {/* Challenge Bank Notification - внутри контейнера для корректного позиционирования */}
-        <ChallengeBankNotification
-          isVisible={showChallengeBankNotification}
-          onClose={() => setShowChallengeBankNotification(false)}
-        />
-        
         {/* Unified Progress Bar - переиспользуемый компонент */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
           <QuestionProgressBar
@@ -2205,6 +2198,12 @@ const TestSession = () => {
         </div>
       )}
       </div>
+
+      {/* Challenge Bank Notification - fixed позиционирование относительно viewport */}
+      <ChallengeBankNotification
+        isVisible={showChallengeBankNotification}
+        onClose={() => setShowChallengeBankNotification(false)}
+      />
     </Layout>
   );
 };
