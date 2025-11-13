@@ -24,7 +24,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
     }
   }, [isVisible]);
 
-  const lineHeight = 28; // Короткая линия
+  const lineHeight = 20; // Еще короче
 
   return (
     <AnimatePresence>
@@ -110,7 +110,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               ease: "backOut"
             }}
             className="absolute right-[14px] w-[10px] h-[10px] bg-primary transform rotate-45"
-            style={{ top: `${lineHeight + 5}px` }}
+            style={{ top: `${lineHeight + 3}px` }}
           />
           
           {/* Компактное уведомление */}
@@ -127,7 +127,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             onClick={onClose}
             className="bg-primary rounded-lg p-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
             style={{ 
-              marginTop: `${lineHeight + 15}px`,
+              marginTop: `${lineHeight + 8}px`,
               boxShadow: '0 8px 32px rgba(139, 92, 246, 0.24)'
             }}
           >
