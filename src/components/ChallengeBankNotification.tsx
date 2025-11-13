@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bookmark } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface ChallengeBankNotificationProps {
@@ -8,7 +7,7 @@ interface ChallengeBankNotificationProps {
 }
 
 export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankNotificationProps) => {
-  const [position, setPosition] = useState({ top: 80, right: 16 });
+  const [position, setPosition] = useState({ top: 80, right: 16, buttonWidth: 44 });
 
   useEffect(() => {
     if (!isVisible) return;
@@ -20,6 +19,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
       setPosition({
         top: rect.bottom + 8,
         right: window.innerWidth - rect.right,
+        buttonWidth: rect.width
       });
     }
   }, [isVisible]);
@@ -42,7 +42,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
           }}
           className="fixed z-[100] w-56 sm:w-60"
         >
-          {/* Пульсирующая точка НА иконке */}
+          {/* Пульсирующая точка ТОЧНО ПО ЦЕНТРУ иконки */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -51,8 +51,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.2,
               ease: "backOut"
             }}
-            className="absolute -top-[20px] right-[14px] w-[10px] h-[10px] rounded-full bg-white z-20"
+            className="absolute -top-[20px] w-[10px] h-[10px] rounded-full bg-white z-20"
             style={{ 
+              right: `${position.buttonWidth / 2 - dotSize / 2}px`,
               boxShadow: '0 0 0 2px #3b82f6, 0 0 10px rgba(59, 130, 246, 0.5)'
             }}
           >
@@ -96,8 +97,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.3,
               ease: "easeOut"
             }}
-            className="absolute right-[18px] w-[2px] bg-primary origin-top z-10"
+            className="absolute w-[2px] bg-primary origin-top z-10"
             style={{ 
+              right: `${position.buttonWidth / 2 - 1}px`,
               top: `-${dotSize / 2}px`,
               height: `${lineHeight}px`
             }}
@@ -112,13 +114,14 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               duration: 0.2,
               ease: "backOut"
             }}
-            className="absolute right-[14px] w-[10px] h-[10px] bg-primary transform rotate-45 z-10"
+            className="absolute w-[10px] h-[10px] bg-primary transform rotate-45 z-10"
             style={{ 
+              right: `${position.buttonWidth / 2 - triangleSize / 2}px`,
               top: `${lineHeight - dotSize / 2 - 5}px`
             }}
           />
           
-          {/* Компактное уведомление */}
+          {/* Лаконичное уведомление БЕЗ иконки */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -130,38 +133,25 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.6
             }}
             onClick={onClose}
-            className="bg-primary rounded-lg p-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            className="bg-primary rounded-lg px-3 py-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
             style={{ 
               marginTop: `${lineHeight - dotSize / 2 + 6}px`,
               boxShadow: '0 8px 32px rgba(139, 92, 246, 0.24)'
             }}
           >
-            <div className="flex items-center gap-2">
-              {/* Иконка */}
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.7, type: 'spring', stiffness: 600 }}
-                className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0"
-              >
-                <Bookmark className="w-[14px] h-[14px] text-white fill-white" />
-              </motion.div>
-              
-              {/* Текст */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.75 }}
-                className="flex-1 min-w-0"
-              >
-                <p className="text-white/80 text-[10px] leading-tight">
-                  Вопрос добавлен в
-                </p>
-                <p className="text-white font-bold text-[13px] leading-tight mt-0.5">
-                  Банк Вопросов™
-                </p>
-              </motion.div>
-            </div>
+            {/* Только текст - просто и лаконично */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              <p className="text-white/80 text-[10px] leading-tight text-center">
+                Вопрос добавлен в
+              </p>
+              <p className="text-white font-bold text-[13px] leading-tight text-center mt-0.5">
+                Банк Вопросов™
+              </p>
+            </motion.div>
           </motion.div>
         </motion.div>
       )}
