@@ -17,7 +17,20 @@ import {
   Zap,
   Sparkles,
   Users,
-  Award
+  Award,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  X,
+  Rocket,
+  Lightbulb,
+  Heart,
+  Smile,
+  ThumbsUp,
+  GraduationCap,
+  BookMarked,
+  Timer,
+  Medal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +41,7 @@ const Landing = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [testsCompletedToday, setTestsCompletedToday] = useState(1247);
   const [isVisible, setIsVisible] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   // Анимация счетчика тестов
@@ -69,21 +83,24 @@ const Landing = () => {
       label: "Процент сдачи",
       icon: Trophy,
       gradient: "from-yellow-400 via-yellow-500 to-yellow-600",
-      delay: "0ms"
+      delay: "0ms",
+      description: "Студентов сдают с первого раза"
     },
     {
       value: "1000+",
       label: "Вопросов DGT",
       icon: BookOpen,
       gradient: "from-blue-400 via-blue-500 to-blue-600",
-      delay: "100ms"
+      delay: "100ms",
+      description: "Из реальных экзаменов"
     },
     {
       value: "24/7",
       label: "Доступность",
       icon: Clock,
       gradient: "from-green-400 via-green-500 to-green-600",
-      delay: "200ms"
+      delay: "200ms",
+      description: "Учись когда удобно"
     }
   ];
 
@@ -149,28 +166,32 @@ const Landing = () => {
       location: "Мадрид",
       text: "Сдала экзамен DGT с первого раза! Практика на реальных вопросах помогла мне чувствовать себя уверенно.",
       rating: 5,
-      highlight: "Сдала с первого раза"
+      highlight: "Сдала с первого раза",
+      avatar: "👩‍🦰"
     },
     {
       name: "Алексей К.",
       location: "Барселона",
       text: "AI помощник объяснил все сложные моменты на русском языке. Очень удобно для тех, кто только начинает изучать испанский.",
       rating: 5,
-      highlight: "AI помощник"
+      highlight: "AI помощник",
+      avatar: "👨‍💼"
     },
     {
       name: "Елена С.",
       location: "Валенсия",
       text: "Игры делают обучение интересным. Особенно понравились дуэли с друзьями - отличная мотивация!",
       rating: 5,
-      highlight: "Интересные игры"
+      highlight: "Интересные игры",
+      avatar: "👩‍🎓"
     },
     {
       name: "Дмитрий Р.",
       location: "Севилья",
       text: "Прошел все тесты за неделю и сдал экзамен на 95%. Система действительно работает!",
       rating: 5,
-      highlight: "95% результат"
+      highlight: "95% результат",
+      avatar: "👨‍🔧"
     }
   ];
 
@@ -189,6 +210,61 @@ const Landing = () => {
       number: "03",
       title: "Реально выучите материал",
       description: "Все разработано с учетом когнитивной науки и понимания того, как люди действительно учатся. AI помощник объясняет сложные моменты."
+    }
+  ];
+
+  const comparisonData = [
+    { feature: "Вопросы из реальных экзаменов", sdadim: true, others: false },
+    { feature: "AI помощник на русском", sdadim: true, others: false },
+    { feature: "Интерактивные игры", sdadim: true, others: false },
+    { feature: "Дуэли с друзьями", sdadim: true, others: false },
+    { feature: "Отслеживание прогресса", sdadim: true, others: true },
+    { feature: "Бесплатный доступ", sdadim: true, others: false },
+  ];
+
+  const faqData = [
+    {
+      question: "Сколько стоит использование платформы?",
+      answer: "Базовый доступ полностью бесплатный! Вы можете проходить тесты, использовать AI помощника и играть в игры без ограничений. Premium подписка открывает дополнительные функции."
+    },
+    {
+      question: "Действительно ли вопросы из реальных экзаменов DGT?",
+      answer: "Да! Все наши вопросы взяты из официальных экзаменов DGT и регулярно обновляются. Мы следим за изменениями в правилах и добавляем новые вопросы."
+    },
+    {
+      question: "Можно ли использовать на телефоне?",
+      answer: "Конечно! Платформа полностью адаптирована для мобильных устройств и доступна как веб-версия, так и через Telegram Mini App."
+    },
+    {
+      question: "Как работает AI помощник?",
+      answer: "AI помощник использует передовые технологии для объяснения сложных тем на русском и испанском языках. Вы можете задавать вопросы в любой момент во время обучения."
+    },
+    {
+      question: "Нужна ли регистрация?",
+      answer: "Для базового доступа регистрация не обязательна, но мы рекомендуем создать аккаунт для сохранения прогресса и доступа ко всем функциям."
+    }
+  ];
+
+  const steps = [
+    {
+      icon: Rocket,
+      title: "Зарегистрируйся",
+      description: "Создай аккаунт за 30 секунд через Telegram или email"
+    },
+    {
+      icon: BookMarked,
+      title: "Выбери тему",
+      description: "Начни с любой темы или пройди диагностический тест"
+    },
+    {
+      icon: Target,
+      title: "Практикуйся",
+      description: "Решай тесты, играй в игры, задавай вопросы AI"
+    },
+    {
+      icon: Medal,
+      title: "Сдай экзамен",
+      description: "Готовься до уверенности и сдавай DGT с первого раза"
     }
   ];
 
@@ -257,31 +333,36 @@ const Landing = () => {
 
             {/* Stats - Social Proof */}
             <div 
-              className="flex flex-wrap justify-center gap-4 md:gap-6 py-6"
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 py-6"
               data-animate
             >
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <div 
+                  <Card
                     key={index}
-                    className="group relative px-6 py-4 rounded-2xl bg-card/80 backdrop-blur-md border border-border/50 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-105 hover:border-primary/30"
+                    className="group relative overflow-hidden card-elevated border-2 hover:border-primary/50 bg-gradient-to-br from-card/90 to-card/80 backdrop-blur-sm"
                     style={{ animationDelay: stat.delay }}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300`}>
-                        <Icon className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <div className="text-2xl md:text-3xl font-bold text-foreground">
-                          {stat.value}
+                    <CardContent className="p-6">
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className={`p-4 rounded-2xl bg-gradient-to-br ${stat.gradient} shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                          <Icon className="w-8 h-8 text-white" />
                         </div>
-                        <div className="text-xs md:text-sm text-muted-foreground font-medium">
-                          {stat.label}
+                        <div>
+                          <div className="text-3xl md:text-4xl font-bold text-foreground mb-1">
+                            {stat.value}
+                          </div>
+                          <div className="text-sm font-semibold text-muted-foreground mb-1">
+                            {stat.label}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {stat.description}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
@@ -343,6 +424,113 @@ const Landing = () => {
               Начни прямо сейчас
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* How It Works - Timeline Block */}
+      <section className="section-spacing px-4 relative">
+        <div className="container-landing">
+          <div 
+            className="text-center space-y-4 mb-16"
+            data-animate
+          >
+            <h2 className="text-display gradient-text">
+              Как это работает
+            </h2>
+            <p className="text-headline text-muted-foreground font-light">
+              Всего 4 простых шага до успешной сдачи экзамена
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <Card
+                  key={index}
+                  className="group relative overflow-hidden card-elevated border-2 hover:border-primary/50"
+                  data-animate
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
+                  <CardContent className="p-6 md:p-8 space-y-4 text-center">
+                    <div className="relative">
+                      <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                        {index + 1}
+                      </div>
+                      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 group-hover:from-primary/30 group-hover:to-secondary/30 transition-all duration-300`}>
+                        <Icon className="w-8 h-8 text-primary" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">
+                      {step.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      {step.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison Table - Unique Block */}
+      <section className="section-spacing px-4 bg-muted/20 relative">
+        <div className="container-landing">
+          <div 
+            className="text-center space-y-4 mb-16"
+            data-animate
+          >
+            <h2 className="text-display gradient-text">
+              Почему выбирают Sdadim
+            </h2>
+            <p className="text-headline text-muted-foreground font-light">
+              Сравните с другими платформами
+            </p>
+          </div>
+
+          <Card className="card-elevated border-2 overflow-hidden" data-animate>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border/50 bg-muted/30">
+                      <th className="text-left p-6 font-bold text-lg">Функция</th>
+                      <th className="text-center p-6 font-bold text-lg gradient-text">Sdadim</th>
+                      <th className="text-center p-6 font-semibold text-muted-foreground">Другие платформы</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparisonData.map((row, index) => (
+                      <tr 
+                        key={index}
+                        className="border-b border-border/30 hover:bg-muted/20 transition-colors duration-200"
+                      >
+                        <td className="p-6 font-medium">{row.feature}</td>
+                        <td className="p-6 text-center">
+                          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500">
+                            <Check className="w-5 h-5 text-white" />
+                          </div>
+                        </td>
+                        <td className="p-6 text-center">
+                          {row.others ? (
+                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500">
+                              <Check className="w-5 h-5 text-white" />
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-muted">
+                              <X className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -491,10 +679,13 @@ const Landing = () => {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <CardContent className="p-6 md:p-8 space-y-5">
-                  <div className="flex items-center gap-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-4xl">{testimonial.avatar}</div>
+                    <div className="flex items-center gap-1">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
                   </div>
                   <p className="text-body-lg leading-relaxed">
                     <strong className="text-primary font-semibold">{testimonial.highlight}:</strong> {testimonial.text}
@@ -580,8 +771,53 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Smarter Practice Section */}
+      {/* FAQ Section - Interactive Block */}
       <section className="section-spacing px-4 bg-muted/20 relative">
+        <div className="container-landing">
+          <div 
+            className="text-center space-y-4 mb-16"
+            data-animate
+          >
+            <h2 className="text-display gradient-text">
+              Часто задаваемые вопросы
+            </h2>
+            <p className="text-headline text-muted-foreground font-light">
+              Все что нужно знать о платформе
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-4">
+            {faqData.map((faq, index) => (
+              <Card
+                key={index}
+                className="card-elevated border-2 overflow-hidden"
+                data-animate
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors duration-200 text-left"
+                >
+                  <span className="font-semibold text-lg pr-4">{faq.question}</span>
+                  {openFaq === index ? (
+                    <ChevronUp className="w-5 h-5 text-primary flex-shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  )}
+                </button>
+                {openFaq === index && (
+                  <div className="px-6 pb-6 text-muted-foreground leading-relaxed animate-fade-in">
+                    {faq.answer}
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Smarter Practice Section */}
+      <section className="section-spacing px-4 relative">
         <div className="container-landing">
           <div 
             className="text-center space-y-4 mb-16"
