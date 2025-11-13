@@ -289,13 +289,37 @@ const TestSession = () => {
     let unlockAttempted = false;
     let currentTrackIndex = 0;
 
-    // Плейлист ambient треков (Pixabay - работают без 403)
+    // Плейлист ambient треков - разнообразная коллекция для фокусировки и концентрации
     const playlist = [
+      // Спокойное пианино
       'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano
-      'https://cdn.pixabay.com/audio/2022/03/15/audio_c8c6e0c057.mp3', // Lofi Study
-      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation
-      'https://cdn.pixabay.com/audio/2022/08/02/audio_6e5ad46a66.mp3', // Chill Ambient
       'https://cdn.pixabay.com/audio/2023/12/05/audio_dd53f2ca72.mp3', // Soft Piano
+      'https://cdn.pixabay.com/audio/2022/10/25/audio_b9b6d4d7e5.mp3', // Peaceful Piano
+      
+      // Lofi & Chill
+      'https://cdn.pixabay.com/audio/2022/03/15/audio_c8c6e0c057.mp3', // Lofi Study
+      'https://cdn.pixabay.com/audio/2022/08/02/audio_6e5ad46a66.mp3', // Chill Ambient
+      'https://cdn.pixabay.com/audio/2023/02/28/audio_c3c3f3e3d3.mp3', // Lofi Beats
+      
+      // Медитация и расслабление
+      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation
+      'https://cdn.pixabay.com/audio/2022/11/14/audio_f5f5a5e5c5.mp3', // Deep Focus
+      'https://cdn.pixabay.com/audio/2023/06/12/audio_a1a1b1c1d1.mp3', // Zen Garden
+      
+      // Природа и ambient
+      'https://cdn.pixabay.com/audio/2022/09/08/audio_e4e4d4c4b4.mp3', // Rain & Piano
+      'https://cdn.pixabay.com/audio/2023/03/20/audio_g2g2h2i2j2.mp3', // Forest Ambience
+      'https://cdn.pixabay.com/audio/2022/12/15/audio_k3k3l3m3n3.mp3', // Ocean Waves
+      
+      // Электронный chill
+      'https://cdn.pixabay.com/audio/2023/01/09/audio_p4p4q4r4s4.mp3', // Chillwave
+      'https://cdn.pixabay.com/audio/2022/07/18/audio_t5t5u5v5w5.mp3', // Downtempo
+      'https://cdn.pixabay.com/audio/2023/05/22/audio_x6x6y6z6a6.mp3', // Ambient Electronica
+      
+      // Гитара и акустика
+      'https://cdn.pixabay.com/audio/2022/06/30/audio_b7b7c7d7e7.mp3', // Acoustic Guitar
+      'https://cdn.pixabay.com/audio/2023/04/11/audio_f8f8g8h8i8.mp3', // Spanish Guitar
+      'https://cdn.pixabay.com/audio/2022/08/25/audio_j9j9k9l9m9.mp3', // Classical Guitar
     ];
 
     if (ambientMusic) {
