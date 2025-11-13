@@ -31,7 +31,7 @@ export default function Terms() {
         },
         {
           title: "5. Права собственности на Платформу",
-          content: `Вы признаете, что структура, организация и код Платформы, любых размещенных сервисов и всех связанных программных компонентов являются собственностью Sdadim и/или лицензиаров Sdadim, и что Sdadim и/или его лицензиары сохраняют исключительное право собственности на Платформу, любую документацию, информацию и все другие права интеллектуальной собственности, относящиеся к Платформе.`
+          content: `Вы признаете, что структура, организация и код Платформы, любых размещенных сервисов и всех связанных программных компонентов являются собственностью Sdadim и/или лицензиаров Sdadim, и что Sdadim и/или его лицензиары сохраняют исключительное право собственности на Платформу, любую документацию, информацию и все другие права интеллектуальной собственности, относящиеся к Платформе, включая все модификации, копии, улучшения, производные работы и другое программное обеспечение и материалы, разработанные Sdadim в соответствии с настоящим Соглашением. Вы не должны продавать, копировать, воспроизводить, передавать, публиковать, раскрывать, отображать или иным образом предоставлять Платформу, доступ к Платформе или любые части Платформы, включая любые модификации, улучшения, производные работы и другое программное обеспечение и материалы, разработанные Sdadim в соответствии с настоящим Соглашением, другим лицам в нарушение настоящего Соглашения. Вы не должны удалять какие-либо проприетарные, авторские, товарные знаки или знаки обслуживания с любой части Платформы, включая любые модификации, улучшения, производные работы и другое программное обеспечение и материалы, разработанные Sdadim.`
         },
         {
           title: "6. Платформа и Сервисы",
@@ -123,7 +123,7 @@ AL HACER CLIC EN "ACEPTO", AL SUSCRIBIRSE A LA PLATAFORMA Y AL ACCEDER O USAR LA
         },
         {
           title: "5. Propiedad de la Plataforma",
-          content: `Usted reconoce que la estructura, organización y código de la Plataforma, cualquier servicio alojado y todos los componentes de software relacionados son propiedad de Sdadim y/o licenciatarios de Sdadim, y que Sdadim y/o sus licenciatarios conservan la propiedad exclusiva de la Plataforma.`
+          content: `Usted reconoce que la estructura, organización y código de la Plataforma, cualquier servicio alojado y todos los componentes de software relacionados son propiedad de Sdadim y/o licenciatarios de Sdadim, y que Sdadim y/o sus licenciatarios conservan la propiedad exclusiva de la Plataforma, cualquier documentación, información y todos los demás derechos de propiedad intelectual relacionados con la Plataforma, incluidas todas las modificaciones, copias, mejoras, derivados y otro software y materiales desarrollados por Sdadim bajo este Acuerdo. No debe vender, copiar, reproducir, transferir, publicar, divulgar, mostrar o poner a disposición de otros la Plataforma, el acceso a la Plataforma o cualquier parte de la Plataforma, incluidas las modificaciones, mejoras, derivados y otro software y materiales desarrollados por Sdadim bajo este Acuerdo, a otros en violación de este Acuerdo. No debe eliminar ninguna leyenda de propiedad, derechos de autor, marca registrada o marca de servicio de ninguna parte de la Plataforma, incluidas las modificaciones, mejoras, derivados y otro software y materiales desarrollados por Sdadim.`
         },
         {
           title: "6. Plataforma y Servicios",
@@ -217,7 +217,7 @@ By clicking "I agree", subscribing to the Platform, and accessing or using the P
         },
         {
           title: "5. Platform Ownership",
-          content: `You acknowledge that the structure, organization, and code of the Platform, any hosted services, and all related software components are proprietary to Sdadim and/or Sdadim' licensors and that Sdadim and/or its licensors retains exclusive ownership of the Platform.`
+          content: `You acknowledge that the structure, organization, and code of the Platform, any hosted services, and all related software components are proprietary to Sdadim and/or Sdadim' licensors and that Sdadim and/or its licensors retains exclusive ownership of the Platform, any documentation, information and any and all other intellectual property rights relating to the Platform, including all modifications, copies, enhancements, derivatives, and other software and materials developed hereunder by Sdadim. You shall not sell, copy, reproduce, transfer, publish, disclose, display or otherwise make available the Platform, access to the Platform, or any portions of the Platform including any modifications, enhancements, derivatives, and other software and materials developed hereunder by Sdadim to others in violation of this Agreement. You shall not remove any proprietary, copyright, trademark, or service mark legend from any portion of any of the Platform, including any modifications, enhancements, derivatives, and other software and materials developed by Sdadim.`
         },
         {
           title: "6. Platform and Services",
