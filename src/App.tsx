@@ -39,6 +39,9 @@ import DGTTestsSimple from "./pages/DGTTestsSimple";
 import ChallengeBank from "./pages/ChallengeBank";
 import Referrals from "./pages/Referrals";
 import InviteLanding from "./pages/InviteLanding";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import SubscriptionTerms from "./pages/SubscriptionTerms";
 
 const queryClient = new QueryClient();
 
@@ -148,6 +151,9 @@ const App = () => {
           <Route path="/data-import" element={<DataImport />} />
           <Route path="/daily-bonus" element={<DailyBonus />} />
           <Route path="/dgt-tests" element={<DGTTestsSimple />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/subscription-terms" element={<SubscriptionTerms />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
