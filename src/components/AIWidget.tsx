@@ -167,7 +167,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       {/* Header - чистый стиль как у Officer Frank */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative overflow-hidden">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative overflow-hidden">
             <LumiCharacter size="md" mood="happy" animate />
           </div>
           <div>
@@ -228,7 +228,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
               )}
               {message.role === "assistant" && (
                 <div className="flex gap-3 items-start">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
                     <LumiCharacter size="sm" mood="happy" />
                   </div>
                   <div className="flex-1 min-w-0 mt-1">
