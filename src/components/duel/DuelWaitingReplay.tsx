@@ -894,10 +894,10 @@ export function DuelWaitingReplay({
           
           return {
             question_number: position || 0,
-            is_correct: ans.is_correct,
-            is_skipped: ans.is_skipped || false,
-            time_taken_ms: ans.time_taken_ms,
-            points_awarded: ans.points_awarded || 0,
+          is_correct: ans.is_correct,
+          is_skipped: ans.is_skipped || false,
+          time_taken_ms: ans.time_taken_ms,
+          points_awarded: ans.points_awarded || 0,
           };
         })
         // НЕ фильтруем ответы без позиций - используем fallback позиции

@@ -2079,25 +2079,25 @@ Deno.serve(async (req) => {
           let allFinished = true;
           const counts: { [playerId: string]: number } = {};
           
-          for (const player of allPlayers) {
-            const { count: playerAnswers } = await supabase
-              .from('duel_answers')
-              .select('*', { count: 'exact', head: true })
-              .eq('player_id', player.id)
-              .eq('duel_id', duel_id);
+        for (const player of allPlayers) {
+          const { count: playerAnswers } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', player.id)
+            .eq('duel_id', duel_id);
 
-            const answerCount = playerAnswers || 0;
+          const answerCount = playerAnswers || 0;
             counts[player.id] = answerCount;
 
-            console.log('[finish_duel] Player answer count:', {
-              playerId: player.id,
-              userId: player.user_id,
-              answerCount,
-              required: duel.num_questions,
-              hasFinished: answerCount >= duel.num_questions
-            });
+          console.log('[finish_duel] Player answer count:', {
+            playerId: player.id,
+            userId: player.user_id,
+            answerCount,
+            required: duel.num_questions,
+            hasFinished: answerCount >= duel.num_questions
+          });
 
-            if (answerCount < duel.num_questions) {
+          if (answerCount < duel.num_questions) {
               allFinished = false;
             }
           }

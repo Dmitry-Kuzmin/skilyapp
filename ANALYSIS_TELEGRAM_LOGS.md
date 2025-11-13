@@ -200,3 +200,4 @@ const fixedPadding = `${topInset + systemSafeArea}px`; // 46px
 3. ✅ Очистить кеш в Telegram Mini App
 4. ✅ Протестировать в Telegram Mini App на мобильном устройстве
 
+
