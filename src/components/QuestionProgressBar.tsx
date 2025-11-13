@@ -99,6 +99,7 @@ export function QuestionProgressBar({
         {/* Bookmark Button */}
         {onToggleBookmark && (
           <button
+            id="challenge-bank-bookmark-button"
             onClick={onToggleBookmark}
             disabled={bookmarkLoading}
             className={cn(
