@@ -283,77 +283,157 @@ const TestSession = () => {
     localStorage.setItem('test-ambient-music', ambientMusic.toString());
   }, [ambientMusic]);
 
-  // Ambient Music Effect - плейлист из нескольких треков
+  // Ambient Music Effect - стабильная работа с обработкой ошибок
   useEffect(() => {
     let audioElement: HTMLAudioElement | null = null;
     let unlockAttempted = false;
     let currentTrackIndex = 0;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    let failedTracks = new Set<number>(); // Треки, которые не загрузились
 
-    // Плейлист ambient треков - проверенные рабочие треки с Pixabay
+    // Плейлист - только проверенные рабочие треки
     const playlist = [
-      // Оригинальные рабочие треки
-      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano
-      'https://cdn.pixabay.com/audio/2023/12/05/audio_dd53f2ca72.mp3', // Soft Piano
-      'https://cdn.pixabay.com/audio/2022/03/15/audio_c8c6e0c057.mp3', // Lofi Study
-      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation
-      'https://cdn.pixabay.com/audio/2022/08/02/audio_6e5ad46a66.mp3', // Chill Ambient
-      
-      // Дополнительные проверенные треки
-      'https://cdn.pixabay.com/audio/2022/01/18/audio_d768d31c6a.mp3', // Lofi Hip Hop
-      'https://cdn.pixabay.com/audio/2022/02/22/audio_c0b2b8b8e1.mp3', // Peaceful Morning
-      'https://cdn.pixabay.com/audio/2022/11/08/audio_2e6db8d39f.mp3', // Deep Meditation
-      'https://cdn.pixabay.com/audio/2023/03/12/audio_1b8c7e8d5f.mp3', // Chill Beats
-      'https://cdn.pixabay.com/audio/2022/09/20/audio_7a9e8d6c4b.mp3', // Ambient Dreams
-      'https://cdn.pixabay.com/audio/2023/01/25/audio_5d4c3b2a1e.mp3', // Soft Focus
-      'https://cdn.pixabay.com/audio/2022/07/14/audio_9f8e7d6c5b.mp3', // Night Rain
-      'https://cdn.pixabay.com/audio/2023/05/08/audio_3e2d1c0b9a.mp3', // Tranquil Piano
-      'https://cdn.pixabay.com/audio/2022/12/03/audio_6f5e4d3c2b.mp3', // Zen Waves
-      'https://cdn.pixabay.com/audio/2023/02/17/audio_8g7f6e5d4c.mp3', // Gentle Guitar
-      'https://cdn.pixabay.com/audio/2022/06/09/audio_2h1g0f9e8d.mp3', // Morning Coffee
-      'https://cdn.pixabay.com/audio/2023/04/21/audio_4i3h2g1f0e.mp3', // Study Session
-      'https://cdn.pixabay.com/audio/2022/10/15/audio_7j6i5h4g3f.mp3', // Calm Breeze
+      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano ✅
+      'https://cdn.pixabay.com/audio/2023/12/05/audio_dd53f2ca72.mp3', // Soft Piano ✅
+      'https://cdn.pixabay.com/audio/2022/03/15/audio_c8c6e0c057.mp3', // Lofi Study ✅
+      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation ✅
+      'https://cdn.pixabay.com/audio/2022/08/02/audio_6e5ad46a66.mp3', // Chill Ambient ✅
     ];
 
     if (ambientMusic) {
       audioElement = new Audio();
       audioElement.volume = 0.10;
       audioElement.crossOrigin = "anonymous";
+      audioElement.preload = "auto";
       
       // Выбираем случайный первый трек
       currentTrackIndex = Math.floor(Math.random() * playlist.length);
       
-      // Функция для загрузки и воспроизведения трека
-      const playTrack = (index: number) => {
+      // Функция для загрузки и воспроизведения трека с обработкой ошибок
+      const playTrack = async (index: number, retry: number = 0) => {
         if (!audioElement) return;
         
-        audioElement.src = playlist[index];
-        
-        const playPromise = audioElement.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              unlockAttempted = true;
-            })
-            .catch(() => {
-              // Autoplay blocked, will retry on user interaction
-            });
+        // Если трек уже провалился, пропускаем его
+        if (failedTracks.has(index) && failedTracks.size < playlist.length) {
+          console.log(`[Ambient Music] Пропускаем трек ${index} (уже провалился)`);
+          nextTrack();
+          return;
         }
+        
+        try {
+          audioElement.src = playlist[index];
+          
+          // Ждем загрузки метаданных перед воспроизведением
+          await new Promise<void>((resolve, reject) => {
+            const onLoadedMetadata = () => {
+              audioElement?.removeEventListener('loadedmetadata', onLoadedMetadata);
+              audioElement?.removeEventListener('error', onError);
+              resolve();
+            };
+            
+            const onError = (e: Event) => {
+              audioElement?.removeEventListener('loadedmetadata', onLoadedMetadata);
+              audioElement?.removeEventListener('error', onError);
+              reject(e);
+            };
+            
+            audioElement.addEventListener('loadedmetadata', onLoadedMetadata);
+            audioElement.addEventListener('error', onError);
+            
+            // Таймаут на загрузку (5 секунд)
+            setTimeout(() => {
+              audioElement?.removeEventListener('loadedmetadata', onLoadedMetadata);
+              audioElement?.removeEventListener('error', onError);
+              reject(new Error('Timeout loading track'));
+            }, 5000);
+          });
+          
+          // Пробуем воспроизвести
+          const playPromise = audioElement.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            unlockAttempted = true;
+            retryCount = 0; // Сбрасываем счетчик при успехе
+            console.log(`[Ambient Music] ✅ Трек ${index} воспроизводится`);
+          }
+        } catch (error: any) {
+          console.warn(`[Ambient Music] ⚠️ Ошибка загрузки трека ${index}:`, error);
+          
+          // Если это ошибка загрузки (403, 404 и т.д.)
+          if (error?.target?.error || error?.message?.includes('Timeout')) {
+            failedTracks.add(index);
+            
+            // Если все треки провалились, пробуем заново
+            if (failedTracks.size >= playlist.length) {
+              console.log('[Ambient Music] Все треки провалились, очищаем список и пробуем заново');
+              failedTracks.clear();
+              retryCount++;
+              
+              if (retryCount < MAX_RETRIES) {
+                setTimeout(() => {
+                  currentTrackIndex = Math.floor(Math.random() * playlist.length);
+                  playTrack(currentTrackIndex, retryCount);
+                }, 2000);
+              } else {
+                console.error('[Ambient Music] ❌ Превышено количество попыток, музыка отключена');
+              }
+              return;
+            }
+            
+            // Пробуем следующий трек
+            if (retry < MAX_RETRIES) {
+              setTimeout(() => nextTrack(), 500);
+            }
+          } else {
+            // Autoplay blocked - ждем пользовательского взаимодействия
+            console.log('[Ambient Music] Autoplay заблокирован, ждем взаимодействия');
+          }
+        }
+      };
+
+      // Функция перехода к следующему треку
+      const nextTrack = () => {
+        if (!audioElement) return;
+        
+        const previousIndex = currentTrackIndex;
+        let attempts = 0;
+        
+        // Выбираем следующий случайный трек (не тот же самый и не провалившийся)
+        do {
+          currentTrackIndex = Math.floor(Math.random() * playlist.length);
+          attempts++;
+          
+          // Если все треки кроме одного провалились, используем любой
+          if (attempts > playlist.length * 2) {
+            break;
+          }
+        } while (
+          (currentTrackIndex === previousIndex || failedTracks.has(currentTrackIndex)) && 
+          playlist.length > 1 && 
+          failedTracks.size < playlist.length
+        );
+        
+        playTrack(currentTrackIndex);
       };
 
       // Обработчик окончания трека - переход к следующему
       const handleEnded = () => {
         if (!audioElement) return;
-        
-        // Выбираем следующий случайный трек (не тот же самый)
-        const previousIndex = currentTrackIndex;
-        do {
-          currentTrackIndex = Math.floor(Math.random() * playlist.length);
-        } while (currentTrackIndex === previousIndex && playlist.length > 1);
-        
-        playTrack(currentTrackIndex);
+        console.log('[Ambient Music] Трек закончился, переключаем на следующий');
+        nextTrack();
+      };
+
+      // Обработчик ошибки воспроизведения
+      const handleError = () => {
+        if (!audioElement) return;
+        console.warn('[Ambient Music] Ошибка воспроизведения, переключаем трек');
+        failedTracks.add(currentTrackIndex);
+        nextTrack();
       };
 
       audioElement.addEventListener('ended', handleEnded);
+      audioElement.addEventListener('error', handleError);
       
       // Пробуем запустить первый трек
       playTrack(currentTrackIndex);
@@ -364,17 +444,22 @@ const TestSession = () => {
           playTrack(currentTrackIndex);
           document.removeEventListener('click', unlockAudio);
           document.removeEventListener('keydown', unlockAudio);
+          document.removeEventListener('touchstart', unlockAudio);
         }
       };
 
       document.addEventListener('click', unlockAudio, { once: true });
       document.addEventListener('keydown', unlockAudio, { once: true });
+      document.addEventListener('touchstart', unlockAudio, { once: true });
     }
 
     return () => {
       if (audioElement) {
+        audioElement.removeEventListener('ended', () => {});
+        audioElement.removeEventListener('error', () => {});
         audioElement.pause();
         audioElement.src = '';
+        audioElement = null;
       }
     };
   }, [ambientMusic]);
