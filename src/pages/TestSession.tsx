@@ -181,7 +181,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               alt="Вопрос - увеличенное изображение" 
               className="max-w-full max-h-full w-auto h-auto object-contain"
               style={{
-                imageRendering: 'smooth',
+                imageRendering: 'auto',
                 maxWidth: '100%',
                 maxHeight: '100%',
               }}
@@ -291,6 +291,8 @@ const TestSession = () => {
     let retryCount = 0;
     const MAX_RETRIES = 3;
     let failedTracks = new Set<number>(); // Треки, которые не загрузились
+    let trackTimeout: NodeJS.Timeout | null = null; // Таймер для принудительного переключения
+    const MAX_TRACK_DURATION = 5 * 60 * 1000; // Максимальная длительность трека: 5 минут
 
     // Плейлист - только проверенные рабочие треки
     // Используем только те треки, которые точно работают (по логам: трек 0 и трек 3)
@@ -310,6 +312,7 @@ const TestSession = () => {
       audioElement.volume = 0.10;
       audioElement.crossOrigin = "anonymous";
       audioElement.preload = "auto";
+      audioElement.loop = false; // ВАЖНО: отключаем зацикливание для автоматического переключения
       
       // Выбираем первый трек последовательно (начинаем с 0)
       currentTrackIndex = 0;
@@ -359,7 +362,26 @@ const TestSession = () => {
             await playPromise;
             unlockAttempted = true;
             retryCount = 0; // Сбрасываем счетчик при успехе
-            console.log(`[Ambient Music] ✅ Трек ${index} воспроизводится`);
+            
+            // Очищаем предыдущий таймер, если был
+            if (trackTimeout) {
+              clearTimeout(trackTimeout);
+              trackTimeout = null;
+            }
+            
+            // Устанавливаем таймер для принудительного переключения
+            // Используем реальную длительность трека или максимум 5 минут
+            const duration = audioElement.duration * 1000 || MAX_TRACK_DURATION;
+            const switchTime = Math.min(duration, MAX_TRACK_DURATION);
+            
+            trackTimeout = setTimeout(() => {
+              console.log(`[Ambient Music] ⏰ Принудительное переключение трека ${index} (таймаут)`);
+              if (audioElement && !audioElement.ended) {
+                nextTrack();
+              }
+            }, switchTime);
+            
+            console.log(`[Ambient Music] ✅ Трек ${index} воспроизводится (длительность: ${Math.round(duration / 1000)}с)`);
           }
         } catch (error: any) {
           console.warn(`[Ambient Music] ⚠️ Ошибка загрузки трека ${index}:`, error);
@@ -439,8 +461,25 @@ const TestSession = () => {
       // Обработчик окончания трека - переход к следующему
       const handleEnded = () => {
         if (!audioElement) return;
-        console.log('[Ambient Music] Трек закончился, переключаем на следующий');
+        
+        // Очищаем таймер, так как трек закончился естественным образом
+        if (trackTimeout) {
+          clearTimeout(trackTimeout);
+          trackTimeout = null;
+        }
+        
+        console.log('[Ambient Music] 🎵 Трек закончился, переключаем на следующий');
         nextTrack();
+      };
+      
+      // Обработчик для отслеживания прогресса (на случай если ended не сработает)
+      const handleTimeUpdate = () => {
+        if (!audioElement) return;
+        
+        // Если трек почти закончился (осталось меньше 1 секунды), переключаем
+        if (audioElement.duration && audioElement.currentTime >= audioElement.duration - 1) {
+          console.log('[Ambient Music] ⏱️ Трек почти закончился, готовимся к переключению');
+        }
       };
 
       // Обработчик ошибки воспроизведения
@@ -453,6 +492,7 @@ const TestSession = () => {
 
       audioElement.addEventListener('ended', handleEnded);
       audioElement.addEventListener('error', handleError);
+      audioElement.addEventListener('timeupdate', handleTimeUpdate);
       
       // Пробуем запустить первый трек
       playTrack(currentTrackIndex);
@@ -473,9 +513,16 @@ const TestSession = () => {
     }
 
     return () => {
+      // Очищаем таймер
+      if (trackTimeout) {
+        clearTimeout(trackTimeout);
+        trackTimeout = null;
+      }
+      
       if (audioElement) {
-        audioElement.removeEventListener('ended', () => {});
-        audioElement.removeEventListener('error', () => {});
+        audioElement.removeEventListener('ended', handleEnded);
+        audioElement.removeEventListener('error', handleError);
+        audioElement.removeEventListener('timeupdate', handleTimeUpdate);
         audioElement.pause();
         audioElement.src = '';
         audioElement = null;
