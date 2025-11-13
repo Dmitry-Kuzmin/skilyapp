@@ -40,9 +40,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             top: `${position.top - dotSize / 2}px`,
             right: `${position.right}px` 
           }}
-          className="fixed z-[100] w-56 sm:w-60"
+          className="fixed z-40 w-56 sm:w-60"
         >
-          {/* Пульсирующая точка ТОЧНО ПО ЦЕНТРУ иконки */}
+          {/* Пульсирующая точка ТОЧНО ПО ЦЕНТРУ иконки - ПОД иконкой */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -51,40 +51,45 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.2,
               ease: "backOut"
             }}
-            className="absolute -top-[20px] w-[10px] h-[10px] rounded-full bg-white z-20"
+            className="absolute -top-[20px] w-[10px] h-[10px] rounded-full bg-white"
             style={{ 
               right: `${position.buttonWidth / 2 - dotSize / 2}px`,
-              boxShadow: '0 0 0 2px #3b82f6, 0 0 10px rgba(59, 130, 246, 0.5)'
+              boxShadow: '0 0 0 2px #3b82f6, 0 0 10px rgba(59, 130, 246, 0.5)',
+              zIndex: 1
             }}
           >
             {/* Синий центр */}
             <div className="absolute inset-[2px] rounded-full bg-blue-500" />
             
-            {/* Пульсирующие кольца */}
+            {/* Пульсирующие кольца - оптимизированы */}
             <motion.div
               animate={{ 
-                scale: [1, 2.5],
-                opacity: [0.6, 0]
+                scale: [1, 2.2],
+                opacity: [0.5, 0]
               }}
               transition={{
-                duration: 1.5,
+                duration: 1.8,
                 repeat: Infinity,
-                ease: "easeOut"
+                ease: "easeOut",
+                repeatType: "loop"
               }}
-              className="absolute inset-0 rounded-full bg-blue-500"
+              className="absolute inset-0 rounded-full border-2 border-blue-500"
+              style={{ willChange: 'transform, opacity' }}
             />
             <motion.div
               animate={{ 
-                scale: [1, 3],
-                opacity: [0.4, 0]
+                scale: [1, 2.5],
+                opacity: [0.3, 0]
               }}
               transition={{
-                duration: 1.5,
+                duration: 1.8,
                 repeat: Infinity,
                 ease: "easeOut",
-                delay: 0.4
+                delay: 0.6,
+                repeatType: "loop"
               }}
-              className="absolute inset-0 rounded-full bg-blue-500"
+              className="absolute inset-0 rounded-full border-2 border-blue-500"
+              style={{ willChange: 'transform, opacity' }}
             />
           </motion.div>
           
@@ -97,11 +102,13 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.3,
               ease: "easeOut"
             }}
-            className="absolute w-[2px] bg-primary origin-top z-10"
+            className="absolute w-[2px] bg-primary origin-top"
             style={{ 
               right: `${position.buttonWidth / 2 - 1}px`,
               top: `-${dotSize / 2}px`,
-              height: `${lineHeight}px`
+              height: `${lineHeight}px`,
+              zIndex: 1,
+              willChange: 'transform, opacity'
             }}
           />
           
@@ -114,14 +121,15 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               duration: 0.2,
               ease: "backOut"
             }}
-            className="absolute w-[10px] h-[10px] bg-primary transform rotate-45 z-10"
+            className="absolute w-[10px] h-[10px] bg-primary transform rotate-45"
             style={{ 
               right: `${position.buttonWidth / 2 - triangleSize / 2}px`,
-              top: `${lineHeight - dotSize / 2 - 5}px`
+              top: `${lineHeight - dotSize / 2 - 5}px`,
+              zIndex: 1
             }}
           />
           
-          {/* Лаконичное уведомление БЕЗ иконки */}
+          {/* Лаконичное уведомление */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -136,10 +144,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             className="bg-primary rounded-lg px-3 py-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
             style={{ 
               marginTop: `${lineHeight - dotSize / 2 + 6}px`,
-              boxShadow: '0 8px 32px rgba(139, 92, 246, 0.24)'
+              boxShadow: '0 8px 32px rgba(139, 92, 246, 0.24)',
+              zIndex: 1,
+              willChange: 'transform, opacity'
             }}
           >
-            {/* Только текст - просто и лаконично */}
+            {/* Только текст */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
