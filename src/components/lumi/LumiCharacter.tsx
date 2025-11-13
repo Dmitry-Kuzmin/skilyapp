@@ -36,7 +36,7 @@ export const LumiCharacter = ({
       <svg
         viewBox="0 0 100 100"
         className={cn(
-          "relative z-10 drop-shadow-lg",
+          "relative z-10 drop-shadow-lg w-full h-full",
           animate && mood === "idle" && "animate-lumi-float",
           animate && mood === "happy" && "animate-lumi-bounce",
           animate && mood === "celebrating" && "animate-lumi-bounce",
