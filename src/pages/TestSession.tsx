@@ -1609,7 +1609,7 @@ const TestSession = () => {
                     </Button>
                   ) : (
                     <Button 
-                      onClick={handleAnswer} 
+                      onClick={() => handleAnswer()} 
                       disabled={!selectedOption} 
                       className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
                     >
@@ -1767,7 +1767,7 @@ const TestSession = () => {
               </Button>
             ) : (
               <Button 
-                onClick={handleAnswer} 
+                onClick={() => handleAnswer()} 
                 disabled={!selectedOption} 
                     className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
               >
