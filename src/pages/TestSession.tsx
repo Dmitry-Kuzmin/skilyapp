@@ -2095,8 +2095,8 @@ const TestSession = () => {
       />
 
 
-      {/* AI Explanation Dialog - старый проверенный чат */}
-      {mode === "practice" && selectedOption && (
+      {/* AI Explanation Dialog - работает всегда в practice режиме */}
+      {mode === "practice" && (
         <AIExplanationDialog
           open={showAIExplanation}
           onClose={() => setShowAIExplanation(false)}
@@ -2105,10 +2105,10 @@ const TestSession = () => {
             sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] || ''
           }
           userAnswer={
-            sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es']
+            selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined
           }
-          isCorrect={sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false}
-          explanation={testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es}
+          isCorrect={selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false}
+          explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
           topic={currentQuestion.topics?.[testLanguage === 'ru' ? 'title_ru' : 'title_es']}
           imageUrl={currentQuestion.image_url}
         />
