@@ -988,20 +988,21 @@ const TestSession = () => {
     }
   };
 
-  const handleAnswer = async () => {
-    if (!selectedOption) return;
+  const handleAnswer = async (optionId?: string) => {
+    const answerId = optionId || selectedOption;
+    if (!answerId) return;
 
     const currentQuestion = questions[currentIndex];
     if (!currentQuestion || !currentQuestion.answer_options) {
       toast.error("Ошибка: вопрос не найден");
       return;
     }
-    const selectedAnswer = currentQuestion.answer_options.find(opt => opt.id === selectedOption);
+    const selectedAnswer = currentQuestion.answer_options.find(opt => opt.id === answerId);
     const isCorrect = selectedAnswer?.is_correct || false;
 
     const newAnswer: Answer = {
       questionId: currentQuestion.id,
-      selectedAnswerId: selectedOption,
+      selectedAnswerId: answerId,
       isCorrect,
     };
 
