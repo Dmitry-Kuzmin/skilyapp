@@ -495,30 +495,29 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none">
         <DialogHeader 
-          className="px-4 border-b shrink-0 relative"
+          className="px-4 border-b shrink-0"
           style={{
             // Добавляем 48px для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
             paddingTop: isTelegram ? 'calc(var(--tg-content-safe-area-inset-top, 0px) + 48px + 12px)' : '12px',
             paddingBottom: '12px'
           }}
         >
-          {/* Временная визуальная отладка safe area - УБРАТЬ ПОТОМ */}
-          {isTelegram && (
-            <div 
-              className="absolute top-0 left-0 right-0 bg-red-500/20 border-b-2 border-red-500 text-xs text-center text-red-700 font-mono"
-              style={{
-                height: 'var(--tg-content-safe-area-inset-top, 0px)',
-              }}
-            >
-              Safe Area Top: {getComputedStyle(document.documentElement).getPropertyValue('--tg-content-safe-area-inset-top')}
+          <DialogTitle className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <span className="text-base font-medium text-foreground">
+                AI Помощник DGT
+              </span>
             </div>
-          )}
-          
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-muted-foreground" />
-            <span className="text-base font-medium text-foreground">
-              AI Помощник DGT
-            </span>
+            <Button 
+              variant="ghost" 
+              onClick={handleClose}
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+              title="Закрыть"
+            >
+              <span className="text-lg">✕</span>
+            </Button>
           </DialogTitle>
         </DialogHeader>
 
@@ -689,15 +688,6 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
               className="flex-shrink-0 h-10 w-10"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
-            <Button 
-              variant="ghost" 
-              onClick={handleClose}
-              size="icon"
-              className="flex-shrink-0 h-10 w-10 text-muted-foreground hover:text-foreground"
-              title="Закрыть"
-            >
-              <span className="text-lg">✕</span>
             </Button>
           </form>
         </div>
