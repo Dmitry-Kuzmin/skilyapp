@@ -1398,7 +1398,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
   // ПОЛНЫЕ ОТСТУПЫ для игры дуэль (увеличены по просьбе пользователя)
   // + дополнительный отступ для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
-  const TELEGRAM_NAV_HEIGHT = 70; // Высота встроенной навигации Telegram WebApp (увеличено для предотвращения перекрытия кнопкой "Назад")
+  const TELEGRAM_NAV_HEIGHT = 95; // Высота встроенной навигации Telegram WebApp (увеличено для предотвращения перекрытия кнопкой "Назад")
   const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
   
   const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
@@ -1516,11 +1516,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto"
         style={{
-          paddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 8 : 0)}px` // В Telegram убираем зазор между счетом и панелью прогресса (вычитаем 8px для плотного прилегания)
+          paddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 20 : 0)}px` // В Telegram убираем зазор между счетом и панелью прогресса (вычитаем 20px для плотного прилегания)
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-1 mb-0' : 'mb-3 md:mb-4'}`}>
+        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-4 mb-0' : 'mb-3 md:mb-4'}`}>
           {/* Scores - Enhanced - Центрированы в Telegram */}
           <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
