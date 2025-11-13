@@ -40,9 +40,9 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             top: `${position.top - dotSize / 2}px`,
             right: `${position.right}px` 
           }}
-          className="fixed z-40 w-56 sm:w-60"
+          className="fixed z-40 w-56 sm:w-64"
         >
-          {/* Пульсирующая точка ТОЧНО ПО ЦЕНТРУ иконки - ПОД иконкой */}
+          {/* Пульсирующая точка ТОЧНО ПО ЦЕНТРУ иконки */}
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -61,7 +61,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             {/* Синий центр */}
             <div className="absolute inset-[2px] rounded-full bg-blue-500" />
             
-            {/* Пульсирующие кольца - оптимизированы */}
+            {/* Пульсирующие кольца */}
             <motion.div
               animate={{ 
                 scale: [1, 2.2],
@@ -102,7 +102,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.3,
               ease: "easeOut"
             }}
-            className="absolute w-[2px] bg-primary origin-top"
+            className="absolute w-[2px] bg-white origin-top"
             style={{ 
               right: `${position.buttonWidth / 2 - 1}px`,
               top: `-${dotSize / 2}px`,
@@ -121,7 +121,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               duration: 0.2,
               ease: "backOut"
             }}
-            className="absolute w-[10px] h-[10px] bg-primary transform rotate-45"
+            className="absolute w-[10px] h-[10px] bg-white transform rotate-45"
             style={{ 
               right: `${position.buttonWidth / 2 - triangleSize / 2}px`,
               top: `${lineHeight - dotSize / 2 - 5}px`,
@@ -129,7 +129,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             }}
           />
           
-          {/* Лаконичное уведомление */}
+          {/* Уведомление - белый фон, синий текст */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -141,24 +141,24 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.6
             }}
             onClick={onClose}
-            className="bg-primary rounded-lg px-3 py-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            className="bg-white rounded-xl px-4 py-3 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform border border-blue-100"
             style={{ 
               marginTop: `${lineHeight - dotSize / 2 + 6}px`,
-              boxShadow: '0 8px 32px rgba(139, 92, 246, 0.24)',
+              boxShadow: '0 10px 40px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1)',
               zIndex: 1,
               willChange: 'transform, opacity'
             }}
           >
-            {/* Только текст */}
+            {/* Текст - синий, выровнен влево */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
             >
-              <p className="text-white/80 text-[10px] leading-tight text-center">
-                Вопрос добавлен в
+              <p className="text-blue-600/70 text-[10px] leading-tight font-medium">
+                Мы добавили этот вопрос в ваш
               </p>
-              <p className="text-white font-bold text-[13px] leading-tight text-center mt-0.5">
+              <p className="text-blue-600 font-bold text-[14px] leading-tight mt-1">
                 Банк Вопросов™
               </p>
             </motion.div>
