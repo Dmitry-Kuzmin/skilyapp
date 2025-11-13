@@ -201,3 +201,4 @@ const fixedPadding = `${topInset + systemSafeArea}px`; // 46px
 4. ✅ Протестировать в Telegram Mini App на мобильном устройстве
 
 
+
