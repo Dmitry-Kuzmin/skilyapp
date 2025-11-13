@@ -1535,7 +1535,7 @@ const TestSession = () => {
         <div className={cn(
         "mx-auto transition-all duration-300",
         !isTelegramApp && mode === "practice" 
-          ? "lg:grid lg:grid-cols-[1fr_400px] lg:gap-4 lg:max-w-[1370px] lg:px-4" 
+          ? "flex flex-col lg:grid lg:grid-cols-[1fr_400px] lg:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4" 
           : mode === "exam" && !isTelegramApp
           ? "lg:max-w-[1100px] lg:px-4"
           : "container px-2 sm:px-4"
@@ -2114,11 +2114,11 @@ const TestSession = () => {
         />
       )}
 
-      {/* AI Widget справа - ВСЕГДА на desktop (как Officer Frank) */}
-      {/* AI Widget Lumi - только в режиме практики, НЕ в экзамене */}
+      {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
+      {/* На маленьких экранах - снизу, на больших - справа */}
       {!isTelegramApp && mode === "practice" && (
-        <div className="hidden lg:block pt-3">
-          <div className="sticky top-4">
+        <div className="pt-3 lg:pt-3">
+          <div className="lg:sticky lg:top-4">
             <AIWidget
               explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
               question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
