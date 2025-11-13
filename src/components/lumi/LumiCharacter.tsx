@@ -11,10 +11,10 @@ interface LumiCharacterProps {
 }
 
 const sizeMap = {
-  sm: "w-12 h-12",
-  md: "w-16 h-16",
-  lg: "w-24 h-24",
-  xl: "w-32 h-32",
+  sm: "w-12 h-12 min-w-12 min-h-12",
+  md: "w-16 h-16 min-w-16 min-h-16",
+  lg: "w-24 h-24 min-w-24 min-h-24",
+  xl: "w-32 h-32 min-w-32 min-h-32",
 };
 
 export const LumiCharacter = ({ 
@@ -35,13 +35,15 @@ export const LumiCharacter = ({
       {/* Main character SVG */}
       <svg
         viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid meet"
         className={cn(
-          "relative z-10 drop-shadow-lg w-full h-full",
+          "relative z-10 drop-shadow-lg",
           animate && mood === "idle" && "animate-lumi-float",
           animate && mood === "happy" && "animate-lumi-bounce",
           animate && mood === "celebrating" && "animate-lumi-bounce",
           animate && mood === "thinking" && "animate-lumi-sway"
         )}
+        style={{ width: '100%', height: '100%' }}
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
