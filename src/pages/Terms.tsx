@@ -19,7 +19,7 @@ export default function Terms() {
         },
         {
           title: "2. Аккаунты",
-          content: `Пользователи могут быть обязаны зарегистрироваться перед использованием или доступом к Платформе. Ваша информация будет собираться и раскрываться в соответствии с нашей Политикой конфиденциальности. Все пользователи обязаны предоставлять правдивую, актуальную и точную информацию при регистрации на нашей Платформе. Мы оставляем за собой право проверять все учетные данные пользователей и отклонять любых пользователей. Вы несете полную ответственность за сохранение конфиденциальности пароля и аккаунта и за любую и всю деятельность, происходящую под вашим аккаунтом.`
+          content: `Пользователи могут быть обязаны зарегистрироваться перед использованием или доступом к Платформе. Ваша информация будет собираться и раскрываться в соответствии с нашей Политикой конфиденциальности. Все пользователи обязаны предоставлять правдивую, актуальную и точную информацию при регистрации на нашей Платформе. Мы оставляем за собой право проверять все учетные данные пользователей и отклонять любых пользователей. Вы несете полную ответственность за сохранение конфиденциальности пароля и аккаунта и за любую и всю деятельность, происходящую под вашим аккаунтом. Вы соглашаетесь немедленно уведомить Sdadim о любом несанкционированном использовании вашего аккаунта или любом другом нарушении безопасности. Sdadim не несет ответственности за любые убытки, которые вы понесете в результате использования кем-либо другого вашего пароля или аккаунта, с вашим ведением или без него.`
         },
         {
           title: "3. Возрастные ограничения",
@@ -111,7 +111,7 @@ AL HACER CLIC EN "ACEPTO", AL SUSCRIBIRSE A LA PLATAFORMA Y AL ACCEDER O USAR LA
         },
         {
           title: "2. Cuentas",
-          content: `Los usuarios pueden estar obligados a registrarse antes de usar o acceder a la Plataforma. Su información será recopilada y divulgada de acuerdo con nuestra Política de Privacidad. Todos los usuarios están obligados a proporcionar información veraz, actualizada y precisa al registrarse en nuestra Plataforma. Nos reservamos el derecho de verificar todas las credenciales de usuario y rechazar cualquier usuario.`
+          content: `Los usuarios pueden estar obligados a registrarse antes de usar o acceder a la Plataforma. Su información será recopilada y divulgada de acuerdo con nuestra Política de Privacidad. Todos los usuarios están obligados a proporcionar información veraz, actualizada y precisa al registrarse en nuestra Plataforma. Nos reservamos el derecho de verificar todas las credenciales de usuario y rechazar cualquier usuario. Usted es completamente responsable de mantener la confidencialidad de la contraseña y la cuenta y de todas las actividades que ocurran bajo su cuenta. Usted acepta notificar inmediatamente a Sdadim sobre cualquier uso no autorizado de su cuenta o cualquier otra violación de seguridad. Sdadim no será responsable de ninguna pérdida que incurra como resultado del uso de su contraseña o cuenta por parte de otra persona, con o sin su conocimiento.`
         },
         {
           title: "3. Límites de edad",
@@ -205,7 +205,7 @@ By clicking "I agree", subscribing to the Platform, and accessing or using the P
         },
         {
           title: "2. Accounts",
-          content: `Users may be required to register prior to using or accessing the Platform. Your information will be collected and disclosed in accordance with our Privacy Policy. All users are required to provide truthful, up-to-date, and accurate information when registering for our Platform. We reserve the right to verify all user credentials and to reject any users.`
+          content: `Users may be required to register prior to using or accessing the Platform. Your information will be collected and disclosed in accordance with our Privacy Policy. All users are required to provide truthful, up-to-date, and accurate information when registering for our Platform. We reserve the right to verify all user credentials and to reject any users. You are entirely responsible for maintaining the confidentiality of password and account and for any and all activities that occur under your account. You agree to notify Sdadim immediately of any unauthorized use of your account or any other breach of security. Sdadim will not be liable for any losses you incur as a result of someone else using your password or account, either with or without your knowledge.`
         },
         {
           title: "3. Age Limits",
