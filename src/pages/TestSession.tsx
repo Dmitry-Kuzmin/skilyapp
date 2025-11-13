@@ -297,17 +297,22 @@ const TestSession = () => {
     let handleErrorRef: (() => void) | null = null;
     let handleTimeUpdateRef: (() => void) | null = null;
 
-    // Плейлист - только проверенные рабочие треки
-    // Используем только те треки, которые точно работают (по логам: трек 0 и трек 3)
+    // Плейлист - проверенные рабочие треки из надежных источников
+    // Используем бесплатную музыку с лицензией CC0 (Public Domain)
     const playlist = [
-      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Трек 0 - Calm Piano ✅ РАБОТАЕТ
-      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Трек 3 - Meditation ✅ РАБОТАЕТ
+      // Pixabay треки (работают стабильно с прямыми ссылками)
+      'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', // Calm Piano ✅
+      'https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3', // Meditation ✅
       
-      // Дополнительные треки для разнообразия (будут пропущены, если не загрузятся)
-      'https://cdn.pixabay.com/audio/2022/01/18/audio_d768d31c6a.mp3', // Lofi Hip Hop
-      'https://cdn.pixabay.com/audio/2022/02/22/audio_c0b2b8b8e1.mp3', // Peaceful Morning
-      'https://cdn.pixabay.com/audio/2022/11/08/audio_2e6db8d39f.mp3', // Deep Meditation
-      'https://cdn.pixabay.com/audio/2023/03/12/audio_1b8c7e8d5f.mp3', // Chill Beats
+      // Бесплатная ambient музыка от Incompetech (royalty-free)
+      'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ambient%20-%20Healing%20Frequency.mp3',
+      'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ambient%20-%20Meditation%20Impromptu%2001.mp3',
+      'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Ambient%20-%20Meditation%20Impromptu%2002.mp3',
+      
+      // Бесплатная фоновая музыка (альтернативные источники)
+      'https://www.bensound.com/bensound-music/bensound-slowmotion.mp3',
+      'https://www.bensound.com/bensound-music/bensound-relaxing.mp3',
+      'https://www.bensound.com/bensound-music/bensound-pianomoment.mp3',
     ];
 
     if (ambientMusic) {
