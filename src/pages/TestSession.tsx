@@ -1539,7 +1539,7 @@ const TestSession = () => {
         )}>
         {/* Основной контент */}
         <div className={cn(
-          "pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 pb-16 md:pb-4",
+          "pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 pb-5 md:pb-4",
           isTelegramApp && "px-2 sm:px-4"
         )}>
         {/* Unified Progress Bar - переиспользуемый компонент */}
@@ -1723,7 +1723,7 @@ const TestSession = () => {
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
-                  {/* Lumi Avatar - только на мобильном в режиме practice */}
+                  {/* Lumi Avatar - только на мобильном в режиме practice (всегда видна) */}
                   {isTelegramApp && mode === "practice" && (
                     <button
                       onClick={() => setShowAIExplanation(true)}
@@ -1732,31 +1732,6 @@ const TestSession = () => {
                     >
                       <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
-                    </button>
-                  )}
-
-                  {currentIndex > 0 && mode === "practice" && (
-                    <Button 
-                      onClick={prevQuestion} 
-                      variant="outline"
-                      className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
-                      size="sm"
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">Назад</span>
-                      <span className="sm:hidden">←</span>
-                    </Button>
-                  )}
-                  
-                  {/* AI Chat кнопка с Lumi - только в practice mode и только на мобильных (на десктопе виджет справа) */}
-                  {mode === "practice" && selectedOption && (
-                    <button
-                      onClick={() => setShowAIExplanation(true)}
-                      className="w-12 sm:w-14 h-10 sm:h-11 md:h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 relative overflow-hidden group lg:hidden"
-                      title="AI помощник - объяснение"
-                    >
-                      <LumiCharacter size="md" mood="thinking" animate className="scale-90 relative z-10" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-0 group-hover:opacity-30 blur-lg transition-opacity" />
                     </button>
                   )}
                   
@@ -1894,7 +1869,7 @@ const TestSession = () => {
 
           {/* Navigation Buttons - с аватаром Lumi на мобильном */}
           <div className="flex gap-2 items-center">
-            {/* Lumi Avatar - только на мобильном в режиме practice */}
+            {/* Lumi Avatar - только на мобильном в режиме practice (всегда видна) */}
             {isTelegramApp && mode === "practice" && (
               <button
                 onClick={() => setShowAIExplanation(true)}
@@ -1904,19 +1879,6 @@ const TestSession = () => {
                 <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
               </button>
-            )}
-
-            {currentIndex > 0 && mode === "practice" && (
-              <Button 
-                onClick={prevQuestion} 
-                variant="outline"
-                className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
-                size="sm"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Назад</span>
-                <span className="sm:hidden">←</span>
-              </Button>
             )}
             {mode === "practice" && selectedOption ? (
               <Button 
