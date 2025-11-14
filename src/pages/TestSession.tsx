@@ -743,7 +743,29 @@ const TestSession = () => {
   };
 
   const toggleBookmark = async () => {
-    if (!profileId || !questions.length || !questions[currentIndex]?.id || bookmarkLoading) return;
+    console.log('[Bookmark] Toggle called:', {
+      profileId,
+      questionId: questions[currentIndex]?.id,
+      bookmarkLoading,
+      isQuestionBookmarked,
+      isTelegramApp
+    });
+
+    if (!profileId) {
+      console.error('[Bookmark] No profileId available');
+      toast.error("Необходима авторизация для добавления в закладки");
+      return;
+    }
+
+    if (!questions.length || !questions[currentIndex]?.id) {
+      console.error('[Bookmark] No question available');
+      return;
+    }
+
+    if (bookmarkLoading) {
+      console.log('[Bookmark] Already loading, skipping');
+      return;
+    }
 
     const questionId = questions[currentIndex].id;
 
@@ -752,47 +774,85 @@ const TestSession = () => {
 
       if (isQuestionBookmarked) {
         // Удаляем из закладок
-        const { error } = await supabase
+        console.log('[Bookmark] Removing bookmark:', { profileId, questionId });
+        const { error, data } = await supabase
           .from('user_challenge_questions')
           .delete()
           .eq('user_id', profileId)
-          .eq('question_id', questionId);
+          .eq('question_id', questionId)
+          .select();
 
-        if (error) throw error;
+        console.log('[Bookmark] Delete result:', { error, data });
+
+        if (error) {
+          console.error('[Bookmark] Delete error:', error);
+          throw error;
+        }
         toast.success("Удалено из закладок");
         setIsQuestionBookmarked(false);
       } else {
         // Добавляем в закладки
-        const { data: existing } = await supabase
+        console.log('[Bookmark] Adding bookmark:', { profileId, questionId });
+        
+        // Сначала проверяем, есть ли уже запись
+        const { data: existing, error: checkError } = await supabase
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
           .eq('question_id', questionId)
           .maybeSingle();
 
+        console.log('[Bookmark] Check existing:', { existing, checkError });
+
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('[Bookmark] Check error:', checkError);
+          throw checkError;
+        }
+
         if (existing) {
           // Уже есть, просто показываем сообщение
+          console.log('[Bookmark] Already exists:', existing);
           toast.success("Вопрос уже в закладках");
           setIsQuestionBookmarked(true);
         } else {
           // Создаем новую запись с times_wrong = 0 (добавлено вручную)
-          const { error: insertError } = await supabase
+          console.log('[Bookmark] Inserting new bookmark');
+          const { data: insertData, error: insertError } = await supabase
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
               question_id: questionId,
               times_wrong: 0, // 0 означает добавлено вручную, не через ошибку
               last_wrong_at: new Date().toISOString(),
-            });
+            })
+            .select();
 
-          if (insertError) throw insertError;
+          console.log('[Bookmark] Insert result:', { insertData, insertError });
+
+          if (insertError) {
+            console.error('[Bookmark] Insert error details:', {
+              message: insertError.message,
+              code: insertError.code,
+              details: insertError.details,
+              hint: insertError.hint
+            });
+            throw insertError;
+          }
           toast.success("Добавлено в закладки");
           setIsQuestionBookmarked(true);
         }
       }
-    } catch (error) {
-      console.error('Error toggling bookmark:', error);
-      toast.error("Не удалось изменить закладку");
+    } catch (error: any) {
+      console.error('[Bookmark] Error toggling bookmark:', error);
+      const errorMessage = error?.message || error?.details || "Не удалось изменить закладку";
+      console.error('[Bookmark] Full error object:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+        error
+      });
+      toast.error(`Не удалось изменить закладку: ${errorMessage}`);
     } finally {
       setBookmarkLoading(false);
     }
