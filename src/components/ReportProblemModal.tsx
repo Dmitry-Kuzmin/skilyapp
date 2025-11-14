@@ -148,7 +148,15 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isSubmitting && !isSuccess) {
-        handleCloseModal();
+        if (!isSubmitting && !isSuccess) {
+          setIsClosing(true);
+          setTimeout(() => {
+            setDescription("");
+            setReportType("other");
+            setIsClosing(false);
+            onOpenChange(false);
+          }, 300);
+        }
       }
     };
 
@@ -156,7 +164,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [open, isSubmitting, isSuccess]);
+  }, [open, isSubmitting, isSuccess, onOpenChange]);
 
   const handleCloseModal = () => {
     if (!isSubmitting && !isSuccess) {
