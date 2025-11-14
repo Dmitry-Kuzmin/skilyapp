@@ -50,6 +50,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
   const [isClosing, setIsClosing] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
+  const [contentScrollTop, setContentScrollTop] = useState(0);
   const { toast } = useToast();
   const { language } = useLanguage();
   const lang = language === "es" ? "es" : "ru";
@@ -132,14 +133,33 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     }
   };
 
-  // Reset drag state when modal closes
+  // Reset drag state when modal closes and prevent body scroll
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      // Блокируем скролл фона при открытом модальном окне
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      // Сбрасываем позицию скролла контента
+      setContentScrollTop(0);
+    } else {
+      // Разблокируем скролл при закрытии
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
       setIsDragging(false);
       setIsClosing(false);
       setDragStartY(0);
       setDragCurrentY(0);
+      setContentScrollTop(0);
     }
+    
+    return () => {
+      // Очистка при размонтировании
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
   }, [open]);
 
   // Handle Escape key to close modal
@@ -214,13 +234,19 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
             : undefined
         }}
         onTouchStart={(e) => {
-          if (isClosing) return;
+          if (isClosing || isSubmitting || isSuccess) return;
           const touch = e.touches[0];
           if (touch) {
-            // Начинаем драг только если свайп начинается с верхней части модального окна
+            // Начинаем драг только если свайп начинается с верхней части модального окна (drag handle или header)
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
             const touchY = touch.clientY;
-            if (touchY - rect.top < 100) { // Только верхние 100px для начала драга
+            const touchX = touch.clientX;
+            const relativeY = touchY - rect.top;
+            
+            // Проверяем, что касание в верхней части (drag handle + header, примерно 120px)
+            // И что контент не прокручен (можно свайпать только когда контент вверху)
+            if (relativeY < 120 && touchX > rect.left && touchX < rect.right && contentScrollTop === 0) {
+              e.stopPropagation();
               setIsDragging(true);
               setDragStartY(touch.clientY);
               setDragCurrentY(touch.clientY);
@@ -228,11 +254,13 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           }
         }}
         onTouchMove={(e) => {
-          if (isDragging && !isClosing) {
+          if (isDragging && !isClosing && !isSubmitting && !isSuccess) {
             e.preventDefault();
+            e.stopPropagation();
             const touch = e.touches[0];
             if (touch) {
               const deltaY = touch.clientY - dragStartY;
+              // Разрешаем свайп только вниз
               if (deltaY > 0) {
                 setDragCurrentY(touch.clientY);
               }
@@ -241,10 +269,14 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
         }}
         onTouchEnd={(e) => {
           if (isDragging && !isClosing) {
+            e.preventDefault();
+            e.stopPropagation();
             const dragDistance = dragCurrentY - dragStartY;
-            if (dragDistance > 50) {
+            // Уменьшен порог для более отзывчивого свайпа (было 50px, стало 80px для более четкого закрытия)
+            if (dragDistance > 80) {
               handleCloseModal();
             } else {
+              // Возвращаем на место с анимацией
               setIsDragging(false);
               setDragStartY(0);
               setDragCurrentY(0);
@@ -290,7 +322,20 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto px-4 sm:px-6 py-4" style={{ maxHeight: 'calc(80vh - 120px)' }}>
+        <div 
+          className="overflow-y-auto px-4 sm:px-6 py-4" 
+          style={{ maxHeight: 'calc(80vh - 120px)' }}
+          onScroll={(e) => {
+            // Отслеживаем позицию скролла контента
+            setContentScrollTop(e.currentTarget.scrollTop);
+          }}
+          onTouchStart={(e) => {
+            // Предотвращаем начало свайпа при скролле контента
+            if (isDragging) {
+              e.stopPropagation();
+            }
+          }}
+        >
           {isSuccess ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <div className="mb-4 rounded-full bg-emerald-100 p-4 dark:bg-emerald-900/20">
