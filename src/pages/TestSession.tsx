@@ -725,9 +725,13 @@ const TestSession = () => {
   }, [profileId, currentIndex, questions]);
 
   const checkIfBookmarked = async () => {
-    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
+    if (!profileId || !questions.length || !questions[currentIndex]?.id) {
+      console.log('[Bookmark] Check skipped:', { profileId, hasQuestions: questions.length > 0, questionId: questions[currentIndex]?.id });
+      return;
+    }
 
     try {
+      console.log('[Bookmark] Checking if bookmarked:', { profileId, questionId: questions[currentIndex].id });
       const { data, error } = await supabase
         .from('user_challenge_questions')
         .select('id')
@@ -735,10 +739,15 @@ const TestSession = () => {
         .eq('question_id', questions[currentIndex].id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      console.log('[Bookmark] Check result:', { data, error });
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('[Bookmark] Check error:', error);
+        throw error;
+      }
       setIsQuestionBookmarked(!!data);
     } catch (error) {
-      console.error('Error checking bookmark:', error);
+      console.error('[Bookmark] Error checking bookmark:', error);
     }
   };
 
