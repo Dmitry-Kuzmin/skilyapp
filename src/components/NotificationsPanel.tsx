@@ -137,7 +137,7 @@ export function NotificationsPanel() {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 border-none">
+            <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 min-w-4 p-0 flex items-center justify-center text-[10px] font-semibold bg-red-500/85 border-none text-white">
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
