@@ -1814,11 +1814,17 @@ const TestSession = () => {
                   {mode === "practice" && (
                     <button
                       onClick={() => setShowAIExplanation(true)}
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
+                      className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
                       aria-label="Спросить Lumi"
                     >
-                      <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
+                      {/* Пульсирующий эффект */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
+                      {/* Светящийся эффект при hover */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-40 transition-opacity duration-300 blur-sm" />
+                      {/* Lumi аватар */}
+                      <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                      {/* Внешнее свечение */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
                     </button>
                   )}
                   
@@ -1960,11 +1966,17 @@ const TestSession = () => {
             {mode === "practice" && (
               <button
                 onClick={() => setShowAIExplanation(true)}
-                className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
+                className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
                 aria-label="Спросить Lumi"
               >
-                <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
+                {/* Пульсирующий эффект */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
+                {/* Светящийся эффект при hover */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 to-orange-300 opacity-0 group-hover:opacity-40 transition-opacity duration-300 blur-sm" />
+                {/* Lumi аватар */}
+                <LumiCharacter size="sm" mood="happy" animate={true} className="relative z-10 transform group-hover:scale-110 transition-transform duration-300" />
+                {/* Внешнее свечение */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
               </button>
             )}
             {mode === "practice" && selectedOption ? (
@@ -2017,16 +2029,15 @@ const TestSession = () => {
             />
             {/* Bottom Sheet - Higher z-index than navbar (z-50) and padding for navbar on mobile only */}
             <div 
-              className={`fixed left-0 right-0 z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl ${
+              className={`fixed left-0 right-0 bottom-0 z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl overflow-hidden flex flex-col ${
                 !isDragging && !isClosing ? 'transition-transform duration-300 ease-out' : isClosing ? 'transition-transform duration-300 ease-in' : ''
               } ${
                 !isClosing && !isDragging ? 'translate-y-0' : 'translate-y-full'
               }`}
               onClick={(e) => e.stopPropagation()}
               style={{ 
-                bottom: isTelegramApp ? '75px' : '0px', // Отступ только на мобильных (60px navbar + 15px запас для легенды)
-                maxHeight: isTelegramApp ? 'calc(90vh - 75px)' : '90vh',
-                height: 'auto',
+                maxHeight: isTelegramApp ? 'calc(90vh)' : '90vh',
+                height: isTelegramApp ? 'calc(90vh)' : '90vh',
                 transform: isDragging && dragCurrentY > dragStartY 
                   ? `translateY(${dragCurrentY - dragStartY}px)` 
                   : undefined
@@ -2100,7 +2111,7 @@ const TestSession = () => {
               </div>
 
               {/* Content - Auto height based on content with padding for legend */}
-              <div className="overflow-y-auto px-4 sm:px-6 py-4 pb-24" style={{ maxHeight: isTelegramApp ? 'calc(90vh - 220px)' : 'calc(90vh - 140px)' }}>
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 bg-card">
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
                   {questions.map((_, idx) => {
                     const answer = answers.find((a) => a.questionId === questions[idx].id);
@@ -2136,7 +2147,7 @@ const TestSession = () => {
                     );
                   })}
                 </div>
-                <div className="mt-6 pt-4 border-t border-border">
+                <div className="mt-6 pt-4 border-t border-border pb-6">
                   <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded border border-border bg-muted/50" />
@@ -2166,6 +2177,13 @@ const TestSession = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Белый фон снизу для закрытия прозрачного пространства - расширяем до самого низа */}
+              <div className="absolute bottom-0 left-0 right-0 bg-card" style={{ 
+                height: '100px',
+                transform: 'translateY(100%)',
+                zIndex: -1
+              }} />
             </div>
           </>
         )}

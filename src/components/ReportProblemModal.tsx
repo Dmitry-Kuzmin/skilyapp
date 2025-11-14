@@ -112,8 +112,20 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           message: reportError.message,
           code: reportError.code,
           details: reportError.details,
-          hint: reportError.hint
+          hint: reportError.hint,
+          profileId,
+          questionId,
+          reportType,
+          isTelegramApp
         });
+        
+        // More user-friendly error message
+        if (reportError.message?.includes('row-level security policy')) {
+          throw new Error(language === "es" 
+            ? "Error de seguridad: No se pudo crear el reporte. Por favor, intenta de nuevo o contacta al soporte."
+            : "Ошибка безопасности: Не удалось создать отчет. Пожалуйста, попробуйте снова или обратитесь в поддержку.");
+        }
+        
         throw reportError;
       }
 
