@@ -646,12 +646,83 @@ const TestSession = () => {
     }, 300);
   }, [isClosing]);
   
+  // Reset drag state when modal closes and prevent body scroll
+  useEffect(() => {
+    if (showQuestionMap) {
+      // Сохраняем текущую позицию скролла перед блокировкой
+      const scrollY = window.scrollY;
+      
+      // Блокируем скролл фона при открытом модальном окне
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      
+      // Сохраняем позицию скролла в data-атрибут для восстановления
+      document.body.setAttribute('data-scroll-y', scrollY.toString());
+      
+      // Сбрасываем позицию скролла контента
+      setContentScrollTop(0);
+      isClosingRef.current = false;
+    } else {
+      // Восстанавливаем позицию скролла
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      
+      // Разблокируем скролл при закрытии
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      
+      // Восстанавливаем позицию скролла
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+      
+      setIsDragging(false);
+      setIsClosing(false);
+      setDragStartY(0);
+      setDragCurrentY(0);
+      setContentScrollTop(0);
+      isClosingRef.current = false;
+      
+      // Отменяем анимацию если она была активна
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    }
+    
+    return () => {
+      // Очистка при размонтировании
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [showQuestionMap]);
+
   // Close modal with Escape key
   useEffect(() => {
     if (!showQuestionMap) return;
     
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !isClosingRef.current && !isClosing) {
         handleCloseModal();
       }
     };
@@ -659,7 +730,7 @@ const TestSession = () => {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showQuestionMap]);
+  }, [showQuestionMap, isClosing]);
 
   useEffect(() => {
     loadQuestions();
