@@ -80,10 +80,21 @@ declare global {
         openTelegramLink: (url: string) => void;
         // Haptic Feedback
         HapticFeedback?: {
-          impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' | 'selection_changed') => void;
+          impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
           notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
           selectionChanged: () => void;
         };
+        // Popups and dialogs
+        showAlert?: (message: string) => void;
+        showConfirm?: (message: string, callback: (confirmed: boolean) => void) => void;
+        showPopup?: (params: {
+          message: string;
+          buttons?: Array<{
+            id?: string;
+            type?: 'default' | 'ok' | 'close' | 'cancel' | 'destructive';
+            text: string;
+          }>;
+        }, callback: (buttonId: string | null) => void) => void;
       };
     };
   }

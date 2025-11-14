@@ -9,7 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { isTelegramMiniApp } from "@/lib/telegram";
+import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
 import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
@@ -1247,6 +1247,15 @@ const TestSession = () => {
     const selectedAnswer = currentQuestion.answer_options.find(opt => opt.id === answerId);
     const isCorrect = selectedAnswer?.is_correct || false;
 
+    // Вибрация в Telegram Web App при ответе
+    if (isTelegramApp) {
+      if (isCorrect) {
+        triggerHapticFeedback('success');
+      } else {
+        triggerHapticFeedback('error');
+      }
+    }
+
     const newAnswer: Answer = {
       questionId: currentQuestion.id,
       selectedAnswerId: answerId,
@@ -1394,7 +1403,7 @@ const TestSession = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentIndex, questions.length]);
-
+  
   const jumpToQuestion = (index: number) => {
     if (index === currentIndex) return;
     setCurrentIndex(index);
@@ -1673,7 +1682,7 @@ const TestSession = () => {
                     <span className="font-semibold text-xs sm:text-sm text-purple-600 dark:text-purple-400">
                       Раунд {masteryRound}
             </span>
-          </div>
+                </div>
                 )}
               </>
             }
@@ -1710,8 +1719,8 @@ const TestSession = () => {
                         <span>{showTranslation ? "ES" : "RU"}</span>
                       </button>
                     )}
-                  </div>
-                </div>
+          </div>
+        </div>
 
                 {/* Answer Options */}
                 <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
@@ -1798,12 +1807,12 @@ const TestSession = () => {
                     <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
                     <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
                     </Button>
-            </div>
+          </div>
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
                   {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
-                  {mode === "practice" && (
+          {mode === "practice" && (
                     <button
                       onClick={() => setShowAIExplanation(true)}
                       className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
@@ -1821,7 +1830,7 @@ const TestSession = () => {
                   )}
                   
                   {mode === "practice" && selectedOption ? (
-                    <Button 
+              <Button
                       onClick={nextQuestion} 
                       className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
                     >
@@ -1837,17 +1846,17 @@ const TestSession = () => {
                           <span className="sm:hidden">Finalizar</span>
                         </>
                       )}
-                    </Button>
+              </Button>
                   ) : (
-                    <Button 
+                <Button
                       onClick={() => handleAnswer()} 
                       disabled={!selectedOption} 
                       className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
                     >
                       Responder
-                    </Button>
-                  )}
-                </div>
+                </Button>
+              )}
+            </div>
               </div>
             </div>
           ) : (
