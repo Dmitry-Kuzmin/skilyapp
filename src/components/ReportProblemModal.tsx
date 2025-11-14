@@ -142,6 +142,22 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     }
   }, [open]);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isSubmitting && !isSuccess) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open, isSubmitting, isSuccess]);
+
   const handleCloseModal = () => {
     if (!isSubmitting && !isSuccess) {
       setIsClosing(true);
