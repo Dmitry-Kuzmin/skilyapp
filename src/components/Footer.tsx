@@ -38,6 +38,12 @@ export function Footer() {
           {/* Legal Links */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <Link 
+              to="/help" 
+              className="hover:text-foreground transition-colors"
+            >
+              Помощь
+            </Link>
+            <Link 
               to="/terms" 
               className="hover:text-foreground transition-colors"
             >

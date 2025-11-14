@@ -42,6 +42,7 @@ import InviteLanding from "./pages/InviteLanding";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import SubscriptionTerms from "./pages/SubscriptionTerms";
+import HelpCenter from "./pages/HelpCenter";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +155,7 @@ const App = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/subscription-terms" element={<SubscriptionTerms />} />
+          <Route path="/help" element={<HelpCenter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
