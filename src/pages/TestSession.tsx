@@ -1608,8 +1608,8 @@ const TestSession = () => {
         )}>
         {/* Основной контент */}
         <div className={cn(
-          "pt-0 sm:pt-1 md:pt-3 pb-2 md:pb-3",
-          isTelegramApp && "px-2 sm:px-4 !pt-12"
+          "pt-0 sm:pt-1 md:pt-3",
+          isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
         )}>
         {/* Unified Progress Bar - переиспользуемый компонент */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
@@ -2183,7 +2183,10 @@ const TestSession = () => {
       {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
       {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
       {!isTelegramApp && mode === "practice" && (
-        <div className="hidden lg:flex lg:flex-col pt-0 md:pt-3 pb-2 md:pb-3">
+        <div className={cn(
+          "hidden lg:flex lg:flex-col pt-0 md:pt-3",
+          !isTelegramApp && "pb-2 md:pb-3"
+        )}>
           <div className="sticky top-4 h-full">
             <AIWidget
               explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
