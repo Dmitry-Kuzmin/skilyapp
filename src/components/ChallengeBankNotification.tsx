@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { X } from 'lucide-react';
 
 interface ChallengeBankNotificationProps {
   isVisible: boolean;
@@ -243,18 +242,6 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                   {t('dontShowAgain')}
                 </button>
               </motion.div>
-              
-              {/* Кнопка закрытия */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleClose();
-                }}
-                className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors mt-0.5"
-                aria-label="Закрыть"
-              >
-                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              </button>
             </div>
           </motion.div>
         </motion.div>
