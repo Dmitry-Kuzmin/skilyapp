@@ -63,13 +63,61 @@ export function AIExplanationDialog({
     }
   }, [open, explanation]);
 
-  // Reset при закрытии
+  // Reset при закрытии и управление скроллом body
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      // Сохраняем текущую позицию скролла перед блокировкой
+      const scrollY = window.scrollY;
+      
+      // Блокируем скролл фона при открытом модальном окне
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      
+      // Сохраняем позицию скролла в data-атрибут для восстановления
+      document.body.setAttribute('data-scroll-y', scrollY.toString());
+    } else {
+      // Восстанавливаем позицию скролла
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      
+      // Разблокируем скролл при закрытии
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      
+      // Восстанавливаем позицию скролла
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+      
       setMessages([]);
       setSmartSuggestions([]);
       hasAskedRef.current = false;
     }
+    
+    return () => {
+      // Очистка при размонтировании
+      if (!open) {
+        const scrollY = document.body.getAttribute('data-scroll-y');
+        document.body.removeAttribute('data-scroll-y');
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        if (scrollY) {
+          window.scrollTo(0, parseInt(scrollY, 10));
+        }
+      }
+    };
   }, [open]);
 
   // Отправка оценки качества ответа
