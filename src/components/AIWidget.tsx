@@ -53,7 +53,9 @@ export const AIWidget = ({
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false); // Полуразвернут по умолчанию
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
+  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const widgetRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const { toast } = useToast();
   
@@ -117,6 +119,47 @@ export const AIWidget = ({
     setInput("");
     setIsExpanded(false);
   }, [question]);
+
+  // Автоматически расширяем виджет при появлении сообщений
+  useEffect(() => {
+    if (messages.length > 0 && !isExpanded) {
+      setIsExpanded(true);
+    }
+  }, [messages.length, isExpanded]);
+
+  // Измеряем высоту и ограничиваем максимальную высоту виджета
+  useEffect(() => {
+    if (!widgetRef.current) return;
+
+    // Находим родительский grid-контейнер
+    const gridContainer = widgetRef.current.closest('.lg\\:grid');
+    if (!gridContainer) return;
+
+    // Находим левую колонку (блок тестов)
+    const testBlock = gridContainer.querySelector(':first-child > div');
+    if (!testBlock) return;
+
+    const updateMaxHeight = () => {
+      const testBlockHeight = (testBlock as HTMLElement).offsetHeight;
+      if (testBlockHeight > 0) {
+        setMaxHeight(testBlockHeight);
+      }
+    };
+
+    // Обновляем высоту при загрузке и изменении размера
+    updateMaxHeight();
+    
+    const resizeObserver = new ResizeObserver(() => {
+      updateMaxHeight();
+    });
+
+    resizeObserver.observe(testBlock as HTMLElement);
+    resizeObserver.observe(gridContainer as HTMLElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [question, messages.length]);
 
   const askAI = async (userMessage: string) => {
     setIsLoading(true);
@@ -247,10 +290,17 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
   };
 
   return (
-    <Card className={cn(
-      "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
-      isExpanded ? "h-full" : "h-full"
-    )}>
+    <Card 
+      ref={widgetRef}
+      className={cn(
+        "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
+        isExpanded ? "h-full" : "h-auto"
+      )}
+      style={{
+        maxHeight: maxHeight ? `${maxHeight}px` : undefined,
+        ...(isExpanded ? {} : { height: 'auto' })
+      }}
+    >
       {/* Header - чистый стиль как у Officer Frank */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
         <div className="flex items-center gap-3">
