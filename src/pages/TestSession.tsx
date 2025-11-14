@@ -2000,9 +2000,9 @@ const TestSession = () => {
             variant="outline"
             size="sm"
             onClick={() => setShowReportModal(true)}
-            className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-md transition-all"
+            className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 bg-muted/50 hover:bg-muted border-border/60 hover:border-border text-foreground/80 hover:text-foreground font-medium shadow-sm hover:shadow-md transition-all duration-200 rounded-lg"
           >
-            <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
+            <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2 text-muted-foreground" />
             <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
           </Button>
         </div>
