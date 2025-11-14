@@ -219,7 +219,7 @@ const translations: Record<Language, Record<string, string>> = {
     dontShowAgain: "Don't show",
     // Lumi AI Assistant
     lumiGreeting: "Hello! I'm Lumi 💡",
-    lumiWelcome: "Need a hint or a quick explanation? Just press the button or ask your question, and I'll help on the spot. Ready when you are!",
+    lumiWelcome: "Need a hint or a quick explanation? Just press the button or ask your question, and I'll help on the spot. Ready when you are ready!",
     lumiHintButton: "Give me a hint",
     lumiHelpButton: "Help me understand this",
     lumiPlaceholder: "Ask your question here...",
@@ -345,7 +345,7 @@ const translations: Record<Language, Record<string, string>> = {
     dontShowAgain: "Не показывать",
     // Lumi AI Assistant
     lumiGreeting: "Привет! Я Lumi 💡",
-    lumiWelcome: "Нужна подсказка или быстрое объяснение? Просто нажми кнопку или задай свой вопрос, и я помогу на месте. Готов, когда ты!",
+    lumiWelcome: "Нужна подсказка или быстрое объяснение? Просто нажми кнопку или задай свой вопрос, и я помогу на месте. Готов, когда ты готов!",
     lumiHintButton: "Дай мне подсказку",
     lumiHelpButton: "Помоги понять это",
     lumiPlaceholder: "Задай свой вопрос здесь...",

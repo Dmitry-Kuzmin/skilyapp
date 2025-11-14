@@ -2102,9 +2102,9 @@ const TestSession = () => {
                 }
               }}
             />
-            {/* Bottom Sheet - Dynamic height based on content, full width */}
+            {/* Bottom Sheet - Dynamic height based on content, width equals body (1370px) */}
             <div 
-              className={`fixed left-0 right-0 bottom-0 w-full z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl overflow-hidden flex flex-col ${
+              className={`fixed left-1/2 bottom-0 z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl overflow-hidden flex flex-col ${
                 !isDragging && !isClosing ? 'transition-transform duration-300 ease-out' : isClosing ? 'transition-transform duration-300 ease-in' : ''
               } ${
                 !isClosing && !isDragging ? 'translate-y-0' : 'translate-y-full'
@@ -2114,12 +2114,12 @@ const TestSession = () => {
                 maxHeight: 'calc(90vh - 40px)', // Максимальная высота с небольшим запасом
                 height: 'auto', // Автоматическая высота по контенту
                 bottom: '0px',
-                width: '100%', // Полная ширина body
-                left: '0',
-                right: '0',
+                maxWidth: '1370px', // Ширина равна ширине body
+                width: '100%',
+                left: '50%',
                 transform: isDragging && dragCurrentY > dragStartY 
-                  ? `translateY(${dragCurrentY - dragStartY}px)` 
-                  : undefined
+                  ? `translate(-50%, ${dragCurrentY - dragStartY}px)` 
+                  : 'translateX(-50%)'
               }}
               onTouchStart={(e) => {
                 if (isClosingRef.current || isClosing) return;

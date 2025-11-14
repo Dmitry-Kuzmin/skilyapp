@@ -263,7 +263,15 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
               <Button
                 variant="outline"
                 className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
-                onClick={() => askAI(interfaceLanguage === 'ru' ? "Дай мне подсказку" : interfaceLanguage === 'en' ? "Give me a hint" : "Dame una pista")}
+                onClick={() => {
+                  // "Дай мне подсказку" - запрашиваем подсказку у AI (не правильный ответ)
+                  const hintPrompt = interfaceLanguage === 'ru' 
+                    ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
+                    : interfaceLanguage === 'en'
+                    ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
+                    : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
+                  askAI(hintPrompt);
+                }}
                 disabled={isLoading}
               >
                 {interfaceLanguage === 'ru' ? t('lumiHintButton') : 
@@ -273,7 +281,18 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
               <Button
                 variant="outline"
                 className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
-                onClick={() => askAI(interfaceLanguage === 'ru' ? "Помоги мне понять это" : interfaceLanguage === 'en' ? "Help me understand this" : "Ayúdame a entender esto")}
+                onClick={() => {
+                  // "Помоги понять" - показываем explanation из БД, если есть
+                  if (explanation) {
+                    setMessages([{
+                      role: "assistant",
+                      content: explanation
+                    }]);
+                  } else {
+                    // Если explanation нет, запрашиваем у AI
+                    askAI(interfaceLanguage === 'ru' ? "Помоги мне понять это" : interfaceLanguage === 'en' ? "Help me understand this" : "Ayúdame a entender esto");
+                  }
+                }}
                 disabled={isLoading}
               >
                 {interfaceLanguage === 'ru' ? t('lumiHelpButton') : 
