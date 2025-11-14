@@ -587,11 +587,7 @@ const TestSession = () => {
       
       // Выбираем лучший голос для языка
       let preferredVoice = null;
-      if (testLanguage === 'ru') {
-        // Для русского: ищем женский Google или Yandex голос
-        preferredVoice = voices.find(v => v.lang.startsWith('ru') && (v.name.includes('Google') || v.name.includes('Yandex') || v.name.includes('Female'))) ||
-                        voices.find(v => v.lang.startsWith('ru'));
-      } else if (testLanguage === 'en') {
+      if (testLanguage === 'en') {
         // Для английского: ищем Google US Female
         preferredVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google') && v.name.includes('Female')) ||
                         voices.find(v => v.lang === 'en-US');
