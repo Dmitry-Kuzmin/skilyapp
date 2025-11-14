@@ -1695,28 +1695,23 @@ const TestSession = () => {
               <div className="flex flex-col">
                 {/* Question Text */}
                 <div className="mb-4 sm:mb-6">
-                  <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+                  <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+                    {/* Translation Button (Practice Only) - в правом верхнем углу */}
+                    {mode === "practice" && (
+                      <button
+                        onClick={toggleTranslation}
+                        className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                        title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                      >
+                        <Languages className="w-3 h-3" />
+                        <span>RU</span>
+                      </button>
+                    )}
                     <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                       {displayQuestion}
                     </h2>
                   </div>
                 </div>
-
-                {/* Translation Button (Practice Only) */}
-                  {mode === "practice" && (
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={toggleTranslation}
-                        className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-                      >
-                        <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                        <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                        <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-                  </Button>
-                </div>
-                )}
 
                 {/* Answer Options */}
                 <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
@@ -1860,28 +1855,23 @@ const TestSession = () => {
             <>
           {/* Question Text */}
               <div className="mb-4 sm:mb-6">
-                <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-            <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-              {displayQuestion}
-            </h2>
+                <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
+                  {/* Translation Button (Practice Only) - в правом верхнем углу */}
+                  {mode === "practice" && (
+                    <button
+                      onClick={toggleTranslation}
+                      className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                      title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                    >
+                      <Languages className="w-3 h-3" />
+                      <span>RU</span>
+                    </button>
+                  )}
+                  <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                    {displayQuestion}
+                  </h2>
                 </div>
           </div>
-
-          {/* Translation & Explanation Buttons (Practice Only) */}
-          {mode === "practice" && (
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleTranslation}
-                className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-              >
-                <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-              </Button>
-            </div>
-          )}
 
           {/* Answer Options */}
           <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
