@@ -190,10 +190,10 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
 
       {/* Модальное окно с увеличенным изображением */}
       {isDialogOpen && (
-        <>
-          {/* Backdrop - закрытие по клику */}
+        <div className="fixed inset-0 z-[100]">
+          {/* Backdrop - полностью непрозрачный черный фон */}
           <div 
-            className={`fixed inset-0 bg-black/95 z-[100] transition-opacity duration-300 ${
+            className={`fixed inset-0 bg-black transition-opacity duration-300 ${
               isClosing ? 'opacity-0' : 'opacity-100'
             }`}
             onClick={() => {
@@ -212,7 +212,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
           
           {/* Контейнер изображения с поддержкой свайпа */}
           <div 
-            className={`fixed inset-0 z-[101] flex items-center justify-center transition-transform duration-300 ${
+            className={`fixed inset-0 z-[101] flex items-center justify-center transition-all duration-300 ${
               isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
             }`}
             style={{
@@ -266,22 +266,25 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               }
             }}
           >
-            {/* Изображение - сохраняет пропорции */}
-            <img 
-              src={imageSrc || ''} 
-              alt="Вопрос - увеличенное изображение" 
-              className="max-w-full max-h-full w-auto h-auto object-contain"
-              style={{
-                imageRendering: 'auto',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-              }}
-              draggable={false}
-            />
+            {/* Изображение - сохраняет пропорции, современный стиль */}
+            <div className="relative w-full h-full flex items-center justify-center">
+              <img 
+                src={imageSrc || ''} 
+                alt="Вопрос - увеличенное изображение" 
+                className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-2xl"
+                style={{
+                  imageRendering: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  pointerEvents: 'none',
+                }}
+                draggable={false}
+              />
+            </div>
             
-            {/* Кнопка закрытия - внизу по центру для Telegram */}
+            {/* Кнопка закрытия - современный дизайн */}
             <button
               onClick={() => {
                 setIsClosing(true);
@@ -293,23 +296,23 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
                   setDragCurrentY(0);
                 }, 300);
               }}
-              className={`absolute bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 transition-all z-30 shadow-2xl ${
+              className={`absolute bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white rounded-full p-3 transition-all duration-200 z-30 shadow-2xl hover:scale-110 active:scale-95 backdrop-blur-sm ${
                 isTelegramApp 
-                  ? 'bottom-4 left-1/2 -translate-x-1/2' 
-                  : 'top-4 right-4'
+                  ? 'bottom-6 left-1/2 -translate-x-1/2' 
+                  : 'top-6 right-6'
               }`}
               style={isTelegramApp ? {
-                bottom: `calc(max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)) + 16px)`,
+                bottom: `calc(max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)) + 24px)`,
               } : {
-                top: `calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 16px)`,
-                right: `calc(max(env(safe-area-inset-right), var(--tg-content-safe-area-inset-right, 0px)) + 16px)`,
+                top: `calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 24px)`,
+                right: `calc(max(env(safe-area-inset-right), var(--tg-content-safe-area-inset-right, 0px)) + 24px)`,
               }}
               aria-label="Закрыть"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
-        </>
+        </div>
       )}
     </>
   );
