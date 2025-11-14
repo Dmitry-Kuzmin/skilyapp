@@ -1,14 +1,25 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
 
 export function Footer() {
   const { t } = useLanguage();
+  const location = useLocation();
   const isTelegramApp = isTelegramMiniApp();
 
-  // Скрываем футер в Telegram приложении
-  if (isTelegramApp) {
+  // Определяем fullscreen режимы (тесты и игры) - footer должен быть скрыт
+  const isFullscreenMode = 
+    location.pathname.startsWith('/test/') || 
+    location.pathname.includes('/duel') ||
+    location.pathname.includes('/race-game') ||
+    location.pathname.includes('/guess-the-sign') ||
+    location.pathname.includes('/matching') ||
+    location.pathname.includes('/four-variants') ||
+    location.pathname.includes('/road-race');
+
+  // Скрываем футер в Telegram приложении и в fullscreen режимах (тесты и игры)
+  if (isTelegramApp || isFullscreenMode) {
     return null;
   }
 
