@@ -60,14 +60,16 @@ export function AIExplanationDialog({
   const { toast } = useToast();
 
   // Автоматически показываем explanation из БД при открытии
-  // Используем правильный язык в зависимости от showTranslation
+  // Используем правильный язык: приоритет showTranslation, затем explanation (уже зависит от testLanguage)
   useEffect(() => {
     if (open && messages.length === 0) {
       let explanationToShow = null;
       
+      // Приоритет: showTranslation > explanation (который уже зависит от testLanguage)
       if (showTranslation && explanationRu) {
         explanationToShow = explanationRu;
       } else if (explanation) {
+        // explanation уже содержит правильный язык в зависимости от testLanguage
         explanationToShow = explanation;
       }
       
@@ -80,12 +82,14 @@ export function AIExplanationDialog({
           }
         ]);
         console.log('[AI Chat] 📝 Показано explanation из БД (без AI вызова)', { 
-          language: showTranslation ? 'ru' : 'es/en',
-          hasRu: !!explanationRu 
+          language: showTranslation ? 'ru' : (explanation === explanationEs ? 'es' : explanation === explanationEn ? 'en' : 'unknown'),
+          hasRu: !!explanationRu,
+          hasEs: !!explanationEs,
+          hasEn: !!explanationEn
         });
       }
     }
-  }, [open, explanation, explanationRu, showTranslation]);
+  }, [open, explanation, explanationRu, explanationEs, explanationEn, showTranslation]);
 
   // Обновляем первое сообщение при изменении showTranslation (если это explanation из БД)
   useEffect(() => {

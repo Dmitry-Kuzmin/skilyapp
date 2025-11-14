@@ -2102,7 +2102,7 @@ const TestSession = () => {
                 }
               }}
             />
-            {/* Bottom Sheet - Higher z-index than navbar (z-50) and padding for navbar on mobile only */}
+            {/* Bottom Sheet - Dynamic height based on content */}
             <div 
               className={`fixed left-0 right-0 bottom-0 z-[100] bg-card border-t border-border rounded-t-2xl sm:rounded-t-3xl shadow-2xl overflow-hidden flex flex-col ${
                 !isDragging && !isClosing ? 'transition-transform duration-300 ease-out' : isClosing ? 'transition-transform duration-300 ease-in' : ''
@@ -2111,8 +2111,8 @@ const TestSession = () => {
               }`}
               onClick={(e) => e.stopPropagation()}
               style={{ 
-                maxHeight: isTelegramApp ? 'calc(70vh)' : '70vh',
-                height: isTelegramApp ? 'calc(70vh)' : '70vh',
+                maxHeight: 'calc(90vh - 40px)', // Максимальная высота с небольшим запасом
+                height: 'auto', // Автоматическая высота по контенту
                 bottom: '0px',
                 transform: isDragging && dragCurrentY > dragStartY 
                   ? `translateY(${dragCurrentY - dragStartY}px)` 
@@ -2221,8 +2221,8 @@ const TestSession = () => {
 
               {/* Content - Auto height based on content with padding for legend */}
               <div 
-                className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 bg-card"
-                style={{ maxHeight: 'calc(70vh - 120px)' }}
+                className="overflow-y-auto px-4 sm:px-6 py-4 bg-card"
+                style={{ maxHeight: 'calc(90vh - 200px)' }} // Максимальная высота с учетом header и legend
                 onScroll={(e) => {
                   // Отслеживаем позицию скролла контента
                   setContentScrollTop(e.currentTarget.scrollTop);

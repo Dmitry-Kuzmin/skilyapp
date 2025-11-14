@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Volume2, TrendingUp, Music, Type, Keyboard } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
@@ -40,6 +40,43 @@ export const TestSettingsMenu = ({
   onLanguageChange,
 }: TestSettingsMenuProps) => {
   const fontSizeLabels = ['Pequeño', 'Default', 'Grande'];
+
+  // Предотвращаем скролл страницы при открытии меню
+  useEffect(() => {
+    if (open) {
+      // Сохраняем текущую позицию скролла
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.setAttribute('data-scroll-y', scrollY.toString());
+    } else {
+      // Восстанавливаем скролл
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+    }
+    
+    return () => {
+      // Очистка при размонтировании
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+    };
+  }, [open]);
 
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
