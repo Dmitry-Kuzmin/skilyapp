@@ -56,11 +56,6 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  const [dragCurrentY, setDragCurrentY] = useState(0);
-  const isTelegramApp = isTelegramMiniApp();
 
   useEffect(() => {
     const loadImage = async () => {
@@ -105,29 +100,6 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
 
     loadImage();
   }, [imageUrl]);
-
-  // Обработчик Escape для закрытия модального окна
-  useEffect(() => {
-    if (!isDialogOpen) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isClosing) {
-        setIsClosing(true);
-        setTimeout(() => {
-          setIsDialogOpen(false);
-          setIsClosing(false);
-          setIsDragging(false);
-          setDragStartY(0);
-          setDragCurrentY(0);
-        }, 300);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isDialogOpen, isClosing]);
 
   // Показываем загрузку только если изображение еще не загрузилось
   if (isLoading) {
@@ -193,78 +165,14 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
         <div className="fixed inset-0 z-[100]">
           {/* Backdrop - полностью непрозрачный черный фон */}
           <div 
-            className={`fixed inset-0 bg-black transition-opacity duration-300 ${
-              isClosing ? 'opacity-0' : 'opacity-100'
-            }`}
-            onClick={() => {
-              if (!isDragging && !isClosing) {
-                setIsClosing(true);
-                setTimeout(() => {
-                  setIsDialogOpen(false);
-                  setIsClosing(false);
-                  setIsDragging(false);
-                  setDragStartY(0);
-                  setDragCurrentY(0);
-                }, 300);
-              }
-            }}
+            className="fixed inset-0 bg-black transition-opacity duration-300 opacity-100"
+            onClick={() => setIsDialogOpen(false)}
           />
           
-          {/* Контейнер изображения с поддержкой свайпа */}
+          {/* Контейнер изображения */}
           <div 
-            className={`fixed inset-0 z-[101] flex items-center justify-center transition-all duration-300 ${
-              isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-            }`}
-            style={{
-              paddingTop: 'max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px))',
-              paddingBottom: 'max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px))',
-              paddingLeft: 'max(env(safe-area-inset-left), 16px)',
-              paddingRight: 'max(env(safe-area-inset-right), 16px)',
-              transform: isDragging && dragCurrentY > dragStartY 
-                ? `translateY(${dragCurrentY - dragStartY}px)` 
-                : undefined
-            }}
+            className="fixed inset-0 z-[101] flex items-center justify-center transition-all duration-300 opacity-100 scale-100"
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={(e) => {
-              if (isClosing) return;
-              const touch = e.touches[0];
-              if (touch) {
-                setIsDragging(true);
-                setDragStartY(touch.clientY);
-                setDragCurrentY(touch.clientY);
-              }
-            }}
-            onTouchMove={(e) => {
-              if (isDragging && !isClosing) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                if (touch) {
-                  const deltaY = touch.clientY - dragStartY;
-                  if (deltaY > 0) {
-                    setDragCurrentY(touch.clientY);
-                  }
-                }
-              }
-            }}
-            onTouchEnd={(e) => {
-              if (isDragging && !isClosing) {
-                const dragDistance = dragCurrentY - dragStartY;
-                if (dragDistance > 100) {
-                  setIsClosing(true);
-                  setTimeout(() => {
-                    setIsDialogOpen(false);
-                    setIsClosing(false);
-                    setIsDragging(false);
-                    setDragStartY(0);
-                    setDragCurrentY(0);
-                  }, 300);
-                } else {
-                  setIsDragging(false);
-                  setDragStartY(0);
-                  setDragCurrentY(0);
-                }
-              }
-            }}
           >
             {/* Изображение - сохраняет пропорции, современный стиль */}
             <div className="relative w-full h-full flex items-center justify-center">
@@ -286,22 +194,13 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
             
             {/* Кнопка закрытия - современный дизайн */}
             <button
-              onClick={() => {
-                setIsClosing(true);
-                setTimeout(() => {
-                  setIsDialogOpen(false);
-                  setIsClosing(false);
-                  setIsDragging(false);
-                  setDragStartY(0);
-                  setDragCurrentY(0);
-                }, 300);
-              }}
+              onClick={() => setIsDialogOpen(false)}
               className={`absolute bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white rounded-full p-3 transition-all duration-200 z-30 shadow-2xl hover:scale-110 active:scale-95 backdrop-blur-sm ${
-                isTelegramApp 
+                isTelegramMiniApp() 
                   ? 'bottom-6 left-1/2 -translate-x-1/2' 
                   : 'top-6 right-6'
               }`}
-              style={isTelegramApp ? {
+              style={isTelegramMiniApp() ? {
                 bottom: `calc(max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)) + 24px)`,
               } : {
                 top: `calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 24px)`,
