@@ -131,28 +131,35 @@ export const AIWidget = ({
   useEffect(() => {
     if (!widgetRef.current) return;
 
-    // Находим родительский grid-контейнер (ищем элемент с классом lg:grid)
-    let gridContainer: Element | null = widgetRef.current.parentElement;
-    while (gridContainer && !gridContainer.classList.contains('lg:grid')) {
-      gridContainer = gridContainer.parentElement;
+    // Находим блок тестов по data-testid
+    const testBlock = document.querySelector('[data-testid="test-content-block"]') as HTMLElement;
+    
+    if (!testBlock) {
+      // Fallback: ищем родительский grid-контейнер и первую колонку
+      const gridContainer = widgetRef.current.closest('[class*="grid"]');
+      if (gridContainer) {
+        const firstChild = gridContainer.firstElementChild as HTMLElement;
+        if (firstChild && firstChild !== widgetRef.current.closest('.lg\\:flex')?.parentElement) {
+          const updateMaxHeight = () => {
+            const testBlockHeight = firstChild.offsetHeight;
+            if (testBlockHeight > 0) {
+              setMaxHeight(testBlockHeight);
+            }
+          };
+          
+          updateMaxHeight();
+          const resizeObserver = new ResizeObserver(updateMaxHeight);
+          resizeObserver.observe(firstChild);
+          resizeObserver.observe(gridContainer as HTMLElement);
+          
+          return () => resizeObserver.disconnect();
+        }
+      }
+      return;
     }
-    
-    if (!gridContainer) {
-      // Fallback: ищем по структуре
-      gridContainer = widgetRef.current.closest('[class*="grid"]');
-    }
-    
-    if (!gridContainer) return;
-
-    // Находим левую колонку (блок тестов) - первый дочерний элемент grid-контейнера
-    const testBlock = Array.from(gridContainer.children).find(
-      (child, index) => index === 0 && child !== widgetRef.current?.closest('.lg\\:flex')
-    ) || gridContainer.firstElementChild;
-    
-    if (!testBlock) return;
 
     const updateMaxHeight = () => {
-      const testBlockHeight = (testBlock as HTMLElement).offsetHeight;
+      const testBlockHeight = testBlock.offsetHeight;
       if (testBlockHeight > 0) {
         setMaxHeight(testBlockHeight);
       }
@@ -165,8 +172,13 @@ export const AIWidget = ({
       updateMaxHeight();
     });
 
-    resizeObserver.observe(testBlock as HTMLElement);
-    resizeObserver.observe(gridContainer as HTMLElement);
+    resizeObserver.observe(testBlock);
+    
+    // Также наблюдаем за grid-контейнером для надежности
+    const gridContainer = widgetRef.current.closest('[class*="grid"]');
+    if (gridContainer) {
+      resizeObserver.observe(gridContainer as HTMLElement);
+    }
 
     return () => {
       resizeObserver.disconnect();

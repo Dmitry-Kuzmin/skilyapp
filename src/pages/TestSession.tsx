@@ -1708,10 +1708,13 @@ const TestSession = () => {
           : "container px-2 sm:px-4"
         )}>
         {/* Основной контент */}
-        <div className={cn(
-          "pt-0 sm:pt-1 md:pt-3",
-          isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
-        )}>
+        <div 
+          data-testid="test-content-block"
+          className={cn(
+            "pt-0 sm:pt-1 md:pt-3",
+            isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
+          )}
+        >
         {/* Unified Progress Bar - переиспользуемый компонент */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
           <QuestionProgressBar
