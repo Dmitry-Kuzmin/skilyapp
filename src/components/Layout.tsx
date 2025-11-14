@@ -148,13 +148,13 @@ const Layout = ({ children }: LayoutProps) => {
               ))}
             </nav>
 
-            <div className="flex items-center">
+            <div className="flex items-center gap-0">
               {isAuthenticated && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate('/referrals')}
-                  className="relative -mr-1"
+                  className="relative -mr-2"
                   title="Реферальная программа"
                 >
                   <svg
