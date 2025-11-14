@@ -21,8 +21,8 @@ interface TestSettingsMenuProps {
   onAmbientMusicChange: (value: boolean) => void;
   fontSize: number; // 0 = small, 1 = default, 2 = large
   onFontSizeChange: (value: number) => void;
-  language: 'es' | 'ru' | 'en';
-  onLanguageChange: (value: 'es' | 'ru' | 'en') => void;
+  language: 'es' | 'en';
+  onLanguageChange: (value: 'es' | 'en') => void;
 }
 
 export const TestSettingsMenu = ({
@@ -151,19 +151,8 @@ export const TestSettingsMenu = ({
 
           {/* Language selection */}
           <div className="px-2 pb-1">
-            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Язык</div>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                onClick={() => onLanguageChange('en')}
-                className={cn(
-                  "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
-                  language === 'en' 
-                    ? "bg-blue-600 text-white shadow-sm" 
-                    : "bg-muted/50 hover:bg-muted text-foreground"
-                )}
-              >
-                EN
-              </button>
+            <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Язык теста</div>
+            <div className="grid grid-cols-2 gap-1.5">
               <button
                 onClick={() => onLanguageChange('es')}
                 className={cn(
@@ -176,16 +165,19 @@ export const TestSettingsMenu = ({
                 ES
               </button>
               <button
-                onClick={() => onLanguageChange('ru')}
+                onClick={() => onLanguageChange('en')}
                 className={cn(
                   "px-2 py-1.5 rounded-md text-xs font-semibold transition-all",
-                  language === 'ru' 
-                    ? "bg-purple-600 text-white shadow-sm" 
+                  language === 'en' 
+                    ? "bg-blue-600 text-white shadow-sm" 
                     : "bg-muted/50 hover:bg-muted text-foreground"
                 )}
               >
-                RU
+                EN
               </button>
+            </div>
+            <div className="mt-2 text-[9px] text-muted-foreground/70 px-1">
+              Русский доступен через кнопку перевода в тесте
             </div>
           </div>
         </div>

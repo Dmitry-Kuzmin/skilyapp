@@ -196,9 +196,14 @@ const TestSession = () => {
     const saved = localStorage.getItem('test-font-size');
     return saved ? parseInt(saved) : 1;
   });
-  const [testLanguage, setTestLanguage] = useState<'es' | 'ru' | 'en'>(() => {
+  const [testLanguage, setTestLanguage] = useState<'es' | 'en'>(() => {
     const saved = localStorage.getItem('test-language');
-    return (saved as 'es' | 'ru' | 'en') || 'es';
+    // Если сохранен 'ru', заменяем на 'es' (русский доступен только через кнопку перевода)
+    if (saved === 'ru') {
+      localStorage.setItem('test-language', 'es');
+      return 'es';
+    }
+    return (saved === 'en' ? 'en' : 'es') as 'es' | 'en';
   });
   
   // Mastery Mode - отслеживаем неправильные вопросы для повторения
@@ -566,9 +571,7 @@ const TestSession = () => {
       window.speechSynthesis.cancel();
 
       const currentQuestion = questions[currentIndex];
-      const questionText = testLanguage === 'ru' ? currentQuestion.question_ru : 
-                          testLanguage === 'en' ? currentQuestion.question_en :
-                          currentQuestion.question_es;
+      const questionText = testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es;
 
       // Ждем загрузки голосов
       await new Promise(resolve => {
@@ -600,9 +603,7 @@ const TestSession = () => {
       }
 
       const utterance = new SpeechSynthesisUtterance(questionText);
-      utterance.lang = testLanguage === 'ru' ? 'ru-RU' : 
-                       testLanguage === 'en' ? 'en-US' : 
-                       'es-ES';
+      utterance.lang = testLanguage === 'en' ? 'en-US' : 'es-ES';
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;
@@ -1730,7 +1731,7 @@ const TestSession = () => {
                     // Ответы тоже учитывают showTranslation (кнопка перевода)
                     const displayText = showTranslation 
                       ? option.text_ru 
-                      : (testLanguage === 'ru' ? option.text_ru : testLanguage === 'en' ? option.text_en : option.text_es);
+                      : (testLanguage === 'en' ? option.text_en : option.text_es);
                     
                     // Mock popularity data (в реальной версии загружать из БД)
                     const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
@@ -1895,7 +1896,7 @@ const TestSession = () => {
               // Ответы тоже учитывают showTranslation (кнопка перевода)
               const displayText = showTranslation 
                 ? option.text_ru 
-                : (testLanguage === 'ru' ? option.text_ru : testLanguage === 'en' ? option.text_en : option.text_es);
+                : (testLanguage === 'en' ? option.text_en : option.text_es);
               
               // Mock popularity data
               const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
@@ -2202,16 +2203,16 @@ const TestSession = () => {
         <AIExplanationDialog
           open={showAIExplanation}
           onClose={() => setShowAIExplanation(false)}
-          question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
+          question={testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
           correctAnswer={
-            sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] || ''
+            sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] || ''
           }
           userAnswer={
-            selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined
+            selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined
           }
           isCorrect={selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false}
-          explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
-          topic={currentQuestion.topics?.[testLanguage === 'ru' ? 'title_ru' : 'title_es']}
+          explanation={selectedOption ? (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
+          topic={currentQuestion.topics?.title_es}
           imageUrl={currentQuestion.image_url}
         />
       )}
@@ -2225,12 +2226,12 @@ const TestSession = () => {
         )}>
           <div className="sticky top-4 h-full">
             <AIWidget
-              explanation={selectedOption ? (testLanguage === 'ru' ? currentQuestion.explanation_ru : testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
-              question={testLanguage === 'ru' ? currentQuestion.question_ru : testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
-              correctAnswer={sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] || ''}
-              userAnswer={selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'ru' ? 'text_ru' : testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined}
+              explanation={selectedOption ? (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
+              question={testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
+              correctAnswer={sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] || ''}
+              userAnswer={selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined}
               isCorrect={sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false}
-              topic={currentQuestion.topics?.[testLanguage === 'ru' ? 'title_ru' : 'title_es']}
+              topic={currentQuestion.topics?.title_es}
               imageUrl={currentQuestion.image_url}
             />
           </div>
