@@ -249,7 +249,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
   return (
     <Card className={cn(
       "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
-      isExpanded ? "h-full" : "h-full max-h-full"
+      isExpanded ? "h-full" : "h-full max-h-[calc(100vh-2rem)]"
     )}>
       {/* Header - чистый стиль как у Officer Frank */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
