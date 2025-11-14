@@ -131,12 +131,24 @@ export const AIWidget = ({
   useEffect(() => {
     if (!widgetRef.current) return;
 
-    // Находим родительский grid-контейнер
-    const gridContainer = widgetRef.current.closest('.lg\\:grid');
+    // Находим родительский grid-контейнер (ищем элемент с классом lg:grid)
+    let gridContainer: Element | null = widgetRef.current.parentElement;
+    while (gridContainer && !gridContainer.classList.contains('lg:grid')) {
+      gridContainer = gridContainer.parentElement;
+    }
+    
+    if (!gridContainer) {
+      // Fallback: ищем по структуре
+      gridContainer = widgetRef.current.closest('[class*="grid"]');
+    }
+    
     if (!gridContainer) return;
 
-    // Находим левую колонку (блок тестов)
-    const testBlock = gridContainer.querySelector(':first-child > div');
+    // Находим левую колонку (блок тестов) - первый дочерний элемент grid-контейнера
+    const testBlock = Array.from(gridContainer.children).find(
+      (child, index) => index === 0 && child !== widgetRef.current?.closest('.lg\\:flex')
+    ) || gridContainer.firstElementChild;
+    
     if (!testBlock) return;
 
     const updateMaxHeight = () => {
