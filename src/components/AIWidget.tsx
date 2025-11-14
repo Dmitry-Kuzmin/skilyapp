@@ -316,9 +316,11 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       style={{
         ...(isExpanded && maxHeight ? { 
           height: `${maxHeight}px`,
-          maxHeight: `${maxHeight}px`
+          maxHeight: `${maxHeight}px`,
+          overflow: 'hidden'
         } : maxHeight ? {
-          maxHeight: `${maxHeight}px`
+          maxHeight: `${maxHeight}px`,
+          overflow: 'hidden'
         } : {})
       }}
     >
