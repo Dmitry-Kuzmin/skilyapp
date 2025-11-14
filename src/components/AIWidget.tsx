@@ -8,6 +8,7 @@ import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Message = {
   role: "user" | "assistant";
@@ -27,6 +28,7 @@ interface AIWidgetProps {
   imageUrl?: string | null;
   showTranslation?: boolean;
   onToggleTranslation?: () => void;
+  testLanguage?: 'es' | 'en'; // Язык теста для локализации интерфейса
 }
 
 export const AIWidget = ({
@@ -42,12 +44,18 @@ export const AIWidget = ({
   imageUrl,
   showTranslation = false,
   onToggleTranslation,
+  testLanguage = 'es',
 }: AIWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false); // Полуразвернут по умолчанию
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
+  
+  // Определяем язык интерфейса на основе языка теста
+  // Используем язык теста для интерфейса, но если showTranslation активен, используем русский
+  const interfaceLanguage = showTranslation ? 'ru' : testLanguage;
 
   // Показываем explanation из БД при загрузке
   // Используем правильный язык: приоритет showTranslation, затем explanation (уже зависит от testLanguage)
@@ -219,7 +227,11 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             <LumiCharacter size="md" mood="happy" animate className="scale-75" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-foreground">Привет! Я Lumi 💡</h3>
+            <h3 className="font-bold text-base text-foreground">
+              {interfaceLanguage === 'ru' ? t('lumiGreeting') : 
+               interfaceLanguage === 'en' ? 'Hello! I\'m Lumi 💡' : 
+               '¡Hola! Soy Lumi 💡'}
+            </h3>
           </div>
         </div>
         <Button
@@ -227,7 +239,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
           size="icon"
           className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
           onClick={() => setIsExpanded(!isExpanded)}
-          title={isExpanded ? "Свернуть" : "Развернуть"}
+          title={isExpanded ? (interfaceLanguage === 'ru' ? t('lumiCollapse') : interfaceLanguage === 'en' ? 'Collapse' : 'Contraer') : (interfaceLanguage === 'ru' ? t('lumiExpand') : interfaceLanguage === 'en' ? 'Expand' : 'Expandir')}
         >
           {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </Button>
@@ -239,7 +251,11 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
           <div className="space-y-5">
             {/* Welcome Message */}
             <div className="text-foreground text-sm leading-relaxed">
-              <p>Нужна подсказка или быстрое объяснение? Просто нажми кнопку или задай свой вопрос, и я помогу на месте. Готов, когда ты!</p>
+              <p>
+                {interfaceLanguage === 'ru' ? t('lumiWelcome') : 
+                 interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!' : 
+                 '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+              </p>
             </div>
 
             {/* Quick Action Buttons */}
@@ -247,18 +263,22 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
               <Button
                 variant="outline"
                 className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
-                onClick={() => askAI("Дай мне подсказку")}
+                onClick={() => askAI(interfaceLanguage === 'ru' ? "Дай мне подсказку" : interfaceLanguage === 'en' ? "Give me a hint" : "Dame una pista")}
                 disabled={isLoading}
               >
-                Дай мне подсказку
+                {interfaceLanguage === 'ru' ? t('lumiHintButton') : 
+                 interfaceLanguage === 'en' ? 'Give me a hint' : 
+                 'Dame una pista'}
               </Button>
               <Button
                 variant="outline"
                 className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
-                onClick={() => askAI("Помоги мне понять это")}
+                onClick={() => askAI(interfaceLanguage === 'ru' ? "Помоги мне понять это" : interfaceLanguage === 'en' ? "Help me understand this" : "Ayúdame a entender esto")}
                 disabled={isLoading}
               >
-                Помоги понять это
+                {interfaceLanguage === 'ru' ? t('lumiHelpButton') : 
+                 interfaceLanguage === 'en' ? 'Help me understand this' : 
+                 'Ayúdame a entender esto'}
               </Button>
             </div>
           </div>
@@ -299,23 +319,31 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                         <button
                           onClick={() => {
                             if (onToggleTranslation) {
-                              onToggleTranslation();
-                              // Обновляем первое сообщение при переключении
+                              // Определяем новый контент ПЕРЕД переключением showTranslation
+                              // Если сейчас показываем русский (showTranslation === true), переключаем на оригинал
+                              // Если сейчас показываем оригинал (showTranslation === false), переключаем на русский
                               const newContent = showTranslation 
                                 ? (explanationEs || explanationEn || explanation || '')
                                 : (explanationRu || '');
+                              
+                              // Обновляем сообщение синхронно перед переключением
                               setMessages(prev => {
                                 const updated = [...prev];
-                                updated[0] = { ...updated[0], content: newContent };
+                                if (updated[0] && updated[0].role === 'assistant') {
+                                  updated[0] = { ...updated[0], content: newContent };
+                                }
                                 return updated;
                               });
+                              
+                              // Переключаем состояние
+                              onToggleTranslation();
                             }
                           }}
                           className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7"
-                          title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                          title={showTranslation ? (interfaceLanguage === 'ru' ? t('lumiShowOriginal') : interfaceLanguage === 'en' ? 'Show original' : 'Mostrar original') : (interfaceLanguage === 'ru' ? t('lumiShowTranslation') : interfaceLanguage === 'en' ? 'Show Russian translation' : 'Mostrar traducción al ruso')}
                         >
                           <Languages className="w-3 h-3" />
-                          <span>{showTranslation ? "ES" : "RU"}</span>
+                          <span>{showTranslation ? (testLanguage === 'en' ? "EN" : "ES") : "RU"}</span>
                         </button>
                       </div>
                     )}
@@ -334,7 +362,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Задай свой вопрос здесь..."
+            placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
             className="w-full h-12 pr-20 pl-4 text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background"
             disabled={isLoading}
           />

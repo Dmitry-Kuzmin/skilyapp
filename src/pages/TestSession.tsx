@@ -2367,6 +2367,7 @@ const TestSession = () => {
               imageUrl={currentQuestion.image_url}
               showTranslation={showTranslation}
               onToggleTranslation={toggleTranslation}
+              testLanguage={testLanguage}
             />
           </div>
         </div>
