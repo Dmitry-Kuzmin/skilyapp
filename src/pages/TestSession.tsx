@@ -1838,7 +1838,8 @@ const TestSession = () => {
                 <Button
                       onClick={() => handleAnswer()} 
                       disabled={!selectedOption} 
-                      className="flex-1 font-semibold text-sm sm:text-base md:text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white disabled:bg-muted/80 disabled:text-foreground/60 disabled:cursor-not-allowed disabled:shadow-none h-10 sm:h-11 md:h-12 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98] border-0"
+                      variant={undefined}
+                      className="!flex-1 !font-semibold text-sm sm:text-base md:text-lg !bg-gradient-to-r !from-blue-600 !to-blue-700 hover:!from-blue-700 hover:!to-blue-800 !text-white disabled:!bg-muted/80 disabled:!text-foreground/60 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-xl transition-all duration-200 !shadow-lg hover:!shadow-xl active:scale-[0.98] !border-0"
                     >
                       Responder
                 </Button>
@@ -1984,7 +1985,8 @@ const TestSession = () => {
               <Button 
                 onClick={() => handleAnswer()} 
                 disabled={!selectedOption} 
-                className="flex-1 font-semibold text-sm sm:text-base md:text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white disabled:bg-muted/80 disabled:text-foreground/60 disabled:cursor-not-allowed disabled:shadow-none h-10 sm:h-11 md:h-12 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98] border-0"
+                variant={undefined}
+                className="!flex-1 !font-semibold text-sm sm:text-base md:text-lg !bg-gradient-to-r !from-blue-600 !to-blue-700 hover:!from-blue-700 hover:!to-blue-800 !text-white disabled:!bg-muted/80 disabled:!text-foreground/60 disabled:!cursor-not-allowed disabled:!shadow-none disabled:!opacity-100 h-10 sm:h-11 md:h-12 !rounded-xl transition-all duration-200 !shadow-lg hover:!shadow-xl active:scale-[0.98] !border-0"
               >
                 Responder
               </Button>
