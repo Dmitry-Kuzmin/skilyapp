@@ -32,22 +32,45 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
     // Обновляем позицию при открытии
     updatePosition();
 
+    let rafId: number | null = null;
+    let lastScrollY = window.scrollY;
+    let lastScrollX = window.scrollX;
+
+    // Функция для обновления позиции с использованием requestAnimationFrame
+    const updatePositionWithRAF = () => {
+      const currentScrollY = window.scrollY;
+      const currentScrollX = window.scrollX;
+      
+      // Обновляем позицию только если произошел скролл
+      if (currentScrollY !== lastScrollY || currentScrollX !== lastScrollX) {
+        updatePosition();
+        lastScrollY = currentScrollY;
+        lastScrollX = currentScrollX;
+      }
+      
+      rafId = requestAnimationFrame(updatePositionWithRAF);
+    };
+
     // Обновляем позицию при скролле и изменении размера окна
     const handleScroll = () => {
-      updatePosition();
+      if (rafId === null) {
+        rafId = requestAnimationFrame(updatePositionWithRAF);
+      }
     };
 
     const handleResize = () => {
       updatePosition();
     };
 
-    window.addEventListener('scroll', handleScroll, true); // true для capture фазы
-    window.addEventListener('resize', handleResize);
+    // Слушаем скролл на window и document для надежности
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     
-    // Также обновляем позицию периодически для надежности
+    // Также обновляем позицию периодически для надежности (на случай если скролл не сработал)
     const positionInterval = setInterval(() => {
       updatePosition();
-    }, 100);
+    }, 200);
 
     // Автоматическое закрытие через 6 секунд
     const timer = setTimeout(() => {
@@ -57,8 +80,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
     setAutoCloseTimer(timer);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       clearInterval(positionInterval);
       if (timer) clearTimeout(timer);
     };
