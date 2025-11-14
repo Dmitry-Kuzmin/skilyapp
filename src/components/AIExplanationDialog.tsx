@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useToast } from "@/hooks/use-toast";
-import { isTelegramMiniApp } from "@/lib/telegram";
+import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 
 type Message = {
   role: "user" | "assistant";
@@ -173,6 +173,16 @@ export function AIExplanationDialog({
   const submitFeedback = async (messageIndex: number, rating: 1 | -1) => {
     const message = messages[messageIndex];
     if (!message || message.role !== 'assistant') return;
+
+    // Вибрация в Telegram Web App при оценке ответа
+    const isTelegram = isTelegramMiniApp();
+    if (isTelegram) {
+      if (rating === 1) {
+        triggerHapticFeedback('success'); // Лайк - успешная вибрация
+      } else {
+        triggerHapticFeedback('light'); // Дизлайк - легкая вибрация
+      }
+    }
 
     // Находим предыдущий user message для контекста
     const userMessage = messages[messageIndex - 1]?.content || question;
