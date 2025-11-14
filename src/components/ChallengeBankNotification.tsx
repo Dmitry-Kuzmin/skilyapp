@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { X } from 'lucide-react';
 
@@ -13,9 +13,8 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
   const [position, setPosition] = useState({ top: 80, right: 16, buttonWidth: 44 });
   const [autoCloseTimer, setAutoCloseTimer] = useState<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!isVisible) return;
-
+  // Функция для обновления позиции
+  const updatePosition = useCallback(() => {
     const bookmarkButton = document.getElementById('challenge-bank-bookmark-button');
     if (bookmarkButton) {
       const rect = bookmarkButton.getBoundingClientRect();
@@ -26,6 +25,30 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
         buttonWidth: rect.width
       });
     }
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    // Обновляем позицию при открытии
+    updatePosition();
+
+    // Обновляем позицию при скролле и изменении размера окна
+    const handleScroll = () => {
+      updatePosition();
+    };
+
+    const handleResize = () => {
+      updatePosition();
+    };
+
+    window.addEventListener('scroll', handleScroll, true); // true для capture фазы
+    window.addEventListener('resize', handleResize);
+    
+    // Также обновляем позицию периодически для надежности
+    const positionInterval = setInterval(() => {
+      updatePosition();
+    }, 100);
 
     // Автоматическое закрытие через 6 секунд
     const timer = setTimeout(() => {
@@ -35,9 +58,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
     setAutoCloseTimer(timer);
 
     return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
+      clearInterval(positionInterval);
       if (timer) clearTimeout(timer);
     };
-  }, [isVisible, onClose]);
+  }, [isVisible, onClose, updatePosition]);
 
   const handleDontShowAgain = () => {
     localStorage.setItem('challenge-bank-notification-hidden', 'true');
