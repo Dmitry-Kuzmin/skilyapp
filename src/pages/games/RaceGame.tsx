@@ -620,7 +620,7 @@ const RaceGame = () => {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             className={cn(
-              "race-game-header fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-primary/20 shadow-lg md:hidden",
+              "race-game-header fixed left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-b border-primary/20 shadow-lg md:hidden",
               isTelegramMiniApp() 
                 ? "tg-safe-top-fixed" 
                 : "top-0"
@@ -631,34 +631,22 @@ const RaceGame = () => {
               top: '0px'
             }}
           >
-            <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center justify-between px-3 py-2.5">
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={() => endGame('manual')}
-                className="h-9 px-3 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all"
+                className="h-8 w-8 p-0 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all"
               >
                 <X className="w-4 h-4" />
               </Button>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <motion.div 
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <Trophy className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-bold text-primary">{stats.total_points}</span>
-                </motion.div>
-                <motion.div
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all ${
-                    timeLeft <= 10_000 
-                      ? 'bg-destructive/20 border-destructive/30 text-destructive' 
-                      : 'bg-secondary/20 border-secondary/30 text-secondary'
-                  }`}
-                  animate={timeLeft <= 10_000 ? { scale: [1, 1.05, 1] } : {}}
-                  transition={{ duration: 0.5, repeat: timeLeft <= 10_000 ? Infinity : 0 }}
-                >
-                  <Timer className="w-4 h-4" />
-                  <span className="text-sm font-bold">{timeLeftSeconds}с</span>
+                  <Trophy className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-bold text-primary">{stats.total_points}</span>
                 </motion.div>
               </div>
             </div>
@@ -667,8 +655,12 @@ const RaceGame = () => {
 
         {/* Desktop Header */}
         {(!isGameActive || isGameOver) && (
-          <div className="flex items-center justify-between mb-4 md:mb-8">
-            <Button variant="ghost" onClick={() => navigate("/games")} className="md:hidden">
+          <div className="flex items-center justify-between mb-4 md:mb-8" style={{ paddingTop: '20px' }}>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/games")} 
+              className="md:hidden h-9 px-3 rounded-full"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Назад
             </Button>
@@ -718,12 +710,12 @@ const RaceGame = () => {
 
                 {/* Ultra-Modern Rules Card */}
                 <Card className="border border-border/50 bg-card">
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="w-5 h-5 text-primary" strokeWidth={2} />
-                      <h3 className="text-xl font-bold text-foreground">Правила игры</h3>
+                  <div className="p-4 md:p-6 space-y-3 md:space-y-4">
+                    <div className="flex items-center gap-2 mb-3 md:mb-4">
+                      <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-primary" strokeWidth={2} />
+                      <h3 className="text-lg md:text-xl font-bold text-foreground">Правила игры</h3>
                     </div>
-                    <div className="grid gap-4">
+                    <div className="grid gap-3 md:gap-4">
                       {[
                         { icon: Clock, text: `У вас есть ${GAME_CONFIG.START_TIME_MS / 1000} секунд для проверки максимального количества слов`, color: "secondary" },
                         { icon: Check, text: `За правильный ответ +${GAME_CONFIG.BASE_POINTS_PER_CORRECT} очко и +${GAME_CONFIG.TIME_PER_CORRECT_MS / 1000} секунды`, color: "success" },
@@ -736,12 +728,12 @@ const RaceGame = () => {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.3 + idx * 0.05 }}
-                          className="flex items-start gap-3"
+                          className="flex items-start gap-2.5 md:gap-3"
                         >
-                          <div className={`p-2 rounded-lg bg-${rule.color}/10 border border-${rule.color}/20 flex-shrink-0`}>
-                            <rule.icon className={`w-5 h-5 text-${rule.color}`} strokeWidth={2} />
+                          <div className={`p-1.5 md:p-2 rounded-lg bg-${rule.color}/10 border border-${rule.color}/20 flex-shrink-0`}>
+                            <rule.icon className={`w-4 h-4 md:w-5 md:h-5 text-${rule.color}`} strokeWidth={2} />
                           </div>
-                          <p className="flex-1 pt-1.5 text-sm md:text-base text-foreground">{rule.text}</p>
+                          <p className="flex-1 pt-0.5 md:pt-1.5 text-xs md:text-sm lg:text-base text-foreground leading-relaxed">{rule.text}</p>
                         </motion.div>
                       ))}
                     </div>
@@ -754,7 +746,7 @@ const RaceGame = () => {
                     variant="outline"
                     onClick={() => navigate("/games")}
                     size="lg"
-                    className="flex-1 h-12 border border-border hover:bg-muted/50"
+                    className="flex-1 h-11 md:h-12 border border-border hover:bg-muted/50 text-sm md:text-base"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Отмена
@@ -763,7 +755,7 @@ const RaceGame = () => {
                     onClick={startGame}
                     size="lg"
                     disabled={terms.length < 2}
-                    className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)]"
+                    className="flex-1 h-11 md:h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)] text-sm md:text-base font-semibold"
                   >
                     <Zap className="w-4 h-4 mr-2" />
                     Начать игру
@@ -782,7 +774,7 @@ const RaceGame = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="race-game-content space-y-4 md:space-y-6"
+            className="race-game-content space-y-3 md:space-y-6 pb-4 md:pb-0"
           >
             {/* Desktop Exit Button - только для web app (не показывается в Telegram Mini App) */}
             {!isTelegramMiniApp() && (
@@ -804,10 +796,10 @@ const RaceGame = () => {
               </div>
             )}
 
-            {/* Premium Circular Timer with Countdown */}
-            <div className="pt-12 md:pt-0 flex justify-center">
+            {/* Premium Circular Timer with Countdown - Fixed positioning */}
+            <div className="pt-16 md:pt-0 flex justify-center relative z-50">
               <motion.div 
-                className="relative w-32 h-32 md:w-40 md:h-40"
+                className="relative w-28 h-28 md:w-40 md:h-40"
                 animate={
                   timeLeft <= 10_000 
                     ? { scale: [1, 1.05, 1] }
@@ -895,7 +887,7 @@ const RaceGame = () => {
                         scale: { duration: 0.3, repeat: Infinity }
                       } : {})
                     }}
-                    className={`text-3xl md:text-4xl font-bold transition-colors ${
+                    className={`text-2xl md:text-4xl font-bold transition-colors ${
                       timeLeft <= 10_000 
                         ? 'text-destructive' 
                         : timeLeft <= 20_000 
@@ -905,7 +897,7 @@ const RaceGame = () => {
                   >
                     {timeLeftSeconds}
                   </motion.div>
-                  <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 font-medium">
+                  <div className="text-[10px] md:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 font-medium">
                     сек
                   </div>
                 </div>
@@ -965,7 +957,7 @@ const RaceGame = () => {
             </AnimatePresence>
 
             {/* Ultra-Modern Question Card - Clean minimal design */}
-            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-2xl">
+            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-2xl mt-2 md:mt-0">
 
               {/* Premium Combo Bonus Animation - Modern & Interesting */}
               <AnimatePresence>
@@ -1153,19 +1145,19 @@ const RaceGame = () => {
                 )}
               </AnimatePresence>
 
-              <div className="relative z-10 p-6 md:p-10 space-y-6 md:space-y-8">
+              <div className="relative z-10 p-4 md:p-10 space-y-4 md:space-y-8">
                 {/* Spanish Term - Premium Style */}
                 <motion.div
                   key={`term-${stats.total_answered}`}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="space-y-3"
+                  className="space-y-2 md:space-y-3"
                 >
-                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     <span>Термин</span>
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-foreground break-words leading-tight">
+                  <div className="text-2xl md:text-4xl font-bold text-foreground break-words leading-tight">
                     {session.current_question.term.term_es}
                   </div>
                 </motion.div>
@@ -1179,25 +1171,25 @@ const RaceGame = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="space-y-3"
+                  className="space-y-2 md:space-y-3"
                 >
-                  <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     <span>Перевод</span>
                   </div>
-                  <div className="text-2xl md:text-3xl font-semibold text-foreground break-words leading-relaxed">
+                  <div className="text-xl md:text-3xl font-semibold text-foreground break-words leading-relaxed">
                     {session.current_question.translation}
                   </div>
                 </motion.div>
 
                 {/* Question */}
-                <div className="text-center pt-4">
-                  <p className="text-base md:text-xl font-semibold text-muted-foreground">
+                <div className="text-center pt-2 md:pt-4">
+                  <p className="text-sm md:text-xl font-semibold text-muted-foreground">
                     Верен ли перевод?
                   </p>
                 </div>
 
-                {/* Ultra-Modern Answer Buttons - Flat design */}
-                <div className="flex gap-3 md:gap-4 pt-4">
+                {/* Ultra-Modern Answer Buttons - Optimized for mobile */}
+                <div className="flex gap-2.5 md:gap-4 pt-2 md:pt-4">
                   <motion.div
                     className="flex-1"
                     whileHover={{ scale: 1.01 }}
@@ -1207,10 +1199,10 @@ const RaceGame = () => {
                       onClick={() => handleAnswer(false)}
                       variant="destructive"
                       size="lg"
-                      className="w-full h-16 md:h-18 text-lg md:text-xl font-semibold rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-[0_4px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_6px_16px_rgba(239,68,68,0.35)] transition-all"
+                      className="w-full h-14 md:h-18 text-base md:text-xl font-semibold rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-[0_4px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_6px_16px_rgba(239,68,68,0.35)] transition-all"
                       disabled={isPaused}
                     >
-                      <X className="w-5 h-5 md:w-6 md:h-6 mr-2" strokeWidth={2.5} />
+                      <X className="w-4 h-4 md:w-6 md:h-6 mr-2" strokeWidth={2.5} />
                       Нет
                     </Button>
                   </motion.div>
@@ -1223,10 +1215,10 @@ const RaceGame = () => {
                     <Button
                       onClick={() => handleAnswer(true)}
                       size="lg"
-                      className="w-full h-16 md:h-18 text-lg md:text-xl font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)] hover:shadow-[0_6px_16px_rgba(139,92,246,0.35)] transition-all"
+                      className="w-full h-14 md:h-18 text-base md:text-xl font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)] hover:shadow-[0_6px_16px_rgba(139,92,246,0.35)] transition-all"
                       disabled={isPaused}
                     >
-                      <Check className="w-5 h-5 md:w-6 md:h-6 mr-2" strokeWidth={2.5} />
+                      <Check className="w-4 h-4 md:w-6 md:h-6 mr-2" strokeWidth={2.5} />
                       Да
                     </Button>
                   </motion.div>

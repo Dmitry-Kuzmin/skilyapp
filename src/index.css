@@ -776,4 +776,54 @@ All colors MUST be HSL.
       margin-left: 4rem;
     }
   }
+
+  /* Race Game Fullscreen Mode */
+  body.race-game-active .app-bottom-nav,
+  body.race-game-active .telegram-main-content {
+    display: none !important;
+  }
+
+  .race-game-fullscreen-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: hsl(var(--background));
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .race-game-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .race-game-wrapper.race-game-fullscreen {
+    padding-top: 0;
+  }
+
+  .race-game-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    background: hsl(var(--background) / 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid hsl(var(--border) / 0.2);
+  }
+
+  .race-game-content {
+    padding-top: 3.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 768px) {
+    .race-game-content {
+      padding-top: 0;
+    }
+  }
 }
