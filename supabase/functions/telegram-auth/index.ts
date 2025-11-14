@@ -100,6 +100,17 @@ serve(async (req) => {
       hasReferralCode: !!profile.referral_code
     });
     
+    // Assign trial period if not set
+    if (!profile.trial_until) {
+      const trialEnds = new Date();
+      trialEnds.setDate(trialEnds.getDate() + 3);
+      await supabase
+        .from('profiles')
+        .update({ trial_until: trialEnds.toISOString() })
+        .eq('id', profile.id);
+      profile.trial_until = trialEnds.toISOString();
+    }
+
     // Generate referral code if doesn't exist
     if (!profile.referral_code) {
       console.log('[Telegram Auth] Generating referral code for profile:', profile.id);

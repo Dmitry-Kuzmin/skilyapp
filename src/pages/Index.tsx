@@ -1,4 +1,4 @@
-import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check } from "lucide-react";
+import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,16 @@ import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Landing from "./Landing";
+import { usePremium } from "@/hooks/usePremium";
+import { useCoins } from "@/hooks/useCoins";
+import { PaywallModal } from "@/components/monetization/PaywallModal";
+import { DuelPassProgress } from "@/components/monetization/DuelPassProgress";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
   const { toast } = useToast();
+  const { isPremium, isTrial, daysRemaining } = usePremium();
+  const { balance } = useCoins();
   const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState({
     rank: "Ученик",
@@ -34,6 +40,7 @@ const Index = () => {
   const [canClaimBonus, setCanClaimBonus] = useState(false);
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [weeklyRewards, setWeeklyRewards] = useState<any[]>([]);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && profileId) {
@@ -44,6 +51,12 @@ const Index = () => {
       setLoading(false);
     }
   }, [isAuthenticated, profileId]);
+
+  useEffect(() => {
+    if (isTrial && daysRemaining <= 1) {
+      setPaywallOpen(true);
+    }
+  }, [isTrial, daysRemaining]);
 
   const loadUserData = async () => {
     if (!profileId) {
@@ -201,16 +214,32 @@ const Index = () => {
 
       if (bonusError) throw bonusError;
 
-      // Обновляем профиль с наградами
-      const { error: profileError } = await supabase
+      await supabase.functions.invoke('coins-earn', {
+        body: { user_id: profileId, reward_type: 'daily_login' },
+      });
+
+      const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
+        body: { user_id: profileId, source_type: 'daily_login' },
+      });
+      if (xpData?.level_up) {
+        const suggestion = await supabase.functions.invoke('assistant-suggest', {
+          body: { trigger: 'duel_pass_level_up' },
+        });
+        const message = suggestion.data?.suggestion?.message;
+        if (message) {
+          toast({
+            title: "Duel Pass",
+            description: message,
+          });
+        }
+      }
+
+      await supabase
         .from('profiles')
         .update({
           xp: userStats.xp + currentReward.reward.xp,
-          coins: userStats.coins + currentReward.reward.coins,
         })
         .eq('id', profileId);
-
-      if (profileError) throw profileError;
 
       // Обновляем локальное состояние
       setDailyBonus({
@@ -306,9 +335,29 @@ const Index = () => {
             currentRank={userStats.rank}
             currentXP={userStats.xp}
             nextRankXP={userStats.nextRankXP}
-            coins={userStats.coins}
+            coins={balance}
           />
         )}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Статус</p>
+                <p className="text-lg font-semibold">
+                  {isPremium ? "Premium активен" : isTrial ? "Пробный период" : "Бесплатный доступ"}
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => setPaywallOpen(true)}>
+                <Crown className="w-4 h-4 mr-2 text-yellow-500" />
+                Получить Premium
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Premium открывает все режимы тестов, ускоряет монеты и отключает рекламу.
+            </p>
+          </Card>
+          <DuelPassProgress />
+        </div>
 
         {/* Exam Readiness Widget */}
         {!loading && profileId && (
@@ -639,6 +688,7 @@ const Index = () => {
         )}
       </div>
     </Layout>
+    <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
   );
 };
 

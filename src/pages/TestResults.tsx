@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
 import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -107,6 +108,26 @@ const TestResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profileId } = useUserContext();
+  const rewardLoggedRef = useRef(false);
+  useEffect(() => {
+    if (!profileId || rewardLoggedRef.current) return;
+    rewardLoggedRef.current = true;
+    supabase.functions.invoke("coins-earn", {
+      body: { user_id: profileId, reward_type: "complete_test" },
+    });
+    const { data } = await supabase.functions.invoke("duel-pass-xp", {
+      body: { user_id: profileId, source_type: "test" },
+    });
+    if (data?.level_up) {
+      const suggestion = await supabase.functions.invoke("assistant-suggest", {
+        body: { trigger: "duel_pass_level_up" },
+      });
+      const message = suggestion.data?.suggestion?.message;
+      if (message) {
+        toast.info(message);
+      }
+    }
+  }, [profileId]);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
   

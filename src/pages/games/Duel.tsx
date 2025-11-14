@@ -21,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Users, Clock, Share2 } from 'lucide-react';
+import { BoostShopModal } from '@/components/shop/BoostShopModal';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -57,6 +58,8 @@ export default function Duel() {
   const [betType, setBetType] = useState<'none' | 'fixed' | 'custom'>('none');
   const [betAmount, setBetAmount] = useState(0);
   const [userCoins, setUserCoins] = useState(0);
+  const [showShop, setShowShop] = useState(false);
+  const lowCoinsPromptedRef = useRef(false);
   
   // Use realtime hook when duel is created
   const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
@@ -82,6 +85,28 @@ export default function Duel() {
     
     loadCoins();
   }, [profileId]);
+
+  useEffect(() => {
+    const suggestLowCoins = async () => {
+      const { data } = await supabase.functions.invoke('assistant-suggest', {
+        body: { trigger: 'low_coins_in_duel' },
+      });
+      const message = data?.suggestion?.message;
+      if (message) {
+        toast.info(message, {
+          action: {
+            label: 'Купить монеты',
+            onClick: () => setShowShop(true),
+          },
+        });
+      }
+    };
+
+    if (userCoins > 0 && userCoins < 50 && !lowCoinsPromptedRef.current) {
+      lowCoinsPromptedRef.current = true;
+      suggestLowCoins();
+    }
+  }, [userCoins]);
   
   // Check if we're waiting for profile to load
   const isLoadingProfile = (user || supabaseUser) && !profileId;
@@ -1505,6 +1530,7 @@ export default function Duel() {
         onClose={() => setShowJoinModal(false)}
         onDuelJoined={handleDuelJoined}
       />
+      <BoostShopModal open={showShop} onOpenChange={setShowShop} />
       </div>
     </Layout>
   );

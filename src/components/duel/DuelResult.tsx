@@ -11,6 +11,7 @@ import { haptics } from '@/lib/haptics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Progress } from '@/components/ui/progress';
 import { AIWidget } from '@/components/AIWidget';
+import { toast } from 'sonner';
 
 interface DuelResultProps {
   duelId: string;
@@ -32,30 +33,27 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   useEffect(() => {
     if (results && profileId) {
-      // Начисляем монеты после загрузки результатов
-      const coinsEarned = results.isWinner ? 50 : results.isDraw ? 25 : 15;
-      updateCoins(coinsEarned);
+      const rewardType = results.isWinner ? 'win_duel' : 'lose_duel';
+      const applyRewards = async () => {
+        await supabase.functions.invoke('coins-earn', {
+          body: { user_id: profileId, reward_type: rewardType },
+        });
+        const { data } = await supabase.functions.invoke('duel-pass-xp', {
+          body: { user_id: profileId, source_type: rewardType },
+        });
+        if (data?.level_up) {
+          const suggestion = await supabase.functions.invoke('assistant-suggest', {
+            body: { trigger: 'duel_pass_level_up' },
+          });
+          const message = suggestion.data?.suggestion?.message;
+          if (message) {
+            toast.info(message);
+          }
+        }
+      };
+      applyRewards();
     }
   }, [results, profileId]);
-
-  const updateCoins = async (amount: number) => {
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('coins')
-        .eq('id', profileId)
-        .single();
-
-      if (profile) {
-        await supabase
-          .from('profiles')
-          .update({ coins: (profile.coins || 0) + amount })
-          .eq('id', profileId);
-      }
-    } catch (error) {
-      console.error('Ошибка начисления монет:', error);
-    }
-  };
 
   useEffect(() => {
     if (results?.isWinner) {

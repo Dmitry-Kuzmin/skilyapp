@@ -10,11 +10,29 @@ import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ExamReadinessCard } from "@/components/ExamReadinessCard";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/monetization/PaywallModal";
 
 const Tests = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
   const { t } = useLanguage(); // Используем существующий LanguageContext!
+  const { isPremium } = usePremium();
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [testAttempts, setTestAttempts] = useState(0);
+  const handleStartPath = (path: string) => {
+    if (!isPremium) {
+      setTestAttempts((prev) => {
+        const next = prev + 1;
+        if (next >= 3) {
+          setPaywallOpen(true);
+          return 0;
+        }
+        return next;
+      });
+    }
+    navigate(path);
+  };
   const [topics, setTopics] = useState<{ 
     id: string;
     number: number;
@@ -280,7 +298,7 @@ const Tests = () => {
 
                 {/* Кнопка запуска */}
               <Button
-                  onClick={() => navigate(`/test/practice?count=${randomQuestionCount}`)}
+                  onClick={() => handleStartPath(`/test/practice?count=${randomQuestionCount}`)}
                   className="w-full bg-teal-600 hover:bg-teal-700 text-white"
                   size="sm"
               >
@@ -291,9 +309,9 @@ const Tests = () => {
 
             {/* Incorrectly answered - ТЕСТ из Challenge Bank */}
             {challengeBankCount > 0 && (
-              <Card 
-                className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-                onClick={() => navigate("/test/challenge-bank")}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => handleStartPath("/test/challenge-bank")}
               >
                 <div className="flex flex-col items-center text-center space-y-3">
                   <div className="w-14 h-14 rounded-full bg-red-500/20 flex items-center justify-center group-hover:bg-red-500/30 transition-colors relative">
@@ -314,9 +332,9 @@ const Tests = () => {
 
             {/* Saved Questions - показываем только если есть сохранённые */}
             {challengeBankCount > 0 && (
-              <Card 
-                className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-                onClick={() => navigate("/test/challenge-bank")}
+            <Card 
+              className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+              onClick={() => handleStartPath("/test/challenge-bank")}
               >
                 <div className="flex flex-col items-center text-center space-y-3">
                   <div className="w-14 h-14 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/30 transition-colors relative">
@@ -336,7 +354,7 @@ const Tests = () => {
             {/* Mastery Mode - повтор пока всё правильно */}
             <Card 
               className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-              onClick={() => navigate("/test/mastery")}
+              onClick={() => handleStartPath("/test/mastery")}
             >
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
@@ -352,7 +370,7 @@ const Tests = () => {
             {/* Hardest questions - самые сложные */}
             <Card 
               className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-              onClick={() => navigate("/test/hardest")}
+              onClick={() => handleStartPath("/test/hardest")}
             >
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="w-14 h-14 rounded-full bg-gray-500/20 flex items-center justify-center group-hover:bg-gray-500/30 transition-colors">
@@ -374,7 +392,7 @@ const Tests = () => {
             {/* Exam simulator */}
             <Card 
               className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-              onClick={() => navigate("/test/exam")}
+              onClick={() => handleStartPath("/test/exam")}
             >
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
@@ -390,7 +408,7 @@ const Tests = () => {
             {/* Module test */}
             <Card 
               className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-              onClick={() => navigate("/tests/sequential")}
+              onClick={() => handleStartPath("/tests/sequential")}
             >
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center group-hover:bg-green-500/30 transition-colors">
@@ -406,7 +424,7 @@ const Tests = () => {
             {/* Final test */}
             <Card 
               className="p-5 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
-              onClick={() => navigate("/test/exam")}
+              onClick={() => handleStartPath("/test/exam")}
             >
               <div className="flex flex-col items-center text-center space-y-3">
                 <div className="w-14 h-14 rounded-full bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors">
@@ -493,6 +511,7 @@ const Tests = () => {
         )}
       </div>
     </Layout>
+    <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
   );
 };
 
