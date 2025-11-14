@@ -2354,7 +2354,7 @@ const TestSession = () => {
           "hidden lg:flex lg:flex-col pt-0 md:pt-3",
           !isTelegramApp && "pb-2 md:pb-3"
         )}>
-          <div className="sticky top-4 h-full">
+          <div className="sticky top-4 h-full max-h-[calc(100vh-2rem)] flex flex-col">
             <AIWidget
               explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null}
               explanationRu={selectedOption ? currentQuestion.explanation_ru : null}

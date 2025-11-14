@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Sparkles, Maximize2, Minimize2, Languages } from "lucide-react";
+import { Send, Sparkles, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/hooks/use-toast";
+import { triggerHapticFeedback } from "@/lib/telegram";
 
 type Message = {
   role: "user" | "assistant";
@@ -50,8 +52,10 @@ export const AIWidget = ({
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false); // Полуразвернут по умолчанию
+  const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+  const { toast } = useToast();
   
   // Определяем язык интерфейса на основе языка теста
   // Используем язык теста для интерфейса, но если showTranslation активен, используем русский
@@ -215,10 +219,37 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
     askAI(userMessage);
   };
 
+  const submitFeedback = async (messageIndex: number, rating: 1 | -1) => {
+    if (messageRatings[messageIndex]) return; // Уже оценено
+    
+    try {
+      triggerHapticFeedback(rating === 1 ? 'success' : 'error');
+      
+      // Здесь можно отправить feedback на сервер
+      // const { data: { session } } = await supabase.auth.getSession();
+      // await supabase.from('ai_feedback').insert({
+      //   message_index: messageIndex,
+      //   rating: rating,
+      //   question_id: questionId,
+      //   ...
+      // });
+      
+      setMessageRatings(prev => ({ ...prev, [messageIndex]: rating }));
+      
+      toast({
+        title: rating === 1 ? "Спасибо за отзыв!" : "Спасибо за обратную связь!",
+        description: rating === 1 ? "Ваш лайк помогает улучшить ответы" : "Мы учтем ваше мнение",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
+  };
+
   return (
     <Card className={cn(
       "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
-      isExpanded ? "h-full" : "h-[500px]"
+      isExpanded ? "h-full" : "h-full max-h-full"
     )}>
       {/* Header - чистый стиль как у Officer Frank */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
@@ -332,38 +363,62 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                         <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-150" />
                       </div>
                     )}
-                    {/* Кнопка перевода для первого сообщения из БД - внизу сообщения */}
-                    {message.content && index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
+                    
+                    {/* Feedback buttons и кнопка перевода под каждым сообщением от AI */}
+                    {message.content && (
                       <div className="flex items-center gap-1 mt-2">
-                        <button
-                          onClick={() => {
-                            if (onToggleTranslation) {
-                              // Определяем новый контент ПЕРЕД переключением showTranslation
-                              // Если сейчас показываем русский (showTranslation === true), переключаем на оригинал
-                              // Если сейчас показываем оригинал (showTranslation === false), переключаем на русский
-                              const newContent = showTranslation 
-                                ? (explanationEs || explanationEn || explanation || '')
-                                : (explanationRu || '');
-                              
-                              // Обновляем сообщение синхронно перед переключением
-                              setMessages(prev => {
-                                const updated = [...prev];
-                                if (updated[0] && updated[0].role === 'assistant') {
-                                  updated[0] = { ...updated[0], content: newContent };
-                                }
-                                return updated;
-                              });
-                              
-                              // Переключаем состояние
-                              onToggleTranslation();
-                            }
-                          }}
-                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7"
-                          title={showTranslation ? (interfaceLanguage === 'ru' ? t('lumiShowOriginal') : interfaceLanguage === 'en' ? 'Show original' : 'Mostrar original') : (interfaceLanguage === 'ru' ? t('lumiShowTranslation') : interfaceLanguage === 'en' ? 'Show Russian translation' : 'Mostrar traducción al ruso')}
+                        {/* Кнопка перевода - только для первого сообщения из БД */}
+                        {index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
+                          <button
+                            onClick={() => {
+                              if (onToggleTranslation) {
+                                // Определяем новый контент ПЕРЕД переключением showTranslation
+                                // Если сейчас показываем русский (showTranslation === true), переключаем на оригинал
+                                // Если сейчас показываем оригинал (showTranslation === false), переключаем на русский
+                                const newContent = showTranslation 
+                                  ? (explanationEs || explanationEn || explanation || '')
+                                  : (explanationRu || '');
+                                
+                                // Обновляем сообщение синхронно перед переключением
+                                setMessages(prev => {
+                                  const updated = [...prev];
+                                  if (updated[0] && updated[0].role === 'assistant') {
+                                    updated[0] = { ...updated[0], content: newContent };
+                                  }
+                                  return updated;
+                                });
+                                
+                                // Переключаем состояние
+                                onToggleTranslation();
+                              }
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7"
+                            title={showTranslation ? (interfaceLanguage === 'ru' ? t('lumiShowOriginal') : interfaceLanguage === 'en' ? 'Show original' : 'Mostrar original') : (interfaceLanguage === 'ru' ? t('lumiShowTranslation') : interfaceLanguage === 'en' ? 'Show Russian translation' : 'Mostrar traducción al ruso')}
+                          >
+                            <Languages className="w-3 h-3" />
+                            <span>{showTranslation ? (testLanguage === 'en' ? "EN" : "ES") : "RU"}</span>
+                          </button>
+                        )}
+                        
+                        {/* Кнопки лайков для всех сообщений от AI */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => submitFeedback(index, 1)}
+                          disabled={!!messageRatings[index]}
+                          className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === 1 ? 'bg-muted' : ''}`}
                         >
-                          <Languages className="w-3 h-3" />
-                          <span>{showTranslation ? (testLanguage === 'en' ? "EN" : "ES") : "RU"}</span>
-                        </button>
+                          <ThumbsUp className={`w-3.5 h-3.5 ${messageRatings[index] === 1 ? 'fill-current' : ''}`} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => submitFeedback(index, -1)}
+                          disabled={!!messageRatings[index]}
+                          className={`h-7 px-2 hover:bg-muted ${messageRatings[index] === -1 ? 'bg-muted' : ''}`}
+                        >
+                          <ThumbsDown className={`w-3.5 h-3.5 ${messageRatings[index] === -1 ? 'fill-current' : ''}`} />
+                        </Button>
                       </div>
                     )}
                   </div>
