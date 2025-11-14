@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Sparkles, Maximize2, Minimize2 } from "lucide-react";
+import { Send, Sparkles, Maximize2, Minimize2, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -16,22 +16,32 @@ type Message = {
 
 interface AIWidgetProps {
   explanation?: string | null;
+  explanationRu?: string | null;
+  explanationEs?: string | null;
+  explanationEn?: string | null;
   question: string;
   correctAnswer: string;
   userAnswer?: string;
   isCorrect: boolean;
   topic?: string;
   imageUrl?: string | null;
+  showTranslation?: boolean;
+  onToggleTranslation?: () => void;
 }
 
 export const AIWidget = ({
   explanation,
+  explanationRu,
+  explanationEs,
+  explanationEn,
   question,
   correctAnswer,
   userAnswer,
   isCorrect,
   topic,
-  imageUrl
+  imageUrl,
+  showTranslation = false,
+  onToggleTranslation,
 }: AIWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,16 +50,27 @@ export const AIWidget = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Показываем explanation из БД при загрузке
+  // Используем правильный язык в зависимости от showTranslation
   useEffect(() => {
-    if (explanation && messages.length === 0) {
-      setMessages([
-        {
-          role: "assistant",
-          content: explanation
-        }
-      ]);
+    if (messages.length === 0) {
+      let explanationToShow = null;
+      
+      if (showTranslation && explanationRu) {
+        explanationToShow = explanationRu;
+      } else if (explanation) {
+        explanationToShow = explanation;
+      }
+      
+      if (explanationToShow) {
+        setMessages([
+          {
+            role: "assistant",
+            content: explanationToShow
+          }
+        ]);
+      }
     }
-  }, [explanation]);
+  }, [explanation, explanationRu, showTranslation]);
 
   // Сброс при смене вопроса
   useEffect(() => {
@@ -231,7 +252,31 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                   <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
                     <LumiCharacter size="sm" mood="happy" className="scale-75" />
                   </div>
-                  <div className="flex-1 min-w-0 mt-1">
+                  <div className="flex-1 min-w-0 mt-1 relative">
+                    {/* Кнопка перевода для первого сообщения из БД */}
+                    {index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
+                      <button
+                        onClick={() => {
+                          if (onToggleTranslation) {
+                            onToggleTranslation();
+                            // Обновляем первое сообщение при переключении
+                            const newContent = showTranslation 
+                              ? (explanationEs || explanationEn || explanation || '')
+                              : (explanationRu || '');
+                            setMessages(prev => {
+                              const updated = [...prev];
+                              updated[0] = { ...updated[0], content: newContent };
+                              return updated;
+                            });
+                          }
+                        }}
+                        className="absolute top-0 right-0 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                        title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                      >
+                        <Languages className="w-3 h-3" />
+                        <span>{showTranslation ? "ES" : "RU"}</span>
+                      </button>
+                    )}
                     {message.content ? (
                       <div className="text-sm leading-relaxed text-foreground prose prose-sm max-w-none dark:prose-invert">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages } from "lucide-react";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -24,8 +24,13 @@ type AIExplanationDialogProps = {
   userAnswer?: string;
   isCorrect: boolean;
   explanation?: string | null;
+  explanationRu?: string | null;
+  explanationEs?: string | null;
+  explanationEn?: string | null;
   topic?: string;
   imageUrl?: string | null;
+  showTranslation?: boolean;
+  onToggleTranslation?: () => void;
 };
 
 export function AIExplanationDialog({
@@ -36,8 +41,13 @@ export function AIExplanationDialog({
   userAnswer,
   isCorrect,
   explanation,
+  explanationRu,
+  explanationEs,
+  explanationEn,
   topic,
   imageUrl,
+  showTranslation = false,
+  onToggleTranslation,
 }: AIExplanationDialogProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,18 +60,32 @@ export function AIExplanationDialog({
   const { toast } = useToast();
 
   // Автоматически показываем explanation из БД при открытии
+  // Используем правильный язык в зависимости от showTranslation
   useEffect(() => {
-    if (open && explanation && messages.length === 0) {
-      // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
-      setMessages([
-        {
-          role: "assistant",
-          content: explanation
-        }
-      ]);
-      console.log('[AI Chat] 📝 Показано explanation из БД (без AI вызова)');
+    if (open && messages.length === 0) {
+      let explanationToShow = null;
+      
+      if (showTranslation && explanationRu) {
+        explanationToShow = explanationRu;
+      } else if (explanation) {
+        explanationToShow = explanation;
+      }
+      
+      if (explanationToShow) {
+        // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
+        setMessages([
+          {
+            role: "assistant",
+            content: explanationToShow
+          }
+        ]);
+        console.log('[AI Chat] 📝 Показано explanation из БД (без AI вызова)', { 
+          language: showTranslation ? 'ru' : 'es/en',
+          hasRu: !!explanationRu 
+        });
+      }
     }
-  }, [open, explanation]);
+  }, [open, explanation, explanationRu, showTranslation]);
 
   // Reset при закрытии и управление скроллом body
   useEffect(() => {
@@ -625,7 +649,31 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 mt-0.5 shadow-md">
                       <LumiCharacter size="sm" mood={index === 0 ? "happy" : "encouraging"} className="scale-50" />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 relative">
+                      {/* Кнопка перевода для первого сообщения из БД */}
+                      {index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
+                        <button
+                          onClick={() => {
+                            if (onToggleTranslation) {
+                              onToggleTranslation();
+                              // Обновляем первое сообщение при переключении
+                              const newContent = showTranslation 
+                                ? (explanationEs || explanationEn || explanation || '')
+                                : (explanationRu || '');
+                              setMessages(prev => {
+                                const updated = [...prev];
+                                updated[0] = { ...updated[0], content: newContent };
+                                return updated;
+                              });
+                            }
+                          }}
+                          className="absolute top-0 right-0 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                          title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                        >
+                          <Languages className="w-3 h-3" />
+                          <span>{showTranslation ? "ES" : "RU"}</span>
+                        </button>
+                      )}
                       {message.content ? (
                         <div className="text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-strong:font-semibold prose-strong:text-foreground prose-p:text-foreground prose-p:my-2 prose-li:text-foreground">
                           <ReactMarkdown 

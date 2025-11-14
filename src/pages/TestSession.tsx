@@ -1704,7 +1704,7 @@ const TestSession = () => {
                         title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
                       >
                         <Languages className="w-3 h-3" />
-                        <span>RU</span>
+                        <span>{showTranslation ? "ES" : "RU"}</span>
                       </button>
                     )}
                     <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
@@ -1864,7 +1864,7 @@ const TestSession = () => {
                       title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
                     >
                       <Languages className="w-3 h-3" />
-                      <span>RU</span>
+                      <span>{showTranslation ? "ES" : "RU"}</span>
                     </button>
                   )}
                   <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
@@ -2189,17 +2189,22 @@ const TestSession = () => {
         <AIExplanationDialog
           open={showAIExplanation}
           onClose={() => setShowAIExplanation(false)}
-          question={testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
+          question={showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es)}
           correctAnswer={
-            sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] || ''
+            sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || ''
           }
           userAnswer={
-            selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined
+            selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined
           }
           isCorrect={selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false}
-          explanation={selectedOption ? (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
+          explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null}
+          explanationRu={selectedOption ? currentQuestion.explanation_ru : null}
+          explanationEs={selectedOption ? currentQuestion.explanation_es : null}
+          explanationEn={selectedOption ? currentQuestion.explanation_en : null}
           topic={currentQuestion.topics?.title_es}
           imageUrl={currentQuestion.image_url}
+          showTranslation={showTranslation}
+          onToggleTranslation={toggleTranslation}
         />
       )}
 
@@ -2212,13 +2217,18 @@ const TestSession = () => {
         )}>
           <div className="sticky top-4 h-full">
             <AIWidget
-              explanation={selectedOption ? (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es) : null}
-              question={testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es}
-              correctAnswer={sortedOptions.find((opt) => opt.is_correct)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] || ''}
-              userAnswer={selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[testLanguage === 'en' ? 'text_en' : 'text_es'] : undefined}
+              explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null}
+              explanationRu={selectedOption ? currentQuestion.explanation_ru : null}
+              explanationEs={selectedOption ? currentQuestion.explanation_es : null}
+              explanationEn={selectedOption ? currentQuestion.explanation_en : null}
+              question={showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es)}
+              correctAnswer={sortedOptions.find((opt) => opt.is_correct)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] || ''}
+              userAnswer={selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined}
               isCorrect={sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false}
               topic={currentQuestion.topics?.title_es}
               imageUrl={currentQuestion.image_url}
+              showTranslation={showTranslation}
+              onToggleTranslation={toggleTranslation}
             />
           </div>
         </div>
