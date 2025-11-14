@@ -230,3 +230,4 @@ ALTER TABLE achievements_def ADD COLUMN IF NOT EXISTS trigger_config JSONB;
 
 **Дата анализа**: 2025-01-13
 **Автор**: Cursor AI
+
