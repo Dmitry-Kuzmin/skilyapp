@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Sparkles } from "lucide-react";
+import { Send, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,14 +100,11 @@ const AIAssistant = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 md:py-10 max-w-4xl">
-        {/* 2025 Trend Header - Neo-brutalism + Typography */}
-        <div className="mb-12 md:mb-16">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-[-0.02em] leading-[0.9] mb-4 text-foreground">
-            AI Помощник DGT
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-xl leading-relaxed">
-            Задай вопрос о правилах дорожного движения Испании и получи развернутый ответ
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold mb-2">AI Помощник по ПДД</h1>
+          <p className="text-muted-foreground">
+            Задай вопрос о правилах дорожного движения Испании
           </p>
         </div>
 

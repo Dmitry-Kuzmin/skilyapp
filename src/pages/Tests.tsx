@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers, GraduationCap } from "lucide-react";
+import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -228,14 +228,12 @@ const Tests = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 md:py-10 pb-20 md:pb-4 max-w-[1370px]">
-        {/* 2025 Trend Header - Neo-brutalism + Typography */}
-        <div className="mb-12 md:mb-16">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-[-0.02em] leading-[0.9] mb-4 text-foreground">
-            {t('practiceTests')}
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-xl leading-relaxed">
-            Выбери режим и начни подготовку к экзамену DGT
+      <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-4 max-w-[1370px]">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{t('practiceTests')}</h1>
+          <p className="text-muted-foreground">
+            Выбери режим и начни подготовку к экзамену
           </p>
         </div>
 
