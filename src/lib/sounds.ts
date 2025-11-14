@@ -469,6 +469,20 @@ class SoundManager {
     this.playClick(600, 0.06);
   }
 
+  // Card flip sound
+  flip() {
+    this.playClick(700, 0.08);
+  }
+
+  // Success/Error aliases for consistency
+  success() {
+    this.correctAnswer();
+  }
+
+  error() {
+    this.wrongAnswer();
+  }
+
   // Enable/disable sounds
   setEnabled(enabled: boolean) {
     this.enabled = enabled;

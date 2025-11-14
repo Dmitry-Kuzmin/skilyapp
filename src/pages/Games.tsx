@@ -181,6 +181,7 @@ const Games = () => {
       color: "success",
       premium: false,
       difficulty: "Лёгкая",
+      route: "/games/flashcards",
     },
     {
       id: 4,

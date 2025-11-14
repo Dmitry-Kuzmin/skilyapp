@@ -27,6 +27,7 @@ import MatchingGame from "./pages/games/MatchingGame";
 import Duel from "./pages/games/Duel";
 import FourVariantsGame from "./pages/games/FourVariantsGame";
 import RoadRace from "./pages/games/RoadRace";
+import FlashCardsGame from "./pages/games/FlashCardsGame";
 import TestSession from "./pages/TestSession";
 import TestResults from "./pages/TestResults";
 import SequentialTests from "./pages/SequentialTests";
@@ -134,6 +135,7 @@ const App = () => {
           <Route path="/games/duel" element={<Duel />} />
           <Route path="/games/four-variants" element={<FourVariantsGame />} />
           <Route path="/games/road-race" element={<RoadRace />} />
+          <Route path="/games/flashcards" element={<FlashCardsGame />} />
           <Route path="/achievements" element={<Achievements />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/join/:code" element={<InviteLanding />} />
