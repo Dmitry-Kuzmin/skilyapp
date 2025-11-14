@@ -1696,20 +1696,20 @@ const TestSession = () => {
                 {/* Question Text */}
                 <div className="mb-4 sm:mb-6">
                   <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                    {/* Translation Button (Practice Only) - в правом верхнем углу */}
+                    <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
+                      {displayQuestion}
+                    </h2>
+                    {/* Translation Button (Practice Only) - в правом нижнем углу */}
                     {mode === "practice" && (
                       <button
                         onClick={toggleTranslation}
-                        className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                        className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
                         title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
                       >
                         <Languages className="w-3 h-3" />
                         <span>{showTranslation ? "ES" : "RU"}</span>
                       </button>
                     )}
-                    <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                      {displayQuestion}
-                    </h2>
                   </div>
                 </div>
 
@@ -1856,20 +1856,20 @@ const TestSession = () => {
           {/* Question Text */}
               <div className="mb-4 sm:mb-6">
                 <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                  {/* Translation Button (Practice Only) - в правом верхнем углу */}
+                  <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
+                    {displayQuestion}
+                  </h2>
+                  {/* Translation Button (Practice Only) - в правом нижнем углу */}
                   {mode === "practice" && (
                     <button
                       onClick={toggleTranslation}
-                      className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
+                      className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
                       title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
                     >
                       <Languages className="w-3 h-3" />
                       <span>{showTranslation ? "ES" : "RU"}</span>
                     </button>
                   )}
-                  <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                    {displayQuestion}
-                  </h2>
                 </div>
           </div>
 
