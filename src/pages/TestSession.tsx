@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
@@ -172,6 +172,9 @@ const TestSession = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const isClosingRef = useRef(false);
+  const animationFrameRef = useRef<number | null>(null);
+  const [contentScrollTop, setContentScrollTop] = useState(0);
   const [testInfo, setTestInfo] = useState<{ id: string; title: string } | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [showAIExplanation, setShowAIExplanation] = useState(false);
@@ -190,7 +193,7 @@ const TestSession = () => {
   });
   const [ambientMusic, setAmbientMusic] = useState(() => {
     const saved = localStorage.getItem('test-ambient-music');
-    return saved ? saved === 'true' : false;
+    return saved ? saved === 'true' : false; // По умолчанию выключено
   });
   const [fontSize, setFontSize] = useState(() => {
     const saved = localStorage.getItem('test-font-size');
@@ -628,16 +631,19 @@ const TestSession = () => {
   }, [voiceOver, currentIndex, questions, testLanguage]);
   
   const handleCloseModal = useCallback(() => {
-    if (isClosing) return; // Предотвращаем множественные вызовы
+    if (isClosingRef.current || isClosing) return;
+    
+    isClosingRef.current = true;
     setIsClosing(true);
     setIsDragging(false);
     setDragStartY(0);
     setDragCurrentY(0);
-    // Закрываем сразу без задержки
-    setShowQuestionMap(false);
+    
     setTimeout(() => {
+      setShowQuestionMap(false);
       setIsClosing(false);
-    }, 100);
+      isClosingRef.current = false;
+    }, 300);
   }, [isClosing]);
   
   // Close modal with Escape key
@@ -2034,20 +2040,27 @@ const TestSession = () => {
               }`}
               onClick={(e) => e.stopPropagation()}
               style={{ 
-                maxHeight: isTelegramApp ? 'calc(90vh)' : '90vh',
-                height: isTelegramApp ? 'calc(90vh)' : '90vh',
+                maxHeight: isTelegramApp ? 'calc(70vh)' : '70vh',
+                height: isTelegramApp ? 'calc(70vh)' : '70vh',
+                bottom: '0px',
                 transform: isDragging && dragCurrentY > dragStartY 
                   ? `translateY(${dragCurrentY - dragStartY}px)` 
                   : undefined
               }}
               onTouchStart={(e) => {
-                if (isClosing) return;
+                if (isClosingRef.current || isClosing) return;
                 const touch = e.touches[0];
                 if (touch) {
-                  // Начинаем драг только если свайп начинается с верхней части модального окна
+                  // Начинаем драг только если свайп начинается с верхней части модального окна (drag handle или header)
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                   const touchY = touch.clientY;
-                  if (touchY - rect.top < 100) { // Только верхние 100px для начала драга
+                  const touchX = touch.clientX;
+                  const relativeY = touchY - rect.top;
+                  
+                  // Проверяем, что касание в верхней части (drag handle + header, примерно 120px)
+                  // И что контент не прокручен (можно свайпать только когда контент вверху)
+                  if (relativeY < 120 && touchX > rect.left && touchX < rect.right && contentScrollTop === 0) {
+                    e.stopPropagation();
                     setIsDragging(true);
                     setDragStartY(touch.clientY);
                     setDragCurrentY(touch.clientY);
@@ -2055,23 +2068,46 @@ const TestSession = () => {
                 }
               }}
               onTouchMove={(e) => {
-                if (isDragging && !isClosing) {
+                if (isDragging && !isClosingRef.current && !isClosing) {
                   e.preventDefault();
+                  e.stopPropagation();
+                  
                   const touch = e.touches[0];
                   if (touch) {
                     const deltaY = touch.clientY - dragStartY;
+                    // Разрешаем свайп только вниз
                     if (deltaY > 0) {
-                      setDragCurrentY(touch.clientY);
+                      // Используем requestAnimationFrame для плавности
+                      if (animationFrameRef.current !== null) {
+                        cancelAnimationFrame(animationFrameRef.current);
+                      }
+                      
+                      animationFrameRef.current = requestAnimationFrame(() => {
+                        setDragCurrentY(touch.clientY);
+                      });
                     }
                   }
                 }
               }}
               onTouchEnd={(e) => {
-                if (isDragging && !isClosing) {
+                if (isDragging && !isClosingRef.current) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  // Отменяем анимацию
+                  if (animationFrameRef.current !== null) {
+                    cancelAnimationFrame(animationFrameRef.current);
+                    animationFrameRef.current = null;
+                  }
+                  
                   const dragDistance = dragCurrentY - dragStartY;
-                  if (dragDistance > 50) {
+                  // Порог для закрытия: 80px или 20% высоты экрана
+                  const threshold = Math.max(80, window.innerHeight * 0.2);
+                  
+                  if (dragDistance > threshold) {
                     handleCloseModal();
                   } else {
+                    // Возвращаем на место с анимацией
                     setIsDragging(false);
                     setDragStartY(0);
                     setDragCurrentY(0);
@@ -2097,10 +2133,14 @@ const TestSession = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCloseModal();
+                        e.preventDefault();
+                        if (!isClosingRef.current && !isClosing) {
+                          handleCloseModal();
+                        }
                       }}
                       className="p-2 rounded-lg hover:bg-muted transition-colors"
                       aria-label="Закрыть"
+                      disabled={isClosingRef.current || isClosing}
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -2109,7 +2149,20 @@ const TestSession = () => {
               </div>
 
               {/* Content - Auto height based on content with padding for legend */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 bg-card">
+              <div 
+                className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 bg-card"
+                style={{ maxHeight: 'calc(70vh - 120px)' }}
+                onScroll={(e) => {
+                  // Отслеживаем позицию скролла контента
+                  setContentScrollTop(e.currentTarget.scrollTop);
+                }}
+                onTouchStart={(e) => {
+                  // Предотвращаем начало свайпа при скролле контента
+                  if (isDragging) {
+                    e.stopPropagation();
+                  }
+                }}
+              >
                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 sm:gap-3">
                   {questions.map((_, idx) => {
                     const answer = answers.find((a) => a.questionId === questions[idx].id);

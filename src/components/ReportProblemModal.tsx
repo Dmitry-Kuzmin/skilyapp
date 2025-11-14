@@ -394,13 +394,13 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                if (!isClosingRef.current && !isSubmitting && !isSuccess) {
+                if (!isClosingRef.current && !isSubmitting && !isSuccess && !isClosing) {
                   handleCloseModal();
                 }
               }}
               className="p-2 rounded-lg hover:bg-muted transition-colors"
               aria-label={language === "es" ? "Cerrar" : "Закрыть"}
-              disabled={isSubmitting || isClosingRef.current}
+              disabled={isSubmitting || isClosingRef.current || isClosing}
             >
               <X className="w-5 h-5" />
             </button>
