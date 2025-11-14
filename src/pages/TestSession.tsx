@@ -1380,6 +1380,13 @@ const TestSession = () => {
     }
   };
   
+  // Прокрутка вверх при изменении вопроса
+  useEffect(() => {
+    if (questions.length > 0 && currentIndex >= 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentIndex, questions.length]);
+
   const jumpToQuestion = (index: number) => {
     if (index === currentIndex) return;
     setCurrentIndex(index);
