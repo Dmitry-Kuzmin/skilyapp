@@ -106,6 +106,29 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
     loadImage();
   }, [imageUrl]);
 
+  // Обработчик Escape для закрытия модального окна
+  useEffect(() => {
+    if (!isDialogOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isClosing) {
+        setIsClosing(true);
+        setTimeout(() => {
+          setIsDialogOpen(false);
+          setIsClosing(false);
+          setIsDragging(false);
+          setDragStartY(0);
+          setDragCurrentY(0);
+        }, 300);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isDialogOpen, isClosing]);
+
   // Показываем загрузку только если изображение еще не загрузилось
   if (isLoading) {
     return (
