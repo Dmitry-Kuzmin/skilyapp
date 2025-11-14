@@ -1771,7 +1771,10 @@ const TestSession = () => {
 
 
         {/* Question Card */}
-        <Card className="p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm">
+        <Card 
+          data-testid="question-card"
+          className="p-3 sm:p-4 md:p-6 bg-background border-border/50 shadow-xl backdrop-blur-sm"
+        >
           {/* Two-column layout: Image on left, Question & Answers on right */}
           {currentQuestion.image_url ? (
             <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[350px_1fr] gap-4 md:gap-6">
