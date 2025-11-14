@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
+import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { 
   BookOpen, 
   Search, 
@@ -15,7 +14,14 @@ import {
   ArrowLeft,
   CheckCircle2,
   XCircle,
-  Flag
+  Flag,
+  Crown,
+  FileText,
+  Gamepad2,
+  Zap,
+  Users,
+  Sun,
+  Moon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -24,6 +30,7 @@ interface Section {
   id: string;
   title: string;
   icon: any;
+  description: string;
   subsections: Subsection[];
 }
 
@@ -37,7 +44,8 @@ interface Subsection {
 const HelpCenter = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSection, setActiveSection] = useState<string>("welcome");
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [showIntro, setShowIntro] = useState(true);
   const isTelegramApp = isTelegramMiniApp();
 
   const sections: Section[] = [
@@ -45,6 +53,7 @@ const HelpCenter = () => {
       id: "welcome",
       title: "Добро пожаловать",
       icon: BookOpen,
+      description: "Начните работу с Sdadim",
       subsections: [
         {
           id: "welcome-intro",
@@ -75,7 +84,8 @@ const HelpCenter = () => {
     {
       id: "app-usage",
       title: "Использование приложения",
-      icon: BookOpen,
+      icon: FileText,
+      description: "Как использовать все функции приложения",
       subsections: [
         {
           id: "app-tests",
@@ -140,6 +150,7 @@ const HelpCenter = () => {
       id: "rewards",
       title: "Система наград",
       icon: Trophy,
+      description: "Достижения, бонусы и реферальная программа",
       subsections: [
         {
           id: "rewards-overview",
@@ -199,6 +210,7 @@ const HelpCenter = () => {
       id: "experience",
       title: "Система опыта (XP)",
       icon: Sparkles,
+      description: "Как зарабатывать и использовать опыт",
       subsections: [
         {
           id: "experience-overview",
@@ -252,6 +264,7 @@ const HelpCenter = () => {
       id: "coins",
       title: "Система монет",
       icon: Coins,
+      description: "Внутриигровая валюта и её использование",
       subsections: [
         {
           id: "coins-overview",
@@ -267,7 +280,7 @@ const HelpCenter = () => {
 • Ничью в дуэли — 25 монет
 • Участие в дуэли — 15 монет
 • Ежедневные бонусы — от 5 до 100 монет в зависимости от дня серии
-• Реферальная программа — за каждого приглашенного друга
+• Реферальную программу — за каждого приглашенного друга
 • Специальные достижения — разовые награды
 
 Активное участие в играх и приглашение друзей — лучший способ заработать монеты.`
@@ -302,6 +315,7 @@ const HelpCenter = () => {
       id: "spain-driving-license",
       title: "Права в Испании",
       icon: Flag,
+      description: "Всё о получении водительских прав в Испании",
       subsections: [
         {
           id: "spain-requirements",
@@ -365,6 +379,7 @@ const HelpCenter = () => {
       id: "faq",
       title: "FAQ",
       icon: HelpCircle,
+      description: "Часто задаваемые вопросы",
       subsections: [
         {
           id: "faq-general",
@@ -414,6 +429,7 @@ const HelpCenter = () => {
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
+    setShowIntro(false);
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -422,237 +438,259 @@ const HelpCenter = () => {
 
   // Отслеживание активного раздела при прокрутке
   useEffect(() => {
-    const handleScroll = () => {
-      const mainSections = ['welcome', 'app-usage', 'rewards', 'experience', 'coins', 'spain-driving-license', 'faq'];
-      const scrollPosition = window.scrollY + 150;
+    if (!showIntro) {
+      const handleScroll = () => {
+        const mainSections = ['welcome', 'app-usage', 'rewards', 'experience', 'coins', 'spain-driving-license', 'faq'];
+        const scrollPosition = window.scrollY + 200;
 
-      for (let i = mainSections.length - 1; i >= 0; i--) {
-        const sectionId = mainSections[i];
-        const element = document.getElementById(sectionId);
-        if (element && element.offsetTop <= scrollPosition) {
-          setActiveSection(sectionId);
-          break;
+        for (let i = mainSections.length - 1; i >= 0; i--) {
+          const sectionId = mainSections[i];
+          const element = document.getElementById(sectionId);
+          if (element && element.offsetTop <= scrollPosition) {
+            setActiveSection(sectionId);
+            break;
+          }
         }
-      }
-    };
+      };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Вызываем сразу для установки начального состояния
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [showIntro]);
 
-  const tableOfContents = sections.map(section => ({
-    id: section.id,
-    title: section.title,
-    subsections: section.subsections.map(sub => ({
-      id: sub.id,
-      title: sub.title
-    }))
-  }));
+  const tableOfContents = activeSection ? sections.find(s => s.id === activeSection)?.subsections.map(sub => ({
+    id: sub.id,
+    title: sub.title
+  })) : [];
+
+  const currentSection = activeSection ? sections.find(s => s.id === activeSection) : null;
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background pb-20">
-        {/* Header */}
-        <div 
-          className={cn(
-            "sticky z-10 bg-background/95 backdrop-blur-sm border-b",
-            isTelegramApp 
-              ? "tg-safe-top" 
-              : "top-0"
-          )}
-          style={isTelegramApp ? {
-            paddingTop: `calc(env(safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 80px))`,
-            top: 0
-          } : {
-            paddingTop: '0px',
-            top: 0
-          }}
-        >
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              
-              <div className="flex-1 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <HelpCircle className="w-6 h-6 text-primary" />
-                  <h1 className="text-xl font-bold">Центр помощи</h1>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Всё, что нужно знать о Sdadim
-                </p>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <Crown className="w-5 h-5 text-white" />
               </div>
-
-              <div className="w-10" /> {/* Spacer */}
-            </div>
+              <span className="text-xl font-bold text-gray-900">Sdadim</span>
+            </Link>
 
             {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Поиск по документации..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex-1 max-w-xl mx-8">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
+                />
+                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 border border-gray-200 rounded">
+                  ⌘K
+                </kbd>
+              </div>
+            </div>
+
+            {/* Right Links */}
+            <div className="flex items-center gap-4">
+              <Link to="/" className="text-sm text-gray-600 hover:text-gray-900 hidden sm:block">
+                Главная
+              </Link>
+              <Button variant="ghost" size="icon" className="hidden sm:flex">
+                <Sun className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-        </div>
 
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar Navigation */}
-            <div className="lg:col-span-1">
-              <Card className="p-4 sticky top-24">
-                <h2 className="font-bold mb-4 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" />
-                  Содержание
-                </h2>
+          {/* Navigation */}
+          <nav className="flex items-center gap-6 h-12 border-t border-gray-100">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => scrollToSection(section.id)}
+                className={cn(
+                  "h-full px-1 text-sm font-medium border-b-2 transition-colors",
+                  activeSection === section.id
+                    ? "border-purple-500 text-purple-600"
+                    : "border-transparent text-gray-600 hover:text-gray-900"
+                )}
+              >
+                {section.title}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {showIntro && !activeSection ? (
+          /* Intro Grid */
+          <div className="space-y-8">
+            <div className="text-center space-y-2">
+              <h1 className="text-4xl font-bold text-gray-900">Документация Sdadim</h1>
+              <p className="text-lg text-gray-600">Всё, что нужно знать для подготовки к экзамену DGT</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sections.map((section) => {
+                const Icon = section.icon;
+                return (
+                  <Card
+                    key={section.id}
+                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer group"
+                    onClick={() => scrollToSection(section.id)}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-purple-50 transition-colors">
+                        <Icon className="w-6 h-6 text-gray-600 group-hover:text-purple-600" />
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{section.title}</h3>
+                    <p className="text-sm text-gray-600">{section.description}</p>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Left Sidebar */}
+            <aside className="lg:col-span-1">
+              <div className="sticky top-24">
                 <nav className="space-y-1">
                   {sections.map((section) => {
                     const Icon = section.icon;
                     return (
-                      <div key={section.id}>
-                        <button
-                          onClick={() => scrollToSection(section.id)}
-                          className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
-                            activeSection === section.id
-                              ? "bg-primary text-primary-foreground"
-                              : "hover:bg-muted"
-                          )}
-                        >
-                          <Icon className="w-4 h-4" />
-                          {section.title}
-                        </button>
-                      </div>
+                      <button
+                        key={section.id}
+                        onClick={() => scrollToSection(section.id)}
+                        className={cn(
+                          "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
+                          activeSection === section.id
+                            ? "bg-purple-50 text-purple-600"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        )}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {section.title}
+                      </button>
                     );
                   })}
                 </nav>
-              </Card>
-            </div>
+              </div>
+            </aside>
 
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {filteredSections.map((section) => {
-                const Icon = section.icon;
-                return (
-                  <div key={section.id} id={section.id} className="scroll-mt-24">
-                    <Card className="p-6">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                          <Icon className="w-6 h-6 text-primary-foreground" />
-                        </div>
-                        <h2 className="text-2xl font-bold">{section.title}</h2>
-                      </div>
-
-                      <div className="space-y-6">
-                        {section.subsections.map((subsection) => (
-                          <div key={subsection.id} id={subsection.id} className="space-y-3 scroll-mt-24">
-                            <h3 className="text-xl font-semibold flex items-center gap-2">
-                              {subsection.title}
-                            </h3>
-                            <div className="text-muted-foreground whitespace-pre-line">
-                              {subsection.content}
-                            </div>
-                            {subsection.items && (
-                              <ul className="space-y-2 ml-4">
-                                {subsection.items.map((item, idx) => (
-                                  <li key={idx} className="flex items-start gap-2">
-                                    <ChevronRight className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                                    <span>{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Table of Contents (Right Sidebar) */}
-            <div className="lg:col-span-1">
-              <Card className="p-4 sticky top-24">
-                <h3 className="font-bold mb-4">На этой странице</h3>
-                <nav className="space-y-2">
-                  {tableOfContents.map((section) => (
-                    <div key={section.id} className="space-y-1">
-                      <button
-                        onClick={() => scrollToSection(section.id)}
-                        className={cn(
-                          "w-full text-left block text-sm font-medium px-2 py-1 rounded transition-colors",
-                          activeSection === section.id
-                            ? "text-primary bg-primary/10"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            <main className="lg:col-span-2 space-y-8">
+              {currentSection && (
+                <div id={currentSection.id} className="scroll-mt-24">
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                        {currentSection.icon && (
+                          <currentSection.icon className="w-5 h-5 text-purple-600" />
                         )}
-                      >
-                        {section.title}
-                      </button>
-                      {activeSection === section.id && (
-                        <div className="ml-4 space-y-1">
-                          {section.subsections.map((sub) => (
-                            <button
-                              key={sub.id}
-                              onClick={() => {
-                                const element = document.getElementById(sub.id);
-                                if (element) {
-                                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
-                              }}
-                              className="w-full text-left block text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded transition-colors"
-                            >
-                              {sub.title}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                      </div>
+                      <h1 className="text-3xl font-bold text-gray-900">{currentSection.title}</h1>
                     </div>
-                  ))}
-                </nav>
-              </Card>
-            </div>
-          </div>
+                    <p className="text-gray-600">{currentSection.description}</p>
+                  </div>
 
-          {/* Helpful Section */}
-          <Card className="mt-8 p-6">
+                  <div className="space-y-12">
+                    {currentSection.subsections.map((subsection) => (
+                      <div key={subsection.id} id={subsection.id} className="scroll-mt-24">
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                          {subsection.title}
+                        </h2>
+                        <div className="prose prose-gray max-w-none">
+                          <div className="text-gray-700 whitespace-pre-line leading-relaxed">
+                            {subsection.content}
+                          </div>
+                          {subsection.items && (
+                            <ul className="mt-4 space-y-2 list-none">
+                              {subsection.items.map((item, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <ChevronRight className="w-4 h-4 text-purple-600 mt-1 flex-shrink-0" />
+                                  <span className="text-gray-700">{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </main>
+
+            {/* Right Sidebar - Table of Contents */}
+            {tableOfContents.length > 0 && (
+              <aside className="lg:col-span-1">
+                <div className="sticky top-24">
+                  <div className="border-l border-gray-200 pl-6">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-4">На этой странице</h3>
+                    <nav className="space-y-2">
+                      {tableOfContents.map((sub) => (
+                        <a
+                          key={sub.id}
+                          href={`#${sub.id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const element = document.getElementById(sub.id);
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                          }}
+                          className="block text-sm text-gray-600 hover:text-purple-600 transition-colors"
+                        >
+                          {sub.title}
+                        </a>
+                      ))}
+                    </nav>
+                  </div>
+                </div>
+              </aside>
+            )}
+          </div>
+        )}
+
+        {/* Helpful Section */}
+        {!showIntro && (
+          <div className="mt-16 pt-8 border-t border-gray-200">
             <div className="text-center space-y-4">
-              <h3 className="text-xl font-bold">Была ли эта страница полезной?</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Была ли эта страница полезной?</h3>
               <div className="flex items-center justify-center gap-4">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-gray-200">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Да
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="border-gray-200">
                   <XCircle className="w-4 h-4 mr-2" />
                   Нет
                 </Button>
               </div>
-              <div className="relative max-w-md mx-auto">
+              <div className="relative max-w-md mx-auto mt-4">
                 <Input
-                  placeholder="Задать вопрос..."
-                  className="pr-10"
+                  placeholder="Ask a question..."
+                  className="pr-10 bg-gray-50 border-gray-200"
                 />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 border border-gray-200 rounded">
+                  ⌘I
+                </kbd>
               </div>
             </div>
-          </Card>
-        </div>
+          </div>
+        )}
       </div>
-    </Layout>
+    </div>
   );
 };
 
 export default HelpCenter;
-
