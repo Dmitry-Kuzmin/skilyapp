@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy, Send } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -1282,15 +1282,12 @@ const TestSession = () => {
         // Закрашиваем иконку синим при ЛЮБОЙ ошибке
         setIsQuestionBookmarked(true);
         
-        // Уведомление показываем только при ПЕРВОЙ ошибке
-        if (showNotification) {
+        // Уведомление показываем только при ПЕРВОЙ ошибке и если пользователь не скрыл его
+        const isNotificationHidden = localStorage.getItem('challenge-bank-notification-hidden') === 'true';
+        if (showNotification && !isNotificationHidden) {
           console.log('[Challenge Bank] Показываем уведомление!');
           setIsFirstWrongAnswer(false);
           setShowChallengeBankNotification(true);
-          // Скрываем уведомление через 5 секунд
-          setTimeout(() => {
-            setShowChallengeBankNotification(false);
-          }, 5000);
         }
 
         // Добавляем или обновляем вопрос в Challenge Bank
@@ -1847,8 +1844,9 @@ const TestSession = () => {
                     <Button 
                       onClick={() => handleAnswer()} 
                       disabled={!selectedOption} 
-                      className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
+                      className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12 gap-2"
                     >
+                      <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                       Responder
                     </Button>
                   )}
@@ -1992,8 +1990,9 @@ const TestSession = () => {
               <Button 
                 onClick={() => handleAnswer()} 
                 disabled={!selectedOption} 
-                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12"
+                    className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-accent text-accent-foreground hover:bg-accent/90 h-10 sm:h-11 md:h-12 gap-2"
               >
+                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                 Responder
               </Button>
             )}

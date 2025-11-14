@@ -1,4 +1,4 @@
-import { BookOpen, SignpostBig, Languages, Video, Car } from "lucide-react";
+import { BookOpen, SignpostBig, Languages, Video, Car, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,10 +71,12 @@ const Learning = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold">Обучение</h1>
-          <p className="text-muted-foreground text-lg">
+        {/* 2025 Trend Header - Neo-brutalism + Typography */}
+        <div className="mb-12 md:mb-16">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-[-0.02em] leading-[0.9] mb-4 text-foreground">
+            Обучение
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-xl leading-relaxed">
             Изучай материалы в удобном формате
           </p>
         </div>

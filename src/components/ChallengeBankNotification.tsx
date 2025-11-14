@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { X } from 'lucide-react';
 
 interface ChallengeBankNotificationProps {
   isVisible: boolean;
@@ -8,7 +9,9 @@ interface ChallengeBankNotificationProps {
 }
 
 export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankNotificationProps) => {
+  const { t, language } = useLanguage();
   const [position, setPosition] = useState({ top: 80, right: 16, buttonWidth: 44 });
+  const [autoCloseTimer, setAutoCloseTimer] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -23,7 +26,31 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
         buttonWidth: rect.width
       });
     }
-  }, [isVisible]);
+
+    // Автоматическое закрытие через 6 секунд
+    const timer = setTimeout(() => {
+      onClose();
+    }, 6000);
+
+    setAutoCloseTimer(timer);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isVisible, onClose]);
+
+  const handleDontShowAgain = () => {
+    localStorage.setItem('challenge-bank-notification-hidden', 'true');
+    onClose();
+  };
+
+  const handleClose = () => {
+    if (autoCloseTimer) {
+      clearTimeout(autoCloseTimer);
+      setAutoCloseTimer(null);
+    }
+    onClose();
+  };
 
   const dotSize = 10;
   const lineHeight = 20;
@@ -54,12 +81,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
             className="absolute -top-[20px] w-[10px] h-[10px] rounded-full bg-white"
             style={{ 
               right: `${position.buttonWidth / 2 - dotSize / 2}px`,
-              boxShadow: '0 0 0 2px #f97316, 0 0 10px rgba(249, 115, 22, 0.5)',
+              boxShadow: '0 0 0 2px hsl(217 91% 60%), 0 0 10px hsla(217, 91%, 60%, 0.5)',
               zIndex: 1
             }}
           >
-            {/* Оранжевый центр */}
-            <div className="absolute inset-[2px] rounded-full bg-orange-500" />
+            {/* Синий центр - используем secondary цвет */}
+            <div className="absolute inset-[2px] rounded-full bg-secondary" />
             
             {/* Пульсирующие кольца */}
             <motion.div
@@ -73,7 +100,7 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 ease: "easeOut",
                 repeatType: "loop"
               }}
-              className="absolute inset-0 rounded-full border-2 border-orange-500"
+              className="absolute inset-0 rounded-full border-2 border-secondary"
               style={{ willChange: 'transform, opacity' }}
             />
             <motion.div
@@ -88,12 +115,12 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
                 delay: 0.6,
                 repeatType: "loop"
               }}
-              className="absolute inset-0 rounded-full border-2 border-orange-500"
+              className="absolute inset-0 rounded-full border-2 border-secondary"
               style={{ willChange: 'transform, opacity' }}
             />
           </motion.div>
           
-          {/* Вертикальная линия */}
+          {/* Вертикальная линия - синяя с тенью для видимости */}
           <motion.div
             initial={{ scaleY: 0, opacity: 0 }}
             animate={{ scaleY: 1, opacity: 1 }}
@@ -102,13 +129,14 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               delay: 0.3,
               ease: "easeOut"
             }}
-            className="absolute w-[2px] bg-white origin-top"
+            className="absolute w-[2px] bg-secondary origin-top"
             style={{ 
               right: `${position.buttonWidth / 2 - 1}px`,
               top: `-${dotSize / 2}px`,
               height: `${lineHeight}px`,
               zIndex: 1,
-              willChange: 'transform, opacity'
+              willChange: 'transform, opacity',
+              boxShadow: '0 0 4px hsla(217, 91%, 60%, 0.6), 0 0 8px hsla(217, 91%, 60%, 0.3)'
             }}
           />
           
@@ -121,15 +149,16 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               duration: 0.2,
               ease: "backOut"
             }}
-            className="absolute w-[10px] h-[10px] bg-white transform rotate-45"
+            className="absolute w-[10px] h-[10px] bg-secondary transform rotate-45"
             style={{ 
               right: `${position.buttonWidth / 2 - 5}px`,
               top: `${lineHeight - dotSize / 2 - 5}px`,
-              zIndex: 1
+              zIndex: 1,
+              boxShadow: '0 2px 4px hsla(217, 91%, 60%, 0.4)'
             }}
           />
           
-          {/* Уведомление в стиле Lumi */}
+          {/* Уведомление в синем стиле */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -140,37 +169,64 @@ export const ChallengeBankNotification = ({ isVisible, onClose }: ChallengeBankN
               damping: 25,
               delay: 0.6
             }}
-            onClick={onClose}
-            className="bg-white rounded-xl px-3 py-2.5 shadow-xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform border border-orange-100"
+            className="bg-secondary rounded-xl px-4 py-3 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform"
             style={{ 
               marginTop: `${lineHeight - dotSize / 2 + 6}px`,
-              boxShadow: '0 10px 40px rgba(249, 115, 22, 0.12)',
+              boxShadow: '0 10px 40px hsla(217, 91%, 60%, 0.25)',
               zIndex: 1,
               willChange: 'transform, opacity'
             }}
           >
-            <div className="flex items-start gap-2">
-              {/* Аватар Lumi */}
+            <div className="flex items-start gap-3">
+              {/* Иконка сохранения */}
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.7, type: 'spring', stiffness: 600 }}
-                className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md"
+                className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5"
               >
-                <Lightbulb className="w-4 h-4 text-white fill-white" />
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
               </motion.div>
               
-              {/* Текст от Lumi */}
+              {/* Текст уведомления */}
               <motion.div 
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8, duration: 0.3 }}
                 className="flex-1 min-w-0"
               >
-                <p className="text-gray-700 text-[11px] leading-relaxed">
-                  Я сохранила этот вопрос в твой <span className="font-bold text-orange-600">Банк Вопросов™</span> для практики! 💡
+                <p className="text-white text-sm font-medium leading-tight">
+                  {t('challengeBankAdded')}
                 </p>
+                <p className="text-white/90 text-xs leading-tight mt-1">
+                  {t('challengeBankDesc')}
+                </p>
+                
+                {/* Кнопка "Не показывать" */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDontShowAgain();
+                  }}
+                  className="mt-2 text-white/80 hover:text-white text-[10px] underline transition-colors"
+                >
+                  {t('dontShowAgain')}
+                </button>
               </motion.div>
+              
+              {/* Кнопка закрытия */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClose();
+                }}
+                className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors mt-0.5"
+                aria-label="Закрыть"
+              >
+                <X className="w-3 h-3 text-white" />
+              </button>
             </div>
           </motion.div>
         </motion.div>

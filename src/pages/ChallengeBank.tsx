@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Target, TrendingUp, Play, CheckCircle, AlertTriangle, Trash2 } from "lucide-react";
+import { Target, TrendingUp, Play, CheckCircle, AlertTriangle, Trash2, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Layout from "@/components/Layout";
@@ -134,13 +134,13 @@ const ChallengeBank = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            💡 Банк Сложных Вопросов™
+      <div className="container mx-auto px-4 py-6 md:py-10 max-w-6xl">
+        {/* 2025 Trend Header - Neo-brutalism + Typography */}
+        <div className="mb-12 md:mb-16">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-[-0.02em] leading-[0.9] mb-4 text-foreground">
+            Банк Сложных Вопросов™
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-xl leading-relaxed">
             Все вопросы, на которые ты ответил неправильно, здесь для дополнительной практики
           </p>
         </div>

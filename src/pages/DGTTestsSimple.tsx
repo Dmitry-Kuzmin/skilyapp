@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Car, Bike, Bus } from 'lucide-react';
+import { Car, Bike, Bus, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const DGTTestsSimple = () => {
@@ -51,13 +51,16 @@ const DGTTestsSimple = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-12 md:mb-16"
         >
-          <h1 className="text-4xl font-bold mb-2">Экзамены DGT 🚗</h1>
-          <p className="text-muted-foreground text-lg">
+          {/* 2025 Trend Header - Neo-brutalism + Typography */}
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-[-0.02em] leading-[0.9] mb-4 text-foreground">
+            Экзамены DGT
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground font-normal max-w-xl leading-relaxed mb-2">
             Практикуйтесь для получения водительских прав в Испании
           </p>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-base text-muted-foreground/70 font-normal">
             4012 реальных вопросов с официальных экзаменов
           </p>
         </motion.div>

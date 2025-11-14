@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { AlertTriangle, Loader2, CheckCircle2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { isTelegramMiniApp } from "@/lib/telegram";
 
 interface ReportProblemModalProps {
@@ -51,8 +52,11 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const [contentScrollTop, setContentScrollTop] = useState(0);
+  const isClosingRef = useRef(false);
+  const animationFrameRef = useRef<number | null>(null);
   const { toast } = useToast();
   const { language } = useLanguage();
+  const { profileId } = useUserContext();
   const lang = language === "es" ? "es" : "ru";
   const isTelegramApp = isTelegramMiniApp();
 
@@ -73,35 +77,43 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     setIsSubmitting(true);
 
     try {
-      // Get current user profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
+      console.log('[ReportProblemModal] Submitting report:', {
+        profileId,
+        questionId,
+        reportType,
+        description: description.trim().substring(0, 50),
+        isTelegramApp
+      });
 
-      // Get user profile
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profileError || !profile) {
-        throw new Error("Profile not found");
+      // Используем profileId из UserContext (работает и для Telegram, и для веба)
+      if (!profileId) {
+        console.error('[ReportProblemModal] No profileId available');
+        throw new Error(language === "es" 
+          ? "Debes iniciar sesión para enviar un reporte" 
+          : "Необходима авторизация для отправки отчета");
       }
 
       // Create report
-      const { error: reportError } = await supabase
+      const { data: reportData, error: reportError } = await supabase
         .from("question_reports")
         .insert({
-          user_id: profile.id,
+          user_id: profileId,
           question_id: questionId,
           report_type: reportType,
           description: description.trim(),
           status: "pending"
-        });
+        })
+        .select();
+
+      console.log('[ReportProblemModal] Report insert result:', { reportData, reportError });
 
       if (reportError) {
+        console.error('[ReportProblemModal] Report error details:', {
+          message: reportError.message,
+          code: reportError.code,
+          details: reportError.details,
+          hint: reportError.hint
+        });
         throw reportError;
       }
 
@@ -133,6 +145,24 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     }
   };
 
+  const handleCloseModal = useCallback(() => {
+    if (isClosingRef.current || isSubmitting || isSuccess) return;
+    
+    isClosingRef.current = true;
+    setIsClosing(true);
+    setIsDragging(false);
+    setDragStartY(0);
+    setDragCurrentY(0);
+    
+    setTimeout(() => {
+      setDescription("");
+      setReportType("other");
+      setIsClosing(false);
+      isClosingRef.current = false;
+      onOpenChange(false);
+    }, 300);
+  }, [isSubmitting, isSuccess, onOpenChange]);
+
   // Reset drag state when modal closes and prevent body scroll
   useEffect(() => {
     if (open) {
@@ -142,6 +172,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       document.body.style.width = '100%';
       // Сбрасываем позицию скролла контента
       setContentScrollTop(0);
+      isClosingRef.current = false;
     } else {
       // Разблокируем скролл при закрытии
       document.body.style.overflow = '';
@@ -152,6 +183,13 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       setDragStartY(0);
       setDragCurrentY(0);
       setContentScrollTop(0);
+      isClosingRef.current = false;
+      
+      // Отменяем анимацию если она была активна
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
     }
     
     return () => {
@@ -159,6 +197,9 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.width = '';
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, [open]);
 
@@ -167,14 +208,8 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     if (!open) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSubmitting && !isSuccess) {
-        setIsClosing(true);
-        setTimeout(() => {
-          setDescription("");
-          setReportType("other");
-          setIsClosing(false);
-          onOpenChange(false);
-        }, 300);
+      if (e.key === 'Escape' && !isSubmitting && !isSuccess && !isClosingRef.current) {
+        handleCloseModal();
       }
     };
 
@@ -182,19 +217,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     return () => {
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [open, isSubmitting, isSuccess, onOpenChange]);
-
-  const handleCloseModal = () => {
-    if (!isSubmitting && !isSuccess) {
-      setIsClosing(true);
-      setTimeout(() => {
-        setDescription("");
-        setReportType("other");
-        setIsClosing(false);
-        onOpenChange(false);
-      }, 300);
-    }
-  };
+  }, [open, isSubmitting, isSuccess, handleCloseModal]);
 
   const handleClose = () => {
     handleCloseModal();
@@ -211,7 +234,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
         }`}
         onClick={(e) => {
           e.stopPropagation();
-          if (!isDragging && !isClosing) {
+          if (!isDragging && !isClosing && !isClosingRef.current && !isSubmitting && !isSuccess) {
             handleCloseModal();
           }
         }}
@@ -234,7 +257,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
             : undefined
         }}
         onTouchStart={(e) => {
-          if (isClosing || isSubmitting || isSuccess) return;
+          if (isClosingRef.current || isClosing || isSubmitting || isSuccess) return;
           const touch = e.touches[0];
           if (touch) {
             // Начинаем драг только если свайп начинается с верхней части модального окна (drag handle или header)
@@ -254,26 +277,43 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           }
         }}
         onTouchMove={(e) => {
-          if (isDragging && !isClosing && !isSubmitting && !isSuccess) {
+          if (isDragging && !isClosingRef.current && !isClosing && !isSubmitting && !isSuccess) {
             e.preventDefault();
             e.stopPropagation();
+            
             const touch = e.touches[0];
             if (touch) {
               const deltaY = touch.clientY - dragStartY;
               // Разрешаем свайп только вниз
               if (deltaY > 0) {
-                setDragCurrentY(touch.clientY);
+                // Используем requestAnimationFrame для плавности
+                if (animationFrameRef.current !== null) {
+                  cancelAnimationFrame(animationFrameRef.current);
+                }
+                
+                animationFrameRef.current = requestAnimationFrame(() => {
+                  setDragCurrentY(touch.clientY);
+                });
               }
             }
           }
         }}
         onTouchEnd={(e) => {
-          if (isDragging && !isClosing) {
+          if (isDragging && !isClosingRef.current) {
             e.preventDefault();
             e.stopPropagation();
+            
+            // Отменяем анимацию
+            if (animationFrameRef.current !== null) {
+              cancelAnimationFrame(animationFrameRef.current);
+              animationFrameRef.current = null;
+            }
+            
             const dragDistance = dragCurrentY - dragStartY;
-            // Уменьшен порог для более отзывчивого свайпа (было 50px, стало 80px для более четкого закрытия)
-            if (dragDistance > 80) {
+            // Порог для закрытия: 80px или 20% высоты экрана
+            const threshold = Math.max(80, window.innerHeight * 0.2);
+            
+            if (dragDistance > threshold) {
               handleCloseModal();
             } else {
               // Возвращаем на место с анимацией
@@ -310,11 +350,14 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleCloseModal();
+                e.preventDefault();
+                if (!isClosingRef.current && !isSubmitting && !isSuccess) {
+                  handleCloseModal();
+                }
               }}
               className="p-2 rounded-lg hover:bg-muted transition-colors"
               aria-label={language === "es" ? "Cerrar" : "Закрыть"}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isClosingRef.current}
             >
               <X className="w-5 h-5" />
             </button>
