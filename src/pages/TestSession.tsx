@@ -1796,19 +1796,6 @@ const TestSession = () => {
 
                 {/* Explanation убрано - теперь показывается через Lumi */}
 
-                {/* Report Problem Button - под ответами */}
-                <div className="mb-4 sm:mb-5 flex justify-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                    onClick={() => setShowReportModal(true)}
-                    className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-md transition-all"
-                    >
-                    <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
-                    <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
-                    </Button>
-          </div>
-
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
                   {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
@@ -2006,6 +1993,19 @@ const TestSession = () => {
             </>
           )}
         </Card>
+
+        {/* Report Problem Button - под блоком с тестом */}
+        <div className="mt-4 sm:mt-5 flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowReportModal(true)}
+            className="text-xs sm:text-sm h-9 sm:h-10 px-4 sm:px-5 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-md transition-all"
+          >
+            <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2" />
+            <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
+          </Button>
+        </div>
       </div>
 
         {/* Question Map Bottom Sheet */}
