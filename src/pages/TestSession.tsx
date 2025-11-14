@@ -2194,7 +2194,7 @@ const TestSession = () => {
         open={showReportModal}
         onOpenChange={setShowReportModal}
         questionId={currentQuestion.id}
-        questionText={showTranslation ? currentQuestion.question_ru : currentQuestion.question_es}
+        questionText={showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es)}
       />
 
 
