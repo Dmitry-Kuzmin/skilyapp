@@ -153,6 +153,7 @@ export const AIWidget = ({
     const updateMaxHeight = () => {
       const cardHeight = questionCard.offsetHeight;
       if (cardHeight > 0) {
+        console.log('[AIWidget] 📏 Question Card height:', cardHeight);
         setMaxHeight(cardHeight);
       }
     };
