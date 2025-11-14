@@ -120,29 +120,31 @@ export const AIWidget = ({
     setIsExpanded(false);
   }, [question]);
 
-  // Измеряем высоту блока тестов (Question Card) и ограничиваем максимальную высоту виджета
+  // Измеряем высоту всего блока тестов и ограничиваем максимальную высоту виджета
   useEffect(() => {
     if (!widgetRef.current) return;
 
-    // Находим Question Card по data-testid
-    const questionCard = document.querySelector('[data-testid="question-card"]') as HTMLElement;
+    // Находим весь блок тестов по data-testid (включает Question Card + кнопки навигации + кнопку Reportar problema)
+    const testBlock = document.querySelector('[data-testid="test-content-block"]') as HTMLElement;
     
-    if (!questionCard) {
-      // Fallback: ищем Card с вопросом в блоке тестов
-      const testBlock = document.querySelector('[data-testid="test-content-block"]');
-      if (testBlock) {
-        const card = testBlock.querySelector('.rounded-lg.border') as HTMLElement;
-        if (card) {
+    if (!testBlock) {
+      // Fallback: ищем родительский grid-контейнер и первую колонку
+      const gridContainer = widgetRef.current.closest('[class*="grid"]');
+      if (gridContainer) {
+        const firstChild = gridContainer.firstElementChild as HTMLElement;
+        if (firstChild && firstChild !== widgetRef.current.closest('.lg\\:flex')?.parentElement) {
           const updateMaxHeight = () => {
-            const cardHeight = card.offsetHeight;
-            if (cardHeight > 0) {
-              setMaxHeight(cardHeight);
+            const blockHeight = firstChild.offsetHeight;
+            if (blockHeight > 0) {
+              console.log('[AIWidget] 📏 Test block height (fallback):', blockHeight);
+              setMaxHeight(blockHeight);
             }
           };
           
           updateMaxHeight();
           const resizeObserver = new ResizeObserver(updateMaxHeight);
-          resizeObserver.observe(card);
+          resizeObserver.observe(firstChild);
+          resizeObserver.observe(gridContainer as HTMLElement);
           
           return () => resizeObserver.disconnect();
         }
@@ -151,10 +153,10 @@ export const AIWidget = ({
     }
 
     const updateMaxHeight = () => {
-      const cardHeight = questionCard.offsetHeight;
-      if (cardHeight > 0) {
-        console.log('[AIWidget] 📏 Question Card height:', cardHeight);
-        setMaxHeight(cardHeight);
+      const blockHeight = testBlock.offsetHeight;
+      if (blockHeight > 0) {
+        console.log('[AIWidget] 📏 Test block height:', blockHeight);
+        setMaxHeight(blockHeight);
       }
     };
 
@@ -165,12 +167,12 @@ export const AIWidget = ({
       updateMaxHeight();
     });
 
-    resizeObserver.observe(questionCard);
+    resizeObserver.observe(testBlock);
     
-    // Также наблюдаем за блоком тестов для надежности
-    const testBlock = document.querySelector('[data-testid="test-content-block"]');
-    if (testBlock) {
-      resizeObserver.observe(testBlock as HTMLElement);
+    // Также наблюдаем за Question Card для надежности
+    const questionCard = document.querySelector('[data-testid="question-card"]');
+    if (questionCard) {
+      resizeObserver.observe(questionCard as HTMLElement);
     }
 
     return () => {
