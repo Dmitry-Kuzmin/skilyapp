@@ -310,11 +310,13 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       ref={widgetRef}
       className={cn(
         "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
-        isExpanded ? "h-full" : "h-auto"
+        isExpanded ? "" : "h-auto"
       )}
       style={{
         ...(isExpanded && maxHeight ? { 
           height: `${maxHeight}px`,
+          maxHeight: `${maxHeight}px`
+        } : maxHeight ? {
           maxHeight: `${maxHeight}px`
         } : {})
       }}

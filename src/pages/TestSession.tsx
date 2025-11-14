@@ -1702,7 +1702,7 @@ const TestSession = () => {
         <div className={cn(
         "mx-auto transition-all duration-300",
         !isTelegramApp && mode === "practice" 
-          ? "flex flex-col lg:grid lg:grid-cols-[1fr_400px] lg:items-stretch lg:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4" 
+          ? "flex flex-col lg:grid lg:grid-cols-[1fr_400px] lg:items-start lg:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4" 
           : mode === "exam" && !isTelegramApp
           ? "lg:max-w-[1100px] lg:px-4"
           : "container px-2 sm:px-4"
@@ -2357,10 +2357,10 @@ const TestSession = () => {
       {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
       {!isTelegramApp && mode === "practice" && (
         <div className={cn(
-          "hidden lg:flex lg:flex-col pt-0 md:pt-3 h-full",
+          "hidden lg:flex lg:flex-col pt-0 md:pt-3",
           !isTelegramApp && "pb-2 md:pb-3"
         )}>
-          <div className="sticky top-4 w-full h-full flex flex-col">
+          <div className="sticky top-4 w-full flex flex-col">
             <AIWidget
               explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)) : null}
               explanationRu={selectedOption ? currentQuestion.explanation_ru : null}
