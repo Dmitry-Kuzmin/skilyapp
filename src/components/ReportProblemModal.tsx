@@ -148,15 +148,13 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isSubmitting && !isSuccess) {
-        if (!isSubmitting && !isSuccess) {
-          setIsClosing(true);
-          setTimeout(() => {
-            setDescription("");
-            setReportType("other");
-            setIsClosing(false);
-            onOpenChange(false);
-          }, 300);
-        }
+        setIsClosing(true);
+        setTimeout(() => {
+          setDescription("");
+          setReportType("other");
+          setIsClosing(false);
+          onOpenChange(false);
+        }, 300);
       }
     };
 
