@@ -56,6 +56,11 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragCurrentY, setDragCurrentY] = useState(0);
+  const isTelegramApp = isTelegramMiniApp();
 
   useEffect(() => {
     const loadImage = async () => {
@@ -144,38 +149,101 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               maxHeight: compact ? '500px' : '288px',
             }}
           />
-          {/* Кнопка увеличения изображения */}
+          {/* Кнопка увеличения изображения - только иконка */}
           {compact && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setIsDialogOpen(true);
               }}
-              className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/85 backdrop-blur-md text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2 z-10 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95"
+              className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/85 backdrop-blur-md text-white p-2.5 rounded-full transition-all z-10 shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95"
+              aria-label="Увеличить изображение"
             >
               <Maximize2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Ampliar imagen</span>
-              <span className="sm:hidden">Ampliar</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Модальное окно с увеличенным изображением */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent 
-          hideCloseButton 
-          className="w-screen h-screen max-w-none max-h-none m-0 p-0 bg-black/95 border-none"
-        >
+      {isDialogOpen && (
+        <>
+          {/* Backdrop - закрытие по клику */}
           <div 
-            className="relative w-full h-full flex items-center justify-center"
+            className={`fixed inset-0 bg-black/95 z-[100] transition-opacity duration-300 ${
+              isClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              if (!isDragging && !isClosing) {
+                setIsClosing(true);
+                setTimeout(() => {
+                  setIsDialogOpen(false);
+                  setIsClosing(false);
+                  setIsDragging(false);
+                  setDragStartY(0);
+                  setDragCurrentY(0);
+                }, 300);
+              }
+            }}
+          />
+          
+          {/* Контейнер изображения с поддержкой свайпа */}
+          <div 
+            className={`fixed inset-0 z-[101] flex items-center justify-center transition-transform duration-300 ${
+              isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+            }`}
             style={{
               paddingTop: 'max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px))',
               paddingBottom: 'max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px))',
               paddingLeft: 'max(env(safe-area-inset-left), 16px)',
               paddingRight: 'max(env(safe-area-inset-right), 16px)',
+              transform: isDragging && dragCurrentY > dragStartY 
+                ? `translateY(${dragCurrentY - dragStartY}px)` 
+                : undefined
+            }}
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => {
+              if (isClosing) return;
+              const touch = e.touches[0];
+              if (touch) {
+                setIsDragging(true);
+                setDragStartY(touch.clientY);
+                setDragCurrentY(touch.clientY);
+              }
+            }}
+            onTouchMove={(e) => {
+              if (isDragging && !isClosing) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                if (touch) {
+                  const deltaY = touch.clientY - dragStartY;
+                  if (deltaY > 0) {
+                    setDragCurrentY(touch.clientY);
+                  }
+                }
+              }
+            }}
+            onTouchEnd={(e) => {
+              if (isDragging && !isClosing) {
+                const dragDistance = dragCurrentY - dragStartY;
+                if (dragDistance > 100) {
+                  setIsClosing(true);
+                  setTimeout(() => {
+                    setIsDialogOpen(false);
+                    setIsClosing(false);
+                    setIsDragging(false);
+                    setDragStartY(0);
+                    setDragCurrentY(0);
+                  }, 300);
+                } else {
+                  setIsDragging(false);
+                  setDragStartY(0);
+                  setDragCurrentY(0);
+                }
+              }
             }}
           >
+            {/* Изображение - сохраняет пропорции */}
             <img 
               src={imageSrc || ''} 
               alt="Вопрос - увеличенное изображение" 
@@ -184,22 +252,42 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
                 imageRendering: 'auto',
                 maxWidth: '100%',
                 maxHeight: '100%',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
               }}
+              draggable={false}
             />
+            
+            {/* Кнопка закрытия - внизу по центру для Telegram */}
             <button
-              onClick={() => setIsDialogOpen(false)}
-              className="absolute bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 transition-colors z-20 shadow-2xl"
-              style={{
-                top: 'calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 16px)',
-                right: 'calc(max(env(safe-area-inset-right), 16px) + 16px)',
+              onClick={() => {
+                setIsClosing(true);
+                setTimeout(() => {
+                  setIsDialogOpen(false);
+                  setIsClosing(false);
+                  setIsDragging(false);
+                  setDragStartY(0);
+                  setDragCurrentY(0);
+                }, 300);
+              }}
+              className={`absolute bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 transition-all z-30 shadow-2xl ${
+                isTelegramApp 
+                  ? 'bottom-4 left-1/2 -translate-x-1/2' 
+                  : 'top-4 right-4'
+              }`}
+              style={isTelegramApp ? {
+                bottom: `calc(max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)) + 16px)`,
+              } : {
+                top: `calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 16px)`,
+                right: `calc(max(env(safe-area-inset-right), var(--tg-content-safe-area-inset-right, 0px)) + 16px)`,
               }}
               aria-label="Закрыть"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </>
+      )}
     </>
   );
 };
