@@ -55,7 +55,9 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
+  const isTelegramApp = isTelegramMiniApp();
 
   useEffect(() => {
     const loadImage = async () => {
@@ -162,24 +164,40 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
 
       {/* Модальное окно с увеличенным изображением */}
       {isDialogOpen && (
-        <div className="fixed inset-0 z-[100]">
-          {/* Backdrop - полностью непрозрачный черный фон */}
+        <>
+          {/* Backdrop - полностью непрозрачный черный фон с анимацией */}
           <div 
-            className="fixed inset-0 bg-black transition-opacity duration-300 opacity-100"
-            onClick={() => setIsDialogOpen(false)}
+            className={`fixed inset-0 bg-black z-[100] transition-opacity duration-300 ${
+              isClosing ? 'opacity-0' : 'opacity-100'
+            }`}
+            onClick={() => {
+              setIsClosing(true);
+              setTimeout(() => {
+                setIsDialogOpen(false);
+                setIsClosing(false);
+              }, 300);
+            }}
           />
           
-          {/* Контейнер изображения */}
+          {/* Контейнер изображения с анимацией */}
           <div 
-            className="fixed inset-0 z-[101] flex items-center justify-center transition-all duration-300 opacity-100 scale-100"
+            className={`fixed inset-0 z-[101] flex items-center justify-center transition-all duration-300 ${
+              isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+            }`}
             onClick={(e) => e.stopPropagation()}
+            style={{
+              paddingTop: 'max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px))',
+              paddingBottom: 'max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px))',
+              paddingLeft: 'max(env(safe-area-inset-left), 16px)',
+              paddingRight: 'max(env(safe-area-inset-right), 16px)',
+            }}
           >
             {/* Изображение - сохраняет пропорции, современный стиль */}
             <div className="relative w-full h-full flex items-center justify-center">
               <img 
                 src={imageSrc || ''} 
                 alt="Вопрос - увеличенное изображение" 
-                className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-2xl"
+                className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-2xl select-none"
                 style={{
                   imageRendering: 'auto',
                   maxWidth: '100%',
@@ -187,20 +205,28 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
                   pointerEvents: 'none',
+                  WebkitTouchCallout: 'none',
                 }}
                 draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
               />
             </div>
             
             {/* Кнопка закрытия - современный дизайн */}
             <button
-              onClick={() => setIsDialogOpen(false)}
-              className={`absolute bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white rounded-full p-3 transition-all duration-200 z-30 shadow-2xl hover:scale-110 active:scale-95 backdrop-blur-sm ${
-                isTelegramMiniApp() 
+              onClick={() => {
+                setIsClosing(true);
+                setTimeout(() => {
+                  setIsDialogOpen(false);
+                  setIsClosing(false);
+                }, 300);
+              }}
+              className={`absolute bg-orange-500/90 hover:bg-orange-600 active:bg-orange-700 text-white rounded-full p-3 transition-all duration-200 z-30 shadow-2xl hover:scale-110 active:scale-95 backdrop-blur-md border-2 border-white/20 ${
+                isTelegramApp 
                   ? 'bottom-6 left-1/2 -translate-x-1/2' 
                   : 'top-6 right-6'
               }`}
-              style={isTelegramMiniApp() ? {
+              style={isTelegramApp ? {
                 bottom: `calc(max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)) + 24px)`,
               } : {
                 top: `calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 24px)`,
@@ -211,7 +237,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
-        </div>
+        </>
       )}
     </>
   );
