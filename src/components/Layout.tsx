@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -149,6 +149,17 @@ const Layout = ({ children }: LayoutProps) => {
             </nav>
 
             <div className="flex items-center gap-2">
+              {isAuthenticated && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/referrals')}
+                  className="relative"
+                  title="Реферальная программа"
+                >
+                  <Gift className="w-5 h-5" />
+                </Button>
+              )}
               <NotificationsPanel />
               {isAuthenticated ? (
                 <UserProfilePopover />
