@@ -25,129 +25,42 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border/50 bg-card/30 backdrop-blur-xl mt-auto">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Company Info */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Sdadim
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {t('footer.companyDescription')}
-            </p>
-            <div className="text-sm text-muted-foreground">
-              <p>{t('footer.address')}</p>
-              <p className="mt-1">{t('footer.contact')}</p>
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Logo/Brand */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg gradient-primary">
+              <span className="text-primary-foreground font-bold text-sm">S</span>
             </div>
+            <span className="text-sm font-semibold text-foreground">Sdadim</span>
           </div>
 
           {/* Legal Links */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">{t('footer.legal')}</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link 
-                  to="/terms" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('footer.terms')}
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/privacy" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('footer.privacy')}
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/subscription-terms" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('footer.subscriptionTerms')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">{t('footer.resources')}</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link 
-                  to="/" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('home')}
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/tests" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('tests')}
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/learning" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('learning')}
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to="/games" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('games')}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact & Support */}
-          <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">{t('footer.support')}</h4>
-            <ul className="space-y-2">
-              <li>
-                <a 
-                  href={`mailto:${t('footer.supportEmail')}`}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {t('footer.supportEmail')}
-                </a>
-              </li>
-              <li className="text-sm text-muted-foreground">
-                {t('footer.copyright')}
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="mt-8 pt-6 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground text-center md:text-left">
-            {t('footer.rightsReserved')}
-          </p>
-          <div className="flex gap-4 text-xs text-muted-foreground">
-            <Link to="/terms" className="hover:text-foreground transition-colors">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <Link 
+              to="/terms" 
+              className="hover:text-foreground transition-colors"
+            >
               {t('footer.terms')}
             </Link>
-            <span>•</span>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">
+            <Link 
+              to="/privacy" 
+              className="hover:text-foreground transition-colors"
+            >
               {t('footer.privacy')}
             </Link>
-            <span>•</span>
-            <Link to="/subscription-terms" className="hover:text-foreground transition-colors">
+            <Link 
+              to="/subscription-terms" 
+              className="hover:text-foreground transition-colors"
+            >
               {t('footer.subscriptionTerms')}
             </Link>
           </div>
+
+          {/* Copyright */}
+          <p className="text-sm text-muted-foreground">
+            ©2025 Sdadim
+          </p>
         </div>
       </div>
     </footer>
