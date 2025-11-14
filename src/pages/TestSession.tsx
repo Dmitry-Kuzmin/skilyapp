@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -54,10 +54,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(null);
-  const isTelegramApp = isTelegramMiniApp();
 
   useEffect(() => {
     const loadImage = async () => {
@@ -103,29 +100,6 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
     loadImage();
   }, [imageUrl]);
 
-  // Обработчик Escape для закрытия модального окна
-  useEffect(() => {
-    if (!isDialogOpen) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isClosing) {
-        setIsClosing(true);
-        setTimeout(() => {
-          setIsDialogOpen(false);
-          setIsClosing(false);
-        }, 300);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    // Предотвращаем скролл фона при открытом попапе
-    document.body.style.overflow = 'hidden';
-    
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
-    };
-  }, [isDialogOpen, isClosing]);
 
   // Показываем загрузку только если изображение еще не загрузилось
   if (isLoading) {
@@ -158,9 +132,8 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
           <img 
             src={imageSrc} 
             alt="Вопрос" 
-            className="w-full h-auto object-cover cursor-pointer transition-transform duration-300 hover:scale-[1.01] block"
+            className="w-full h-auto object-cover block"
             loading="lazy"
-            onClick={() => compact && setIsDialogOpen(true)}
             onError={() => {
               console.error(`[TestSession] Failed to load image: ${imageSrc}`);
               setHasError(true);
@@ -170,99 +143,8 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
               maxHeight: compact ? '500px' : '288px',
             }}
           />
-          {/* Кнопка увеличения изображения - только иконка */}
-          {compact && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDialogOpen(true);
-              }}
-              className="absolute bottom-3 right-3 bg-black/70 hover:bg-black/85 backdrop-blur-md text-white p-2.5 rounded-full transition-all z-10 shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95"
-              aria-label="Увеличить изображение"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
-
-      {/* Модальное окно с увеличенным изображением */}
-      {isDialogOpen && (
-        <>
-          {/* Backdrop - полностью непрозрачный черный фон с анимацией */}
-          <div 
-            className={`fixed inset-0 bg-black z-[100] transition-opacity duration-300 ${
-              isClosing ? 'opacity-0' : 'opacity-100'
-            }`}
-            onClick={() => {
-              setIsClosing(true);
-              setTimeout(() => {
-                setIsDialogOpen(false);
-                setIsClosing(false);
-              }, 300);
-            }}
-          />
-          
-          {/* Контейнер изображения с анимацией */}
-          <div 
-            className={`fixed inset-0 z-[101] flex items-center justify-center transition-all duration-300 ${
-              isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-            }`}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              paddingTop: 'max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px))',
-              paddingBottom: 'max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px))',
-              paddingLeft: 'max(env(safe-area-inset-left), 16px)',
-              paddingRight: 'max(env(safe-area-inset-right), 16px)',
-            }}
-          >
-            {/* Изображение - сохраняет пропорции, современный стиль */}
-            <div className="relative w-full h-full flex items-center justify-center">
-              <img 
-                src={imageSrc || ''} 
-                alt="Вопрос - увеличенное изображение" 
-                className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-2xl select-none"
-                style={{
-                  imageRendering: 'auto',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  userSelect: 'none',
-                  WebkitUserSelect: 'none',
-                  pointerEvents: 'none',
-                  WebkitTouchCallout: 'none',
-                }}
-                draggable={false}
-                onContextMenu={(e) => e.preventDefault()}
-              />
-            </div>
-            
-            {/* Кнопка закрытия - современный дизайн */}
-            <button
-              onClick={() => {
-                setIsClosing(true);
-                setTimeout(() => {
-                  setIsDialogOpen(false);
-                  setIsClosing(false);
-                }, 300);
-              }}
-              className={`absolute bg-orange-500/90 hover:bg-orange-600 active:bg-orange-700 text-white rounded-full p-3 transition-all duration-200 z-30 shadow-2xl hover:scale-110 active:scale-95 backdrop-blur-md border-2 border-white/20 ${
-                isTelegramApp 
-                  ? 'bottom-6 left-1/2 -translate-x-1/2' 
-                  : 'top-6 right-6'
-              }`}
-              style={isTelegramApp ? {
-                bottom: `calc(max(env(safe-area-inset-bottom), var(--tg-content-safe-area-inset-bottom, 0px)) + 24px)`,
-              } : {
-                top: `calc(max(env(safe-area-inset-top), var(--tg-content-safe-area-inset-top, 0px)) + 24px)`,
-                right: `calc(max(env(safe-area-inset-right), var(--tg-content-safe-area-inset-right, 0px)) + 24px)`,
-              }}
-              aria-label="Закрыть"
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-          </div>
-        </>
-      )}
     </>
   );
 };
