@@ -276,8 +276,8 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
         </Button>
       </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth">
+      {/* Messages Area - фиксированная высота с скроллом */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth min-h-0">
         {messages.length === 0 ? (
           <div className="space-y-5">
             {/* Welcome Message */}
