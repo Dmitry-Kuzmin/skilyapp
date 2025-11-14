@@ -277,31 +277,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                   <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
                     <LumiCharacter size="sm" mood="happy" className="scale-75" />
                   </div>
-                  <div className="flex-1 min-w-0 mt-1 relative">
-                    {/* Кнопка перевода для первого сообщения из БД */}
-                    {index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
-                      <button
-                        onClick={() => {
-                          if (onToggleTranslation) {
-                            onToggleTranslation();
-                            // Обновляем первое сообщение при переключении
-                            const newContent = showTranslation 
-                              ? (explanationEs || explanationEn || explanation || '')
-                              : (explanationRu || '');
-                            setMessages(prev => {
-                              const updated = [...prev];
-                              updated[0] = { ...updated[0], content: newContent };
-                              return updated;
-                            });
-                          }
-                        }}
-                        className="absolute top-0 right-0 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
-                        title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
-                      >
-                        <Languages className="w-3 h-3" />
-                        <span>{showTranslation ? "ES" : "RU"}</span>
-                      </button>
-                    )}
+                  <div className="flex-1 min-w-0 mt-1">
                     {message.content ? (
                       <div className="text-sm leading-relaxed text-foreground prose prose-sm max-w-none dark:prose-invert">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -313,6 +289,32 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
                         <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
                         <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-75" />
                         <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-150" />
+                      </div>
+                    )}
+                    {/* Кнопка перевода для первого сообщения из БД - внизу сообщения */}
+                    {message.content && index === 0 && onToggleTranslation && explanationRu && (explanationEs || explanationEn || explanation) && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <button
+                          onClick={() => {
+                            if (onToggleTranslation) {
+                              onToggleTranslation();
+                              // Обновляем первое сообщение при переключении
+                              const newContent = showTranslation 
+                                ? (explanationEs || explanationEn || explanation || '')
+                                : (explanationRu || '');
+                              setMessages(prev => {
+                                const updated = [...prev];
+                                updated[0] = { ...updated[0], content: newContent };
+                                return updated;
+                              });
+                            }
+                          }}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7"
+                          title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
+                        >
+                          <Languages className="w-3 h-3" />
+                          <span>{showTranslation ? "ES" : "RU"}</span>
+                        </button>
                       </div>
                     )}
                   </div>
