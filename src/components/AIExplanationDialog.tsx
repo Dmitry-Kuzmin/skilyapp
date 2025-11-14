@@ -87,6 +87,31 @@ export function AIExplanationDialog({
     }
   }, [open, explanation, explanationRu, showTranslation]);
 
+  // Обновляем первое сообщение при изменении showTranslation (если это explanation из БД)
+  useEffect(() => {
+    if (open && messages.length > 0 && messages[0]?.role === 'assistant') {
+      // Проверяем, что это explanation из БД (не AI ответ)
+      const isDbExplanation = explanationRu || explanationEs || explanationEn || explanation;
+      if (isDbExplanation) {
+        let explanationToShow = null;
+        
+        if (showTranslation && explanationRu) {
+          explanationToShow = explanationRu;
+        } else if (explanation) {
+          explanationToShow = explanation;
+        }
+        
+        if (explanationToShow && messages[0].content !== explanationToShow) {
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[0] = { ...updated[0], content: explanationToShow };
+            return updated;
+          });
+        }
+      }
+    }
+  }, [showTranslation, explanation, explanationRu, explanationEs, explanationEn, open]);
+
   // Reset при закрытии и управление скроллом body
   useEffect(() => {
     if (open) {
