@@ -66,16 +66,19 @@ const LearningMap = () => {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('rank, xp, streak')
+        .select('rank, xp, streak_days')
         .eq('id', profileId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[LearningMap] Error loading user profile:', error);
+        return;
+      }
 
       setUserProfile({
         rank: profile?.rank || undefined,
         xp: profile?.xp || 0,
-        streak: profile?.streak || 0,
+        streak: profile?.streak_days || 0,
       });
     } catch (error) {
       console.error('[LearningMap] Error loading user profile:', error);

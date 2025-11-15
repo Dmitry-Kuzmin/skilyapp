@@ -230,6 +230,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Duel Pass</DialogTitle>
+            <DialogDescription>Загрузка данных сезона...</DialogDescription>
+          </DialogHeader>
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
