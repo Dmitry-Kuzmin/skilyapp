@@ -34,8 +34,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       const { data: seasonData, error: seasonError } = await supabase
         .rpc("get_active_season");
 
-      if (seasonError || !seasonData || seasonData.length === 0) {
-        console.error("[DuelPassSeasonModal] No active season", seasonError);
+      if (seasonError) {
+        console.error("[DuelPassSeasonModal] Error loading season", seasonError);
+        // Если функция не найдена (404), значит миграция не применена
+        if (seasonError.code === 'PGRST116' || seasonError.message?.includes('404')) {
+          console.error("[DuelPassSeasonModal] ⚠️ Миграция не применена! Примените файл APPLY_SEASON_MIGRATION_NOW.sql в Supabase SQL Editor");
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (!seasonData || seasonData.length === 0) {
+        console.warn("[DuelPassSeasonModal] No active season found");
         setLoading(false);
         return;
       }
@@ -141,8 +151,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           <DialogHeader>
             <DialogTitle>Duel Pass</DialogTitle>
           </DialogHeader>
-          <div className="text-center py-12 text-muted-foreground">
-            Нет активного сезона
+          <div className="text-center py-12 space-y-4">
+            <p className="text-muted-foreground">Нет активного сезона</p>
+            <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+              <p className="font-semibold mb-2">⚠️ Миграция не применена</p>
+              <p className="text-xs mb-2">
+                Для работы системы сезонов нужно применить миграцию в Supabase:
+              </p>
+              <ol className="text-xs list-decimal list-inside space-y-1 text-left">
+                <li>Откройте SQL Editor в Supabase Dashboard</li>
+                <li>Скопируйте содержимое файла <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code></li>
+                <li>Выполните SQL запрос</li>
+              </ol>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -49,7 +49,17 @@ export function SeasonChallengesWidget() {
       const { data: seasonData, error: seasonError } = await supabase
         .rpc("get_active_season");
 
-      if (seasonError || !seasonData || seasonData.length === 0) {
+      if (seasonError) {
+        console.error("[SeasonChallengesWidget] Error loading season", seasonError);
+        // Если функция не найдена (404), значит миграция не применена
+        if (seasonError.code === 'PGRST116' || seasonError.message?.includes('404')) {
+          console.error("[SeasonChallengesWidget] ⚠️ Миграция не применена! Примените файл APPLY_SEASON_MIGRATION_NOW.sql в Supabase SQL Editor");
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (!seasonData || seasonData.length === 0) {
         setLoading(false);
         return;
       }
