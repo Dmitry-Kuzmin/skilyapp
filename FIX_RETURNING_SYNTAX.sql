@@ -1,9 +1,9 @@
 -- ============================================
--- ИСПРАВЛЕНИЕ: Функция get_or_create_season_progress
+-- ИСПРАВЛЕНИЕ: Неправильный синтаксис RETURNING в INSERT
 -- ============================================
--- Ошибка 400 может быть из-за неправильных типов параметров или прав доступа
+-- В RETURNING нельзя использовать имя таблицы, только колонки или алиас
+-- Ошибка 42703: undefined column
 
--- Пересоздать функцию с правильными типами
 DROP FUNCTION IF EXISTS public.get_or_create_season_progress(UUID, INTEGER);
 
 CREATE OR REPLACE FUNCTION public.get_or_create_season_progress(
@@ -35,16 +35,32 @@ DECLARE
 BEGIN
   -- Попытка найти существующий прогресс
   SELECT 
-    usp.id, usp.season_points, usp.level
+    usp.id, 
+    usp.season_points, 
+    usp.level
   INTO 
-    v_progress_id, v_season_points, v_level
+    v_progress_id, 
+    v_season_points, 
+    v_level
   FROM public.user_season_progress usp
-  WHERE usp.user_id = p_user_id AND usp.season_id = p_season_id;
+  WHERE usp.user_id = p_user_id 
+    AND usp.season_id = p_season_id;
 
   -- Если прогресс не найден, создаем новый
+  -- В RETURNING используем только имена колонок (без имени таблицы)
   IF v_progress_id IS NULL THEN
-    INSERT INTO public.user_season_progress (user_id, season_id, season_points, level)
-    VALUES (p_user_id, p_season_id, 0, 1)
+    INSERT INTO public.user_season_progress (
+      user_id, 
+      season_id, 
+      season_points, 
+      level
+    )
+    VALUES (
+      p_user_id, 
+      p_season_id, 
+      0, 
+      1
+    )
     RETURNING 
       id, 
       season_points, 
@@ -78,6 +94,6 @@ $$;
 -- Применить права доступа
 GRANT EXECUTE ON FUNCTION public.get_or_create_season_progress(UUID, INTEGER) TO anon, authenticated;
 
--- Проверить работу функции (замените UUID на реальный user_id)
--- SELECT * FROM public.get_or_create_season_progress('00000000-0000-0000-0000-000000000000'::UUID, 1);
+-- Проверить работу функции
+-- SELECT * FROM public.get_or_create_season_progress('ВАШ_UUID'::UUID, 1);
 

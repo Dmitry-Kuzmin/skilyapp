@@ -288,13 +288,14 @@ BEGIN
   WHERE usp.user_id = p_user_id AND usp.season_id = p_season_id;
 
   -- Если прогресс не найден, создаем новый
+  -- В RETURNING используем только имена колонок (без имени таблицы)
   IF v_progress_id IS NULL THEN
     INSERT INTO public.user_season_progress (user_id, season_id, season_points, level)
     VALUES (p_user_id, p_season_id, 0, 1)
     RETURNING 
-      user_season_progress.id, 
-      user_season_progress.season_points, 
-      user_season_progress.level 
+      id, 
+      season_points, 
+      level 
     INTO 
       v_progress_id, 
       v_season_points, 

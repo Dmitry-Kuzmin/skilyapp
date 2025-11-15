@@ -61,9 +61,9 @@ BEGIN
       1
     )
     RETURNING 
-      user_season_progress.id, 
-      user_season_progress.season_points, 
-      user_season_progress.level 
+      id, 
+      season_points, 
+      level 
     INTO 
       v_progress_id, 
       v_season_points, 
