@@ -357,7 +357,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Timeline дизайн для наград с группировкой */}
+        {/* Grid Layout для наград - компактный и современный */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -390,123 +390,82 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Timeline с наградами */}
-          <div className="relative max-h-96 overflow-y-auto pr-2">
-            {/* Вертикальная линия прогресса с индикатором текущего уровня */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted">
-              {/* Индикатор текущего уровня на линии */}
-              {currentLevelReward && (
-                <div 
-                  className="absolute left-1/2 top-0 w-3 h-3 -translate-x-1/2 rounded-full bg-primary border-2 border-background shadow-lg z-20"
-                  style={{ 
-                    top: `${Math.min((currentLevel / maxLevel) * 100, 95)}%` 
-                  }}
-                />
-              )}
-            </div>
-            
-            {/* Карточки наград в виде timeline */}
-            <div className="space-y-3">
-              {filteredRewards.map((reward) => {
-                const unlocked = currentLevel >= reward.level;
-                const isClaimed = claimedRewards.has(reward.level);
-                const isCurrent = currentLevel === reward.level;
-                const isNext = reward.level === currentLevel + 1;
-                
-                return (
-                  <div
-                    key={reward.level}
-                    className={cn(
-                      "relative flex items-start gap-4 pl-8 transition-all",
-                      isCurrent && "scale-[1.02]",
-                      isNext && "scale-[1.01]"
-                    )}
-                  >
-                    {/* Точка на timeline */}
-                    <div className={cn(
-                      "absolute left-3.5 w-2 h-2 rounded-full border-2 transition-all z-10",
-                      isClaimed 
-                        ? "bg-green-500 border-green-500 shadow-lg shadow-green-500/50" 
-                        : unlocked 
-                        ? "bg-primary border-primary shadow-lg shadow-primary/50" 
-                        : isNext
-                        ? "bg-primary/50 border-primary/50 ring-2 ring-primary/30"
-                        : "bg-muted border-muted"
-                    )} />
-                    
-                    {/* Компактная карточка */}
-                    <div className={cn(
-                      "flex-1 rounded-lg border p-3 transition-all",
-                      isCurrent && "ring-2 ring-primary shadow-lg bg-primary/5",
-                      isNext && "ring-1 ring-primary/30 bg-primary/5",
-                      isClaimed 
-                        ? "bg-green-500/5 border-green-500/30" 
-                        : unlocked 
-                        ? "bg-background border-border hover:border-primary/50 hover:shadow-sm" 
-                        : "bg-muted/30 border-muted opacity-50"
-                    )}>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-xs font-bold text-muted-foreground">
-                              Уровень {reward.level}
-                            </span>
-                            {isCurrent && (
-                              <Badge className="text-[10px] px-1.5 py-0 bg-primary">Текущий</Badge>
-                            )}
-                            {isNext && (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/50 text-primary">
-                                Следующий
-                              </Badge>
-                            )}
-                          </div>
-                          
-                          {/* Награды компактно */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {reward.free_reward && (
-                              <div className="flex items-center gap-1 text-xs">
-                                <Coins className="w-3 h-3 text-yellow-500" />
-                                <span className="font-semibold">{reward.free_reward.amount}</span>
-                              </div>
-                            )}
-                            {reward.premium_reward && (
-                              <div className={cn(
-                                "flex items-center gap-1 text-xs",
-                                isPremium ? "text-yellow-600" : "text-muted-foreground"
-                              )}>
-                                <Crown className="w-3 h-3" />
-                                <span className="font-semibold">{reward.premium_reward.amount}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Показываем SP до этого уровня для заблокированных */}
-                          {!unlocked && (
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              Нужно {reward.sp_required - currentSP} SP
-                            </p>
-                          )}
-                        </div>
-                        
-                        {/* Кнопка или статус */}
-                        {unlocked && !isClaimed && (
-                          <Button
-                            size="sm"
-                            onClick={() => claimReward(reward.level)}
-                            className="h-7 px-3 text-xs shrink-0"
-                          >
-                            Забрать
-                          </Button>
-                        )}
-                        {isClaimed && (
-                          <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                        )}
-                      </div>
+          {/* Grid: 2 колонки на мобильных, 3 на планшетах, 4 на десктопе */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-1">
+            {filteredRewards.map((reward) => {
+              const unlocked = currentLevel >= reward.level;
+              const isClaimed = claimedRewards.has(reward.level);
+              const isCurrent = currentLevel === reward.level;
+              const isNext = reward.level === currentLevel + 1;
+              
+              return (
+                <div
+                  key={reward.level}
+                  className={cn(
+                    "relative rounded-lg border p-2.5 transition-all cursor-pointer group",
+                    isCurrent && "ring-2 ring-primary shadow-lg scale-105 z-10",
+                    isNext && "ring-1 ring-primary/50 shadow-md",
+                    isClaimed 
+                      ? "bg-green-500/5 border-green-500/30" 
+                      : unlocked 
+                      ? "bg-background border-border hover:border-primary/50 hover:shadow-sm" 
+                      : "bg-muted/30 border-muted opacity-60"
+                  )}
+                >
+                  {/* Компактный заголовок */}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-muted-foreground">
+                      Lv.{reward.level}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {isCurrent && (
+                        <Badge className="text-[9px] px-1 py-0 bg-primary">Текущий</Badge>
+                      )}
+                      {isClaimed && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                      )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  
+                  {/* Компактные награды */}
+                  <div className="space-y-1">
+                    {reward.free_reward && (
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <Coins className="w-3 h-3 text-yellow-500 shrink-0" />
+                        <span className="font-semibold">{reward.free_reward.amount}</span>
+                      </div>
+                    )}
+                    {reward.premium_reward && (
+                      <div className={cn(
+                        "flex items-center gap-1 text-[10px]",
+                        isPremium ? "text-yellow-600" : "text-muted-foreground/60"
+                      )}>
+                        <Crown className="w-3 h-3 shrink-0" />
+                        <span className="font-semibold">{reward.premium_reward.amount}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* SP для заблокированных */}
+                  {!unlocked && (
+                    <p className="text-[9px] text-muted-foreground mt-1.5 line-clamp-1">
+                      +{reward.sp_required - currentSP} SP
+                    </p>
+                  )}
+                  
+                  {/* Кнопка действия */}
+                  {unlocked && !isClaimed && (
+                    <Button
+                      size="sm"
+                      onClick={() => claimReward(reward.level)}
+                      className="w-full mt-2 h-6 text-[10px] px-2"
+                    >
+                      Забрать
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
