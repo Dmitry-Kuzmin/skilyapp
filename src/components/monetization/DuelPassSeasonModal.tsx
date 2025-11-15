@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target } from "lucide-react";
+import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
@@ -19,13 +19,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
+  const [rewardFilter, setRewardFilter] = useState<'all' | 'available'>('all');
   const [activeSeason, setActiveSeason] = useState<any>(null);
   const [seasonProgress, setSeasonProgress] = useState<any>(null);
   const [rewards, setRewards] = useState<any[]>([]);
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set());
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
-  const [rewardFilter, setRewardFilter] = useState<'all' | 'available' | 'premium'>('all');
 
   useEffect(() => {
     if (open && profileId) {
@@ -211,23 +211,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const totalSPNeeded = rewards[rewards.length - 1]?.sp_required || 3000;
   const progressPercent = Math.min((currentSP / totalSPNeeded) * 100, 100);
 
-  // Находим текущий уровень и следующий
+  // Находим текущий уровень
   const currentLevelReward = rewards.find((r) => r.level === currentLevel);
   const nextLevelReward = rewards.find((r) => r.level === currentLevel + 1);
-  const prevLevelReward = rewards.find((r) => r.level === currentLevel - 1);
-  
-  // SP до следующего уровня (от текущего SP до SP следующего уровня)
-  const currentLevelSP = currentLevelReward?.sp_required || 0;
-  const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
   const spToNextLevel = nextLevelReward
-    ? Math.max(0, nextLevelSP - currentSP)
-    : 0;
-  
-  // Прогресс до следующего уровня (от текущего уровня до следующего)
-  const spForNextLevel = nextLevelSP - currentLevelSP;
-  const spProgressInLevel = currentSP - currentLevelSP;
-  const progressToNextLevel = spForNextLevel > 0 
-    ? Math.min((spProgressInLevel / spForNextLevel) * 100, 100)
+    ? nextLevelReward.sp_required - currentSP
     : 0;
   
   // Находим ближайшую доступную награду (следующий уровень, который еще не достигнут)
@@ -236,16 +224,292 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   // Фильтрация наград
   const filteredRewards = rewards.filter((reward) => {
     const unlocked = currentLevel >= reward.level;
-    const hasPremium = reward.premium_reward !== null;
+    const isClaimed = claimedRewards.has(reward.level);
     
     if (rewardFilter === 'available') {
-      return unlocked && !claimedRewards.has(reward.level);
-    }
-    if (rewardFilter === 'premium') {
-      return hasPremium;
+      return unlocked && !isClaimed;
     }
     return true;
   });
+
+  // Общий контент модалки
+  const ModalContent = () => (
+    <>
+      {/* Упрощенный Header */}
+      {isMobile ? (
+        <SheetHeader className="px-4 pt-2 pb-4 border-b">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <SheetTitle className="text-xl font-bold">Duel Pass</SheetTitle>
+              <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
+                <span>{activeSeason.name_ru}</span>
+                <span>·</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {activeSeason.days_remaining} дней
+                </span>
+              </SheetDescription>
+            </div>
+          </div>
+        </SheetHeader>
+      ) : (
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="text-xl font-bold">Duel Pass</DialogTitle>
+              <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
+                <span>{activeSeason.name_ru}</span>
+                <span>·</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {activeSeason.days_remaining} дней
+                </span>
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+      )}
+
+      <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
+        {/* Индикатор ближайшей награды - минималистичный */}
+        {nearestReward && currentLevel < maxLevel && (
+          <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Следующая награда</p>
+                <p className="text-xs text-muted-foreground">
+                  Уровень {nearestReward.level}: {nearestReward.free_reward?.type === "coins" 
+                    ? `${nearestReward.free_reward.amount} монет`
+                    : nearestReward.free_reward?.type || "Награда"}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-bold text-primary">{spToNextLevel}</p>
+              <p className="text-xs text-muted-foreground">SP осталось</p>
+            </div>
+          </div>
+        )}
+
+        {/* Минималистичный Progress */}
+        <div className="space-y-3">
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{currentLevel}</span>
+                <span className="text-sm text-muted-foreground">/ {maxLevel}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {spToNextLevel > 0 && currentLevel < maxLevel 
+                  ? `${spToNextLevel} SP до следующего уровня` 
+                  : currentLevel >= maxLevel 
+                  ? 'Максимальный уровень достигнут' 
+                  : 'Загрузка...'}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-semibold">{currentSP}</p>
+              <p className="text-xs text-muted-foreground">Season Points</p>
+            </div>
+          </div>
+          
+          {/* Современный прогресс-бар */}
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+            {/* Тонкие маркеры уровней */}
+            {rewards.slice(0, 10).map((r) => {
+              const position = (r.sp_required / totalSPNeeded) * 100;
+              const isReached = currentSP >= r.sp_required;
+              return (
+                <div
+                  key={r.level}
+                  className={cn(
+                    "absolute top-0 w-px h-2 transition-opacity",
+                    isReached ? "bg-white/50" : "bg-muted-foreground/20"
+                  )}
+                  style={{ left: `${Math.min(position, 100)}%` }}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Компактные карточки SP - горизонтальный layout */}
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 backdrop-blur-sm border border-border/50">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
+            <BookOpen className="w-4 h-4 text-blue-500" />
+            <span className="text-xs font-semibold">+25</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-purple-500/50 transition-colors">
+            <Trophy className="w-4 h-4 text-purple-500" />
+            <span className="text-xs font-semibold">+30</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-green-500/50 transition-colors">
+            <Calendar className="w-4 h-4 text-green-500" />
+            <span className="text-xs font-semibold">+15</span>
+          </div>
+          {isPremium ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
+              <Crown className="w-4 h-4 text-yellow-600" />
+              <span className="text-xs font-semibold">+20%</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                onOpenChange(false);
+                setShowPaywall(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-yellow-500/30 hover:bg-yellow-500/10 transition-colors"
+            >
+              <Crown className="w-4 h-4 text-yellow-600" />
+              <span className="text-xs font-semibold">+20%</span>
+            </button>
+          )}
+        </div>
+
+        {/* Timeline дизайн для наград */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Награды по уровням
+            </h4>
+            {/* Компактные фильтры */}
+            <div className="flex gap-1">
+              <button
+                onClick={() => setRewardFilter('all')}
+                className={cn(
+                  "px-2 py-1 text-xs rounded-full transition-colors",
+                  rewardFilter === 'all'
+                    ? "bg-primary text-white"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+              >
+                Все
+              </button>
+              <button
+                onClick={() => setRewardFilter('available')}
+                className={cn(
+                  "px-2 py-1 text-xs rounded-full transition-colors",
+                  rewardFilter === 'available'
+                    ? "bg-primary text-white"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+              >
+                Доступные
+              </button>
+            </div>
+          </div>
+          
+          {/* Timeline с наградами */}
+          <div className="relative max-h-96 overflow-y-auto pr-2">
+            {/* Вертикальная линия прогресса */}
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted" />
+            
+            {/* Карточки наград в виде timeline */}
+            <div className="space-y-3">
+              {filteredRewards.map((reward) => {
+                const unlocked = currentLevel >= reward.level;
+                const isClaimed = claimedRewards.has(reward.level);
+                const isCurrent = currentLevel === reward.level;
+                
+                return (
+                  <div
+                    key={reward.level}
+                    className={cn(
+                      "relative flex items-start gap-4 pl-8 transition-all",
+                      isCurrent && "scale-[1.02]"
+                    )}
+                  >
+                    {/* Точка на timeline */}
+                    <div className={cn(
+                      "absolute left-3.5 w-2 h-2 rounded-full border-2 transition-all z-10",
+                      isClaimed 
+                        ? "bg-green-500 border-green-500 shadow-lg shadow-green-500/50" 
+                        : unlocked 
+                        ? "bg-primary border-primary shadow-lg shadow-primary/50" 
+                        : "bg-muted border-muted"
+                    )} />
+                    
+                    {/* Компактная карточка */}
+                    <div className={cn(
+                      "flex-1 rounded-lg border p-3 transition-all",
+                      isCurrent && "ring-2 ring-primary shadow-lg",
+                      isClaimed 
+                        ? "bg-green-500/5 border-green-500/30" 
+                        : unlocked 
+                        ? "bg-background border-border hover:border-primary/50 hover:shadow-sm" 
+                        : "bg-muted/30 border-muted opacity-50"
+                    )}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-xs font-bold text-muted-foreground">
+                              Уровень {reward.level}
+                            </span>
+                            {isCurrent && (
+                              <Badge className="text-[10px] px-1.5 py-0">Текущий</Badge>
+                            )}
+                          </div>
+                          
+                          {/* Награды компактно */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {reward.free_reward && (
+                              <div className="flex items-center gap-1 text-xs">
+                                <Coins className="w-3 h-3 text-yellow-500" />
+                                <span className="font-semibold">{reward.free_reward.amount}</span>
+                              </div>
+                            )}
+                            {reward.premium_reward && (
+                              <div className={cn(
+                                "flex items-center gap-1 text-xs",
+                                isPremium ? "text-yellow-600" : "text-muted-foreground"
+                              )}>
+                                <Crown className="w-3 h-3" />
+                                <span className="font-semibold">{reward.premium_reward.amount}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Кнопка или статус */}
+                        {unlocked && !isClaimed && (
+                          <Button
+                            size="sm"
+                            onClick={() => claimReward(reward.level)}
+                            className="h-7 px-3 text-xs shrink-0"
+                          >
+                            Забрать
+                          </Button>
+                        )}
+                        {isClaimed && (
+                          <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Season Challenges */}
+        <div className="border-t pt-4">
+          <SeasonChallengesWidget />
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -323,556 +587,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       {/* Модалка для десктопа, Sheet для мобилки */}
       {isMobile ? (
         <Sheet open={open} onOpenChange={onOpenChange}>
-          <SheetContent side="bottom" className="h-[90vh] overflow-y-auto p-0">
-            {/* Упрощенный Header */}
-            <SheetHeader className="px-4 pt-4 pb-3 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-                  <Trophy className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <SheetTitle className="text-xl font-bold">Duel Pass</SheetTitle>
-                  <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
-                    <span>{activeSeason.name_ru}</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {activeSeason.days_remaining} дней
-                    </span>
-                  </SheetDescription>
-                </div>
-              </div>
-            </SheetHeader>
-
-            <div className="px-4 py-4 space-y-6">
-            {/* Улучшенный индикатор SP до следующего уровня */}
-            {nearestReward && currentLevel < maxLevel && (
-              <div className="relative p-4 rounded-xl bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/10 border border-primary/20">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">До следующего уровня</p>
-                    <p className="text-2xl font-bold text-primary">{spToNextLevel}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">Season Points</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground mb-1">Текущий уровень</p>
-                    <p className="text-3xl font-bold">{currentLevel}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">из {maxLevel}</p>
-                  </div>
-                </div>
-                
-                {/* Визуальный прогресс до следующего уровня */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Уровень {currentLevel}</span>
-                    <span className="font-medium">{spProgressInLevel} / {spForNextLevel} SP</span>
-                    <span className="text-muted-foreground">Уровень {currentLevel + 1}</span>
-                  </div>
-                  <Progress 
-                    value={progressToNextLevel} 
-                    className="h-2" 
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Минималистичный Progress - общий прогресс сезона */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Общий прогресс сезона</span>
-                <span>{currentSP} / {totalSPNeeded} SP</span>
-              </div>
-              <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
-                  style={{ width: `${progressPercent}%` }}
-                />
-                {/* Тонкие маркеры уровней */}
-                {rewards.slice(0, 10).map((r) => {
-                  const position = (r.sp_required / totalSPNeeded) * 100;
-                  const isReached = currentSP >= r.sp_required;
-                  return (
-                    <div
-                      key={r.level}
-                      className={cn(
-                        "absolute top-0 w-px h-2 transition-opacity",
-                        isReached ? "bg-white/50" : "bg-muted-foreground/20"
-                      )}
-                      style={{ left: `${Math.min(position, 100)}%` }}
-                    />
-                  );
-                })}
-              </div>
+          <SheetContent 
+            side="bottom" 
+            className="h-[90vh] overflow-y-auto p-0"
+          >
+            {/* Handle для свайпа */}
+            <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10">
+              <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
-
-            {/* Компактные карточки SP - горизонтальный layout */}
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 backdrop-blur-sm border border-border/50">
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
-                <BookOpen className="w-4 h-4 text-blue-500" />
-                <span className="text-xs font-semibold">+25</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-purple-500/50 transition-colors">
-                <Trophy className="w-4 h-4 text-purple-500" />
-                <span className="text-xs font-semibold">+30</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-green-500/50 transition-colors">
-                <Calendar className="w-4 h-4 text-green-500" />
-                <span className="text-xs font-semibold">+15</span>
-              </div>
-              {isPremium ? (
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
-                  <Crown className="w-4 h-4 text-yellow-600" />
-                  <span className="text-xs font-semibold">+20%</span>
-                </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    onOpenChange(false);
-                    setShowPaywall(true);
-                  }}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-yellow-500/30 hover:bg-yellow-500/10 transition-colors"
-                >
-                  <Crown className="w-4 h-4 text-yellow-600" />
-                  <span className="text-xs font-semibold">+20%</span>
-                </button>
-              )}
-            </div>
-
-            {/* Награды - горизонтальный скролл с табами */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Награды по уровням
-                </h4>
-                {/* Табы для фильтрации */}
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setRewardFilter('all')}
-                    className={cn(
-                      "px-2 py-1 text-xs rounded transition-colors",
-                      rewardFilter === 'all'
-                        ? "bg-primary text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    )}
-                  >
-                    Все
-                  </button>
-                  <button
-                    onClick={() => setRewardFilter('available')}
-                    className={cn(
-                      "px-2 py-1 text-xs rounded transition-colors",
-                      rewardFilter === 'available'
-                        ? "bg-primary text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    )}
-                  >
-                    Доступные
-                  </button>
-                  <button
-                    onClick={() => setRewardFilter('premium')}
-                    className={cn(
-                      "px-2 py-1 text-xs rounded transition-colors",
-                      rewardFilter === 'premium'
-                        ? "bg-primary text-white"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    )}
-                  >
-                    Premium
-                  </button>
-                </div>
-              </div>
-              
-              {/* Горизонтальный скролл для наград */}
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6">
-                {filteredRewards.map((reward) => {
-                  const unlocked = currentLevel >= reward.level;
-                  const isClaimed = claimedRewards.has(reward.level);
-
-                  return (
-                    <div
-                      key={reward.level}
-                      className={cn(
-                        "group relative p-3 rounded-lg border transition-all min-w-[200px] flex-shrink-0",
-                        isClaimed
-                          ? "bg-green-500/5 border-green-500/30"
-                          : unlocked
-                          ? "bg-background border-border hover:border-primary/50 hover:shadow-sm"
-                          : "bg-muted/30 border-muted opacity-50"
-                      )}
-                    >
-                      {/* Компактный индикатор уровня */}
-                      <div className={cn(
-                        "absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm",
-                        isClaimed 
-                          ? "bg-green-500 text-white" 
-                          : unlocked 
-                          ? "bg-primary text-white" 
-                          : "bg-muted-foreground/30 text-muted-foreground"
-                      )}>
-                        {reward.level}
-                      </div>
-                      
-                      {/* Статус - компактный */}
-                      {isClaimed && (
-                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                          <X className="w-3 h-3 text-white rotate-45" />
-                        </div>
-                      )}
-                      
-                      <div className="flex items-start justify-between gap-2 mt-1">
-                        <div className="flex-1 min-w-0 space-y-1.5">
-                          {/* Free reward - компактно */}
-                          {reward.free_reward && (
-                            <div className="flex items-center gap-1.5 text-xs">
-                              {reward.free_reward.type === "coins" ? (
-                                <>
-                                  <Coins className="w-3.5 h-3.5 text-yellow-500" />
-                                  <span className="font-semibold">{reward.free_reward.amount}</span>
-                                  <span className="text-muted-foreground">монет</span>
-                                </>
-                              ) : (
-                                <span className="font-semibold">{reward.free_reward.type}</span>
-                              )}
-                            </div>
-                          )}
-                          
-                          {/* Premium награда - только если есть */}
-                          {reward.premium_reward && (
-                            <div className={cn(
-                              "flex items-center gap-1.5 text-xs px-2 py-1 rounded",
-                              isPremium 
-                                ? "bg-yellow-500/10 text-yellow-600" 
-                                : "text-muted-foreground"
-                            )}>
-                              <Crown className="w-3 h-3" />
-                              {reward.premium_reward.type === "coins" ? (
-                                <>
-                                  <span className="font-semibold">{reward.premium_reward.amount}</span>
-                                  <span className="text-muted-foreground">монет</span>
-                                </>
-                              ) : (
-                                <span className="font-semibold">{reward.premium_reward.type}</span>
-                              )}
-                              {!isPremium && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onOpenChange(false);
-                                    setShowPaywall(true);
-                                  }}
-                                  className="ml-auto text-[10px] text-yellow-600 hover:underline"
-                                >
-                                  Premium
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Кнопка - компактная */}
-                        {unlocked && !isClaimed && (
-                          <Button
-                            size="sm"
-                            onClick={() => claimReward(reward.level)}
-                            className="h-7 px-3 text-xs shrink-0"
-                          >
-                            Забрать
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {filteredRewards.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  Нет наград для отображения
-                </div>
-              )}
-            </div>
-
-            {/* Season Challenges */}
-            <div className="border-t pt-4">
-              <SeasonChallengesWidget />
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+            <ModalContent />
+          </SheetContent>
+        </Sheet>
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            {/* Упрощенный Header */}
-            <DialogHeader className="px-6 pt-6 pb-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-                  <Trophy className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <DialogTitle className="text-xl font-bold">Duel Pass</DialogTitle>
-                  <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
-                    <span>{activeSeason.name_ru}</span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {activeSeason.days_remaining} дней
-                    </span>
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
-
-            <div className="px-6 py-6 space-y-6">
-              {/* Улучшенный индикатор SP до следующего уровня */}
-              {nearestReward && currentLevel < maxLevel && (
-                <div className="relative p-4 rounded-xl bg-gradient-to-br from-primary/10 via-purple-500/10 to-primary/10 border border-primary/20">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">До следующего уровня</p>
-                      <p className="text-2xl font-bold text-primary">{spToNextLevel}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Season Points</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground mb-1">Текущий уровень</p>
-                      <p className="text-3xl font-bold">{currentLevel}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">из {maxLevel}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Визуальный прогресс до следующего уровня */}
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Уровень {currentLevel}</span>
-                      <span className="font-medium">{spProgressInLevel} / {spForNextLevel} SP</span>
-                      <span className="text-muted-foreground">Уровень {currentLevel + 1}</span>
-                    </div>
-                    <Progress 
-                      value={progressToNextLevel} 
-                      className="h-2" 
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Минималистичный Progress - общий прогресс сезона */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Общий прогресс сезона</span>
-                  <span>{currentSP} / {totalSPNeeded} SP</span>
-                </div>
-                <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                  {/* Тонкие маркеры уровней */}
-                  {rewards.slice(0, 10).map((r) => {
-                    const position = (r.sp_required / totalSPNeeded) * 100;
-                    const isReached = currentSP >= r.sp_required;
-                    return (
-                      <div
-                        key={r.level}
-                        className={cn(
-                          "absolute top-0 w-px h-2 transition-opacity",
-                          isReached ? "bg-white/50" : "bg-muted-foreground/20"
-                        )}
-                        style={{ left: `${Math.min(position, 100)}%` }}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Компактные карточки SP - горизонтальный layout */}
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 backdrop-blur-sm border border-border/50">
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
-                  <BookOpen className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs font-semibold">+25</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-purple-500/50 transition-colors">
-                  <Trophy className="w-4 h-4 text-purple-500" />
-                  <span className="text-xs font-semibold">+30</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-green-500/50 transition-colors">
-                  <Calendar className="w-4 h-4 text-green-500" />
-                  <span className="text-xs font-semibold">+15</span>
-                </div>
-                {isPremium ? (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
-                    <Crown className="w-4 h-4 text-yellow-600" />
-                    <span className="text-xs font-semibold">+20%</span>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => {
-                      onOpenChange(false);
-                      setShowPaywall(true);
-                    }}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-yellow-500/30 hover:bg-yellow-500/10 transition-colors"
-                  >
-                    <Crown className="w-4 h-4 text-yellow-600" />
-                    <span className="text-xs font-semibold">+20%</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Награды - горизонтальный скролл с табами */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                    Награды по уровням
-                  </h4>
-                  {/* Табы для фильтрации */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setRewardFilter('all')}
-                      className={cn(
-                        "px-2 py-1 text-xs rounded transition-colors",
-                        rewardFilter === 'all'
-                          ? "bg-primary text-white"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      )}
-                    >
-                      Все
-                    </button>
-                    <button
-                      onClick={() => setRewardFilter('available')}
-                      className={cn(
-                        "px-2 py-1 text-xs rounded transition-colors",
-                        rewardFilter === 'available'
-                          ? "bg-primary text-white"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      )}
-                    >
-                      Доступные
-                    </button>
-                    <button
-                      onClick={() => setRewardFilter('premium')}
-                      className={cn(
-                        "px-2 py-1 text-xs rounded transition-colors",
-                        rewardFilter === 'premium'
-                          ? "bg-primary text-white"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"
-                      )}
-                    >
-                      Premium
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Горизонтальный скролл для наград */}
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-6 px-6">
-                  {filteredRewards.map((reward) => {
-                    const unlocked = currentLevel >= reward.level;
-                    const isClaimed = claimedRewards.has(reward.level);
-
-                    return (
-                      <div
-                        key={reward.level}
-                        className={cn(
-                          "group relative p-3 rounded-lg border transition-all min-w-[200px] flex-shrink-0",
-                          isClaimed
-                            ? "bg-green-500/5 border-green-500/30"
-                            : unlocked
-                            ? "bg-background border-border hover:border-primary/50 hover:shadow-sm"
-                            : "bg-muted/30 border-muted opacity-50"
-                        )}
-                      >
-                        {/* Компактный индикатор уровня */}
-                        <div className={cn(
-                          "absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm",
-                          isClaimed 
-                            ? "bg-green-500 text-white" 
-                            : unlocked 
-                            ? "bg-primary text-white" 
-                            : "bg-muted-foreground/30 text-muted-foreground"
-                        )}>
-                          {reward.level}
-                        </div>
-                        
-                        {/* Статус - компактный */}
-                        {isClaimed && (
-                          <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                            <X className="w-3 h-3 text-white rotate-45" />
-                          </div>
-                        )}
-                        
-                        <div className="flex items-start justify-between gap-2 mt-1">
-                          <div className="flex-1 min-w-0 space-y-1.5">
-                            {/* Free reward - компактно */}
-                            {reward.free_reward && (
-                              <div className="flex items-center gap-1.5 text-xs">
-                                {reward.free_reward.type === "coins" ? (
-                                  <>
-                                    <Coins className="w-3.5 h-3.5 text-yellow-500" />
-                                    <span className="font-semibold">{reward.free_reward.amount}</span>
-                                    <span className="text-muted-foreground">монет</span>
-                                  </>
-                                ) : (
-                                  <span className="font-semibold">{reward.free_reward.type}</span>
-                                )}
-                              </div>
-                            )}
-                            
-                            {/* Premium награда - только если есть */}
-                            {reward.premium_reward && (
-                              <div className={cn(
-                                "flex items-center gap-1.5 text-xs px-2 py-1 rounded",
-                                isPremium 
-                                  ? "bg-yellow-500/10 text-yellow-600" 
-                                  : "text-muted-foreground"
-                              )}>
-                                <Crown className="w-3 h-3" />
-                                {reward.premium_reward.type === "coins" ? (
-                                  <>
-                                    <span className="font-semibold">{reward.premium_reward.amount}</span>
-                                    <span className="text-muted-foreground">монет</span>
-                                  </>
-                                ) : (
-                                  <span className="font-semibold">{reward.premium_reward.type}</span>
-                                )}
-                                {!isPremium && (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      onOpenChange(false);
-                                      setShowPaywall(true);
-                                    }}
-                                    className="ml-auto text-[10px] text-yellow-600 hover:underline"
-                                  >
-                                    Premium
-                                  </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Кнопка - компактная */}
-                          {unlocked && !isClaimed && (
-                            <Button
-                              size="sm"
-                              onClick={() => claimReward(reward.level)}
-                              className="h-7 px-3 text-xs shrink-0"
-                            >
-                              Забрать
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {filteredRewards.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground text-sm">
-                    Нет наград для отображения
-                  </div>
-                )}
-              </div>
-
-              {/* Season Challenges */}
-              <div className="border-t pt-4">
-                <SeasonChallengesWidget />
-              </div>
-            </div>
+            <ModalContent />
           </DialogContent>
         </Dialog>
       )}
