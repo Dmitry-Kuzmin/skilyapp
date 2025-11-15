@@ -33,37 +33,32 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   useEffect(() => {
     if (results && profileId) {
-      const rewardType = results.isWinner ? 'win_duel' : 'lose_duel';
+      const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
+      const metadata = {
+        duel_id: duelId,
+        is_winner: results.isWinner,
+        is_draw: results.isDraw,
+        bet_amount: results.betAmount || 0,
+        has_bet: (results.betAmount || 0) > 0
+      };
       const applyRewards = async () => {
-        await supabase.functions.invoke('coins-earn', {
-          body: { user_id: profileId, reward_type: rewardType },
-        });
-        // Начисляем Season Points за дуэль
-        const { data: spData } = await supabase.functions.invoke('season-sp', {
+        await supabase.functions.invoke('season-sp', {
           body: { 
             user_id: profileId, 
-            source_type: rewardType,
-            metadata: { 
-              is_winner: results.isWinner,
-              is_draw: results.isDraw
-            }
+            source_type: spSource,
+            metadata
           },
         });
         
-        // Также начисляем XP для обратной совместимости
         const { data } = await supabase.functions.invoke('duel-pass-xp', {
-          body: { user_id: profileId, source_type: rewardType },
+          body: { user_id: profileId, source_type: spSource, metadata },
         });
         
-        // Отслеживаем прогресс челленджей
         await supabase.functions.invoke('season-challenges-track', {
           body: {
             user_id: profileId,
-            source_type: rewardType,
-            metadata: {
-              is_winner: results.isWinner,
-              is_draw: results.isDraw
-            }
+            source_type: spSource,
+            metadata
           },
         });
         if (data?.level_up) {
@@ -78,7 +73,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       };
       applyRewards();
     }
-  }, [results, profileId]);
+  }, [results, profileId, duelId]);
 
   useEffect(() => {
     if (results?.isWinner) {

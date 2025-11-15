@@ -43,6 +43,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import SubscriptionTerms from "./pages/SubscriptionTerms";
 import HelpCenter from "./pages/HelpCenter";
+import DuelLeaderboard from "./pages/DuelLeaderboard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 
@@ -158,6 +159,7 @@ const App = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/subscription-terms" element={<SubscriptionTerms />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

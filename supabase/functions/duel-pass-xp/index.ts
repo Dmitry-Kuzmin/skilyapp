@@ -9,9 +9,15 @@ const corsHeaders = {
 const XP_RULES: Record<string, number> = {
   test: 20,
   duel_win: 30,
-  duel_lose: 10,
+  duel_lose: 15,
+  duel_draw: 25,
   daily_login: 15,
 };
+
+const BASE_WIN_NO_BET_XP = 30;
+const BET_WIN_XP = 40;
+const DRAW_XP = 25;
+const LOSE_XP = 15;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -23,7 +29,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { user_id, source_type } = await req.json();
+    const { user_id, source_type, metadata } = await req.json();
 
     if (!user_id || !source_type) {
       return new Response(
@@ -32,7 +38,33 @@ serve(async (req) => {
       );
     }
 
-    const xpGain = XP_RULES[source_type];
+    let xpGain = XP_RULES[source_type];
+    const isDuelWin = source_type === "duel_win";
+    const isDuelLose = source_type === "duel_lose";
+    const isDuelDraw = source_type === "duel_draw";
+
+    if (isDuelWin || isDuelLose || isDuelDraw) {
+      const duelId = metadata?.duel_id;
+      let betAmount = 0;
+      if (duelId) {
+        const { data: duelData } = await supabase
+          .from("duels")
+          .select("bet_amount")
+          .eq("id", duelId)
+          .maybeSingle();
+        betAmount = duelData?.bet_amount || 0;
+      }
+      const hasBet = betAmount > 0;
+
+      if (isDuelDraw) {
+        xpGain = DRAW_XP;
+      } else if (isDuelWin) {
+        xpGain = hasBet ? BET_WIN_XP : BASE_WIN_NO_BET_XP;
+      } else {
+        xpGain = LOSE_XP;
+      }
+    }
+
     if (!xpGain) {
       return new Response(
         JSON.stringify({ error: "Unsupported source_type" }),

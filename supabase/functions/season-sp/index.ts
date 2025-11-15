@@ -12,9 +12,28 @@ const SP_RULES: Record<string, number> = {
   test_perfect: 35, // Тест без ошибок
   duel_win: 30,
   duel_lose: 10,
+  duel_draw: 15,
   daily_login: 15,
   streak_bonus: 5, // Бонус за каждый день streak
   challenge_reward: 0, // Награда будет передана в metadata
+};
+
+const BASE_WIN_NO_BET_SP = 30;
+const BASE_LOSE_SP = 5;
+const DRAW_SP = 15;
+
+const riskMultiplierForBet = (betAmount: number) => {
+  if (!betAmount || betAmount <= 0) return 1;
+  if (betAmount >= 600) return 4;
+  if (betAmount >= 450) return 3;
+  if (betAmount >= 300) return 2.25;
+  if (betAmount >= 200) return 1.75;
+  if (betAmount >= 100) return 1.25;
+  return 1.1;
+};
+
+const calculateWinSP = (betAmount: number) => {
+  return Math.round(20 * riskMultiplierForBet(betAmount));
 };
 
 serve(async (req) => {
@@ -37,6 +56,38 @@ serve(async (req) => {
     }
 
     let spGain = SP_RULES[source_type];
+    const isDuelWin = source_type === 'duel_win';
+    const isDuelLose = source_type === 'duel_lose';
+    const isDuelDraw = source_type === 'duel_draw';
+    
+    if (isDuelWin || isDuelLose || isDuelDraw) {
+      const duelId = metadata?.duel_id;
+      if (!duelId) {
+        console.warn("[season-sp] duel_id missing in metadata, falling back to base rewards");
+      }
+      
+      let betAmount = 0;
+      if (duelId) {
+        const { data: duelData, error: duelError } = await supabase
+          .from("duels")
+          .select("id, bet_amount")
+          .eq("id", duelId)
+          .maybeSingle();
+        
+        if (duelData && !duelError) {
+          betAmount = duelData.bet_amount || 0;
+        }
+      }
+      const hasBet = betAmount > 0;
+      
+      if (isDuelDraw) {
+        spGain = DRAW_SP;
+      } else if (isDuelWin) {
+        spGain = hasBet ? calculateWinSP(betAmount) : BASE_WIN_NO_BET_SP;
+      } else {
+        spGain = BASE_LOSE_SP;
+      }
+    }
     
     // Для challenge_reward берем SP из metadata
     if (source_type === 'challenge_reward' && metadata?.sp_earned) {

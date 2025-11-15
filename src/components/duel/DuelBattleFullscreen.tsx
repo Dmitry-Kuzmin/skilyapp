@@ -22,6 +22,20 @@ import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelSettingsMenu } from './DuelSettingsMenu';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 
+const duelRiskMultiplierPreview = (betAmount: number) => {
+  if (!betAmount || betAmount <= 0) return 1;
+  if (betAmount >= 600) return 4;
+  if (betAmount >= 450) return 3;
+  if (betAmount >= 300) return 2.25;
+  if (betAmount >= 200) return 1.75;
+  if (betAmount >= 100) return 1.25;
+  return 1.1;
+};
+
+const getSeasonBonusDisplay = (betAmount: number) => {
+  return betAmount > 0 ? Math.round(20 * duelRiskMultiplierPreview(betAmount)) : 30;
+};
+
 interface DuelBattleFullscreenProps {
   duelId: string;
   onExit: () => void;
@@ -85,6 +99,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   });
   const [isQuestionBookmarked, setIsQuestionBookmarked] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [betInfo, setBetInfo] = useState<{
+    betAmount: number;
+    totalBank: number;
+    isHost: boolean;
+    hostInsurance: boolean;
+    opponentInsurance: boolean;
+    coverageHost: number;
+    coverageOpponent: number;
+  } | null>(null);
+  const myInsuranceActive = betInfo ? (betInfo.isHost ? betInfo.hostInsurance : betInfo.opponentInsurance) : false;
+  const myCoverageDisplay = betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageHost : betInfo.coverageOpponent) || 0) * 100) : 0;
+  const opponentInsuranceActive = betInfo ? (betInfo.isHost ? betInfo.opponentInsurance : betInfo.hostInsurance) : false;
+  const opponentCoverageDisplay = betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageOpponent : betInfo.coverageHost) || 0) * 100) : 0;
+  const seasonBonusDisplay = betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0;
   
   // Format time helper
   const formatTime = (ms: number) => {
@@ -193,6 +221,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     loadQuestions();
     loadScores();
     loadBoosts();
+    loadBetInfo();
   }, [duelId, profileId]);
 
   // УБРАНО: Countdown - битва начинается сразу когда дуэль стартовала
@@ -861,6 +890,41 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       if (data) setBoosts(data);
     } catch (error) {
       console.error('Exception loading boosts:', error);
+    }
+  };
+
+  const loadBetInfo = async () => {
+    if (!duelId) return;
+    try {
+      const { data: duelData, error: duelError } = await supabase
+        .from('duels')
+        .select('bet_amount, host_user')
+        .eq('id', duelId)
+        .single();
+      
+      if (duelError || !duelData || !(duelData.bet_amount > 0)) {
+        setBetInfo(null);
+        return;
+      }
+      
+      const { data: betRow } = await supabase
+        .from('duel_bets')
+        .select('host_insurance_enabled, host_coverage_rate, opponent_insurance_enabled, opponent_coverage_rate')
+        .eq('duel_id', duelId)
+        .maybeSingle();
+      
+      setBetInfo({
+        betAmount: duelData.bet_amount,
+        totalBank: duelData.bet_amount * 2,
+        isHost: duelData.host_user === profileId,
+        hostInsurance: !!betRow?.host_insurance_enabled,
+        opponentInsurance: !!betRow?.opponent_insurance_enabled,
+        coverageHost: betRow?.host_coverage_rate || 0,
+        coverageOpponent: betRow?.opponent_coverage_rate || 0,
+      });
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] ⚠️ Error loading bet info:', error);
+      setBetInfo(null);
     }
   };
 
@@ -1607,6 +1671,45 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               </div>
             </motion.div>
           </div>
+
+        {betInfo && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full mb-3 md:mb-4 p-4 rounded-2xl bg-gradient-to-br from-amber-50/70 via-yellow-50/60 to-orange-50/70 dark:from-amber-950/20 dark:via-yellow-950/15 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/40 shadow-inner"
+          >
+            <div className="flex flex-wrap items-center gap-4 justify-between">
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Банк дуэли</p>
+                <p className="text-xl font-black text-foreground">
+                  {betInfo.totalBank.toLocaleString('ru-RU')} монет
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Ставка каждого: {betInfo.betAmount.toLocaleString('ru-RU')} монет
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground">Season Points за победу</p>
+                <p className="text-xl font-black text-primary">
+                  +{seasonBonusDisplay} SP
+                </p>
+              </div>
+              <div className="flex-1 min-w-[220px]">
+                <p className="text-xs font-semibold text-muted-foreground mb-1">Страховка</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant={myInsuranceActive ? 'default' : 'outline'} className="text-xs flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    Твоя: {myInsuranceActive ? `${myCoverageDisplay}%` : 'выкл'}
+                  </Badge>
+                  <Badge variant={opponentInsuranceActive ? 'secondary' : 'outline'} className="text-xs flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    Соперник: {opponentInsuranceActive ? `${opponentCoverageDisplay}%` : 'выкл'}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
           {/* Right Side - Boosts & Combo */}
           <div className="flex items-center gap-2 flex-wrap">

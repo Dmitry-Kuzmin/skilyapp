@@ -22,8 +22,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Users, Clock, Share2 } from 'lucide-react';
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
+import { Switch } from '@/components/ui/switch';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
+
+const INSURANCE_RATE = 0.15;
+const COVERAGE_RATE = 0.6;
+const getInsurancePremium = (bet: number) => bet > 0 ? Math.ceil(bet * INSURANCE_RATE) : 0;
+const getRiskMultiplierPreview = (bet: number) => {
+  if (!bet || bet <= 0) return 1;
+  if (bet >= 600) return 4;
+  if (bet >= 450) return 3;
+  if (bet >= 300) return 2.25;
+  if (bet >= 200) return 1.75;
+  if (bet >= 100) return 1.25;
+  return 1.1;
+};
+const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRiskMultiplierPreview(bet)) : 30;
 
 export default function Duel() {
   const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
@@ -60,6 +75,13 @@ export default function Duel() {
   const [userCoins, setUserCoins] = useState(0);
   const [showShop, setShowShop] = useState(false);
   const lowCoinsPromptedRef = useRef(false);
+  const [hostInsuranceEnabled, setHostInsuranceEnabled] = useState(false);
+  const [joinInsuranceEnabled, setJoinInsuranceEnabled] = useState(false);
+  const hostInsurancePremium = hostInsuranceEnabled && betAmount > 0 ? getInsurancePremium(betAmount) : 0;
+  const hostTotalStake = betAmount + hostInsurancePremium;
+  const joinPreviewBet = duelPreview?.bet_amount || 0;
+  const joinInsurancePremiumValue = joinInsuranceEnabled && joinPreviewBet > 0 ? getInsurancePremium(joinPreviewBet) : 0;
+  const joinTotalRequired = joinPreviewBet > 0 ? joinPreviewBet + joinInsurancePremiumValue : joinPreviewBet;
   
   // Use realtime hook when duel is created
   const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
@@ -85,6 +107,12 @@ export default function Duel() {
     
     loadCoins();
   }, [profileId]);
+
+  useEffect(() => {
+    if (betAmount <= 0) {
+      setHostInsuranceEnabled(false);
+    }
+  }, [betAmount]);
 
   useEffect(() => {
     const suggestLowCoins = async () => {
@@ -254,6 +282,9 @@ export default function Duel() {
           action: 'join_duel',
           profile_id: profileId,
           code: code.toUpperCase(),
+          insurance_enabled: joinInsuranceEnabled,
+          insurance_rate: joinInsuranceEnabled ? INSURANCE_RATE : 0,
+          insurance_coverage_rate: joinInsuranceEnabled ? COVERAGE_RATE : 0,
         },
       });
 
@@ -332,9 +363,13 @@ export default function Duel() {
   useEffect(() => {
     if (joinCode.length === 4 && !isJoining && profileId && !hasAutoJoinedRef.current && (isAuthenticated || isTelegramUser)) {
       // Check if user has enough coins for bet
-      if (duelPreview && duelPreview.bet_amount > 0 && userCoins < duelPreview.bet_amount) {
-        toast.error(`Недостаточно монет! Нужно ${duelPreview.bet_amount}, у вас ${userCoins}`);
-        return;
+      if (duelPreview && duelPreview.bet_amount > 0) {
+        const previewPremium = joinInsuranceEnabled ? getInsurancePremium(duelPreview.bet_amount) : 0;
+        const requiredCoins = duelPreview.bet_amount + previewPremium;
+        if (userCoins < requiredCoins) {
+          toast.error(`Недостаточно монет! Нужно ${requiredCoins}, у вас ${userCoins}`);
+          return;
+        }
       }
       
       const timer = setTimeout(() => {
@@ -368,6 +403,9 @@ export default function Duel() {
           difficulty: 'mix',
           bet_amount: betAmount,
           bet_type: betType,
+          insurance_enabled: hostInsuranceEnabled,
+          insurance_rate: hostInsuranceEnabled ? INSURANCE_RATE : 0,
+          insurance_coverage_rate: hostInsuranceEnabled ? COVERAGE_RATE : 0,
         },
       });
 
@@ -888,9 +926,35 @@ export default function Duel() {
                                       Победитель: <span className="text-green-600 dark:text-green-400 font-bold">{Math.floor(betAmount * 2 * 0.9)}</span> (комиссия 10%)
                                     </p>
                                     <p className="text-muted-foreground">
-                                      При ничьей: ставки переносятся на реванш
-                    </p>
+                                      При ничьей: ставки и страховка возвращаются
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                      Season Points: <span className="font-semibold text-primary">{getSeasonBonusPreview(betAmount)} SP</span>
+                                    </p>
               </div>
+                                </div>
+                                <div className="mt-3 p-3 rounded-lg bg-white/70 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/40 flex flex-col gap-2">
+                                  <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                      <p className="text-sm font-semibold text-foreground">Страховка дуэли</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        +{hostInsurancePremium} монет • возврат {Math.round(COVERAGE_RATE * 100)}% ставки при поражении
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        Всего нужно: <span className="font-bold text-foreground">{hostTotalStake}</span> монет
+                                      </p>
+                                    </div>
+                                    <Switch
+                                      checked={hostInsuranceEnabled}
+                                      onCheckedChange={(checked) => setHostInsuranceEnabled(checked)}
+                                      disabled={betAmount <= 0 || hostTotalStake > userCoins}
+                                    />
+                                  </div>
+                                  {hostTotalStake > userCoins && (
+                                    <p className="text-xs font-semibold text-red-600 dark:text-red-400">
+                                      Нужно ещё {hostTotalStake - userCoins} монет для страховки
+                                    </p>
+                                  )}
                                 </div>
                               </motion.div>
                             )}
@@ -906,7 +970,7 @@ export default function Duel() {
             <Button
               size="lg"
                               onClick={() => handleActionClick(() => handleInlineCreate())}
-                              disabled={isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > userCoins)}
+                              disabled={isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
                               className="w-full h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-700 text-white shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
                             >
                               {/* Shine effect on hover */}
@@ -1328,7 +1392,7 @@ export default function Duel() {
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ delay: 0.2 }}
                             className={`p-4 sm:p-5 rounded-2xl border-2 ${
-                              userCoins >= duelPreview.bet_amount
+                              userCoins >= joinTotalRequired
                                 ? 'bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border-amber-500/40'
                                 : 'bg-gradient-to-br from-red-100/60 via-red-50/40 to-red-100/60 dark:from-red-950/30 dark:via-red-950/20 dark:to-red-950/30 border-red-500/40'
                             } backdrop-blur-sm shadow-lg`}
@@ -1343,19 +1407,27 @@ export default function Duel() {
               </div>
                               <div className="flex-1 min-w-0 space-y-1">
                                 <p className="text-sm sm:text-base font-bold text-foreground">
-                                  {userCoins >= duelPreview.bet_amount ? '💰 Дуэль со ставкой!' : '⚠️ Недостаточно монет!'}
+                                  {userCoins >= joinTotalRequired ? '💰 Дуэль со ставкой!' : '⚠️ Недостаточно монет!'}
                                 </p>
                                 <p className="text-xs sm:text-sm text-muted-foreground">
                                   Ставка: <span className="font-bold text-foreground">{duelPreview.bet_amount}</span> монет
                                 </p>
+                                {joinInsuranceEnabled && (
+                                  <p className="text-xs sm:text-sm text-muted-foreground">
+                                    Страховка: <span className="font-bold text-foreground">+{joinInsurancePremiumValue}</span> монет • возврат {Math.round(COVERAGE_RATE * 100)}%
+                                  </p>
+                                )}
                                 <p className="text-xs sm:text-sm text-muted-foreground">
-                                  У вас: <span className={`font-bold ${userCoins >= duelPreview.bet_amount ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                  Всего нужно: <span className="font-bold text-foreground">{joinTotalRequired}</span> монет
+                                </p>
+                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                  У вас: <span className={`font-bold ${userCoins >= joinTotalRequired ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                     {userCoins}
                                   </span> монет
                                 </p>
-                                {userCoins < duelPreview.bet_amount && (
+                                {userCoins < joinTotalRequired && (
                                   <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">
-                                    Нужно ещё {duelPreview.bet_amount - userCoins} монет
+                                    Нужно ещё {joinTotalRequired - userCoins} монет
                                   </p>
                                 )}
                   </div>
@@ -1384,6 +1456,26 @@ export default function Duel() {
               </div>
                         </motion.div>
                       )}
+                      
+                      {duelPreview && duelPreview.bet_amount > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-3 rounded-2xl bg-white/70 dark:bg-amber-950/30 border border-amber-200/40 dark:border-amber-800/40 flex items-center justify-between gap-4"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">Добавить страховку</p>
+                            <p className="text-xs text-muted-foreground">
+                              +{joinInsurancePremiumValue} монет • возврат {Math.round(COVERAGE_RATE * 100)}% при поражении
+                            </p>
+                          </div>
+                          <Switch
+                            checked={joinInsuranceEnabled}
+                            onCheckedChange={(checked) => setJoinInsuranceEnabled(checked)}
+                            disabled={userCoins < joinTotalRequired}
+                          />
+                        </motion.div>
+                      )}
 
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -1397,7 +1489,12 @@ export default function Duel() {
                               handleInlineJoin(joinCode);
                             }
                           }}
-                          disabled={joinCode.length !== 4 || isJoining || (!isAuthenticated && !isTelegramUser) || (duelPreview && duelPreview.bet_amount > userCoins)}
+                          disabled={
+                            joinCode.length !== 4 ||
+                            isJoining ||
+                            (!isAuthenticated && !isTelegramUser) ||
+                            (duelPreview && duelPreview.bet_amount > 0 && userCoins < joinTotalRequired)
+                          }
                           className="w-full h-12 sm:h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 hover:from-amber-600 hover:via-amber-700 hover:to-orange-700 text-white shadow-2xl shadow-amber-500/40 hover:shadow-amber-500/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation relative overflow-hidden group"
                         >
                           {/* Shine effect */}
@@ -1412,8 +1509,10 @@ export default function Duel() {
                           ) : duelPreview && duelPreview.bet_amount > 0 ? (
                             <>
                               <Coins className="mr-2 h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                              <span className="hidden sm:inline relative z-10">Присоединиться за {duelPreview.bet_amount} монет</span>
-                              <span className="sm:hidden relative z-10">За {duelPreview.bet_amount}</span>
+                              <span className="hidden sm:inline relative z-10">
+                                Присоединиться за {joinTotalRequired} монет
+                              </span>
+                              <span className="sm:hidden relative z-10">За {joinTotalRequired}</span>
                             </>
                           ) : (
                             <>

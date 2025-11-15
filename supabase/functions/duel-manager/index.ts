@@ -12,11 +12,25 @@ const createDuelSchema = z.object({
   categories: z.array(z.string().uuid()).max(10).nullable().optional(),
   difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional(),
   bet_amount: z.number().int().min(0).max(10000).optional().default(0),
-  bet_type: z.enum(['none', 'fixed', 'custom']).optional().default('none')
+  bet_type: z.enum(['none', 'fixed', 'custom']).optional().default('none'),
+  insurance_enabled: z.boolean().optional(),
+  insurance_rate: z.number().min(0).max(1).optional(),
+  insurance_coverage_rate: z.number().min(0).max(1).optional(),
+  security_context: z.object({
+    ip_hash: z.string().max(255).optional(),
+    device_hash: z.string().max(255).optional()
+  }).optional()
 });
 
 const joinDuelSchema = z.object({
-  code: z.string().regex(/^[A-Z0-9]{4}$/, 'Invalid code format - must be 4 characters')
+  code: z.string().regex(/^[A-Z0-9]{4}$/, 'Invalid code format - must be 4 characters'),
+  insurance_enabled: z.boolean().optional(),
+  insurance_rate: z.number().min(0).max(1).optional(),
+  insurance_coverage_rate: z.number().min(0).max(1).optional(),
+  security_context: z.object({
+    ip_hash: z.string().max(255).optional(),
+    device_hash: z.string().max(255).optional()
+  }).optional()
 });
 
 const submitAnswerSchema = z.object({
@@ -55,6 +69,217 @@ function fisherYatesShuffle<T>(array: T[], rng: () => number): T[] {
   }
   return shuffled;
 }
+
+const BASE_INSURANCE_RATE = 0.15;
+const MIN_INSURANCE_RATE = 0.05;
+const MAX_INSURANCE_RATE = 0.35;
+const BASE_COVERAGE_RATE = 0.6;
+const MIN_COVERAGE_RATE = 0.5;
+const MAX_COVERAGE_RATE = 0.9;
+
+const clampNumber = (value: number, min: number, max: number) => {
+  return Math.min(Math.max(value, min), max);
+};
+
+const getInsuranceConfig = (
+  betAmount: number,
+  options?: {
+    enabled?: boolean;
+    rate?: number;
+    coverageRate?: number;
+  }
+) => {
+  const enabled = !!options?.enabled && betAmount > 0;
+  const rate = enabled
+    ? clampNumber(options?.rate ?? BASE_INSURANCE_RATE, MIN_INSURANCE_RATE, MAX_INSURANCE_RATE)
+    : 0;
+  const coverageRate = enabled
+    ? clampNumber(options?.coverageRate ?? BASE_COVERAGE_RATE, MIN_COVERAGE_RATE, MAX_COVERAGE_RATE)
+    : 0;
+  const premium = enabled ? Math.ceil(betAmount * rate) : 0;
+  return { enabled, rate, coverageRate, premium };
+};
+
+const BASE_WIN_SP_NO_BET = 30;
+const BASE_LOSE_SP = 5;
+const DRAW_SP = 15;
+
+const duelRiskMultiplier = (betAmount: number) => {
+  if (!betAmount || betAmount <= 0) return 1;
+  if (betAmount >= 600) return 4;
+  if (betAmount >= 450) return 3;
+  if (betAmount >= 300) return 2.25;
+  if (betAmount >= 200) return 1.75;
+  if (betAmount >= 100) return 1.25;
+  return 1.1;
+};
+
+const calculateSeasonReward = (
+  betAmount: number,
+  outcome: 'win' | 'lose' | 'draw'
+) => {
+  if (outcome === 'draw') return DRAW_SP;
+  if (outcome === 'lose') return BASE_LOSE_SP;
+  if (betAmount > 0) {
+    return Math.round(20 * duelRiskMultiplier(betAmount));
+  }
+  return BASE_WIN_SP_NO_BET;
+};
+
+const COMMISSION_RATE = 0.1;
+
+async function settleBetPayout({
+  supabaseClient,
+  duelId,
+  betAmount,
+  hostUserId,
+  players,
+  winnerUserId,
+  isDraw,
+}: {
+  supabaseClient: ReturnType<typeof createClient>;
+  duelId: string;
+  betAmount: number;
+  hostUserId: string;
+  players: Array<{ user_id: string }>;
+  winnerUserId: string | null;
+  isDraw: boolean;
+}) {
+  if (!betAmount || betAmount <= 0) return;
+
+  const supabase = supabaseClient;
+  const { data: betRow } = await supabase
+    .from('duel_bets')
+    .select('*')
+    .eq('duel_id', duelId)
+    .maybeSingle();
+
+  const opponentUserId =
+    betRow?.opponent_user ||
+    players.find((p) => p.user_id !== hostUserId)?.user_id ||
+    null;
+
+  if (!opponentUserId) {
+    console.warn('[settleBetPayout] Opponent user not found for duel', duelId);
+    return;
+  }
+
+  const totalPot = betAmount * 2;
+  const commission = Math.floor(totalPot * COMMISSION_RATE);
+  const winnerPayout = totalPot - commission;
+
+  const creditCoins = async (userId: string, amount: number) => {
+    if (!userId || !amount) return;
+    await supabase.rpc('increment_profile_value', {
+      p_profile_id: userId,
+      p_column: 'coins',
+      p_amount: amount,
+    });
+  };
+
+  const insertTransaction = async (userId: string, amount: number, type: string) => {
+    await supabase.from('duel_transactions').insert({
+      duel_id: duelId,
+      user_id: userId,
+      amount,
+      transaction_type: type,
+    });
+  };
+
+  const hostCoverage = betRow && betRow.host_insurance_enabled
+    ? Math.ceil(betAmount * (betRow.host_coverage_rate || 0))
+    : 0;
+  const opponentCoverage = betRow && betRow.opponent_insurance_enabled
+    ? Math.ceil(betAmount * (betRow.opponent_coverage_rate || 0))
+    : 0;
+
+  let hostPayout = 0;
+  let opponentPayout = 0;
+  let hostInsuranceRefund = 0;
+  let opponentInsuranceRefund = 0;
+
+  if (isDraw) {
+    await creditCoins(hostUserId, betAmount);
+    await creditCoins(opponentUserId, betAmount);
+    await insertTransaction(hostUserId, betAmount, 'refund');
+    await insertTransaction(opponentUserId, betAmount, 'refund');
+    hostPayout = betAmount;
+    opponentPayout = betAmount;
+
+    if (betRow?.host_insurance_premium) {
+      await creditCoins(hostUserId, betRow.host_insurance_premium);
+      await insertTransaction(hostUserId, betRow.host_insurance_premium, 'insurance_refund');
+      hostInsuranceRefund = betRow.host_insurance_premium;
+    }
+    if (betRow?.opponent_insurance_premium) {
+      await creditCoins(opponentUserId, betRow.opponent_insurance_premium);
+      await insertTransaction(opponentUserId, betRow.opponent_insurance_premium, 'insurance_refund');
+      opponentInsuranceRefund = betRow.opponent_insurance_premium;
+    }
+  } else if (winnerUserId) {
+    await creditCoins(winnerUserId, winnerPayout);
+    await insertTransaction(winnerUserId, winnerPayout, 'win');
+    await insertTransaction(winnerUserId, -commission, 'commission');
+
+    if (winnerUserId === hostUserId) {
+      hostPayout = winnerPayout;
+      if (opponentCoverage > 0) {
+        await creditCoins(opponentUserId, opponentCoverage);
+        await insertTransaction(opponentUserId, opponentCoverage, 'insurance_refund');
+        opponentInsuranceRefund = opponentCoverage;
+      }
+    } else {
+      opponentPayout = winnerPayout;
+      if (hostCoverage > 0) {
+        await creditCoins(hostUserId, hostCoverage);
+        await insertTransaction(hostUserId, hostCoverage, 'insurance_refund');
+        hostInsuranceRefund = hostCoverage;
+      }
+    }
+  }
+
+  const hostOutcome = isDraw
+    ? 'draw'
+    : winnerUserId === hostUserId
+      ? 'win'
+      : 'lose';
+  const opponentOutcome = isDraw
+    ? 'draw'
+    : winnerUserId === opponentUserId
+      ? 'win'
+      : 'lose';
+
+  const hostSeasonSp = calculateSeasonReward(betAmount, hostOutcome as 'win' | 'lose' | 'draw');
+  const opponentSeasonSp = calculateSeasonReward(betAmount, opponentOutcome as 'win' | 'lose' | 'draw');
+
+  if (betRow) {
+    await supabase
+      .from('duel_bets')
+      .update({
+        status: 'settled',
+        season_sp_host: hostSeasonSp,
+        season_sp_opponent: opponentSeasonSp,
+      })
+      .eq('duel_id', duelId);
+
+    await supabase.from('duel_bet_history').insert({
+      bet_id: betRow.id,
+      duel_id: duelId,
+      result: isDraw
+        ? 'draw'
+        : winnerUserId === hostUserId
+          ? 'host_win'
+          : 'opponent_win',
+      payout_host: hostPayout,
+      payout_opponent: opponentPayout,
+      season_sp_host: hostSeasonSp,
+      season_sp_opponent: opponentSeasonSp,
+      insurance_refund_host: hostInsuranceRefund,
+      insurance_refund_opponent: opponentInsuranceRefund,
+    });
+  }
+}
+
 
 // Generate readable 4-character code
 function generateDuelCode(): string {
@@ -1074,7 +1299,23 @@ Deno.serve(async (req) => {
 
       case 'create_duel': {
         const validated = createDuelSchema.parse(params);
-        const { num_questions, categories, difficulty, bet_amount = 0, bet_type = 'none' } = validated;
+        const { 
+          num_questions, 
+          categories, 
+          difficulty, 
+          bet_amount = 0, 
+          bet_type = 'none',
+          insurance_enabled,
+          insurance_rate,
+          insurance_coverage_rate,
+          security_context
+        } = validated;
+        
+        const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
+          enabled: insurance_enabled,
+          rate: insurance_rate,
+          coverageRate: insurance_coverage_rate
+        }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
         
         // Check if host has enough coins for bet
         if (bet_amount > 0) {
@@ -1091,18 +1332,21 @@ Deno.serve(async (req) => {
             });
           }
           
-          if ((profile.coins || 0) < bet_amount) {
-            return new Response(JSON.stringify({ error: `Insufficient coins. You need ${bet_amount} coins but only have ${profile.coins || 0}` }), {
+          const requiredCoins = bet_amount + (hostInsurance.premium || 0);
+          
+          if ((profile.coins || 0) < requiredCoins) {
+            return new Response(JSON.stringify({ error: `Insufficient coins. You need ${requiredCoins} coins but only have ${profile.coins || 0}` }), {
               status: 400,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
           
-          // Deduct bet from host
-          await supabase
-            .from('profiles')
-            .update({ coins: profile.coins - bet_amount })
-            .eq('id', profileId);
+          // Deduct bet and insurance premium from host
+          await supabase.rpc('increment_profile_value', {
+            p_profile_id: profileId,
+            p_column: 'coins',
+            p_amount: -requiredCoins
+          });
         }
         
         // Generate unique code
@@ -1150,6 +1394,34 @@ Deno.serve(async (req) => {
               amount: -bet_amount,
               transaction_type: 'bet'
             });
+
+          if (hostInsurance.premium > 0) {
+            await supabase
+              .from('duel_transactions')
+              .insert({
+                duel_id: duel.id,
+                user_id: profileId,
+                amount: -hostInsurance.premium,
+                transaction_type: 'insurance_premium'
+              });
+          }
+
+          await supabase
+            .from('duel_bets')
+            .upsert({
+              duel_id: duel.id,
+              host_user: profileId,
+              bet_amount,
+              currency: 'coins',
+              host_confirmed: true,
+              opponent_confirmed: false,
+              status: 'pending',
+              host_insurance_enabled: hostInsurance.enabled,
+              host_insurance_rate: hostInsurance.rate,
+              host_insurance_premium: hostInsurance.premium,
+              host_coverage_rate: hostInsurance.coverageRate,
+              ip_hash_host: security_context?.ip_hash || null
+            }, { onConflict: 'duel_id' });
         }
 
         // Add host as player using correct user_id (which is profile.id)
@@ -1246,10 +1518,11 @@ Deno.serve(async (req) => {
             .single();
           
           if (!profileError && profile) {
-            await supabase
-              .from('profiles')
-              .update({ coins: profile.coins + duel.bet_amount })
-              .eq('id', profileId);
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: profileId,
+              p_column: 'coins',
+              p_amount: duel.bet_amount
+            });
             
             // Record refund transaction
             await supabase
@@ -1260,6 +1533,33 @@ Deno.serve(async (req) => {
                 amount: duel.bet_amount,
                 transaction_type: 'refund'
               });
+            
+            const { data: betRow } = await supabase
+              .from('duel_bets')
+              .select('host_insurance_premium')
+              .eq('duel_id', duel_id)
+              .maybeSingle();
+            
+            if (betRow?.host_insurance_premium) {
+              await supabase.rpc('increment_profile_value', {
+                p_profile_id: profileId,
+                p_column: 'coins',
+                p_amount: betRow.host_insurance_premium
+              });
+              await supabase
+                .from('duel_transactions')
+                .insert({
+                  duel_id: duel_id,
+                  user_id: profileId,
+                  amount: betRow.host_insurance_premium,
+                  transaction_type: 'insurance_refund'
+                });
+            }
+            
+            await supabase
+              .from('duel_bets')
+              .update({ status: 'cancelled' })
+              .eq('duel_id', duel_id);
           }
         }
         
@@ -1279,7 +1579,7 @@ Deno.serve(async (req) => {
 
       case 'join_duel': {
         const validated = joinDuelSchema.parse(params);
-        let { code } = validated;
+        let { code, insurance_enabled, insurance_rate, insurance_coverage_rate, security_context } = validated;
         
         // Normalize code to uppercase and ensure it's exactly 4 characters
         code = code.toUpperCase().trim().slice(0, 4);
@@ -1352,20 +1652,27 @@ Deno.serve(async (req) => {
             });
           }
           
-          if ((profile.coins || 0) < betAmount) {
-            return new Response(JSON.stringify({ error: `Insufficient coins for bet. You need ${betAmount} coins but only have ${profile.coins || 0}` }), {
+          const opponentInsurance = getInsuranceConfig(betAmount, {
+            enabled: insurance_enabled,
+            rate: insurance_rate,
+            coverageRate: insurance_coverage_rate
+          });
+          const requiredCoins = betAmount + (opponentInsurance.premium || 0);
+          
+          if ((profile.coins || 0) < requiredCoins) {
+            return new Response(JSON.stringify({ error: `Insufficient coins for bet. You need ${requiredCoins} coins but only have ${profile.coins || 0}` }), {
               status: 400,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
           
-          // Deduct bet from joining player
-          await supabase
-            .from('profiles')
-            .update({ coins: profile.coins - betAmount })
-            .eq('id', profileId);
+          // Deduct bet and premium
+          await supabase.rpc('increment_profile_value', {
+            p_profile_id: profileId,
+            p_column: 'coins',
+            p_amount: -requiredCoins
+          });
           
-          // Record bet transaction
           await supabase
             .from('duel_transactions')
             .insert({
@@ -1374,6 +1681,57 @@ Deno.serve(async (req) => {
               amount: -betAmount,
               transaction_type: 'bet'
             });
+          
+          if (opponentInsurance.premium > 0) {
+            await supabase
+              .from('duel_transactions')
+              .insert({
+                duel_id: duel.id,
+                user_id: profileId,
+                amount: -opponentInsurance.premium,
+                transaction_type: 'insurance_premium'
+              });
+          }
+          
+          const { data: existingBet } = await supabase
+            .from('duel_bets')
+            .select('*')
+            .eq('duel_id', duel.id)
+            .maybeSingle();
+          
+          if (existingBet) {
+            await supabase
+              .from('duel_bets')
+              .update({
+                opponent_user: profileId,
+                opponent_confirmed: true,
+                status: 'confirmed',
+                opponent_insurance_enabled: opponentInsurance.enabled,
+                opponent_insurance_rate: opponentInsurance.rate,
+                opponent_insurance_premium: opponentInsurance.premium,
+                opponent_coverage_rate: opponentInsurance.coverageRate,
+                ip_hash_opponent: security_context?.ip_hash || null
+              })
+              .eq('duel_id', duel.id);
+          } else {
+            await supabase
+              .from('duel_bets')
+              .insert({
+                duel_id: duel.id,
+                host_user: duel.host_user,
+                opponent_user: profileId,
+                bet_amount,
+                currency: 'coins',
+                host_confirmed: true,
+                opponent_confirmed: true,
+                status: 'confirmed',
+                opponent_insurance_enabled: opponentInsurance.enabled,
+                opponent_insurance_rate: opponentInsurance.rate,
+                opponent_insurance_premium: opponentInsurance.premium,
+                opponent_coverage_rate: opponentInsurance.coverageRate,
+                ip_hash_opponent: security_context?.ip_hash || null
+              });
+          }
         }
 
         console.log('[Duel Manager] Adding player to duel. DuelId:', duel.id, 'ProfileId:', profileId);
@@ -2005,7 +2363,7 @@ Deno.serve(async (req) => {
         // Get duel info
         const { data: duel } = await supabase
           .from('duels')
-          .select('status, num_questions, started_at, expires_at')
+          .select('status, num_questions, started_at, expires_at, host_user, bet_amount')
           .eq('id', duel_id)
           .single();
 
@@ -2190,33 +2548,15 @@ Deno.serve(async (req) => {
             reason: allPlayersFinished ? 'both_finished' : 'timeout'
           });
           
-          // Process coin payout if bet was placed
-          const { data: duelWithBet } = await supabase
-            .from('duels')
-            .select('bet_amount, bet_type')
-            .eq('id', duel_id)
-            .single();
-          
-          if (duelWithBet && duelWithBet.bet_amount > 0) {
-            console.log('[finish_duel] Processing coin payout:', {
-              bet_amount: duelWithBet.bet_amount,
-              bet_type: duelWithBet.bet_type,
-              isDraw
-            });
-            
-            const { data: payoutResult, error: payoutError } = await supabase.rpc('process_duel_payout', {
-              p_duel_id: duel_id,
-              p_winner_id: isDraw ? null : playersWithScores[0].user_id,
-              p_loser_id: isDraw ? null : playersWithScores[1].user_id,
-              p_is_draw: isDraw
-            });
-            
-            if (payoutError) {
-              console.error('[finish_duel] Error processing payout:', payoutError);
-            } else {
-              console.log('[finish_duel] Payout processed:', payoutResult);
-            }
-          }
+          await settleBetPayout({
+            supabaseClient: supabase,
+            duelId: duel_id,
+            betAmount: duel.bet_amount || 0,
+            hostUserId: duel.host_user,
+            players: playersWithScores,
+            winnerUserId: isDraw ? null : playersWithScores[0].user_id,
+            isDraw,
+          });
 
           // Create finish notification for opponent
           const opponentPlayer = playersWithScores.find((p: any) => p.user_id !== profile_id);
