@@ -22,7 +22,8 @@ import {
   Users,
   Sun,
   Moon,
-  Bell
+  Bell,
+  ShoppingBag
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
