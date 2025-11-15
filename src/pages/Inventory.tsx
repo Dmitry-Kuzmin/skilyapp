@@ -1,4 +1,4 @@
-import { Layout } from "@/components/Layout";
+import Layout from "@/components/Layout";
 import { CosmeticsInventory } from "@/components/cosmetics/CosmeticsInventory";
 
 export default function Inventory() {

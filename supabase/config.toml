@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.notification-cron]
 verify_jwt = false
+
+[functions.telegram-stars-payment]
+verify_jwt = false
+
+[functions.stars-payment-retry]
+verify_jwt = false

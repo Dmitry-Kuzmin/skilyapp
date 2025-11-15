@@ -1,14 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Crown } from "lucide-react";
+import { StarsPaymentButton } from "./StarsPaymentButton";
+import { getTelegramWebApp } from "@/lib/telegram";
 
 interface PaywallModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+interface PricingPackage {
+  id: string;
+  package_key: string;
+  title_ru: string;
+  description_ru: string;
+  price_coins: number;
+  premium_days: number;
 }
 
 const plans = [
@@ -27,9 +38,47 @@ const plans = [
 ];
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
-  const { profileId } = useUserContext();
-  const { isPremium, isTrial, daysRemaining } = usePremium();
+  const { profileId, platform } = useUserContext();
+  const { isPremium, isTrial, daysRemaining, refresh } = usePremium();
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
+  const [loadingPackages, setLoadingPackages] = useState(false);
+
+  // Проверка, показывать ли кнопку Stars (только в Telegram Mini App)
+  const webApp = getTelegramWebApp();
+  const showStarsPayment = platform === 'telegram' && !!webApp;
+
+  // Загрузить цены из БД
+  useEffect(() => {
+    if (open) {
+      loadPricingPackages();
+    }
+  }, [open]);
+
+  const loadPricingPackages = async () => {
+    setLoadingPackages(true);
+    try {
+      const { data, error } = await supabase
+        .from('pricing_packages')
+        .select('id, package_key, title_ru, description_ru, price_coins, premium_days')
+        .eq('is_active', true)
+        .in('package_key', ['premium_monthly', 'premium_yearly']);
+
+      if (error) {
+        console.error('[PaywallModal] Error loading packages:', error);
+      } else if (data) {
+        const packagesMap: Record<string, PricingPackage> = {};
+        data.forEach(pkg => {
+          packagesMap[pkg.package_key] = pkg;
+        });
+        setPricingPackages(packagesMap);
+      }
+    } catch (error) {
+      console.error('[PaywallModal] Error loading packages:', error);
+    } finally {
+      setLoadingPackages(false);
+    }
+  };
 
   const handlePurchase = async (catalogKey: string) => {
     if (!profileId) return;
@@ -114,31 +163,54 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           </ul>
 
           <div className="grid gap-3">
-            {plans.map((plan) => (
-              <div key={plan.key} className="rounded-xl border p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-semibold">{plan.title}</h3>
-                    <p className="text-sm text-muted-foreground">{plan.description}</p>
+            {plans.map((plan) => {
+              const pkg = pricingPackages[plan.key];
+              const priceCoins = pkg?.price_coins || 0;
+
+              return (
+                <div key={plan.key} className="rounded-xl border p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-base font-semibold">{plan.title}</h3>
+                      <p className="text-sm text-muted-foreground">{plan.description}</p>
+                    </div>
+                    <span className="text-sm font-medium">{plan.price}</span>
                   </div>
-                  <span className="text-sm font-medium">{plan.price}</span>
+                  
+                  {/* Кнопки оплаты */}
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex-1"
+                      onClick={() => handlePurchase(plan.key)}
+                      disabled={loadingKey === plan.key || !profileId}
+                    >
+                      {loadingKey === plan.key ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Перенаправляем...
+                        </>
+                      ) : (
+                        "Выбрать"
+                      )}
+                    </Button>
+                    
+                    {/* Кнопка оплаты Stars (только в Telegram) */}
+                    {showStarsPayment && priceCoins > 0 && (
+                      <StarsPaymentButton
+                        packageKey={plan.key}
+                        priceCoins={priceCoins}
+                        onSuccess={() => {
+                          refresh(); // Обновить статус Premium
+                          onOpenChange(false);
+                        }}
+                        variant="outline"
+                        size="default"
+                      />
+                    )}
+                  </div>
                 </div>
-                <Button
-                  className="w-full"
-                  onClick={() => handlePurchase(plan.key)}
-                  disabled={loadingKey === plan.key || !profileId}
-                >
-                  {loadingKey === plan.key ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Перенаправляем...
-                    </>
-                  ) : (
-                    "Выбрать"
-                  )}
-                </Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </DialogContent>

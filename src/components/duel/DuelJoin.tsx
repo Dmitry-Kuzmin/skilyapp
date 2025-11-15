@@ -5,9 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { LogIn, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
-import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
+import { useLumiToast } from '@/hooks/useLumiToast';
 
 interface DuelJoinProps {
   onDuelJoined: (duelId: string, code: string) => void;
@@ -16,17 +15,18 @@ interface DuelJoinProps {
 
 export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
   const { profileId } = useUserContext();
+  const { showDuelJoinError, showDuelJoinSuccess, ToastContainer } = useLumiToast();
   const [code, setCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
 
   const handleJoinDuel = async () => {
     if (!code || code.length !== 4) {
-      toast.error('Введите 4-значный код');
+      showDuelJoinError('Code must be exactly 4 characters');
       return;
     }
 
     if (!profileId) {
-      toast.error('Загрузка профиля...');
+      showDuelJoinError('Profile not found');
       return;
     }
 
@@ -42,23 +42,19 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
 
       if (error) throw error;
 
-      if (data.auto_started) {
-        toast.success('Дуэль начинается! 🎮');
-      } else {
-        toast.success('Вы присоединились! Ожидание старта...');
-      }
+      showDuelJoinSuccess(data.auto_started);
       onDuelJoined(data.duel.id, data.duel.code);
     } catch (error: any) {
-      const extractedError = extractErrorFromResponse(error);
-      const humanError = getHumanReadableError(extractedError, 'join');
-      toast.error(humanError);
+      showDuelJoinError(error);
     } finally {
       setIsJoining(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto animate-fade-in">
+    <>
+      <ToastContainer />
+      <div className="max-w-md mx-auto animate-fade-in">
       <Card className="p-8 space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
         <div className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mb-4">
@@ -100,5 +96,6 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
         </div>
       </Card>
     </div>
+    </>
   );
 }

@@ -4,25 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift } from 'lucide-react';
-import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
+import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
 import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelResult } from '@/components/duel/DuelResult';
 import { DuelWaitingReplay } from '@/components/duel/DuelWaitingReplay';
+import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
 import { AuthModal } from '@/components/AuthModal';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp } from '@/lib/telegram';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Users, Clock, Share2 } from 'lucide-react';
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { Switch } from '@/components/ui/switch';
+import { useLumiToast } from '@/hooks/useLumiToast';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -42,6 +43,7 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 
 export default function Duel() {
   const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
+  const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
   const [mode, setMode] = useState<GameMode>('menu');
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -53,6 +55,8 @@ export default function Duel() {
     myScore: number;
     totalQuestions: number;
   } | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const isTelegramUser = isTelegramMiniApp();
   
   // Inline join state
@@ -86,13 +90,25 @@ export default function Duel() {
   // Use realtime hook when duel is created
   const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
   
-  // Initialize notifications for duel page
-  useNotifications({ showToasts: true, playSounds: true });
+  // Initialize notifications for duel page - только после загрузки данных
+  useNotifications({ showToasts: dataLoaded, playSounds: dataLoaded });
   
+  // Initial loading - показываем skeleton до полной загрузки
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 300); // Минимальная задержка для плавности
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Load user coins
   useEffect(() => {
     const loadCoins = async () => {
-      if (!profileId) return;
+      if (!profileId) {
+        setDataLoaded(true);
+        return;
+      }
       
       const { data, error } = await supabase
         .from('profiles')
@@ -103,6 +119,7 @@ export default function Duel() {
       if (!error && data) {
         setUserCoins(data.coins || 0);
       }
+      setDataLoaded(true);
     };
     
     loadCoins();
@@ -115,6 +132,9 @@ export default function Duel() {
   }, [betAmount]);
 
   useEffect(() => {
+    // Показываем уведомления только после полной загрузки данных
+    if (!dataLoaded) return;
+
     const suggestLowCoins = async () => {
       const { data } = await supabase.functions.invoke('assistant-suggest', {
         body: { trigger: 'low_coins_in_duel' },
@@ -134,7 +154,7 @@ export default function Duel() {
       lowCoinsPromptedRef.current = true;
       suggestLowCoins();
     }
-  }, [userCoins]);
+  }, [userCoins, dataLoaded]);
   
   // Check if we're waiting for profile to load
   const isLoadingProfile = (user || supabaseUser) && !profileId;
@@ -262,9 +282,8 @@ export default function Duel() {
       return;
     }
 
-    if (!profileId) {
-      toast.error('Загрузка профиля...');
-      return;
+    if (!profileId || !dataLoaded) {
+      return; // Не показываем ошибку до загрузки данных
     }
 
     if (hasAutoJoinedRef.current) {
@@ -385,9 +404,10 @@ export default function Duel() {
 
   // Handle inline create
   const handleInlineCreate = async () => {
+    if (!dataLoaded) return; // Не показываем модалку до загрузки
+    
     if (!profileId) {
-      toast.error('Загрузка профиля...');
-      return;
+      return; // Не показываем ошибку до загрузки данных
     }
 
     if (isCreating) return;
@@ -605,6 +625,11 @@ export default function Duel() {
     }
   }, [duelState.duelStarted, createdCode]);
 
+  // Показываем skeleton screen при начальной загрузке - ПОСЛЕ всех хуков!
+  if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
+    return <DuelSkeleton />;
+  }
+
   // Fullscreen modes - no Layout/Footer
   // But if hidden, show menu with widget overlay
   if (mode === 'battle' && duelId && !isBattleHidden) {
@@ -649,21 +674,20 @@ export default function Duel() {
   }
 
   // Lobby also fullscreen without footer
-  if (mode === 'create' && duelCode) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
-        <DuelLobby
-          duelId={duelId}
-          duelCode={duelCode}
-          onDuelCreated={handleDuelCreated}
-          onDuelStarted={handleDuelStarted}
-          onCancel={handleBackToMenu}
-        />
-      </div>
-    );
-  }
-
   return (
+    <>
+      <ToastContainer />
+      {mode === 'create' && duelCode ? (
+        <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
+          <DuelLobby
+            duelId={duelId}
+            duelCode={duelCode}
+            onDuelCreated={handleDuelCreated}
+            onDuelStarted={handleDuelStarted}
+            onCancel={handleBackToMenu}
+          />
+        </div>
+      ) : (
     <Layout>
       {/* Render widget when battle is hidden */}
       {isBattleHidden && duelId && hiddenDuelState && (
@@ -1612,10 +1636,12 @@ export default function Duel() {
         </div>
       )}
       
-      <AuthModal
-        open={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
+      {dataLoaded && (
+        <AuthModal
+          open={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
 
       {/* Modals */}
       <DuelCreateModal
@@ -1632,5 +1658,7 @@ export default function Duel() {
       <BoostShopModal open={showShop} onOpenChange={setShowShop} />
       </div>
     </Layout>
+      )}
+    </>
   );
 }
