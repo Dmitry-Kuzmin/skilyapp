@@ -894,7 +894,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   };
 
   const loadBetInfo = async () => {
-    if (!duelId) return;
+    if (!duelId) {
+      console.log('[DuelBattleFullscreen] ⚠️ No duelId provided for loadBetInfo');
+      return;
+    }
+    
+    const isTelegram = typeof window !== 'undefined' && !!window.Telegram?.WebApp;
+    console.log('[DuelBattleFullscreen] 🔄 Loading bet info:', { duelId, profileId, isTelegram });
+    
     try {
       const { data: duelData, error: duelError } = await supabase
         .from('duels')
@@ -902,18 +909,55 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         .eq('id', duelId)
         .single();
       
-      if (duelError || !duelData || !(duelData.bet_amount > 0)) {
+      if (duelError) {
+        console.error('[DuelBattleFullscreen] ❌ Error loading duel bet info:', {
+          error: duelError,
+          code: duelError.code,
+          message: duelError.message,
+          details: duelError.details,
+          hint: duelError.hint,
+          duelId,
+          profileId,
+          isTelegram
+        });
         setBetInfo(null);
         return;
       }
       
-      const { data: betRow } = await supabase
+      if (!duelData) {
+        console.warn('[DuelBattleFullscreen] ⚠️ No duel data returned:', { duelId, profileId });
+        setBetInfo(null);
+        return;
+      }
+      
+      if (!(duelData.bet_amount > 0)) {
+        console.log('[DuelBattleFullscreen] ℹ️ No bet amount in duel:', { 
+          betAmount: duelData.bet_amount, 
+          duelId,
+          profileId 
+        });
+        setBetInfo(null);
+        return;
+      }
+      
+      console.log('[DuelBattleFullscreen] ✅ Duel bet data loaded:', {
+        betAmount: duelData.bet_amount,
+        hostUser: duelData.host_user,
+        isHost: duelData.host_user === profileId
+      });
+      
+      const { data: betRow, error: betError } = await supabase
         .from('duel_bets')
         .select('host_insurance_enabled, host_coverage_rate, opponent_insurance_enabled, opponent_coverage_rate')
         .eq('duel_id', duelId)
         .maybeSingle();
       
-      setBetInfo({
+      if (betError) {
+        console.warn('[DuelBattleFullscreen] ⚠️ Error loading bet insurance info (non-critical):', betError);
+        // Продолжаем без данных о страховке
+      }
+      
+      const betInfoData = {
         betAmount: duelData.bet_amount,
         totalBank: duelData.bet_amount * 2,
         isHost: duelData.host_user === profileId,
@@ -921,9 +965,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         opponentInsurance: !!betRow?.opponent_insurance_enabled,
         coverageHost: betRow?.host_coverage_rate || 0,
         coverageOpponent: betRow?.opponent_coverage_rate || 0,
-      });
+      };
+      
+      console.log('[DuelBattleFullscreen] ✅ Bet info set:', betInfoData);
+      setBetInfo(betInfoData);
     } catch (error) {
-      console.error('[DuelBattleFullscreen] ⚠️ Error loading bet info:', error);
+      console.error('[DuelBattleFullscreen] ⚠️ Exception loading bet info:', {
+        error,
+        duelId,
+        profileId,
+        isTelegram,
+        errorMessage: error instanceof Error ? error.message : String(error)
+      });
       setBetInfo(null);
     }
   };
@@ -1674,39 +1727,111 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
         {betInfo && (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full mb-3 md:mb-4 p-4 rounded-2xl bg-gradient-to-br from-amber-50/70 via-yellow-50/60 to-orange-50/70 dark:from-amber-950/20 dark:via-yellow-950/15 dark:to-orange-950/20 border border-amber-200/50 dark:border-amber-800/40 shadow-inner"
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="w-full mb-3 md:mb-4"
           >
-            <div className="flex flex-wrap items-center gap-4 justify-between">
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground">Банк дуэли</p>
-                <p className="text-xl font-black text-foreground">
-                  {betInfo.totalBank.toLocaleString('ru-RU')} монет
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Ставка каждого: {betInfo.betAmount.toLocaleString('ru-RU')} монет
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground">Season Points за победу</p>
-                <p className="text-xl font-black text-primary">
-                  +{seasonBonusDisplay} SP
-                </p>
-              </div>
-              <div className="flex-1 min-w-[220px]">
-                <p className="text-xs font-semibold text-muted-foreground mb-1">Страховка</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant={myInsuranceActive ? 'default' : 'outline'} className="text-xs flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    Твоя: {myInsuranceActive ? `${myCoverageDisplay}%` : 'выкл'}
-                  </Badge>
-                  <Badge variant={opponentInsuranceActive ? 'secondary' : 'outline'} className="text-xs flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    Соперник: {opponentInsuranceActive ? `${opponentCoverageDisplay}%` : 'выкл'}
-                  </Badge>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+              {/* Банк дуэли */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15 dark:from-amber-500/20 dark:via-yellow-500/15 dark:to-orange-500/20 border border-amber-400/30 dark:border-amber-600/40 p-3 shadow-sm"
+              >
+                <div className="absolute top-0 right-0 w-16 h-16 bg-amber-400/10 rounded-full blur-2xl" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Банк</p>
+                  </div>
+                  <p className="text-lg font-black text-amber-700 dark:text-amber-400 leading-tight">
+                    {betInfo.totalBank.toLocaleString('ru-RU')}
+                  </p>
+                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
+                    по {betInfo.betAmount.toLocaleString('ru-RU')}
+                  </p>
                 </div>
-              </div>
+              </motion.div>
+
+              {/* Season Points */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500/15 via-pink-500/10 to-indigo-500/15 dark:from-purple-500/20 dark:via-pink-500/15 dark:to-indigo-500/20 border border-purple-400/30 dark:border-purple-600/40 p-3 shadow-sm"
+              >
+                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-400/10 rounded-full blur-2xl" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Награда</p>
+                  </div>
+                  <p className="text-lg font-black text-purple-700 dark:text-purple-400 leading-tight">
+                    +{seasonBonusDisplay} SP
+                  </p>
+                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
+                    за победу
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Моя страховка */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className={`relative overflow-hidden rounded-xl border p-3 shadow-sm transition-all ${
+                  myInsuranceActive
+                    ? 'bg-gradient-to-br from-green-500/15 via-emerald-500/10 to-teal-500/15 dark:from-green-500/20 dark:via-emerald-500/15 dark:to-teal-500/20 border-green-400/40 dark:border-green-600/50'
+                    : 'bg-muted/30 border-muted-foreground/20'
+                }`}
+              >
+                <div className={`absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl ${
+                  myInsuranceActive ? 'bg-green-400/10' : 'bg-muted-foreground/5'
+                }`} />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Shield className={`w-3.5 h-3.5 ${
+                      myInsuranceActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground/50'
+                    }`} />
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Твоя</p>
+                  </div>
+                  <p className={`text-lg font-black leading-tight ${
+                    myInsuranceActive ? 'text-green-700 dark:text-green-400' : 'text-muted-foreground/60'
+                  }`}>
+                    {myInsuranceActive ? `${myCoverageDisplay}%` : '—'}
+                  </p>
+                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
+                    страховка
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Страховка соперника */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className={`relative overflow-hidden rounded-xl border p-3 shadow-sm transition-all ${
+                  opponentInsuranceActive
+                    ? 'bg-gradient-to-br from-blue-500/15 via-cyan-500/10 to-sky-500/15 dark:from-blue-500/20 dark:via-cyan-500/15 dark:to-sky-500/20 border-blue-400/40 dark:border-blue-600/50'
+                    : 'bg-muted/30 border-muted-foreground/20'
+                }`}
+              >
+                <div className={`absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl ${
+                  opponentInsuranceActive ? 'bg-blue-400/10' : 'bg-muted-foreground/5'
+                }`} />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Shield className={`w-3.5 h-3.5 ${
+                      opponentInsuranceActive ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground/50'
+                    }`} />
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Соперник</p>
+                  </div>
+                  <p className={`text-lg font-black leading-tight ${
+                    opponentInsuranceActive ? 'text-blue-700 dark:text-blue-400' : 'text-muted-foreground/60'
+                  }`}>
+                    {opponentInsuranceActive ? `${opponentCoverageDisplay}%` : '—'}
+                  </p>
+                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
+                    страховка
+                  </p>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         )}
