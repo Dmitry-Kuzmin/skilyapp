@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn } from "lucide-react";
+import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,6 +15,8 @@ import { UserProfilePopover } from "./UserProfilePopover";
 import { TelegramSafeAreaDebug } from "./TelegramSafeAreaDebug";
 import { Footer } from "./Footer";
 import { WalletWidget } from "./navigation/WalletWidget";
+import { useActiveDuel } from "@/hooks/useActiveDuel";
+import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 
 interface LayoutProps {
   children: ReactNode;
@@ -25,6 +27,7 @@ const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const { user, platform, isAuthenticated, logout } = useUserContext();
   const { t } = useLanguage();
+  const { activeDuel } = useActiveDuel();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
@@ -84,11 +87,19 @@ const Layout = ({ children }: LayoutProps) => {
     return () => observer.disconnect();
   }, [isTelegramApp]);
 
+  // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
   const navigation = [
     { name: t("home"), href: "/", icon: Home },
     { name: t("tests"), href: "/tests", icon: FileText },
     { name: t("learning"), href: "/learning", icon: BookOpen },
-    { name: t("games"), href: "/games", icon: Gamepad2 },
+    activeDuel 
+      ? { 
+          name: "Дуэль", 
+          href: `/games/duel?duelId=${activeDuel.duelId}`, 
+          icon: Swords,
+          isActiveDuel: true 
+        }
+      : { name: t("games"), href: "/games", icon: Gamepad2 },
   ];
 
   // Определяем fullscreen режимы (тесты и игры) - navbar должен быть скрыт
@@ -139,7 +150,8 @@ const Layout = ({ children }: LayoutProps) => {
                       "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                      (item as any).isActiveDuel && "bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20"
                     )
                   }
                 >
@@ -217,20 +229,29 @@ const Layout = ({ children }: LayoutProps) => {
         
         <div className="grid grid-cols-5 gap-1 px-2 py-2">
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive = location.pathname === item.href || 
+              (location.pathname === '/games/duel' && (item as any).isActiveDuel);
             return (
               <NavLink
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300",
+                  "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 relative",
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground",
+                  (item as any).isActiveDuel && "bg-gradient-to-b from-primary/10 to-purple-500/10"
                 )}
               >
                 <item.icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
                 <span className="text-xs font-medium">{item.name}</span>
+                {(item as any).isActiveDuel && (
+                  <motion.div
+                    className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
               </NavLink>
             );
           })}

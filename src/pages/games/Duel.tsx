@@ -25,6 +25,7 @@ import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
 import { toast } from 'sonner';
+import { useActiveDuel } from '@/hooks/useActiveDuel';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -45,6 +46,7 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 export default function Duel() {
   const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
   const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
+  const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
   const [mode, setMode] = useState<GameMode>('menu');
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);

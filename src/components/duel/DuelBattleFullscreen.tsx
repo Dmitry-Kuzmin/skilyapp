@@ -83,6 +83,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
+  const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
+  const [opponentPhotoUrl, setOpponentPhotoUrl] = useState<string | null>(null);
   const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
   const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
   const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
@@ -668,6 +670,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.duelStarted, duelId, profileId]);
 
+  // Логирование safe area только при изменении значений (не при каждом рендере)
+  useEffect(() => {
+    const TELEGRAM_NAV_HEIGHT = 95;
+    const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
+    const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
+    const totalLeftPadding = Math.round(safeArea.left);
+    const totalRightPadding = Math.round(safeArea.right);
+    const PROGRESS_BAR_HEIGHT = 60;
+
+    console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
+      platform: safeArea.platform,
+      safeAreaTop: `${safeArea.top}px`,
+      safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
+      telegramNavHeight: `${TELEGRAM_NAV_HEIGHT}px`,
+      telegramNavPadding: `${telegramNavPadding}px`,
+      totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
+      calculation: `${safeArea.top} + ${safeArea.contentTop} + ${telegramNavPadding} = ${totalTopPadding}`,
+      safeAreaLeft: `${safeArea.left}px`,
+      safeAreaRight: `${safeArea.right}px`,
+      totalLeftPadding: `${totalLeftPadding}px`,
+      totalRightPadding: `${totalRightPadding}px`,
+      progressBarTop: `${totalTopPadding}px`,
+      contentPaddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 8 : 0)}px`,
+    });
+  }, [safeArea.platform, safeArea.top, safeArea.contentTop, safeArea.left, safeArea.right, safeArea.bottom, safeArea.contentBottom]);
+
   // Timer countdown
   useEffect(() => {
     if (isAnswered || timeLeft <= 0) return;
@@ -984,7 +1012,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         const profilePromises = userIds.map(async (userId) => {
           const { data: profile, error } = await supabase
             .from('profiles')
-            .select('id, first_name, username')
+            .select('id, first_name, username, photo_url')
             .eq('id', userId)
             .single();
           
@@ -1021,13 +1049,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           username: p.username,
         })));
         
-        // Устанавливаем имена
+        // Устанавливаем имена и фото
         if (myPlayer?.user_id) {
           const myProfile = profilesMap.get(myPlayer.user_id);
           if (myProfile) {
             const name = myProfile.first_name || myProfile.username || 'Вы';
             console.log('[DuelBattleFullscreen] ✅ Setting my name from direct query:', name);
             setMyName(name);
+            if (myProfile.photo_url) {
+              setMyPhotoUrl(getImageUrl(myProfile.photo_url));
+            }
           } else {
             console.warn('[DuelBattleFullscreen] ⚠️ No profile found for my player');
             setMyName('Вы');
@@ -1040,6 +1071,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
             console.log('[DuelBattleFullscreen] ✅ Setting opponent name from direct query:', name);
             setOpponentName(name);
+            if (opponentProfile.photo_url) {
+              setOpponentPhotoUrl(getImageUrl(opponentProfile.photo_url));
+            }
           } else {
             console.warn('[DuelBattleFullscreen] ⚠️ No profile found for opponent');
             setOpponentName('Соперник');
@@ -1718,23 +1752,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
   const PROGRESS_BAR_HEIGHT = 60;
 
-  // Логирование для отладки safe area (включено для проверки отступов)
-  console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
-    platform: safeArea.platform,
-    safeAreaTop: `${safeArea.top}px`,
-    safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
-    telegramNavHeight: `${TELEGRAM_NAV_HEIGHT}px`,
-    telegramNavPadding: `${telegramNavPadding}px`,
-    totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
-    calculation: `${safeArea.top} + ${safeArea.contentTop} + ${telegramNavPadding} = ${totalTopPadding}`,
-    safeAreaLeft: `${safeArea.left}px`,
-    safeAreaRight: `${safeArea.right}px`,
-    totalLeftPadding: `${totalLeftPadding}px`,
-    totalRightPadding: `${totalRightPadding}px`,
-    progressBarTop: `${totalTopPadding}px`,
-    contentPaddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 8 : 0)}px`,
-  });
-
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
   return (
@@ -1841,9 +1858,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               } : {}}
             >
               <div className="relative">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-                  <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
+                {myPhotoUrl ? (
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-blue-500/50 shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                    <img 
+                      src={myPhotoUrl} 
+                      alt={myName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                    <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                )}
                 {myScore > opponentScore && (
                   <motion.div
                     className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
@@ -1851,9 +1878,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     transition={{ duration: 1, repeat: Infinity }}
                   />
                 )}
+                {/* Иконка страховки рядом с фото */}
+                {myInsuranceActive && (
+                  <div className="absolute -bottom-0.5 -left-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-green-500/50">
+                    <Shield className="w-3 h-3 text-green-600 dark:text-green-400" />
+                  </div>
+                )}
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <p className="text-xs font-medium text-muted-foreground">{myName}</p>
+                  {myInsuranceActive && (
+                    <Shield className="w-3 h-3 text-green-600 dark:text-green-400" title={`Страховка: ${myCoverageDisplay}%`} />
+                  )}
+                </div>
                 <motion.div 
                   key={myScore}
                   className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
@@ -1874,14 +1912,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               whileHover={{ scale: 1.02 }}
               animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
-              <div>
-                <p 
-                  className="text-xs font-medium text-muted-foreground mb-0.5 text-right truncate max-w-[120px] ml-auto" 
-                  title={opponentName}
-                  key={`opponent-name-${opponentName}`}
-                >
-                  {opponentName || 'Соперник'}
-                </p>
+              <div className="flex-1 text-right">
+                <div className="flex items-center justify-end gap-1.5 mb-0.5">
+                  {opponentInsuranceActive && (
+                    <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" title={`Страховка: ${opponentCoverageDisplay}%`} />
+                  )}
+                  <p 
+                    className="text-xs font-medium text-muted-foreground truncate max-w-[120px]" 
+                    title={opponentName}
+                    key={`opponent-name-${opponentName}`}
+                  >
+                    {opponentName || 'Соперник'}
+                  </p>
+                </div>
                 <motion.div 
                   key={opponentScore}
                   className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right"
@@ -1893,9 +1936,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 </motion.div>
               </div>
               <div className="relative">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-                  <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                </div>
+                {opponentPhotoUrl ? (
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-orange-500/50 shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                    <img 
+                      src={opponentPhotoUrl} 
+                      alt={opponentName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
+                    <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                )}
                 
                 {/* Индикатор активности соперника */}
                 <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-border/50">
@@ -1904,6 +1957,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     showTooltip={true}
                   />
                 </div>
+                
+                {/* Иконка страховки рядом с фото */}
+                {opponentInsuranceActive && (
+                  <div className="absolute -bottom-0.5 -left-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-blue-500/50">
+                    <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  </div>
+                )}
                 
                 {opponentScore > myScore && (
                   <motion.div
@@ -1985,65 +2045,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 </div>
               </motion.div>
 
-              {/* Моя страховка */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className={`relative overflow-hidden rounded-xl border p-3 shadow-sm transition-all ${
-                  myInsuranceActive
-                    ? 'bg-gradient-to-br from-green-500/15 via-emerald-500/10 to-teal-500/15 dark:from-green-500/20 dark:via-emerald-500/15 dark:to-teal-500/20 border-green-400/40 dark:border-green-600/50'
-                    : 'bg-muted/30 border-muted-foreground/20'
-                }`}
-              >
-                <div className={`absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl ${
-                  myInsuranceActive ? 'bg-green-400/10' : 'bg-muted-foreground/5'
-                }`} />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Shield className={`w-3.5 h-3.5 ${
-                      myInsuranceActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground/50'
-                    }`} />
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Твоя</p>
-                  </div>
-                  <p className={`text-lg font-black leading-tight ${
-                    myInsuranceActive ? 'text-green-700 dark:text-green-400' : 'text-muted-foreground/60'
-                  }`}>
-                    {myInsuranceActive ? `${myCoverageDisplay}%` : '—'}
-                  </p>
-                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
-                    страховка
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Страховка соперника */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className={`relative overflow-hidden rounded-xl border p-3 shadow-sm transition-all ${
-                  opponentInsuranceActive
-                    ? 'bg-gradient-to-br from-blue-500/15 via-cyan-500/10 to-sky-500/15 dark:from-blue-500/20 dark:via-cyan-500/15 dark:to-sky-500/20 border-blue-400/40 dark:border-blue-600/50'
-                    : 'bg-muted/30 border-muted-foreground/20'
-                }`}
-              >
-                <div className={`absolute top-0 right-0 w-16 h-16 rounded-full blur-2xl ${
-                  opponentInsuranceActive ? 'bg-blue-400/10' : 'bg-muted-foreground/5'
-                }`} />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Shield className={`w-3.5 h-3.5 ${
-                      opponentInsuranceActive ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground/50'
-                    }`} />
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Соперник</p>
-                  </div>
-                  <p className={`text-lg font-black leading-tight ${
-                    opponentInsuranceActive ? 'text-blue-700 dark:text-blue-400' : 'text-muted-foreground/60'
-                  }`}>
-                    {opponentInsuranceActive ? `${opponentCoverageDisplay}%` : '—'}
-                  </p>
-                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
-                    страховка
-                  </p>
-                </div>
-              </motion.div>
             </div>
           </motion.div>
         )}
