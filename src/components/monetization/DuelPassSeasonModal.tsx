@@ -351,7 +351,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Супер компактный список наград - без скролла */}
+        {/* Компактная таблица наград */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -384,112 +384,140 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Супер компактный список - минимальные отступы */}
-          <div className="space-y-0.5">
-            {filteredRewards.map((reward) => {
-              const unlocked = currentLevel >= reward.level;
-              const isClaimed = claimedRewards.has(reward.level);
-              const isCurrent = currentLevel === reward.level;
-              
-              // Проверяем наличие наград
-              const hasFreeCoins = reward.free_reward?.type === 'coins' && reward.free_reward?.amount;
-              const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
-              const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
-              
-              return (
-                <div
-                  key={reward.level}
-                  className={cn(
-                    "flex items-center justify-between gap-1.5 px-1.5 py-1 rounded transition-all cursor-pointer group",
-                    isCurrent && "bg-primary/10 border-l-2 border-l-primary",
-                    isClaimed 
-                      ? "bg-green-500/5 hover:bg-green-500/10" 
-                      : unlocked 
-                      ? "bg-background hover:bg-muted/50" 
-                      : "bg-muted/20 opacity-60"
-                  )}
-                  onClick={() => {
-                    if (unlocked && !isClaimed) {
-                      claimReward(reward.level);
-                    }
-                  }}
-                >
-                  {/* Левая часть: уровень и награды */}
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {/* Номер уровня - очень компактный */}
-                    <div className={cn(
-                      "flex items-center justify-center w-5 h-5 rounded text-[9px] font-bold shrink-0",
-                      isCurrent 
-                        ? "bg-primary text-white" 
-                        : isClaimed 
-                        ? "bg-green-500/20 text-green-600" 
-                        : unlocked 
-                        ? "bg-muted text-muted-foreground" 
-                        : "bg-muted/30 text-muted-foreground"
-                    )}>
-                      {reward.level}
-                    </div>
+          {/* Компактная таблица */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted/30 border-b">
+                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-12">Lv</th>
+                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-16">
+                      <Coins className="w-3 h-3 inline text-yellow-500" />
+                    </th>
+                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-16">
+                      <Crown className="w-3 h-3 inline" />
+                    </th>
+                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-20">SP</th>
+                    <th className="text-center px-2 py-1 text-[9px] font-semibold text-muted-foreground w-16">Действие</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRewards.map((reward) => {
+                    const unlocked = currentLevel >= reward.level;
+                    const isClaimed = claimedRewards.has(reward.level);
+                    const isCurrent = currentLevel === reward.level;
                     
-                    {/* Награды в одну строку - компактно */}
-                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                      {/* Монетки (бесплатная награда) */}
-                      {hasFreeCoins && (
-                        <div className="flex items-center gap-0.5">
-                          <Coins className="w-2.5 h-2.5 text-yellow-500 shrink-0" />
-                          <span className="text-[10px] font-semibold leading-none">{reward.free_reward.amount}</span>
-                        </div>
-                      )}
-                      
-                      {/* Корона (премиум награда) - показываем только если есть amount или это другой тип */}
-                      {reward.premium_reward && (
-                        <div className={cn(
-                          "flex items-center gap-0.5",
-                          isPremium ? "text-yellow-600" : "text-muted-foreground/50"
-                        )}>
-                          <Crown className="w-2.5 h-2.5 shrink-0" />
-                          {hasPremiumCoins && (
-                            <span className="text-[10px] font-semibold leading-none">{reward.premium_reward.amount}</span>
-                          )}
-                          {hasPremiumOther && (
-                            <span className="text-[9px] text-muted-foreground/60 leading-none">
-                              {reward.premium_reward.type === 'skin' ? 'Скин' :
-                               reward.premium_reward.type === 'badge' ? 'Бейдж' :
-                               reward.premium_reward.type === 'boost' ? 'Буст' :
-                               reward.premium_reward.type === 'sticker' ? 'Стикер' : ''}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    // Проверяем наличие наград
+                    const hasFreeCoins = reward.free_reward?.type === 'coins' && reward.free_reward?.amount;
+                    const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
+                    const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
                     
-                    {/* SP для заблокированных - очень компактно */}
-                    {!unlocked && (
-                      <span className="text-[9px] text-muted-foreground shrink-0">
-                        +{reward.sp_required - currentSP}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Правая часть: статус или кнопка - компактно */}
-                  <div className="shrink-0">
-                    {isClaimed ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                    ) : unlocked ? (
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          claimReward(reward.level);
+                    return (
+                      <tr
+                        key={reward.level}
+                        className={cn(
+                          "border-b transition-colors cursor-pointer group",
+                          isCurrent && "bg-primary/10",
+                          isClaimed 
+                            ? "bg-green-500/5 hover:bg-green-500/10" 
+                            : unlocked 
+                            ? "hover:bg-muted/30" 
+                            : "bg-muted/10 opacity-60"
+                        )}
+                        onClick={() => {
+                          if (unlocked && !isClaimed) {
+                            claimReward(reward.level);
+                          }
                         }}
-                        className="h-5 px-1.5 text-[9px]"
                       >
-                        Забрать
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
+                        {/* Уровень */}
+                        <td className="px-2 py-1">
+                          <div className={cn(
+                            "inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-bold",
+                            isCurrent 
+                              ? "bg-primary text-white" 
+                              : isClaimed 
+                              ? "bg-green-500/20 text-green-600" 
+                              : unlocked 
+                              ? "bg-muted text-muted-foreground" 
+                              : "bg-muted/30 text-muted-foreground"
+                          )}>
+                            {reward.level}
+                          </div>
+                        </td>
+                        
+                        {/* Монетки (Free) */}
+                        <td className="px-2 py-1">
+                          {hasFreeCoins ? (
+                            <div className="flex items-center gap-0.5">
+                              <Coins className="w-2.5 h-2.5 text-yellow-500 shrink-0" />
+                              <span className="text-[10px] font-semibold">{reward.free_reward.amount}</span>
+                            </div>
+                          ) : (
+                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                          )}
+                        </td>
+                        
+                        {/* Корона (Premium) */}
+                        <td className="px-2 py-1">
+                          {reward.premium_reward ? (
+                            <div className={cn(
+                              "flex items-center gap-0.5",
+                              isPremium ? "text-yellow-600" : "text-muted-foreground/50"
+                            )}>
+                              <Crown className="w-2.5 h-2.5 shrink-0" />
+                              {hasPremiumCoins ? (
+                                <span className="text-[10px] font-semibold">{reward.premium_reward.amount}</span>
+                              ) : hasPremiumOther ? (
+                                <span className="text-[9px] text-muted-foreground/60">
+                                  {reward.premium_reward.type === 'skin' ? 'Скин' :
+                                   reward.premium_reward.type === 'badge' ? 'Бейдж' :
+                                   reward.premium_reward.type === 'boost' ? 'Буст' :
+                                   reward.premium_reward.type === 'sticker' ? 'Стикер' : ''}
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                          )}
+                        </td>
+                        
+                        {/* SP */}
+                        <td className="px-2 py-1">
+                          {!unlocked ? (
+                            <span className="text-[9px] text-muted-foreground">
+                              +{reward.sp_required - currentSP}
+                            </span>
+                          ) : (
+                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                          )}
+                        </td>
+                        
+                        {/* Действие */}
+                        <td className="px-2 py-1 text-center">
+                          {isClaimed ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mx-auto" />
+                          ) : unlocked ? (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                claimReward(reward.level);
+                              }}
+                              className="h-5 px-1.5 text-[9px]"
+                            >
+                              Забрать
+                            </Button>
+                          ) : (
+                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
