@@ -130,7 +130,8 @@ serve(async (req) => {
         prices: [{
           label: pkg.title_ru,
           amount: starsAmount // В ЦЕЛЫХ единицах звезд (для XTR не нужно умножать на 1000!)
-        }]
+        }],
+        start_parameter: `stars_${invoicePayload}` // Параметр для глубокой ссылки (может помочь с Mini Apps)
       };
 
       console.log('[Stars Payment] Sending invoice request to Telegram:', JSON.stringify(invoiceRequest, null, 2));
