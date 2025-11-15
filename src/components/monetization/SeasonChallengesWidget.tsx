@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
-import { Loader2, Trophy, Target, Calendar, Zap, CheckCircle2, Clock } from "lucide-react";
+import { Loader2, Trophy, Target, Calendar, Zap, CheckCircle2, Clock, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -35,6 +35,7 @@ export function SeasonChallengesWidget() {
   const [progress, setProgress] = useState<Map<string, ChallengeProgress>>(new Map());
   const [loading, setLoading] = useState(true);
   const [activeSeason, setActiveSeason] = useState<any>(null);
+  const [filterType, setFilterType] = useState<'all' | 'daily' | 'weekly' | 'season'>('all');
 
   useEffect(() => {
     if (!profileId) return;
@@ -51,9 +52,8 @@ export function SeasonChallengesWidget() {
 
       if (seasonError) {
         console.error("[SeasonChallengesWidget] Error loading season", seasonError);
-        // Если функция не найдена (404), значит миграция не применена
         if (seasonError.code === 'PGRST116' || seasonError.message?.includes('404')) {
-          console.error("[SeasonChallengesWidget] ⚠️ Миграция не применена! Примените файл APPLY_SEASON_MIGRATION_NOW.sql в Supabase SQL Editor");
+          console.error("[SeasonChallengesWidget] ⚠️ Миграция не применена!");
         }
         setLoading(false);
         return;
@@ -124,6 +124,66 @@ export function SeasonChallengesWidget() {
     }
   };
 
+  const claimChallengeReward = async (challenge: Challenge) => {
+    if (!profileId) return;
+
+    try {
+      const challengeProgress = progress.get(challenge.id);
+      if (!challengeProgress?.completed) {
+        toast.error("Челлендж еще не завершен");
+        return;
+      }
+
+      if (challengeProgress.reward_claimed) {
+        toast.info("Награда уже получена");
+        return;
+      }
+
+      // Вызываем Edge Function для получения награды
+      const { error } = await supabase.functions.invoke("season-challenges-reward", {
+        body: {
+          user_id: profileId,
+          completed_challenges: [{
+            challenge_id: challenge.id,
+            title: challenge.title_ru,
+            reward_sp: challenge.reward_sp,
+            reward_coins: challenge.reward_coins,
+          }],
+        },
+      });
+
+      if (error) {
+        toast.error("Ошибка при получении награды", {
+          description: error.message || "Попробуйте позже",
+        });
+        return;
+      }
+
+      // Обновляем локальное состояние
+      setProgress((prev) => {
+        const newMap = new Map(prev);
+        const current = newMap.get(challenge.id);
+        if (current) {
+          newMap.set(challenge.id, {
+            ...current,
+            reward_claimed: true,
+          });
+        }
+        return newMap;
+      });
+
+      toast.success("Награда получена!", {
+        description: `+${challenge.reward_sp} SP${challenge.reward_coins > 0 ? `, +${challenge.reward_coins} монет` : ''}`,
+      });
+
+      // Перезагружаем данные
+      loadChallenges();
+    } catch (err: any) {
+      console.error("[SeasonChallengesWidget] Claim error", err);
+      toast.error("Ошибка при получении награды");
+    }
+  };
+
   const getChallengeIcon = (type: string) => {
     switch (type) {
       case 'daily':
@@ -134,19 +194,6 @@ export function SeasonChallengesWidget() {
         return <Trophy className="w-4 h-4" />;
       default:
         return <Target className="w-4 h-4" />;
-    }
-  };
-
-  const getChallengeTypeLabel = (type: string) => {
-    switch (type) {
-      case 'daily':
-        return 'Ежедневный';
-      case 'weekly':
-        return 'Еженедельный';
-      case 'season':
-        return 'Сезонный';
-      default:
-        return type;
     }
   };
 
@@ -207,251 +254,176 @@ export function SeasonChallengesWidget() {
   const weeklyChallenges = challenges.filter(c => c.challenge_type === 'weekly');
   const seasonChallenges = challenges.filter(c => c.challenge_type === 'season');
 
+  // Фильтруем челленджи по выбранному типу
+  const filteredChallenges = filterType === 'all' 
+    ? challenges 
+    : filterType === 'daily' 
+    ? dailyChallenges 
+    : filterType === 'weekly' 
+    ? weeklyChallenges 
+    : seasonChallenges;
+
   return (
-    <Card className="p-4 space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Target className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Сезонные челленджи</h3>
         </div>
-        {activeSeason && (
-          <Badge variant="secondary" className="text-xs">
-            {activeSeason.name_ru}
-          </Badge>
-        )}
+        <Badge variant="secondary" className="text-xs">
+          {challenges.length} активных
+        </Badge>
       </div>
 
-      {/* Daily Challenges */}
-      {dailyChallenges.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Calendar className="w-4 h-4" />
-            Ежедневные
-          </div>
-          {dailyChallenges.map((challenge) => {
-            const challengeProgress = progress.get(challenge.id) || {
-              challenge_id: challenge.id,
-              progress: 0,
-              completed: false,
-              reward_claimed: false,
-            };
-            const progressPercent = Math.min(
-              (challengeProgress.progress / challenge.target_value) * 100,
-              100
-            );
-            const isCompleted = challengeProgress.completed;
+      {/* Табы для фильтрации */}
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setFilterType('all')}
+          className={cn(
+            "px-3 py-2 text-sm font-medium border-b-2 transition-colors",
+            filterType === 'all'
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Все ({challenges.length})
+        </button>
+        <button
+          onClick={() => setFilterType('daily')}
+          className={cn(
+            "px-3 py-2 text-sm font-medium border-b-2 transition-colors",
+            filterType === 'daily'
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Ежедневные ({dailyChallenges.length})
+        </button>
+        <button
+          onClick={() => setFilterType('weekly')}
+          className={cn(
+            "px-3 py-2 text-sm font-medium border-b-2 transition-colors",
+            filterType === 'weekly'
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Еженедельные ({weeklyChallenges.length})
+        </button>
+        <button
+          onClick={() => setFilterType('season')}
+          className={cn(
+            "px-3 py-2 text-sm font-medium border-b-2 transition-colors",
+            filterType === 'season'
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Сезонные ({seasonChallenges.length})
+        </button>
+      </div>
 
-            return (
-              <Card
-                key={challenge.id}
-                className={cn(
-                  "p-3 border",
-                  isCompleted && "bg-green-50 dark:bg-green-950/20 border-green-500/50"
-                )}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {getChallengeIcon(challenge.challenge_type)}
-                        <p className="text-sm font-medium">{challenge.title_ru}</p>
-                        {isCompleted && (
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {getTargetLabel(challenge.target_type, challenge.target_value)}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs">
-                        <Progress value={progressPercent} className="h-1.5 flex-1" />
-                        <span className="text-muted-foreground whitespace-nowrap">
-                          {challengeProgress.progress} / {challenge.target_value}
-                        </span>
-                      </div>
-                    </div>
+      {/* Карточки челленджей */}
+      <div className="space-y-2">
+        {filteredChallenges.map((challenge) => {
+          const challengeProgress = progress.get(challenge.id) || {
+            challenge_id: challenge.id,
+            progress: 0,
+            completed: false,
+            reward_claimed: false,
+          };
+          const progressPercent = Math.min(
+            (challengeProgress.progress / challenge.target_value) * 100,
+            100
+          );
+          const isCompleted = challengeProgress.completed;
+          const isClaimed = challengeProgress.reward_claimed;
+
+          return (
+            <div
+              key={challenge.id}
+              className={cn(
+                "p-4 rounded-lg border transition-all",
+                isCompleted && !isClaimed
+                  ? "bg-green-500/10 border-green-500/50 shadow-sm"
+                  : isClaimed
+                  ? "bg-muted/30 border-muted"
+                  : "bg-background border-border"
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    {getChallengeIcon(challenge.challenge_type)}
+                    <h4 className="font-semibold text-sm">{challenge.title_ru}</h4>
+                    {isClaimed && <CheckCircle2 className="w-4 h-4 text-green-500" />}
                   </div>
-                  {isCompleted && (
-                    <div className="flex items-center gap-2 pt-1 border-t">
-                      <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                        <Zap className="w-3 h-3" />
-                        <span>+{challenge.reward_sp} SP</span>
-                      </div>
-                      {challenge.reward_coins > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400">
-                          <span>+{challenge.reward_coins} монет</span>
-                        </div>
-                      )}
-                      {challenge.end_date && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
-                          <Clock className="w-3 h-3" />
-                          <span>Осталось: {formatTimeRemaining(challenge.end_date)}</span>
-                        </div>
-                      )}
+                  
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {getTargetLabel(challenge.target_type, challenge.target_value)}
+                  </p>
+                  
+                  {/* Прогресс */}
+                  <div className="space-y-1 mb-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Прогресс</span>
+                      <span className="font-medium">
+                        {challengeProgress.progress} / {challenge.target_value}
+                      </span>
                     </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Weekly Challenges */}
-      {weeklyChallenges.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Calendar className="w-4 h-4" />
-            Еженедельные
-          </div>
-          {weeklyChallenges.map((challenge) => {
-            const challengeProgress = progress.get(challenge.id) || {
-              challenge_id: challenge.id,
-              progress: 0,
-              completed: false,
-              reward_claimed: false,
-            };
-            const progressPercent = Math.min(
-              (challengeProgress.progress / challenge.target_value) * 100,
-              100
-            );
-            const isCompleted = challengeProgress.completed;
-
-            return (
-              <Card
-                key={challenge.id}
-                className={cn(
-                  "p-3 border",
-                  isCompleted && "bg-green-50 dark:bg-green-950/20 border-green-500/50"
-                )}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {getChallengeIcon(challenge.challenge_type)}
-                        <p className="text-sm font-medium">{challenge.title_ru}</p>
-                        {isCompleted && (
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {getTargetLabel(challenge.target_type, challenge.target_value)}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs">
-                        <Progress value={progressPercent} className="h-1.5 flex-1" />
-                        <span className="text-muted-foreground whitespace-nowrap">
-                          {challengeProgress.progress} / {challenge.target_value}
-                        </span>
-                      </div>
-                    </div>
+                    <Progress 
+                      value={progressPercent} 
+                      className="h-2" 
+                    />
                   </div>
-                  {isCompleted && (
-                    <div className="flex items-center gap-2 pt-1 border-t">
-                      <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                        <Zap className="w-3 h-3" />
-                        <span>+{challenge.reward_sp} SP</span>
-                      </div>
-                      {challenge.reward_coins > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400">
-                          <span>+{challenge.reward_coins} монет</span>
-                        </div>
-                      )}
-                      {challenge.end_date && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
-                          <Clock className="w-3 h-3" />
-                          <span>Осталось: {formatTimeRemaining(challenge.end_date)}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Season Challenges */}
-      {seasonChallenges.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Trophy className="w-4 h-4" />
-            Сезонные
-          </div>
-          {seasonChallenges.map((challenge) => {
-            const challengeProgress = progress.get(challenge.id) || {
-              challenge_id: challenge.id,
-              progress: 0,
-              completed: false,
-              reward_claimed: false,
-            };
-            const progressPercent = Math.min(
-              (challengeProgress.progress / challenge.target_value) * 100,
-              100
-            );
-            const isCompleted = challengeProgress.completed;
-
-            return (
-              <Card
-                key={challenge.id}
-                className={cn(
-                  "p-3 border-2",
-                  isCompleted 
-                    ? "bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border-yellow-500/50" 
-                    : "border-primary/30"
-                )}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        {getChallengeIcon(challenge.challenge_type)}
-                        <p className="text-sm font-semibold">{challenge.title_ru}</p>
-                        {isCompleted && (
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {getTargetLabel(challenge.target_type, challenge.target_value)}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs">
-                        <Progress value={progressPercent} className="h-2 flex-1" />
-                        <span className="text-muted-foreground whitespace-nowrap font-medium">
-                          {challengeProgress.progress} / {challenge.target_value}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 pt-1 border-t">
-                    <div className="flex items-center gap-1 text-xs font-medium text-green-600 dark:text-green-400">
-                      <Zap className="w-3 h-3" />
-                      <span>+{challenge.reward_sp} SP</span>
+                  
+                  {/* Награды */}
+                  <div className="flex items-center gap-3 text-xs">
+                    <div className="flex items-center gap-1 text-purple-600">
+                      <Trophy className="w-3 h-3" />
+                      <span className="font-medium">+{challenge.reward_sp} SP</span>
                     </div>
                     {challenge.reward_coins > 0 && (
-                      <div className="flex items-center gap-1 text-xs font-medium text-yellow-600 dark:text-yellow-400">
-                        <span>+{challenge.reward_coins} монет</span>
+                      <div className="flex items-center gap-1 text-yellow-600">
+                        <Coins className="w-3 h-3" />
+                        <span className="font-medium">+{challenge.reward_coins} монет</span>
                       </div>
                     )}
-                    {challenge.end_date && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
+                    {challenge.end_date && !isCompleted && (
+                      <div className="flex items-center gap-1 text-muted-foreground ml-auto">
                         <Clock className="w-3 h-3" />
-                        <span>До конца сезона</span>
+                        {formatTimeRemaining(challenge.end_date)}
                       </div>
                     )}
                   </div>
                 </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+                
+                {/* Кнопка действия */}
+                {isCompleted && !isClaimed ? (
+                  <Button 
+                    size="sm" 
+                    onClick={() => claimChallengeReward(challenge)}
+                    className="shrink-0"
+                  >
+                    Забрать
+                  </Button>
+                ) : isCompleted && isClaimed ? (
+                  <Badge className="bg-green-500 text-white shrink-0">
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    Получено
+                  </Badge>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-      {challenges.length === 0 && (
+      {filteredChallenges.length === 0 && (
         <div className="text-center py-8 text-muted-foreground text-sm">
-          Нет активных челленджей в этом сезоне
+          Нет челленджей для отображения
         </div>
       )}
-    </Card>
+    </div>
   );
 }
-
