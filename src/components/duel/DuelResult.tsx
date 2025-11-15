@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { motion } from 'framer-motion';
@@ -26,13 +26,15 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const [myAnswers, setMyAnswers] = useState<any[]>([]);
   const [showAIWidget, setShowAIWidget] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
+  const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
 
   useEffect(() => {
     loadResults();
   }, [duelId]);
 
   useEffect(() => {
-    if (results && profileId) {
+    if (results && profileId && rewards) {
+      // Track challenges
       const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
       const metadata = {
         duel_id: duelId,
@@ -41,39 +43,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         bet_amount: results.betAmount || 0,
         has_bet: (results.betAmount || 0) > 0
       };
-      const applyRewards = async () => {
-        await supabase.functions.invoke('season-sp', {
-          body: { 
-            user_id: profileId, 
-            source_type: spSource,
-            metadata
-          },
-        });
-        
-        const { data } = await supabase.functions.invoke('duel-pass-xp', {
-          body: { user_id: profileId, source_type: spSource, metadata },
-        });
-        
-        await supabase.functions.invoke('season-challenges-track', {
-          body: {
-            user_id: profileId,
-            source_type: spSource,
-            metadata
-          },
-        });
-        if (data?.level_up) {
-          const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
-            body: { trigger: 'duel_pass_level_up' },
-          });
-          const message = suggestion?.suggestion?.message;
-          if (message) {
-            toast.info(message);
-          }
-        }
-      };
-      applyRewards();
+      
+      supabase.functions.invoke('season-challenges-track', {
+        body: {
+          user_id: profileId,
+          source_type: spSource,
+          metadata
+        },
+      }).catch(err => console.error('[DuelResult] Error tracking challenges:', err));
     }
-  }, [results, profileId, duelId]);
+  }, [results, profileId, duelId, rewards]);
 
   useEffect(() => {
     if (results?.isWinner) {
@@ -87,8 +66,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
-      // Load players, duel info, and answers
-      const [playersResponse, duelResponse, answersResponse] = await Promise.all([
+      // Load players, duel info, answers, and bet data
+      const [playersResponse, duelResponse, answersResponse, betResponse, betHistoryResponse] = await Promise.all([
         supabase
         .from('duel_players')
         .select('*, profiles(first_name, username)')
@@ -102,12 +81,24 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           .from('duel_answers')
           .select('*, duel_questions(question_snapshot)')
           .eq('duel_id', duelId)
-          .order('created_at', { ascending: true })
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('duel_bets')
+          .select('*')
+          .eq('duel_id', duelId)
+          .maybeSingle(),
+        supabase
+          .from('duel_bet_history')
+          .select('*')
+          .eq('duel_id', duelId)
+          .maybeSingle()
       ]);
 
       const players = playersResponse.data;
       const duel = duelResponse.data;
       const allAnswers = answersResponse.data;
+      const bet = betResponse.data;
+      const betHistory = betHistoryResponse.data;
 
       if (!players) return;
 
@@ -127,15 +118,95 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       
       // Calculate winnings if bet was placed
       let winnings = 0;
+      let insuranceRefund = 0;
       const betAmount = (duel as any)?.bet_amount || 0;
+      
+      // Check if user had insurance
+      const isHost = myPlayer?.is_host;
+      const hadInsurance = isHost 
+        ? bet?.host_insurance_enabled 
+        : bet?.opponent_insurance_enabled;
       
       if (betAmount > 0) {
         if (isWinner) {
           const totalPot = betAmount * 2;
-          // Комиссия убрана - банк полностью игрокам
           winnings = totalPot;
+        } else if (!isWinner && !isDraw && hadInsurance) {
+          // Insurance refund for loser
+          const coverageRate = isHost 
+            ? bet?.host_coverage_rate || 0.6
+            : bet?.opponent_coverage_rate || 0.6;
+          insuranceRefund = Math.ceil(betAmount * coverageRate);
+        } else if (isDraw && hadInsurance) {
+          // Full refund for draw with insurance
+          const premium = isHost 
+            ? bet?.host_insurance_premium || 0
+            : bet?.opponent_insurance_premium || 0;
+          insuranceRefund = betAmount + premium;
         }
       }
+      
+      // Get actual rewards from season-sp function
+      const spSource = isDraw ? 'duel_draw' : (isWinner ? 'duel_win' : 'duel_lose');
+      const metadata = {
+        duel_id: duelId,
+        is_winner: isWinner,
+        is_draw: isDraw,
+        bet_amount: betAmount,
+        has_bet: betAmount > 0
+      };
+      
+      let actualSP = 0;
+      let actualXP = 0;
+      let bonusCoins = 0;
+      
+      try {
+        const { data: spData } = await supabase.functions.invoke('season-sp', {
+          body: { 
+            user_id: profileId, 
+            source_type: spSource,
+            metadata
+          },
+        });
+        
+        const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
+          body: { user_id: profileId, source_type: spSource, metadata },
+        });
+        
+        actualSP = spData?.sp_added || 0;
+        actualXP = xpData?.xp_added || 0;
+        
+        // Check for bonus coins (from bet history or calculate)
+        if (betHistory) {
+          const isHostWin = betHistory.result === 'host_win' && isHost;
+          const isOpponentWin = betHistory.result === 'opponent_win' && !isHost;
+          if ((isHostWin || isOpponentWin) && isWinner) {
+            // Bonus coins would be in transactions, but for now we'll estimate
+            // In real implementation, check duel_transactions for bonus coins
+            bonusCoins = 0; // Will be calculated from transactions if needed
+          }
+        }
+      } catch (err) {
+        console.error('[DuelResult] Error getting rewards:', err);
+        // Fallback to calculated values
+        if (isWinner) {
+          actualXP = betAmount > 0 ? 40 : 30;
+          actualSP = betAmount > 0 ? Math.round(20 * (betAmount >= 600 ? 4 : betAmount >= 300 ? 2.25 : betAmount >= 100 ? 1.25 : 1)) : 0;
+        } else if (isDraw) {
+          actualXP = 25;
+          actualSP = betAmount > 0 ? 15 : 0;
+        } else {
+          actualXP = 15;
+          actualSP = (betAmount >= 100) ? 5 : 0;
+        }
+      }
+      
+      setRewards({
+        sp: actualSP,
+        xp: actualXP,
+        bonusCoins,
+        insuranceRefund: insuranceRefund > 0 ? insuranceRefund : undefined
+      });
       
       setResults({
         myScore: myPlayer?.score || 0,
@@ -149,6 +220,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         betAmount,
         winnings,
         rematchPot: (duel as any)?.rematch_pot || 0,
+        hadInsurance,
       });
       
       console.log('[DuelResult] Loaded results:', {
@@ -156,7 +228,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         opponentScore: opponent?.score,
         betAmount,
         winnings,
-        isDraw
+        isDraw,
+        rewards: { sp: actualSP, xp: actualXP, bonusCoins, insuranceRefund }
       });
     } catch (error) {
       console.error(error);
@@ -280,97 +353,222 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             </motion.div>
           </div>
           
-          {/* Betting results */}
+          {/* Betting results - Ultra Modern Design */}
           {results.betAmount > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className={`p-4 sm:p-6 rounded-2xl border-2 ${
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+              className={`relative overflow-hidden p-4 sm:p-5 rounded-2xl border-2 shadow-xl ${
                 results.isWinner 
-                  ? 'bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border-amber-500/40'
+                  ? 'bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-amber-500/50'
                   : results.isDraw
-                  ? 'bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border-blue-500/40'
-                  : 'bg-gradient-to-br from-muted/20 to-muted/10 border-muted/40'
+                  ? 'bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-indigo-500/20 border-blue-500/50'
+                  : 'bg-gradient-to-br from-muted/20 via-muted/15 to-muted/10 border-muted/50'
               }`}
             >
-              <div className="flex items-center gap-2 mb-3">
-                <Coins className="h-5 w-5 text-amber-500" />
-                <h3 className="font-black text-lg">
-                  {results.isWinner ? 'Выигрыш' : results.isDraw ? 'Реванш' : 'Ставка'}
-                </h3>
-              </div>
+              {/* Animated shimmer effect */}
+              <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent ${
+                results.isWinner ? 'animate-pulse' : ''
+              }`} />
               
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Ваша ставка:</span>
-                  <span className="font-bold">-{results.betAmount}</span>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <motion.div
+                    animate={results.isWinner ? { rotate: [0, 360] } : {}}
+                    transition={results.isWinner ? { duration: 3, repeat: Infinity, ease: "linear" } : {}}
+                  >
+                    <Coins className={`h-6 w-6 ${
+                      results.isWinner ? 'text-amber-500' : results.isDraw ? 'text-blue-500' : 'text-muted-foreground'
+                    }`} />
+                  </motion.div>
+                  <h3 className={`font-black text-lg ${
+                    results.isWinner 
+                      ? 'bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent'
+                      : results.isDraw
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent'
+                      : 'text-muted-foreground'
+                  }`}>
+                    {results.isWinner ? '💰 Выигрыш' : results.isDraw ? '🤝 Реванш' : '💸 Ставка'}
+                  </h3>
                 </div>
                 
-                {results.isWinner && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Банк:</span>
-                      <span className="font-bold">{results.betAmount * 2}</span>
-                    </div>
-                    <div className="border-t border-amber-500/30 pt-2 mt-2"></div>
-                    <div className="flex justify-between text-lg">
-                      <span className="font-black text-green-600 dark:text-green-400">Выигрыш:</span>
-                      <span className="font-black text-green-600 dark:text-green-400">+{results.winnings}</span>
-                    </div>
-                  </>
-                )}
-                
-                {results.isDraw && results.rematchPot > 0 && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Банк реванша:</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400">{results.rematchPot}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground italic mt-2">
-                      Ставки сохранены для реванша. Победитель заберёт всё!
-                    </p>
-                  </>
-                )}
-                
-                {!results.isWinner && !results.isDraw && (
-                  <div className="flex justify-between text-red-500">
-                    <span>Проигрыш:</span>
-                    <span className="font-bold">-{results.betAmount}</span>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2">
+                    <span className="text-muted-foreground font-medium">Ваша ставка:</span>
+                    <span className="font-bold text-red-500">-{results.betAmount}</span>
                   </div>
-                )}
+                  
+                  {results.isWinner && (
+                    <>
+                      <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2">
+                        <span className="text-muted-foreground font-medium">Банк:</span>
+                        <span className="font-bold text-amber-600 dark:text-amber-400">{results.betAmount * 2}</span>
+                      </div>
+                      <div className="border-t-2 border-amber-500/30 my-3"></div>
+                      <motion.div 
+                        className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg px-4 py-3 border-2 border-green-500/40"
+                        initial={{ scale: 0.95 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.8, type: "spring" }}
+                      >
+                        <span className="font-black text-lg text-green-600 dark:text-green-400">Выигрыш:</span>
+                        <span className="font-black text-2xl text-green-600 dark:text-green-400">+{results.winnings}</span>
+                      </motion.div>
+                    </>
+                  )}
+                  
+                  {results.isDraw && (
+                    <>
+                      <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2">
+                        <span className="text-muted-foreground font-medium">Возврат:</span>
+                        <span className="font-bold text-blue-600 dark:text-blue-400">+{results.betAmount}</span>
+                      </div>
+                      {results.hadInsurance && rewards?.insuranceRefund && (
+                        <div className="flex justify-between items-center bg-green-500/10 rounded-lg px-3 py-2 border border-green-500/30">
+                          <span className="text-muted-foreground font-medium flex items-center gap-1">
+                            <Shield className="w-3 h-3" /> Страховка:
+                          </span>
+                          <span className="font-bold text-green-600 dark:text-green-400">+{rewards.insuranceRefund - results.betAmount}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  
+                  {!results.isWinner && !results.isDraw && (
+                    <>
+                      <div className="flex justify-between items-center bg-red-500/10 rounded-lg px-3 py-2 border border-red-500/30">
+                        <span className="text-muted-foreground font-medium">Проигрыш:</span>
+                        <span className="font-bold text-red-600 dark:text-red-400">-{results.betAmount}</span>
+                      </div>
+                      {results.hadInsurance && rewards?.insuranceRefund && (
+                        <motion.div 
+                          className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg px-3 py-2 border-2 border-green-500/40"
+                          initial={{ scale: 0.95 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.8 }}
+                        >
+                          <span className="text-muted-foreground font-medium flex items-center gap-1">
+                            <Shield className="w-3 h-3 text-green-600" /> Возврат страховки:
+                          </span>
+                          <span className="font-bold text-green-600 dark:text-green-400">+{rewards.insuranceRefund}</span>
+                        </motion.div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
 
-          <motion.div 
-            className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-3 shadow-lg"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <div className="flex items-center justify-center gap-1 mb-2">
-              <Sparkles className="w-4 h-4 text-yellow-500" />
-              <h3 className="font-black text-sm bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
-                Награды
-              </h3>
-              <Sparkles className="w-4 h-4 text-yellow-500" />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center justify-center gap-1 bg-blue-500/10 rounded-lg p-2 border border-blue-500/20">
-                <Zap className="w-4 h-4 text-blue-500" />
-                <span className="font-bold text-sm text-blue-600 dark:text-blue-400">
-                  +{Math.round(results.myScore / 20) + (results.isWinner ? 25 : 10)} XP
-                </span>
+          {/* Rewards Section - Ultra Modern Design */}
+          {rewards && (
+            <motion.div 
+              className="relative overflow-hidden bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 border-2 border-purple-500/30 rounded-2xl p-4 shadow-2xl"
+              initial={{ y: 20, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
+            >
+              {/* Animated background gradient */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-pink-500/5 animate-pulse" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                  </motion.div>
+                  <h3 className="font-black text-base bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
+                    Награды
+                  </h3>
+                  <motion.div
+                    animate={{ rotate: [360, 0] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Sparkles className="w-5 h-5 text-pink-500" />
+                  </motion.div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Season Points (SP) */}
+                  <motion.div 
+                    className="relative group bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-3 border-2 border-purple-500/40 shadow-lg overflow-hidden"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative flex flex-col items-center gap-1">
+                      <Star className="w-5 h-5 text-purple-500 mb-1" />
+                      <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">Season Points</span>
+                      <span className="text-xl font-black text-purple-700 dark:text-purple-300">
+                        +{rewards.sp}
+                      </span>
+                      {results.betAmount === 0 && (
+                        <span className="text-[10px] text-muted-foreground">Без ставки</span>
+                      )}
+                    </div>
+                  </motion.div>
+                  
+                  {/* XP */}
+                  <motion.div 
+                    className="relative group bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-3 border-2 border-blue-500/40 shadow-lg overflow-hidden"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.85 }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="relative flex flex-col items-center gap-1">
+                      <Zap className="w-5 h-5 text-blue-500 mb-1" />
+                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Опыт</span>
+                      <span className="text-xl font-black text-blue-700 dark:text-blue-300">
+                        +{rewards.xp}
+                      </span>
+                    </div>
+                  </motion.div>
+                </div>
+                
+                {/* Bonus Coins & Insurance */}
+                {(rewards.bonusCoins > 0 || rewards.insuranceRefund) && (
+                  <motion.div 
+                    className="mt-3 pt-3 border-t border-purple-500/20"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    <div className="flex flex-col gap-2">
+                      {rewards.bonusCoins > 0 && (
+                        <div className="flex items-center justify-between bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-2 border border-yellow-500/30">
+                          <div className="flex items-center gap-2">
+                            <Gift className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                            <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-300">Бонус</span>
+                          </div>
+                          <span className="text-sm font-black text-yellow-700 dark:text-yellow-300">
+                            +{rewards.bonusCoins} монет
+                          </span>
+                        </div>
+                      )}
+                      {rewards.insuranceRefund && (
+                        <div className="flex items-center justify-between bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-2 border border-green-500/30">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            <span className="text-xs font-semibold text-green-700 dark:text-green-300">Страховка</span>
+                          </div>
+                          <span className="text-sm font-black text-green-700 dark:text-green-300">
+                            +{rewards.insuranceRefund} монет
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
               </div>
-              <div className="flex items-center justify-center gap-1 bg-yellow-500/10 rounded-lg p-2 border border-yellow-500/20">
-                <span className="text-lg">💰</span>
-                <span className="font-bold text-sm text-yellow-600 dark:text-yellow-400">
-                  +{results.isWinner ? 50 : results.isDraw ? 25 : 15}
-                </span>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
 
           {/* Achievement Progress - компактная версия */}
           <motion.div
