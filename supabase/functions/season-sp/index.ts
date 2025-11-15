@@ -14,6 +14,7 @@ const SP_RULES: Record<string, number> = {
   duel_lose: 10,
   daily_login: 15,
   streak_bonus: 5, // Бонус за каждый день streak
+  challenge_reward: 0, // Награда будет передана в metadata
 };
 
 serve(async (req) => {
