@@ -171,30 +171,50 @@ export default function Duel() {
   };
 
   const handleDuelJoined = async (id: string, code: string, autoStarted?: boolean) => {
-    console.log('[Duel] Player joined duel:', id, 'autoStarted:', autoStarted);
-    setDuelId(id);
-    setDuelCode(code);
-    
-    // Если дуэль автозапустилась, сразу переходим к битве
-    if (autoStarted) {
-      console.log('[Duel] ✅ AUTO-STARTED = TRUE, going straight to battle!');
-      handleDuelStarted(id); // Передаем id для гарантии
+    if (!id || !code) {
+      console.error('[Duel] ❌ Invalid parameters for handleDuelJoined:', { id, code });
       return;
     }
+
+    console.log('[Duel] Player joined duel:', id, 'autoStarted:', autoStarted);
     
-    // Check if duel is already active (fallback check)
-    const { data } = await supabase
-      .from('duels')
-      .select('status')
-      .eq('id', id)
-      .maybeSingle();
-    
-    if (data?.status === 'active') {
-      console.log('[Duel] Duel already active, going straight to battle!');
-      handleDuelStarted(id); // Передаем id для гарантии
-    } else {
-      console.log('[Duel] Going to lobby to wait for start');
-      setMode('create');
+    try {
+      setDuelId(id);
+      setDuelCode(code);
+      
+      // Если дуэль автозапустилась, сразу переходим к битве
+      if (autoStarted) {
+        console.log('[Duel] ✅ AUTO-STARTED = TRUE, going straight to battle!');
+        handleDuelStarted(id); // Передаем id для гарантии
+        return;
+      }
+      
+      // Check if duel is already active (fallback check)
+      const { data, error } = await supabase
+        .from('duels')
+        .select('status')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('[Duel] Error checking duel status:', error);
+        // Продолжаем с переходом в лобби даже при ошибке проверки
+      }
+      
+      if (data?.status === 'active') {
+        console.log('[Duel] Duel already active, going straight to battle!');
+        handleDuelStarted(id); // Передаем id для гарантии
+      } else {
+        console.log('[Duel] Going to lobby to wait for start');
+        setMode('create');
+      }
+    } catch (error) {
+      console.error('[Duel] ❌ Error in handleDuelJoined:', error);
+      // При ошибке возвращаемся в меню
+      setMode('menu');
+      setDuelId(null);
+      setDuelCode(null);
+      toast.error('Ошибка при присоединении к дуэли');
     }
   };
 
@@ -325,53 +345,28 @@ export default function Duel() {
     try {
       console.log('[Duel] ⚡ Invoking join_duel with code:', code);
       
-      const requestBody: any = {
-        action: 'join_duel',
-        profile_id: profileId,
-        code: code.toUpperCase(),
-      };
-      
-      // Добавляем параметры страховки только если она включена
-      if (joinInsuranceEnabled) {
-        requestBody.insurance_enabled = true;
-        requestBody.insurance_rate = INSURANCE_RATE;
-        requestBody.insurance_coverage_rate = COVERAGE_RATE;
-      }
-      
-      console.log('[Duel] Request body:', JSON.stringify(requestBody, null, 2));
-      
       const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: requestBody,
+        body: {
+          action: 'join_duel',
+          profile_id: profileId,
+          code: code.toUpperCase(),
+          insurance_enabled: joinInsuranceEnabled,
+          insurance_rate: joinInsuranceEnabled ? INSURANCE_RATE : 0,
+          insurance_coverage_rate: joinInsuranceEnabled ? COVERAGE_RATE : 0,
+        },
       });
 
       console.log('[Duel] join_duel response:', { data, error });
 
       if (error) {
         console.error('[Duel] ❌ join_duel error:', error);
-        console.error('[Duel] Error details:', JSON.stringify(error, null, 2));
-        
-        // Попытаемся извлечь детали ошибки из response
-        let errorMessage = 'Ошибка при присоединении к дуэли';
-        if (error.message) {
-          errorMessage = error.message;
-        } else if (error.context?.body) {
-          try {
-            const errorBody = typeof error.context.body === 'string' 
-              ? JSON.parse(error.context.body) 
-              : error.context.body;
-            if (errorBody.error) {
-              errorMessage = errorBody.error;
-            }
-            if (errorBody.details) {
-              console.error('[Duel] Validation error details:', errorBody.details);
-            }
-          } catch (e) {
-            console.error('[Duel] Error parsing error body:', e);
-          }
-        }
-        
-        showDuelJoinError({ message: errorMessage });
         throw error;
+      }
+
+      // Проверяем, что данные корректны
+      if (!data || !data.duel || !data.duel.id || !data.duel.code) {
+        console.error('[Duel] ❌ Invalid response data:', data);
+        throw new Error('Неверный ответ от сервера. Попробуйте еще раз.');
       }
 
       console.log('[Duel] join_duel data:', {
@@ -389,11 +384,22 @@ export default function Duel() {
       hasAutoJoinedRef.current = false;
       setIsJoining(false);
     } catch (error: any) {
+      console.error('[Duel] ❌ Error in handleInlineJoin:', error);
+      
+      // Показываем ошибку пользователю
       showDuelJoinError(error);
       
+      // Сбрасываем состояние для возможности повторной попытки
       hasAutoJoinedRef.current = false;
       setIsJoining(false);
       setJoinCode(''); // Clear code on error to allow retry
+      
+      // Убеждаемся, что режим остается в 'menu' или 'join' при ошибке
+      if (mode === 'battle') {
+        setMode('menu');
+        setDuelId(null);
+        setDuelCode(null);
+      }
     }
   };
 
