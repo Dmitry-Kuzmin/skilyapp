@@ -348,6 +348,29 @@ export default function Duel() {
 
       if (error) {
         console.error('[Duel] ❌ join_duel error:', error);
+        console.error('[Duel] Error details:', JSON.stringify(error, null, 2));
+        
+        // Попытаемся извлечь детали ошибки из response
+        let errorMessage = 'Ошибка при присоединении к дуэли';
+        if (error.message) {
+          errorMessage = error.message;
+        } else if (error.context?.body) {
+          try {
+            const errorBody = typeof error.context.body === 'string' 
+              ? JSON.parse(error.context.body) 
+              : error.context.body;
+            if (errorBody.error) {
+              errorMessage = errorBody.error;
+            }
+            if (errorBody.details) {
+              console.error('[Duel] Validation error details:', errorBody.details);
+            }
+          } catch (e) {
+            console.error('[Duel] Error parsing error body:', e);
+          }
+        }
+        
+        showDuelJoinError({ message: errorMessage });
         throw error;
       }
 
