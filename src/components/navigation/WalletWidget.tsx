@@ -50,23 +50,23 @@ export function WalletWidget({ className }: WalletWidgetProps) {
 
   return (
     <>
-      <div className={cn("flex items-center gap-2", className)}>
+      <div className={cn("flex items-center gap-1.5 md:gap-2", className)}>
         {/* Coins */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setShopOpen(true)}
-          className="h-8 px-2 gap-1.5 hover:bg-muted/50"
+          className="h-8 px-1.5 md:px-2 gap-1 md:gap-1.5 hover:bg-muted/50"
         >
-          <Coins className="w-4 h-4 text-yellow-500" />
-          <span className="text-sm font-semibold">{balance}</span>
+          <Coins className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" />
+          <span className="text-xs md:text-sm font-semibold">{balance}</span>
         </Button>
 
-        {/* Duel Pass Mini Progress */}
+        {/* Duel Pass Mini Progress - скрыт на очень маленьких экранах */}
         {duelPassData && (
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
-            <Trophy className="w-3.5 h-3.5 text-yellow-500" />
-            <div className="w-12 h-1 bg-muted rounded-full overflow-hidden">
+          <div className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
+            <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
+            <div className="w-10 md:w-12 h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
                 style={{ width: `${duelPassData.progress}%` }}
@@ -76,11 +76,11 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           </div>
         )}
 
-        {/* Premium Badge */}
+        {/* Premium Badge - скрыт на очень маленьких экранах */}
         {isPremium && (
-          <Badge className="h-6 px-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none text-xs">
+          <Badge className="hidden sm:flex h-6 px-1 md:px-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none text-xs">
             <Crown className="w-3 h-3 mr-0.5" />
-            Premium
+            <span className="hidden md:inline">Premium</span>
           </Badge>
         )}
 
@@ -92,7 +92,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           className="h-8 w-8"
           title="Напоминания"
         >
-          <Bell className="w-4 h-4" />
+          <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
         </Button>
       </div>
 

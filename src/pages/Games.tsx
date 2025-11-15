@@ -240,12 +240,12 @@ const Games = () => {
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Hero Section */}
-        <Card className="p-6 md:p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-2 border-primary/20">
+        <Card className="p-4 md:p-6 lg:p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-2 border-primary/20">
           <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Игры</h1>
-                <p className="text-muted-foreground text-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex-1">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">Игры</h1>
+                <p className="text-muted-foreground text-sm md:text-base lg:text-lg">
                   Учись играя! Закрепляй термины в увлекательном формате
                 </p>
               </div>
@@ -253,7 +253,7 @@ const Games = () => {
                 <Button 
                   size="lg"
                   onClick={() => setPaywallOpen(true)}
-                  className="bg-gradient-to-r from-yellow-500 to-orange-500"
+                  className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-orange-500"
                 >
                   <Crown className="w-4 h-4 mr-2" />
                   Получить Premium
@@ -263,15 +263,15 @@ const Games = () => {
 
             {/* Game Mode Badges */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="px-3 py-1">
+              <Badge variant="outline" className="px-2 md:px-3 py-1 text-xs md:text-sm">
                 <Swords className="w-3 h-3 mr-1" />
                 Популярно
               </Badge>
-              <Badge variant="outline" className="px-3 py-1">
+              <Badge variant="outline" className="px-2 md:px-3 py-1 text-xs md:text-sm">
                 <Zap className="w-3 h-3 mr-1" />
                 Хардкор
               </Badge>
-              <Badge variant="outline" className="px-3 py-1">
+              <Badge variant="outline" className="px-2 md:px-3 py-1 text-xs md:text-sm">
                 <Sparkles className="w-3 h-3 mr-1" />
                 Новинка
               </Badge>

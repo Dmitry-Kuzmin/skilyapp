@@ -505,13 +505,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом */}
-        <DialogHeader className="px-4 py-3 border-b border-border/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-primary" />
-              <DialogTitle className="text-lg font-semibold">Магазин бустов</DialogTitle>
+        <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
+              <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <Popover open={showHistory} onOpenChange={setShowHistory}>
                 <PopoverTrigger asChild>
                   <button 

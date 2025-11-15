@@ -149,7 +149,7 @@ const Layout = ({ children }: LayoutProps) => {
               ))}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
               {isAuthenticated && (
                 <>
                   <WalletWidget />
@@ -157,7 +157,7 @@ const Layout = ({ children }: LayoutProps) => {
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate('/referrals')}
-                    className="relative"
+                    className="relative hidden sm:flex"
                     title="Реферальная программа"
                   >
                     <svg
@@ -179,6 +179,7 @@ const Layout = ({ children }: LayoutProps) => {
                   variant="ghost" 
                   size="sm"
                   onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
+                  className="hidden sm:flex"
                 >
                   <LogIn className="w-5 h-5 mr-2" />
                   {t('login')}
