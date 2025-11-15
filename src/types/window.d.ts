@@ -95,6 +95,8 @@ declare global {
             text: string;
           }>;
         }, callback: (buttonId: string | null) => void) => void;
+        // Payment (Telegram Stars)
+        openInvoice?: (invoiceLink: string, callback: (status: 'paid' | 'cancelled' | 'failed' | 'pending') => void) => void;
       };
     };
   }
