@@ -288,18 +288,35 @@ BEGIN
   WHERE usp.user_id = p_user_id AND usp.season_id = p_season_id;
 
   -- Если прогресс не найден, создаем новый
-  -- В RETURNING используем только имена колонок (без имени таблицы)
+  -- Используем CTE (WITH) для избежания конфликта имен переменных и колонок
   IF v_progress_id IS NULL THEN
-    INSERT INTO public.user_season_progress (user_id, season_id, season_points, level)
-    VALUES (p_user_id, p_season_id, 0, 1)
-    RETURNING 
-      id, 
-      season_points, 
-      level 
+    WITH inserted_row AS (
+      INSERT INTO public.user_season_progress (
+        user_id, 
+        season_id, 
+        season_points, 
+        level
+      )
+      VALUES (
+        p_user_id, 
+        p_season_id, 
+        0, 
+        1
+      )
+      RETURNING 
+        user_season_progress.id AS inserted_id,
+        user_season_progress.season_points AS inserted_sp,
+        user_season_progress.level AS inserted_level
+    )
+    SELECT 
+      inserted_id,
+      inserted_sp,
+      inserted_level
     INTO 
-      v_progress_id, 
-      v_season_points, 
-      v_level;
+      v_progress_id,
+      v_season_points,
+      v_level
+    FROM inserted_row;
   END IF;
 
   -- Возвращаем найденный или созданный прогресс
