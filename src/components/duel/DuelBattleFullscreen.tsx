@@ -1898,7 +1898,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 </div>
                 
                 {/* Индикатор активности соперника */}
-                <div className="absolute -bottom-1 -right-1 z-10 bg-background rounded-full p-0.5 shadow-sm">
+                <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-border/50">
                   <OpponentActivityIndicator 
                     status={opponentActivityStatus}
                     showTooltip={true}
@@ -1912,14 +1912,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     transition={{ duration: 1, repeat: Infinity }}
                   />
                 )}
+                
+                {/* Иконка молнии когда соперник отвечает */}
                 {state.opponentAnswered && (
                   <motion.div
-                    className="absolute -top-1 -left-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: [0, 1.2, 1] }}
-                    transition={{ duration: 0.5 }}
+                    className="absolute -top-1 -right-1 z-20 w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/50 border-2 border-white"
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ 
+                      scale: [0, 1.3, 1],
+                      rotate: [180, 0],
+                    }}
+                    exit={{ scale: 0, rotate: 180 }}
+                    transition={{ 
+                      duration: 0.6,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15
+                    }}
                   >
-                    <Zap className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
+                    <Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-white fill-white" strokeWidth={2.5} />
                   </motion.div>
                 )}
               </div>
