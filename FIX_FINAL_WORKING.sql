@@ -61,9 +61,9 @@ BEGIN
       1
     )
     RETURNING 
-      public.user_season_progress.id, 
-      public.user_season_progress.season_points, 
-      public.user_season_progress.level 
+      (SELECT id FROM public.user_season_progress WHERE user_id = p_user_id AND season_id = p_season_id), 
+      (SELECT season_points FROM public.user_season_progress WHERE user_id = p_user_id AND season_id = p_season_id), 
+      (SELECT level FROM public.user_season_progress WHERE user_id = p_user_id AND season_id = p_season_id)
     INTO 
       v_found_id, 
       v_found_sp, 
