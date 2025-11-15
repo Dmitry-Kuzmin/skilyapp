@@ -287,9 +287,9 @@ BEGIN
         1
       )
       RETURNING 
-        user_season_progress.id AS inserted_id,
-        user_season_progress.season_points AS inserted_sp,
-        user_season_progress.level AS inserted_level
+        id AS inserted_id,
+        season_points AS inserted_sp,
+        level AS inserted_level
     )
     SELECT 
       inserted_id,
