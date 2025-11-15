@@ -1,6 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Trash2, AlertCircle, RefreshCw, Database, Users, FileQuestion, Target, Activity, Loader2 } from "lucide-react";
+import {
+  Upload,
+  Trash2,
+  AlertCircle,
+  RefreshCw,
+  Database,
+  Users,
+  FileQuestion,
+  Target,
+  Activity,
+  Loader2,
+  Gauge,
+  Gamepad2,
+  Coins,
+  Swords,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +27,23 @@ import * as XLSX from "xlsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+type DashboardMetrics = {
+  topics: number;
+  questions: number;
+  users: number;
+  tags: number;
+  materials: number;
+  materialsDrafts: number;
+  activeDuels: number;
+  duelsToday: number;
+  gameSessionsToday: number;
+  dailyBonusClaimsToday: number;
+  telegramUsers: number;
+  boostsInInventory: number;
+  avgQuestionsPerTopic: number;
+  dbSizeMb: number;
+};
+
 const Admin = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -21,12 +53,8 @@ const Admin = () => {
   const [terms, setTerms] = useState<any[]>([]);
   const { toast } = useToast();
   const [syncing, setSyncing] = useState(false);
-  const [stats, setStats] = useState({
-    topics: 0,
-    questions: 0,
-    users: 0,
-    tags: 0,
-  });
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [recentQuestions, setRecentQuestions] = useState<any[]>([]);
   const [syncWarnings, setSyncWarnings] = useState<string[]>([]);
@@ -65,28 +93,20 @@ const Admin = () => {
 
     setIsAdmin(true);
     setAuthLoading(false);
-    fetchStats();
+    await fetchDashboardMetrics();
     fetchRecentQuestions();
   };
 
-  const fetchStats = async () => {
+  const fetchDashboardMetrics = async () => {
     try {
-      const [topicsRes, questionsRes, usersRes, tagsRes] = await Promise.all([
-        supabase.from("topics").select("*", { count: "exact", head: true }),
-        supabase.from("questions_new").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
-        supabase.from("tags").select("*", { count: "exact", head: true }),
-      ]);
-
-      setStats({
-        topics: topicsRes.count || 0,
-        questions: questionsRes.count || 0,
-        users: usersRes.count || 0,
-        tags: tagsRes.count || 0,
-      });
+      setMetricsLoading(true);
+      const { data, error } = await supabase.rpc("get_admin_dashboard_metrics");
+      if (error) throw error;
+      setMetrics(data as DashboardMetrics);
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      console.error("Error fetching dashboard metrics:", error);
     }
+    setMetricsLoading(false);
   };
 
   const fetchRecentQuestions = async () => {
@@ -160,7 +180,7 @@ const Admin = () => {
       
       setSyncWarnings([...(data.warnings || []), ...(data.termsWarnings || []), ...(data.signsWarnings || [])]);
       setLastSync(new Date().toLocaleString("ru-RU"));
-      await fetchStats();
+      await fetchDashboardMetrics();
       await fetchRecentQuestions();
     } catch (error: any) {
       toast({
@@ -357,6 +377,113 @@ const Admin = () => {
           </p>
         </div>
 
+        {/* Monitoring Panel */}
+        <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <p className="text-sm uppercase tracking-wide text-muted-foreground">Системное состояние</p>
+                <div className="text-3xl font-bold mt-1">
+                  {metricsLoading ? "—" : `${metrics?.dbSizeMb?.toLocaleString("ru-RU") ?? 0} МБ`}
+                </div>
+                <p className="text-sm text-muted-foreground">Оценка размера базы данных Supabase</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" onClick={fetchDashboardMetrics} disabled={metricsLoading} className="gap-2">
+                  <RefreshCw className={`w-4 h-4 ${metricsLoading ? "animate-spin" : ""}`} />
+                  Обновить метрики
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  label: "Активные дуэли",
+                  value: metrics?.activeDuels,
+                  icon: <Swords className="w-4 h-4 text-primary" />,
+                  note: "Waiting + active",
+                },
+                {
+                  label: "Дуэлей сегодня",
+                  value: metrics?.duelsToday,
+                  icon: <Activity className="w-4 h-4 text-primary" />,
+                  note: "Создано за сутки",
+                },
+                {
+                  label: "Игровых сессий сегодня",
+                  value: metrics?.gameSessionsToday,
+                  icon: <Gamepad2 className="w-4 h-4 text-primary" />,
+                  note: "Все режимы",
+                },
+                {
+                  label: "Бонусов за день",
+                  value: metrics?.dailyBonusClaimsToday,
+                  icon: <Coins className="w-4 h-4 text-primary" />,
+                  note: "User Daily Bonus",
+                },
+              ].map((metric) => (
+                <div key={metric.label} className="rounded-xl border border-border/60 bg-background/60 p-4 shadow-sm">
+                  <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+                    {metric.label}
+                    {metric.icon}
+                  </div>
+                  <div className="text-2xl font-bold mt-2">
+                    {metricsLoading ? "—" : (metric.value ?? 0).toLocaleString("ru-RU")}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{metric.note}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  label: "Материалы",
+                  value: metrics?.materials,
+                  sub: `Черновиков: ${metrics?.materialsDrafts ?? 0}`,
+                  icon: <FileQuestion className="w-4 h-4 text-primary" />,
+                },
+                {
+                  label: "Пользователи",
+                  value: metrics?.users,
+                  sub: `Telegram: ${metrics?.telegramUsers ?? 0}`,
+                  icon: <Users className="w-4 h-4 text-primary" />,
+                },
+                {
+                  label: "Вопросов на тему",
+                  value: metrics?.avgQuestionsPerTopic,
+                  sub: "Среднее значение",
+                  icon: <Gauge className="w-4 h-4 text-primary" />,
+                  formatter: (val?: number | null) =>
+                    metricsLoading ? "—" : (val ?? 0).toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+                },
+                {
+                  label: "Всего бустов",
+                  value: metrics?.boostsInInventory,
+                  sub: "Инвентарь игроков",
+                  icon: <Database className="w-4 h-4 text-primary" />,
+                },
+              ].map((metric) => (
+                <div key={metric.label} className="rounded-xl border border-border/60 bg-background/60 p-4 shadow-sm">
+                  <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+                    {metric.label}
+                    {metric.icon}
+                  </div>
+                  <div className="text-2xl font-bold mt-2">
+                    {metric.formatter
+                      ? metric.formatter(metric.value)
+                      : metricsLoading
+                        ? "—"
+                        : (metric.value ?? 0).toLocaleString("ru-RU")}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{metric.sub}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
         {/* System Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
@@ -367,7 +494,9 @@ const Admin = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.topics}</div>
+              <div className="text-2xl font-bold">
+                {metricsLoading ? "—" : (metrics?.topics ?? 0).toLocaleString("ru-RU")}
+              </div>
             </CardContent>
           </Card>
 
@@ -379,7 +508,9 @@ const Admin = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.questions}</div>
+              <div className="text-2xl font-bold">
+                {metricsLoading ? "—" : (metrics?.questions ?? 0).toLocaleString("ru-RU")}
+              </div>
             </CardContent>
           </Card>
 
@@ -391,7 +522,9 @@ const Admin = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.users}</div>
+              <div className="text-2xl font-bold">
+                {metricsLoading ? "—" : (metrics?.users ?? 0).toLocaleString("ru-RU")}
+              </div>
             </CardContent>
           </Card>
 
@@ -403,7 +536,9 @@ const Admin = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.tags}</div>
+              <div className="text-2xl font-bold">
+                {metricsLoading ? "—" : (metrics?.tags ?? 0).toLocaleString("ru-RU")}
+              </div>
             </CardContent>
           </Card>
         </div>

@@ -60,9 +60,20 @@ serve(async (req) => {
       // Рассчитать количество Stars (Math.round для честного округления)
       const starsAmount = Math.round(pkg.price_coins / EXCHANGE_RATE_COINS_TO_STARS);
 
-      if (starsAmount <= 0) {
+      // Минимальная сумма для Telegram Stars: 1 звезда (1000 в тысячных долях)
+      // Максимальная сумма: 10000 звезд (10000000 в тысячных долях)
+      const starsAmountInThousandths = starsAmount * 1000; // В тысячных долях звезды (1 звезда = 1000)
+
+      if (starsAmount <= 0 || starsAmountInThousandths < 1000) {
         return new Response(
-          JSON.stringify({ error: 'Invalid price calculation' }),
+          JSON.stringify({ error: 'Invalid price calculation: minimum 1 star required' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (starsAmountInThousandths > 10000000) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid price calculation: maximum 10000 stars allowed' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -98,7 +109,18 @@ serve(async (req) => {
         );
       }
 
+      console.log('[Stars Payment] Invoice details:', {
+        starsAmount,
+        starsAmountInThousandths,
+        package_key: pkg.package_key
+      });
+
       // Создать invoice через Telegram Bot API
+      // Для Telegram Stars (XTR):
+      // - currency: 'XTR'
+      // - provider_token: пустая строка '' (обязательно для Stars)
+      // - amount в тысячных долях звезды (1 звезда = 1000)
+      // - Минимум: 1000 (1 звезда), Максимум: 10000000 (10000 звезд)
       const invoiceResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendInvoice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,11 +129,11 @@ serve(async (req) => {
           title: pkg.title_ru,
           description: pkg.description_ru,
           payload: invoicePayload, // Важно: наш ID для отслеживания
-          provider_token: 'STARS', // Telegram Stars
+          provider_token: '', // Пустая строка для Telegram Stars (обязательно!)
           currency: 'XTR', // Код валюты Telegram Stars
           prices: [{
             label: pkg.title_ru,
-            amount: starsAmount * 1000 // В тысячных долях звезды (1 звезда = 1000)
+            amount: starsAmountInThousandths // В тысячных долях звезды (1 звезда = 1000)
           }]
         })
       });
