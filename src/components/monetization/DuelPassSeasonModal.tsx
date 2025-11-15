@@ -351,7 +351,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Компактный Grid Layout для наград */}
+        {/* Компактный список наград - минималистичный */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -384,8 +384,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Плотный Grid: больше колонок, меньше отступы */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 max-h-96 overflow-y-auto pr-1">
+          {/* Компактный список - строки вместо карточек */}
+          <div className="space-y-0.5 max-h-96 overflow-y-auto pr-1">
             {filteredRewards.map((reward) => {
               const unlocked = currentLevel >= reward.level;
               const isClaimed = claimedRewards.has(reward.level);
@@ -395,61 +395,80 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 <div
                   key={reward.level}
                   className={cn(
-                    "relative rounded-md border p-1.5 transition-all cursor-pointer group",
-                    isCurrent && "ring-1.5 ring-primary shadow-md scale-[1.03] z-10 bg-primary/5",
+                    "flex items-center justify-between gap-2 px-2 py-1.5 rounded-md transition-all cursor-pointer group",
+                    isCurrent && "bg-primary/10 border-l-2 border-l-primary",
                     isClaimed 
-                      ? "bg-green-500/5 border-green-500/30" 
+                      ? "bg-green-500/5 hover:bg-green-500/10" 
                       : unlocked 
-                      ? "bg-background border-border hover:border-primary/50" 
-                      : "bg-muted/30 border-muted opacity-50"
+                      ? "bg-background hover:bg-muted/50" 
+                      : "bg-muted/20 opacity-60"
                   )}
+                  onClick={() => {
+                    if (unlocked && !isClaimed) {
+                      claimReward(reward.level);
+                    }
+                  }}
                 >
-                  {/* Минималистичный заголовок */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold text-muted-foreground">
+                  {/* Левая часть: уровень и награды */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {/* Номер уровня */}
+                    <div className={cn(
+                      "flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold shrink-0",
+                      isCurrent 
+                        ? "bg-primary text-white" 
+                        : isClaimed 
+                        ? "bg-green-500/20 text-green-600" 
+                        : unlocked 
+                        ? "bg-muted text-muted-foreground" 
+                        : "bg-muted/30 text-muted-foreground"
+                    )}>
                       {reward.level}
-                    </span>
-                    {isClaimed && (
-                      <CheckCircle2 className="w-2.5 h-2.5 text-green-500 shrink-0" />
+                    </div>
+                    
+                    {/* Награды в одну строку */}
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {reward.free_reward && (
+                        <div className="flex items-center gap-1">
+                          <Coins className="w-3 h-3 text-yellow-500 shrink-0" />
+                          <span className="text-xs font-semibold">{reward.free_reward.amount}</span>
+                        </div>
+                      )}
+                      {reward.premium_reward && (
+                        <div className={cn(
+                          "flex items-center gap-1",
+                          isPremium ? "text-yellow-600" : "text-muted-foreground/60"
+                        )}>
+                          <Crown className="w-3 h-3 shrink-0" />
+                          <span className="text-xs font-semibold">{reward.premium_reward.amount}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* SP для заблокированных */}
+                    {!unlocked && (
+                      <span className="text-[10px] text-muted-foreground shrink-0">
+                        +{reward.sp_required - currentSP} SP
+                      </span>
                     )}
                   </div>
                   
-                  {/* Компактные награды в одну строку */}
-                  <div className="flex flex-col gap-0.5">
-                    {reward.free_reward && (
-                      <div className="flex items-center gap-0.5">
-                        <Coins className="w-2.5 h-2.5 text-yellow-500 shrink-0" />
-                        <span className="text-[9px] font-semibold leading-none">{reward.free_reward.amount}</span>
-                      </div>
-                    )}
-                    {reward.premium_reward && (
-                      <div className={cn(
-                        "flex items-center gap-0.5",
-                        isPremium ? "text-yellow-600" : "text-muted-foreground/50"
-                      )}>
-                        <Crown className="w-2.5 h-2.5 shrink-0" />
-                        <span className="text-[9px] font-semibold leading-none">{reward.premium_reward.amount}</span>
-                      </div>
-                    )}
+                  {/* Правая часть: статус или кнопка */}
+                  <div className="shrink-0">
+                    {isClaimed ? (
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    ) : unlocked ? (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          claimReward(reward.level);
+                        }}
+                        className="h-6 px-2 text-[10px]"
+                      >
+                        Забрать
+                      </Button>
+                    ) : null}
                   </div>
-                  
-                  {/* SP для заблокированных - очень компактно */}
-                  {!unlocked && (
-                    <p className="text-[8px] text-muted-foreground mt-0.5 leading-tight">
-                      +{reward.sp_required - currentSP}
-                    </p>
-                  )}
-                  
-                  {/* Компактная кнопка действия */}
-                  {unlocked && !isClaimed && (
-                    <Button
-                      size="sm"
-                      onClick={() => claimReward(reward.level)}
-                      className="w-full mt-1 h-5 text-[9px] px-1 py-0"
-                    >
-                      Забрать
-                    </Button>
-                  )}
                 </div>
               );
             })}
