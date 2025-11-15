@@ -1,0 +1,34 @@
+name: Stars Payment Retry
+
+on:
+  schedule:
+    # Запускается каждые 5 минут
+    - cron: '*/5 * * * *'
+  # Позволяет запускать вручную из GitHub UI
+  workflow_dispatch:
+
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    name: Retry Stars Payment Rewards
+    steps:
+      - name: Call Retry Function
+        run: |
+          echo "🔄 Запуск retry начислений Stars Payment..."
+          
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/stars-payment-retry)
+          
+          echo "Ответ от функции:"
+          echo "$RESPONSE" | jq '.' || echo "$RESPONSE"
+          
+          # Проверить успешность
+          if echo "$RESPONSE" | grep -q '"success":true'; then
+            echo "✅ Retry выполнен успешно!"
+          else
+            echo "⚠️ Возможны ошибки. Проверьте ответ выше."
+            exit 0  # Не падаем, чтобы не блокировать следующие запуски
+          fi
+
