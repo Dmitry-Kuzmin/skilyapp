@@ -36,10 +36,16 @@ serve(async (req) => {
       );
     }
 
-    const spGain = SP_RULES[source_type];
-    if (!spGain) {
+    let spGain = SP_RULES[source_type];
+    
+    // Для challenge_reward берем SP из metadata
+    if (source_type === 'challenge_reward' && metadata?.sp_earned) {
+      spGain = metadata.sp_earned;
+    }
+    
+    if (spGain === undefined || spGain <= 0) {
       return new Response(
-        JSON.stringify({ error: "Unsupported source_type" }),
+        JSON.stringify({ error: "Unsupported source_type or invalid SP amount" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
