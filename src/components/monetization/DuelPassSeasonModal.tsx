@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
 import { PaywallModal } from "./PaywallModal";
+import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { profileId } = useUserContext();
@@ -26,6 +27,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set());
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
 
   useEffect(() => {
     if (open && profileId) {
@@ -137,7 +139,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   };
 
-  const claimReward = async (level: number) => {
+  const handleRewardClick = (reward: any) => {
+    // Если есть премиум награда и пользователь не премиум - показываем модалку
+    if (reward.premium_reward && !isPremium) {
+      setPremiumRewardPreview({
+        level: reward.level,
+        premium_reward: reward.premium_reward,
+      });
+      return;
+    }
+    // Иначе получаем бесплатную награду
+    claimReward(reward.level, false);
+  };
+
+  const claimReward = async (level: number, isPremiumReward: boolean = false) => {
     if (!profileId || !activeSeason) return;
 
     try {
@@ -145,7 +160,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         body: {
           user_id: profileId,
           level,
-          is_premium: isPremium,
+          is_premium: isPremiumReward ? isPremium : false,
           season: activeSeason.season_number,
         },
       });
@@ -455,7 +470,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         )}
                         onClick={() => {
                           if (unlocked && !isClaimed) {
-                            claimReward(reward.level);
+                            handleRewardClick(reward);
                           }
                         }}
                       >
@@ -491,20 +506,36 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         <td className="px-2 py-1">
                           {reward.premium_reward ? (
                             <div className={cn(
-                              "flex items-center gap-0.5",
-                              isPremium ? "text-yellow-600" : "text-muted-foreground/50"
+                              "flex items-center gap-0.5 transition-colors",
+                              isPremium 
+                                ? "text-yellow-600" 
+                                : "text-muted-foreground/50 group-hover:text-yellow-500/70"
                             )}>
-                              <Crown className="w-2.5 h-2.5 shrink-0" />
+                              <Crown className={cn(
+                                "w-2.5 h-2.5 shrink-0",
+                                !isPremium && "opacity-50 group-hover:opacity-100"
+                              )} />
                               {hasPremiumCoins ? (
-                                <span className="text-[10px] font-semibold">{reward.premium_reward.amount}</span>
+                                <span className={cn(
+                                  "text-[10px] font-semibold",
+                                  !isPremium && "line-through opacity-60"
+                                )}>
+                                  {reward.premium_reward.amount}
+                                </span>
                               ) : hasPremiumOther ? (
-                                <span className="text-[9px] text-muted-foreground/60">
+                                <span className={cn(
+                                  "text-[9px]",
+                                  !isPremium && "line-through opacity-60"
+                                )}>
                                   {reward.premium_reward.type === 'skin' ? 'Скин' :
                                    reward.premium_reward.type === 'badge' ? 'Бейдж' :
                                    reward.premium_reward.type === 'boost' ? 'Буст' :
                                    reward.premium_reward.type === 'sticker' ? 'Стикер' : ''}
                                 </span>
                               ) : null}
+                              {!isPremium && (
+                                <span className="text-[8px] text-yellow-500 ml-0.5 animate-pulse">💎</span>
+                              )}
                             </div>
                           ) : (
                             <span className="text-[9px] text-muted-foreground/40">—</span>
@@ -531,11 +562,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                claimReward(reward.level);
+                                handleRewardClick(reward);
                               }}
-                              className="h-5 px-1.5 text-[9px]"
+                              className={cn(
+                                "h-5 px-1.5 text-[9px]",
+                                reward.premium_reward && !isPremium && "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/40 hover:from-yellow-500/30 hover:to-orange-500/30"
+                              )}
                             >
-                              Забрать
+                              {reward.premium_reward && !isPremium ? (
+                                <>
+                                  <Crown className="w-2.5 h-2.5 mr-0.5" />
+                                  Premium
+                                </>
+                              ) : (
+                                "Забрать"
+                              )}
                             </Button>
                           ) : (
                             <span className="text-[9px] text-muted-foreground/40">—</span>
@@ -654,6 +695,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       )}
 
     <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+    
+    {/* Premium Reward Upsell Modal */}
+    {premiumRewardPreview && (
+      <PremiumRewardUpsell
+        open={!!premiumRewardPreview}
+        onOpenChange={(open) => {
+          if (!open) setPremiumRewardPreview(null);
+        }}
+        reward={premiumRewardPreview}
+        onGetPremium={() => {
+          setShowPaywall(true);
+          setPremiumRewardPreview(null);
+        }}
+      />
+    )}
     </>
   );
 }
