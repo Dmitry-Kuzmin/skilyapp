@@ -113,17 +113,20 @@ ALTER TABLE public.race_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.anti_fraud_logs ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for race_sessions
+DROP POLICY IF EXISTS "Users can view their own race sessions" ON public.race_sessions;
 CREATE POLICY "Users can view their own race sessions"
 ON public.race_sessions
 FOR SELECT
 USING (auth.uid()::text = (SELECT user_id::text FROM public.profiles WHERE id = race_sessions.user_id));
 
+DROP POLICY IF EXISTS "Users can insert their own race sessions" ON public.race_sessions;
 CREATE POLICY "Users can insert their own race sessions"
 ON public.race_sessions
 FOR INSERT
 WITH CHECK (auth.uid()::text = (SELECT user_id::text FROM public.profiles WHERE id = race_sessions.user_id));
 
 -- RLS Policies for race_questions
+DROP POLICY IF EXISTS "Users can view questions from their sessions" ON public.race_questions;
 CREATE POLICY "Users can view questions from their sessions"
 ON public.race_questions
 FOR SELECT
@@ -135,6 +138,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Users can insert questions to their sessions" ON public.race_questions;
 CREATE POLICY "Users can insert questions to their sessions"
 ON public.race_questions
 FOR INSERT
@@ -147,6 +151,7 @@ WITH CHECK (
 );
 
 -- RLS Policies for race_attempts
+DROP POLICY IF EXISTS "Users can view attempts from their sessions" ON public.race_attempts;
 CREATE POLICY "Users can view attempts from their sessions"
 ON public.race_attempts
 FOR SELECT
@@ -158,6 +163,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Users can insert attempts to their sessions" ON public.race_attempts;
 CREATE POLICY "Users can insert attempts to their sessions"
 ON public.race_attempts
 FOR INSERT
@@ -170,22 +176,26 @@ WITH CHECK (
 );
 
 -- RLS Policies for race_results
+DROP POLICY IF EXISTS "Users can view their own race results" ON public.race_results;
 CREATE POLICY "Users can view their own race results"
 ON public.race_results
 FOR SELECT
 USING (auth.uid()::text = (SELECT user_id::text FROM public.profiles WHERE id = race_results.user_id));
 
+DROP POLICY IF EXISTS "Users can insert their own race results" ON public.race_results;
 CREATE POLICY "Users can insert their own race results"
 ON public.race_results
 FOR INSERT
 WITH CHECK (auth.uid()::text = (SELECT user_id::text FROM public.profiles WHERE id = race_results.user_id));
 
 -- RLS Policies for anti_fraud_logs (admin only)
+DROP POLICY IF EXISTS "Only admins can view anti-fraud logs" ON public.anti_fraud_logs;
 CREATE POLICY "Only admins can view anti-fraud logs"
 ON public.anti_fraud_logs
 FOR SELECT
 USING (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "System can insert anti-fraud logs" ON public.anti_fraud_logs;
 CREATE POLICY "System can insert anti-fraud logs"
 ON public.anti_fraud_logs
 FOR INSERT
@@ -201,6 +211,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger for race_sessions updated_at
+DROP TRIGGER IF EXISTS update_race_sessions_updated_at ON public.race_sessions;
 CREATE TRIGGER update_race_sessions_updated_at
 BEFORE UPDATE ON public.race_sessions
 FOR EACH ROW

@@ -110,23 +110,34 @@ const TestResults = () => {
   const { profileId } = useUserContext();
   const rewardLoggedRef = useRef(false);
   useEffect(() => {
-    if (!profileId || rewardLoggedRef.current) return;
-    rewardLoggedRef.current = true;
-    supabase.functions.invoke("coins-earn", {
-      body: { user_id: profileId, reward_type: "complete_test" },
-    });
-    const { data } = await supabase.functions.invoke("duel-pass-xp", {
-      body: { user_id: profileId, source_type: "test" },
-    });
-    if (data?.level_up) {
-      const suggestion = await supabase.functions.invoke("assistant-suggest", {
-        body: { trigger: "duel_pass_level_up" },
-      });
-      const message = suggestion.data?.suggestion?.message;
-      if (message) {
-        toast.info(message);
+    const handleRewards = async () => {
+      if (!profileId || rewardLoggedRef.current) return;
+      rewardLoggedRef.current = true;
+      
+      try {
+        await supabase.functions.invoke("coins-earn", {
+          body: { user_id: profileId, reward_type: "complete_test" },
+        });
+        
+        const { data } = await supabase.functions.invoke("duel-pass-xp", {
+          body: { user_id: profileId, source_type: "test" },
+        });
+        
+        if (data?.level_up) {
+          const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
+            body: { trigger: "duel_pass_level_up" },
+          });
+          const message = suggestion?.suggestion?.message;
+          if (message) {
+            toast.info(message);
+          }
+        }
+      } catch (error) {
+        console.error('Error handling rewards:', error);
       }
-    }
+    };
+    
+    handleRewards();
   }, [profileId]);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});

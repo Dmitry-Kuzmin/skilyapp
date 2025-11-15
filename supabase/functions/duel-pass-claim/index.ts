@@ -56,7 +56,10 @@ serve(async (req) => {
 
     if (alreadyClaimed) {
       return new Response(
-        JSON.stringify({ error: "Reward already claimed" }),
+        JSON.stringify({ 
+          error: "Reward already claimed",
+          message: "Эта награда уже была получена" 
+        }),
         { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -91,7 +94,12 @@ serve(async (req) => {
         user_id,
         transaction_type: "coins_earned_daily",
         amount: rewardPayload.amount,
-        metadata: { source: "duel_pass_reward", level, is_premium },
+        metadata: { 
+          source: "duel_pass_reward", 
+          level, 
+          is_premium,
+          reward_type: is_premium ? "premium" : "free"
+        },
       });
     }
 

@@ -97,15 +97,62 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    
+    // Debug: проверим доступность секретов
     const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY");
     const successUrl = Deno.env.get("STRIPE_SUCCESS_URL");
     const cancelUrl = Deno.env.get("STRIPE_CANCEL_URL");
+    
+    // Проверим все возможные варианты имен
+    const allEnvKeys = Object.keys(Deno.env.toObject());
+    const stripeKeys = allEnvKeys.filter(k => k.toLowerCase().includes('stripe'));
+    
+    console.log("[purchase-create] Environment check:", {
+      hasStripeSecret: !!stripeSecret,
+      hasSuccessUrl: !!successUrl,
+      hasCancelUrl: !!cancelUrl,
+      successUrlLength: successUrl?.length || 0,
+      cancelUrlLength: cancelUrl?.length || 0,
+      stripeSecretPrefix: stripeSecret?.substring(0, 10) || "NOT_FOUND",
+      allStripeKeys: stripeKeys,
+      totalEnvKeys: allEnvKeys.length,
+    });
 
-    if (!stripeSecret || !successUrl || !cancelUrl) {
-      throw new Error("Stripe configuration missing");
+    if (!stripeSecret) {
+      console.error("[purchase-create] Missing STRIPE_SECRET_KEY");
+      return new Response(
+        JSON.stringify({ error: "STRIPE_SECRET_KEY not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!successUrl) {
+      console.error("[purchase-create] Missing STRIPE_SUCCESS_URL");
+      return new Response(
+        JSON.stringify({ error: "STRIPE_SUCCESS_URL not configured. Please add it in Supabase Dashboard → Edge Functions → Settings → Secrets" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!cancelUrl) {
+      console.error("[purchase-create] Missing STRIPE_CANCEL_URL");
+      return new Response(
+        JSON.stringify({ error: "STRIPE_CANCEL_URL not configured. Please add it in Supabase Dashboard → Edge Functions → Settings → Secrets" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Проверим формат ключа перед созданием Stripe клиента
+    if (!stripeSecret.startsWith("sk_test_") && !stripeSecret.startsWith("sk_live_")) {
+      console.error("[purchase-create] Invalid Stripe key format:", stripeSecret.substring(0, 20) + "...");
+      return new Response(
+        JSON.stringify({ error: "Invalid Stripe key format. Key must start with sk_test_ or sk_live_" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
     const stripe = new Stripe(stripeSecret, { apiVersion: "2023-10-16" });
 
     const { user_id, catalog_key } = await req.json();

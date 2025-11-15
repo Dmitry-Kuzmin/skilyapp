@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift } from 'lucide-react';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
@@ -34,10 +34,14 @@ interface BoostInventory {
 }
 
 interface Transaction {
+  id: string;
   amount: number;
   type: string;
   description: string;
   created_at: string;
+  category?: 'earn' | 'spend' | 'purchase' | 'reward';
+  icon?: any; // React component
+  metadata?: any;
 }
 
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
@@ -51,6 +55,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
 
   useEffect(() => {
     if (open) {
@@ -121,6 +126,54 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     return inventory.find(i => i.boost_type === boostType)?.quantity || 0;
   };
   
+  const getTransactionInfo = (type: string, metadata?: any): { description: string; icon: any; category: 'earn' | 'spend' | 'purchase' | 'reward' } => {
+    const iconMap: Record<string, any> = {
+      // Earnings
+      'coins_earned_test': { icon: TestTube, desc: 'Награда за тест', cat: 'earn' },
+      'coins_earned_duel': { icon: Zap, desc: 'Награда за дуэль', cat: 'earn' },
+      'coins_earned_daily': { icon: Calendar, desc: 'Ежедневный бонус', cat: 'earn' },
+      'coins_earned_premium_bonus': { icon: Gift, desc: 'Premium бонус', cat: 'earn' },
+      // Spending
+      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_type || ''}`, cat: 'spend' },
+      'coins_spent_skin': { icon: Gift, desc: 'Покупка скина', cat: 'spend' },
+      'coins_spent_duel_entry': { icon: Zap, desc: 'Вход в дуэль', cat: 'spend' },
+      // Purchases
+      'coins_purchase_stripe': { icon: CreditCard, desc: `Покупка монет: ${metadata?.amount || ''}`, cat: 'purchase' },
+      'premium_purchase_monthly': { icon: CreditCard, desc: 'Premium подписка (месяц)', cat: 'purchase' },
+      'premium_purchase_yearly': { icon: CreditCard, desc: 'Premium подписка (год)', cat: 'purchase' },
+      'duel_pass_purchase': { icon: Trophy, desc: 'Покупка Duel Pass', cat: 'purchase' },
+      // Duel transactions
+      'bet': { icon: Zap, desc: 'Ставка в дуэли', cat: 'spend' },
+      'win': { icon: Trophy, desc: 'Выигрыш в дуэли', cat: 'earn' },
+      'refund': { icon: Gift, desc: 'Возврат ставки', cat: 'earn' },
+      'commission': { icon: Coins, desc: 'Комиссия системы', cat: 'spend' },
+      // Referrals
+      'referral_earned': { icon: Users, desc: `Реферальная награда: ${metadata?.name || 'друг'}`, cat: 'reward' },
+      'referral_joined': { icon: Gift, desc: 'Бонус за регистрацию', cat: 'reward' },
+      // Duel Pass rewards
+      'duel_pass_reward': { icon: Trophy, desc: `Награда Duel Pass (уровень ${metadata?.level || ''})`, cat: 'reward' },
+    };
+
+    const info = iconMap[type] || { icon: Coins, desc: type, cat: 'earn' };
+    
+      // Дополнительная обработка для Duel Pass наград
+      if (metadata?.source === 'duel_pass_reward' || type === 'coins_earned_daily' && metadata?.source === 'duel_pass_reward') {
+        const levelText = metadata?.level ? ` (уровень ${metadata.level})` : '';
+        const premiumText = metadata?.is_premium ? ' [Premium]' : '';
+        return {
+          icon: Trophy,
+          description: `Награда Duel Pass${levelText}${premiumText}`,
+          category: 'reward'
+        };
+      }
+
+    return {
+      icon: info.icon,
+      description: info.desc,
+      category: info.cat as 'earn' | 'spend' | 'purchase' | 'reward'
+    };
+  };
+
   const loadTransactionHistory = async () => {
     if (!profileId) return;
     
@@ -128,58 +181,125 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     try {
       const allTransactions: Transaction[] = [];
       
-      // Load duel transactions (bets and winnings)
-      const { data: duelTx } = await supabase
-        .from('duel_transactions')
-        .select('amount, transaction_type, created_at')
+      // 1. Load new transactions table (monetization system)
+      const { data: newTransactions } = await supabase
+        .from('transactions')
+        .select('id, amount, transaction_type, metadata, created_at')
         .eq('user_id', profileId)
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(100);
       
-      if (duelTx) {
-        duelTx.forEach(tx => {
-          let description = '';
-          switch (tx.transaction_type) {
-            case 'bet': description = 'Ставка в дуэли'; break;
-            case 'win': description = 'Выигрыш в дуэли'; break;
-            case 'refund': description = 'Возврат ставки'; break;
-            case 'commission': description = 'Комиссия системы'; break;
-            default: description = 'Дуэль';
-          }
+      if (newTransactions) {
+        newTransactions.forEach(tx => {
+          const info = getTransactionInfo(tx.transaction_type, tx.metadata);
           allTransactions.push({
+            id: tx.id,
             amount: tx.amount,
             type: tx.transaction_type,
-            description,
-            created_at: tx.created_at
+            description: info.description,
+            created_at: tx.created_at,
+            category: info.category,
+            icon: info.icon,
+            metadata: tx.metadata
           });
         });
       }
       
-      // Load referral transactions
+      // 2. Load duel transactions (bets and winnings)
+      const { data: duelTx } = await supabase
+        .from('duel_transactions')
+        .select('id, amount, transaction_type, created_at')
+        .eq('user_id', profileId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (duelTx) {
+        duelTx.forEach(tx => {
+          const info = getTransactionInfo(tx.transaction_type);
+          allTransactions.push({
+            id: tx.id || `duel_${tx.created_at}`,
+            amount: tx.amount,
+            type: tx.transaction_type,
+            description: info.description,
+            created_at: tx.created_at,
+            category: info.category,
+            icon: info.icon
+          });
+        });
+      }
+      
+      // 3. Load purchases (Stripe)
+      const { data: purchases } = await supabase
+        .from('purchases')
+        .select('id, item_type, price, currency, status, metadata, created_at, completed_at')
+        .eq('user_id', profileId)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(20);
+      
+      if (purchases) {
+        purchases.forEach(purchase => {
+          let description = '';
+          let amount = 0;
+          
+          if (purchase.item_type === 'coins_pack') {
+            const coinsAmount = purchase.metadata?.coins_amount || 0;
+            description = `Покупка монет: ${coinsAmount}`;
+            amount = coinsAmount;
+          } else if (purchase.item_type === 'premium') {
+            description = 'Premium подписка';
+            amount = 0; // Premium не дает монет напрямую
+          } else if (purchase.item_type === 'duel_pass') {
+            description = 'Покупка Duel Pass';
+            amount = 0;
+          }
+          
+          if (amount > 0) {
+            allTransactions.push({
+              id: purchase.id,
+              amount: amount,
+              type: 'coins_purchase_stripe',
+              description,
+              created_at: purchase.completed_at || purchase.created_at,
+              category: 'purchase',
+              icon: CreditCard,
+              metadata: purchase.metadata
+            });
+          }
+        });
+      }
+      
+      // 4. Load referral transactions
       const { data: referrals } = await supabase
         .from('referrals')
         .select('referred_bonus, referral_bonus, reward_given, created_at, reward_given_at, referred:referred_id(first_name)')
         .or(`referrer_id.eq.${profileId},referred_id.eq.${profileId}`)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(20);
       
       if (referrals) {
         referrals.forEach(ref => {
-          // Check if user was referrer or referred
           const isReferrer = ref.reward_given;
           if (isReferrer) {
             allTransactions.push({
+              id: `ref_earned_${ref.created_at}`,
               amount: ref.referral_bonus || 100,
               type: 'referral_earned',
-              description: `Реферальная награда: ${(ref.referred as any)?.first_name || 'друг'} заработал 50`,
-              created_at: ref.reward_given_at || ref.created_at
+              description: `Реферальная награда: ${(ref.referred as any)?.first_name || 'друг'}`,
+              created_at: ref.reward_given_at || ref.created_at,
+              category: 'reward',
+              icon: Users,
+              metadata: { name: (ref.referred as any)?.first_name }
             });
           }
           allTransactions.push({
+            id: `ref_joined_${ref.created_at}`,
             amount: ref.referred_bonus || 50,
             type: 'referral_joined',
             description: 'Бонус за регистрацию по реферальной ссылке',
-            created_at: ref.created_at
+            created_at: ref.created_at,
+            category: 'reward',
+            icon: Gift
           });
         });
       }
@@ -189,7 +309,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       
-      setTransactions(allTransactions.slice(0, 50)); // Keep last 50
+      setTransactions(allTransactions);
     } catch (error) {
       console.error('[BoostShop] Error loading transaction history:', error);
       toast({ title: 'Ошибка загрузки истории', variant: 'destructive' });
@@ -401,60 +521,140 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     <History className="w-3 h-3 text-muted-foreground ml-0.5" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 p-0" align="end">
-                  <div className="p-4 border-b">
-                    <h4 className="font-bold flex items-center gap-2">
-                      <History className="h-4 w-4" />
-                      История монет
-                    </h4>
+                <PopoverContent className="w-96 p-0" align="end">
+                  <div className="p-4 border-b space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        История монет
+                      </h4>
+                      <span className="text-xs text-muted-foreground">
+                        {transactions.length} операций
+                      </span>
+                    </div>
+                    
+                    {/* Filters */}
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <Button
+                        variant={filterCategory === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('all')}
+                      >
+                        Все
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'earn' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('earn')}
+                      >
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        Доходы
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'spend' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('spend')}
+                      >
+                        <TrendingDown className="h-3 w-3 mr-1" />
+                        Расходы
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'purchase' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('purchase')}
+                      >
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        Покупки
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'reward' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('reward')}
+                      >
+                        <Gift className="h-3 w-3 mr-1" />
+                        Награды
+                      </Button>
+                    </div>
                   </div>
                   
-                  <div className="max-h-[400px] overflow-y-auto p-2">
+                  <div className="max-h-[500px] overflow-y-auto p-2">
                     {loadingHistory ? (
                       <div className="flex items-center justify-center py-8">
                         <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
                       </div>
-                    ) : transactions.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground text-sm">
-                        <Coins className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                        <p>Нет транзакций</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        {transactions.map((tx, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              {tx.amount > 0 ? (
-                                <TrendingUp className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              ) : (
-                                <TrendingDown className="h-4 w-4 text-red-500 flex-shrink-0" />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium truncate">{tx.description}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {new Date(tx.created_at).toLocaleDateString('ru', { 
-                                    day: 'numeric',
-                                    month: 'short',
-                                    hour: '2-digit',
-                                    minute: '2-digit' 
-                                  })}
-                                </p>
-                              </div>
-                            </div>
-                            <span className={`text-sm font-bold flex-shrink-0 ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {tx.amount > 0 ? '+' : ''}{tx.amount}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-                    )}
-              </div>
+                    ) : (() => {
+                      const filtered = filterCategory === 'all' 
+                        ? transactions 
+                        : transactions.filter(tx => tx.category === filterCategory);
+                      
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="text-center py-8 text-muted-foreground text-sm">
+                            <Coins className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                            <p>Нет транзакций</p>
+                            {filterCategory !== 'all' && (
+                              <p className="text-xs mt-1">Попробуйте другой фильтр</p>
+                            )}
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div className="space-y-1">
+                          {filtered.map((tx, idx) => {
+                            const IconComponent = tx.icon || (tx.amount > 0 ? TrendingUp : TrendingDown);
+                            return (
+                              <motion.div
+                                key={tx.id || idx}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.02 }}
+                                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className={`p-2 rounded-lg flex-shrink-0 ${
+                                    tx.amount > 0 
+                                      ? 'bg-green-500/10 text-green-600' 
+                                      : 'bg-red-500/10 text-red-600'
+                                  }`}>
+                                    <IconComponent className="h-4 w-4" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{tx.description}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <p className="text-xs text-muted-foreground">
+                                        {new Date(tx.created_at).toLocaleDateString('ru', { 
+                                          day: 'numeric',
+                                          month: 'short',
+                                          hour: '2-digit',
+                                          minute: '2-digit' 
+                                        })}
+                                      </p>
+                                      {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
+                                        <Badge variant="secondary" className="text-xs h-4 px-1.5">
+                                          {tx.category === 'purchase' ? 'Покупка' : tx.category === 'reward' ? 'Награда' : ''}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
+                                  tx.amount > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                  {tx.amount > 0 ? '+' : ''}{tx.amount}
+                                </span>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </PopoverContent>
               </Popover>
               

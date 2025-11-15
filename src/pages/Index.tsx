@@ -222,10 +222,10 @@ const Index = () => {
         body: { user_id: profileId, source_type: 'daily_login' },
       });
       if (xpData?.level_up) {
-        const suggestion = await supabase.functions.invoke('assistant-suggest', {
+        const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
           body: { trigger: 'duel_pass_level_up' },
         });
-        const message = suggestion.data?.suggestion?.message;
+        const message = suggestion?.suggestion?.message;
         if (message) {
           toast({
             title: "Duel Pass",
@@ -314,6 +314,7 @@ const Index = () => {
   }
 
   return (
+    <>
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Welcome Section */}
@@ -689,6 +690,7 @@ const Index = () => {
       </div>
     </Layout>
     <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+    </>
   );
 };
 

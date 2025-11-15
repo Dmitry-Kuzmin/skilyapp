@@ -42,10 +42,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           body: { user_id: profileId, source_type: rewardType },
         });
         if (data?.level_up) {
-          const suggestion = await supabase.functions.invoke('assistant-suggest', {
+          const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
             body: { trigger: 'duel_pass_level_up' },
           });
-          const message = suggestion.data?.suggestion?.message;
+          const message = suggestion?.suggestion?.message;
           if (message) {
             toast.info(message);
           }

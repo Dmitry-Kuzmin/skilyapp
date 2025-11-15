@@ -38,12 +38,48 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       const { data, error } = await supabase.functions.invoke("purchase-create", {
         body: { user_id: profileId, catalog_key: catalogKey },
       });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
+      
+      console.log("[PaywallModal] Response:", { data, error });
+      
+      if (error) {
+        console.error("[PaywallModal] purchase error", error);
+        
+        // Попробуем получить детали ошибки из response
+        let errorDetails = error.message || "Неизвестная ошибка";
+        
+        // Если есть context, попробуем получить детали
+        if (error.context) {
+          try {
+            const errorBody = await error.context.json?.();
+            if (errorBody?.error) {
+              errorDetails = errorBody.error;
+            }
+          } catch (e) {
+            // Игнорируем ошибку парсинга
+          }
+        }
+        
+        alert(`Ошибка при создании покупки:\n\n${errorDetails}\n\nПроверьте настройки секретов в:\nSupabase Dashboard → Edge Functions → Settings\n\nУбедитесь, что добавлены:\n- STRIPE_SECRET_KEY\n- STRIPE_SUCCESS_URL\n- STRIPE_CANCEL_URL`);
+        throw error;
       }
-    } catch (err) {
+      
+      if (data?.error) {
+        console.error("[PaywallModal] Error in response", data.error);
+        alert(`Ошибка: ${data.error}\n\nПроверьте настройки секретов в Supabase Dashboard → Edge Functions → Settings`);
+        return;
+      }
+      
+      if (data?.url) {
+        console.log("[PaywallModal] Redirecting to:", data.url);
+        window.location.href = data.url;
+      } else {
+        console.error("[PaywallModal] No URL in response", data);
+        alert("Не удалось получить ссылку на оплату. Проверьте настройки Stripe в Supabase Dashboard.");
+      }
+    } catch (err: any) {
       console.error("[PaywallModal] purchase error", err);
+      const errorMessage = err?.message || err?.error?.message || JSON.stringify(err);
+      alert(`Ошибка: ${errorMessage}\n\nПроверьте:\n1. Настроены ли секреты Stripe в Supabase Dashboard → Edge Functions → Settings\n2. Правильны ли URL для success/cancel (НЕ используйте localhost!)`);
     } finally {
       setLoadingKey(null);
     }

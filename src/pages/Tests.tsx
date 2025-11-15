@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -245,7 +245,8 @@ const Tests = () => {
   };
 
   return (
-    <Layout>
+    <Fragment>
+      <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-4 max-w-[1370px]">
         {/* Header */}
         <div className="mb-8">
@@ -510,8 +511,9 @@ const Tests = () => {
           <ExamReadinessCard />
         )}
       </div>
-    </Layout>
-    <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      </Layout>
+      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+    </Fragment>
   );
 };
 
