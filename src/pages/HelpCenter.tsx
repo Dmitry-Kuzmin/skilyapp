@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { duelEconomySubsections } from "./help-duel-economy-content";
 
 interface Section {
   id: string;
@@ -88,46 +89,7 @@ const HelpCenter = () => {
       title: "Дуэли, ставки и страховка",
       icon: Gamepad2,
       description: "Как работает современная экономика дуэлей",
-      subsections: [
-        {
-          id: "duel-currencies",
-          title: "Роли валют",
-          content: `В дуэлях используется три сущности:
-
-• Монеты — единственная валюта риска, участвует в ставках и банке.
-• Season Points (SP) — сезонный прогресс Duel Pass, всегда начисляется в плюс и никогда не списывается.
-• XP — общий опыт и уровни, влияет на ранги и разблокировку контента.`
-        },
-        {
-          id: "duel-bets",
-          title: "Как работают ставки",
-          content: `• Ставка доступна при уровне ≥3 и 30 завершённых тестах.
-• Диапазон: 50–600 монет (шаг 10 монет, лимиты зависят от ранга).
-• После подтверждения обе стороны блокируют монеты в банке.
-• Победитель забирает банк, получает бонусные SP (20–80 SP) и XP.
-• Проигравший теряет ставку, но получает 5 SP и 15 XP за участие.
-• Дуэль без ставки даёт 30 SP и 30 XP без изменения баланса монет.`
-        },
-        {
-          id: "duel-insurance",
-          title: "Страховка дуэли",
-          content: `Страховка включается до старта:
-
-• Стоит около 15% от ставки (точный коэффициент зависит от streak и статуса).
-• При поражении возвращает 60% монет, при ничьей — 100%.
-• При победе считается расходом (монеты не возвращаются).
-• Доступно не более 5 страхованных дуэлей в сутки, блокируется при совпадении IP/устройств.`
-        },
-        {
-          id: "duel-season",
-          title: "Связь с сезоном",
-          content: `• Чем выше ставка, тем больше SP за победу (максимум около 80 SP).
-• SP всегда начисляются в плюс и ускоряют Duel Pass.
-• Сезонные челленджи учитывают ставки и страховку (например, “Выиграй 5 дуэлей со ставками”).
-• Лидерборды показывают чистый выигрыш монет, серию побед и успешные страховые дуэли.
-• Анти-абуз система следит за лимитами пар и подозрительными паттернами.`
-        }
-      ]
+      subsections: duelEconomySubsections
     },
     {
       id: "app-usage",
@@ -994,9 +956,138 @@ Premium подписка включает все преимущества, оп�
                         <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                           {subsection.title}
                         </h2>
-                        <div className="prose prose-gray max-w-none">
+                        <div className="prose prose-gray max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed prose-strong:text-gray-900 prose-strong:font-semibold">
                           <div className="text-gray-700 whitespace-pre-line leading-relaxed">
-                            {subsection.content}
+                            {(() => {
+                              const lines = subsection.content.split('\n');
+                              const processedLines: JSX.Element[] = [];
+                              let inTable = false;
+                              let tableRows: string[] = [];
+                              
+                              lines.forEach((line, idx) => {
+                                // Обработка таблиц
+                                if (line.includes('|') && line.trim().startsWith('|')) {
+                                  const isSeparator = line.includes('---') || line.match(/^\|\s*:?-+:?\s*\|/);
+                                  
+                                  if (!inTable) {
+                                    inTable = true;
+                                    tableRows = [];
+                                  }
+                                  
+                                  if (!isSeparator) {
+                                    tableRows.push(line);
+                                  }
+                                  
+                                  // Если следующая строка не таблица, рендерим таблицу
+                                  const nextLine = lines[idx + 1];
+                                  if (!nextLine || (!nextLine.includes('|') || !nextLine.trim().startsWith('|'))) {
+                                    if (tableRows.length > 0) {
+                                      const headerRow = tableRows[0];
+                                      const dataRows = tableRows.slice(1);
+                                      const headerCells = headerRow.split('|').filter(c => c.trim()).map(c => c.trim());
+                                      const colCount = headerCells.length;
+                                      
+                                      processedLines.push(
+                                        <div key={`table-${idx}`} className="my-6 overflow-x-auto">
+                                          <div className="inline-block min-w-full align-middle">
+                                            <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm">
+                                              {/* Заголовок */}
+                                              <div className={cn(
+                                                "grid gap-2 px-4 py-3 bg-gradient-to-r from-purple-50 to-blue-50 border-b border-gray-200",
+                                                colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
+                                              )}>
+                                                {headerCells.map((cell, cellIdx) => (
+                                                  <div key={cellIdx} className="text-sm font-semibold text-gray-900">
+                                                    {cell}
+                                                  </div>
+                                                ))}
+                                              </div>
+                                              {/* Данные */}
+                                              {dataRows.map((row, rowIdx) => {
+                                                const cells = row.split('|').filter(c => c.trim()).map(c => c.trim());
+                                                return (
+                                                  <div key={rowIdx} className={cn(
+                                                    "grid gap-2 px-4 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors",
+                                                    colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
+                                                  )}>
+                                                    {cells.map((cell, cellIdx) => (
+                                                      <div key={cellIdx} className="text-sm text-gray-700">
+                                                        {cell}
+                                                      </div>
+                                                    ))}
+                                                  </div>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                      tableRows = [];
+                                      inTable = false;
+                                    }
+                                    return;
+                                  }
+                                  return;
+                                }
+                              
+                                // Обработка заголовков
+                                if (line.startsWith('**') && line.endsWith('**')) {
+                                  processedLines.push(
+                                    <h3 key={idx} className="text-lg font-semibold text-gray-900 mt-6 mb-3">
+                                      {line.replace(/\*\*/g, '')}
+                                    </h3>
+                                  );
+                                  return;
+                                }
+                                
+                                // Обработка списков с эмодзи
+                                if (line.match(/^[•\-\*]\s+[🪙⭐✨🎯🛡️🏆🎁🌱📊]/)) {
+                                  const emoji = line.match(/[🪙⭐✨🎯🛡️🏆🎁🌱📊]/)?.[0] || '';
+                                  const text = line.replace(/^[•\-\*]\s+[🪙⭐✨🎯🛡️🏆🎁🌱📊]\s+/, '').replace(/\*\*/g, '');
+                                  processedLines.push(
+                                    <div key={idx} className="flex items-start gap-3 my-2">
+                                      <span className="text-xl">{emoji}</span>
+                                      <span className="text-gray-700 flex-1">{text}</span>
+                                    </div>
+                                  );
+                                  return;
+                                }
+                                
+                                // Обработка обычных списков
+                                if (line.match(/^[•\-\*]\s+/)) {
+                                  const text = line.replace(/^[•\-\*]\s+/, '').replace(/\*\*/g, '');
+                                  processedLines.push(
+                                    <div key={idx} className="flex items-start gap-2 my-2">
+                                      <ChevronRight className="w-4 h-4 text-purple-600 mt-1 flex-shrink-0" />
+                                      <span className="text-gray-700">{text}</span>
+                                    </div>
+                                  );
+                                  return;
+                                }
+                                
+                                // Обработка разделителей
+                                if (line.trim() === '---') {
+                                  processedLines.push(<hr key={idx} className="my-6 border-gray-200" />);
+                                  return;
+                                }
+                                
+                                // Обычный текст
+                                if (line.trim()) {
+                                  processedLines.push(
+                                    <p key={idx} className="mb-4 text-gray-700 leading-relaxed">
+                                      {line.split('**').map((part, partIdx) => 
+                                        partIdx % 2 === 1 ? <strong key={partIdx} className="font-semibold text-gray-900">{part}</strong> : part
+                                      )}
+                                    </p>
+                                  );
+                                  return;
+                                }
+                                
+                                processedLines.push(<br key={idx} />);
+                              });
+                              
+                              return processedLines;
+                            })()}
                           </div>
                           {subsection.items && (
                             <ul className="mt-4 space-y-2 list-none">
