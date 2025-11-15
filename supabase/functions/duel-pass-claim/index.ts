@@ -25,9 +25,10 @@ serve(async (req) => {
       );
     }
 
+    // Проверяем существование профиля
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("id, duel_pass_level")
+      .select("id")
       .eq("id", user_id)
       .single();
 
@@ -38,9 +39,44 @@ serve(async (req) => {
       );
     }
 
-    if (level > profile.duel_pass_level) {
+    // Получаем активный сезон
+    const { data: seasonData, error: seasonError } = await supabase
+      .rpc("get_active_season");
+
+    if (seasonError || !seasonData || seasonData.length === 0) {
       return new Response(
-        JSON.stringify({ error: "Level not unlocked yet" }),
+        JSON.stringify({ error: "Active season not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const activeSeason = seasonData[0];
+    const seasonId = activeSeason.id;
+
+    // Получаем прогресс пользователя в сезоне
+    const { data: progressData, error: progressError } = await supabase
+      .rpc("get_or_create_season_progress", {
+        p_user_id: user_id,
+        p_season_id: seasonId,
+      });
+
+    if (progressError || !progressData || progressData.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Failed to get season progress" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const seasonProgress = progressData[0];
+    const userLevel = seasonProgress.level || 1;
+
+    // Проверяем, разблокирован ли уровень
+    if (level > userLevel) {
+      return new Response(
+        JSON.stringify({ 
+          error: "Level not unlocked yet",
+          message: `Уровень ${level} еще не разблокирован. Ваш текущий уровень: ${userLevel}` 
+        }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -64,9 +100,11 @@ serve(async (req) => {
       );
     }
 
+    // Получаем награду из сезонных наград
     const { data: reward, error: rewardError } = await supabase
-      .from("duel_pass_rewards")
+      .from("duel_pass_season_rewards")
       .select(is_premium ? "premium_reward" : "free_reward")
+      .eq("season_id", seasonId)
       .eq("level", level)
       .single();
 
