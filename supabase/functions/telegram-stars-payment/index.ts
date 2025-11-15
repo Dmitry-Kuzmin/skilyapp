@@ -115,13 +115,12 @@ serve(async (req) => {
       });
 
       // Создать invoice через Telegram Bot API
-      // Для Telegram Stars (XTR):
+      // Для Telegram Stars (XTR) в Mini Apps используем createInvoiceLink вместо sendInvoice
       // - currency: 'XTR'
       // - provider_token: пустая строка '' (обязательно для Stars)
       // - amount в ЦЕЛЫХ единицах звезд (не в тысячных долях!)
       // - Минимум: 1 звезда, Максимум: 10000 звезд
       const invoiceRequest = {
-        chat_id: telegram_user_id,
         title: pkg.title_ru,
         description: pkg.description_ru,
         payload: invoicePayload, // Важно: наш ID для отслеживания
@@ -130,13 +129,13 @@ serve(async (req) => {
         prices: [{
           label: pkg.title_ru,
           amount: starsAmount // В ЦЕЛЫХ единицах звезд (для XTR не нужно умножать на 1000!)
-        }],
-        start_parameter: `stars_${invoicePayload}` // Параметр для глубокой ссылки (может помочь с Mini Apps)
+        }]
       };
 
-      console.log('[Stars Payment] Sending invoice request to Telegram:', JSON.stringify(invoiceRequest, null, 2));
+      console.log('[Stars Payment] Creating invoice link via Telegram API:', JSON.stringify(invoiceRequest, null, 2));
 
-      const invoiceResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendInvoice`, {
+      // Используем createInvoiceLink для Mini Apps (не требует chat_id, возвращает invoice_link напрямую)
+      const invoiceResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/createInvoiceLink`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(invoiceRequest)
@@ -163,8 +162,10 @@ serve(async (req) => {
       }
 
       // Проверить наличие invoice_link в ответе
-      if (!invoiceData.result || !invoiceData.result.invoice_link) {
-        console.error('[Stars Payment] Invoice link missing in response:', invoiceData);
+      // createInvoiceLink возвращает result напрямую как строку (invoice_link)
+      const invoiceLink = invoiceData.result;
+      if (!invoiceLink || typeof invoiceLink !== 'string') {
+        console.error('[Stars Payment] Invoice link missing or invalid in response:', invoiceData);
         
         // Удалить созданный платеж при ошибке
         await supabase
@@ -173,14 +174,14 @@ serve(async (req) => {
           .eq('id', payment.id);
 
         return new Response(
-          JSON.stringify({ error: 'Telegram API did not return invoice_link. Response: ' + JSON.stringify(invoiceData) }),
+          JSON.stringify({ error: 'Telegram API did not return valid invoice_link. Response: ' + JSON.stringify(invoiceData) }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      console.log('[Stars Payment] Invoice created successfully:', {
+      console.log('[Stars Payment] Invoice link created successfully:', {
         payment_id: payment.id,
-        invoice_link: invoiceData.result.invoice_link,
+        invoice_link: invoiceLink,
         stars_amount: starsAmount
       });
 
@@ -188,7 +189,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          invoice_link: invoiceData.result.invoice_link,
+          invoice_link: invoiceLink,
           payment_id: payment.id,
           stars_amount: starsAmount,
           coins_equivalent: pkg.price_coins
