@@ -211,16 +211,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const totalSPNeeded = rewards[rewards.length - 1]?.sp_required || 3000;
   const progressPercent = Math.min((currentSP / totalSPNeeded) * 100, 100);
 
-  // Находим текущий уровень и следующий
-  const currentLevelReward = rewards.find((r) => r.level === currentLevel);
+  // Находим следующий уровень для расчета SP
   const nextLevelReward = rewards.find((r) => r.level === currentLevel + 1);
-  
-  // Правильный расчет SP до следующего уровня
   const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
   const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
-  
-  // Находим ближайшую доступную награду (следующий уровень, который еще не достигнут)
-  const nearestReward = nextLevelReward;
 
   // Фильтрация наград
   const filteredRewards = rewards.filter((reward) => {
