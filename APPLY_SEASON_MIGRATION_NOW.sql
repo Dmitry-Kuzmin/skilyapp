@@ -250,6 +250,9 @@ BEGIN
 END;
 $$;
 
+-- Grant execute permissions для get_active_season
+GRANT EXECUTE ON FUNCTION public.get_active_season() TO anon, authenticated;
+
 -- Функция для получения или создания прогресса пользователя в сезоне
 CREATE OR REPLACE FUNCTION public.get_or_create_season_progress(
   p_user_id UUID,
@@ -295,6 +298,9 @@ BEGIN
   WHERE usp.id = v_progress_id;
 END;
 $$;
+
+-- Grant execute permissions для get_or_create_season_progress
+GRANT EXECUTE ON FUNCTION public.get_or_create_season_progress(UUID, INTEGER) TO anon, authenticated;
 
 -- Создаем первый сезон "Operación Asfalto"
 INSERT INTO public.duel_pass_seasons (
