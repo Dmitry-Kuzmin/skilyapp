@@ -55,32 +55,18 @@ serve(async (req) => {
         .eq("challenge_id", challenge.challenge_id);
     }
 
-    // Начисляем SP через season-sp функцию
+    // Начисляем SP через season-sp функцию для правильного расчета уровня
     if (totalSP > 0) {
-      // Получаем активный сезон
-      const { data: activeSeason } = await supabase.rpc("get_active_season");
-      if (activeSeason && activeSeason.length > 0) {
-        // Начисляем SP напрямую через обновление прогресса
-        const { data: progressData } = await supabase
-          .rpc("get_or_create_season_progress", {
-            p_user_id: user_id,
-            p_season_id: activeSeason[0].id,
-          });
-
-        if (progressData && progressData.length > 0) {
-          const currentSP = progressData[0].season_points || 0;
-          const newSP = currentSP + totalSP;
-
-          await supabase
-            .from("user_season_progress")
-            .update({
-              season_points: newSP,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("user_id", user_id)
-            .eq("season_id", activeSeason[0].id);
-        }
-      }
+      await supabase.functions.invoke("season-sp", {
+        body: {
+          user_id,
+          source_type: "challenge_reward",
+          metadata: {
+            sp_earned: totalSP,
+            challenges: completed_challenges.map((c: any) => c.challenge_id),
+          },
+        },
+      });
     }
 
     // Начисляем монеты через coins-earn функцию
