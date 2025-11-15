@@ -1720,6 +1720,7 @@ const TestSession = () => {
           <QuestionProgressBar
             currentIndex={currentIndex}
             totalQuestions={questions.length}
+            answers={answers}
             onClose={!isTelegramApp ? handleClose : undefined}
             showClose={!isTelegramApp}
             onShowQuestionMap={() => setShowQuestionMap(true)}

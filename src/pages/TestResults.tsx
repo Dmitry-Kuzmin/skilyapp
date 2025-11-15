@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap } from "lucide-react";
+import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -113,62 +113,12 @@ const TestResults = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const rewardLoggedRef = useRef(false);
-  useEffect(() => {
-    const handleRewards = async () => {
-      if (!profileId || rewardLoggedRef.current) return;
-      rewardLoggedRef.current = true;
-      
-      try {
-        await supabase.functions.invoke("coins-earn", {
-          body: { user_id: profileId, reward_type: "complete_test" },
-        });
-        
-        // Начисляем Season Points за прохождение теста
-        const sourceType = score === 100 ? "test_perfect" : "test_completed";
-        const { data: spData } = await supabase.functions.invoke("season-sp", {
-          body: { 
-            user_id: profileId, 
-            source_type: sourceType,
-            metadata: { 
-              questions_count: questions.length,
-              score: score 
-            }
-          },
-        });
-        
-        // Также начисляем XP для обратной совместимости
-        const { data } = await supabase.functions.invoke("duel-pass-xp", {
-          body: { user_id: profileId, source_type: "test" },
-        });
-        
-        // Отслеживаем прогресс челленджей
-        await supabase.functions.invoke("season-challenges-track", {
-          body: {
-            user_id: profileId,
-            source_type: sourceType,
-            metadata: {
-              questions_count: questions.length,
-              score: score
-            }
-          },
-        });
-        
-        if (data?.level_up) {
-          const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
-            body: { trigger: "duel_pass_level_up" },
-          });
-          const message = suggestion?.suggestion?.message;
-          if (message) {
-            toast.info(message);
-          }
-        }
-      } catch (error) {
-        console.error('Error handling rewards:', error);
-      }
-    };
-    
-    handleRewards();
-  }, [profileId]);
+  const [rewards, setRewards] = useState<{
+    coins?: number;
+    sp?: number;
+    levelUp?: boolean;
+    newLevel?: number;
+  } | null>(null);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
   
@@ -194,6 +144,111 @@ const TestResults = () => {
     testId?: string;
     testInfo?: { id: string; title: string };
   };
+
+  // Начисление наград после получения данных
+  useEffect(() => {
+    const handleRewards = async () => {
+      if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) return;
+      rewardLoggedRef.current = true;
+      
+      // Вычисляем score из answers
+      const correctCount = answers.filter(a => a.isCorrect).length;
+      const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+      
+      try {
+        // Начисляем монеты
+        const { data: coinsData, error: coinsError } = await supabase.functions.invoke("coins-earn", {
+          body: { user_id: profileId, reward_type: "complete_test" },
+        });
+        
+        if (coinsError) {
+          console.error('[TestResults] Coins error:', coinsError);
+        }
+        
+        // Начисляем Season Points за прохождение теста
+        const sourceType = score === 100 ? "test_perfect" : "test_completed";
+        const { data: spData, error: spError } = await supabase.functions.invoke("season-sp", {
+          body: { 
+            user_id: profileId, 
+            source_type: sourceType,
+            metadata: { 
+              questions_count: questions.length,
+              score: score 
+            }
+          },
+        });
+        
+        if (spError) {
+          console.error('[TestResults] SP error:', spError);
+        }
+        
+        // Также начисляем XP для обратной совместимости
+        const { data: xpData, error: xpError } = await supabase.functions.invoke("duel-pass-xp", {
+          body: { user_id: profileId, source_type: "test" },
+        });
+        
+        if (xpError) {
+          console.error('[TestResults] XP error:', xpError);
+        }
+        
+        // Отслеживаем прогресс челленджей
+        await supabase.functions.invoke("season-challenges-track", {
+          body: {
+            user_id: profileId,
+            source_type: sourceType,
+            metadata: {
+              questions_count: questions.length,
+              score: score
+            }
+          },
+        });
+        
+        // Сохраняем результаты начислений
+        setRewards({
+          coins: coinsData?.reward_amount || 10,
+          sp: spData?.sp_added || (sourceType === "test_perfect" ? 35 : 25),
+          levelUp: spData?.level_up || false,
+          newLevel: spData?.level || undefined,
+        });
+        
+        // Показываем уведомление о начислениях
+        const rewardMessages = [];
+        if (coinsData?.reward_amount) {
+          rewardMessages.push(`+${coinsData.reward_amount} монет`);
+        }
+        if (spData?.sp_added) {
+          rewardMessages.push(`+${spData.sp_added} SP`);
+        }
+        if (spData?.level_up) {
+          rewardMessages.push(`🎉 Новый уровень Duel Pass: ${spData.level}!`);
+        }
+        
+        if (rewardMessages.length > 0) {
+          toast.success("Награды получены!", {
+            description: rewardMessages.join(", "),
+            duration: 5000,
+          });
+        }
+        
+        if (xpData?.level_up) {
+          const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
+            body: { trigger: "duel_pass_level_up" },
+          });
+          const message = suggestion?.suggestion?.message;
+          if (message) {
+            toast.info(message);
+          }
+        }
+      } catch (error) {
+        console.error('[TestResults] Error handling rewards:', error);
+        toast.error("Ошибка при начислении наград", {
+          description: "Попробуйте обновить страницу",
+        });
+      }
+    };
+    
+    handleRewards();
+  }, [profileId, questions, answers]);
 
   const [nextTest, setNextTest] = useState<{ id: string; title: string; status: string } | null>(null);
   const [loadingNextTest, setLoadingNextTest] = useState(false);
@@ -626,10 +681,45 @@ const TestResults = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-muted-foreground mb-6 flex items-center justify-center gap-2"
+                className="text-muted-foreground mb-4 flex items-center justify-center gap-2"
               >
                 {mode === "exam" ? "Modo examen" : mode === "sequential" ? "Тест последовательный" : "Modo práctica"}
               </motion.p>
+
+              {/* Награды за тест */}
+              {rewards && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.45 }}
+                  className="mb-6 flex items-center justify-center gap-3 flex-wrap"
+                >
+                  {rewards.coins && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                      <Coins className="w-5 h-5 text-yellow-500" />
+                      <span className="font-semibold text-yellow-600 dark:text-yellow-500">
+                        +{rewards.coins} монет
+                      </span>
+                    </div>
+                  )}
+                  {rewards.sp && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <Trophy className="w-5 h-5 text-purple-500" />
+                      <span className="font-semibold text-purple-600 dark:text-purple-500">
+                        +{rewards.sp} SP
+                      </span>
+                    </div>
+                  )}
+                  {rewards.levelUp && rewards.newLevel && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+                      <Sparkles className="w-5 h-5 text-purple-500" />
+                      <span className="font-semibold text-purple-600 dark:text-purple-500">
+                        🎉 Уровень {rewards.newLevel}!
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* Статистика с улучшенным дизайном */}
               <motion.div

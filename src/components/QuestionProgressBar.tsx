@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical } from 'lucide-react';
+import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -25,6 +25,9 @@ interface QuestionProgressBarProps {
   // Optional: Timer or other custom content
   customLeftContent?: React.ReactNode;
   
+  // Optional: Answers for visual indicators
+  answers?: Array<{ isCorrect: boolean }>;
+  
   className?: string;
 }
 
@@ -41,9 +44,12 @@ export function QuestionProgressBar({
   onOpenSettings,
   SettingsMenuComponent,
   customLeftContent,
+  answers = [],
   className,
 }: QuestionProgressBarProps) {
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
+  const correctCount = answers.filter(a => a.isCorrect).length;
+  const incorrectCount = answers.filter(a => !a.isCorrect).length;
 
   return (
     <div className={cn("flex items-center gap-2 sm:gap-3", className)}>
@@ -83,15 +89,53 @@ export function QuestionProgressBar({
           </div>
         )}
 
-        {/* Horizontal Progress Bar */}
-        <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px]">
+        {/* Horizontal Progress Bar with visual indicators */}
+        <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px] relative">
+          {/* Progress fill */}
           <div
             className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
             style={{ width: `${progress}%` }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           </div>
+          
+          {/* Visual indicators for answered questions */}
+          {answers.length > 0 && (
+            <div className="absolute inset-0 flex items-center">
+              {answers.map((answer, idx) => {
+                const position = ((idx + 1) / totalQuestions) * 100;
+                return (
+                  <div
+                    key={idx}
+                    className="absolute w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-background shadow-sm"
+                    style={{ left: `calc(${position}% - 4px)` }}
+                  >
+                    <div
+                      className={answer.isCorrect 
+                        ? "w-full h-full rounded-full bg-emerald-500" 
+                        : "w-full h-full rounded-full bg-red-500"
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
+        
+        {/* Score indicators */}
+        {answers.length > 0 && (
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{correctCount}</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/10 border border-red-500/20">
+              <XCircle className="w-3 h-3 text-red-500" />
+              <span className="text-xs font-semibold text-red-600 dark:text-red-400">{incorrectCount}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right Side Controls - Bookmark + Settings */}
