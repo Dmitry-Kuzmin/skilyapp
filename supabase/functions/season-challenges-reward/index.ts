@@ -91,6 +91,7 @@ serve(async (req) => {
           reward_type: "challenge_reward",
           metadata: {
             source: "season_challenge",
+            total_coins: totalCoins,
             challenges: completed_challenges.map((c: any) => c.challenge_id),
           },
         },
