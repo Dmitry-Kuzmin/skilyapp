@@ -12,6 +12,8 @@ export interface DuelRealtimeState {
   currentQuestion: number;
   opponentCorrectCount: number;
   myScore: number;
+  opponentActivityStatus: 'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline';
+  opponentLastSeen: Date | null;
 }
 
 export function useDuelRealtime(duelId: string | null, myPlayerId?: string | null) {
@@ -25,6 +27,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     currentQuestion: 0,
     opponentCorrectCount: 0,
     myScore: 0,
+    opponentActivityStatus: 'online',
+    opponentLastSeen: null,
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const myPlayerIdRef = useRef<string | null | undefined>(myPlayerId);
@@ -170,10 +174,25 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
                   opponentScore: updatedPlayer.score,
                   opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
                     ? updatedPlayer.correct_count 
-                    : prev.opponentCorrectCount
+                    : prev.opponentCorrectCount,
+                  opponentActivityStatus: updatedPlayer.activity_status || prev.opponentActivityStatus,
+                  opponentLastSeen: updatedPlayer.last_heartbeat_at 
+                    ? new Date(updatedPlayer.last_heartbeat_at) 
+                    : prev.opponentLastSeen
             }));
               } else {
                 console.warn('[useDuelRealtime] ⚠️ Opponent score is not a number:', updatedPlayer.score);
+              }
+              
+              // Обновляем статус активности даже если счет не изменился
+              if (updatedPlayer.activity_status) {
+                setState(prev => ({
+                  ...prev,
+                  opponentActivityStatus: updatedPlayer.activity_status,
+                  opponentLastSeen: updatedPlayer.last_heartbeat_at 
+                    ? new Date(updatedPlayer.last_heartbeat_at) 
+                    : prev.opponentLastSeen
+                }));
               }
             }
           } else {

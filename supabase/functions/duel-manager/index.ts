@@ -2668,6 +2668,303 @@ Deno.serve(async (req) => {
         }
       }
 
+      case 'heartbeat': {
+        const { duel_id } = params;
+        const userProfileId = params.profile_id || profileId;
+        
+        if (!duel_id || !userProfileId) {
+          return new Response(JSON.stringify({ error: 'duel_id and profile_id are required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Обновляем heartbeat для текущего игрока
+        const { data: player, error: playerError } = await supabase
+          .from('duel_players')
+          .select('id')
+          .eq('duel_id', duel_id)
+          .eq('user_id', userProfileId)
+          .single();
+        
+        if (playerError || !player) {
+          console.error('[heartbeat] Player not found:', playerError);
+          return new Response(JSON.stringify({ error: 'Player not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Обновляем heartbeat и статус онлайн
+        await supabase
+          .from('duel_players')
+          .update({
+            last_heartbeat_at: new Date().toISOString(),
+            is_connected: true,
+            activity_status: 'online'
+          })
+          .eq('id', player.id);
+        
+        // Проверяем активность соперника
+        const { data: opponent, error: opponentError } = await supabase
+          .from('duel_players')
+          .select('id, last_heartbeat_at, is_connected, activity_status, user_id')
+          .eq('duel_id', duel_id)
+          .neq('user_id', userProfileId)
+          .single();
+        
+        let opponentStatus = null;
+        if (opponent && !opponentError) {
+          const lastHeartbeat = opponent.last_heartbeat_at 
+            ? new Date(opponent.last_heartbeat_at).getTime() 
+            : 0;
+          const now = Date.now();
+          const timeSinceHeartbeat = now - lastHeartbeat;
+          
+          // Если соперник не отправлял heartbeat > 10 секунд - помечаем как офлайн
+          if (timeSinceHeartbeat > 10000 && opponent.is_connected) {
+            await supabase
+              .from('duel_players')
+              .update({
+                is_connected: false,
+                activity_status: 'offline'
+              })
+              .eq('id', opponent.id);
+            
+            opponentStatus = 'offline';
+          } else {
+            opponentStatus = opponent.activity_status || 'online';
+          }
+        }
+        
+        return new Response(JSON.stringify({ 
+          success: true,
+          opponent_status: opponentStatus
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'update_activity_status': {
+        const { duel_id, status } = params;
+        const userProfileId = params.profile_id || profileId;
+        
+        if (!duel_id || !userProfileId || !status) {
+          return new Response(JSON.stringify({ error: 'duel_id, profile_id and status are required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const validStatuses = ['thinking', 'answering', 'online', 'reconnecting'];
+        if (!validStatuses.includes(status)) {
+          return new Response(JSON.stringify({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const { data: player, error: playerError } = await supabase
+          .from('duel_players')
+          .select('id')
+          .eq('duel_id', duel_id)
+          .eq('user_id', userProfileId)
+          .single();
+        
+        if (playerError || !player) {
+          return new Response(JSON.stringify({ error: 'Player not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        await supabase
+          .from('duel_players')
+          .update({
+            activity_status: status,
+            last_heartbeat_at: new Date().toISOString(),
+            is_connected: status !== 'offline'
+          })
+          .eq('id', player.id);
+        
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'handle_disconnect': {
+        const { duel_id } = params;
+        const userProfileId = params.profile_id || profileId;
+        
+        if (!duel_id || !userProfileId) {
+          return new Response(JSON.stringify({ error: 'duel_id and profile_id are required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const { data: player, error: playerError } = await supabase
+          .from('duel_players')
+          .select('id, disconnect_count')
+          .eq('duel_id', duel_id)
+          .eq('user_id', userProfileId)
+          .single();
+        
+        if (playerError || !player) {
+          return new Response(JSON.stringify({ error: 'Player not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Обновляем статус отключения
+        await supabase
+          .from('duel_players')
+          .update({
+            is_connected: false,
+            activity_status: 'offline',
+            disconnect_count: (player.disconnect_count || 0) + 1,
+            last_disconnect_at: new Date().toISOString()
+          })
+          .eq('id', player.id);
+        
+        // Логируем инцидент
+        await supabase
+          .from('duel_incidents')
+          .insert({
+            duel_id,
+            player_id: player.id,
+            incident_type: 'disconnect',
+            metadata: {
+              disconnect_count: (player.disconnect_count || 0) + 1,
+              timestamp: new Date().toISOString()
+            }
+          });
+        
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      case 'mark_technical_draw': {
+        const { duel_id } = params;
+        
+        if (!duel_id) {
+          return new Response(JSON.stringify({ error: 'duel_id is required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Проверяем что дуэль активна
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('status, bet_amount, host_user')
+          .eq('id', duel_id)
+          .single();
+        
+        if (duelError || !duel) {
+          return new Response(JSON.stringify({ error: 'Duel not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        if (duel.status !== 'active') {
+          return new Response(JSON.stringify({ error: 'Duel is not active' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Получаем игроков
+        const { data: players, error: playersError } = await supabase
+          .from('duel_players')
+          .select('user_id')
+          .eq('duel_id', duel_id);
+        
+        if (playersError || !players || players.length < 2) {
+          return new Response(JSON.stringify({ error: 'Not enough players' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Возвращаем ставки всем игрокам
+        if (duel.bet_amount > 0) {
+          const { data: betRow } = await supabase
+            .from('duel_bets')
+            .select('host_insurance_premium, opponent_insurance_premium')
+            .eq('duel_id', duel_id)
+            .maybeSingle();
+          
+          for (const player of players) {
+            // Возврат ставки
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: player.user_id,
+              p_column: 'coins',
+              p_amount: duel.bet_amount
+            });
+            
+            await supabase.from('duel_transactions').insert({
+              duel_id,
+              user_id: player.user_id,
+              amount: duel.bet_amount,
+              transaction_type: 'refund'
+            });
+            
+            // Возврат страховки если была
+            const isHost = player.user_id === duel.host_user;
+            const insurancePremium = isHost 
+              ? betRow?.host_insurance_premium 
+              : betRow?.opponent_insurance_premium;
+            
+            if (insurancePremium && insurancePremium > 0) {
+              await supabase.rpc('increment_profile_value', {
+                p_profile_id: player.user_id,
+                p_column: 'coins',
+                p_amount: insurancePremium
+              });
+              
+              await supabase.from('duel_transactions').insert({
+                duel_id,
+                user_id: player.user_id,
+                amount: insurancePremium,
+                transaction_type: 'insurance_refund'
+              });
+            }
+          }
+        }
+        
+        // Обновляем статус дуэли
+        await supabase
+          .from('duels')
+          .update({
+            status: 'technical_draw',
+            finished_at: new Date().toISOString()
+          })
+          .eq('id', duel_id);
+        
+        // Логируем инцидент
+        await supabase
+          .from('duel_incidents')
+          .insert({
+            duel_id,
+            incident_type: 'technical_error',
+            metadata: {
+              reason: 'server_error',
+              timestamp: new Date().toISOString()
+            }
+          });
+        
+        return new Response(JSON.stringify({ 
+          success: true,
+          message: 'Technical draw marked, bets refunded'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       default:
         return new Response(JSON.stringify({ error: 'Unknown action' }), {
           status: 400,

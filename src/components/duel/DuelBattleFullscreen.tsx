@@ -21,6 +21,7 @@ import { getImageUrl } from '@/utils/imageUtils';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelSettingsMenu } from './DuelSettingsMenu';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
+import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 
 const duelRiskMultiplierPreview = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -82,6 +83,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
+  const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
+  const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
+  const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
 
   // Settings states
   const [showDuelSettings, setShowDuelSettings] = useState(false);
@@ -223,6 +227,180 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     loadBoosts();
     loadBetInfo();
   }, [duelId, profileId]);
+
+  // Heartbeat каждые 5 секунд для отслеживания активности
+  useEffect(() => {
+    if (!duelId || !profileId || !state.duelStarted) return;
+    
+    const heartbeatInterval = setInterval(async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'heartbeat',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+        
+        if (error) {
+          console.error('[DuelBattleFullscreen] Heartbeat error:', error);
+        } else if (data?.opponent_status) {
+          // Обновляем статус соперника из ответа heartbeat
+          setOpponentActivityStatus(data.opponent_status);
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Heartbeat exception:', error);
+      }
+    }, 5000);
+    
+    return () => clearInterval(heartbeatInterval);
+  }, [duelId, profileId, state.duelStarted]);
+
+  // Синхронизация статуса активности из Realtime
+  useEffect(() => {
+    if (state.opponentActivityStatus) {
+      setOpponentActivityStatus(state.opponentActivityStatus);
+    }
+    if (state.opponentLastSeen) {
+      setOpponentLastSeen(state.opponentLastSeen);
+    }
+  }, [state.opponentActivityStatus, state.opponentLastSeen]);
+
+  // Обновление статуса активности при чтении вопроса
+  useEffect(() => {
+    if (!duelId || !profileId || !questions.length || !state.duelStarted) return;
+    
+    // Когда показывается новый вопрос - статус "thinking"
+    supabase.functions.invoke('duel-manager', {
+      body: {
+        action: 'update_activity_status',
+        duel_id: duelId,
+        profile_id: profileId,
+        status: 'thinking'
+      }
+    }).catch(error => {
+      console.error('[DuelBattleFullscreen] Error updating activity status to thinking:', error);
+    });
+  }, [currentIndex, duelId, profileId, questions.length, state.duelStarted]);
+
+  // Уведомления о смене статуса активности соперника
+  useEffect(() => {
+    if (!opponentName || opponentActivityStatus === previousActivityStatusRef.current) return;
+    
+    const statusMessages: Record<string, { title: string; description: string; icon: string; duration: number }> = {
+      online: {
+        title: `${opponentName} вернулся`,
+        description: 'Соперник снова онлайн',
+        icon: '🟢',
+        duration: 2000
+      },
+      thinking: {
+        title: `${opponentName} думает`,
+        description: 'Читает вопрос...',
+        icon: '💭',
+        duration: 1500
+      },
+      answering: {
+        title: `${opponentName} отвечает!`,
+        description: 'Торопится!',
+        icon: '⚡',
+        duration: 2000
+      },
+      reconnecting: {
+        title: `${opponentName} переподключается`,
+        description: 'Проблемы с соединением',
+        icon: '🔄',
+        duration: 3000
+      },
+      offline: {
+        title: `${opponentName} офлайн`,
+        description: 'Потеряно соединение',
+        icon: '⚠️',
+        duration: 3000
+      }
+    };
+    
+    const message = statusMessages[opponentActivityStatus];
+    if (message && previousActivityStatusRef.current !== 'online') {
+      toast.info(message.title, {
+        description: message.description,
+        duration: message.duration,
+        icon: message.icon
+      });
+    }
+    
+    previousActivityStatusRef.current = opponentActivityStatus;
+  }, [opponentActivityStatus, opponentName]);
+
+  // Детекция переподключения
+  useEffect(() => {
+    if (!opponentLastSeen || opponentActivityStatus !== 'online') return;
+    
+    const checkReconnection = () => {
+      if (!opponentLastSeen) return;
+      
+      const now = Date.now();
+      const lastSeen = opponentLastSeen.getTime();
+      const timeSinceLastSeen = now - lastSeen;
+      
+      // Если был офлайн > 5 секунд и вернулся - это переподключение
+      if (timeSinceLastSeen > 5000 && previousActivityStatusRef.current === 'offline') {
+        setOpponentActivityStatus('reconnecting');
+        
+        setTimeout(() => {
+          setOpponentActivityStatus('online');
+        }, 2000);
+      }
+    };
+    
+    const interval = setInterval(checkReconnection, 1000);
+    return () => clearInterval(interval);
+  }, [opponentLastSeen, opponentActivityStatus]);
+
+  // Обработка disconnect при закрытии приложения/вкладки
+  useEffect(() => {
+    if (!duelId || !profileId || !state.duelStarted) return;
+    
+    const handleBeforeUnload = async () => {
+      // Помечаем игрока как отключенного
+      try {
+        await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'handle_disconnect',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Error handling disconnect:', error);
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Также вызываем при размонтировании компонента
+      handleBeforeUnload();
+    };
+  }, [duelId, profileId, state.duelStarted]);
+
+  // Обработка timeout если игрок не отвечает > 30 секунд
+  useEffect(() => {
+    if (!state.duelStarted || isAnswered || !questions.length) return;
+    
+    const timeoutId = setTimeout(() => {
+      if (!isAnswered && timeLeft < 30000) {
+        // Игрок не ответил за 30 секунд - предупреждение
+        toast.warning('Время истекает!', {
+          description: 'Ответьте быстрее, иначе будет засчитано как пропуск',
+          duration: 5000
+        });
+      }
+    }, 30000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [currentIndex, state.duelStarted, isAnswered, timeLeft, questions.length]);
 
   // УБРАНО: Countdown - битва начинается сразу когда дуэль стартовала
   // Перезагружаем счет после старта дуэли
@@ -1078,6 +1256,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     setSelectedAnswer(optionId);
     setIsAnswered(true);
+    
+    // Обновляем статус активности на "answering"
+    if (duelId && profileId) {
+      supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'update_activity_status',
+          duel_id: duelId,
+          profile_id: profileId,
+          status: 'answering'
+        }
+      }).catch(error => {
+        console.error('[DuelBattleFullscreen] Error updating activity status to answering:', error);
+      });
+    }
 
     const question = questions[currentIndex];
     const isCorrect = question.correct_option_ids.includes(optionId);
@@ -1704,16 +1896,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
                   <Swords className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
+                
+                {/* Индикатор активности соперника */}
+                <div className="absolute -bottom-1 -right-1 z-10 bg-background rounded-full p-0.5 shadow-sm">
+                  <OpponentActivityIndicator 
+                    status={opponentActivityStatus}
+                    showTooltip={true}
+                  />
+                </div>
+                
                 {opponentScore > myScore && (
                   <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
+                    className="absolute -top-1 -left-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
                   />
                 )}
                 {state.opponentAnswered && (
                   <motion.div
-                    className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"
+                    className="absolute -top-1 -left-1 w-4 h-4 md:w-5 md:h-5 bg-green-500 rounded-full flex items-center justify-center"
                     initial={{ scale: 0 }}
                     animate={{ scale: [0, 1.2, 1] }}
                     transition={{ duration: 0.5 }}
