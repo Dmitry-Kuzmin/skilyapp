@@ -285,7 +285,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       )}
 
       <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
-        {/* Улучшенный Progress с прогрессом внутри уровня */}
+        {/* Упрощенный Progress - минималистичный */}
         <div className="space-y-3">
           <div className="flex items-end justify-between">
             <div>
@@ -293,26 +293,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 <span className="text-3xl font-bold">{currentLevel}</span>
                 <span className="text-sm text-muted-foreground">/ {maxLevel}</span>
               </div>
-              {currentLevel < maxLevel && spToNextLevel > 0 ? (
-                <div className="mt-1 space-y-0.5">
-                  <p className="text-xs text-muted-foreground">
-                    {spToNextLevel} SP до уровня {currentLevel + 1}
-                  </p>
-                  {nearestReward && (
-                    <p className="text-xs text-primary font-medium">
-                      Награда: {nearestReward.free_reward?.type === "coins" 
-                        ? `${nearestReward.free_reward.amount} монет`
-                        : nearestReward.free_reward?.type || "Награда"}
-                    </p>
-                  )}
-                </div>
-              ) : currentLevel >= maxLevel ? (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Максимальный уровень достигнут
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground mt-1">Загрузка...</p>
-              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {currentLevel < maxLevel && spToNextLevel > 0 
+                  ? `${spToNextLevel} SP до уровня ${currentLevel + 1}` 
+                  : currentLevel >= maxLevel 
+                  ? 'Максимальный уровень достигнут' 
+                  : 'Загрузка...'}
+              </p>
             </div>
             <div className="text-right">
               <p className="text-lg font-semibold">{currentSP}</p>
@@ -320,50 +307,28 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Общий прогресс сезона */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Общий прогресс сезона</span>
-              <span>{currentSP} / {totalSPNeeded} SP</span>
-            </div>
-            <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              />
-              {/* Тонкие маркеры уровней */}
-              {rewards.slice(0, 10).map((r) => {
-                const position = (r.sp_required / totalSPNeeded) * 100;
-                const isReached = currentSP >= r.sp_required;
-                return (
-                  <div
-                    key={r.level}
-                    className={cn(
-                      "absolute top-0 w-px h-2 transition-opacity",
-                      isReached ? "bg-white/50" : "bg-muted-foreground/20"
-                    )}
-                    style={{ left: `${Math.min(position, 100)}%` }}
-                  />
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Прогресс внутри текущего уровня */}
-          {currentLevel < maxLevel && spForNextLevel > 0 && (
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Прогресс до уровня {currentLevel + 1}</span>
-                <span>{spInCurrentLevel} / {spForNextLevel} SP</span>
-              </div>
-              <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-primary to-purple-500 rounded-full transition-all duration-300"
-                  style={{ width: `${progressInLevel}%` }}
+          {/* Единый прогресс-бар */}
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+            {/* Тонкие маркеры уровней */}
+            {rewards.slice(0, 10).map((r) => {
+              const position = (r.sp_required / totalSPNeeded) * 100;
+              const isReached = currentSP >= r.sp_required;
+              return (
+                <div
+                  key={r.level}
+                  className={cn(
+                    "absolute top-0 w-px h-2 transition-opacity",
+                    isReached ? "bg-white/50" : "bg-muted-foreground/20"
+                  )}
+                  style={{ left: `${Math.min(position, 100)}%` }}
                 />
-              </div>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
 
         {/* Компактные карточки SP - горизонтальный layout */}
