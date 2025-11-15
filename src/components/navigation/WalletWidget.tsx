@@ -74,7 +74,11 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           </button>
         )}
         {duelPassData && (
-          <div className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
+          <button
+            onClick={() => setShopOpen(true)}
+            className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+            title={`Duel Pass уровень ${duelPassData.level}`}
+          >
             <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
             <div className="w-10 md:w-12 h-1 bg-muted rounded-full overflow-hidden">
               <div 
@@ -83,7 +87,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
               />
             </div>
             <span className="text-xs font-medium text-muted-foreground">{duelPassData.level}</span>
-          </div>
+          </button>
         )}
 
         {/* Premium Badge - компактная версия на мобильных */}
