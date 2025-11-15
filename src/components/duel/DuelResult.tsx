@@ -33,8 +33,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }, [duelId]);
 
   useEffect(() => {
-    if (results && profileId && rewards) {
-      // Track challenges
+    if (results && profileId) {
       const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
       const metadata = {
         duel_id: duelId,
@@ -44,15 +43,57 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         has_bet: (results.betAmount || 0) > 0
       };
       
-      supabase.functions.invoke('season-challenges-track', {
-        body: {
-          user_id: profileId,
-          source_type: spSource,
-          metadata
-        },
-      }).catch(err => console.error('[DuelResult] Error tracking challenges:', err));
+      // Apply rewards (SP and XP)
+      const applyRewards = async () => {
+        try {
+          const { data: spData } = await supabase.functions.invoke('season-sp', {
+            body: { 
+              user_id: profileId, 
+              source_type: spSource,
+              metadata
+            },
+          });
+          
+          const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
+            body: { user_id: profileId, source_type: spSource, metadata },
+          });
+          
+          // Update rewards with actual values
+          if (spData && xpData) {
+            setRewards(prev => prev ? {
+              ...prev,
+              sp: spData.sp_added || prev.sp,
+              xp: xpData.xp_added || prev.xp
+            } : null);
+          }
+          
+          // Track challenges
+          await supabase.functions.invoke('season-challenges-track', {
+            body: {
+              user_id: profileId,
+              source_type: spSource,
+              metadata
+            },
+          });
+          
+          // Check for level up
+          if (xpData?.level_up) {
+            const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
+              body: { trigger: 'duel_pass_level_up' },
+            });
+            const message = suggestion?.suggestion?.message;
+            if (message) {
+              toast.info(message);
+            }
+          }
+        } catch (err) {
+          console.error('[DuelResult] Error applying rewards:', err);
+        }
+      };
+      
+      applyRewards();
     }
-  }, [results, profileId, duelId, rewards]);
+  }, [results, profileId, duelId]);
 
   useEffect(() => {
     if (results?.isWinner) {
@@ -146,64 +187,37 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         }
       }
       
-      // Get actual rewards from season-sp function
-      const spSource = isDraw ? 'duel_draw' : (isWinner ? 'duel_win' : 'duel_lose');
-      const metadata = {
-        duel_id: duelId,
-        is_winner: isWinner,
-        is_draw: isDraw,
-        bet_amount: betAmount,
-        has_bet: betAmount > 0
-      };
-      
-      let actualSP = 0;
-      let actualXP = 0;
+      // Calculate expected rewards (will be applied in useEffect)
+      let expectedSP = 0;
+      let expectedXP = 0;
       let bonusCoins = 0;
       
-      try {
-        const { data: spData } = await supabase.functions.invoke('season-sp', {
-          body: { 
-            user_id: profileId, 
-            source_type: spSource,
-            metadata
-          },
-        });
-        
-        const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
-          body: { user_id: profileId, source_type: spSource, metadata },
-        });
-        
-        actualSP = spData?.sp_added || 0;
-        actualXP = xpData?.xp_added || 0;
-        
-        // Check for bonus coins (from bet history or calculate)
-        if (betHistory) {
-          const isHostWin = betHistory.result === 'host_win' && isHost;
-          const isOpponentWin = betHistory.result === 'opponent_win' && !isHost;
-          if ((isHostWin || isOpponentWin) && isWinner) {
-            // Bonus coins would be in transactions, but for now we'll estimate
-            // In real implementation, check duel_transactions for bonus coins
-            bonusCoins = 0; // Will be calculated from transactions if needed
-          }
-        }
-      } catch (err) {
-        console.error('[DuelResult] Error getting rewards:', err);
-        // Fallback to calculated values
-        if (isWinner) {
-          actualXP = betAmount > 0 ? 40 : 30;
-          actualSP = betAmount > 0 ? Math.round(20 * (betAmount >= 600 ? 4 : betAmount >= 300 ? 2.25 : betAmount >= 100 ? 1.25 : 1)) : 0;
-        } else if (isDraw) {
-          actualXP = 25;
-          actualSP = betAmount > 0 ? 15 : 0;
+      // Calculate expected SP based on new system
+      if (isWinner) {
+        expectedXP = betAmount > 0 ? 40 : 30;
+        if (betAmount > 0) {
+          const riskMultiplier = betAmount >= 600 ? 4 : betAmount >= 300 ? 2.25 : betAmount >= 100 ? 1.25 : 1;
+          expectedSP = Math.round(20 * riskMultiplier);
         } else {
-          actualXP = 15;
-          actualSP = (betAmount >= 100) ? 5 : 0;
+          expectedSP = 0; // No SP without bet
         }
+      } else if (isDraw) {
+        expectedXP = 25;
+        expectedSP = betAmount > 0 ? 15 : 0;
+      } else {
+        expectedXP = 15;
+        expectedSP = (betAmount >= 100) ? 5 : 0;
+      }
+      
+      // Check for bonus coins from bet history
+      if (betHistory && isWinner) {
+        // Bonus coins are calculated server-side, we'll show them if available
+        bonusCoins = 0; // Will be updated from transactions if needed
       }
       
       setRewards({
-        sp: actualSP,
-        xp: actualXP,
+        sp: expectedSP,
+        xp: expectedXP,
         bonusCoins,
         insuranceRefund: insuranceRefund > 0 ? insuranceRefund : undefined
       });
