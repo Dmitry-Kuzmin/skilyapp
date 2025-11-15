@@ -878,29 +878,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       )}
                     </div>
                     
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500" />
+                    <div className="space-y-2 text-xs md:text-sm">
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span>Безлимитный доступ ко всем тестам</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500" />
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span>+50% монет за обучение</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500" />
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span>Duel Pass Premium награды</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-500" />
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <span>Без рекламы и мгновенные подсказки</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                       <Card className="p-3 border-primary/30">
                         <p className="text-xs text-muted-foreground mb-1">Месяц</p>
-                        <p className="text-lg font-bold">€9.99</p>
+                        <p className="text-base md:text-lg font-bold">€9.99</p>
                         <Button 
                           size="sm" 
                           className="w-full mt-2"
@@ -915,7 +915,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           <p className="text-xs text-muted-foreground">Год</p>
                           <Badge className="text-xs bg-yellow-500">-50%</Badge>
                         </div>
-                        <p className="text-lg font-bold">€59.99</p>
+                        <p className="text-base md:text-lg font-bold">€59.99</p>
                         <Button 
                           size="sm" 
                           className="w-full mt-2 bg-gradient-to-r from-yellow-500 to-orange-500"
