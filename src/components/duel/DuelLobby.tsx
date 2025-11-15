@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
+import { generateTelegramShareUrl } from '@/utils/duelShare';
 
 interface DuelLobbyProps {
   duelId: string | null;
@@ -121,10 +122,30 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     }
   };
 
-  const handleShare = () => {
-    if (duelCode && window.Telegram?.WebApp) {
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(`Присоединяйся к дуэли! Код: ${duelCode}`)}`;
+  const handleShare = async () => {
+    if (!duelCode || !window.Telegram?.WebApp) return;
+
+    try {
+      // Загружаем информацию о ставке для красивого сообщения
+      let betAmount: number | undefined;
+      if (duelId) {
+        const { data } = await supabase
+          .from('duels')
+          .select('bet_amount')
+          .eq('id', duelId)
+          .single();
+        
+        betAmount = data?.bet_amount || undefined;
+      }
+
+      // Генерируем красивое сообщение с эмодзи и прямой ссылкой
+      const shareUrl = generateTelegramShareUrl(duelCode, betAmount);
+      
+      // Открываем шаринг в Telegram
       (window.Telegram.WebApp as any).openTelegramLink?.(shareUrl);
+    } catch (error) {
+      console.error('[DuelLobby] Error sharing duel:', error);
+      toast.error('Ошибка при шаринге дуэли');
     }
   };
 
