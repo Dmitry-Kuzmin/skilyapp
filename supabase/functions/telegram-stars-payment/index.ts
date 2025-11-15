@@ -120,24 +120,31 @@ serve(async (req) => {
       // - provider_token: пустая строка '' (обязательно для Stars)
       // - amount в ЦЕЛЫХ единицах звезд (не в тысячных долях!)
       // - Минимум: 1 звезда, Максимум: 10000 звезд
+      const invoiceRequest = {
+        chat_id: telegram_user_id,
+        title: pkg.title_ru,
+        description: pkg.description_ru,
+        payload: invoicePayload, // Важно: наш ID для отслеживания
+        provider_token: '', // Пустая строка для Telegram Stars (обязательно!)
+        currency: 'XTR', // Код валюты Telegram Stars
+        prices: [{
+          label: pkg.title_ru,
+          amount: starsAmount // В ЦЕЛЫХ единицах звезд (для XTR не нужно умножать на 1000!)
+        }]
+      };
+
+      console.log('[Stars Payment] Sending invoice request to Telegram:', JSON.stringify(invoiceRequest, null, 2));
+
       const invoiceResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendInvoice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: telegram_user_id,
-          title: pkg.title_ru,
-          description: pkg.description_ru,
-          payload: invoicePayload, // Важно: наш ID для отслеживания
-          provider_token: '', // Пустая строка для Telegram Stars (обязательно!)
-          currency: 'XTR', // Код валюты Telegram Stars
-          prices: [{
-            label: pkg.title_ru,
-            amount: starsAmount // В ЦЕЛЫХ единицах звезд (для XTR не нужно умножать на 1000!)
-          }]
-        })
+        body: JSON.stringify(invoiceRequest)
       });
 
       const invoiceData = await invoiceResponse.json();
+
+      // Логируем полный ответ от Telegram API для отладки
+      console.log('[Stars Payment] Telegram API response:', JSON.stringify(invoiceData, null, 2));
 
       if (!invoiceData.ok) {
         console.error('[Stars Payment] Telegram API error:', invoiceData);
@@ -150,6 +157,22 @@ serve(async (req) => {
 
         return new Response(
           JSON.stringify({ error: `Telegram API error: ${invoiceData.description || 'Unknown error'}` }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Проверить наличие invoice_link в ответе
+      if (!invoiceData.result || !invoiceData.result.invoice_link) {
+        console.error('[Stars Payment] Invoice link missing in response:', invoiceData);
+        
+        // Удалить созданный платеж при ошибке
+        await supabase
+          .from('stars_payments')
+          .delete()
+          .eq('id', payment.id);
+
+        return new Response(
+          JSON.stringify({ error: 'Telegram API did not return invoice_link. Response: ' + JSON.stringify(invoiceData) }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
