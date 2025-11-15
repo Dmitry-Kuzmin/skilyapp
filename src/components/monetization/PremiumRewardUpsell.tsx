@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { Crown, Coins, Sparkles, Gift, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PremiumRewardUpsellProps {
   open: boolean;
@@ -42,6 +44,50 @@ export function PremiumRewardUpsell({
 }: PremiumRewardUpsellProps) {
   const Icon = rewardIcons[reward.premium_reward.type as keyof typeof rewardIcons] || Gift;
   const label = rewardLabels[reward.premium_reward.type as keyof typeof rewardLabels] || "награда";
+  const [rewardName, setRewardName] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Загружаем красивое название для косметики
+  useEffect(() => {
+    const loadRewardName = async () => {
+      if (!reward.premium_reward.id || reward.premium_reward.type === "coins") {
+        setRewardName(null);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const tableName = 
+          reward.premium_reward.type === "skin" ? "skin_definitions" :
+          reward.premium_reward.type === "badge" ? "badge_definitions" :
+          reward.premium_reward.type === "sticker" ? "sticker_definitions" :
+          reward.premium_reward.type === "boost" ? "boost_definitions" : null;
+
+        if (!tableName) {
+          setRewardName(null);
+          return;
+        }
+
+        const { data } = await supabase
+          .from(tableName)
+          .select("name_ru")
+          .eq("id", reward.premium_reward.id)
+          .single();
+
+        if (data?.name_ru) {
+          setRewardName(data.name_ru);
+        }
+      } catch (error) {
+        console.error("Error loading reward name:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (open) {
+      loadRewardName();
+    }
+  }, [open, reward.premium_reward.id, reward.premium_reward.type]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,11 +137,17 @@ export function PremiumRewardUpsell({
               <div className="flex-1">
                 <p className="text-sm font-semibold text-muted-foreground">Вы получите:</p>
                 <p className="text-2xl font-black text-yellow-700 dark:text-yellow-500">
-                  {reward.premium_reward.type === "coins" && reward.premium_reward.amount
-                    ? `+${reward.premium_reward.amount} ${label}`
-                    : reward.premium_reward.id
-                    ? `${reward.premium_reward.id} ${label}`
-                    : `Эксклюзивный ${label}`}
+                  {reward.premium_reward.type === "coins" && reward.premium_reward.amount ? (
+                    `+${reward.premium_reward.amount} ${label}`
+                  ) : loading ? (
+                    "Загрузка..."
+                  ) : rewardName ? (
+                    rewardName
+                  ) : reward.premium_reward.id ? (
+                    `Эксклюзивный ${label}`
+                  ) : (
+                    `Эксклюзивный ${label}`
+                  )}
                 </p>
               </div>
             </div>
