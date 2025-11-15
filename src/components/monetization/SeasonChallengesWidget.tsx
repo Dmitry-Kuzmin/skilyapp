@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
-import { Loader2, Trophy, Target, Calendar, Zap, CheckCircle2, Clock, Coins } from "lucide-react";
+import { Loader2, Trophy, Target, CheckCircle2, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
