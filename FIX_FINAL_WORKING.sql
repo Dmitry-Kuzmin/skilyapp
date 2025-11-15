@@ -19,7 +19,7 @@ RETURNS TABLE (
   premium_pass_purchased_at TIMESTAMPTZ,
   levels_skipped INTEGER,
   final_level INTEGER,
-  total_xp_earned INTEGER,
+  final_sp INTEGER,
   created_at TIMESTAMPTZ,
   updated_at TIMESTAMPTZ
 )
@@ -46,7 +46,7 @@ BEGIN
     AND usp.season_id = p_season_id;
 
   -- Если прогресс не найден, создаем новый
-  -- Используем простой INSERT с RETURNING напрямую в переменные
+  -- Используем отдельный INSERT и SELECT для избежания конфликта имен
   IF v_found_id IS NULL THEN
     INSERT INTO public.user_season_progress (
       user_id, 
@@ -59,15 +59,20 @@ BEGIN
       p_season_id, 
       0, 
       1
-    )
-    RETURNING 
-      (SELECT id FROM public.user_season_progress WHERE user_id = p_user_id AND season_id = p_season_id), 
-      (SELECT season_points FROM public.user_season_progress WHERE user_id = p_user_id AND season_id = p_season_id), 
-      (SELECT level FROM public.user_season_progress WHERE user_id = p_user_id AND season_id = p_season_id)
+    );
+    
+    -- Получаем созданную запись отдельным запросом
+    SELECT 
+      usp.id, 
+      usp.season_points, 
+      usp.level
     INTO 
       v_found_id, 
       v_found_sp, 
-      v_found_level;
+      v_found_level
+    FROM public.user_season_progress usp
+    WHERE usp.user_id = p_user_id 
+      AND usp.season_id = p_season_id;
   END IF;
 
   -- Возвращаем найденный или созданный прогресс
@@ -82,7 +87,7 @@ BEGIN
     usp.premium_pass_purchased_at,
     usp.levels_skipped,
     usp.final_level,
-    usp.total_xp_earned,
+    usp.final_sp,
     usp.created_at,
     usp.updated_at
   FROM public.user_season_progress usp
