@@ -92,7 +92,12 @@ export function SeasonChallengesWidget() {
           return startOk && endOk;
         });
 
-        setChallenges(activeChallenges as Challenge[]);
+        // Дедупликация челленджей по ID (на случай дубликатов в БД)
+        const uniqueChallenges = activeChallenges.filter((challenge: any, index: number, self: any[]) =>
+          index === self.findIndex((c: any) => c.id === challenge.id)
+        );
+
+        setChallenges(uniqueChallenges as Challenge[]);
 
         // Загружаем прогресс пользователя
         if (activeChallenges.length > 0) {

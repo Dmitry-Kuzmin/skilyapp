@@ -211,12 +211,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const totalSPNeeded = rewards[rewards.length - 1]?.sp_required || 3000;
   const progressPercent = Math.min((currentSP / totalSPNeeded) * 100, 100);
 
-  // Находим текущий уровень
+  // Находим текущий уровень и следующий
   const currentLevelReward = rewards.find((r) => r.level === currentLevel);
   const nextLevelReward = rewards.find((r) => r.level === currentLevel + 1);
-  const spToNextLevel = nextLevelReward
-    ? nextLevelReward.sp_required - currentSP
-    : 0;
+  const prevLevelReward = rewards.find((r) => r.level === currentLevel - 1);
+  
+  // Правильный расчет прогресса внутри текущего уровня
+  const currentLevelSP = currentLevelReward?.sp_required || 0;
+  const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
+  const spInCurrentLevel = currentSP - currentLevelSP;
+  const spForNextLevel = nextLevelSP - currentLevelSP;
+  const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
+  const progressInLevel = spForNextLevel > 0 
+    ? Math.min((spInCurrentLevel / spForNextLevel) * 100, 100)
+    : 100;
   
   // Находим ближайшую доступную награду (следующий уровень, который еще не достигнут)
   const nearestReward = nextLevelReward;
@@ -277,28 +285,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       )}
 
       <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
-        {/* Индикатор ближайшей награды - минималистичный */}
-        {nearestReward && currentLevel < maxLevel && (
-          <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Следующая награда</p>
-                <p className="text-xs text-muted-foreground">
-                  Уровень {nearestReward.level}: {nearestReward.free_reward?.type === "coins" 
-                    ? `${nearestReward.free_reward.amount} монет`
-                    : nearestReward.free_reward?.type || "Награда"}
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-bold text-primary">{spToNextLevel}</p>
-              <p className="text-xs text-muted-foreground">SP осталось</p>
-            </div>
-          </div>
-        )}
-
-        {/* Минималистичный Progress */}
+        {/* Улучшенный Progress с прогрессом внутри уровня */}
         <div className="space-y-3">
           <div className="flex items-end justify-between">
             <div>
@@ -306,13 +293,26 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 <span className="text-3xl font-bold">{currentLevel}</span>
                 <span className="text-sm text-muted-foreground">/ {maxLevel}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {spToNextLevel > 0 && currentLevel < maxLevel 
-                  ? `${spToNextLevel} SP до следующего уровня` 
-                  : currentLevel >= maxLevel 
-                  ? 'Максимальный уровень достигнут' 
-                  : 'Загрузка...'}
-              </p>
+              {currentLevel < maxLevel && spToNextLevel > 0 ? (
+                <div className="mt-1 space-y-0.5">
+                  <p className="text-xs text-muted-foreground">
+                    {spToNextLevel} SP до уровня {currentLevel + 1}
+                  </p>
+                  {nearestReward && (
+                    <p className="text-xs text-primary font-medium">
+                      Награда: {nearestReward.free_reward?.type === "coins" 
+                        ? `${nearestReward.free_reward.amount} монет`
+                        : nearestReward.free_reward?.type || "Награда"}
+                    </p>
+                  )}
+                </div>
+              ) : currentLevel >= maxLevel ? (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Максимальный уровень достигнут
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">Загрузка...</p>
+              )}
             </div>
             <div className="text-right">
               <p className="text-lg font-semibold">{currentSP}</p>
@@ -320,28 +320,50 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Современный прогресс-бар */}
-          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
-            {/* Тонкие маркеры уровней */}
-            {rewards.slice(0, 10).map((r) => {
-              const position = (r.sp_required / totalSPNeeded) * 100;
-              const isReached = currentSP >= r.sp_required;
-              return (
-                <div
-                  key={r.level}
-                  className={cn(
-                    "absolute top-0 w-px h-2 transition-opacity",
-                    isReached ? "bg-white/50" : "bg-muted-foreground/20"
-                  )}
-                  style={{ left: `${Math.min(position, 100)}%` }}
-                />
-              );
-            })}
+          {/* Общий прогресс сезона */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Общий прогресс сезона</span>
+              <span>{currentSP} / {totalSPNeeded} SP</span>
+            </div>
+            <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+              {/* Тонкие маркеры уровней */}
+              {rewards.slice(0, 10).map((r) => {
+                const position = (r.sp_required / totalSPNeeded) * 100;
+                const isReached = currentSP >= r.sp_required;
+                return (
+                  <div
+                    key={r.level}
+                    className={cn(
+                      "absolute top-0 w-px h-2 transition-opacity",
+                      isReached ? "bg-white/50" : "bg-muted-foreground/20"
+                    )}
+                    style={{ left: `${Math.min(position, 100)}%` }}
+                  />
+                );
+              })}
+            </div>
           </div>
+
+          {/* Прогресс внутри текущего уровня */}
+          {currentLevel < maxLevel && spForNextLevel > 0 && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Прогресс до уровня {currentLevel + 1}</span>
+                <span>{spInCurrentLevel} / {spForNextLevel} SP</span>
+              </div>
+              <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-primary to-purple-500 rounded-full transition-all duration-300"
+                  style={{ width: `${progressInLevel}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Компактные карточки SP - горизонтальный layout */}
@@ -377,7 +399,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Timeline дизайн для наград */}
+        {/* Timeline дизайн для наград с группировкой */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -412,8 +434,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           
           {/* Timeline с наградами */}
           <div className="relative max-h-96 overflow-y-auto pr-2">
-            {/* Вертикальная линия прогресса */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted" />
+            {/* Вертикальная линия прогресса с индикатором текущего уровня */}
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted">
+              {/* Индикатор текущего уровня на линии */}
+              {currentLevelReward && (
+                <div 
+                  className="absolute left-1/2 top-0 w-3 h-3 -translate-x-1/2 rounded-full bg-primary border-2 border-background shadow-lg z-20"
+                  style={{ 
+                    top: `${Math.min((currentLevel / maxLevel) * 100, 95)}%` 
+                  }}
+                />
+              )}
+            </div>
             
             {/* Карточки наград в виде timeline */}
             <div className="space-y-3">
@@ -421,13 +453,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 const unlocked = currentLevel >= reward.level;
                 const isClaimed = claimedRewards.has(reward.level);
                 const isCurrent = currentLevel === reward.level;
+                const isNext = reward.level === currentLevel + 1;
                 
                 return (
                   <div
                     key={reward.level}
                     className={cn(
                       "relative flex items-start gap-4 pl-8 transition-all",
-                      isCurrent && "scale-[1.02]"
+                      isCurrent && "scale-[1.02]",
+                      isNext && "scale-[1.01]"
                     )}
                   >
                     {/* Точка на timeline */}
@@ -437,13 +471,16 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         ? "bg-green-500 border-green-500 shadow-lg shadow-green-500/50" 
                         : unlocked 
                         ? "bg-primary border-primary shadow-lg shadow-primary/50" 
+                        : isNext
+                        ? "bg-primary/50 border-primary/50 ring-2 ring-primary/30"
                         : "bg-muted border-muted"
                     )} />
                     
                     {/* Компактная карточка */}
                     <div className={cn(
                       "flex-1 rounded-lg border p-3 transition-all",
-                      isCurrent && "ring-2 ring-primary shadow-lg",
+                      isCurrent && "ring-2 ring-primary shadow-lg bg-primary/5",
+                      isNext && "ring-1 ring-primary/30 bg-primary/5",
                       isClaimed 
                         ? "bg-green-500/5 border-green-500/30" 
                         : unlocked 
@@ -457,7 +494,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                               Уровень {reward.level}
                             </span>
                             {isCurrent && (
-                              <Badge className="text-[10px] px-1.5 py-0">Текущий</Badge>
+                              <Badge className="text-[10px] px-1.5 py-0 bg-primary">Текущий</Badge>
+                            )}
+                            {isNext && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/50 text-primary">
+                                Следующий
+                              </Badge>
                             )}
                           </div>
                           
@@ -479,6 +521,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                               </div>
                             )}
                           </div>
+
+                          {/* Показываем SP до этого уровня для заблокированных */}
+                          {!unlocked && (
+                            <p className="text-[10px] text-muted-foreground mt-1">
+                              Нужно {reward.sp_required - currentSP} SP
+                            </p>
+                          )}
                         </div>
                         
                         {/* Кнопка или статус */}
