@@ -18,6 +18,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { DuelPassProgress } from "@/components/monetization/DuelPassProgress";
+import { SeasonChallengesWidget } from "@/components/monetization/SeasonChallengesWidget";
 import { testimonials } from "@/data/testimonials";
 
 const Index = () => {
@@ -218,6 +219,15 @@ const Index = () => {
 
       await supabase.functions.invoke('coins-earn', {
         body: { user_id: profileId, reward_type: 'daily_login' },
+      });
+
+      // Начисляем Season Points за ежедневный вход
+      await supabase.functions.invoke('season-sp', {
+        body: { 
+          user_id: profileId, 
+          source_type: 'daily_login',
+          metadata: { streak_days: newStreak }
+        },
       });
 
       const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
@@ -498,6 +508,11 @@ const Index = () => {
             </p>
           </Card>
           <DuelPassProgress />
+          
+          {/* Season Challenges Widget */}
+          {isAuthenticated && (
+            <SeasonChallengesWidget />
+          )}
         </div>
 
         {/* Exam Readiness Widget */}

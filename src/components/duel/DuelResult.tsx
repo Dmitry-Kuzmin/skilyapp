@@ -38,8 +38,33 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         await supabase.functions.invoke('coins-earn', {
           body: { user_id: profileId, reward_type: rewardType },
         });
+        // Начисляем Season Points за дуэль
+        const { data: spData } = await supabase.functions.invoke('season-sp', {
+          body: { 
+            user_id: profileId, 
+            source_type: rewardType,
+            metadata: { 
+              is_winner: results.isWinner,
+              is_draw: results.isDraw
+            }
+          },
+        });
+        
+        // Также начисляем XP для обратной совместимости
         const { data } = await supabase.functions.invoke('duel-pass-xp', {
           body: { user_id: profileId, source_type: rewardType },
+        });
+        
+        // Отслеживаем прогресс челленджей
+        await supabase.functions.invoke('season-challenges-track', {
+          body: {
+            user_id: profileId,
+            source_type: rewardType,
+            metadata: {
+              is_winner: results.isWinner,
+              is_draw: results.isDraw
+            }
+          },
         });
         if (data?.level_up) {
           const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {

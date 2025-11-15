@@ -123,8 +123,34 @@ const TestResults = () => {
           body: { user_id: profileId, reward_type: "complete_test" },
         });
         
+        // Начисляем Season Points за прохождение теста
+        const sourceType = score === 100 ? "test_perfect" : "test_completed";
+        const { data: spData } = await supabase.functions.invoke("season-sp", {
+          body: { 
+            user_id: profileId, 
+            source_type: sourceType,
+            metadata: { 
+              questions_count: questions.length,
+              score: score 
+            }
+          },
+        });
+        
+        // Также начисляем XP для обратной совместимости
         const { data } = await supabase.functions.invoke("duel-pass-xp", {
           body: { user_id: profileId, source_type: "test" },
+        });
+        
+        // Отслеживаем прогресс челленджей
+        await supabase.functions.invoke("season-challenges-track", {
+          body: {
+            user_id: profileId,
+            source_type: sourceType,
+            metadata: {
+              questions_count: questions.length,
+              score: score
+            }
+          },
         });
         
         if (data?.level_up) {

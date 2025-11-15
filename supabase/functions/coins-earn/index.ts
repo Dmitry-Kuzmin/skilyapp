@@ -14,6 +14,7 @@ const BASE_REWARDS: Record<string, number> = {
   streak_3_days: 25,
   streak_7_days: 100,
   monthly_premium_bonus: 500,
+  challenge_reward: 0, // Награда будет передана в metadata
 };
 
 const TYPE_TO_TRANSACTION: Record<string, string> = {
@@ -45,8 +46,14 @@ serve(async (req) => {
       );
     }
 
-    const baseAmount = BASE_REWARDS[reward_type];
-    if (!baseAmount) {
+    let baseAmount = BASE_REWARDS[reward_type];
+    
+    // Для challenge_reward берем сумму из metadata
+    if (reward_type === 'challenge_reward' && metadata?.total_coins) {
+      baseAmount = metadata.total_coins;
+    }
+    
+    if (baseAmount === undefined) {
       return new Response(
         JSON.stringify({ error: "Unsupported reward_type" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
