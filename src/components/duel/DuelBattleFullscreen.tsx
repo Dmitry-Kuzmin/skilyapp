@@ -48,8 +48,10 @@ interface DuelBattleFullscreenProps {
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
   const [isWaitingHidden, setIsWaitingHidden] = useState(false);
   const { profileId } = useUserContext();
+  const { saveActiveDuel, updateActiveDuel } = useActiveDuel();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
+  const [duelCode, setDuelCode] = useState<string | null>(null);
   
   // Initialize notifications for this duel
   useNotifications({ showToasts: true, playSounds: true });
@@ -646,6 +648,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // useDuelRealtime уже подписывается на изменения duel_players через postgres_changes
   // Это намного эффективнее и быстрее чем периодические запросы каждые 3 секунды
 
+  // Загружаем код дуэли при монтировании
+  useEffect(() => {
+    if (duelId) {
+      supabase
+        .from('duels')
+        .select('code')
+        .eq('id', duelId)
+        .single()
+        .then(({ data }) => {
+          if (data?.code) {
+            setDuelCode(data.code);
+          }
+        });
+    }
+  }, [duelId]);
+
   // Загружаем данные игроков при монтировании (с задержкой, чтобы игроки успели создаться)
   useEffect(() => {
     console.log('[DuelBattleFullscreen] 🔄 useEffect: Loading scores on mount', { profileId, duelId });
@@ -657,6 +675,26 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       return () => clearTimeout(timer);
     }
   }, [duelId, profileId]);
+
+  // Сохраняем состояние активной дуэли при изменениях
+  useEffect(() => {
+    if (!duelId || !profileId || !questions.length || !duelCode || isWaitingForOpponent) return;
+
+    // Сохраняем состояние только если дуэль активна
+    if (state.duelStarted && !state.duelFinished) {
+      updateActiveDuel({
+        duelId,
+        duelCode,
+        mode: isWaitingForOpponent ? 'waiting' : 'battle',
+        currentIndex,
+        myScore,
+        opponentScore,
+        totalQuestions: questions.length,
+        myName,
+        opponentName,
+      });
+    }
+  }, [duelId, duelCode, currentIndex, myScore, opponentScore, questions.length, myName, opponentName, isWaitingForOpponent, state.duelStarted, state.duelFinished, profileId, updateActiveDuel]);
 
   // Перезагружаем когда дуэль началась (игроки должны быть точно созданы)
   useEffect(() => {
@@ -770,6 +808,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               position: data.questions[0]?.position
             });
         setQuestions(data.questions);
+        
+        // Восстанавливаем currentIndex из сохраненного состояния
+        const savedState = localStorage.getItem('active_duel_state');
+        if (savedState) {
+          try {
+            const state = JSON.parse(savedState);
+            if (state.duelId === duelId && state.currentIndex !== undefined && state.currentIndex < data.questions.length) {
+              console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
+              setCurrentIndex(state.currentIndex);
+            }
+          } catch (e) {
+            console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
+          }
+        }
+        
             return; // Успешно загружено
       } else {
             console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
@@ -834,6 +887,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       if (data && Array.isArray(data) && data.length > 0) {
         console.log('[DuelBattleFullscreen] ✅ Loaded questions directly:', data.length);
         setQuestions(data);
+        
+        // Восстанавливаем currentIndex из сохраненного состояния
+        const savedState = localStorage.getItem('active_duel_state');
+        if (savedState) {
+          try {
+            const state = JSON.parse(savedState);
+            if (state.duelId === duelId && state.currentIndex !== undefined && state.currentIndex < data.length) {
+              console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
+              setCurrentIndex(state.currentIndex);
+            }
+          } catch (e) {
+            console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
+          }
+        }
       } else {
         console.error('[DuelBattleFullscreen] ❌ No questions found in database');
         toast.error('Вопросы не найдены. Попробуйте перезагрузить страницу.');

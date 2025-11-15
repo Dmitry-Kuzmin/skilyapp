@@ -44,6 +44,7 @@ const getRiskMultiplierPreview = (bet: number) => {
 const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRiskMultiplierPreview(bet)) : 30;
 
 export default function Duel() {
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
   const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
   const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
@@ -245,6 +246,9 @@ export default function Duel() {
       willSetMode: 'result'
     });
     
+    // Очищаем активную дуэль при завершении
+    clearActiveDuel();
+    
     // КРИТИЧНО: Проверяем, что duelId установлен перед переходом к результатам
     if (!duelId) {
       console.error('[Duel] ❌ ERROR: handleDuelFinished called but duelId is null! Cannot show results.');
@@ -274,6 +278,9 @@ export default function Duel() {
   };
 
   const handleBackToMenu = () => {
+    // Очищаем активную дуэль при выходе в меню
+    clearActiveDuel();
+    
     setMode('menu');
     setDuelId(null);
     setDuelCode(null);

@@ -1,5 +1,6 @@
 import { ReactNode, useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
