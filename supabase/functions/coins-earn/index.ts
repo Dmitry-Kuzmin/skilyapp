@@ -25,6 +25,7 @@ const TYPE_TO_TRANSACTION: Record<string, string> = {
   streak_3_days: "coins_earned_daily",
   streak_7_days: "coins_earned_daily",
   monthly_premium_bonus: "coins_earned_premium_bonus",
+  challenge_reward: "coins_earned_challenge",
 };
 
 serve(async (req) => {
