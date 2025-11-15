@@ -169,46 +169,113 @@ serve(async (req) => {
           });
       }
     } else if (rewardPayload.type === "skin" && rewardPayload.id) {
-      // Скины сохраняем в метаданных профиля или отдельной таблице
-      // Пока просто логируем - можно расширить позже
+      // Добавляем скин в инвентарь пользователя
+      const { error: skinError } = await supabase
+        .from("user_skins")
+        .insert({
+          user_id,
+          skin_id: rewardPayload.id,
+          obtained_from: "duel_pass",
+          obtained_metadata: {
+            season,
+            level,
+            is_premium,
+          },
+        });
+
+      if (skinError && skinError.code !== "23505") {
+        // Игнорируем ошибку дубликата (пользователь уже имеет этот скин)
+        console.error("[duel-pass-claim] Error adding skin:", skinError);
+      }
+
+      // Также логируем в транзакции для истории
       await supabase.from("transactions").insert({
         user_id,
         transaction_type: "item_received",
         amount: 0,
-        metadata: { 
-          source: "duel_pass_reward", 
-          level, 
+        metadata: {
+          source: "duel_pass_reward",
+          level,
           is_premium,
           reward_type: "skin",
-          skin_id: rewardPayload.id
+          skin_id: rewardPayload.id,
         },
       });
     } else if (rewardPayload.type === "badge" && rewardPayload.id) {
-      // Бейджи сохраняем в метаданных профиля
+      // Добавляем бейдж в инвентарь пользователя
+      const { error: badgeError } = await supabase
+        .from("user_badges")
+        .insert({
+          user_id,
+          badge_id: rewardPayload.id,
+          obtained_from: "duel_pass",
+          obtained_metadata: {
+            season,
+            level,
+            is_premium,
+          },
+        });
+
+      if (badgeError && badgeError.code !== "23505") {
+        console.error("[duel-pass-claim] Error adding badge:", badgeError);
+      }
+
+      // Также логируем в транзакции
       await supabase.from("transactions").insert({
         user_id,
         transaction_type: "item_received",
         amount: 0,
-        metadata: { 
-          source: "duel_pass_reward", 
-          level, 
+        metadata: {
+          source: "duel_pass_reward",
+          level,
           is_premium,
           reward_type: "badge",
-          badge_id: rewardPayload.id
+          badge_id: rewardPayload.id,
         },
       });
     } else if (rewardPayload.type === "sticker" && rewardPayload.id) {
-      // Стикеры сохраняем в метаданных
+      // Добавляем стикер в инвентарь (или увеличиваем количество)
+      const { data: existingSticker } = await supabase
+        .from("user_stickers")
+        .select("quantity")
+        .eq("user_id", user_id)
+        .eq("sticker_id", rewardPayload.id)
+        .maybeSingle();
+
+      if (existingSticker) {
+        // Увеличиваем количество
+        await supabase
+          .from("user_stickers")
+          .update({ quantity: existingSticker.quantity + (rewardPayload.amount || 1) })
+          .eq("user_id", user_id)
+          .eq("sticker_id", rewardPayload.id);
+      } else {
+        // Создаем новую запись
+        await supabase.from("user_stickers").insert({
+          user_id,
+          sticker_id: rewardPayload.id,
+          quantity: rewardPayload.amount || 1,
+          obtained_from: "duel_pass",
+          obtained_metadata: {
+            season,
+            level,
+            is_premium,
+          },
+        });
+      }
+
+      // Также логируем в транзакции
       await supabase.from("transactions").insert({
         user_id,
         transaction_type: "item_received",
         amount: 0,
-        metadata: { 
-          source: "duel_pass_reward", 
-          level, 
+        metadata: {
+          source: "duel_pass_reward",
+          level,
           is_premium,
           reward_type: "sticker",
-          sticker_id: rewardPayload.id
+          sticker_id: rewardPayload.id,
+          quantity: rewardPayload.amount || 1,
         },
       });
     }

@@ -46,6 +46,7 @@ import HelpCenter from "./pages/HelpCenter";
 import DuelLeaderboard from "./pages/DuelLeaderboard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import Inventory from "./pages/Inventory";
 
 const queryClient = new QueryClient();
 
@@ -160,6 +161,7 @@ const App = () => {
           <Route path="/subscription-terms" element={<SubscriptionTerms />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
+          <Route path="/inventory" element={<Inventory />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

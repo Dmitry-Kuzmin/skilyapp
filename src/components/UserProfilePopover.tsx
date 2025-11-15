@@ -28,7 +28,8 @@ import {
   Crown,
   Languages,
   Zap,
-  Pencil
+  Pencil,
+  Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -206,7 +207,7 @@ export function UserProfilePopover() {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Button
                 variant="outline"
                 className="h-9 text-sm"
@@ -215,8 +216,19 @@ export function UserProfilePopover() {
                   setProfileModalOpen(true);
                 }}
               >
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="h-4 w-4 mr-1" />
                 Settings
+              </Button>
+              <Button
+                variant="outline"
+                className="h-9 text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/inventory');
+                }}
+              >
+                <Sparkles className="h-4 w-4 mr-1" />
+                Inventory
               </Button>
               <Button
                 variant="outline"
@@ -226,7 +238,7 @@ export function UserProfilePopover() {
                   navigate('/referrals');
                 }}
               >
-                <Gift className="h-4 w-4 mr-2" />
+                <Gift className="h-4 w-4 mr-1" />
                 Invite
               </Button>
             </div>

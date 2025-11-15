@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
 import { PaywallModal } from "./PaywallModal";
 import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
+import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { profileId } = useUserContext();
@@ -28,6 +29,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
+  const [unlockedReward, setUnlockedReward] = useState<any | null>(null);
 
   useEffect(() => {
     if (open && profileId) {
@@ -191,29 +193,50 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       // Показываем детали полученной награды
       if (data?.reward) {
         const reward = data.reward;
-        let rewardText = "";
         
-        if (reward.type === "coins" && reward.amount) {
-          rewardText = `+${reward.amount} монет`;
-        } else if (reward.type === "boost" && reward.id) {
-          rewardText = `Буст: ${reward.id}`;
-        } else if (reward.type === "skin" && reward.id) {
-          rewardText = `Скин: ${reward.id}`;
-        } else if (reward.type === "badge" && reward.id) {
-          rewardText = `Бейдж: ${reward.id}`;
-        } else if (reward.type === "sticker" && reward.id) {
-          rewardText = `Стикер: ${reward.id}`;
-        } else {
-          rewardText = "Награда получена!";
-        }
-
-        toast.success(
-          isPremium ? "🎉 Премиум награда получена!" : "🎉 Награда получена!",
-          {
-            description: `Уровень ${level}: ${rewardText}`,
-            duration: 4000,
+        // Для косметики (скины, бейджи, стикеры) показываем анимацию
+        if (["skin", "badge", "sticker"].includes(reward.type) && reward.id) {
+          // Загружаем определение косметики из БД
+          const tableName = reward.type === "skin" ? "skin_definitions" : 
+                           reward.type === "badge" ? "badge_definitions" : 
+                           "sticker_definitions";
+          
+          const { data: definition } = await supabase
+            .from(tableName)
+            .select("*")
+            .eq("id", reward.id)
+            .single();
+          
+          if (definition) {
+            setUnlockedReward({
+              type: reward.type,
+              id: reward.id,
+              name_ru: definition.name_ru,
+              description_ru: definition.description_ru,
+              rarity: definition.rarity,
+              metadata: definition.metadata,
+            });
           }
-        );
+        } else {
+          // Для монет и бустов показываем toast
+          let rewardText = "";
+          
+          if (reward.type === "coins" && reward.amount) {
+            rewardText = `+${reward.amount} монет`;
+          } else if (reward.type === "boost" && reward.id) {
+            rewardText = `Буст: ${reward.id}`;
+          } else {
+            rewardText = "Награда получена!";
+          }
+
+          toast.success(
+            isPremium ? "🎉 Премиум награда получена!" : "🎉 Награда получена!",
+            {
+              description: `Уровень ${level}: ${rewardText}`,
+              duration: 4000,
+            }
+          );
+        }
       } else {
         toast.success("Награда получена!");
       }
@@ -728,6 +751,17 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           setShowPaywall(true);
           setPremiumRewardPreview(null);
         }}
+      />
+    )}
+    
+    {/* Reward Unlock Animation */}
+    {unlockedReward && (
+      <RewardUnlockAnimation
+        open={!!unlockedReward}
+        onOpenChange={(open) => {
+          if (!open) setUnlockedReward(null);
+        }}
+        reward={unlockedReward}
       />
     )}
     </>
