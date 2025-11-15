@@ -141,7 +141,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     if (!profileId || !activeSeason) return;
 
     try {
-      const { error } = await supabase.functions.invoke("duel-pass-claim", {
+      const { data, error } = await supabase.functions.invoke("duel-pass-claim", {
         body: {
           user_id: profileId,
           level,
@@ -157,8 +157,37 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         return;
       }
 
+      // Показываем детали полученной награды
+      if (data?.reward) {
+        const reward = data.reward;
+        let rewardText = "";
+        
+        if (reward.type === "coins" && reward.amount) {
+          rewardText = `+${reward.amount} монет`;
+        } else if (reward.type === "boost" && reward.id) {
+          rewardText = `Буст: ${reward.id}`;
+        } else if (reward.type === "skin" && reward.id) {
+          rewardText = `Скин: ${reward.id}`;
+        } else if (reward.type === "badge" && reward.id) {
+          rewardText = `Бейдж: ${reward.id}`;
+        } else if (reward.type === "sticker" && reward.id) {
+          rewardText = `Стикер: ${reward.id}`;
+        } else {
+          rewardText = "Награда получена!";
+        }
+
+        toast.success(
+          isPremium ? "🎉 Премиум награда получена!" : "🎉 Награда получена!",
+          {
+            description: `Уровень ${level}: ${rewardText}`,
+            duration: 4000,
+          }
+        );
+      } else {
+        toast.success("Награда получена!");
+      }
+
       setClaimedRewards((prev) => new Set([...prev, level]));
-      toast.success("Награда получена!");
       loadSeasonData(true); // Перезагружаем данные (тихое обновление)
     } catch (err: any) {
       console.error("[DuelPassSeasonModal] Claim error", err);

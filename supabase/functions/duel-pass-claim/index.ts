@@ -121,7 +121,9 @@ serve(async (req) => {
       id?: string;
     };
 
+    // Обработка разных типов наград
     if (rewardPayload.type === "coins" && rewardPayload.amount) {
+      // Начисляем монеты
       await supabase.rpc("increment_profile_value", {
         p_profile_id: user_id,
         p_column: "coins",
@@ -137,6 +139,76 @@ serve(async (req) => {
           level, 
           is_premium,
           reward_type: is_premium ? "premium" : "free"
+        },
+      });
+    } else if (rewardPayload.type === "boost" && rewardPayload.id) {
+      // Добавляем буст в инвентарь
+      // Сначала проверяем, есть ли уже такой буст
+      const { data: existingBoost } = await supabase
+        .from("boost_inventory")
+        .select("quantity")
+        .eq("user_id", user_id)
+        .eq("boost_type", rewardPayload.id)
+        .maybeSingle();
+
+      if (existingBoost) {
+        // Увеличиваем количество
+        await supabase
+          .from("boost_inventory")
+          .update({ quantity: existingBoost.quantity + 1 })
+          .eq("user_id", user_id)
+          .eq("boost_type", rewardPayload.id);
+      } else {
+        // Создаем новую запись
+        await supabase
+          .from("boost_inventory")
+          .insert({
+            user_id,
+            boost_type: rewardPayload.id,
+            quantity: 1,
+          });
+      }
+    } else if (rewardPayload.type === "skin" && rewardPayload.id) {
+      // Скины сохраняем в метаданных профиля или отдельной таблице
+      // Пока просто логируем - можно расширить позже
+      await supabase.from("transactions").insert({
+        user_id,
+        transaction_type: "item_received",
+        amount: 0,
+        metadata: { 
+          source: "duel_pass_reward", 
+          level, 
+          is_premium,
+          reward_type: "skin",
+          skin_id: rewardPayload.id
+        },
+      });
+    } else if (rewardPayload.type === "badge" && rewardPayload.id) {
+      // Бейджи сохраняем в метаданных профиля
+      await supabase.from("transactions").insert({
+        user_id,
+        transaction_type: "item_received",
+        amount: 0,
+        metadata: { 
+          source: "duel_pass_reward", 
+          level, 
+          is_premium,
+          reward_type: "badge",
+          badge_id: rewardPayload.id
+        },
+      });
+    } else if (rewardPayload.type === "sticker" && rewardPayload.id) {
+      // Стикеры сохраняем в метаданных
+      await supabase.from("transactions").insert({
+        user_id,
+        transaction_type: "item_received",
+        amount: 0,
+        metadata: { 
+          source: "duel_pass_reward", 
+          level, 
+          is_premium,
+          reward_type: "sticker",
+          sticker_id: rewardPayload.id
         },
       });
     }
