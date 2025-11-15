@@ -24,6 +24,7 @@ import { Users, Clock, Share2 } from 'lucide-react';
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
+import { toast } from 'sonner';
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -165,12 +166,19 @@ export default function Duel() {
     setMode('create');
   };
 
-  const handleDuelJoined = async (id: string, code: string) => {
-    console.log('[Duel] Player joined duel:', id);
+  const handleDuelJoined = async (id: string, code: string, autoStarted?: boolean) => {
+    console.log('[Duel] Player joined duel:', id, 'autoStarted:', autoStarted);
     setDuelId(id);
     setDuelCode(code);
     
-    // Check if duel is already active (auto-started)
+    // Если дуэль автозапустилась, сразу переходим к битве
+    if (autoStarted) {
+      console.log('[Duel] ✅ AUTO-STARTED = TRUE, going straight to battle!');
+      handleDuelStarted(id); // Передаем id для гарантии
+      return;
+    }
+    
+    // Check if duel is already active (fallback check)
     const { data } = await supabase
       .from('duels')
       .select('status')
@@ -179,15 +187,26 @@ export default function Duel() {
     
     if (data?.status === 'active') {
       console.log('[Duel] Duel already active, going straight to battle!');
-      handleDuelStarted();
+      handleDuelStarted(id); // Передаем id для гарантии
     } else {
       console.log('[Duel] Going to lobby to wait for start');
       setMode('create');
     }
   };
 
-  const handleDuelStarted = () => {
-    console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', duelId);
+  const handleDuelStarted = (targetDuelId?: string) => {
+    const activeDuelId = targetDuelId || duelId;
+    console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
+    
+    if (!activeDuelId) {
+      console.error('[Duel] ❌ Cannot start battle: no duelId');
+      return;
+    }
+    
+    // Убеждаемся, что duelId установлен
+    if (targetDuelId && targetDuelId !== duelId) {
+      setDuelId(targetDuelId);
+    }
     
     // Reset hidden state when starting new battle
     setIsBattleHidden(false);
@@ -321,28 +340,15 @@ export default function Duel() {
         player_id: data.player?.id
       });
 
-      if (data.auto_started) {
-        console.log('[Duel] ✅ AUTO-STARTED = TRUE, duel should be active!');
-        toast.success('Дуэль начинается! 🎮');
-      } else {
-        console.log('[Duel] ⏳ AUTO-STARTED = FALSE, waiting for host to start');
-        toast.success('Вы присоединились! Ожидание старта...');
-      }
+      showDuelJoinSuccess(data.auto_started);
 
-      handleDuelJoined(data.duel.id, data.duel.code);
+      // Передаем auto_started в handleDuelJoined для правильной обработки
+      handleDuelJoined(data.duel.id, data.duel.code, data.auto_started);
       setJoinCode('');
       hasAutoJoinedRef.current = false;
       setIsJoining(false);
     } catch (error: any) {
-      const extractedError = extractErrorFromResponse(error);
-      const humanError = getHumanReadableError(extractedError, 'join');
-      
-      // Проверяем специальный случай - попытка присоединиться к своей дуэли
-      if (extractedError.includes('host') || extractedError.includes('уже являетесь')) {
-        toast.error('Вы не можете присоединиться к своей же дуэли. Вы уже являетесь хостом этой дуэли.');
-      } else {
-        toast.error(humanError);
-      }
+      showDuelJoinError(error);
       
       hasAutoJoinedRef.current = false;
       setIsJoining(false);
@@ -456,9 +462,7 @@ export default function Duel() {
       
       setIsCreating(false);
     } catch (error: any) {
-      const extractedError = extractErrorFromResponse(error);
-      const humanError = getHumanReadableError(extractedError, 'create');
-      toast.error(humanError);
+      showDuelJoinError(error);
       setIsCreating(false);
     }
   };
@@ -568,7 +572,7 @@ export default function Duel() {
         if (data.status === 'active') {
           console.log('[Duel] ✅ DUEL IS ACTIVE! Starting battle immediately...');
           setConnectionStatus('connected');
-          handleDuelStarted();
+          handleDuelStarted(duelId || undefined);
           isActive = false;
         } else {
           setConnectionStatus('connected');
@@ -611,19 +615,19 @@ export default function Duel() {
 
   // Handle opponent joined
   useEffect(() => {
-    if (duelState.opponentJoined && createdCode) {
+    if (duelState.opponentJoined && createdCode && dataLoaded) {
       console.log('[Duel] Opponent joined!');
-      toast.success('Противник найден!');
+      showDuelNotification('opponent_joined');
     }
-  }, [duelState.opponentJoined, createdCode]);
+  }, [duelState.opponentJoined, createdCode, dataLoaded, showDuelNotification]);
 
   // Handle duel started from realtime - сразу переходим к битве
   useEffect(() => {
-    if (duelState.duelStarted && createdCode) {
+    if (duelState.duelStarted && createdCode && duelId) {
       console.log('[Duel] ✅ Duel started signal from realtime! Starting battle immediately...');
-      handleDuelStarted();
+      handleDuelStarted(duelId);
     }
-  }, [duelState.duelStarted, createdCode]);
+  }, [duelState.duelStarted, createdCode, duelId]);
 
   // Показываем skeleton screen при начальной загрузке - ПОСЛЕ всех хуков!
   if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {

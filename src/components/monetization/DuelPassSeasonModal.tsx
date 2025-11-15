@@ -438,20 +438,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Компактная таблица наград */}
-        <div className="space-y-1.5">
+        {/* Современная таблица наград */}
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-bold text-foreground">
               Награды по уровням
             </h4>
-            {/* Компактные фильтры */}
-            <div className="flex gap-1">
+            {/* Фильтры */}
+            <div className="flex gap-2">
               <button
                 onClick={() => setRewardFilter('all')}
                 className={cn(
-                  "px-1.5 py-0.5 text-[10px] rounded-full transition-colors",
+                  "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
                   rewardFilter === 'all'
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
@@ -460,9 +460,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <button
                 onClick={() => setRewardFilter('available')}
                 className={cn(
-                  "px-1.5 py-0.5 text-[10px] rounded-full transition-colors",
+                  "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
                   rewardFilter === 'available'
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
@@ -471,21 +471,27 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Компактная таблица */}
-          <div className="border rounded-lg overflow-hidden">
+          {/* Улучшенная таблица */}
+          <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-muted/30 border-b">
-                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-12">Lv</th>
-                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-16">
-                      <Coins className="w-3 h-3 inline text-yellow-500" />
+                  <tr className="bg-muted/50 border-b border-border">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Уровень</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Coins className="w-4 h-4 text-yellow-500" />
+                        <span>Бесплатно</span>
+                      </div>
                     </th>
-                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-16">
-                      <Crown className="w-3 h-3 inline" />
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Crown className="w-4 h-4 text-yellow-600" />
+                        <span>Premium</span>
+                      </div>
                     </th>
-                    <th className="text-left px-2 py-1 text-[9px] font-semibold text-muted-foreground w-20">SP</th>
-                    <th className="text-center px-2 py-1 text-[9px] font-semibold text-muted-foreground w-16">Действие</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">SP</th>
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-muted-foreground">Статус</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -503,13 +509,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <tr
                         key={reward.level}
                         className={cn(
-                          "border-b transition-colors cursor-pointer group",
-                          isCurrent && "bg-primary/10",
+                          "border-b border-border/50 transition-all cursor-pointer group",
+                          isCurrent && "bg-primary/5 border-l-4 border-l-primary",
                           isClaimed 
                             ? "bg-green-500/5 hover:bg-green-500/10" 
                             : unlocked 
-                            ? "hover:bg-muted/30" 
-                            : "bg-muted/10 opacity-60"
+                            ? "hover:bg-muted/50" 
+                            : "opacity-50"
                         )}
                         onClick={() => {
                           if (unlocked && !isClaimed) {
@@ -518,88 +524,98 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         }}
                       >
                         {/* Уровень */}
-                        <td className="px-2 py-1">
-                          <div className={cn(
-                            "inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-bold",
-                            isCurrent 
-                              ? "bg-primary text-white" 
-                              : isClaimed 
-                              ? "bg-green-500/20 text-green-600" 
-                              : unlocked 
-                              ? "bg-muted text-muted-foreground" 
-                              : "bg-muted/30 text-muted-foreground"
-                          )}>
-                            {reward.level}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className={cn(
+                              "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold transition-all",
+                              isCurrent 
+                                ? "bg-primary text-primary-foreground shadow-sm" 
+                                : isClaimed 
+                                ? "bg-green-500/20 text-green-600" 
+                                : unlocked 
+                                ? "bg-muted text-foreground" 
+                                : "bg-muted/50 text-muted-foreground"
+                            )}>
+                              {reward.level}
+                            </div>
+                            {isCurrent && (
+                              <Badge variant="secondary" className="text-xs">
+                                Текущий
+                              </Badge>
+                            )}
                           </div>
                         </td>
                         
                         {/* Монетки (Free) */}
-                        <td className="px-2 py-1">
+                        <td className="px-4 py-3">
                           {hasFreeCoins ? (
-                            <div className="flex items-center gap-0.5">
-                              <Coins className="w-2.5 h-2.5 text-yellow-500 shrink-0" />
-                              <span className="text-[10px] font-semibold">{reward.free_reward.amount}</span>
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 w-fit">
+                              <Coins className="w-4 h-4 text-yellow-500 shrink-0" />
+                              <span className="text-sm font-semibold">{reward.free_reward.amount}</span>
                             </div>
                           ) : (
-                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </td>
                         
                         {/* Корона (Premium) */}
-                        <td className="px-2 py-1">
+                        <td className="px-4 py-3">
                           {reward.premium_reward ? (
                             <div className={cn(
-                              "flex items-center gap-0.5 transition-colors",
+                              "flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit transition-all",
                               isPremium 
-                                ? "text-yellow-600" 
-                                : "text-muted-foreground/50 group-hover:text-yellow-500/70"
+                                ? "bg-yellow-500/10 border-yellow-500/20" 
+                                : "bg-muted/50 border-muted group-hover:border-yellow-500/30"
                             )}>
                               <Crown className={cn(
-                                "w-2.5 h-2.5 shrink-0",
-                                !isPremium && "opacity-50 group-hover:opacity-100"
+                                "w-4 h-4 shrink-0",
+                                isPremium ? "text-yellow-600" : "text-muted-foreground"
                               )} />
                               {hasPremiumCoins ? (
                                 <span className={cn(
-                                  "text-[10px] font-semibold",
-                                  !isPremium && "line-through opacity-60"
+                                  "text-sm font-semibold",
+                                  isPremium ? "text-foreground" : "text-muted-foreground"
                                 )}>
                                   {reward.premium_reward.amount}
                                 </span>
                               ) : hasPremiumOther ? (
                                 <span className={cn(
-                                  "text-[9px]",
-                                  !isPremium && "line-through opacity-60"
+                                  "text-xs font-medium",
+                                  isPremium ? "text-foreground" : "text-muted-foreground"
                                 )}>
-                                  {reward.premium_reward.type === 'skin' ? 'Скин' :
-                                   reward.premium_reward.type === 'badge' ? 'Бейдж' :
-                                   reward.premium_reward.type === 'boost' ? 'Буст' :
-                                   reward.premium_reward.type === 'sticker' ? 'Стикер' : ''}
+                                  {reward.premium_reward.type === 'skin' ? '🎨 Скин' :
+                                   reward.premium_reward.type === 'badge' ? '🏆 Бейдж' :
+                                   reward.premium_reward.type === 'boost' ? '⚡ Буст' :
+                                   reward.premium_reward.type === 'sticker' ? '😊 Стикер' : ''}
                                 </span>
                               ) : null}
                               {!isPremium && (
-                                <span className="text-[8px] text-yellow-500 ml-0.5 animate-pulse">💎</span>
+                                <Sparkles className="w-3 h-3 text-yellow-500 animate-pulse" />
                               )}
                             </div>
                           ) : (
-                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </td>
                         
                         {/* SP */}
-                        <td className="px-2 py-1">
+                        <td className="px-4 py-3">
                           {!unlocked ? (
-                            <span className="text-[9px] text-muted-foreground">
-                              +{reward.sp_required - currentSP}
-                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              +{reward.sp_required - currentSP} SP
+                            </Badge>
                           ) : (
-                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                            <span className="text-sm text-muted-foreground">—</span>
                           )}
                         </td>
                         
                         {/* Действие */}
-                        <td className="px-2 py-1 text-center">
+                        <td className="px-4 py-3 text-center">
                           {isClaimed ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mx-auto" />
+                            <div className="flex items-center justify-center gap-2">
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                              <span className="text-xs font-medium text-green-600">Получено</span>
+                            </div>
                           ) : unlocked ? (
                             <Button
                               size="sm"
@@ -608,21 +624,23 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                 handleRewardClick(reward);
                               }}
                               className={cn(
-                                "h-5 px-1.5 text-[9px]",
-                                reward.premium_reward && !isPremium && "bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/40 hover:from-yellow-500/30 hover:to-orange-500/30"
+                                "h-8 px-4 text-xs font-medium",
+                                reward.premium_reward && !isPremium && "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
                               )}
                             >
                               {reward.premium_reward && !isPremium ? (
                                 <>
-                                  <Crown className="w-2.5 h-2.5 mr-0.5" />
-                                  Premium
+                                  <Crown className="w-3.5 h-3.5 mr-1.5" />
+                                  Получить Premium
                                 </>
                               ) : (
                                 "Забрать"
                               )}
                             </Button>
                           ) : (
-                            <span className="text-[9px] text-muted-foreground/40">—</span>
+                            <Badge variant="secondary" className="text-xs">
+                              Заблокировано
+                            </Badge>
                           )}
                         </td>
                       </tr>
