@@ -8,6 +8,7 @@ import { useCoins } from '@/hooks/useCoins';
 import { supabase } from '@/integrations/supabase/client';
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
+import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
 import { cn } from '@/lib/utils';
 
 interface WalletWidgetProps {
@@ -20,6 +21,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { balance } = useCoins();
   const [shopOpen, setShopOpen] = useState(false);
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
+  const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
   const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number } | null>(null);
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         {/* Duel Pass Mini Progress - компактная версия на мобильных */}
         {duelPassData && (
           <button
-            onClick={() => setShopOpen(true)}
+            onClick={() => setDuelPassModalOpen(true)}
             className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={`Duel Pass уровень ${duelPassData.level}`}
           >
@@ -75,9 +77,9 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         )}
         {duelPassData && (
           <button
-            onClick={() => setShopOpen(true)}
+            onClick={() => setDuelPassModalOpen(true)}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-            title={`Duel Pass уровень ${duelPassData.level}`}
+            title={`Duel Pass уровень ${duelPassData.level} - Кликните для просмотра сезона`}
           >
             <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
             <div className="w-10 md:w-12 h-1 bg-muted rounded-full overflow-hidden">
@@ -117,6 +119,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
 
       <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
       <ReminderConnectModal open={reminderModalOpen} onOpenChange={setReminderModalOpen} />
+      <DuelPassSeasonModal open={duelPassModalOpen} onOpenChange={setDuelPassModalOpen} />
     </>
   );
 }
