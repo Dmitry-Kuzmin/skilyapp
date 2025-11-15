@@ -126,8 +126,7 @@ const calculateSeasonReward = (
   return BASE_WIN_SP_NO_BET;
 };
 
-const COMMISSION_RATE = 0.1;
-
+// Комиссия убрана - банк полностью игрокам
 async function settleBetPayout({
   supabaseClient,
   duelId,
@@ -165,8 +164,8 @@ async function settleBetPayout({
   }
 
   const totalPot = betAmount * 2;
-  const commission = Math.floor(totalPot * COMMISSION_RATE);
-  const winnerPayout = totalPot - commission;
+  // Банк полностью игрокам - комиссия убрана
+  const winnerPayout = totalPot;
 
   const creditCoins = async (userId: string, amount: number) => {
     if (!userId || !amount) return;
@@ -219,17 +218,56 @@ async function settleBetPayout({
   } else if (winnerUserId) {
     await creditCoins(winnerUserId, winnerPayout);
     await insertTransaction(winnerUserId, winnerPayout, 'win');
-    await insertTransaction(winnerUserId, -commission, 'commission');
+    // Комиссия убрана - банк полностью игрокам
+
+    // Бонусные монеты за серии и underdog
+    let bonusCoins = 0;
+    let bonusReason = '';
+    
+    // Проверяем серию побед (3 победы подряд = +15 монет)
+    const { data: winnerStats } = await supabase
+      .from('duel_stats')
+      .select('current_streak')
+      .eq('user_id', winnerUserId)
+      .maybeSingle();
+    
+    if (winnerStats && winnerStats.current_streak >= 3) {
+      bonusCoins += 15;
+      bonusReason = `серия ${winnerStats.current_streak} побед`;
+    }
+    
+    // Проверяем underdog бонус (победа над игроком с большим XP = +10 монет)
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, xp')
+      .in('id', [winnerUserId, hostUserId === winnerUserId ? opponentUserId : hostUserId]);
+    
+    if (profiles && profiles.length === 2) {
+      const winnerProfile = profiles.find(p => p.id === winnerUserId);
+      const loserProfile = profiles.find(p => p.id !== winnerUserId);
+      
+      if (winnerProfile && loserProfile && (loserProfile.xp || 0) > (winnerProfile.xp || 0) + 500) {
+        bonusCoins += 10;
+        bonusReason = bonusReason ? `${bonusReason}, underdog` : 'underdog';
+      }
+    }
+    
+    // Начисляем бонусные монеты
+    if (bonusCoins > 0) {
+      await creditCoins(winnerUserId, bonusCoins);
+      await insertTransaction(winnerUserId, bonusCoins, 'win');
+      console.log(`[settleBetPayout] Bonus coins awarded: ${bonusCoins} for ${bonusReason}`);
+    }
 
     if (winnerUserId === hostUserId) {
-      hostPayout = winnerPayout;
+      hostPayout = winnerPayout + bonusCoins;
       if (opponentCoverage > 0) {
         await creditCoins(opponentUserId, opponentCoverage);
         await insertTransaction(opponentUserId, opponentCoverage, 'insurance_refund');
         opponentInsuranceRefund = opponentCoverage;
       }
     } else {
-      opponentPayout = winnerPayout;
+      opponentPayout = winnerPayout + bonusCoins;
       if (hostCoverage > 0) {
         await creditCoins(hostUserId, hostCoverage);
         await insertTransaction(hostUserId, hostCoverage, 'insurance_refund');
@@ -1720,7 +1758,7 @@ Deno.serve(async (req) => {
                 duel_id: duel.id,
                 host_user: duel.host_user,
                 opponent_user: profileId,
-                bet_amount,
+                bet_amount: betAmount,
                 currency: 'coins',
                 host_confirmed: true,
                 opponent_confirmed: true,

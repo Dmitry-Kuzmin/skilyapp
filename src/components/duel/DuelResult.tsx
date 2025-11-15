@@ -127,14 +127,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       
       // Calculate winnings if bet was placed
       let winnings = 0;
-      let commission = 0;
       const betAmount = (duel as any)?.bet_amount || 0;
       
       if (betAmount > 0) {
         if (isWinner) {
           const totalPot = betAmount * 2;
-          commission = Math.floor(totalPot * 0.1);
-          winnings = totalPot - commission;
+          // Комиссия убрана - банк полностью игрокам
+          winnings = totalPot;
         }
       }
       
@@ -149,7 +148,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         isDraw,
         betAmount,
         winnings,
-        commission,
         rematchPot: (duel as any)?.rematch_pot || 0,
       });
       
@@ -314,10 +312,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Банк:</span>
                       <span className="font-bold">{results.betAmount * 2}</span>
-                    </div>
-                    <div className="flex justify-between text-red-500">
-                      <span>Комиссия (10%):</span>
-                      <span className="font-bold">-{results.commission}</span>
                     </div>
                     <div className="border-t border-amber-500/30 pt-2 mt-2"></div>
                     <div className="flex justify-between text-lg">

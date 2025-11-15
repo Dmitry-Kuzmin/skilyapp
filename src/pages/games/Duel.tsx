@@ -923,7 +923,7 @@ export default function Duel() {
                                       Банк: <span className="text-amber-600 dark:text-amber-400">{betAmount * 2}</span> монет
                                     </p>
                     <p className="text-muted-foreground">
-                                      Победитель: <span className="text-green-600 dark:text-green-400 font-bold">{Math.floor(betAmount * 2 * 0.9)}</span> (комиссия 10%)
+                                      Победитель: <span className="text-green-600 dark:text-green-400 font-bold">{betAmount * 2}</span> монет (банк полностью)
                                     </p>
                                     <p className="text-muted-foreground">
                                       При ничьей: ставки и страховка возвращаются

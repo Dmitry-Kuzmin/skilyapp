@@ -18,9 +18,12 @@ const SP_RULES: Record<string, number> = {
   challenge_reward: 0, // Награда будет передана в metadata
 };
 
-const BASE_WIN_NO_BET_SP = 30;
-const BASE_LOSE_SP = 5;
-const DRAW_SP = 15;
+// Без ставки - 0 SP (или минимум 10 SP для мотивации)
+const BASE_WIN_NO_BET_SP = 0; // Изменено: без ставки нет SP бонуса
+const BASE_LOSE_SP = 0; // Изменено: проигравший не получает SP (или только при ставке >= 100)
+const DRAW_SP = 0; // Изменено: ничья без ставки - 0 SP
+const MIN_BET_FOR_LOSE_SP = 100; // Минимальная ставка для утешительных SP
+const LOSE_SP_WITH_BET = 5; // Утешительные SP только при ставке >= 100
 
 const riskMultiplierForBet = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -81,11 +84,14 @@ serve(async (req) => {
       const hasBet = betAmount > 0;
       
       if (isDuelDraw) {
-        spGain = DRAW_SP;
+        // Ничья: SP только при ставке
+        spGain = hasBet ? 15 : DRAW_SP;
       } else if (isDuelWin) {
+        // Победа: SP только при ставке, иначе 0
         spGain = hasBet ? calculateWinSP(betAmount) : BASE_WIN_NO_BET_SP;
       } else {
-        spGain = BASE_LOSE_SP;
+        // Поражение: SP только при ставке >= 100 монет
+        spGain = (hasBet && betAmount >= MIN_BET_FOR_LOSE_SP) ? LOSE_SP_WITH_BET : BASE_LOSE_SP;
       }
     }
     
@@ -94,11 +100,45 @@ serve(async (req) => {
       spGain = metadata.sp_earned;
     }
     
-    if (spGain === undefined || spGain <= 0) {
+    // Проверка: 0 SP это валидное значение (без ставки)
+    if (spGain === undefined || spGain < 0) {
       return new Response(
         JSON.stringify({ error: "Unsupported source_type or invalid SP amount" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+    
+    // Soft-cap SP в сутки для дуэлей (3500 SP max)
+    const DUEL_SP_DAILY_CAP = 3500;
+    if (isDuelWin || isDuelLose || isDuelDraw) {
+      const now = new Date();
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
+      
+      // Подсчитываем SP полученные сегодня из дуэлей через duel_bet_history
+      const { data: todayBets } = await supabase
+        .from('duel_bet_history')
+        .select('season_sp_host, season_sp_opponent, host_user, opponent_user')
+        .or(`host_user.eq.${user_id},opponent_user.eq.${user_id}`)
+        .gte('created_at', todayStart.toISOString());
+      
+      let todaySPFromDuels = 0;
+      if (todayBets) {
+        todaySPFromDuels = todayBets.reduce((sum, bet) => {
+          return sum + (bet.host_user === user_id ? (bet.season_sp_host || 0) : 0) +
+                       (bet.opponent_user === user_id ? (bet.season_sp_opponent || 0) : 0);
+        }, 0);
+      }
+      
+      // Если достигнут лимит, не начисляем SP
+      if (todaySPFromDuels >= DUEL_SP_DAILY_CAP) {
+        console.log(`[season-sp] Daily SP cap reached (${todaySPFromDuels}/${DUEL_SP_DAILY_CAP}), skipping SP gain`);
+        spGain = 0;
+      } else if (todaySPFromDuels + spGain > DUEL_SP_DAILY_CAP) {
+        // Частичное начисление до лимита
+        spGain = Math.max(0, DUEL_SP_DAILY_CAP - todaySPFromDuels);
+        console.log(`[season-sp] Partial SP gain due to cap: ${spGain} (total today: ${todaySPFromDuels + spGain})`);
+      }
     }
 
     // Получаем активный сезон
