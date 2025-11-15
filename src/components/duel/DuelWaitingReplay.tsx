@@ -16,7 +16,8 @@ import {
   EyeOff,
   Eye,
   Zap,
-  Target
+  Target,
+  WifiOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { sounds } from '@/lib/sounds';
@@ -57,6 +58,7 @@ export function DuelWaitingReplay({
   const [myName, setMyName] = useState('Вы');
   const [isHidden, setIsHidden] = useState(initialHidden);
   const [isDuelFinished, setIsDuelFinished] = useState(false);
+  const [opponentStatus, setOpponentStatus] = useState<'online' | 'offline' | 'unknown'>('unknown');
   const isCheckingFinishedRef = useRef(false);
   const isDuelFinishedRef = useRef(false); // Use ref to avoid stale closures
   const onDuelFinishedCalledRef = useRef(false); // Предотвращаем множественные вызовы
@@ -260,6 +262,108 @@ export function DuelWaitingReplay({
       setOpponentScore(realtimeState.opponentScore);
     }
   }, [realtimeState.opponentScore]);
+
+  // Проверка отключения соперника каждые 5 секунд
+  useEffect(() => {
+    if (isDuelFinished || !duelId || !profileId) return;
+    
+    const checkOpponentDisconnect = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'auto_finish_on_opponent_disconnect',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+        
+        if (error) {
+          console.error('[DuelWaitingReplay] Error checking opponent disconnect:', error);
+          return;
+        }
+        
+        // Обновляем статус соперника
+        if (data?.opponent_online === false) {
+          setOpponentStatus('offline');
+        } else if (data?.opponent_online === true) {
+          setOpponentStatus('online');
+        }
+        
+        if (data?.finished) {
+          console.log('[DuelWaitingReplay] ✅ Opponent disconnected, duel finished automatically');
+          isDuelFinishedRef.current = true;
+          setIsDuelFinished(true);
+          
+          toast.success('🏁 Соперник покинул игру', {
+            description: 'Дуэль завершена автоматически',
+            duration: 3000
+          });
+          
+          safeCallOnDuelFinished();
+        } else if (data?.cancelled) {
+          console.log('[DuelWaitingReplay] ✅ Opponent disconnected before start, duel cancelled');
+          isDuelFinishedRef.current = true;
+          setIsDuelFinished(true);
+          
+          toast.info('Соперник не присоединился', {
+            description: 'Ставка возвращена',
+            duration: 3000
+          });
+          
+          // Переходим к результатам с сообщением об отмене
+          safeCallOnDuelFinished();
+        }
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Exception checking opponent disconnect:', error);
+      }
+    };
+    
+    // Проверяем сразу и затем каждые 5 секунд
+    checkOpponentDisconnect();
+    const interval = setInterval(checkOpponentDisconnect, 5000);
+    
+    return () => clearInterval(interval);
+  }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
+
+  // Максимальное время ожидания - 2 минуты
+  useEffect(() => {
+    if (isDuelFinished || !duelId) return;
+    
+    const maxWaitTimeout = setTimeout(() => {
+      if (!isDuelFinishedRef.current) {
+        console.log('[DuelWaitingReplay] ⏰ Max wait time exceeded, forcing finish');
+        
+        // Проверяем статус соперника в последний раз
+        supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'auto_finish_on_opponent_disconnect',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        }).then(({ data }) => {
+          if (data?.finished || data?.cancelled) {
+            isDuelFinishedRef.current = true;
+            setIsDuelFinished(true);
+            safeCallOnDuelFinished();
+          } else {
+            // Если соперник все еще онлайн, принудительно завершаем
+            console.log('[DuelWaitingReplay] ⚠️ Forcing finish after timeout');
+            isDuelFinishedRef.current = true;
+            setIsDuelFinished(true);
+            safeCallOnDuelFinished();
+          }
+        }).catch(error => {
+          console.error('[DuelWaitingReplay] Error on timeout check:', error);
+          // Принудительно завершаем при ошибке
+          isDuelFinishedRef.current = true;
+          setIsDuelFinished(true);
+          safeCallOnDuelFinished();
+        });
+      }
+    }, 120000); // 2 минуты
+    
+    return () => clearTimeout(maxWaitTimeout);
+  }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
   
   // КРИТИЧНО: Проверка при каждом обновлении ответов соперника
   // Если у соперника есть все ответы - проверяем статус и переходим к результатам
@@ -1311,6 +1415,23 @@ export function DuelWaitingReplay({
               <p className="text-muted-foreground">
                 Ожидание ответа от <span className="font-semibold text-foreground">{opponentName}</span>
               </p>
+              
+              {/* Индикатор статуса соперника */}
+              {opponentStatus === 'offline' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 bg-red-500/10 border border-red-500/30 rounded-lg p-3"
+                >
+                  <p className="text-red-600 dark:text-red-400 font-semibold text-sm flex items-center gap-2">
+                    <WifiOff className="w-4 h-4" />
+                    ⚠️ Соперник офлайн
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Дуэль будет завершена автоматически через несколько секунд
+                  </p>
+                </motion.div>
+              )}
             </div>
 
             {/* Scores */}

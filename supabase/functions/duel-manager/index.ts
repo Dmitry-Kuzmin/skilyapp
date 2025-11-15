@@ -2846,6 +2846,274 @@ Deno.serve(async (req) => {
         });
       }
 
+      case 'auto_finish_on_opponent_disconnect': {
+        const { duel_id } = params;
+        const userProfileId = params.profile_id || profileId;
+        
+        if (!duel_id || !userProfileId) {
+          return new Response(JSON.stringify({ error: 'duel_id and profile_id are required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Получаем информацию о дуэли
+        const { data: duel, error: duelError } = await supabase
+          .from('duels')
+          .select('status, bet_amount, host_user, num_questions')
+          .eq('id', duel_id)
+          .single();
+        
+        if (duelError || !duel || duel.status !== 'active') {
+          return new Response(JSON.stringify({ error: 'Duel not found or not active' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Получаем игроков
+        const { data: players, error: playersError } = await supabase
+          .from('duel_players')
+          .select('id, user_id, is_connected, activity_status, last_heartbeat_at, score')
+          .eq('duel_id', duel_id);
+        
+        if (playersError || !players || players.length < 2) {
+          return new Response(JSON.stringify({ error: 'Not enough players' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        const myPlayer = players.find((p: any) => p.user_id === userProfileId);
+        const opponent = players.find((p: any) => p.user_id !== userProfileId);
+        
+        if (!myPlayer || !opponent) {
+          return new Response(JSON.stringify({ error: 'Player not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Проверяем статус соперника
+        const lastHeartbeat = opponent.last_heartbeat_at 
+          ? new Date(opponent.last_heartbeat_at).getTime() 
+          : 0;
+        const now = Date.now();
+        const timeSinceHeartbeat = now - lastHeartbeat;
+        const isOpponentOffline = !opponent.is_connected || opponent.activity_status === 'offline' || timeSinceHeartbeat > 15000;
+        
+        // Проверяем есть ли у соперника ответы
+        const { count: opponentAnswersCount } = await supabase
+          .from('duel_answers')
+          .select('*', { count: 'exact', head: true })
+          .eq('player_id', opponent.id)
+          .eq('duel_id', duel_id);
+        
+        const hasOpponentAnswered = (opponentAnswersCount || 0) > 0;
+        
+        // Если соперник офлайн > 15 секунд и дуэль началась (есть ответы), завершаем дуэль
+        if (isOpponentOffline && hasOpponentAnswered) {
+          console.log('[auto_finish_on_opponent_disconnect] Opponent disconnected, finishing duel automatically');
+          
+          // Завершаем дуэль - вызываем finish_duel action
+          // Используем внутренний вызов через обработку того же action
+          // Но сначала нужно убедиться что текущий игрок закончил все вопросы
+          const { count: myAnswersCount } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', myPlayer.id)
+            .eq('duel_id', duel_id);
+          
+          // Если текущий игрок не закончил все вопросы, завершаем дуэль принудительно
+          // с текущими результатами
+          if ((myAnswersCount || 0) < duel.num_questions) {
+            // Помечаем что текущий игрок закончил (для корректного завершения)
+            // Но на самом деле мы просто завершаем дуэль с текущими результатами
+            console.log('[auto_finish_on_opponent_disconnect] Current player has not finished all questions, finishing with current results');
+          }
+          
+          // Вызываем finish_duel через рекурсивный вызов action
+          // Но проще всего - просто завершить дуэль напрямую через логику finish_duel
+          // Для этого создадим упрощенную версию завершения
+          
+          // Обновляем статус дуэли на finished
+          await supabase
+            .from('duels')
+            .update({
+              status: 'finished',
+              finished_at: new Date().toISOString()
+            })
+            .eq('id', duel_id);
+          
+          // Вызываем settleBetPayout если есть ставки
+          if (duel.bet_amount > 0) {
+            try {
+              // Получаем финальные счета игроков
+              const { data: finalPlayers } = await supabase
+                .from('duel_players')
+                .select('id, user_id, score, correct_count')
+                .eq('duel_id', duel_id);
+              
+              if (finalPlayers && finalPlayers.length >= 2) {
+                const myFinalPlayer = finalPlayers.find((p: any) => p.user_id === userProfileId);
+                const opponentFinalPlayer = finalPlayers.find((p: any) => p.user_id !== userProfileId);
+                
+                if (myFinalPlayer && opponentFinalPlayer) {
+                  const myFinalScore = myFinalPlayer.score || 0;
+                  const opponentFinalScore = opponentFinalPlayer.score || 0;
+                  
+                  // Определяем победителя (текущий игрок выиграл, т.к. соперник отключился)
+                  const winnerUserId = userProfileId;
+                  const isDraw = myFinalScore === opponentFinalScore;
+                  
+                  // Вызываем settleBetPayout
+                  await settleBetPayout({
+                    supabaseClient: supabase,
+                    duelId: duel_id,
+                    betAmount: duel.bet_amount,
+                    hostUserId: duel.host_user,
+                    players: finalPlayers.map((p: any) => ({
+                      id: p.id,
+                      user_id: p.user_id,
+                      score: p.score || 0,
+                      correct_count: p.correct_count || 0
+                    })),
+                    winnerUserId: isDraw ? null : winnerUserId,
+                    isDraw,
+                  });
+                  
+                  console.log('[auto_finish_on_opponent_disconnect] Bet settled, winner:', winnerUserId);
+                }
+              }
+            } catch (betError) {
+              console.error('[auto_finish_on_opponent_disconnect] Error settling bets:', betError);
+            }
+          }
+          
+          // Обновляем статистику игроков
+          try {
+            const { data: finalPlayers } = await supabase
+              .from('duel_players')
+              .select('id, user_id, score')
+              .eq('duel_id', duel_id);
+            
+            if (finalPlayers && finalPlayers.length >= 2) {
+              const myFinalPlayer = finalPlayers.find((p: any) => p.user_id === userProfileId);
+              const opponentFinalPlayer = finalPlayers.find((p: any) => p.user_id !== userProfileId);
+              
+              if (myFinalPlayer && opponentFinalPlayer) {
+                const myFinalScore = myFinalPlayer.score || 0;
+                const opponentFinalScore = opponentFinalPlayer.score || 0;
+                const isWin = myFinalScore > opponentFinalScore;
+                const isDraw = myFinalScore === opponentFinalScore;
+                
+                // Обновляем статистику для текущего игрока (победа)
+                await supabase.rpc('upsert_duel_stats', {
+                  p_user_id: userProfileId,
+                  p_is_win: isWin && !isDraw,
+                  p_is_draw: isDraw,
+                  p_score: myFinalScore
+                });
+                
+                // Обновляем статистику для соперника (поражение)
+                await supabase.rpc('upsert_duel_stats', {
+                  p_user_id: opponent.user_id,
+                  p_is_win: false,
+                  p_is_draw: isDraw,
+                  p_score: opponentFinalScore
+                });
+              }
+            }
+          } catch (statsError) {
+            console.error('[auto_finish_on_opponent_disconnect] Error updating stats:', statsError);
+          }
+          
+          return new Response(JSON.stringify({ 
+            success: true,
+            finished: true,
+            reason: 'opponent_disconnected'
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Если соперник офлайн но дуэль не началась (нет ответов), возвращаем ставки
+        if (isOpponentOffline && !hasOpponentAnswered) {
+          console.log('[auto_finish_on_opponent_disconnect] Opponent disconnected before duel started, cancelling');
+          
+          // Обновляем статус дуэли на cancelled
+          await supabase
+            .from('duels')
+            .update({
+              status: 'cancelled',
+              finished_at: new Date().toISOString()
+            })
+            .eq('id', duel_id);
+          
+          // Возвращаем ставки если были
+          if (duel.bet_amount > 0) {
+            const { data: betRow } = await supabase
+              .from('duel_bets')
+              .select('host_insurance_premium, opponent_insurance_premium')
+              .eq('duel_id', duel_id)
+              .maybeSingle();
+            
+            // Возврат ставки текущему игроку
+            await supabase.rpc('increment_profile_value', {
+              p_profile_id: userProfileId,
+              p_column: 'coins',
+              p_amount: duel.bet_amount
+            });
+            
+            await supabase.from('duel_transactions').insert({
+              duel_id,
+              user_id: userProfileId,
+              amount: duel.bet_amount,
+              transaction_type: 'refund'
+            });
+            
+            // Возврат страховки если была
+            const isHost = userProfileId === duel.host_user;
+            const insurancePremium = isHost 
+              ? betRow?.host_insurance_premium 
+              : betRow?.opponent_insurance_premium;
+            
+            if (insurancePremium && insurancePremium > 0) {
+              await supabase.rpc('increment_profile_value', {
+                p_profile_id: userProfileId,
+                p_column: 'coins',
+                p_amount: insurancePremium
+              });
+              
+              await supabase.from('duel_transactions').insert({
+                duel_id,
+                user_id: userProfileId,
+                amount: insurancePremium,
+                transaction_type: 'insurance_refund'
+              });
+            }
+          }
+          
+          return new Response(JSON.stringify({ 
+            success: true,
+            cancelled: true,
+            reason: 'opponent_disconnected_before_start',
+            bets_refunded: true
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Соперник онлайн или не прошло достаточно времени
+        return new Response(JSON.stringify({ 
+          success: true,
+          opponent_online: true,
+          time_since_heartbeat: timeSinceHeartbeat
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       case 'mark_technical_draw': {
         const { duel_id } = params;
         
