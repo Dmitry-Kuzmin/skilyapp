@@ -351,10 +351,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Grid Layout для наград - компактный и современный */}
-        <div className="space-y-3">
+        {/* Компактный Grid Layout для наград */}
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Награды по уровням
             </h4>
             {/* Компактные фильтры */}
@@ -362,7 +362,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <button
                 onClick={() => setRewardFilter('all')}
                 className={cn(
-                  "px-2 py-1 text-xs rounded-full transition-colors",
+                  "px-1.5 py-0.5 text-[10px] rounded-full transition-colors",
                   rewardFilter === 'all'
                     ? "bg-primary text-white"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -373,7 +373,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <button
                 onClick={() => setRewardFilter('available')}
                 className={cn(
-                  "px-2 py-1 text-xs rounded-full transition-colors",
+                  "px-1.5 py-0.5 text-[10px] rounded-full transition-colors",
                   rewardFilter === 'available'
                     ? "bg-primary text-white"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -384,75 +384,68 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Grid: 2 колонки на мобильных, 3 на планшетах, 4 на десктопе */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-96 overflow-y-auto pr-1">
+          {/* Плотный Grid: больше колонок, меньше отступы */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-1.5 max-h-96 overflow-y-auto pr-1">
             {filteredRewards.map((reward) => {
               const unlocked = currentLevel >= reward.level;
               const isClaimed = claimedRewards.has(reward.level);
               const isCurrent = currentLevel === reward.level;
-              const isNext = reward.level === currentLevel + 1;
               
               return (
                 <div
                   key={reward.level}
                   className={cn(
-                    "relative rounded-lg border p-2.5 transition-all cursor-pointer group",
-                    isCurrent && "ring-2 ring-primary shadow-lg scale-105 z-10",
-                    isNext && "ring-1 ring-primary/50 shadow-md",
+                    "relative rounded-md border p-1.5 transition-all cursor-pointer group",
+                    isCurrent && "ring-1.5 ring-primary shadow-md scale-[1.03] z-10 bg-primary/5",
                     isClaimed 
                       ? "bg-green-500/5 border-green-500/30" 
                       : unlocked 
-                      ? "bg-background border-border hover:border-primary/50 hover:shadow-sm" 
-                      : "bg-muted/30 border-muted opacity-60"
+                      ? "bg-background border-border hover:border-primary/50" 
+                      : "bg-muted/30 border-muted opacity-50"
                   )}
                 >
-                  {/* Компактный заголовок */}
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold text-muted-foreground">
-                      Lv.{reward.level}
+                  {/* Минималистичный заголовок */}
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold text-muted-foreground">
+                      {reward.level}
                     </span>
-                    <div className="flex items-center gap-1">
-                      {isCurrent && (
-                        <Badge className="text-[9px] px-1 py-0 bg-primary">Текущий</Badge>
-                      )}
-                      {isClaimed && (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                      )}
-                    </div>
+                    {isClaimed && (
+                      <CheckCircle2 className="w-2.5 h-2.5 text-green-500 shrink-0" />
+                    )}
                   </div>
                   
-                  {/* Компактные награды */}
-                  <div className="space-y-1">
+                  {/* Компактные награды в одну строку */}
+                  <div className="flex flex-col gap-0.5">
                     {reward.free_reward && (
-                      <div className="flex items-center gap-1 text-[10px]">
-                        <Coins className="w-3 h-3 text-yellow-500 shrink-0" />
-                        <span className="font-semibold">{reward.free_reward.amount}</span>
+                      <div className="flex items-center gap-0.5">
+                        <Coins className="w-2.5 h-2.5 text-yellow-500 shrink-0" />
+                        <span className="text-[9px] font-semibold leading-none">{reward.free_reward.amount}</span>
                       </div>
                     )}
                     {reward.premium_reward && (
                       <div className={cn(
-                        "flex items-center gap-1 text-[10px]",
-                        isPremium ? "text-yellow-600" : "text-muted-foreground/60"
+                        "flex items-center gap-0.5",
+                        isPremium ? "text-yellow-600" : "text-muted-foreground/50"
                       )}>
-                        <Crown className="w-3 h-3 shrink-0" />
-                        <span className="font-semibold">{reward.premium_reward.amount}</span>
+                        <Crown className="w-2.5 h-2.5 shrink-0" />
+                        <span className="text-[9px] font-semibold leading-none">{reward.premium_reward.amount}</span>
                       </div>
                     )}
                   </div>
                   
-                  {/* SP для заблокированных */}
+                  {/* SP для заблокированных - очень компактно */}
                   {!unlocked && (
-                    <p className="text-[9px] text-muted-foreground mt-1.5 line-clamp-1">
-                      +{reward.sp_required - currentSP} SP
+                    <p className="text-[8px] text-muted-foreground mt-0.5 leading-tight">
+                      +{reward.sp_required - currentSP}
                     </p>
                   )}
                   
-                  {/* Кнопка действия */}
+                  {/* Компактная кнопка действия */}
                   {unlocked && !isClaimed && (
                     <Button
                       size="sm"
                       onClick={() => claimReward(reward.level)}
-                      className="w-full mt-2 h-6 text-[10px] px-2"
+                      className="w-full mt-1 h-5 text-[9px] px-1 py-0"
                     >
                       Забрать
                     </Button>
