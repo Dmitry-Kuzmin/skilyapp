@@ -418,15 +418,15 @@ const HelpCenter = () => {
       subsections: [
         {
           id: "premium-overview",
-          title: "Что такое Premium?",
-          content: `Premium — это подписка, которая открывает все возможности приложения без ограничений и даёт дополнительные преимущества.
+          title: getTranslatedContent("help.content.premium.overview.title", "Что такое Premium?"),
+          content: getTranslatedContent("help.content.premium.overview.content", `Premium — это подписка, которая открывает все возможности приложения без ограничений и даёт дополнительные преимущества.
 
-Premium статус отображается золотым бейджем в WalletWidget и на главной странице.`
+Premium статус отображается золотым бейджем в WalletWidget и на главной странице.`)
         },
         {
           id: "premium-benefits",
-          title: "Преимущества Premium",
-          content: `С Premium подпиской вы получаете:
+          title: getTranslatedContent("help.content.premium.benefits.title", "Преимущества Premium"),
+          content: getTranslatedContent("help.content.premium.benefits.content", `С Premium подпиской вы получаете:
 
 • Безлимитный доступ ко всем тестам и играм — никаких ограничений на количество попыток
 • Удвоенные награды — +50% монет за все действия (тесты, игры, дуэли)
@@ -437,12 +437,12 @@ Premium статус отображается золотым бейджем в W
 • Приоритетная поддержка — быстрые ответы на ваши вопросы
 • **Premium Forever** — автоматическое открытие Duel Pass Premium для всех будущих сезонов
 
-Premium окупается за неделю активного использования!`
+Premium окупается за неделю активного использования!`)
         },
         {
           id: "premium-plans",
-          title: "Тарифные планы",
-          content: `Доступны три варианта подписки:
+          title: getTranslatedContent("help.content.premium.plans.title", "Тарифные планы"),
+          content: getTranslatedContent("help.content.premium.plans.content", `Доступны три варианта подписки:
 
 • **Premium Forever** — €59.99 (единоразово) 🔥
   - Пожизненный доступ ко всем Premium функциям
@@ -461,24 +461,24 @@ Premium окупается за неделю активного использо
   - Максимальная экономия для годовой подписки
   - Оптимальный выбор для активных пользователей
 
-Все планы включают 3-дневный пробный период для новых пользователей.`
+Все планы включают 3-дневный пробный период для новых пользователей.`)
         },
         {
           id: "premium-trial",
-          title: "Пробный период",
-          content: `Новые пользователи автоматически получают 3-дневный пробный период Premium:
+          title: getTranslatedContent("help.content.premium.trial.title", "Пробный период"),
+          content: getTranslatedContent("help.content.premium.trial.content", `Новые пользователи автоматически получают 3-дневный пробный период Premium:
 
 • Полный доступ ко всем Premium функциям
 • Никаких платежей в течение пробного периода
 • Автоматическая отмена, если не продлите подписку
 • Можно отменить в любой момент
 
-Используйте пробный период, чтобы оценить все преимущества Premium!`
+Используйте пробный период, чтобы оценить все преимущества Premium!`)
         },
         {
           id: "premium-purchase",
-          title: "Как получить Premium",
-          content: `Получить Premium можно несколькими способами:
+          title: getTranslatedContent("help.content.premium.purchase.title", "Как получить Premium"),
+          content: getTranslatedContent("help.content.premium.purchase.content", `Получить Premium можно несколькими способами:
 
 1. Через главную страницу — нажмите кнопку "Получить Premium" в hero-секции
 2. Через магазин — откройте магазин (WalletWidget) → вкладка "Premium"

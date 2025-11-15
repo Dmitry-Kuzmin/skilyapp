@@ -486,6 +486,82 @@ XP: +15 XP
 • Не тратьте монеты без необходимости
 
 Планируйте свои расходы заранее!`,
+    
+    // Premium section content
+    "help.content.premium.overview.title": "Что такое Premium?",
+    "help.content.premium.overview.content": `Premium — это подписка, которая открывает все возможности приложения без ограничений и даёт дополнительные преимущества.
+
+Premium статус отображается золотым бейджем в WalletWidget и на главной странице.`,
+    "help.content.premium.benefits.title": "Преимущества Premium",
+    "help.content.premium.benefits.content": `С Premium подпиской вы получаете:
+
+• Безлимитный доступ ко всем тестам и играм — никаких ограничений на количество попыток
+• Удвоенные награды — +50% монет за все действия (тесты, игры, дуэли)
+• Duel Pass Premium — эксклюзивные награды на каждом уровне Duel Pass
+• +20% Season Points (SP) — дополнительный прогресс в Duel Pass за дуэли
+• Без рекламы — чистый интерфейс без отвлекающих элементов
+• Мгновенные подсказки — быстрый доступ к объяснениям и подсказкам
+• Приоритетная поддержка — быстрые ответы на ваши вопросы
+• **Premium Forever** — автоматическое открытие Duel Pass Premium для всех будущих сезонов
+
+Premium окупается за неделю активного использования!`,
+    "help.content.premium.plans.title": "Тарифные планы",
+    "help.content.premium.plans.content": `Доступны три варианта подписки:
+
+• **Premium Forever** — €59.99 (единоразово) 🔥
+  - Пожизненный доступ ко всем Premium функциям
+  - Автоматическое открытие Duel Pass Premium для всех сезонов
+  - Максимальная экономия для долгосрочного использования
+  - Идеально для тех, кто готовится к экзамену (обычно 3-4 месяца)
+  - Защита от передачи аккаунта (привязка к устройству)
+
+• Месячная подписка — €9.99/месяц
+  - Полный доступ ко всем функциям
+  - Автоматическое продление
+  - Можно отменить в любой момент
+
+• Годовая подписка — €59.99/год (экономия 50%)
+  - Все преимущества месячной подписки
+  - Максимальная экономия для годовой подписки
+  - Оптимальный выбор для активных пользователей
+
+Все планы включают 3-дневный пробный период для новых пользователей.`,
+    "help.content.premium.trial.title": "Пробный период",
+    "help.content.premium.trial.content": `Новые пользователи автоматически получают 3-дневный пробный период Premium:
+
+• Полный доступ ко всем Premium функциям
+• Никаких платежей в течение пробного периода
+• Автоматическая отмена, если не продлите подписку
+• Можно отменить в любой момент
+
+Используйте пробный период, чтобы оценить все преимущества Premium!`,
+    "help.content.premium.purchase.title": "Как получить Premium",
+    "help.content.premium.purchase.content": `Получить Premium можно несколькими способами:
+
+1. Через главную страницу — нажмите кнопку "Получить Premium" в hero-секции
+2. Через магазин — откройте магазин (WalletWidget) → вкладка "Premium"
+3. Через страницу игр — кнопка Premium в hero-секции
+4. Через upsell баннеры — появляются при достижении лимитов
+
+После нажатия на кнопку вы будете перенаправлены на безопасную страницу оплаты Stripe.`,
+    "help.content.premium.management.title": "Управление подпиской",
+    "help.content.premium.management.content": `Управлять Premium подпиской можно через:
+
+• Профиль пользователя — просмотр статуса и даты окончания
+• Настройки — информация о подписке
+• Stripe кабинет — управление платежами и отмена подписки
+
+**Важно:**
+• Подписка автоматически продлевается, но вы можете отменить её в любой момент
+• **Premium Forever** — единоразовая покупка, не требует продления
+• Premium Forever автоматически открывает Duel Pass Premium для всех сезонов
+• При Premium Forever вы видите индикатор "Premium Forever активен" в Duel Pass
+
+**Защита аккаунта:**
+• Premium Forever привязан к вашему Telegram аккаунту
+• До 2 устройств могут использовать аккаунт без верификации
+• Только 1 активная сессия одновременно (другой вход закрывает предыдущую)
+• Watermark в тестах показывает ваше имя (защита от передачи аккаунта)`,
   },
   en: {
     // Header
@@ -972,6 +1048,82 @@ History helps track all your financial operations in the app.`,
 • Don't spend coins unnecessarily
 
 Plan your expenses in advance!`,
+    
+    // Premium section content
+    "help.content.premium.overview.title": "What is Premium?",
+    "help.content.premium.overview.content": `Premium is a subscription that unlocks all app features without restrictions and provides additional benefits.
+
+Premium status is displayed with a golden badge in WalletWidget and on the main page.`,
+    "help.content.premium.benefits.title": "Premium Benefits",
+    "help.content.premium.benefits.content": `With Premium subscription you get:
+
+• Unlimited access to all tests and games — no limits on number of attempts
+• Doubled rewards — +50% coins for all actions (tests, games, duels)
+• Duel Pass Premium — exclusive rewards at every Duel Pass level
+• +20% Season Points (SP) — additional progress in Duel Pass for duels
+• Ad-free — clean interface without distracting elements
+• Instant hints — quick access to explanations and hints
+• Priority support — fast responses to your questions
+• **Premium Forever** — automatic unlock of Duel Pass Premium for all future seasons
+
+Premium pays for itself in a week of active use!`,
+    "help.content.premium.plans.title": "Subscription Plans",
+    "help.content.premium.plans.content": `Three subscription options are available:
+
+• **Premium Forever** — €59.99 (one-time) 🔥
+  - Lifetime access to all Premium features
+  - Automatic unlock of Duel Pass Premium for all seasons
+  - Maximum savings for long-term use
+  - Perfect for those preparing for the exam (usually 3-4 months)
+  - Account transfer protection (device binding)
+
+• Monthly subscription — €9.99/month
+  - Full access to all features
+  - Automatic renewal
+  - Can be cancelled at any time
+
+• Annual subscription — €59.99/year (50% savings)
+  - All benefits of monthly subscription
+  - Maximum savings for annual subscription
+  - Optimal choice for active users
+
+All plans include a 3-day trial period for new users.`,
+    "help.content.premium.trial.title": "Trial Period",
+    "help.content.premium.trial.content": `New users automatically receive a 3-day Premium trial:
+
+• Full access to all Premium features
+• No payments during trial period
+• Automatic cancellation if you don't renew subscription
+• Can be cancelled at any time
+
+Use the trial period to evaluate all Premium benefits!`,
+    "help.content.premium.purchase.title": "How to Get Premium",
+    "help.content.premium.purchase.content": `You can get Premium in several ways:
+
+1. Via main page — click "Get Premium" button in hero section
+2. Via shop — open shop (WalletWidget) → "Premium" tab
+3. Via games page — Premium button in hero section
+4. Via upsell banners — appear when limits are reached
+
+After clicking the button, you will be redirected to a secure Stripe payment page.`,
+    "help.content.premium.management.title": "Subscription Management",
+    "help.content.premium.management.content": `You can manage Premium subscription through:
+
+• User profile — view status and expiration date
+• Settings — subscription information
+• Stripe dashboard — payment management and subscription cancellation
+
+**Important:**
+• Subscription automatically renews, but you can cancel it at any time
+• **Premium Forever** — one-time purchase, no renewal required
+• Premium Forever automatically unlocks Duel Pass Premium for all seasons
+• With Premium Forever you see "Premium Forever active" indicator in Duel Pass
+
+**Account Protection:**
+• Premium Forever is tied to your Telegram account
+• Up to 2 devices can use the account without verification
+• Only 1 active session at a time (another login closes the previous one)
+• Watermark in tests shows your name (account transfer protection)`,
   },
   es: {
     // Header
@@ -1458,6 +1610,82 @@ El historial ayuda a rastrear todas tus operaciones financieras en la aplicació
 • No gastes monedas innecesariamente
 
 ¡Planifica tus gastos con anticipación!`,
+    
+    // Premium section content
+    "help.content.premium.overview.title": "¿Qué es Premium?",
+    "help.content.premium.overview.content": `Premium es una suscripción que desbloquea todas las funciones de la aplicación sin restricciones y proporciona beneficios adicionales.
+
+El estado Premium se muestra con una insignia dorada en WalletWidget y en la página principal.`,
+    "help.content.premium.benefits.title": "Beneficios Premium",
+    "help.content.premium.benefits.content": `Con la suscripción Premium obtienes:
+
+• Acceso ilimitado a todas las pruebas y juegos — sin límites en número de intentos
+• Recompensas duplicadas — +50% monedas por todas las acciones (pruebas, juegos, duelos)
+• Duel Pass Premium — recompensas exclusivas en cada nivel de Duel Pass
+• +20% Season Points (SP) — progreso adicional en Duel Pass por duelos
+• Sin anuncios — interfaz limpia sin elementos distractores
+• Pistas instantáneas — acceso rápido a explicaciones y pistas
+• Soporte prioritario — respuestas rápidas a tus preguntas
+• **Premium Forever** — desbloqueo automático de Duel Pass Premium para todas las temporadas futuras
+
+¡Premium se paga solo en una semana de uso activo!`,
+    "help.content.premium.plans.title": "Planes de Suscripción",
+    "help.content.premium.plans.content": `Tres opciones de suscripción disponibles:
+
+• **Premium Forever** — €59.99 (única vez) 🔥
+  - Acceso de por vida a todas las funciones Premium
+  - Desbloqueo automático de Duel Pass Premium para todas las temporadas
+  - Ahorro máximo para uso a largo plazo
+  - Perfecto para quienes se preparan para el examen (generalmente 3-4 meses)
+  - Protección contra transferencia de cuenta (vinculación de dispositivo)
+
+• Suscripción mensual — €9.99/mes
+  - Acceso completo a todas las funciones
+  - Renovación automática
+  - Se puede cancelar en cualquier momento
+
+• Suscripción anual — €59.99/año (50% de ahorro)
+  - Todos los beneficios de la suscripción mensual
+  - Ahorro máximo para suscripción anual
+  - Opción óptima para usuarios activos
+
+Todos los planes incluyen un período de prueba de 3 días para nuevos usuarios.`,
+    "help.content.premium.trial.title": "Período de Prueba",
+    "help.content.premium.trial.content": `Los nuevos usuarios reciben automáticamente una prueba Premium de 3 días:
+
+• Acceso completo a todas las funciones Premium
+• Sin pagos durante el período de prueba
+• Cancelación automática si no renuevas la suscripción
+• Se puede cancelar en cualquier momento
+
+¡Usa el período de prueba para evaluar todos los beneficios Premium!`,
+    "help.content.premium.purchase.title": "Cómo Obtener Premium",
+    "help.content.premium.purchase.content": `Puedes obtener Premium de varias formas:
+
+1. A través de la página principal — haz clic en el botón "Obtener Premium" en la sección hero
+2. A través de la tienda — abre la tienda (WalletWidget) → pestaña "Premium"
+3. A través de la página de juegos — botón Premium en la sección hero
+4. A través de banners upsell — aparecen al alcanzar límites
+
+Después de hacer clic en el botón, serás redirigido a una página de pago segura de Stripe.`,
+    "help.content.premium.management.title": "Gestión de Suscripción",
+    "help.content.premium.management.content": `Puedes gestionar la suscripción Premium a través de:
+
+• Perfil de usuario — ver estado y fecha de expiración
+• Configuración — información de suscripción
+• Panel de Stripe — gestión de pagos y cancelación de suscripción
+
+**Importante:**
+• La suscripción se renueva automáticamente, pero puedes cancelarla en cualquier momento
+• **Premium Forever** — compra única, no requiere renovación
+• Premium Forever desbloquea automáticamente Duel Pass Premium para todas las temporadas
+• Con Premium Forever ves el indicador "Premium Forever activo" en Duel Pass
+
+**Protección de Cuenta:**
+• Premium Forever está vinculado a tu cuenta de Telegram
+• Hasta 2 dispositivos pueden usar la cuenta sin verificación
+• Solo 1 sesión activa a la vez (otro inicio cierra la anterior)
+• La marca de agua en las pruebas muestra tu nombre (protección contra transferencia de cuenta)`,
   },
 };
 
