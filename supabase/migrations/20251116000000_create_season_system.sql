@@ -213,8 +213,6 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-DECLARE
-  current_time TIMESTAMPTZ := now();
 BEGIN
   RETURN QUERY
   SELECT 
@@ -226,11 +224,11 @@ BEGIN
     s.theme,
     s.start_date,
     s.end_date,
-    GREATEST(0, EXTRACT(EPOCH FROM (s.end_date - current_time))::INTEGER / 86400)::INTEGER as days_remaining
+    GREATEST(0, EXTRACT(EPOCH FROM (s.end_date - CURRENT_TIMESTAMP))::INTEGER / 86400)::INTEGER as days_remaining
   FROM public.duel_pass_seasons s
   WHERE s.is_active = true
-    AND s.start_date <= current_time
-    AND s.end_date >= current_time
+    AND s.start_date <= CURRENT_TIMESTAMP
+    AND s.end_date >= CURRENT_TIMESTAMP
   ORDER BY s.season_number DESC
   LIMIT 1;
 END;
