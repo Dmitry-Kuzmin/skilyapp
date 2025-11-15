@@ -5,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LogIn, X, Loader2, CheckCircle2, Hash, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { useUserContext } from '@/contexts/UserContext';
-import { getHumanReadableError, extractErrorFromResponse } from '@/utils/errorMessages';
+import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { Separator } from '@/components/ui/separator';
+import { useLumiToast } from '@/hooks/useLumiToast';
 
 interface DuelJoinModalProps {
   open: boolean;
@@ -18,6 +18,7 @@ interface DuelJoinModalProps {
 
 export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProps) {
   const { profileId } = useUserContext();
+  const { showDuelJoinError, showDuelJoinSuccess, ToastContainer } = useLumiToast();
   const [code, setCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [step, setStep] = useState<'input' | 'joining' | 'success'>('input');
@@ -35,12 +36,12 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
 
   const handleJoin = async () => {
     if (!code || code.length !== 4) {
-      toast.error('Введите 4-символьный код');
+      showDuelJoinError('Code must be exactly 4 characters');
       return;
     }
 
     if (!profileId) {
-      toast.error('Загрузка профиля...');
+      showDuelJoinError('Profile not found');
       return;
     }
 
@@ -64,12 +65,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
       if (error) throw error;
 
       setStep('success');
-      
-      if (data.auto_started) {
-        toast.success('Дуэль начинается! 🎮');
-      } else {
-        toast.success('Вы присоединились! Ожидание старта...');
-      }
+      showDuelJoinSuccess(data.auto_started);
 
       setTimeout(() => {
         onDuelJoined(data.duel.id, data.duel.code);
@@ -79,9 +75,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
         onClose();
       }, 1500);
     } catch (error: any) {
-      const extractedError = extractErrorFromResponse(error);
-      const humanError = getHumanReadableError(extractedError, 'join');
-      toast.error(humanError);
+      showDuelJoinError(error);
       setStep('input');
       setIsJoining(false);
       hasAutoJoinedRef.current = false;
@@ -95,7 +89,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
       const timer = setTimeout(async () => {
         if (!code || code.length !== 4) return;
         if (!profileId) {
-          toast.error('Загрузка профиля...');
+          showDuelJoinError('Profile not found');
           return;
         }
         if (hasAutoJoinedRef.current) return;
@@ -116,12 +110,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
           if (error) throw error;
 
           setStep('success');
-          
-          if (data.auto_started) {
-            toast.success('Дуэль начинается! 🎮');
-          } else {
-            toast.success('Вы присоединились! Ожидание старта...');
-          }
+          showDuelJoinSuccess(data.auto_started);
 
           setTimeout(() => {
             onDuelJoined(data.duel.id, data.duel.code);
@@ -131,9 +120,7 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
             onClose();
           }, 1500);
         } catch (error: any) {
-          const extractedError = extractErrorFromResponse(error);
-          const humanError = getHumanReadableError(extractedError, 'join');
-          toast.error(humanError);
+          showDuelJoinError(error);
           setStep('input');
           setIsJoining(false);
           hasAutoJoinedRef.current = false;
@@ -145,8 +132,10 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
   }, [code, isJoining, step, profileId, onDuelJoined, onClose]);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] p-0 gap-0 border shadow-xl">
+    <>
+      <ToastContainer />
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[480px] p-0 gap-0 border shadow-xl">
         <AnimatePresence mode="wait">
           {step === 'input' && (
             <motion.div
@@ -333,5 +322,6 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
         </AnimatePresence>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

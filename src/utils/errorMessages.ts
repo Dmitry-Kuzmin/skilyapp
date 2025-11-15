@@ -1,5 +1,6 @@
 /**
  * Преобразует ошибки Edge Function в понятные сообщения для пользователя
+ * @deprecated Используйте getDuelJoinErrorMessage из duelNotifications.ts для дуэлей
  */
 export function getHumanReadableError(error: any, context?: string): string {
   // Если ошибка уже в человеко-читаемом формате
@@ -24,15 +25,19 @@ export function getHumanReadableError(error: any, context?: string): string {
     return 'Произошла ошибка при выполнении запроса. Пожалуйста, попробуйте еще раз.';
   }
 
-  // Ошибки связанные с дуэлями
+  // Ошибки связанные с дуэлями - используем улучшенные сообщения
+  if (context === 'join') {
+    // Для присоединения к дуэли используем специальную функцию
+    const { getDuelJoinErrorMessage } = require('./duelNotifications');
+    const extractedError = extractErrorFromResponse(error);
+    return getDuelJoinErrorMessage(extractedError).description;
+  }
+
   if (errorMessage.includes('already in this duel') || errorMessage.includes('already joined')) {
     return 'Вы уже участвуете в этой дуэли. Нельзя присоединиться к дуэли дважды.';
   }
 
   if (errorMessage.includes('not found') || errorMessage.includes('Дуэль не найдена')) {
-    if (context === 'join') {
-      return 'Дуэль с таким кодом не найдена. Проверьте код и попробуйте снова.';
-    }
     return 'Дуэль не найдена. Возможно, она была удалена или истек срок действия.';
   }
 
