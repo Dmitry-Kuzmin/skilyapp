@@ -69,7 +69,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         setRewards(rewardsData);
       }
 
-      // Получаем полученные награды
+      // Получаем полученные награды из новой системы
       const { data: claimedData } = await supabase
         .from("user_claimed_rewards")
         .select("level, is_premium")
@@ -79,6 +79,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       if (claimedData) {
         const claimed = new Set<number>();
         claimedData.forEach((item: { level: number; is_premium: boolean }) => {
+          // Если это бесплатная награда или Premium награда (и у пользователя Premium)
           if (!item.is_premium || isPremium) {
             claimed.add(item.level);
           }
