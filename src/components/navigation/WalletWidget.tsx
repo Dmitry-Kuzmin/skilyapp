@@ -62,7 +62,17 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <span className="text-xs md:text-sm font-semibold">{balance}</span>
         </Button>
 
-        {/* Duel Pass Mini Progress - скрыт на очень маленьких экранах */}
+        {/* Duel Pass Mini Progress - компактная версия на мобильных */}
+        {duelPassData && (
+          <button
+            onClick={() => setShopOpen(true)}
+            className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
+            title={`Duel Pass уровень ${duelPassData.level}`}
+          >
+            <Trophy className="w-3 h-3 text-yellow-500" />
+            <span className="text-xs font-medium text-muted-foreground">{duelPassData.level}</span>
+          </button>
+        )}
         {duelPassData && (
           <div className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
             <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
@@ -76,7 +86,12 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           </div>
         )}
 
-        {/* Premium Badge - скрыт на очень маленьких экранах */}
+        {/* Premium Badge - компактная версия на мобильных */}
+        {isPremium && (
+          <Badge className="h-6 px-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none text-xs sm:hidden">
+            <Crown className="w-3 h-3" />
+          </Badge>
+        )}
         {isPremium && (
           <Badge className="hidden sm:flex h-6 px-1 md:px-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none text-xs">
             <Crown className="w-3 h-3 mr-0.5" />
