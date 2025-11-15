@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/monetization/PaywallModal";
+import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
 import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
@@ -108,6 +111,7 @@ const TestResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profileId } = useUserContext();
+  const { isPremium } = usePremium();
   const rewardLoggedRef = useRef(false);
   useEffect(() => {
     const handleRewards = async () => {
@@ -652,6 +656,18 @@ const TestResults = () => {
                 >
                   <Clock className="w-4 h-4" />
                   <span>Tiempo: {formatTime(timeSpent)}</span>
+                </motion.div>
+              )}
+
+              {/* Micro Upsell - только для не-Premium пользователей с низким результатом */}
+              {!isPremium && percentage < 70 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65 }}
+                  className="mb-6"
+                >
+                  <TestUpsellBanner trigger="failed_tests" failedCount={incorrectCount} />
                 </motion.div>
               )}
 

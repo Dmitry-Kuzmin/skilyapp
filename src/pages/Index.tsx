@@ -1,8 +1,9 @@
-import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check, Crown } from "lucide-react";
+import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check, Crown, Star, Users, Award, Infinity } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import RankProgress from "@/components/RankProgress";
 import StatsCard from "@/components/StatsCard";
@@ -17,6 +18,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { DuelPassProgress } from "@/components/monetization/DuelPassProgress";
+import { testimonials } from "@/data/testimonials";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
@@ -313,19 +315,154 @@ const Index = () => {
     return <Landing />;
   }
 
+  // Calculate user segment for personalization
+  const getUserSegment = () => {
+    if (userStats.testsCompleted < 5) return 'beginner';
+    if (userStats.testsCompleted < 20 || userStats.accuracy < 70) return 'intermediate';
+    return 'advanced';
+  };
+
+  const userSegment = getUserSegment();
+  const progressPercent = userStats.nextRankXP > 0 
+    ? Math.min((userStats.xp / userStats.nextRankXP) * 100, 100) 
+    : 0;
+
   return (
     <>
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-        {/* Welcome Section */}
-        <div className="text-center space-y-2 py-4">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-slow">
-            Добро пожаловать в Sdadim!
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Готовься к экзамену DGT с удовольствием
-          </p>
+        {/* Compact Hero Section */}
+        <Card className="p-6 md:p-8 bg-gradient-to-br from-primary/5 via-card to-secondary/5 border-2 border-primary/20">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl md:text-3xl font-bold">
+                  {userSegment === 'beginner' && "Начни свой путь к успеху!"}
+                  {userSegment === 'intermediate' && "Ты уже на правильном пути!"}
+                  {userSegment === 'advanced' && "Продолжай совершенствоваться!"}
+                </h1>
+                {isPremium && (
+                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none">
+                    <Crown className="w-3 h-3 mr-1" />
+                    Premium
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <Target className="w-4 h-4" />
+                  <span>{userStats.testsCompleted} тестов</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Flame className="w-4 h-4 text-orange-500" />
+                  <span>{userStats.streak} дней streak</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
+                  <span>{Math.round(progressPercent)}% прогресса</span>
+                </div>
+              </div>
+            </div>
+            <Button 
+              size="lg" 
+              onClick={() => setPaywallOpen(true)}
+              className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
+            >
+              {isPremium ? "Продолжить обучение" : "Получить Premium"}
+            </Button>
+          </div>
+        </Card>
+
+        {/* Trust Badges & Social Proof */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Badge variant="outline" className="px-3 py-1.5 text-sm border-primary/30">
+              <Award className="w-4 h-4 mr-1.5 text-primary" />
+              Выбор студентов 2025
+            </Badge>
+            <Badge variant="outline" className="px-3 py-1.5 text-sm border-primary/30">
+              <Star className="w-4 h-4 mr-1.5 text-yellow-500" />
+              Лучшее приложение по ПДД
+            </Badge>
+            <Badge variant="outline" className="px-3 py-1.5 text-sm border-primary/30">
+              <Users className="w-4 h-4 mr-1.5 text-primary" />
+              120 000+ студентов
+            </Badge>
+          </div>
+
+          {/* Testimonials */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {testimonials.slice(0, 3).map((testimonial, idx) => (
+              <Card key={idx} className="p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">{testimonial.avatar}</div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-sm">{testimonial.name}</p>
+                      <div className="flex items-center gap-0.5">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                    <p className="text-xs leading-relaxed line-clamp-2">{testimonial.text}</p>
+                    <Badge variant="secondary" className="text-xs mt-1">
+                      {testimonial.highlight}
+                    </Badge>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
+
+        {/* Premium Benefits Grid */}
+        {!isPremium && (
+          <Card className="p-6 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <Crown className="w-5 h-5 text-yellow-500" />
+                  Преимущества Premium
+                </h3>
+                <Button onClick={() => setPaywallOpen(true)} size="sm">
+                  Получить Premium
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Infinity className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Безлимитный доступ</p>
+                    <p className="text-xs text-muted-foreground">Ко всем тестам и играм</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Удвоенные награды</p>
+                    <p className="text-xs text-muted-foreground">+50% монет за обучение</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Trophy className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Duel Pass Premium</p>
+                    <p className="text-xs text-muted-foreground">Эксклюзивные награды</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Sparkles className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Без рекламы</p>
+                    <p className="text-xs text-muted-foreground">Мгновенные подсказки</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Lumi Search Widget */}
         <LumiSearchWidget />

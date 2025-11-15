@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag, TrendingUp } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag, TrendingUp, Crown, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
 import { getStudiedTermsCount } from "@/lib/termProgress";
+import { usePremium } from "@/hooks/usePremium";
+import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TermProgressModal } from "@/components/TermProgressModal";
 import { BoostShopModal } from "@/components/shop/BoostShopModal";
 import { motion } from "framer-motion";
@@ -21,6 +23,8 @@ interface GamesStats {
 const Games = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
+  const { isPremium } = usePremium();
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const [stats, setStats] = useState<GamesStats>({
     gamesPlayed: 0,
     studiedTerms: 0,
@@ -232,44 +236,45 @@ const Games = () => {
   };
 
   return (
+    <>
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-        {/* Header */}
-        <div className="text-center space-y-2 relative">
-          <h1 className="text-4xl font-bold">Игры</h1>
-          <p className="text-muted-foreground text-lg">
-            Учись играя! Закрепляй термины в увлекательном формате
-          </p>
-        </div>
-
-        {/* Premium Notice */}
-        <Card className="p-4 md:p-6 gradient-card border-gold/30 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-3xl" />
-          <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
-            <div className="flex items-center gap-3 md:gap-4 flex-1">
-              <div className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-xl gradient-gold shrink-0">
-                <Swords className="w-6 h-6 md:w-7 md:h-7 text-gold-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg md:text-xl font-bold">Безлимитный доступ к играм</h3>
-                <p className="text-xs md:text-sm text-muted-foreground">
-                  В бесплатном режиме доступно 3 игры в день
+        {/* Hero Section */}
+        <Card className="p-6 md:p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-2 border-primary/20">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">Игры</h1>
+                <p className="text-muted-foreground text-lg">
+                  Учись играя! Закрепляй термины в увлекательном формате
                 </p>
               </div>
+              {!isPremium && (
+                <Button 
+                  size="lg"
+                  onClick={() => setPaywallOpen(true)}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Получить Premium
+                </Button>
+              )}
             </div>
-            <div className="flex gap-2 w-full sm:w-auto shrink-0">
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="shadow-sm w-full sm:w-auto"
-                onClick={() => setIsBoostShopOpen(true)}
-              >
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                Магазин бустов
-              </Button>
-              <Button variant="gold" size="lg" className="shadow-glow w-full sm:w-auto shrink-0">
-                Премиум за €9.99/мес
-              </Button>
+
+            {/* Game Mode Badges */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className="px-3 py-1">
+                <Swords className="w-3 h-3 mr-1" />
+                Популярно
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                <Zap className="w-3 h-3 mr-1" />
+                Хардкор
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Новинка
+              </Badge>
             </div>
           </div>
         </Card>
@@ -309,13 +314,26 @@ const Games = () => {
                   {game.description}
                 </p>
 
+                {game.premium && !isPremium && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                    <Crown className="w-3 h-3 text-yellow-500" />
+                    <span>Без лимитов с Premium</span>
+                  </div>
+                )}
+
                 <Button
                   className="w-full group-hover:shadow-primary"
                   variant={game.premium ? "outline" : "default"}
-                  onClick={() => game.route ? navigate(game.route) : null}
-                  disabled={!game.route}
+                  onClick={() => {
+                    if (game.premium && !isPremium) {
+                      setPaywallOpen(true);
+                    } else if (game.route) {
+                      navigate(game.route);
+                    }
+                  }}
+                  disabled={!game.route && !game.premium}
                 >
-                  {game.premium ? "Разблокировать" : game.route ? "Играть" : "Скоро"}
+                  {game.premium && !isPremium ? "Разблокировать Premium" : game.premium ? "Играть" : game.route ? "Играть" : "Скоро"}
                 </Button>
               </div>
             </Card>
@@ -453,6 +471,8 @@ const Games = () => {
         onOpenChange={setIsBoostShopOpen}
       />
     </Layout>
+    <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+    </>
   );
 };
 

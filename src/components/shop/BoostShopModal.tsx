@@ -3,7 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
@@ -12,6 +14,8 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
 import { motion } from 'framer-motion';
+import { PaywallModal } from '@/components/monetization/PaywallModal';
+import { usePremium } from '@/hooks/usePremium';
 
 interface BoostShopModalProps {
   open: boolean;
@@ -46,6 +50,7 @@ interface Transaction {
 
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId } = useUserContext();
+  const { isPremium } = usePremium();
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -56,6 +61,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
+  const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium'>('boosts');
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -592,17 +599,65 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         ? transactions 
                         : transactions.filter(tx => tx.category === filterCategory);
                       
-                      if (filtered.length === 0) {
-                        return (
-                          <div className="text-center py-8 text-muted-foreground text-sm">
-                            <Coins className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                            <p>Нет транзакций</p>
-                            {filterCategory !== 'all' && (
-                              <p className="text-xs mt-1">Попробуйте другой фильтр</p>
-                            )}
-                          </div>
-                        );
-                      }
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="text-center py-12 text-muted-foreground">
+                              <div className="space-y-3">
+                                {filterCategory === 'all' ? (
+                                  <>
+                                    <Coins className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Здесь появятся твои транзакции</p>
+                                      <p className="text-xs">Начни зарабатывать монеты, проходя тесты и дуэли!</p>
+                                    </div>
+                                    {!isPremium && (
+                                      <div className="pt-2">
+                                        <Badge variant="secondary" className="text-xs">
+                                          💡 Premium удваивает награды
+                                        </Badge>
+                                      </div>
+                                    )}
+                                  </>
+                                ) : filterCategory === 'earn' ? (
+                                  <>
+                                    <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет доходов</p>
+                                      <p className="text-xs">Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!</p>
+                                    </div>
+                                  </>
+                                ) : filterCategory === 'spend' ? (
+                                  <>
+                                    <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет расходов</p>
+                                      <p className="text-xs">Покупай бусты и используй их для улучшения результатов!</p>
+                                    </div>
+                                  </>
+                                ) : filterCategory === 'purchase' ? (
+                                  <>
+                                    <CreditCard className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет покупок</p>
+                                      <p className="text-xs">Пополни баланс монет или получи Premium для больше возможностей!</p>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Gift className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет наград</p>
+                                      <p className="text-xs">Получай награды за Duel Pass, рефералов и достижения!</p>
+                                    </div>
+                                  </>
+                                )}
+                                {filterCategory !== 'all' && (
+                                  <p className="text-xs mt-2 pt-2 border-t border-border/50">Попробуйте другой фильтр</p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
                       
                       return (
                         <div className="space-y-1">
@@ -670,61 +725,238 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-4 space-y-3 relative">
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)] relative">
           {isRefreshing && (
             <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
               <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
             </div>
           )}
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto"></div>
-              <p className="mt-3 text-sm text-muted-foreground">Загрузка...</p>
-            </div>
-          ) : (
-            <>
-              {/* Regular Boosts */}
-              {regularBoosts.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
-                  <div className="space-y-2">
-                    {regularBoosts.map((boost) => (
-                      <BoostCard
-                        key={boost.id}
-                        boost={boost}
-                        inventoryCount={getInventoryCount(boost.type)}
-                        coins={coins}
-                        onPurchase={() => handlePurchase(boost)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+          
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+              <TabsTrigger value="boosts" className="text-xs">
+                <Zap className="w-3 h-3 mr-1" />
+                Бусты
+              </TabsTrigger>
+              <TabsTrigger value="coins" className="text-xs">
+                <Coins className="w-3 h-3 mr-1" />
+                Монеты
+              </TabsTrigger>
+              <TabsTrigger value="premium" className="text-xs">
+                <Crown className="w-3 h-3 mr-1" />
+                Premium
+              </TabsTrigger>
+            </TabsList>
 
-              {/* Premium Boosts */}
-              {premiumBoosts.length > 0 && (
-                <div className="space-y-2 mt-4">
-                  <div className="flex items-center gap-2 px-1">
-                    <h3 className="text-sm font-semibold text-muted-foreground">Премиум бусты</h3>
-                    <Badge className="gradient-gold border-none text-xs px-1.5 py-0">Premium</Badge>
-                  </div>
-                  <div className="space-y-2">
-                    {premiumBoosts.map((boost) => (
-                      <BoostCard
-                        key={boost.id}
-                        boost={boost}
-                        inventoryCount={getInventoryCount(boost.type)}
-                        coins={coins}
-                        onPurchase={() => handlePurchase(boost)}
-                        isPremium
-                      />
-                    ))}
+            {/* Boosts Tab */}
+            <TabsContent value="boosts" className="p-4 space-y-3 mt-4">
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto"></div>
+                  <p className="mt-3 text-sm text-muted-foreground">Загрузка...</p>
+                </div>
+              ) : (
+                <>
+                  {regularBoosts.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
+                      <div className="space-y-2">
+                        {regularBoosts.map((boost) => (
+                          <BoostCard
+                            key={boost.id}
+                            boost={boost}
+                            inventoryCount={getInventoryCount(boost.type)}
+                            coins={coins}
+                            onPurchase={() => handlePurchase(boost)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {premiumBoosts.length > 0 && (
+                    <div className="space-y-2 mt-4">
+                      <div className="flex items-center gap-2 px-1">
+                        <h3 className="text-sm font-semibold text-muted-foreground">Премиум бусты</h3>
+                        <Badge className="gradient-gold border-none text-xs px-1.5 py-0">Premium</Badge>
+                      </div>
+                      <div className="space-y-2">
+                        {premiumBoosts.map((boost) => (
+                          <BoostCard
+                            key={boost.id}
+                            boost={boost}
+                            inventoryCount={getInventoryCount(boost.type)}
+                            coins={coins}
+                            onPurchase={() => handlePurchase(boost)}
+                            isPremium
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {boosts.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">Бусты скоро появятся</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* Coins Tab */}
+            <TabsContent value="coins" className="p-4 space-y-3 mt-4">
+              <div className="space-y-3">
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <Coins className="w-6 h-6 text-yellow-500" />
+                    <span className="text-2xl font-bold">{coins}</span>
                   </div>
                 </div>
-              )}
-            </>
-          )}
+
+                <div className="grid gap-3">
+                  {[
+                    { amount: 100, price: '€2.99', bonus: 0 },
+                    { amount: 500, price: '€9.99', bonus: 50 },
+                    { amount: 1200, price: '€19.99', bonus: 200 },
+                    { amount: 3000, price: '€39.99', bonus: 500 },
+                  ].map((pack, idx) => (
+                    <Card key={idx} className="p-4 hover:border-primary/50 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
+                            <Coins className="w-6 h-6 text-yellow-500" />
+                          </div>
+                          <div>
+                            <p className="font-semibold">{pack.amount} монет</p>
+                            {pack.bonus > 0 && (
+                              <Badge variant="secondary" className="text-xs mt-0.5">
+                                +{pack.bonus} бонус
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold">{pack.price}</p>
+                          <Button 
+                            size="sm" 
+                            onClick={() => {
+                              // TODO: Implement coin pack purchase
+                              toast({ title: 'Скоро', description: 'Покупка монет будет доступна через Stripe' });
+                            }}
+                            className="mt-1"
+                          >
+                            Купить
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+
+                <div className="text-center text-xs text-muted-foreground pt-2">
+                  <p>💡 Получайте больше монет с Premium</p>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Premium & Duel Pass Tab */}
+            <TabsContent value="premium" className="p-4 space-y-3 mt-4">
+              <div className="space-y-4">
+                {/* Premium Subscription */}
+                <Card className="p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Crown className="w-6 h-6 text-yellow-500" />
+                        <h3 className="text-lg font-bold">Premium подписка</h3>
+                      </div>
+                      {isPremium && (
+                        <Badge className="bg-green-500">Активна</Badge>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span>Безлимитный доступ ко всем тестам</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span>+50% монет за обучение</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span>Duel Pass Premium награды</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span>Без рекламы и мгновенные подсказки</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2">
+                      <Card className="p-3 border-primary/30">
+                        <p className="text-xs text-muted-foreground mb-1">Месяц</p>
+                        <p className="text-lg font-bold">€9.99</p>
+                        <Button 
+                          size="sm" 
+                          className="w-full mt-2"
+                          onClick={() => setPaywallOpen(true)}
+                          disabled={isPremium}
+                        >
+                          {isPremium ? 'Активна' : 'Выбрать'}
+                        </Button>
+                      </Card>
+                      <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-muted-foreground">Год</p>
+                          <Badge className="text-xs bg-yellow-500">-50%</Badge>
+                        </div>
+                        <p className="text-lg font-bold">€59.99</p>
+                        <Button 
+                          size="sm" 
+                          className="w-full mt-2 bg-gradient-to-r from-yellow-500 to-orange-500"
+                          onClick={() => setPaywallOpen(true)}
+                          disabled={isPremium}
+                        >
+                          {isPremium ? 'Активна' : 'Выбрать'}
+                        </Button>
+                      </Card>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Duel Pass */}
+                <Card className="p-5 border-2 border-primary/20">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-6 h-6 text-yellow-500" />
+                      <h3 className="text-lg font-bold">Duel Pass</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.
+                    </p>
+                    <Button 
+                      className="w-full"
+                      onClick={() => {
+                        // TODO: Navigate to Duel Pass or show Duel Pass modal
+                        toast({ title: 'Duel Pass', description: 'Откройте Duel Pass на главной странице' });
+                      }}
+                    >
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Открыть Duel Pass
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
+
+        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       </DialogContent>
     </Dialog>
   );

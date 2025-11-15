@@ -12,14 +12,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ExamReadinessCard } from "@/components/ExamReadinessCard";
 import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
+import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
+import { useCoins } from "@/hooks/useCoins";
 
 const Tests = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
   const { t } = useLanguage(); // Используем существующий LanguageContext!
   const { isPremium } = usePremium();
+  const { balance } = useCoins();
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [testAttempts, setTestAttempts] = useState(0);
+  const [failedTestsCount, setFailedTestsCount] = useState(0);
   const handleStartPath = (path: string) => {
     if (!isPremium) {
       setTestAttempts((prev) => {
@@ -255,6 +259,21 @@ const Tests = () => {
             Выбери режим и начни подготовку к экзамену
           </p>
         </div>
+
+        {/* Inline Upsell Banners - только при триггерах */}
+        {!isPremium && (
+          <>
+            {balance < 50 && (
+              <TestUpsellBanner trigger="low_coins" coins={balance} />
+            )}
+            {failedTestsCount >= 2 && (
+              <TestUpsellBanner trigger="failed_tests" failedCount={failedTestsCount} />
+            )}
+            {testAttempts >= 3 && (
+              <TestUpsellBanner trigger="attempt_limit" />
+            )}
+          </>
+        )}
 
         {/* Practice Mode Section */}
         <div className="mb-8">
