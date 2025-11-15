@@ -208,6 +208,13 @@ const Layout = ({ children }: LayoutProps) => {
         "md:hidden",
         isFullscreenMode && "hidden"
       )}>
+        {/* Mobile Wallet Widget - компактная версия для мобильных */}
+        {isAuthenticated && (
+          <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between bg-card/50">
+            <WalletWidget />
+          </div>
+        )}
+        
         <div className="grid grid-cols-5 gap-1 px-2 py-2">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
