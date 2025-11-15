@@ -749,7 +749,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsList>
 
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="p-4 space-y-3 mt-4">
+            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               {loading ? (
                 <div className="text-center py-12">
                   <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto"></div>
@@ -806,7 +806,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent value="coins" className="p-4 space-y-3 mt-4">
+            <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               <div className="space-y-3">
                 <div className="text-center py-4">
                   <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
@@ -863,15 +863,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Premium & Duel Pass Tab */}
-            <TabsContent value="premium" className="p-4 space-y-3 mt-4">
+            <TabsContent value="premium" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               <div className="space-y-4">
                 {/* Premium Subscription */}
-                <Card className="p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
+                <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Crown className="w-6 h-6 text-yellow-500" />
-                        <h3 className="text-lg font-bold">Premium подписка</h3>
+                        <Crown className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+                        <h3 className="text-base md:text-lg font-bold">Premium подписка</h3>
                       </div>
                       {isPremium && (
                         <Badge className="bg-green-500">Активна</Badge>
@@ -930,13 +930,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </Card>
 
                 {/* Duel Pass */}
-                <Card className="p-5 border-2 border-primary/20">
+                <Card className="p-4 md:p-5 border-2 border-primary/20">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Trophy className="w-6 h-6 text-yellow-500" />
-                      <h3 className="text-lg font-bold">Duel Pass</h3>
+                      <Trophy className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+                      <h3 className="text-base md:text-lg font-bold">Duel Pass</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground">
                       Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.
                     </p>
                     <Button 
