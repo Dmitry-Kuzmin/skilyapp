@@ -139,7 +139,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   };
 
-  const handleRewardClick = (reward: any) => {
+  const handleRewardClick = async (reward: any) => {
     // Если есть премиум награда и пользователь не премиум - показываем модалку
     if (reward.premium_reward && !isPremium) {
       setPremiumRewardPreview({
@@ -148,8 +148,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       });
       return;
     }
-    // Иначе получаем бесплатную награду
-    claimReward(reward.level, false);
+    
+    // Если пользователь премиум и есть обе награды - получаем обе последовательно
+    if (isPremium && reward.premium_reward) {
+      // Сначала получаем бесплатную награду (если есть и еще не получена)
+      if (reward.free_reward) {
+        await claimReward(reward.level, false);
+      }
+      // Затем получаем премиум награду
+      await claimReward(reward.level, true);
+    } else {
+      // Иначе получаем только бесплатную награду
+      await claimReward(reward.level, false);
+    }
   };
 
   const claimReward = async (level: number, isPremiumReward: boolean = false) => {
@@ -166,6 +177,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       });
 
       if (error) {
+        // Игнорируем ошибку 409 (уже получено) - это нормально при последовательном получении
+        if (error.status === 409 || error.statusCode === 409) {
+          console.log(`[DuelPassSeasonModal] Reward already claimed for level ${level}, is_premium: ${isPremiumReward}`);
+          return;
+        }
         toast.error("Ошибка при получении награды", {
           description: error.message || "Попробуйте позже",
         });
