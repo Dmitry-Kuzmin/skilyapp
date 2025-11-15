@@ -194,7 +194,25 @@ serve(async (req) => {
       .single();
 
     const hasPremiumPass = seasonProgress?.premium_pass_purchased || false;
-    const spMultiplier = (isPremium || hasPremiumPass) ? 1.2 : 1.0; // +20% для Premium
+    let spMultiplier = (isPremium || hasPremiumPass) ? 1.2 : 1.0; // +20% для Premium
+    
+    // Проверяем активный Double SP boost
+    const { data: activeBoost } = await supabase
+      .from("active_boosts")
+      .select("effect_multiplier")
+      .eq("user_id", user_id)
+      .eq("effect_type", "sp_multiplier")
+      .gt("expires_at", new Date().toISOString())
+      .order("expires_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (activeBoost && activeBoost.effect_multiplier) {
+      // Применяем множитель Double SP (например, x2)
+      spMultiplier *= parseFloat(activeBoost.effect_multiplier.toString());
+      console.log(`[season-sp] Double SP boost active: ${activeBoost.effect_multiplier}x multiplier`);
+    }
+    
     const finalSPGain = Math.round(spGain * spMultiplier);
 
     const newSP = currentSP + finalSPGain;

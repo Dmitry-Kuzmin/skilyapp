@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -324,15 +325,23 @@ export default function Duel() {
     try {
       console.log('[Duel] ⚡ Invoking join_duel with code:', code);
       
+      const requestBody: any = {
+        action: 'join_duel',
+        profile_id: profileId,
+        code: code.toUpperCase(),
+      };
+      
+      // Добавляем параметры страховки только если она включена
+      if (joinInsuranceEnabled) {
+        requestBody.insurance_enabled = true;
+        requestBody.insurance_rate = INSURANCE_RATE;
+        requestBody.insurance_coverage_rate = COVERAGE_RATE;
+      }
+      
+      console.log('[Duel] Request body:', JSON.stringify(requestBody, null, 2));
+      
       const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'join_duel',
-          profile_id: profileId,
-          code: code.toUpperCase(),
-          insurance_enabled: joinInsuranceEnabled,
-          insurance_rate: joinInsuranceEnabled ? INSURANCE_RATE : 0,
-          insurance_coverage_rate: joinInsuranceEnabled ? COVERAGE_RATE : 0,
-        },
+        body: requestBody,
       });
 
       console.log('[Duel] join_duel response:', { data, error });

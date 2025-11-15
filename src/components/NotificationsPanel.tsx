@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NotificationIcon } from './NotificationIcon';
+import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
 
 type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
 
@@ -21,6 +22,7 @@ export function NotificationsPanel() {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [filter, setFilter] = useState<NotificationFilter>('all');
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
+  const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleNotificationExpansion = (notificationId: string) => {
@@ -203,6 +205,16 @@ export function NotificationsPanel() {
                     ? 'Пока нет уведомлений' 
                     : `Нет уведомлений в категории "${filter}"`}
                 </p>
+                {filter === 'reminders' && (
+                  <Button
+                    onClick={() => setReminderModalOpen(true)}
+                    className="mt-4"
+                    size="sm"
+                  >
+                    <Clock className="w-4 h-4 mr-2" />
+                    Настроить напоминания
+                  </Button>
+                )}
               </motion.div>
             ) : (
               <motion.div
@@ -345,6 +357,9 @@ export function NotificationsPanel() {
           </AnimatePresence>
         </ScrollArea>
       </SheetContent>
+      
+      {/* Reminder Connect Modal */}
+      <ReminderConnectModal open={reminderModalOpen} onOpenChange={setReminderModalOpen} />
     </Sheet>
   );
 }

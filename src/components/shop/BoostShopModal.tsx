@@ -16,6 +16,9 @@ import { BoostCard } from './BoostCard';
 import { motion } from 'framer-motion';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
+import { ModalSkeleton } from '@/components/ui/modal-skeleton';
+import { getDialogContentClasses } from '@/lib/modal-config';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BoostShopModalProps {
   open: boolean;
@@ -51,6 +54,7 @@ interface Transaction {
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
+  const isMobile = useIsMobile();
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -491,9 +495,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const regularBoosts = boosts.filter(b => !b.is_premium);
   const premiumBoosts = boosts.filter(b => b.is_premium);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden p-0" hideCloseButton>
+  // Контент модалки с skeleton
+  const ModalContent = () => {
+    if (loading) {
+      return <ModalSkeleton variant="shop" />;
+    }
+    
+    return (
+      <>
         {showConfetti && (
           <Confetti
             width={600}
@@ -505,7 +514,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом */}
-        <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50">
+        <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
@@ -725,7 +734,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)] relative">
+        <div className="relative">
           {isRefreshing && (
             <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
               <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
@@ -750,13 +759,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
             {/* Boosts Tab */}
             <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto"></div>
-                  <p className="mt-3 text-sm text-muted-foreground">Загрузка...</p>
-                </div>
-              ) : (
-                <>
+              <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
@@ -801,8 +804,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       <p className="text-sm">Бусты скоро появятся</p>
                     </div>
                   )}
-                </>
-              )}
+              </>
             </TabsContent>
 
             {/* Coins Tab */}
@@ -955,9 +957,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
           </Tabs>
         </div>
+      </>
+    );
+  };
 
-        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-      </DialogContent>
-    </Dialog>
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className={getDialogContentClasses('shop', isMobile)} hideCloseButton>
+          <div className="flex-1 overflow-y-auto">
+            <ModalContent />
+          </div>
+        </DialogContent>
+      </Dialog>
+      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+    </>
   );
 }

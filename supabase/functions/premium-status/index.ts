@@ -27,7 +27,7 @@ serve(async (req) => {
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, premium_until, trial_until, coins")
+      .select("id, premium_until, trial_until, coins, subscription_type, subscription_status, premium_forever_purchased_at")
       .eq("id", user_id)
       .single();
 
@@ -39,25 +39,39 @@ serve(async (req) => {
     }
 
     const now = new Date();
+    
+    // Проверяем Premium Forever (lifetime)
+    const hasPremiumForever = 
+      (profile.subscription_type === 'lifetime' && profile.subscription_status === 'pro') ||
+      profile.subscription_status === 'lifetime';
+    
     const premiumUntilDate = profile.premium_until ? new Date(profile.premium_until) : null;
     const trialUntilDate = profile.trial_until ? new Date(profile.trial_until) : null;
 
-    const isPremium = !!(premiumUntilDate && premiumUntilDate > now);
-    const isTrial = !!(!isPremium && trialUntilDate && trialUntilDate > now);
-    const activeUntil = isPremium ? premiumUntilDate : isTrial ? trialUntilDate : null;
+    // Premium Forever всегда активен
+    const isPremium = hasPremiumForever || !!(premiumUntilDate && premiumUntilDate > now);
+    const isTrial = !!(!isPremium && !hasPremiumForever && trialUntilDate && trialUntilDate > now);
+    
+    // Для Premium Forever activeUntil = null (навсегда)
+    const activeUntil = hasPremiumForever ? null : (isPremium ? premiumUntilDate : isTrial ? trialUntilDate : null);
 
-    const daysRemaining = activeUntil
-      ? Math.ceil((activeUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-      : 0;
+    const daysRemaining = hasPremiumForever 
+      ? null // Premium Forever = null (навсегда)
+      : activeUntil
+        ? Math.ceil((activeUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        : 0;
 
     return new Response(
       JSON.stringify({
         success: true,
-        isPremium: isPremium || isTrial,
+        isPremium: isPremium || isTrial || hasPremiumForever,
         isTrial,
-        activeUntil,
-        daysRemaining,
+        isLifetime: hasPremiumForever,
+        activeUntil: activeUntil?.toISOString() || null,
+        daysRemaining: hasPremiumForever ? null : daysRemaining, // null = навсегда
         coins: profile.coins ?? 0,
+        subscriptionType: profile.subscription_type || null,
+        subscriptionStatus: profile.subscription_status || null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

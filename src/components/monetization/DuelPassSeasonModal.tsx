@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +16,8 @@ import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
 import { PaywallModal } from "./PaywallModal";
 import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
+import { PremiumPlanSelector } from "./PremiumPlanSelector";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { profileId } = useUserContext();
@@ -26,10 +29,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [seasonProgress, setSeasonProgress] = useState<any>(null);
   const [rewards, setRewards] = useState<any[]>([]);
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set());
+  const [claimedFreeRewards, setClaimedFreeRewards] = useState<Set<number>>(new Set());
+  const [claimedPremiumRewards, setClaimedPremiumRewards] = useState<Set<number>>(new Set());
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
   const [unlockedReward, setUnlockedReward] = useState<any | null>(null);
+  const [showPremiumSelector, setShowPremiumSelector] = useState(false);
+  const [hasPremiumForever, setHasPremiumForever] = useState(false);
+  const [hasPremiumPass, setHasPremiumPass] = useState(false);
 
   useEffect(() => {
     if (open && profileId) {
@@ -100,7 +108,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         console.error("[DuelPassSeasonModal] Progress error", progressError);
       } else if (progressData && progressData.length > 0) {
         setSeasonProgress(progressData[0]);
+        setHasPremiumPass(progressData[0].premium_pass_purchased || false);
       }
+
+      // Проверяем Premium Forever статус
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('subscription_type, subscription_status')
+        .eq('id', profileId)
+        .single();
+      
+      const isLifetime = 
+        (profileData?.subscription_type === 'lifetime' && profileData?.subscription_status === 'pro') ||
+        profileData?.subscription_status === 'lifetime';
+      
+      setHasPremiumForever(isLifetime);
 
       // Получаем награды сезона
       const { data: rewardsData, error: rewardsError } = await supabase
@@ -124,13 +146,26 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
       if (claimedData) {
         const claimed = new Set<number>();
+        const claimedFree = new Set<number>();
+        const claimedPremium = new Set<number>();
+        
         claimedData.forEach((item: { level: number; is_premium: boolean }) => {
-          // Если это бесплатная награда или Premium награда (и у пользователя Premium)
-          if (!item.is_premium || isPremium) {
+          if (!item.is_premium) {
+            // Бесплатная награда получена
+            claimedFree.add(item.level);
             claimed.add(item.level);
+          } else {
+            // Premium награда получена
+            claimedPremium.add(item.level);
+            if (isPremium) {
+              claimed.add(item.level);
+            }
           }
         });
+        
         setClaimedRewards(claimed);
+        setClaimedFreeRewards(claimedFree);
+        setClaimedPremiumRewards(claimedPremium);
       }
     } catch (error) {
       console.error("[DuelPassSeasonModal] Load error", error);
@@ -142,15 +177,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   };
 
   const handleRewardClick = async (reward: any) => {
-    // Если есть премиум награда и пользователь не премиум - показываем модалку
-    if (reward.premium_reward && !isPremium) {
-      setPremiumRewardPreview({
-        level: reward.level,
-        premium_reward: reward.premium_reward,
-      });
-      return;
-    }
-    
     // Если пользователь премиум и есть обе награды - получаем обе последовательно
     if (isPremium && reward.premium_reward) {
       // Сначала получаем бесплатную награду (если есть и еще не получена)
@@ -159,9 +185,26 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       }
       // Затем получаем премиум награду
       await claimReward(reward.level, true);
-    } else {
-      // Иначе получаем только бесплатную награду
+    } else if (reward.free_reward) {
+      // Если есть бесплатная награда - получаем её (независимо от премиум статуса)
       await claimReward(reward.level, false);
+      
+      // Если есть премиум награда и пользователь не премиум - показываем модалку после получения бесплатной
+      if (reward.premium_reward && !isPremium) {
+        // Небольшая задержка для показа анимации получения бесплатной награды
+        setTimeout(() => {
+          setPremiumRewardPreview({
+            level: reward.level,
+            premium_reward: reward.premium_reward,
+          });
+        }, 500);
+      }
+    } else if (reward.premium_reward && !isPremium) {
+      // Если есть только премиум награда и пользователь не премиум - показываем модалку
+      setPremiumRewardPreview({
+        level: reward.level,
+        premium_reward: reward.premium_reward,
+      });
     }
   };
 
@@ -241,7 +284,16 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         toast.success("Награда получена!");
       }
 
-      setClaimedRewards((prev) => new Set([...prev, level]));
+      // Обновляем локальное состояние
+      if (isPremiumReward) {
+        setClaimedPremiumRewards((prev) => new Set([...prev, level]));
+        if (isPremium) {
+          setClaimedRewards((prev) => new Set([...prev, level]));
+        }
+      } else {
+        setClaimedFreeRewards((prev) => new Set([...prev, level]));
+        setClaimedRewards((prev) => new Set([...prev, level]));
+      }
       loadSeasonData(true); // Перезагружаем данные (тихое обновление)
     } catch (err: any) {
       console.error("[DuelPassSeasonModal] Claim error", err);
@@ -249,23 +301,124 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   };
 
-  if (loading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Duel Pass</DialogTitle>
-            <DialogDescription>Загрузка данных сезона...</DialogDescription>
-          </DialogHeader>
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+  // Skeleton контент для загрузки
+  const SkeletonContent = () => (
+    <>
+      {/* Header Skeleton */}
+      {isMobile ? (
+        <SheetHeader className="px-4 pt-2 pb-4 border-b">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+        </SheetHeader>
+      ) : (
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
+        </DialogHeader>
+      )}
+
+      <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
+        {/* Progress Skeleton */}
+        <div className="space-y-3">
+          <div className="flex items-end justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+            <div className="space-y-2 text-right">
+              <Skeleton className="h-6 w-16 ml-auto" />
+              <Skeleton className="h-3 w-24 ml-auto" />
+            </div>
+          </div>
+          <Skeleton className="h-2 w-full rounded-full" />
+        </div>
+
+        {/* SP Cards Skeleton */}
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/30">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-8 w-16 rounded-lg" />
+          ))}
+        </div>
+
+        {/* Premium Pass Banner Skeleton */}
+        <Skeleton className="h-24 w-full rounded-xl" />
+
+        {/* Rewards Table Skeleton */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-32" />
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-16 rounded-lg" />
+              <Skeleton className="h-8 w-24 rounded-lg" />
+            </div>
+          </div>
+          
+          {/* Table Header Skeleton */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="grid grid-cols-5 gap-2 px-4 py-3 bg-muted/50 border-b">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-4 w-full" />
+              ))}
+            </div>
+            
+            {/* Table Rows Skeleton */}
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+              <div key={i} className="grid grid-cols-5 gap-2 px-4 py-3 border-b last:border-b-0">
+                <Skeleton className="h-8 w-8 rounded-lg" />
+                <Skeleton className="h-8 w-16 rounded-lg" />
+                <Skeleton className="h-8 w-16 rounded-lg" />
+                <Skeleton className="h-6 w-12 rounded" />
+                <Skeleton className="h-8 w-20 rounded-lg mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   if (!activeSeason || !seasonProgress) {
+    // Показываем skeleton если еще загружается, иначе показываем ошибку
+    if (loading) {
+      return (
+        <>
+          {isMobile ? (
+            <Sheet open={open} onOpenChange={onOpenChange}>
+              <SheetContent 
+                side="bottom" 
+                className="h-[90vh] max-h-[90vh] overflow-hidden flex flex-col p-0"
+              >
+                <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
+                  <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <SkeletonContent />
+                </div>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Dialog open={open} onOpenChange={onOpenChange}>
+              <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+                <div className="flex-1 overflow-y-auto">
+                  <SkeletonContent />
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </>
+      );
+    }
+    
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -315,7 +468,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   });
 
   // Общий контент модалки
-  const ModalContent = () => (
+  const ModalContent = () => {
+    // Показываем skeleton во время загрузки
+    if (loading) {
+      return <SkeletonContent />;
+    }
+    
+    return (
     <>
       {/* Упрощенный Header */}
       {isMobile ? (
@@ -438,6 +597,55 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
+        {/* Кнопка покупки Premium Pass (если не куплен) */}
+        {!hasPremiumPass && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 border-2 border-yellow-500/30 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-orange-500/5 animate-pulse" />
+            <div className="relative flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Crown className="w-5 h-5 text-yellow-500" />
+                  <h4 className="font-bold text-lg">Premium Duel Pass</h4>
+                  {hasPremiumForever && (
+                    <Badge className="bg-green-500 text-white text-xs">
+                      Бесплатно
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {hasPremiumForever 
+                    ? 'У тебя Premium Forever - Duel Pass уже открыт!'
+                    : 'Разблокируй все Premium награды и ускорь прогрессию'}
+                </p>
+              </div>
+              {!hasPremiumForever && (
+                <Button
+                  onClick={() => setShowPremiumSelector(true)}
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold shadow-lg"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Купить за 7.99€
+                </Button>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Индикатор Premium Forever */}
+        {hasPremiumForever && hasPremiumPass && (
+          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-green-500" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-green-600">Premium Forever активен</p>
+              <p className="text-xs text-muted-foreground">Duel Pass автоматически открыт для всех сезонов</p>
+            </div>
+          </div>
+        )}
+
         {/* Современная таблица наград */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -497,7 +705,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 <tbody>
                   {filteredRewards.map((reward) => {
                     const unlocked = currentLevel >= reward.level;
-                    const isClaimed = claimedRewards.has(reward.level);
                     const isCurrent = currentLevel === reward.level;
                     
                     // Проверяем наличие наград
@@ -505,20 +712,48 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
                     const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
                     
+                    // Проверяем, какие награды получены
+                    const freeClaimed = claimedFreeRewards.has(reward.level);
+                    const premiumClaimed = claimedPremiumRewards.has(reward.level);
+                    
+                    // Правильная логика: allClaimed только если уровень разблокирован И все доступные награды получены
+                    let allClaimed = false;
+                    if (unlocked) {
+                      // Проверяем бесплатную награду
+                      const freeRewardClaimed = hasFreeCoins ? freeClaimed : true; // Если нет бесплатной - считаем "полученной"
+                      
+                      // Проверяем Premium награду
+                      let premiumRewardClaimed = true;
+                      if (reward.premium_reward) {
+                        if (isPremium) {
+                          // Если пользователь Premium - Premium награда должна быть получена
+                          premiumRewardClaimed = premiumClaimed;
+                        } else {
+                          // Если пользователь НЕ Premium - Premium награда не считается (она недоступна)
+                          premiumRewardClaimed = true; // Не учитываем Premium награду для не-Premium пользователей
+                        }
+                      }
+                      
+                      allClaimed = freeRewardClaimed && premiumRewardClaimed;
+                    } else {
+                      // Уровень не разблокирован - не может быть "получен"
+                      allClaimed = false;
+                    }
+                    
                     return (
                       <tr
                         key={reward.level}
                         className={cn(
                           "border-b border-border/50 transition-all cursor-pointer group",
                           isCurrent && "bg-primary/5 border-l-4 border-l-primary",
-                          isClaimed 
+                          allClaimed 
                             ? "bg-green-500/5 hover:bg-green-500/10" 
                             : unlocked 
                             ? "hover:bg-muted/50" 
                             : "opacity-50"
                         )}
                         onClick={() => {
-                          if (unlocked && !isClaimed) {
+                          if (unlocked && !allClaimed) {
                             handleRewardClick(reward);
                           }
                         }}
@@ -530,7 +765,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                               "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold transition-all",
                               isCurrent 
                                 ? "bg-primary text-primary-foreground shadow-sm" 
-                                : isClaimed 
+                                : allClaimed 
                                 ? "bg-green-500/20 text-green-600" 
                                 : unlocked 
                                 ? "bg-muted text-foreground" 
@@ -611,7 +846,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         
                         {/* Действие */}
                         <td className="px-4 py-3 text-center">
-                          {isClaimed ? (
+                          {allClaimed ? (
                             <div className="flex items-center justify-center gap-2">
                               <CheckCircle2 className="w-5 h-5 text-green-500" />
                               <span className="text-xs font-medium text-green-600">Получено</span>
@@ -625,10 +860,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                               }}
                               className={cn(
                                 "h-8 px-4 text-xs font-medium",
-                                reward.premium_reward && !isPremium && "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
+                                // Если есть бесплатная награда и она не получена - обычная кнопка
+                                // Если бесплатная получена, но есть премиум - желтая кнопка
+                                // Если только премиум - желтая кнопка
+                                ((hasFreeCoins && freeClaimed) || !hasFreeCoins) && reward.premium_reward && !isPremium && !premiumClaimed && "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
                               )}
                             >
-                              {reward.premium_reward && !isPremium ? (
+                              {hasFreeCoins && !freeClaimed ? (
+                                "Получить"
+                              ) : reward.premium_reward && !isPremium && !premiumClaimed ? (
                                 <>
                                   <Crown className="w-3.5 h-3.5 mr-1.5" />
                                   Получить Premium
@@ -658,7 +898,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </div>
       </div>
     </>
-  );
+    );
+  };
 
   return (
     <>
@@ -738,19 +979,23 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent 
             side="bottom" 
-            className="h-[90vh] overflow-y-auto p-0"
+            className="h-[90vh] max-h-[90vh] overflow-hidden flex flex-col p-0"
           >
             {/* Handle для свайпа */}
-            <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10">
+            <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
               <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
-            <ModalContent />
+            <div className="flex-1 overflow-y-auto">
+              <ModalContent />
+            </div>
           </SheetContent>
         </Sheet>
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            <ModalContent />
+          <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+            <div className="flex-1 overflow-y-auto">
+              <ModalContent />
+            </div>
           </DialogContent>
         </Dialog>
       )}
@@ -782,6 +1027,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         reward={unlockedReward}
       />
     )}
+
+    {/* Premium Plan Selector */}
+    <PremiumPlanSelector
+      open={showPremiumSelector}
+      onOpenChange={(open) => {
+        setShowPremiumSelector(open);
+        if (!open) {
+          // Перезагружаем данные после закрытия селектора
+          loadSeasonData(true);
+        }
+      }}
+      triggerSource="duel_pass"
+    />
     </>
   );
 }

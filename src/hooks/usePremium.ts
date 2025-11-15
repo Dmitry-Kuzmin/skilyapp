@@ -5,17 +5,23 @@ import { useUserContext } from "@/contexts/UserContext";
 interface PremiumState {
   isPremium: boolean;
   isTrial: boolean;
+  isLifetime: boolean;
   activeUntil: string | null;
   daysRemaining: number;
   coins: number;
+  subscriptionType: string | null;
+  subscriptionStatus: string | null;
 }
 
 const initialState: PremiumState = {
   isPremium: false,
   isTrial: false,
+  isLifetime: false,
   activeUntil: null,
   daysRemaining: 0,
   coins: 0,
+  subscriptionType: null,
+  subscriptionStatus: null,
 };
 
 export function usePremium() {
@@ -35,9 +41,12 @@ export function usePremium() {
         setState({
           isPremium: data.isPremium,
           isTrial: data.isTrial,
+          isLifetime: data.isLifetime || false,
           activeUntil: data.activeUntil ?? null,
-          daysRemaining: data.daysRemaining ?? 0,
+          daysRemaining: data.daysRemaining === null ? 999999 : (data.daysRemaining ?? 0), // null = Premium Forever
           coins: data.coins ?? 0,
+          subscriptionType: data.subscriptionType || null,
+          subscriptionStatus: data.subscriptionStatus || null,
         });
       }
     } catch (err) {

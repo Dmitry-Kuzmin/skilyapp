@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "./UserContext";
+import { helpCenterTranslations } from "@/translations/helpCenter";
 
 export type Language = 'es' | 'en' | 'ru';
 
@@ -454,6 +455,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: string): string => {
+    // First try helpCenter translations (flat structure)
+    if (helpCenterTranslations[language] && key in helpCenterTranslations[language]) {
+      return helpCenterTranslations[language][key];
+    }
+    
+    // Then try main translations (nested structure)
     const keys = key.split('.');
     let value: any = translations[language];
     

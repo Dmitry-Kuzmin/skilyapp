@@ -18,6 +18,7 @@ import { AIWidget } from "@/components/AIWidget";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
+import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
 
 type QuestionData = {
   id: string;
@@ -2387,6 +2388,9 @@ const TestSession = () => {
         isVisible={showChallengeBankNotification}
         onClose={() => setShowChallengeBankNotification(false)}
       />
+
+      {/* Account Watermark - защита от передачи аккаунтов */}
+      <AccountWatermark variant="default" />
     </Layout>
   );
 };

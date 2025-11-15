@@ -9,6 +9,7 @@ import {
   Upload,
   LogOut,
   Bell,
+  FileUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,12 @@ const adminNavItems = [
     label: "Импорт данных",
     icon: Upload,
     path: "/admin/import",
+  },
+  {
+    id: "pdf-upload",
+    label: "Загрузка PDF",
+    icon: FileUp,
+    path: "/admin/pdf-upload",
   },
 ];
 

@@ -1616,7 +1616,23 @@ Deno.serve(async (req) => {
       }
 
       case 'join_duel': {
-        const validated = joinDuelSchema.parse(params);
+        console.log('[Duel Manager] join_duel params:', JSON.stringify(params, null, 2));
+        console.log('[Duel Manager] join_duel profileId:', profileId);
+        
+        let validated: any;
+        try {
+          validated = joinDuelSchema.parse(params);
+        } catch (validationError: any) {
+          console.error('[Duel Manager] join_duel validation error:', validationError);
+          return new Response(JSON.stringify({ 
+            error: 'Invalid request parameters',
+            details: validationError.errors || validationError.message 
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
         let { code, insurance_enabled, insurance_rate, insurance_coverage_rate, security_context } = validated;
         
         // Normalize code to uppercase and ensure it's exactly 4 characters

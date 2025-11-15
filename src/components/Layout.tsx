@@ -18,6 +18,7 @@ import { Footer } from "./Footer";
 import { WalletWidget } from "./navigation/WalletWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
+import { useSessionManager } from "@/hooks/useSessionManager";
 
 interface LayoutProps {
   children: ReactNode;
@@ -33,6 +34,9 @@ const Layout = ({ children }: LayoutProps) => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
   const mainContentRef = useRef<HTMLElement>(null);
+  
+  // Управление сессиями (только 1 активная сессия одновременно)
+  useSessionManager();
   
   // Принудительно применяем отступы при изменении isTelegramApp или при монтировании
   useEffect(() => {

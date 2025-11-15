@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Trophy, Crown, Bell } from 'lucide-react';
+import { Coins, Trophy, Crown } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { usePremium } from '@/hooks/usePremium';
 import { useCoins } from '@/hooks/useCoins';
 import { supabase } from '@/integrations/supabase/client';
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
-import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
 import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +19,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { isPremium } = usePremium();
   const { balance } = useCoins();
   const [shopOpen, setShopOpen] = useState(false);
-  const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
   const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number } | null>(null);
 
@@ -28,26 +26,81 @@ export function WalletWidget({ className }: WalletWidgetProps) {
     if (!profileId) return;
 
     const loadDuelPass = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('duel_pass_level, duel_pass_xp')
-        .eq('id', profileId)
-        .single();
+      try {
+        // Получаем активный сезон и прогресс пользователя
+        const { data: seasonData, error: seasonError } = await supabase
+          .rpc("get_active_season");
 
-      if (data) {
-        // Простой расчет прогресса (упрощенный)
-        const maxLevelXP = 3000; // Примерно для 10 уровней
-        const progress = Math.min((data.duel_pass_xp / maxLevelXP) * 100, 100);
+        if (seasonError || !seasonData || seasonData.length === 0) {
+          console.warn('[WalletWidget] No active season found');
+          return;
+        }
+
+        const activeSeason = seasonData[0];
+
+        // Получаем прогресс пользователя в сезоне
+        const { data: progressData, error: progressError } = await supabase
+          .rpc("get_or_create_season_progress", {
+            p_user_id: profileId,
+            p_season_id: activeSeason.id,
+          });
+
+        if (progressError || !progressData || progressData.length === 0) {
+          console.warn('[WalletWidget] Error loading season progress:', progressError);
+          return;
+        }
+
+        const progress = progressData[0];
+        const currentSP = progress.season_points || 0;
+        const currentLevel = progress.level || 1;
         
-        setDuelPassData({
-          level: data.duel_pass_level || 1,
-          xp: data.duel_pass_xp || 0,
-          progress
-        });
+        // Получаем награды для расчета прогресса
+        const { data: rewardsData } = await supabase
+          .from("duel_pass_season_rewards")
+          .select("level, sp_required")
+          .eq("season_id", activeSeason.id)
+          .order("level", { ascending: true });
+
+        if (rewardsData && rewardsData.length > 0) {
+          // Находим следующий уровень
+          const nextLevelReward = rewardsData.find((r: any) => r.level === currentLevel + 1);
+          const totalSPNeeded = rewardsData[rewardsData.length - 1]?.sp_required || 3000;
+          
+          // Рассчитываем прогресс до следующего уровня
+          const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
+          const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
+          const spForCurrentLevel = currentLevel > 1 
+            ? (rewardsData.find((r: any) => r.level === currentLevel)?.sp_required || 0) - 
+              (rewardsData.find((r: any) => r.level === currentLevel - 1)?.sp_required || 0)
+            : nextLevelSP;
+          
+          const progressPercent = spForCurrentLevel > 0 
+            ? Math.min(((spForCurrentLevel - spToNextLevel) / spForCurrentLevel) * 100, 100)
+            : 0;
+
+          setDuelPassData({
+            level: currentLevel,
+            xp: currentSP,
+            progress: Math.max(0, progressPercent)
+          });
+        } else {
+          // Fallback если нет наград
+          setDuelPassData({
+            level: currentLevel,
+            xp: currentSP,
+            progress: 0
+          });
+        }
+      } catch (error) {
+        console.error('[WalletWidget] Error loading Duel Pass data:', error);
       }
     };
 
     loadDuelPass();
+    
+    // Обновляем каждые 30 секунд
+    const interval = setInterval(loadDuelPass, 30000);
+    return () => clearInterval(interval);
   }, [profileId]);
 
   return (
@@ -105,20 +158,9 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           </Badge>
         )}
 
-        {/* Reminder Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setReminderModalOpen(true)}
-          className="h-8 w-8"
-          title="Напоминания"
-        >
-          <Bell className="w-3.5 h-3.5 md:w-4 md:h-4" />
-        </Button>
       </div>
 
       <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
-      <ReminderConnectModal open={reminderModalOpen} onOpenChange={setReminderModalOpen} />
       <DuelPassSeasonModal open={duelPassModalOpen} onOpenChange={setDuelPassModalOpen} />
     </>
   );

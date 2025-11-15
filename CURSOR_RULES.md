@@ -231,4 +231,62 @@ export function MyComponent() {
 
 ---
 
-**Последнее обновление:** 2025-11-04
+## 🎨 ЕДИНАЯ СИСТЕМА МОДАЛОК
+
+### ✅ ОБЯЗАТЕЛЬНО для всех модалок:
+
+**ВСЕ модалки ДОЛЖНЫ использовать единую систему skeleton анимации!**
+
+1. **Импорты**:
+```typescript
+import { ModalSkeleton } from '@/components/ui/modal-skeleton';
+import { getDialogContentClasses, getSheetContentClasses } from '@/lib/modal-config';
+import { useIsMobile } from '@/hooks/use-mobile';
+```
+
+2. **Структура**:
+```typescript
+export function MyModal({ open, onOpenChange }: MyModalProps) {
+  const isMobile = useIsMobile();
+  const [loading, setLoading] = useState(true);
+
+  // Контент модалки с skeleton
+  const ModalContent = () => {
+    if (loading) {
+      return <ModalSkeleton variant="default" />; // или "shop", "duelPass", "profile"
+    }
+    return <>{/* Ваш контент */}</>;
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={getDialogContentClasses('default', isMobile)}>
+        <div className="flex-1 overflow-y-auto">
+          <ModalContent />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+3. **Правила**:
+   - ✅ ВСЕГДА используйте `ModalContent` функцию для условного рендеринга skeleton
+   - ✅ ВСЕГДА используйте `getDialogContentClasses()` или `getSheetContentClasses()` для фиксированной высоты
+   - ✅ ВСЕГДА оборачивайте контент в `<div className="flex-1 overflow-y-auto">`
+   - ✅ НИКОГДА не используйте ранний `return` при loading - это изменит размер модалки
+   - ✅ НИКОГДА не используйте `max-h-[90vh] overflow-y-auto` на DialogContent - используйте фиксированную высоту
+
+4. **Варианты skeleton**:
+   - `default` - базовый skeleton
+   - `shop` - для магазина (табы, карточки)
+   - `duelPass` - для Duel Pass (прогресс, таблица)
+   - `profile` - для профиля (аватар, статистика)
+
+5. **Документация**: См. `MODAL_SYSTEM.md` для подробностей
+
+**ВАЖНО**: При создании НОВОЙ модалки - ВСЕГДА используйте эту систему!
+
+---
+
+**Последнее обновление:** 2025-11-15
