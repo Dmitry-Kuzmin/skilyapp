@@ -60,18 +60,18 @@ serve(async (req) => {
       // Рассчитать количество Stars (Math.round для честного округления)
       const starsAmount = Math.round(pkg.price_coins / EXCHANGE_RATE_COINS_TO_STARS);
 
-      // Минимальная сумма для Telegram Stars: 1 звезда (1000 в тысячных долях)
-      // Максимальная сумма: 10000 звезд (10000000 в тысячных долях)
-      const starsAmountInThousandths = starsAmount * 1000; // В тысячных долях звезды (1 звезда = 1000)
+      // Минимальная сумма для Telegram Stars: 1 звезда
+      // Максимальная сумма: 10000 звезд
+      // ВАЖНО: Для XTR валюта сумма указывается в ЦЕЛЫХ единицах звезд, а не в тысячных долях!
 
-      if (starsAmount <= 0 || starsAmountInThousandths < 1000) {
+      if (starsAmount <= 0 || starsAmount < 1) {
         return new Response(
           JSON.stringify({ error: 'Invalid price calculation: minimum 1 star required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      if (starsAmountInThousandths > 10000000) {
+      if (starsAmount > 10000) {
         return new Response(
           JSON.stringify({ error: 'Invalid price calculation: maximum 10000 stars allowed' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -111,7 +111,6 @@ serve(async (req) => {
 
       console.log('[Stars Payment] Invoice details:', {
         starsAmount,
-        starsAmountInThousandths,
         package_key: pkg.package_key
       });
 
@@ -119,8 +118,8 @@ serve(async (req) => {
       // Для Telegram Stars (XTR):
       // - currency: 'XTR'
       // - provider_token: пустая строка '' (обязательно для Stars)
-      // - amount в тысячных долях звезды (1 звезда = 1000)
-      // - Минимум: 1000 (1 звезда), Максимум: 10000000 (10000 звезд)
+      // - amount в ЦЕЛЫХ единицах звезд (не в тысячных долях!)
+      // - Минимум: 1 звезда, Максимум: 10000 звезд
       const invoiceResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendInvoice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -133,7 +132,7 @@ serve(async (req) => {
           currency: 'XTR', // Код валюты Telegram Stars
           prices: [{
             label: pkg.title_ru,
-            amount: starsAmountInThousandths // В тысячных долях звезды (1 звезда = 1000)
+            amount: starsAmount // В ЦЕЛЫХ единицах звезд (для XTR не нужно умножать на 1000!)
           }]
         })
       });
@@ -271,7 +270,7 @@ serve(async (req) => {
       const { 
         invoice_payload, 
         telegram_payment_charge_id,
-        total_amount, // в тысячных долях звезды
+        total_amount, // для XTR - в целых единицах звезд
         currency 
       } = params;
 
@@ -285,7 +284,8 @@ serve(async (req) => {
       console.log('[Stars Payment] Successful payment:', {
         invoice_payload,
         telegram_payment_charge_id,
-        total_amount
+        total_amount,
+        currency
       });
 
       // ПРОВЕРКА 3: Найти платеж (fraud protection)
@@ -328,11 +328,14 @@ serve(async (req) => {
       }
 
       // Проверить сумму (fraud protection)
-      const receivedStars = Math.round(total_amount / 1000); // из тысячных долей
+      // Для XTR валюта total_amount приходит в целых единицах звезд
+      const receivedStars = currency === 'XTR' ? total_amount : Math.round(total_amount / 1000);
       if (receivedStars !== payment.stars_amount) {
         console.error('[Stars Payment] Amount mismatch:', {
           expected: payment.stars_amount,
-          received: receivedStars
+          received: receivedStars,
+          total_amount,
+          currency
         });
         
         // Обновить статус как failed
@@ -344,7 +347,9 @@ serve(async (req) => {
               ...payment.metadata,
               error: 'Amount mismatch',
               expected_stars: payment.stars_amount,
-              received_stars: receivedStars
+              received_stars: receivedStars,
+              total_amount,
+              currency
             }
           })
           .eq('id', payment.id);
