@@ -100,8 +100,8 @@ export function SeasonChallengesWidget() {
         setChallenges(uniqueChallenges as Challenge[]);
 
         // Загружаем прогресс пользователя
-        if (activeChallenges.length > 0) {
-          const challengeIds = activeChallenges.map((c: any) => c.id);
+        if (uniqueChallenges.length > 0) {
+          const challengeIds = uniqueChallenges.map((c: any) => c.id);
           const { data: progressData } = await supabase
             .from("user_challenge_progress")
             .select("*")
