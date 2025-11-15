@@ -291,7 +291,14 @@ BEGIN
   IF v_progress_id IS NULL THEN
     INSERT INTO public.user_season_progress (user_id, season_id, season_points, level)
     VALUES (p_user_id, p_season_id, 0, 1)
-    RETURNING id, season_points, level INTO v_progress_id, v_season_points, v_level;
+    RETURNING 
+      user_season_progress.id, 
+      user_season_progress.season_points, 
+      user_season_progress.level 
+    INTO 
+      v_progress_id, 
+      v_season_points, 
+      v_level;
   END IF;
 
   -- Возвращаем найденный или созданный прогресс
