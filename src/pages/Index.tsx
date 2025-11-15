@@ -394,23 +394,23 @@ const Index = () => {
           </div>
 
           {/* Testimonials */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {testimonials.slice(0, 3).map((testimonial, idx) => (
-              <Card key={idx} className="p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
-                  <div className="text-2xl">{testimonial.avatar}</div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-semibold text-sm">{testimonial.name}</p>
-                      <div className="flex items-center gap-0.5">
+              <Card key={idx} className="p-3 md:p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-2 md:gap-3">
+                  <div className="text-xl md:text-2xl flex-shrink-0">{testimonial.avatar}</div>
+                  <div className="flex-1 space-y-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-semibold text-xs md:text-sm truncate">{testimonial.name}</p>
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                          <Star key={i} className="w-2.5 h-2.5 md:w-3 md:h-3 fill-yellow-500 text-yellow-500" />
                         ))}
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground">{testimonial.location}</p>
                     <p className="text-xs leading-relaxed line-clamp-2">{testimonial.text}</p>
-                    <Badge variant="secondary" className="text-xs mt-1">
+                    <Badge variant="secondary" className="text-xs mt-1 truncate max-w-full">
                       {testimonial.highlight}
                     </Badge>
                   </div>

@@ -528,7 +528,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     <History className="w-3 h-3 text-muted-foreground ml-0.5" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-96 p-0" align="end">
+                <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 p-0" align="end">
                   <div className="p-4 border-b space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="font-bold flex items-center gap-2">
