@@ -1725,7 +1725,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               'pb-0 rounded-t-2xl'
             )}
           >
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               <ModalContent />
             </div>
           </SheetContent>
@@ -1739,7 +1739,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={getDialogContentClasses('shop', isMobile)} hideCloseButton>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <ModalContent />
           </div>
         </DialogContent>

@@ -21,22 +21,24 @@ export function useOpponentScoreSync(
   
   // Обновляем начальное значение если оно изменилось
   useEffect(() => {
-    if (initialScore !== undefined && initialScore !== opponentScore) {
+    if (initialScore !== undefined && initialScore !== lastScoreRef.current) {
+      console.log('[useOpponentScoreSync] 🔄 Setting initial opponent score:', initialScore);
       setOpponentScore(initialScore);
       lastScoreRef.current = initialScore;
     }
-  }, [initialScore, opponentScore]);
+  }, [initialScore]);
 
   // Основной способ: синхронизация через Realtime
   useEffect(() => {
     if (typeof state.opponentScore === 'number' && state.opponentScore >= 0) {
-      if (state.opponentScore !== opponentScore) {
-        console.log('[useOpponentScoreSync] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
+      // Используем ref для сравнения, чтобы избежать проблем с зависимостями
+      if (state.opponentScore !== lastScoreRef.current) {
+        console.log('[useOpponentScoreSync] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', lastScoreRef.current, ')');
         setOpponentScore(state.opponentScore);
         lastScoreRef.current = state.opponentScore;
       }
     }
-  }, [state.opponentScore, opponentScore]);
+  }, [state.opponentScore]);
 
   // Fallback: периодическая проверка для мобильной версии Telegram WebApp
   useEffect(() => {

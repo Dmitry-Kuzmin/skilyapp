@@ -74,6 +74,7 @@ export function getDialogContentClasses(type: keyof typeof MODAL_CONFIG.types = 
     sizeConfig.height || MODAL_CONFIG.desktop.height,
     sizeConfig.maxHeight || MODAL_CONFIG.desktop.maxHeight,
     'overflow-hidden flex flex-col p-0',
+    'overflow-x-hidden', // Предотвращаем горизонтальный скролл
   ].filter(Boolean).join(' ');
 }
 
@@ -89,6 +90,7 @@ export function getSheetContentClasses(type: keyof typeof MODAL_CONFIG.types = '
     sizeConfig.height || MODAL_CONFIG.mobile.height,
     sizeConfig.maxHeight || MODAL_CONFIG.mobile.maxHeight,
     'overflow-hidden flex flex-col p-0',
+    'overflow-x-hidden', // Предотвращаем горизонтальный скролл
     // Убираем пустое пространство снизу
     'pb-safe',
   ].filter(Boolean).join(' ');
