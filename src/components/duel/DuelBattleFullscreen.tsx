@@ -8,6 +8,7 @@ import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useSafeArea } from '@/hooks/useSafeArea';
+import { useActiveDuel } from '@/hooks/useActiveDuel';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
