@@ -1200,30 +1200,30 @@ Premium подписка включает все преимущества, оп�
   const currentSection = activeSection ? sections.find(s => s.id === activeSection) : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white dark:bg-gray-950 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-purple-600 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-105">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-300 group-hover:scale-105">
                 <Crown className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">Sdadim</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Sdadim</span>
             </Link>
 
             {/* Search */}
             <div className="flex-1 max-w-xl mx-4 md:mx-8">
               <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-purple-500 dark:group-focus-within:text-purple-400 transition-colors" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors" />
                 <Input
                   placeholder={t("help.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-20 bg-gray-50/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-purple-300 dark:focus:border-purple-600 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200"
+                  className="pl-10 pr-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-200"
                 />
-                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm">
+                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
                   ⌘K
                 </kbd>
               </div>
@@ -1239,7 +1239,7 @@ Premium подписка включает все преимущества, оп�
           </div>
 
           {/* Navigation */}
-          <nav className="flex items-center gap-1 h-12 border-t border-gray-100 dark:border-gray-800 overflow-x-auto scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0">
+          <nav className="flex items-center gap-1 h-12 border-t border-gray-200 dark:border-gray-800 overflow-x-auto scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0 bg-gray-50/30 dark:bg-gray-900/30">
             {sections.map((section) => {
               const isActive = activeSection === section.id;
               return (
@@ -1249,7 +1249,7 @@ Premium подписка включает все преимущества, оп�
                   className={cn(
                     "h-full px-3 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap flex-shrink-0",
                     isActive
-                      ? "border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-400"
+                      ? "border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold"
                       : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                   )}
                 >
@@ -1276,14 +1276,14 @@ Premium подписка включает все преимущества, оп�
                 return (
                   <Card
                     key={section.id}
-                    className="p-6 md:p-8 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900/50"
+                    className="p-6 md:p-8 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:border-gray-300 dark:hover:border-gray-700"
                     onClick={() => scrollToSection(section.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-                        <Icon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                      <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center group-hover:scale-105 transition-transform border border-blue-100 dark:border-blue-800/40">
+                        <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
+                      <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{section.title}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{section.description}</p>
@@ -1308,13 +1308,13 @@ Premium подписка включает все преимущества, оп�
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
                           isActive
-                            ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-500"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100"
                         )}
                       >
                         <Icon className={cn(
                           "w-4 h-4 flex-shrink-0",
-                          isActive ? "text-purple-600 dark:text-purple-400" : "text-gray-400 dark:text-gray-500"
+                          isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500"
                         )} />
                         <span className="truncate">{section.title}</span>
                       </button>
@@ -1331,8 +1331,8 @@ Premium подписка включает все преимущества, оп�
                   <div className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center gap-3 mb-3">
                       {currentSection.icon && (
-                        <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                          <currentSection.icon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0 border border-blue-100 dark:border-blue-800/40">
+                          <currentSection.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                       )}
                       <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">{currentSection.title}</h1>
@@ -1379,11 +1379,11 @@ Premium подписка включает все преимущества, оп�
                                       const colCount = headerCells.length;
                                       
                                       processedLines.push(
-                                        <div key={`table-${idx}`} className="my-8 overflow-x-auto rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900/50">
+                                        <div key={`table-${idx}`} className="my-8 overflow-x-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                                           <div className="inline-block min-w-full align-middle">
                                             {/* Заголовок */}
                                             <div className={cn(
-                                              "grid gap-3 px-6 py-4 bg-gradient-to-r from-purple-50 via-purple-50/50 to-blue-50 dark:from-purple-900/30 dark:via-purple-900/20 dark:to-blue-900/30 border-b border-gray-200/50 dark:border-gray-800/50",
+                                              "grid gap-3 px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-800",
                                               colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
                                             )}>
                                               {headerCells.map((cell, cellIdx) => (
@@ -1397,7 +1397,7 @@ Premium подписка включает все преимущества, оп�
                                               const cells = row.split('|').filter(c => c.trim()).map(c => c.trim());
                                               return (
                                                 <div key={rowIdx} className={cn(
-                                                  "grid gap-3 px-6 py-4 border-b border-gray-100/50 dark:border-gray-800/50 last:border-b-0 hover:bg-gradient-to-r hover:from-purple-50/30 hover:to-blue-50/30 dark:hover:from-purple-900/20 dark:hover:to-blue-900/20 transition-all duration-200",
+                                                  "grid gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 last:border-b-0 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-200",
                                                   colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
                                                 )}>
                                                   {cells.map((cell, cellIdx) => (
@@ -1451,7 +1451,7 @@ Premium подписка включает все преимущества, оп�
                                   const text = line.replace(/^[•\-\*]\s+/, '').replace(/\*\*/g, '');
                                   processedLines.push(
                                     <div key={idx} className="flex items-start gap-2 my-2">
-                                      <ChevronRight className="w-4 h-4 text-purple-500 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                                      <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                                       <span className="text-gray-700 dark:text-gray-300 flex-1">{text}</span>
                                     </div>
                                   );
@@ -1460,7 +1460,7 @@ Premium подписка включает все преимущества, оп�
                                 
                                 // Обработка разделителей
                                 if (line.trim() === '---') {
-                                  processedLines.push(<hr key={idx} className="my-6 border-gray-200 dark:border-gray-800" />);
+                                  processedLines.push(<hr key={idx} className="my-6 border-t border-gray-200 dark:border-gray-800" />);
                                   return;
                                 }
                                 
@@ -1486,7 +1486,7 @@ Premium подписка включает все преимущества, оп�
                             <ul className="mt-4 space-y-2 list-none">
                               {subsection.items.map((item, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
-                                  <ChevronRight className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-1 flex-shrink-0" />
+                                  <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" />
                                   <span className="text-gray-700 dark:text-gray-300">{item}</span>
                                 </li>
                               ))}
@@ -1515,7 +1515,7 @@ Premium подписка включает все преимущества, оп�
                             e.preventDefault();
                             document.getElementById(sub.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                           }}
-                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         >
                           {sub.title}
                         </a>
@@ -1537,7 +1537,7 @@ Premium подписка включает все преимущества, оп�
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 transition-all"
+                  className="border border-gray-200 dark:border-gray-700 hover:border-green-600 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 transition-all"
                   onClick={() => {
                     setFeedbackHelpful(true);
                     setCurrentSectionId(activeSection || "");
@@ -1551,7 +1551,7 @@ Premium подписка включает все преимущества, оп�
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400 transition-all"
+                  className="border border-gray-200 dark:border-gray-700 hover:border-red-600 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400 transition-all"
                   onClick={() => {
                     setFeedbackHelpful(false);
                     setCurrentSectionId(activeSection || "");
