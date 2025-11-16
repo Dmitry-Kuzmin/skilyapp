@@ -213,19 +213,13 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               <Button
                 onClick={handleCopyLink}
                 variant="default"
-                size="sm"
-                className="shrink-0 bg-background text-foreground hover:bg-muted border border-border"
+                size="icon"
+                className="shrink-0 bg-background text-foreground hover:bg-muted border border-border h-8 w-8"
               >
                 {copied ? (
-                  <>
-                    <Check className="h-4 w-4 mr-2 text-green-600" />
-                    Скопировано
-                  </>
+                  <Check className="h-4 w-4 text-green-600" />
                 ) : (
-                  <>
-                    <Copy className="h-4 w-4 mr-2" />
-                    Копировать
-                  </>
+                  <Copy className="h-4 w-4" />
                 )}
               </Button>
             </div>
