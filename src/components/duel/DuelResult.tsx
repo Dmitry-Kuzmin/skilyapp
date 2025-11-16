@@ -312,7 +312,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto pt-16">
+    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto z-50">
       <div className="min-h-screen w-full max-w-2xl mx-auto px-3 py-4 pb-20 space-y-3 animate-fade-in">
       {results.isWinner && typeof window !== 'undefined' && (
         <Confetti
