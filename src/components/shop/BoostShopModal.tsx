@@ -251,15 +251,40 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     try {
       const allTransactions: Transaction[] = [];
       
-      // 1. Load new transactions table (monetization system)
-      const { data: newTransactions } = await supabase
-        .from('transactions')
-        .select('id, amount, transaction_type, metadata, created_at')
-        .eq('user_id', profileId)
-        .order('created_at', { ascending: false })
-        .limit(100);
+      // 1. Load new transactions table (monetization system) using RPC function
+      // Используем RPC функцию для обхода RLS политики (работает для Telegram пользователей)
+      const { data: newTransactions, error: transactionsError } = await supabase.rpc('get_user_transactions', {
+        p_user_id: profileId,
+        p_limit: 100
+      });
       
-      if (newTransactions) {
+      if (transactionsError) {
+        console.error('[BoostShop] Ошибка загрузки транзакций через RPC:', transactionsError);
+        // Fallback: пытаемся загрузить напрямую (может не работать для Telegram)
+        const { data: fallbackTransactions } = await supabase
+          .from('transactions')
+          .select('id, amount, transaction_type, metadata, created_at')
+          .eq('user_id', profileId)
+          .order('created_at', { ascending: false })
+          .limit(100);
+        
+        if (fallbackTransactions) {
+          fallbackTransactions.forEach(tx => {
+            const info = getTransactionInfo(tx.transaction_type, tx.metadata);
+            allTransactions.push({
+              id: tx.id,
+              amount: tx.amount,
+              type: tx.transaction_type,
+              description: info.description,
+              created_at: tx.created_at,
+              category: info.category,
+              icon: info.icon,
+              metadata: tx.metadata
+            });
+          });
+        }
+      } else if (newTransactions) {
+        console.log('[BoostShop] Загружено транзакций через RPC:', newTransactions.length);
         newTransactions.forEach(tx => {
           const info = getTransactionInfo(tx.transaction_type, tx.metadata);
           allTransactions.push({
