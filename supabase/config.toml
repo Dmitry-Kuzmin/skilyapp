@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.stars-payment-retry]
 verify_jwt = false
+
+[functions.complete-test-and-award]
+verify_jwt = true
