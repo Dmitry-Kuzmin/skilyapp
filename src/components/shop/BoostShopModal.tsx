@@ -756,7 +756,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // Создаем транзакцию для истории
       try {
-        const { error: transactionError } = await supabase
+        const { data: transactionData, error: transactionError } = await supabase
           .from('transactions')
           .insert({
             user_id: profileId,
@@ -766,16 +766,28 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               boost_type: boost.type,
               boost_name: boost.name_ru,
             }
-          });
+          })
+          .select()
+          .single();
 
         if (transactionError) {
           console.error('[BoostShop] Ошибка создания транзакции:', transactionError);
+          console.error('[BoostShop] Детали ошибки транзакции:', {
+            code: transactionError.code,
+            message: transactionError.message,
+            details: transactionError.details,
+            hint: transactionError.hint
+          });
           // Не прерываем процесс, если транзакция не создалась
         } else {
-          console.log('[BoostShop] Транзакция создана успешно');
+          console.log('[BoostShop] ✅ Транзакция создана успешно:', transactionData);
         }
-      } catch (transactionErr) {
+      } catch (transactionErr: any) {
         console.error('[BoostShop] Исключение при создании транзакции:', transactionErr);
+        console.error('[BoostShop] Детали исключения:', {
+          message: transactionErr?.message,
+          stack: transactionErr?.stack
+        });
       }
 
       // Анимации и звуки
@@ -827,10 +839,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           console.warn('[BoostShop] ⚠️ Инвентарь пуст после покупки! Перезагружаем данные...');
           await loadData();
         }
+
+        // Обновляем историю транзакций после покупки
+        console.log('[BoostShop] Обновление истории транзакций...');
+        await loadTransactionHistory();
+        console.log('[BoostShop] История транзакций обновлена');
       } catch (error) {
         console.error('[BoostShop] Ошибка обновления данных:', error);
         // При ошибке обновления все равно перезагружаем полностью
         await loadData();
+        // Также пытаемся обновить историю
+        try {
+          await loadTransactionHistory();
+        } catch (historyError) {
+          console.error('[BoostShop] Ошибка обновления истории:', historyError);
+        }
       } finally {
         setIsRefreshing(false);
       }
