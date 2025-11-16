@@ -66,12 +66,27 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             if (opponent) {
               const newScore = typeof opponent.score === 'number' ? opponent.score : undefined;
               const newCorrectCount = typeof opponent.correct_count === 'number' ? opponent.correct_count : undefined;
-              if (newScore !== undefined || newCorrectCount !== undefined) {
-                console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore);
-                setState(prev => ({ 
-                  ...prev, 
-                  opponentScore: newScore !== undefined ? newScore : prev.opponentScore,
-                  opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
+              // КРИТИЧНО: Обновляем счет только если он валидный
+              // Это предотвращает сброс счета на 0 при перезагрузке
+              if (newScore !== undefined) {
+                setState(prev => {
+                  // Не обновляем на 0, если текущий счет > 0 (защита от ошибочных обновлений)
+                  if (newScore === 0 && prev.opponentScore > 0) {
+                    console.warn('[useDuelRealtime] ⚠️ Ignoring reload to 0 (current score:', prev.opponentScore, ')');
+                    return prev;
+                  }
+                  console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore, '(was:', prev.opponentScore, ')');
+                  return {
+                    ...prev,
+                    opponentScore: newScore,
+                    opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
+                  };
+                });
+              } else if (newCorrectCount !== undefined) {
+                // Обновляем только correctCount если score невалидный
+                setState(prev => ({
+                  ...prev,
+                  opponentCorrectCount: newCorrectCount
                 }));
               }
             }
@@ -196,18 +211,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               }
             }
           } else {
-            // myPlayerId не установлен - обновляем opponentScore как fallback
-            console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, using fallback logic');
-            if (typeof updatedPlayer.score === 'number') {
-              console.log('[useDuelRealtime] ✅ Updating score (fallback):', updatedPlayer.score);
-            setState(prev => ({ 
-              ...prev, 
-                opponentScore: updatedPlayer.score,
-                opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
-                  ? updatedPlayer.correct_count 
-                  : prev.opponentCorrectCount
-            }));
-            }
+            // myPlayerId не установлен - НЕ обновляем счет, так как не можем определить соперника
+            // Это предотвращает обновление счета на 0 или неправильное значение
+            console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, skipping score update (cannot determine opponent)');
           }
         }
       )

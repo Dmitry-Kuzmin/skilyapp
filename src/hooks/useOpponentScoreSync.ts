@@ -16,20 +16,20 @@ export function useOpponentScoreSync(
 ) {
   const [opponentScore, setOpponentScore] = useState(initialScore || 0);
   const { state } = useDuelRealtime(duelId, myPlayerId);
-  const { setInterval, clearInterval } = useDuelTimers();
+  const { setTimeout: setTimeoutTimer, setInterval, clearTimeout: clearTimeoutTimer, clearInterval } = useDuelTimers();
   const lastScoreRef = useRef(initialScore || 0);
+  const hasInitializedRef = useRef(false);
   
-  // Debug: логируем изменения параметров
+  // Debug: логируем изменения параметров (без opponentScore в зависимостях чтобы избежать циклов)
   useEffect(() => {
     console.log('[useOpponentScoreSync] Hook params:', {
       duelId,
       myPlayerId,
       duelStarted,
       initialScore,
-      currentScore: opponentScore,
       realtimeScore: state.opponentScore
     });
-  }, [duelId, myPlayerId, duelStarted, initialScore, opponentScore, state.opponentScore]);
+  }, [duelId, myPlayerId, duelStarted, initialScore, state.opponentScore]);
   
   // Обновляем начальное значение если оно изменилось
   useEffect(() => {
@@ -37,6 +37,7 @@ export function useOpponentScoreSync(
       console.log('[useOpponentScoreSync] 🔄 Setting initial opponent score:', initialScore);
       setOpponentScore(initialScore);
       lastScoreRef.current = initialScore;
+      hasInitializedRef.current = true;
     }
   }, [initialScore]);
 
@@ -44,20 +45,57 @@ export function useOpponentScoreSync(
   useEffect(() => {
     // Если Realtime передал валидный счет, обновляем
     if (typeof state.opponentScore === 'number' && state.opponentScore >= 0) {
+      // КРИТИЧНО: Не обновляем на 0, если у нас уже есть счет > 0 (это может быть ошибка Realtime)
+      // Исключение: если счет действительно был сброшен (например, при новой дуэли)
+      if (state.opponentScore === 0 && lastScoreRef.current > 0 && hasInitializedRef.current) {
+        console.log('[useOpponentScoreSync] ⚠️ Ignoring Realtime score update to 0 (current score:', lastScoreRef.current, ')');
+        return;
+      }
+      
       // Используем ref для сравнения, чтобы избежать проблем с зависимостями
       if (state.opponentScore !== lastScoreRef.current) {
         console.log('[useOpponentScoreSync] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', lastScoreRef.current, ')');
         setOpponentScore(state.opponentScore);
         lastScoreRef.current = state.opponentScore;
+        hasInitializedRef.current = true;
       }
-    } 
-    // Если Realtime счет = 0, но у нас есть начальное значение > 0, используем начальное
-    else if (state.opponentScore === 0 && initialScore !== undefined && initialScore > 0 && lastScoreRef.current === 0) {
-      console.log('[useOpponentScoreSync] 🔄 Realtime score is 0, but we have initial score > 0, using initial:', initialScore);
-      setOpponentScore(initialScore);
-      lastScoreRef.current = initialScore;
     }
-  }, [state.opponentScore, initialScore]);
+  }, [state.opponentScore]);
+
+  // Немедленная проверка счета при установке myPlayerId или начале дуэли
+  useEffect(() => {
+    if (!duelId || !myPlayerId) return;
+    
+    // Немедленно проверяем счет при установке myPlayerId или начале дуэли
+    const checkScoreImmediately = async () => {
+      try {
+        const { data: players, error } = await supabase
+          .from('duel_players')
+          .select('id, score, user_id')
+          .eq('duel_id', duelId);
+        
+        if (error) {
+          console.error('[useOpponentScoreSync] Error checking opponent score (immediate):', error);
+          return;
+        }
+        
+        if (players && players.length >= 2) {
+          const opponent = players.find((p: any) => p.id !== myPlayerId);
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== lastScoreRef.current) {
+            console.log('[useOpponentScoreSync] 🔄 Immediate check: Updating opponent score:', opponent.score, '(was:', lastScoreRef.current, ')');
+            setOpponentScore(opponent.score);
+            lastScoreRef.current = opponent.score;
+          }
+        }
+      } catch (error) {
+        console.error('[useOpponentScoreSync] Exception in immediate score check:', error);
+      }
+    };
+    
+    // Небольшая задержка чтобы убедиться что данные загружены
+    const timer = setTimeoutTimer(checkScoreImmediately, 500);
+    return () => clearTimeoutTimer(timer);
+  }, [duelId, myPlayerId, duelStarted, setTimeoutTimer, clearTimeoutTimer]);
 
   // Fallback: периодическая проверка для мобильной версии Telegram WebApp
   useEffect(() => {
