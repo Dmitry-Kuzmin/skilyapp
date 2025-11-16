@@ -90,7 +90,7 @@ export function QuestionProgressBar({
         )}
 
         {/* Horizontal Progress Bar with visual indicators */}
-        <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full overflow-hidden shadow-inner border border-border/30 min-w-[60px] relative">
+        <div className="flex-1 h-2.5 sm:h-3 bg-muted/50 rounded-full shadow-inner border border-border/30 min-w-[60px] relative overflow-visible">
           {/* Progress fill */}
           <div
             className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-full transition-all duration-700 ease-out relative overflow-hidden"
@@ -101,7 +101,7 @@ export function QuestionProgressBar({
           
           {/* Visual indicators for answered questions - современные компактные индикаторы */}
           {answers.length > 0 && (
-            <div className="absolute inset-0 flex items-center">
+            <div className="absolute inset-0 flex items-center pointer-events-none">
               {answers.map((answer, idx) => {
                 // Правильный расчет позиции: центрируем индикатор на позиции вопроса
                 // Используем (idx + 0.5) для центрирования между границами сегмента
