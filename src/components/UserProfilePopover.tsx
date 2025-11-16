@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -69,57 +69,30 @@ export function UserProfilePopover() {
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [avatarError, setAvatarError] = useState<Record<string, boolean>>({});
   const isMiniApp = isTelegramMiniApp();
 
-  // Загружаем профиль сразу при монтировании, не только при открытии попапа
+  // Загружаем профиль сразу при монтировании для загрузки аватара в header
   useEffect(() => {
     if (profileId) {
       loadProfile();
     }
   }, [profileId]);
 
-  // Reset avatar error when photo_url changes
-  useEffect(() => {
-    const photoUrl = profile?.photo_url || user?.photo_url;
-    if (photoUrl && avatarError[photoUrl]) {
-      setAvatarError(prev => {
-        const newState = { ...prev };
-        delete newState[photoUrl];
-        return newState;
-      });
-    }
-  }, [profile?.photo_url, user?.photo_url]);
-
   const loadProfile = async () => {
-    if (!profileId) {
-      console.log('[UserProfilePopover] No profileId, skipping load');
-      return;
-    }
+    if (!profileId) return;
 
     try {
       setLoading(true);
-      console.log('[UserProfilePopover] Loading profile for profileId:', profileId);
       const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', profileId)
-      .single();
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
 
-      if (error) {
-        console.error('[UserProfilePopover] Error loading profile:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       if (data) {
-        console.log('[UserProfilePopover] Profile loaded:', { 
-          id: data.id, 
-          photo_url: data.photo_url,
-          first_name: data.first_name 
-        });
         setProfile(data);
-      } else {
-        console.warn('[UserProfilePopover] No profile data returned');
       }
     } catch (error) {
       console.error('[UserProfilePopover] Failed to load profile:', error);
@@ -146,7 +119,7 @@ export function UserProfilePopover() {
 
   const handleLanguageChange = async (lang: 'ru' | 'en' | 'es') => {
     setLanguage(lang);
-
+    
     if (profileId) {
       await supabase
         .from('profiles')
@@ -170,43 +143,34 @@ export function UserProfilePopover() {
             className="relative group z-10"
             style={{ pointerEvents: 'auto' }}
           >
-          <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
-            {(() => {
-              const photoUrl = profile?.photo_url || user?.photo_url;
-              const hasError = photoUrl ? (avatarError[photoUrl] || false) : false;
-              
-              // Логирование для отладки
-              if (photoUrl && !hasError) {
-                console.log('[UserProfilePopover] Rendering avatar image:', photoUrl);
-                return (
-                  <AvatarImage 
-                    src={photoUrl}
-                    alt={profile?.first_name || user?.first_name || 'User'}
-                    onError={() => {
-                      console.error('[UserProfilePopover] Avatar image failed to load:', photoUrl);
-                      if (photoUrl) {
-                        setAvatarError(prev => ({ ...prev, [photoUrl]: true }));
-                      }
-                    }}
-                    onLoad={() => {
-                      console.log('[UserProfilePopover] Avatar image loaded successfully:', photoUrl);
-                    }}
-                  />
-                );
-              } else {
-                console.log('[UserProfilePopover] No avatar image - photoUrl:', photoUrl, 'hasError:', hasError);
-              }
-              return null;
-            })()}
-            <AvatarFallback 
-              className="text-white font-bold text-sm"
-              style={{ backgroundColor: avatarColor }}
-            >
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
-        </button>
+             <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
+               {(() => {
+                 const photoUrl = profile?.photo_url || user?.photo_url;
+                 // Показываем изображение только если есть URL
+                 if (photoUrl) {
+                   return (
+                     <AvatarImage 
+                       src={photoUrl} 
+                       alt={profile?.first_name || user?.first_name || 'User'}
+                       onError={(e) => {
+                         // При ошибке загрузки скрываем изображение, показывается fallback
+                         console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
+                         e.currentTarget.style.display = 'none';
+                       }}
+                     />
+                   );
+                 }
+                 return null;
+               })()}
+               <AvatarFallback 
+                 className="text-white font-bold text-sm"
+                 style={{ backgroundColor: avatarColor }}
+               >
+                 {initials}
+               </AvatarFallback>
+             </Avatar>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+          </button>
         </PopoverTrigger>
         <PopoverContent 
           className="w-80 p-0" 
@@ -223,25 +187,7 @@ export function UserProfilePopover() {
               className="w-full flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
             >
               <Avatar className="h-10 w-10">
-                {(() => {
-                  const photoUrl = profile?.photo_url || user?.photo_url;
-                  const hasError = photoUrl ? (avatarError[photoUrl] || false) : false;
-                  
-                  if (photoUrl && !hasError) {
-                    return (
-                      <AvatarImage 
-                        src={photoUrl}
-                        alt={profile?.first_name || user?.first_name || 'User'}
-                        onError={() => {
-                          if (photoUrl) {
-                            setAvatarError(prev => ({ ...prev, [photoUrl]: true }));
-                          }
-                        }}
-                      />
-                    );
-                  }
-                  return null;
-                })()}
+                <AvatarImage src={profile?.photo_url || user?.photo_url} />
                 <AvatarFallback 
                   className="text-white font-bold text-sm"
                   style={{ backgroundColor: avatarColor }}
@@ -275,7 +221,7 @@ export function UserProfilePopover() {
                 <Zap className="h-3 w-3 text-primary" />
                 Experience points
               </p>
-        </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-2">
@@ -301,17 +247,17 @@ export function UserProfilePopover() {
                 <Sparkles className="h-4 w-4 mr-1" />
                 Inventory
               </Button>
-                <Button
-                  variant="outline"
+              <Button
+                variant="outline"
                 className="h-9 text-sm"
                 onClick={() => {
                   setOpen(false);
                   setReferralModalOpen(true);
                 }}
-                >
+              >
                 <Gift className="h-4 w-4 mr-1" />
                 Invite
-                </Button>
+              </Button>
             </div>
 
             {/* Subscription Status */}
@@ -322,7 +268,7 @@ export function UserProfilePopover() {
               </div>
             )}
 
-          <Separator />
+            <Separator />
 
             {/* Edit Profile */}
             <button
@@ -432,7 +378,7 @@ export function UserProfilePopover() {
                     Light
                   </DropdownMenuItem>
                   <DropdownMenuItem
-              onClick={() => {
+                    onClick={() => {
                       setTheme('dark');
                       if (profileId) {
                         supabase
@@ -446,14 +392,14 @@ export function UserProfilePopover() {
                           .eq('id', profileId);
                       }
                       toast.success('Тема изменена');
-              }}
+                    }}
                     className={theme === 'dark' ? 'bg-accent' : ''}
-            >
+                  >
                     <Moon className="h-4 w-4 mr-2" />
                     Dark
                   </DropdownMenuItem>
                   <DropdownMenuItem
-              onClick={() => {
+                    onClick={() => {
                       setTheme('system');
                       if (profileId) {
                         supabase
@@ -467,29 +413,29 @@ export function UserProfilePopover() {
                           .eq('id', profileId);
                       }
                       toast.success('Тема изменена');
-              }}
+                    }}
                     className={theme === 'system' ? 'bg-accent' : ''}
-            >
+                  >
                     <Settings className="h-4 w-4 mr-2" />
                     System
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-          </div>
+            </div>
 
             {/* Sign Out - только для веб */}
-          {!isMiniApp && (
-            <>
-              <Separator />
+            {!isMiniApp && (
+              <>
+                <Separator />
                 <button
-                onClick={handleLogout}
+                  onClick={handleLogout}
                   className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-destructive/10 transition-colors text-sm text-destructive"
-              >
+                >
                   <LogOut className="h-4 w-4" />
                   <span>{t('logout') || 'Sign out'}</span>
                 </button>
-            </>
-          )}
+              </>
+            )}
           </div>
         </PopoverContent>
       </Popover>

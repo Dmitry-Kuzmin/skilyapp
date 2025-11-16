@@ -194,11 +194,11 @@ const Layout = ({ children }: LayoutProps) => {
                 </>
               )}
               <div className="flex-shrink-0">
-              <NotificationsPanel />
+                <NotificationsPanel />
               </div>
               {isAuthenticated ? (
                 <div className="flex-shrink-0">
-                <UserProfilePopover />
+                  <UserProfilePopover />
                 </div>
               ) : (
                 <Button 
