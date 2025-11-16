@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check } from 'lucide-react';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
@@ -52,9 +52,10 @@ interface Transaction {
 }
 
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
-  const { profileId } = useUserContext();
+  const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
+  const isTelegram = platform === 'telegram';
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -329,6 +330,134 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
   };
 
+  const handleCoinPurchaseStars = async (catalogKey: string, coinsAmount: number) => {
+    if (!profileId || !isTelegram) {
+      toast({
+        title: '❌ Ошибка',
+        description: 'Telegram Stars доступны только в Telegram Web App',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const webApp = window.Telegram?.WebApp;
+    if (!webApp) {
+      toast({
+        title: '❌ Ошибка',
+        description: 'Telegram WebApp не найден',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Маппинг catalog_key на package_key для Telegram Stars
+      const packageKeyMap: Record<string, string> = {
+        'coins_pack_100': 'coins_100',
+        'coins_pack_500': 'coins_500',
+        'coins_pack_1200': 'coins_1200',
+        'coins_pack_3000': 'coins_3000',
+      };
+
+      const packageKey = packageKeyMap[catalogKey];
+      if (!packageKey) {
+        toast({
+          title: '❌ Ошибка',
+          description: 'Неизвестный пакет монет',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const telegramUserId = webApp.initDataUnsafe?.user?.id;
+      if (!telegramUserId) {
+        toast({
+          title: '❌ Ошибка',
+          description: 'Не удалось получить ID пользователя Telegram',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      console.log("[BoostShop] Creating Telegram Stars invoice:", { profileId, packageKey, telegramUserId });
+
+      const { data, error } = await supabase.functions.invoke("telegram-stars-payment", {
+        body: {
+          action: 'create_invoice',
+          user_id: profileId,
+          package_key: packageKey,
+          telegram_user_id: telegramUserId,
+        },
+      });
+
+      if (error) {
+        console.error("[BoostShop] Stars payment error:", error);
+        toast({
+          title: '❌ Ошибка',
+          description: error.message || 'Не удалось создать invoice',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (data?.error) {
+        console.error("[BoostShop] Error in Stars response:", data);
+        toast({
+          title: '❌ Ошибка',
+          description: data.error || 'Ошибка создания invoice',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!data?.invoice_link) {
+        console.error("[BoostShop] No invoice_link in response:", data);
+        toast({
+          title: '❌ Ошибка',
+          description: 'Не удалось получить ссылку на оплату',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Открываем invoice через Telegram WebApp
+      webApp.openInvoice(data.invoice_link, (status: string) => {
+        console.log("[BoostShop] Invoice status:", status);
+        if (status === 'paid') {
+          // Обновляем данные после успешной оплаты
+          setTimeout(async () => {
+            await loadData();
+            toast({
+              title: '✅ Покупка успешна!',
+              description: `Вы получили ${coinsAmount} монет`,
+              duration: 5000,
+            });
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+          }, 2000);
+        } else if (status === 'cancelled') {
+          toast({
+            title: 'ℹ️ Оплата отменена',
+            description: 'Вы можете попробовать снова в любое время',
+          });
+        } else if (status === 'failed') {
+          toast({
+            title: '❌ Ошибка оплаты',
+            description: 'Попробуйте позже или используйте другой способ оплаты',
+            variant: 'destructive',
+          });
+        }
+      });
+    } catch (err: any) {
+      console.error("[BoostShop] Stars purchase error:", err);
+      toast({
+        title: '❌ Ошибка',
+        description: err?.message || 'Произошла ошибка при создании покупки',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleCoinPurchase = async (catalogKey: string) => {
     if (!profileId) {
       toast({
@@ -336,6 +465,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         description: 'Необходимо войти в систему',
         variant: 'destructive',
       });
+      return;
+    }
+
+    // Если Telegram, используем Stars
+    if (isTelegram) {
+      const coinsMap: Record<string, number> = {
+        'coins_pack_100': 100,
+        'coins_pack_500': 550,
+        'coins_pack_1200': 1400,
+        'coins_pack_3000': 3500,
+      };
+      const coinsAmount = coinsMap[catalogKey] || 0;
+      await handleCoinPurchaseStars(catalogKey, coinsAmount);
       return;
     }
 
@@ -488,18 +630,43 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   console.error("[BoostShop] Error processing purchase:", processError);
                 } else if (processData?.success) {
                   console.log("[BoostShop] Purchase processed successfully:", processData);
+                  
+                  // Получаем актуальный баланс после обработки
+                  const { data: updatedProfile } = await supabase
+                    .from('profiles')
+                    .select('coins')
+                    .eq('id', profileId)
+                    .single();
+                  
                   await loadData(); // Обновляем баланс
                   
+                  // Используем coins_added из ответа или вычисляем из metadata
                   const coinsAmount = processData.coins_added || lastPurchase.metadata?.coins || 0;
+                  
                   if (coinsAmount > 0) {
                     toast({
                       title: '✅ Покупка успешна!',
-                      description: `Вы получили ${coinsAmount} монет`,
-                      duration: 5000,
+                      description: `Вы получили ${coinsAmount} монет. Баланс: ${updatedProfile?.coins || coins} монет`,
+                      duration: 6000,
                     });
                     setShowConfetti(true);
                     setTimeout(() => setShowConfetti(false), 3000);
                     return true;
+                  } else {
+                    // Если coins_added не указан, но покупка успешна, проверяем баланс
+                    const oldCoins = coins;
+                    const newCoins = updatedProfile?.coins || coins;
+                    if (newCoins > oldCoins) {
+                      const actualCoinsAdded = newCoins - oldCoins;
+                      toast({
+                        title: '✅ Покупка успешна!',
+                        description: `Вы получили ${actualCoinsAdded} монет. Баланс: ${newCoins} монет`,
+                        duration: 6000,
+                      });
+                      setShowConfetti(true);
+                      setTimeout(() => setShowConfetti(false), 3000);
+                      return true;
+                    }
                   }
                 }
               } catch (processErr) {
@@ -1101,7 +1268,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             className="mt-1"
                             disabled={!profileId}
                           >
-                            Купить
+                            {isTelegram ? (
+                              <>
+                                <Star className="w-3 h-3 mr-1" />
+                                Stars
+                              </>
+                            ) : (
+                              'Купить'
+                            )}
                           </Button>
                         </div>
                       </div>

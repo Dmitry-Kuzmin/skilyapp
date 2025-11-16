@@ -150,7 +150,17 @@ serve(async (req) => {
       if (coins > 0) {
         console.log(`[process-purchase] Adding ${coins} coins to user ${userId}`);
         
-        const { error: incrementError } = await supabase.rpc("increment_profile_value", {
+        // Проверяем текущий баланс перед начислением
+        const { data: profileBefore } = await supabase
+          .from("profiles")
+          .select("coins")
+          .eq("id", userId)
+          .single();
+        
+        const coinsBefore = profileBefore?.coins || 0;
+        console.log(`[process-purchase] User ${userId} coins before: ${coinsBefore}`);
+
+        const { data: incrementResult, error: incrementError } = await supabase.rpc("increment_profile_value", {
           p_profile_id: userId,
           p_column: "coins",
           p_amount: coins,
@@ -162,6 +172,35 @@ serve(async (req) => {
             JSON.stringify({ error: "Failed to add coins", details: incrementError.message }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
+        }
+
+        // Проверяем баланс после начисления
+        const { data: profileAfter } = await supabase
+          .from("profiles")
+          .select("coins")
+          .eq("id", userId)
+          .single();
+        
+        const coinsAfter = profileAfter?.coins || 0;
+        console.log(`[process-purchase] User ${userId} coins after: ${coinsAfter} (expected: ${coinsBefore + coins})`);
+
+        if (coinsAfter < coinsBefore + coins) {
+          console.error(`[process-purchase] ⚠️ Coins not added correctly! Before: ${coinsBefore}, After: ${coinsAfter}, Expected: ${coinsBefore + coins}`);
+          // Пытаемся начислить вручную через UPDATE
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ coins: coinsBefore + coins })
+            .eq("id", userId);
+          
+          if (updateError) {
+            console.error(`[process-purchase] Failed to fix coins manually:`, updateError);
+            return new Response(
+              JSON.stringify({ error: "Failed to add coins", details: "RPC and manual update both failed" }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          
+          console.log(`[process-purchase] ✅ Fixed coins manually: ${coinsBefore} → ${coinsBefore + coins}`);
         }
 
         await supabase.from("transactions").insert({
@@ -177,11 +216,22 @@ serve(async (req) => {
         
         console.log(`[process-purchase] ✅ Successfully added ${coins} coins to user ${userId}`);
         
+        // Получаем финальный баланс для подтверждения
+        const { data: finalProfile } = await supabase
+          .from("profiles")
+          .select("coins")
+          .eq("id", userId)
+          .single();
+        
+        const finalCoins = finalProfile?.coins || 0;
+        
         return new Response(
           JSON.stringify({ 
             success: true, 
             message: `Added ${coins} coins`,
-            coins_added: coins
+            coins_added: coins,
+            coins_before: coinsBefore,
+            coins_after: finalCoins
           }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
