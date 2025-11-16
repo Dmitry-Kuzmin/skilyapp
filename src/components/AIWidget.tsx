@@ -327,13 +327,13 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       }}
     >
       {/* Header - чистый стиль как у Officer Frank */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-border/50 shrink-0 bg-background">
-        <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative overflow-hidden">
+      <div className="flex items-center justify-between px-4 xl:px-5 py-3 xl:py-4 border-b border-border/50 shrink-0 bg-background">
+        <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
+          <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md relative overflow-hidden shrink-0">
             <LumiCharacter size="md" mood="happy" animate className="scale-75" />
           </div>
-          <div>
-            <h3 className="font-bold text-base text-foreground">
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm xl:text-base text-foreground truncate">
               {interfaceLanguage === 'ru' ? t('lumiGreeting') : 
                interfaceLanguage === 'en' ? 'Hello! I\'m Lumi 💡' : 
                '¡Hola! Soy Lumi 💡'}
@@ -343,20 +343,20 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+          className="h-7 w-7 xl:h-8 xl:w-8 shrink-0 text-muted-foreground hover:text-foreground"
           onClick={() => setIsExpanded(!isExpanded)}
           title={isExpanded ? (interfaceLanguage === 'ru' ? t('lumiCollapse') : interfaceLanguage === 'en' ? 'Collapse' : 'Contraer') : (interfaceLanguage === 'ru' ? t('lumiExpand') : interfaceLanguage === 'en' ? 'Expand' : 'Expandir')}
         >
-          {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
         </Button>
       </div>
 
       {/* Messages Area - фиксированная высота с скроллом */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 scroll-smooth min-h-0">
+      <div className="flex-1 overflow-y-auto p-4 xl:p-5 space-y-3 xl:space-y-4 scroll-smooth min-h-0">
         {messages.length === 0 ? (
-          <div className="space-y-5">
+          <div className="space-y-4 xl:space-y-5">
             {/* Welcome Message */}
-            <div className="text-foreground text-sm leading-relaxed">
+            <div className="text-foreground text-xs xl:text-sm leading-relaxed">
               <p>
                 {interfaceLanguage === 'ru' ? t('lumiWelcome') : 
                  interfaceLanguage === 'en' ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!' : 
@@ -365,10 +365,10 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             </div>
 
             {/* Quick Action Buttons */}
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2 xl:gap-2.5">
               <Button
                 variant="outline"
-                className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
+                className="h-auto py-2 xl:py-2.5 px-2.5 xl:px-3 text-[10px] xl:text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg whitespace-normal break-words"
                 onClick={() => {
                   // "Дай мне подсказку" - запрашиваем подсказку у AI (не правильный ответ)
                   const hintPrompt = interfaceLanguage === 'ru' 
@@ -386,7 +386,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
               </Button>
               <Button
                 variant="outline"
-                className="h-auto py-2.5 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg"
+                className="h-auto py-2 xl:py-2.5 px-2.5 xl:px-3 text-[10px] xl:text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 dark:text-blue-400 dark:hover:bg-blue-950/20 dark:border-blue-800 dark:hover:border-blue-700 rounded-lg whitespace-normal break-words"
                 onClick={() => {
                   // "Помоги понять" - показываем explanation из БД, если есть
                   if (explanation) {
@@ -412,21 +412,21 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
             <div key={index}>
               {message.role === "user" && (
                 <div className="flex justify-end">
-                  <div className="max-w-[80%] bg-blue-600 text-white rounded-2xl px-4 py-2.5 shadow-sm">
-                    <div className="text-sm leading-relaxed">
+                  <div className="max-w-[85%] xl:max-w-[80%] bg-blue-600 text-white rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-2.5 shadow-sm">
+                    <div className="text-xs xl:text-sm leading-relaxed break-words">
                       {message.content}
                     </div>
                   </div>
                 </div>
               )}
               {message.role === "assistant" && (
-                <div className="flex gap-3 items-start">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
+                <div className="flex gap-2 xl:gap-3 items-start">
+                  <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 shadow-sm">
                     <LumiCharacter size="sm" mood="happy" className="scale-75" />
                   </div>
-                  <div className="flex-1 min-w-0 mt-1">
+                  <div className="flex-1 min-w-0 mt-0.5 xl:mt-1">
                     {message.content ? (
-                      <div className="text-sm leading-relaxed text-foreground prose prose-sm max-w-none dark:prose-invert">
+                      <div className="text-xs xl:text-sm leading-relaxed text-foreground prose prose-sm max-w-none dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {message.content}
                         </ReactMarkdown>
@@ -506,33 +506,33 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
       </div>
 
       {/* Input Area - стиль Officer Frank */}
-      <div className="p-4 border-t border-border/50 shrink-0 bg-background">
+      <div className="p-3 xl:p-4 border-t border-border/50 shrink-0 bg-background">
         <form onSubmit={handleSubmit} className="relative">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
-            className="w-full h-12 pr-20 pl-4 text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background"
+            className="w-full h-10 xl:h-12 pr-16 xl:pr-20 pl-3 xl:pl-4 text-xs xl:text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background"
             disabled={isLoading}
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          <div className="absolute right-1.5 xl:right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 xl:gap-2">
             <Button
               type="button"
               size="icon"
               variant="ghost"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+              className="h-7 w-7 xl:h-8 xl:w-8 text-muted-foreground hover:text-foreground shrink-0"
               disabled={isLoading}
               title="Голосовой ввод"
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-3.5 w-3.5 xl:h-4 xl:w-4" />
             </Button>
             <Button
               type="submit"
               size="icon"
               disabled={!input.trim() || isLoading}
-              className="h-8 w-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white shrink-0 shadow-sm"
+              className="h-7 w-7 xl:h-8 xl:w-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white shrink-0 shadow-sm"
             >
-              <Send className="h-3.5 w-3.5" />
+              <Send className="h-3 w-3 xl:h-3.5 xl:w-3.5" />
             </Button>
           </div>
         </form>
