@@ -95,3 +95,4 @@ EXECUTE FUNCTION auto_unlock_duel_pass_for_premium();
 
 COMMENT ON FUNCTION has_premium_forever(UUID) IS 'Проверяет, имеет ли пользователь Premium Forever подписку. Premium Forever активен ТОЛЬКО если premium_forever_purchased_at установлен И subscription_type = lifetime И subscription_status = pro';
 
+

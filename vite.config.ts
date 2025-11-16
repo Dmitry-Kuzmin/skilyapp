@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => ({
       "unlogical-despairful-stuart.ngrok-free.dev",
       ".trycloudflare.com", // Cloudflare Tunnel
       ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
+      ".loca.lt", // Localtunnel
     ],
     // Оптимизация для быстрой загрузки
     hmr: {
