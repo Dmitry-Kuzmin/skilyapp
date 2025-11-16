@@ -21,8 +21,7 @@ import {
   Users,
   Bell,
   ShoppingBag,
-  Palette,
-  Scale
+  Palette
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -38,8 +37,6 @@ const getTranslatedDuelEconomySubsections = (getTranslatedContent: (key: string,
 };
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useUserContext } from "@/contexts/UserContext";
-import { HelpFeedbackModal } from "@/components/HelpFeedbackModal";
 
 interface Section {
   id: string;
@@ -58,14 +55,9 @@ interface Subsection {
 
 const HelpCenter = () => {
   const { t, language } = useLanguage();
-  const { user } = useUserContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(true);
-  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
-  const [feedbackHelpful, setFeedbackHelpful] = useState<boolean | null>(null);
-  const [currentSectionId, setCurrentSectionId] = useState<string>("");
-  const [currentSubsectionId, setCurrentSubsectionId] = useState<string | undefined>(undefined);
   
   // Функция для получения переведенного контента с fallback на русский
   const getTranslatedContent = (key: string, fallback: string): string => {
@@ -126,7 +118,7 @@ const HelpCenter = () => {
           content: getTranslatedContent("help.content.appUsage.tests.content", `В приложении доступно несколько типов тестов:
 
 • Обычные тесты — выберите тему и количество вопросов (10, 20, 30)
-• Экзаменационные тесты — полный экзамен на 30 вопросов с таймером (максимум 3 ошибки для сдачи)
+• Экзаменационные тесты — полный экзамен на 30 вопросов с таймером
 • Последовательные тесты — тесты по порядку из базы DGT
 • Банк вызовов — сложные вопросы, которые вызывают затруднения
 
@@ -135,18 +127,7 @@ const HelpCenter = () => {
 • Используйте кнопку перевода для просмотра вопроса на русском
 • Добавляйте вопросы в закладки для повторения
 • Используйте AI-объяснение для понимания сложных тем
-• Отмечайте проблемные вопросы для улучшения качества
-
-**После завершения теста:**
-• Вы увидите результаты с процентом правильных ответов
-• Награды (монеты и SP) начисляются автоматически
-• Можно посмотреть детальную информацию о расчете наград (кнопка "Подробнее")
-• Если применено снижение наград — можно обратиться в поддержку (кнопка "Поддержка")
-
-**Стандарты DGT для экзамена:**
-• Экзаменационные и последовательные тесты: минимум 90% правильных ответов (максимум 10% ошибок)
-• Для 30 вопросов это означает максимум 3 ошибки
-• Practice режим: более мягкие требования (80% правильных ответов)`)
+• Отмечайте проблемные вопросы для улучшения качества`)
         },
         {
           id: "app-games",
@@ -298,127 +279,6 @@ const HelpCenter = () => {
 • Чем больше друзей вы пригласите, тем больше наград
 
 Делитесь своей реферальной ссылкой и помогайте друзьям готовиться к экзамену!`)
-        },
-        {
-          id: "rewards-tests",
-          title: "Награды за тесты",
-          content: `За прохождение тестов вы получаете монеты и Season Points (SP):
-
-**Монеты за тесты:**
-• Базовое количество зависит от результата теста (score)
-• Чем больше правильных ответов, тем больше монет
-• Минимум: 1 монета, максимум: зависит от количества вопросов
-• Premium пользователи получают +50% монет (x1.5)
-
-**Season Points (SP) за тесты:**
-• SP начисляются за каждый завершенный тест
-• Количество зависит от результата (score) и количества вопросов
-• Premium пользователи получают +20% SP (x1.2)
-• Double SP Boost удваивает SP за дуэли (не применяется к тестам)
-
-**Факторы, влияющие на награды:**
-• Количество вопросов в тесте
-• Процент правильных ответов (score)
-• Premium статус (+50% монет, +20% SP)
-• Double SP Boost (только для дуэлей)
-
-**Детальная информация:**
-После завершения теста вы можете нажать кнопку "Подробнее" рядом с наградами, чтобы увидеть:
-• Базовые значения монет и SP
-• Примененные множители (Premium, Double SP)
-• Информацию о балансировке наград (если применялась)
-• Итоговые награды`
-        },
-        {
-          id: "rewards-balancing",
-          title: "Балансировка наград",
-          content: `Система автоматически балансирует награды для поддержания справедливости:
-
-**Снижение за частые тесты (Diminishing Returns):**
-• Если вы проходите много тестов подряд, награды могут немного снижаться
-• Это нормальный механизм балансировки игрового процесса
-• Награды снижаются постепенно, но никогда не опускаются ниже 80%
-• На следующий день всё восстанавливается
-
-**Снижение за быстрые тесты:**
-• Если система обнаруживает несколько очень быстрых тестов подряд, может применяться небольшое снижение
-• Один быстрый тест — это нормально и не штрафуется
-• Штраф применяется только при явных признаках автоматизации (боты)
-• Если вы просто быстро отвечаете — это не проблема!
-
-**Как это работает:**
-• Система анализирует паттерны вашего поведения
-• Штрафы применяются только при нескольких подозрительных тестах подряд
-• Все детали отображаются в разделе "Балансировка наград" при просмотре деталей расчета
-
-**Если вы считаете снижение несправедливым:**
-• Нажмите кнопку "Поддержка" рядом с индикатором снижения
-• Опишите ситуацию (необязательно)
-• Мы отправим полный отчет о расчете в админку для проверки
-• Администраторы рассмотрят ваше обращение и при необходимости скорректируют награды`
-        },
-        {
-          id: "rewards-double-sp",
-          title: "Double SP Boost",
-          content: `Double SP Boost — это временный буст, который удваивает Season Points за дуэли:
-
-**Как получить:**
-• Купить в магазине за 150 монет
-• Получить через Duel Pass награды
-• Получить через ежедневные бонусы (редко)
-
-**Как использовать:**
-• Купленный буст автоматически добавляется в инвентарь
-• Активируется из инвентаря (Inventory → Бусты)
-• Действует 1 час с момента активации
-• Можно использовать несколько раз подряд
-
-**Эффект:**
-• Удваивает Season Points (SP) за все дуэли на 1 час
-• Работает только для дуэлей, не применяется к тестам
-• Комбинируется с Premium бонусом (+20% SP)
-• Идеально для быстрого прогресса в Duel Pass
-
-**Индикатор активности:**
-• Когда Double SP активен, вы увидите индикатор в тестах
-• Индикатор показывает время до окончания действия буста
-• После окончания буст автоматически деактивируется
-
-**Важно:**
-• Double SP Boost работает только для дуэлей
-• Для тестов используйте другие бусты (если доступны)
-• Время действия отсчитывается с момента активации, а не покупки`
-        },
-        {
-          id: "rewards-support",
-          title: "Обращение в поддержку",
-          content: `Если вы считаете, что награды начислены несправедливо или снижение применено неправильно:
-
-**Как обратиться:**
-1. После завершения теста найдите индикатор снижения наград (если есть)
-2. Нажмите кнопку "Поддержка" рядом с индикатором
-3. В открывшемся окне опишите ситуацию (необязательно)
-4. Нажмите "Отправить"
-
-**Что отправляется в поддержку:**
-• Полный контекст расчета наград (все параметры теста)
-• Информация о наградах (базовые значения, множители, штрафы)
-• История ваших последних тестов для анализа паттерна
-• Ваше сообщение (если указано)
-
-**Что происходит дальше:**
-• Отчет отправляется в админку для проверки
-• Администраторы рассмотрят ваше обращение
-• При необходимости награды будут скорректированы
-• Вы получите уведомление о результате (в разработке)
-
-**Когда обращаться:**
-• Если вы считаете, что снижение применено несправедливо
-• Если награды не начислены или начислены неправильно
-• Если у вас есть вопросы о расчете наград
-• Если вы заметили ошибку в системе
-
-Мы всегда готовы помочь и разобраться в любой ситуации!`
         }
       ]
     },
@@ -494,7 +354,7 @@ const HelpCenter = () => {
           title: "Как заработать монеты",
           content: `Монеты начисляются за:
 
-• Прохождение тестов — базовое количество зависит от результата (score) и количества вопросов, Premium пользователи получают +50% (x1.5)
+• Прохождение тестов — от 10 до 50 монет в зависимости от результата
 • Победу в дуэли со ставкой — вы забираете банк соперника (монеты перераспределяются)
 • Дуэль без ставки — монеты не начисляются, зато выдаются Season Points
 • Ежедневные бонусы — от 5 до 100 монет в зависимости от дня серии
@@ -502,12 +362,6 @@ const HelpCenter = () => {
 • Duel Pass награды — за достижение уровней
 • Специальные достижения — разовые награды
 • Premium бонусы — +50% монет за все действия (только для Premium пользователей)
-
-**Детали начисления за тесты:**
-• Минимум: 1 монета (даже при низком результате)
-• Максимум: зависит от количества вопросов и результата
-• Формула учитывает количество правильных ответов и сложность теста
-• Все детали можно увидеть в разделе "Подробнее" после завершения теста
 
 Активное участие в играх, тестах и успешные дуэли со ставками — лучший способ поддерживать баланс монет.`
         },
@@ -1169,49 +1023,6 @@ Premium подписка включает все преимущества, оп�
       ]
     },
     {
-      id: "rules",
-      title: t("help.section.rules"),
-      icon: Scale,
-      description: t("help.section.rules.desc"),
-      subsections: [
-        {
-          id: "rules-general",
-          title: getTranslatedContent("help.content.rules.general.title", "Общие правила использования"),
-          content: getTranslatedContent("help.content.rules.general.content", "")
-        },
-        {
-          id: "rules-premium",
-          title: getTranslatedContent("help.content.rules.premium.title", "Правила Premium подписки"),
-          content: getTranslatedContent("help.content.rules.premium.content", "")
-        },
-        {
-          id: "rules-duels",
-          title: getTranslatedContent("help.content.rules.duels.title", "Правила дуэлей"),
-          content: getTranslatedContent("help.content.rules.duels.content", "")
-        },
-        {
-          id: "rules-refunds",
-          title: getTranslatedContent("help.content.rules.refunds.title", "Возврат средств и отмена"),
-          content: getTranslatedContent("help.content.rules.refunds.content", "")
-        },
-        {
-          id: "rules-violations",
-          title: getTranslatedContent("help.content.rules.violations.title", "Нарушения и санкции"),
-          content: getTranslatedContent("help.content.rules.violations.content", "")
-        },
-        {
-          id: "rules-privacy",
-          title: getTranslatedContent("help.content.rules.privacy.title", "Конфиденциальность и данные"),
-          content: getTranslatedContent("help.content.rules.privacy.content", "")
-        },
-        {
-          id: "rules-referral",
-          title: getTranslatedContent("help.content.rules.referral.title", "Правила реферальной программы"),
-          content: getTranslatedContent("help.content.rules.referral.content", "")
-        }
-      ]
-    },
-    {
       id: "faq",
       title: t("help.section.faq"),
       icon: HelpCircle,
@@ -1277,6 +1088,61 @@ Premium подписка включает все преимущества, оп�
           })
         }
       ]
+    },
+    {
+      id: "faq",
+      title: t("help.section.faq"),
+      icon: HelpCircle,
+      description: t("help.section.faq.desc"),
+      subsections: [
+        {
+          id: "faq-general",
+          title: getTranslatedContent("help.content.faq.general.title", "Общие вопросы"),
+          items: [
+            "Как зарегистрироваться? — Используйте Telegram или веб-браузер для регистрации",
+            "Приложение бесплатное? — Да, базовые функции бесплатны, есть премиум функции",
+            "Работает ли приложение офлайн? — Нет, требуется подключение к интернету",
+            "На каких устройствах работает? — Веб-версия работает на всех устройствах, Telegram версия в Telegram",
+            "Как связаться с поддержкой? — Через Telegram или email support@sdadim.com"
+          ]
+        },
+        {
+          id: "faq-technical",
+          title: "Технические вопросы",
+          items: [
+            "Приложение не загружается — Проверьте интернет-соединение и обновите страницу",
+            "Не сохраняется прогресс — Убедитесь, что вы авторизованы и данные синхронизированы",
+            "Ошибки в вопросах — Используйте кнопку 'Сообщить о проблеме' в тестах",
+            "Медленная работа — Очистите кэш браузера или перезапустите приложение",
+            "Не работают изображения — Проверьте настройки контента в браузере"
+          ]
+        },
+        {
+          id: "faq-account",
+          title: "Аккаунт и данные",
+          items: [
+            "Как изменить профиль? — Откройте меню профиля и нажмите 'Редактировать'",
+            "Как удалить аккаунт? — Обратитесь в поддержку для удаления аккаунта",
+            "Можно ли иметь несколько аккаунтов? — Да, но прогресс не синхронизируется",
+            "Как восстановить пароль? — Используйте функцию восстановления пароля при входе",
+            "Где хранятся мои данные? — Данные хранятся безопасно в соответствии с политикой конфиденциальности"
+          ]
+        },
+        {
+          id: "faq-premium",
+          title: "Premium и монеты",
+          items: [
+            "Как получить Premium? — Через магазин, главную страницу или страницу игр",
+            "Что включает Premium? — Безлимитный доступ, удвоенные награды, Duel Pass Premium, без рекламы",
+            "Что такое Premium Forever? — Пожизненная Premium подписка за €59.99, автоматически открывает Duel Pass Premium для всех сезонов",
+            "Как пополнить баланс монет? — Через магазин → вкладка 'Монеты'",
+            "Можно ли отменить Premium? — Да, в любой момент через Stripe кабинет (кроме Premium Forever)",
+            "Что такое Duel Pass? — Система уровней и наград за регулярные занятия",
+            "Что такое Season Points (SP)? — Сезонные очки для прогресса в Duel Pass, зарабатываются за дуэли и челленджи",
+            "Как работает Double SP Boost? — Удваивает SP за дуэли на 1 час, стоит 150 монет, активируется из инвентаря"
+          ]
+        }
+      ]
     }
   ];
 
@@ -1338,30 +1204,30 @@ Premium подписка включает все преимущества, оп�
   const currentSection = activeSection ? sections.find(s => s.id === activeSection) : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white dark:bg-gray-950 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        <div className="max-w-[1370px] mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-300 group-hover:scale-105">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-purple-600 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-105">
                 <Crown className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Sdadim</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">Sdadim</span>
             </Link>
 
             {/* Search */}
             <div className="flex-1 max-w-xl mx-4 md:mx-8">
               <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-purple-500 dark:group-focus-within:text-purple-400 transition-colors" />
                 <Input
                   placeholder={t("help.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-200"
+                  className="pl-10 pr-20 bg-gray-50/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-purple-300 dark:focus:border-purple-600 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200"
                 />
-                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
+                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm">
                   ⌘K
                 </kbd>
               </div>
@@ -1377,7 +1243,7 @@ Premium подписка включает все преимущества, оп�
           </div>
 
           {/* Navigation */}
-          <nav className="flex items-center gap-1 h-12 border-t border-gray-200 dark:border-gray-800 overflow-x-auto scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0 bg-gray-50/30 dark:bg-gray-900/30">
+          <nav className="flex items-center gap-1 h-12 border-t border-gray-100 dark:border-gray-800 overflow-x-auto scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0">
             {sections.map((section) => {
               const isActive = activeSection === section.id;
               return (
@@ -1387,7 +1253,7 @@ Premium подписка включает все преимущества, оп�
                   className={cn(
                     "h-full px-3 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap flex-shrink-0",
                     isActive
-                      ? "border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold"
+                      ? "border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-400"
                       : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                   )}
                 >
@@ -1399,7 +1265,7 @@ Premium подписка включает все преимущества, оп�
         </div>
       </header>
 
-      <div className="max-w-[1370px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {showIntro && !activeSection ? (
           /* Intro Grid */
           <div className="space-y-12">
@@ -1414,14 +1280,14 @@ Premium подписка включает все преимущества, оп�
                 return (
                   <Card
                     key={section.id}
-                    className="p-6 md:p-8 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:border-gray-300 dark:hover:border-gray-700"
+                    className="p-6 md:p-8 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900/50"
                     onClick={() => scrollToSection(section.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center group-hover:scale-105 transition-transform border border-blue-100 dark:border-blue-800/40">
-                        <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <Icon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
+                      <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{section.title}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{section.description}</p>
@@ -1446,13 +1312,13 @@ Premium подписка включает все преимущества, оп�
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
                           isActive
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-500"
+                            ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100"
                         )}
                       >
                         <Icon className={cn(
                           "w-4 h-4 flex-shrink-0",
-                          isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500"
+                          isActive ? "text-purple-600 dark:text-purple-400" : "text-gray-400 dark:text-gray-500"
                         )} />
                         <span className="truncate">{section.title}</span>
                       </button>
@@ -1469,8 +1335,8 @@ Premium подписка включает все преимущества, оп�
                   <div className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center gap-3 mb-3">
                       {currentSection.icon && (
-                        <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0 border border-blue-100 dark:border-blue-800/40">
-                          <currentSection.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                          <currentSection.icon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
                       )}
                       <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">{currentSection.title}</h1>
@@ -1517,11 +1383,11 @@ Premium подписка включает все преимущества, оп�
                                       const colCount = headerCells.length;
                                       
                                       processedLines.push(
-                                        <div key={`table-${idx}`} className="my-8 overflow-x-auto rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                                        <div key={`table-${idx}`} className="my-8 overflow-x-auto rounded-xl shadow-sm border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900/50">
                                           <div className="inline-block min-w-full align-middle">
                                             {/* Заголовок */}
                                             <div className={cn(
-                                              "grid gap-3 px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-800",
+                                              "grid gap-3 px-6 py-4 bg-gradient-to-r from-purple-50 via-purple-50/50 to-blue-50 dark:from-purple-900/30 dark:via-purple-900/20 dark:to-blue-900/30 border-b border-gray-200/50 dark:border-gray-800/50",
                                               colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
                                             )}>
                                               {headerCells.map((cell, cellIdx) => (
@@ -1535,7 +1401,7 @@ Premium подписка включает все преимущества, оп�
                                               const cells = row.split('|').filter(c => c.trim()).map(c => c.trim());
                                               return (
                                                 <div key={rowIdx} className={cn(
-                                                  "grid gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 last:border-b-0 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-200",
+                                                  "grid gap-3 px-6 py-4 border-b border-gray-100/50 dark:border-gray-800/50 last:border-b-0 hover:bg-gradient-to-r hover:from-purple-50/30 hover:to-blue-50/30 dark:hover:from-purple-900/20 dark:hover:to-blue-900/20 transition-all duration-200",
                                                   colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
                                                 )}>
                                                   {cells.map((cell, cellIdx) => (
@@ -1589,7 +1455,7 @@ Premium подписка включает все преимущества, оп�
                                   const text = line.replace(/^[•\-\*]\s+/, '').replace(/\*\*/g, '');
                                   processedLines.push(
                                     <div key={idx} className="flex items-start gap-2 my-2">
-                                      <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                                      <ChevronRight className="w-4 h-4 text-purple-500 dark:text-purple-400 mt-0.5 flex-shrink-0" />
                                       <span className="text-gray-700 dark:text-gray-300 flex-1">{text}</span>
                                     </div>
                                   );
@@ -1598,7 +1464,7 @@ Premium подписка включает все преимущества, оп�
                                 
                                 // Обработка разделителей
                                 if (line.trim() === '---') {
-                                  processedLines.push(<hr key={idx} className="my-6 border-t border-gray-200 dark:border-gray-800" />);
+                                  processedLines.push(<hr key={idx} className="my-6 border-gray-200 dark:border-gray-800" />);
                                   return;
                                 }
                                 
@@ -1624,7 +1490,7 @@ Premium подписка включает все преимущества, оп�
                             <ul className="mt-4 space-y-2 list-none">
                               {subsection.items.map((item, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
-                                  <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" />
+                                  <ChevronRight className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-1 flex-shrink-0" />
                                   <span className="text-gray-700 dark:text-gray-300">{item}</span>
                                 </li>
                               ))}
@@ -1653,7 +1519,7 @@ Premium подписка включает все преимущества, оп�
                             e.preventDefault();
                             document.getElementById(sub.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                           }}
-                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
                         >
                           {sub.title}
                         </a>
@@ -1675,13 +1541,7 @@ Premium подписка включает все преимущества, оп�
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border border-gray-200 dark:border-gray-700 hover:border-green-600 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 transition-all"
-                  onClick={() => {
-                    setFeedbackHelpful(true);
-                    setCurrentSectionId(activeSection || "");
-                    setCurrentSubsectionId(undefined);
-                    setFeedbackModalOpen(true);
-                  }}
+                  className="border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400"
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   {t("help.yes")}
@@ -1689,13 +1549,7 @@ Premium подписка включает все преимущества, оп�
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border border-gray-200 dark:border-gray-700 hover:border-red-600 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400 transition-all"
-                  onClick={() => {
-                    setFeedbackHelpful(false);
-                    setCurrentSectionId(activeSection || "");
-                    setCurrentSubsectionId(undefined);
-                    setFeedbackModalOpen(true);
-                  }}
+                  className="border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400"
                 >
                   <XCircle className="w-4 h-4 mr-2" />
                   {t("help.no")}
@@ -1703,17 +1557,6 @@ Premium подписка включает все преимущества, оп�
               </div>
             </div>
           </div>
-        )}
-
-        {/* Feedback Modal */}
-        {feedbackHelpful !== null && (
-          <HelpFeedbackModal
-            open={feedbackModalOpen}
-            onOpenChange={setFeedbackModalOpen}
-            sectionId={currentSectionId}
-            subsectionId={currentSubsectionId}
-            helpful={feedbackHelpful}
-          />
         )}
       </div>
     </div>

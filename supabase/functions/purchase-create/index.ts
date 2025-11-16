@@ -42,50 +42,41 @@ const CATALOG: Record<string, CatalogEntry> = {
     dbItemId: "duel_pass_season",
     description: "Unlock premium Duel Pass rewards",
   },
-  coins_pack_starter: {
-    name: "Coins Pack Starter",
-    amountCents: 199,
+  coins_pack_100: {
+    name: "100 монет",
+    amountCents: 299,
     currency: "eur",
     dbType: "coins_pack",
-    dbItemId: "starter",
-    description: "200 coins",
-    metadata: { coins: 200 },
+    dbItemId: "pack_100",
+    description: "100 монет",
+    metadata: { coins: 100 },
   },
-  coins_pack_popular: {
-    name: "Coins Pack Popular",
-    amountCents: 499,
-    currency: "eur",
-    dbType: "coins_pack",
-    dbItemId: "popular",
-    description: "600 coins",
-    metadata: { coins: 600 },
-  },
-  coins_pack_mega: {
-    name: "Coins Pack Mega",
+  coins_pack_500: {
+    name: "500 монет + 50 бонус",
     amountCents: 999,
     currency: "eur",
     dbType: "coins_pack",
-    dbItemId: "mega",
-    description: "1500 coins",
-    metadata: { coins: 1500 },
+    dbItemId: "pack_500",
+    description: "550 монет (500 + 50 бонус)",
+    metadata: { coins: 550 },
   },
-  coins_pack_pro: {
-    name: "Coins Pack Pro",
+  coins_pack_1200: {
+    name: "1200 монет + 200 бонус",
     amountCents: 1999,
     currency: "eur",
     dbType: "coins_pack",
-    dbItemId: "pro",
-    description: "3500 coins",
-    metadata: { coins: 3500 },
+    dbItemId: "pack_1200",
+    description: "1400 монет (1200 + 200 бонус)",
+    metadata: { coins: 1400 },
   },
-  coins_pack_whale: {
-    name: "Coins Pack Whale",
+  coins_pack_3000: {
+    name: "3000 монет + 500 бонус",
     amountCents: 3999,
     currency: "eur",
     dbType: "coins_pack",
-    dbItemId: "whale",
-    description: "8000 coins",
-    metadata: { coins: 8000 },
+    dbItemId: "pack_3000",
+    description: "3500 монет (3000 + 500 бонус)",
+    metadata: { coins: 3500 },
   },
 };
 
@@ -194,6 +185,10 @@ serve(async (req) => {
         catalog_key,
         db_type: entry.dbType,
         db_item_id: entry.dbItemId,
+        // Для coins_pack добавляем количество монет в metadata
+        ...(entry.dbType === "coins_pack" && entry.metadata?.coins 
+          ? { coins: entry.metadata.coins.toString() } 
+          : {}),
         ...(entry.metadata || {}),
       },
       line_items: [
@@ -216,7 +211,11 @@ serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ success: true, url: session.url }),
+      JSON.stringify({ 
+        success: true, 
+        url: session.url,
+        sessionId: session.id 
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

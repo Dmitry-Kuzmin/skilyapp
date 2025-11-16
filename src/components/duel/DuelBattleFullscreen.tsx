@@ -15,8 +15,6 @@ import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { NotificationToast } from '@/components/NotificationToast';
-import { DuelWaitingReplay } from './DuelWaitingReplay';
-import { DuelWidget } from './DuelWidget';
 import Layout from '@/components/Layout';
 import { getImageUrl } from '@/utils/imageUtils';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
@@ -511,16 +509,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
     
     // CRITICAL BACKUP: If we're waiting for opponent and duel is finished, force transition
-    // This ensures transition even if DuelWaitingReplay doesn't detect it
     if (state.duelFinished && isWaitingForOpponent && hasFinishedMyQuestions) {
-      console.log('[DuelBattleFullscreen] 🔥 BACKUP: Duel finished while waiting - forcing transition after delay');
-      // Give DuelWaitingReplay time to handle it, but force transition if it doesn't
-      const backupTimer = setTimeout(() => {
-        console.log('[DuelBattleFullscreen] 🚀 BACKUP: Forcing transition to results');
-        onDuelFinished();
-      }, 2000); // 2 second delay - if DuelWaitingReplay didn't transition, we force it
-      
-      return () => clearTimeout(backupTimer);
+      console.log('[DuelBattleFullscreen] 🔥 BACKUP: Duel finished while waiting - forcing transition');
+      onDuelFinished();
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
@@ -1719,69 +1710,103 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   };
 
+  // Сохраняем состояние при показе экрана ожидания (вне условного блока для соблюдения правил хуков)
+  useEffect(() => {
+    if (isWaitingForOpponent && duelId && duelCode && profileId && questions.length > 0) {
+      const stateToSave = {
+        duelId,
+        duelCode,
+        mode: 'waiting' as const,
+        currentIndex: undefined,
+        myScore,
+        opponentScore,
+        totalQuestions: questions.length,
+        myName,
+        opponentName,
+      };
+      
+      if (activeDuel) {
+        updateActiveDuel(stateToSave);
+      } else {
+        saveActiveDuel(stateToSave);
+      }
+    }
+  }, [isWaitingForOpponent, duelId, duelCode, profileId, questions.length, myScore, opponentScore, myName, opponentName, activeDuel, saveActiveDuel, updateActiveDuel]);
+
   // ============================================================================
-  // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
+  // CRITICAL: WAITING FOR OPPONENT - SIMPLE WAITING SCREEN
   // ============================================================================
-  // Show live replay screen when I finish first
-  // Display opponent's progress in real-time
-  // If hidden, DuelWaitingReplay will show widget via portal and return null
+  // Show simple waiting screen when I finish first
+  // No widget - state is saved via useActiveDuel hook
   // ============================================================================
   if (isWaitingForOpponent) {
     return (
-      <DuelWaitingReplay
-        duelId={duelId}
-        myScore={myScore}
-        totalQuestions={questions.length}
-        onDuelFinished={onDuelFinished}
-        onExpand={() => {
-          // When widget expands, restore battle view
-          setIsWaitingHidden(false);
-          // Notify parent to restore battle mode
-          if (onWidgetExpand) {
-            onWidgetExpand();
-          }
-        }}
-        onHide={(hidden) => {
-          setIsWaitingHidden(hidden);
-          if (hidden) {
-            // Сохраняем состояние при сворачивании на экране ожидания
-            if (duelId && duelCode && profileId && questions.length > 0) {
-              const stateToSave = {
-                duelId,
-                duelCode,
-                mode: 'waiting' as const,
-                currentIndex: undefined, // Не сохраняем currentIndex в режиме ожидания
-                myScore,
-                opponentScore,
-                totalQuestions: questions.length,
-                myName,
-                opponentName,
-              };
-              
-              // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
-              if (activeDuel) {
-                updateActiveDuel(stateToSave);
-              } else {
-                saveActiveDuel(stateToSave);
-              }
-            }
-            // Notify parent that game is hidden - parent will show menu
-            if (onHide) {
-              onHide();
-            }
-          } else {
-            // Game is expanded again - reset state
-            setIsWaitingHidden(false);
-          }
-        }}
-      />
+      <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4 text-center space-y-6">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="space-y-4"
+          >
+            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <Clock className="w-10 h-10 text-primary animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Ожидание соперника</h2>
+              <p className="text-muted-foreground">
+                Ты закончил первым! Ждём, пока соперник завершит дуэль...
+              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-4">
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground mb-1">{myName}</p>
+                  <p className="text-3xl font-black text-primary">{myScore}</p>
+                </div>
+                <div className="text-xl font-bold text-muted-foreground">VS</div>
+                <div className="text-center">
+                  <p className="text-xs text-muted-foreground mb-1">{opponentName}</p>
+                  <p className="text-3xl font-black text-secondary">{opponentScore}</p>
+                </div>
+              </div>
+            </div>
+            <OpponentActivityIndicator duelId={duelId} myPlayerId={myPlayerId} />
+            <Button
+              onClick={() => {
+                // Сохраняем состояние перед сворачиванием
+                if (duelId && duelCode && profileId && questions.length > 0) {
+                  const stateToSave = {
+                    duelId,
+                    duelCode,
+                    mode: 'waiting' as const,
+                    currentIndex: undefined,
+                    myScore,
+                    opponentScore,
+                    totalQuestions: questions.length,
+                    myName,
+                    opponentName,
+                  };
+                  
+                  if (activeDuel) {
+                    updateActiveDuel(stateToSave);
+                  } else {
+                    saveActiveDuel(stateToSave);
+                  }
+                }
+                // Notify parent to show menu
+                if (onHide) {
+                  onHide();
+                }
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              Свернуть игру
+            </Button>
+          </motion.div>
+        </div>
+      </div>
     );
-  }
-
-  // If waiting is hidden but we're not waiting for opponent (shouldn't happen)
-  // Return null so parent can show menu
-  if (isWaitingHidden) {
-    return null;
   }
 
   if (loading || questions.length === 0) {

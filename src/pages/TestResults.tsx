@@ -1,18 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Loader2, Info, TrendingDown, MessageCircle, Send } from "lucide-react";
+import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +17,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 type QuestionData = {
   id: string;
@@ -123,29 +113,14 @@ const TestResults = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const rewardLoggedRef = useRef(false);
-  const [isCalculatingRewards, setIsCalculatingRewards] = useState(true);
   const [rewards, setRewards] = useState<{
     coins?: number;
     sp?: number;
     levelUp?: boolean;
     newLevel?: number;
-    details?: {
-      baseCoins?: number;
-      baseSP?: number;
-      abusePenalty?: number;
-      diminishingFactor?: number;
-      testsToday?: number;
-      premiumUsed?: boolean;
-      doubleSPUsed?: boolean;
-    };
   } | null>(null);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
-  const [showRewardDetails, setShowRewardDetails] = useState(false);
-  const [showSupportDialog, setShowSupportDialog] = useState(false);
-  const [supportMessage, setSupportMessage] = useState("");
-  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
-  const [testResultId, setTestResultId] = useState<string | null>(null);
   
   // Check if location.state exists
   if (!location.state) {
@@ -161,167 +136,91 @@ const TestResults = () => {
     );
   }
 
-  const { questions, answers, mode, timeSpent, testId, testInfo, sessionId } = location.state as {
+  const { questions, answers, mode, timeSpent, testId, testInfo } = location.state as {
     questions: QuestionData[];
     answers: Answer[];
     mode: string;
     timeSpent: number;
     testId?: string;
     testInfo?: { id: string; title: string };
-    sessionId?: string;
   };
 
-  // Начисление наград после получения данных (новая система)
+  // Начисление наград после получения данных
   useEffect(() => {
     const handleRewards = async () => {
-      if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) {
-        setIsCalculatingRewards(false);
-        return;
-      }
+      if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) return;
       rewardLoggedRef.current = true;
-      setIsCalculatingRewards(true);
       
       // Вычисляем score из answers
       const correctCount = answers.filter(a => a.isCorrect).length;
       const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
       
-      // Используем session_id из state или генерируем новый
-      const finalSessionId = sessionId || `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
       try {
-        // Проверяем Premium статус
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('premium_until, trial_until')
-          .eq('id', profileId)
-          .single();
+        // Начисляем монеты
+        const { data: coinsData, error: coinsError } = await supabase.functions.invoke("coins-earn", {
+          body: { user_id: profileId, reward_type: "complete_test" },
+        });
         
-        const now = new Date();
-        const isPremium = (profile?.premium_until && new Date(profile.premium_until) > now) ||
-                         (profile?.trial_until && new Date(profile.trial_until) > now);
-        
-        // Проверяем активный Double SP boost
-        // Важно: проверяем с небольшим запасом времени (5 секунд) для надежности
-        const boostCheckTime = new Date(now.getTime() + 5000); // +5 секунд запас
-        const { data: activeBoost, error: boostError } = await supabase
-          .from('active_boosts')
-          .select('effect_multiplier, expires_at')
-          .eq('user_id', profileId)
-          .eq('effect_type', 'sp_multiplier')
-          .gt('expires_at', boostCheckTime.toISOString())
-          .order('expires_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        
-        if (boostError) {
-          console.warn('[TestResults] Error checking active boost:', boostError);
+        if (coinsError) {
+          console.error('[TestResults] Coins error:', coinsError);
         }
         
-        const doubleSPActive = activeBoost && activeBoost.effect_multiplier && parseFloat(activeBoost.effect_multiplier.toString()) >= 2;
-        
-        if (doubleSPActive) {
-          console.log('[TestResults] ✅ Double SP boost активен:', {
-            multiplier: activeBoost.effect_multiplier,
-            expiresAt: activeBoost.expires_at
-          });
-        } else {
-          console.log('[TestResults] ℹ️ Double SP boost не активен или не найден');
-        }
-        
-        // Вызываем новую функцию complete-test-and-award
-        const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
-          body: {
-            user_id: profileId,
-            test_id: testId || null,
-            session_id: finalSessionId,
-            score: score,
-            questions_count: questions.length,
-            correct_count: correctCount,
-            test_duration_seconds: timeSpent,
-            premium_flag: isPremium,
-            double_sp_active: doubleSPActive || false,
+        // Начисляем Season Points за прохождение теста
+        const sourceType = score === 100 ? "test_perfect" : "test_completed";
+        const { data: spData, error: spError } = await supabase.functions.invoke("season-sp", {
+          body: { 
+            user_id: profileId, 
+            source_type: sourceType,
+            metadata: { 
+              questions_count: questions.length,
+              score: score 
+            }
           },
         });
         
-        if (rewardError) {
-          console.error('[TestResults] Reward error:', rewardError);
-          setIsCalculatingRewards(false);
-          const errorMessage = rewardError.message || rewardError.toString() || "Неизвестная ошибка";
-          toast.error("Ошибка при начислении наград", {
-            description: errorMessage,
-            duration: 8000,
-          });
-          return;
-        }
-        
-        if (!rewardData || !rewardData.success) {
-          console.error('[TestResults] Reward failed:', rewardData);
-          setIsCalculatingRewards(false);
-          const errorMessage = rewardData?.error || rewardData?.details || "Не удалось начислить награды";
-          const errorCode = rewardData?.code ? ` (код: ${rewardData.code})` : '';
-          toast.error("Не удалось начислить награды", {
-            description: `${errorMessage}${errorCode}`,
-            duration: 8000,
-          });
-          return;
+        if (spError) {
+          console.error('[TestResults] SP error:', spError);
         }
         
         // Также начисляем XP для обратной совместимости
-        try {
-          const { data: xpData } = await supabase.functions.invoke("duel-pass-xp", {
-            body: { user_id: profileId, source_type: "test" },
-          });
-          
-          if (xpData?.level_up) {
-            const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
-              body: { trigger: "duel_pass_level_up" },
-            });
-            const message = suggestion?.suggestion?.message;
-            if (message) {
-              toast.info(message);
-            }
-          }
-        } catch (xpError) {
-          // Игнорируем ошибки XP (не критично)
-          console.warn('[TestResults] XP error (non-critical):', xpError);
-        }
-        
-        // Сохраняем test_result_id если он есть в ответе
-        if (rewardData.test_result_id) {
-          setTestResultId(rewardData.test_result_id);
-        }
-        
-        // Сохраняем результаты начислений с детальной информацией
-        setRewards({
-          coins: rewardData.coins_awarded || 0,
-          sp: rewardData.sp_awarded || 0,
-          levelUp: rewardData.level_up || false,
-          newLevel: rewardData.new_level || undefined,
-          // Детальная информация для UI
-          details: {
-            baseCoins: rewardData.base_coins,
-            baseSP: rewardData.base_sp,
-            abusePenalty: rewardData.abuse_penalty,
-            diminishingFactor: rewardData.diminishing_factor,
-            testsToday: rewardData.tests_today,
-            premiumUsed: isPremium,
-            doubleSPUsed: doubleSPActive || false,
-          }
+        const { data: xpData, error: xpError } = await supabase.functions.invoke("duel-pass-xp", {
+          body: { user_id: profileId, source_type: "test" },
         });
         
-        // Завершаем расчет сразу - анимация счетчика начнется автоматически
-        setIsCalculatingRewards(false);
+        if (xpError) {
+          console.error('[TestResults] XP error:', xpError);
+        }
+        
+        // Отслеживаем прогресс челленджей
+        await supabase.functions.invoke("season-challenges-track", {
+          body: {
+            user_id: profileId,
+            source_type: sourceType,
+            metadata: {
+              questions_count: questions.length,
+              score: score
+            }
+          },
+        });
+        
+        // Сохраняем результаты начислений
+        setRewards({
+          coins: coinsData?.reward_amount || 10,
+          sp: spData?.sp_added || (sourceType === "test_perfect" ? 35 : 25),
+          levelUp: spData?.level_up || false,
+          newLevel: spData?.level || undefined,
+        });
         
         // Показываем уведомление о начислениях
         const rewardMessages = [];
-        if (rewardData.coins_awarded) {
-          rewardMessages.push(`+${rewardData.coins_awarded} монет`);
+        if (coinsData?.reward_amount) {
+          rewardMessages.push(`+${coinsData.reward_amount} монет`);
         }
-        if (rewardData.sp_awarded) {
-          rewardMessages.push(`+${rewardData.sp_awarded} SP`);
+        if (spData?.sp_added) {
+          rewardMessages.push(`+${spData.sp_added} SP`);
         }
-        if (rewardData.level_up) {
-          rewardMessages.push(`🎉 Новый уровень Duel Pass: ${rewardData.new_level}!`);
+        if (spData?.level_up) {
+          rewardMessages.push(`🎉 Новый уровень Duel Pass: ${spData.level}!`);
         }
         
         if (rewardMessages.length > 0) {
@@ -331,24 +230,25 @@ const TestResults = () => {
           });
         }
         
-        // Показываем уведомление о diminishing returns, если есть
-        if (rewardData.message) {
-          toast.info(rewardData.message, {
-            duration: 6000,
+        if (xpData?.level_up) {
+          const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
+            body: { trigger: "duel_pass_level_up" },
           });
+          const message = suggestion?.suggestion?.message;
+          if (message) {
+            toast.info(message);
+          }
         }
-        
-      } catch (error: any) {
+      } catch (error) {
         console.error('[TestResults] Error handling rewards:', error);
         toast.error("Ошибка при начислении наград", {
-          description: error?.message || "Попробуйте обновить страницу",
+          description: "Попробуйте обновить страницу",
         });
-        setIsCalculatingRewards(false);
       }
     };
     
     handleRewards();
-  }, [profileId, questions, answers, timeSpent, testId]);
+  }, [profileId, questions, answers]);
 
   const [nextTest, setNextTest] = useState<{ id: string; title: string; status: string } | null>(null);
   const [loadingNextTest, setLoadingNextTest] = useState(false);
@@ -374,21 +274,9 @@ const TestResults = () => {
   const correctCount = correctAnswers.length;
   const incorrectCount = incorrectAnswers.length;
   const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-  
-  // Стандарты DGT: минимум 90% правильных ответов для сдачи экзамена
-  // Для exam и sequential режимов применяем стандарты DGT
-  // Для practice режима более мягкие требования (80%)
-  let passed: boolean;
-  if (mode === "exam" || mode === "sequential") {
-    // DGT стандарт: минимум 90% правильных (максимум 10% ошибок)
-    // Для 30 вопросов = максимум 3 ошибки
-    // Для любого количества: максимум Math.ceil(questions.length * 0.1) ошибок
-    const maxAllowedErrors = Math.ceil(questions.length * 0.1);
-    passed = incorrectCount <= maxAllowedErrors && percentage >= 90;
-  } else {
-    // Practice режим: более мягкие требования (80%)
-    passed = percentage >= 80;
-  }
+  // Для экзамена: максимум 3 ошибки (из 30 вопросов = минимум 27 правильных = 90%)
+  // Упрощенная логика: если ошибок <= 3, то процент всегда >= 90% при 30 вопросах
+  const passed = mode === "exam" ? incorrectCount <= 3 : true;
   
   // Статистика по темам для рекомендаций
   const topicStats: Record<string, { correct: number; incorrect: number; total: number; questions: QuestionData[] }> = {};
@@ -798,298 +686,40 @@ const TestResults = () => {
                 {mode === "exam" ? "Modo examen" : mode === "sequential" ? "Тест последовательный" : "Modo práctica"}
               </motion.p>
 
-              {/* Награды за тест - всегда показываем блок */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: isCalculatingRewards ? 0 : 0.45 }}
-                className="mb-6 flex items-center justify-center gap-3 flex-wrap min-h-[60px]"
-              >
-                {isCalculatingRewards ? (
-                  // Анимация загрузки расчета наград - показывается сразу без задержки
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border border-border/50"
-                  >
-                    <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                    <span className="text-sm text-muted-foreground font-medium">
-                      Расчет наград...
-                    </span>
-                  </motion.div>
-                ) : rewards && (rewards.coins || rewards.sp) ? (
-                  // Отображение начисленных наград с анимацией счетчика и индикаторами бонусов
-                  <>
-                    {rewards.coins && rewards.coins > 0 && (
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0, type: "spring", stiffness: 200 }}
-                        className="relative flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 shadow-lg shadow-yellow-500/10"
-                      >
-                        <motion.div
-                          animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ duration: 0.5, delay: 0.1 }}
-                        >
-                          <Coins className="w-5 h-5 text-yellow-500" />
-                        </motion.div>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-yellow-600 dark:text-yellow-500">
-                            +<AnimatedCounter value={rewards.coins} suffix=" монет" />
-                          </span>
-                          {rewards.details?.premiumUsed && (
-                            <span className="text-xs text-yellow-500/70 flex items-center gap-1">
-                              <Crown className="w-3 h-3" />
-                              Premium x1.5
-                            </span>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                    {rewards.sp && rewards.sp > 0 && (
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-                        className="relative flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 shadow-lg shadow-purple-500/10"
-                      >
-                        <motion.div
-                          animate={{ rotate: [0, -10, 10, 0] }}
-                          transition={{ duration: 0.5, delay: 0.2 }}
-                        >
-                          <Trophy className="w-5 h-5 text-purple-500" />
-                        </motion.div>
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-purple-600 dark:text-purple-500">
-                            +<AnimatedCounter value={rewards.sp} suffix=" SP" />
-                          </span>
-                          <div className="flex items-center gap-2 text-xs text-purple-500/70">
-                            {rewards.details?.premiumUsed && (
-                              <span className="flex items-center gap-1">
-                                <Crown className="w-3 h-3" />
-                                Premium x1.2
-                              </span>
-                            )}
-                            {rewards.details?.doubleSPUsed && (
-                              <span className="flex items-center gap-1">
-                                <Zap className="w-3 h-3" />
-                                Double SP x2
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                    {/* Визуализация diminishing returns */}
-                    {rewards.details?.diminishingFactor && rewards.details.diminishingFactor < 1 && (
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20"
-                      >
-                        <TrendingDown className="w-4 h-4 text-orange-500" />
-                        <span className="text-xs text-orange-600 dark:text-orange-500 font-medium">
-                          Снижение: {Math.round((1 - rewards.details.diminishingFactor) * 100)}%
-                        </span>
-                      </motion.div>
-                    )}
-                    {/* Индикатор abuse penalty - переименован в более мягкую формулировку */}
-                    {rewards.details?.abusePenalty && rewards.details.abusePenalty < 1 && (
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20"
-                      >
-                        <Info className="w-4 h-4 text-orange-500" />
-                        <div className="flex flex-col flex-1">
-                          <span className="text-xs text-orange-600 dark:text-orange-500 font-medium">
-                            Снижение: {Math.round((1 - rewards.details.abusePenalty) * 100)}%
-                          </span>
-                          <span className="text-[10px] text-orange-500/70">
-                            Несколько быстрых тестов подряд
-                          </span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowSupportDialog(true)}
-                          className="h-7 px-2 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-500/20 shrink-0"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5 mr-1" />
-                          Поддержка
-                        </Button>
-                      </motion.div>
-                    )}
-                    {/* Кнопка детальной информации о расчете */}
-                    {rewards.details && (
-                      <Dialog open={showRewardDetails} onOpenChange={setShowRewardDetails}>
-                        <DialogTrigger asChild>
-                          <motion.button
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
-                          >
-                            <Info className="w-4 h-4 text-blue-500" />
-                            <span className="text-xs text-blue-600 dark:text-blue-500 font-medium">
-                              Подробнее
-                            </span>
-                          </motion.button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Детали расчета наград</DialogTitle>
-                            <DialogDescription>
-                              Подробная информация о том, как были рассчитаны награды за этот тест
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 mt-4">
-                            {/* Базовые значения */}
-                            <div className="space-y-2">
-                              <h4 className="font-semibold text-sm">Базовые значения</h4>
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="p-2 rounded bg-muted/50">
-                                  <div className="text-xs text-muted-foreground">Базовые монеты</div>
-                                  <div className="font-semibold">{rewards.details.baseCoins || 0}</div>
-                                </div>
-                                <div className="p-2 rounded bg-muted/50">
-                                  <div className="text-xs text-muted-foreground">Базовые SP</div>
-                                  <div className="font-semibold">{rewards.details.baseSP || 0}</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Множители и бонусы */}
-                            <div className="space-y-2">
-                              <h4 className="font-semibold text-sm">Множители и бонусы</h4>
-                              <div className="space-y-1.5">
-                                {rewards.details.premiumUsed ? (
-                                  <div className="flex items-center justify-between p-2 rounded bg-yellow-500/10 border border-yellow-500/20">
-                                    <div className="flex items-center gap-2">
-                                      <Crown className="w-4 h-4 text-yellow-500" />
-                                      <span className="text-sm">Premium бонус</span>
-                                    </div>
-                                    <span className="text-sm font-semibold text-yellow-600">
-                                      Монеты: x1.5, SP: x1.2
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="p-2 rounded bg-muted/30 text-sm text-muted-foreground text-center">
-                                    Premium не активен
-                                  </div>
-                                )}
-                                {rewards.details.doubleSPUsed ? (
-                                  <div className="flex items-center justify-between p-2 rounded bg-purple-500/10 border border-purple-500/20">
-                                    <div className="flex items-center gap-2">
-                                      <Zap className="w-4 h-4 text-purple-500" />
-                                      <span className="text-sm">Double SP</span>
-                                    </div>
-                                    <span className="text-sm font-semibold text-purple-600">x2</span>
-                                  </div>
-                                ) : (
-                                  <div className="p-2 rounded bg-muted/30 text-sm text-muted-foreground text-center">
-                                    Double SP не активен
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Снижения и балансировка */}
-                            {(rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1) ||
-                            (rewards.details.diminishingFactor !== undefined && rewards.details.diminishingFactor < 1) ? (
-                              <div className="space-y-2">
-                                <h4 className="font-semibold text-sm">Балансировка наград</h4>
-                                <div className="space-y-1.5">
-                                  {rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1 && (
-                                    <div className="flex items-center justify-between p-2 rounded bg-orange-500/10 border border-orange-500/20">
-                                      <div className="flex items-center gap-2">
-                                        <Info className="w-4 h-4 text-orange-500" />
-                                        <div className="flex flex-col">
-                                          <span className="text-sm">Снижение за быстрые тесты</span>
-                                          <span className="text-xs text-muted-foreground">
-                                            Система обнаружила несколько быстрых тестов подряд. Это нормально, если вы просто быстро отвечаете!
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <span className="text-sm font-semibold text-orange-600">
-                                        -{Math.round((1 - rewards.details.abusePenalty) * 100)}%
-                                      </span>
-                                    </div>
-                                  )}
-                                  {rewards.details.diminishingFactor !== undefined && rewards.details.diminishingFactor < 1 && (
-                                    <div className="flex items-center justify-between p-2 rounded bg-orange-500/10 border border-orange-500/20">
-                                      <div className="flex items-center gap-2">
-                                        <TrendingDown className="w-4 h-4 text-orange-500" />
-                                        <span className="text-sm">Снижение за частые тесты</span>
-                                      </div>
-                                      <div className="text-right">
-                                        <span className="text-sm font-semibold text-orange-600">
-                                          -{Math.round((1 - rewards.details.diminishingFactor) * 100)}%
-                                        </span>
-                                        {rewards.details.testsToday !== undefined && (
-                                          <div className="text-xs text-muted-foreground">
-                                            Тестов сегодня: {rewards.details.testsToday}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
-                                <div className="text-sm text-green-600 dark:text-green-500 text-center">
-                                  ✓ Штрафы не применялись
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Итоговые значения */}
-                            <div className="space-y-2 pt-2 border-t">
-                              <h4 className="font-semibold text-sm">Итоговые награды</h4>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                                  <div className="text-xs text-muted-foreground mb-1">Монеты</div>
-                                  <div className="text-lg font-bold text-yellow-600 dark:text-yellow-500">
-                                    +{rewards.coins || 0}
-                                  </div>
-                                </div>
-                                <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                                  <div className="text-xs text-muted-foreground mb-1">SP</div>
-                                  <div className="text-lg font-bold text-purple-600 dark:text-purple-500">
-                                    +{rewards.sp || 0}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    )}
-                    {rewards.levelUp && rewards.newLevel && (
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 shadow-lg shadow-purple-500/10"
-                      >
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 0.6, delay: 0.4, repeat: 2 }}
-                        >
-                          <Sparkles className="w-5 h-5 text-purple-500" />
-                        </motion.div>
-                        <span className="font-semibold text-purple-600 dark:text-purple-500">
-                          🎉 Уровень {rewards.newLevel}!
-                        </span>
-                      </motion.div>
-                    )}
-                  </>
-                ) : null}
-              </motion.div>
+              {/* Награды за тест */}
+              {rewards && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.45 }}
+                  className="mb-6 flex items-center justify-center gap-3 flex-wrap"
+                >
+                  {rewards.coins && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                      <Coins className="w-5 h-5 text-yellow-500" />
+                      <span className="font-semibold text-yellow-600 dark:text-yellow-500">
+                        +{rewards.coins} монет
+                      </span>
+                    </div>
+                  )}
+                  {rewards.sp && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <Trophy className="w-5 h-5 text-purple-500" />
+                      <span className="font-semibold text-purple-600 dark:text-purple-500">
+                        +{rewards.sp} SP
+                      </span>
+                    </div>
+                  )}
+                  {rewards.levelUp && rewards.newLevel && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
+                      <Sparkles className="w-5 h-5 text-purple-500" />
+                      <span className="font-semibold text-purple-600 dark:text-purple-500">
+                        🎉 Уровень {rewards.newLevel}!
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* Статистика с улучшенным дизайном */}
               <motion.div
@@ -1361,114 +991,6 @@ const TestResults = () => {
           </Button>
         </div>
       </div>
-
-      {/* Диалог обращения в поддержку */}
-      <Dialog open={showSupportDialog} onOpenChange={setShowSupportDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Обратиться в поддержку</DialogTitle>
-            <DialogDescription>
-              Если вы считаете, что снижение наград применено несправедливо, опишите ситуацию. 
-              Мы отправим полный отчет о расчете наград в админку для проверки.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Ваше сообщение (необязательно)</label>
-              <Textarea
-                placeholder="Опишите ситуацию, если хотите..."
-                value={supportMessage}
-                onChange={(e) => setSupportMessage(e.target.value)}
-                rows={4}
-                className="resize-none"
-              />
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowSupportDialog(false);
-                  setSupportMessage("");
-                }}
-                disabled={isSubmittingReport}
-              >
-                Отмена
-              </Button>
-              <Button
-                onClick={async () => {
-                  if (!profileId || !rewards || !rewards.details) return;
-                  
-                  setIsSubmittingReport(true);
-                  try {
-                    const { data, error } = await supabase.functions.invoke("submit-reward-report", {
-                      body: {
-                        user_id: profileId,
-                        report_type: "reward_penalty",
-                        session_id: sessionId,
-                        test_result_id: testResultId,
-                        reward_calculation_data: {
-                          // Полный контекст расчета
-                          session_id: sessionId,
-                          test_id: testId,
-                          test_info: testInfo,
-                          mode,
-                          score: Math.round((answers.filter(a => a.isCorrect).length / questions.length) * 100),
-                          questions_count: questions.length,
-                          correct_count: answers.filter(a => a.isCorrect).length,
-                          test_duration_seconds: timeSpent,
-                          // Награды
-                          rewards: {
-                            coins: rewards.coins,
-                            sp: rewards.sp,
-                            base_coins: rewards.details.baseCoins,
-                            base_sp: rewards.details.baseSP,
-                            abuse_penalty: rewards.details.abusePenalty,
-                            diminishing_factor: rewards.details.diminishingFactor,
-                            tests_today: rewards.details.testsToday,
-                            premium_used: rewards.details.premiumUsed,
-                            double_sp_used: rewards.details.doubleSPUsed,
-                          },
-                        },
-                        user_message: supportMessage || undefined,
-                      },
-                    });
-
-                    if (error) throw error;
-
-                    toast.success("Отчет отправлен", {
-                      description: "Мы рассмотрим ваше обращение в ближайшее время.",
-                      duration: 5000,
-                    });
-
-                    setShowSupportDialog(false);
-                    setSupportMessage("");
-                  } catch (error: any) {
-                    console.error("[TestResults] Error submitting report:", error);
-                    toast.error("Ошибка отправки отчета", {
-                      description: error?.message || "Попробуйте позже",
-                    });
-                  } finally {
-                    setIsSubmittingReport(false);
-                  }
-                }}
-                disabled={isSubmittingReport}
-              >
-                {isSubmittingReport ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Отправка...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Отправить
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </Layout>
   );
 };

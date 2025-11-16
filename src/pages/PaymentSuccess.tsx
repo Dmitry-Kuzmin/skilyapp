@@ -8,11 +8,21 @@ import { usePremium } from "@/hooks/usePremium";
 export default function PaymentSuccess() {
   const navigate = useNavigate();
   const { refresh } = usePremium();
+  const isPopup = window.opener !== null;
 
   useEffect(() => {
+    // Если открыто в попапе, отправляем сообщение родительскому окну
+    if (isPopup) {
+      window.opener?.postMessage({ type: 'STRIPE_SUCCESS' }, window.location.origin);
+      // Закрываем попап через небольшую задержку
+      setTimeout(() => {
+        window.close();
+      }, 2000);
+    }
+
     // Обновляем Premium статус после успешной оплаты
     refresh();
-  }, [refresh]);
+  }, [refresh, isPopup]);
 
   return (
     <Layout>
@@ -27,7 +37,7 @@ export default function PaymentSuccess() {
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">Оплата успешна! 🎉</h1>
             <p className="text-muted-foreground text-lg">
-              Спасибо за покупку! Ваш Premium доступ активирован.
+              Спасибо за покупку! {isPopup ? 'Монеты добавлены на ваш баланс.' : 'Ваш Premium доступ активирован.'}
             </p>
           </div>
 

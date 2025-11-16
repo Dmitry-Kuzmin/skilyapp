@@ -329,6 +329,180 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
   };
 
+  const handleCoinPurchase = async (catalogKey: string) => {
+    if (!profileId) {
+      toast({
+        title: '❌ Ошибка',
+        description: 'Необходимо войти в систему',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Создаем Stripe Checkout сессию
+      const { data, error } = await supabase.functions.invoke("purchase-create", {
+        body: { user_id: profileId, catalog_key: catalogKey },
+      });
+
+      if (error) {
+        console.error("[BoostShop] Purchase error:", error);
+        toast({
+          title: '❌ Ошибка',
+          description: error.message || 'Не удалось создать сессию оплаты',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (data?.error) {
+        console.error("[BoostShop] Error in response:", data.error);
+        toast({
+          title: '❌ Ошибка',
+          description: data.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!data?.url) {
+        console.error("[BoostShop] No URL in response:", data);
+        toast({
+          title: '❌ Ошибка',
+          description: 'Не удалось получить ссылку на оплату',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Открываем Stripe Checkout в попапе
+      const width = 600;
+      const height = 700;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+
+      const popup = window.open(
+        data.url,
+        'Stripe Checkout',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+
+      if (!popup) {
+        toast({
+          title: '⚠️ Внимание',
+          description: 'Пожалуйста, разрешите открытие всплывающих окон для этого сайта',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Слушаем сообщения от попапа
+      const handleMessage = async (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) return;
+        
+        if (event.data?.type === 'STRIPE_SUCCESS') {
+          // Покупка успешна, проверяем статус
+          setTimeout(async () => {
+            await checkPurchaseStatus();
+          }, 2000);
+        } else if (event.data?.type === 'STRIPE_CANCEL') {
+          // Покупка отменена
+          toast({
+            title: 'ℹ️ Оплата отменена',
+            description: 'Вы можете попробовать снова в любое время',
+          });
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+
+      // Отслеживаем закрытие попапа и проверяем статус покупки
+      const checkPurchaseStatus = async () => {
+        try {
+          // Проверяем последнюю покупку пользователя
+          const { data: purchases } = await supabase
+            .from('purchases')
+            .select('id, status, metadata, stripe_session_id, created_at')
+            .eq('user_id', profileId)
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+          if (purchases && purchases.length > 0) {
+            // Ищем покупку со статусом completed, созданную недавно (последние 2 минуты)
+            const recentCompleted = purchases.find(p => 
+              p.status === 'completed' && 
+              new Date(p.created_at).getTime() > Date.now() - 2 * 60 * 1000
+            );
+
+            if (recentCompleted) {
+              const coinsAmount = recentCompleted.metadata?.coins || 0;
+              if (coinsAmount > 0) {
+                await loadData(); // Обновляем баланс
+                toast({
+                  title: '✅ Покупка успешна!',
+                  description: `Вы получили ${coinsAmount} монет`,
+                  duration: 5000,
+                });
+                setShowConfetti(true);
+                setTimeout(() => setShowConfetti(false), 3000);
+                return true; // Покупка найдена
+              }
+            }
+          }
+          return false;
+        } catch (error) {
+          console.error("[BoostShop] Error checking purchase status:", error);
+          return false;
+        }
+      };
+
+      // Проверяем статус покупки каждую секунду после закрытия попапа
+      const checkInterval = setInterval(async () => {
+        try {
+          // Проверяем, закрыт ли попап
+          if (popup.closed) {
+            clearInterval(checkInterval);
+            
+            // Даем время webhook обработаться (2 секунды)
+            setTimeout(async () => {
+              let attempts = 0;
+              const maxAttempts = 10; // Проверяем до 10 раз (10 секунд)
+              
+              const statusCheckInterval = setInterval(async () => {
+                attempts++;
+                const found = await checkPurchaseStatus();
+                
+                if (found || attempts >= maxAttempts) {
+                  clearInterval(statusCheckInterval);
+                  if (!found && attempts >= maxAttempts) {
+                    // Если покупка не найдена, просто обновляем данные
+                    await loadData();
+                  }
+                }
+              }, 1000);
+            }, 2000);
+          }
+        } catch (error) {
+          console.error("[BoostShop] Error checking popup:", error);
+        }
+      }, 500);
+
+      // Очищаем интервал через 5 минут (на случай если попап не закрылся)
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        window.removeEventListener('message', handleMessage);
+      }, 5 * 60 * 1000);
+
+    } catch (err: any) {
+      console.error("[BoostShop] Purchase error:", err);
+      toast({
+        title: '❌ Ошибка',
+        description: err?.message || 'Произошла ошибка при создании покупки',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handlePurchase = async (boost: Boost) => {
     if (!profileId) {
       toast({
@@ -820,10 +994,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
                 <div className="grid gap-3">
                   {[
-                    { amount: 100, price: '€2.99', bonus: 0 },
-                    { amount: 500, price: '€9.99', bonus: 50 },
-                    { amount: 1200, price: '€19.99', bonus: 200 },
-                    { amount: 3000, price: '€39.99', bonus: 500 },
+                    { amount: 100, price: '€2.99', bonus: 0, catalogKey: 'coins_pack_100' },
+                    { amount: 500, price: '€9.99', bonus: 50, catalogKey: 'coins_pack_500' },
+                    { amount: 1200, price: '€19.99', bonus: 200, catalogKey: 'coins_pack_1200' },
+                    { amount: 3000, price: '€39.99', bonus: 500, catalogKey: 'coins_pack_3000' },
                   ].map((pack, idx) => (
                     <Card key={idx} className="p-4 hover:border-primary/50 transition-colors cursor-pointer">
                       <div className="flex items-center justify-between">
@@ -844,11 +1018,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           <p className="font-bold">{pack.price}</p>
                           <Button 
                             size="sm" 
-                            onClick={() => {
-                              // TODO: Implement coin pack purchase
-                              toast({ title: 'Скоро', description: 'Покупка монет будет доступна через Stripe' });
-                            }}
+                            onClick={() => handleCoinPurchase(pack.catalogKey)}
                             className="mt-1"
+                            disabled={!profileId}
                           >
                             Купить
                           </Button>

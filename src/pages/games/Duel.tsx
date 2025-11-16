@@ -214,18 +214,34 @@ export default function Duel() {
             console.log('[Duel] ✅ Duel is finished, going to results');
             handleDuelFinished();
           } else if (data.status === 'active') {
-            // Дуэль активна - проверяем режим сохраненного состояния
-            if (activeDuel.mode === 'waiting') {
-              // Если пользователь уже закончил все вопросы - переходим к экрану ожидания
-              console.log('[Duel] ⏳ User finished all questions, restoring to waiting screen');
-              handleDuelStarted(activeDuel.duelId);
-              // DuelBattleFullscreen сам определит что нужно показать экран ожидания
-            } else {
-              // Переходим к битве
-              console.log('[Duel] ✅ Duel is active, restoring to battle mode');
+            // Дуэль активна - проверяем, закончил ли пользователь все вопросы
+            // Проверяем через Edge Function, сколько вопросов ответил пользователь
+            try {
+              const { data: statusData } = await supabase.functions.invoke('duel-manager', {
+                body: {
+                  action: 'check_status',
+                  duel_id: activeDuel.duelId,
+                  profile_id: profileId
+                }
+              });
+              
+              // Если пользователь уже ответил на все вопросы - показываем экран ожидания
+              if (statusData?.my_answers_count >= activeDuel.totalQuestions) {
+                console.log('[Duel] ⏳ User finished all questions, restoring to waiting screen');
+                setDuelId(activeDuel.duelId);
+                setDuelCode(activeDuel.duelCode || null);
+                setMode('battle'); // DuelBattleFullscreen сам определит что нужно показать экран ожидания
+              } else {
+                // Переходим к битве
+                console.log('[Duel] ✅ Duel is active, restoring to battle mode');
+                handleDuelStarted(activeDuel.duelId);
+              }
+            } catch (err) {
+              console.error('[Duel] Error checking my answers count:', err);
+              // Fallback: переходим к битве
               handleDuelStarted(activeDuel.duelId);
             }
-          } else if (data.status === 'waiting' || activeDuel.mode === 'waiting') {
+          } else if (data.status === 'waiting') {
             // Дуэль в ожидании - переходим к лобби
             console.log('[Duel] ⏳ Duel is waiting, restoring to lobby');
             setMode('create');

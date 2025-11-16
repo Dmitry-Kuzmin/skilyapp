@@ -110,8 +110,14 @@ serve(async (req) => {
           metadata: { session_id: session.id },
         });
       } else if (dbType === "coins_pack") {
-        const coins = Number(metadata.coins ?? 0);
+        // Получаем количество монет из metadata (может быть строкой или числом)
+        const coins = typeof metadata.coins === 'string' 
+          ? parseInt(metadata.coins, 10) 
+          : Number(metadata.coins ?? 0);
+        
         if (coins > 0) {
+          console.log(`[purchase-webhook] Adding ${coins} coins to user ${userId}`);
+          
           await supabase.rpc("increment_profile_value", {
             p_profile_id: userId,
             p_column: "coins",
@@ -122,8 +128,16 @@ serve(async (req) => {
             user_id: userId,
             transaction_type: "coins_purchase_stripe",
             amount: coins,
-            metadata: { session_id: session.id, coins },
+            metadata: { 
+              session_id: session.id, 
+              coins,
+              catalog_key: metadata.catalog_key || null
+            },
           });
+          
+          console.log(`[purchase-webhook] ✅ Successfully added ${coins} coins to user ${userId}`);
+        } else {
+          console.warn(`[purchase-webhook] ⚠️ No coins amount found in metadata for coins_pack purchase`);
         }
       }
     }

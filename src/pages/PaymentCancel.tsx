@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,18 @@ import Layout from "@/components/Layout";
 
 export default function PaymentCancel() {
   const navigate = useNavigate();
+  const isPopup = window.opener !== null;
+
+  useEffect(() => {
+    // Если открыто в попапе, отправляем сообщение родительскому окну
+    if (isPopup) {
+      window.opener?.postMessage({ type: 'STRIPE_CANCEL' }, window.location.origin);
+      // Закрываем попап через небольшую задержку
+      setTimeout(() => {
+        window.close();
+      }, 2000);
+    }
+  }, [isPopup]);
 
   return (
     <Layout>
