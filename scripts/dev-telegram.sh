@@ -52,9 +52,9 @@ echo ""
 echo "🌐 Запуск Cloudflare Tunnel..."
 echo ""
 
-# Используем named pipe для получения URL от cloudflared с оптимизациями
+# Используем named pipe для получения URL от cloudflared
 TUNNEL_LOG="/tmp/cloudflared-tunnel.log"
-cloudflared tunnel --url http://localhost:$PORT --protocol http2 --compression-quality 0 > "$TUNNEL_LOG" 2>&1 &
+cloudflared tunnel --url http://localhost:$PORT > "$TUNNEL_LOG" 2>&1 &
 TUNNEL_PID=$!
 
 # Ждём получения URL (проверяем несколько раз)

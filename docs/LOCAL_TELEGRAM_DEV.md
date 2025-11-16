@@ -106,6 +106,43 @@ export TELEGRAM_BOT_TOKEN=your_bot_token_here
 - **Токен бота** храните в `.env.local` (не коммитьте в Git!)
 - **Tunnel работает** пока вы не остановите его (Ctrl+C)
 
+## 🔗 Как получить текущий URL Tunnel
+
+### Способ 1: Через скрипт (рекомендуется)
+
+```bash
+./scripts/get-tunnel-url.sh
+```
+
+### Способ 2: Из логов
+
+```bash
+grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' /tmp/cloudflared-tunnel.log | tail -1
+```
+
+### Способ 3: Из файла (если использовали скрипт с сохранением)
+
+```bash
+cat /tmp/cloudflare-tunnel-url.txt
+```
+
+### Способ 4: В терминале, где запущен tunnel
+
+URL отображается сразу после запуска в строке вида:
+```
+https://abc123.trycloudflare.com
+```
+
+## 💡 Постоянный URL (опционально)
+
+Если нужен постоянный URL, который не меняется, можно использовать **named tunnel**:
+
+1. Зарегистрируйтесь на [Cloudflare](https://dash.cloudflare.com/)
+2. Создайте named tunnel через веб-интерфейс
+3. Используйте команду: `cloudflared tunnel run <tunnel-name>`
+
+Но для локальной разработки quick tunnel (с меняющимся URL) обычно достаточно.
+
 ## 🔍 Проверка работы
 
 1. Запустите `npm run dev:telegram`
