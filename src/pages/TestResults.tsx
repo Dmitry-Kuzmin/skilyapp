@@ -884,6 +884,147 @@ const TestResults = () => {
                         </span>
                       </motion.div>
                     )}
+                    {/* Кнопка детальной информации о расчете */}
+                    {rewards.details && (
+                      <Dialog open={showRewardDetails} onOpenChange={setShowRewardDetails}>
+                        <DialogTrigger asChild>
+                          <motion.button
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
+                          >
+                            <Info className="w-4 h-4 text-blue-500" />
+                            <span className="text-xs text-blue-600 dark:text-blue-500 font-medium">
+                              Подробнее
+                            </span>
+                          </motion.button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Детали расчета наград</DialogTitle>
+                            <DialogDescription>
+                              Подробная информация о том, как были рассчитаны награды за этот тест
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 mt-4">
+                            {/* Базовые значения */}
+                            <div className="space-y-2">
+                              <h4 className="font-semibold text-sm">Базовые значения</h4>
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="p-2 rounded bg-muted/50">
+                                  <div className="text-xs text-muted-foreground">Базовые монеты</div>
+                                  <div className="font-semibold">{rewards.details.baseCoins || 0}</div>
+                                </div>
+                                <div className="p-2 rounded bg-muted/50">
+                                  <div className="text-xs text-muted-foreground">Базовые SP</div>
+                                  <div className="font-semibold">{rewards.details.baseSP || 0}</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Множители и бонусы */}
+                            <div className="space-y-2">
+                              <h4 className="font-semibold text-sm">Множители и бонусы</h4>
+                              <div className="space-y-1.5">
+                                {rewards.details.premiumUsed ? (
+                                  <div className="flex items-center justify-between p-2 rounded bg-yellow-500/10 border border-yellow-500/20">
+                                    <div className="flex items-center gap-2">
+                                      <Crown className="w-4 h-4 text-yellow-500" />
+                                      <span className="text-sm">Premium бонус</span>
+                                    </div>
+                                    <span className="text-sm font-semibold text-yellow-600">
+                                      Монеты: x1.5, SP: x1.2
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="p-2 rounded bg-muted/30 text-sm text-muted-foreground text-center">
+                                    Premium не активен
+                                  </div>
+                                )}
+                                {rewards.details.doubleSPUsed ? (
+                                  <div className="flex items-center justify-between p-2 rounded bg-purple-500/10 border border-purple-500/20">
+                                    <div className="flex items-center gap-2">
+                                      <Zap className="w-4 h-4 text-purple-500" />
+                                      <span className="text-sm">Double SP</span>
+                                    </div>
+                                    <span className="text-sm font-semibold text-purple-600">x2</span>
+                                  </div>
+                                ) : (
+                                  <div className="p-2 rounded bg-muted/30 text-sm text-muted-foreground text-center">
+                                    Double SP не активен
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Штрафы и снижения */}
+                            {(rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1) ||
+                            (rewards.details.diminishingFactor !== undefined && rewards.details.diminishingFactor < 1) ? (
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-sm">Примененные штрафы</h4>
+                                <div className="space-y-1.5">
+                                  {rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1 && (
+                                    <div className="flex items-center justify-between p-2 rounded bg-red-500/10 border border-red-500/20">
+                                      <div className="flex items-center gap-2">
+                                        <Info className="w-4 h-4 text-red-500" />
+                                        <span className="text-sm">Штраф за подозрительное поведение</span>
+                                      </div>
+                                      <span className="text-sm font-semibold text-red-600">
+                                        -{Math.round((1 - rewards.details.abusePenalty) * 100)}%
+                                      </span>
+                                    </div>
+                                  )}
+                                  {rewards.details.diminishingFactor !== undefined && rewards.details.diminishingFactor < 1 && (
+                                    <div className="flex items-center justify-between p-2 rounded bg-orange-500/10 border border-orange-500/20">
+                                      <div className="flex items-center gap-2">
+                                        <TrendingDown className="w-4 h-4 text-orange-500" />
+                                        <span className="text-sm">Снижение за частые тесты</span>
+                                      </div>
+                                      <div className="text-right">
+                                        <span className="text-sm font-semibold text-orange-600">
+                                          -{Math.round((1 - rewards.details.diminishingFactor) * 100)}%
+                                        </span>
+                                        {rewards.details.testsToday !== undefined && (
+                                          <div className="text-xs text-muted-foreground">
+                                            Тестов сегодня: {rewards.details.testsToday}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                                <div className="text-sm text-green-600 dark:text-green-500 text-center">
+                                  ✓ Штрафы не применялись
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Итоговые значения */}
+                            <div className="space-y-2 pt-2 border-t">
+                              <h4 className="font-semibold text-sm">Итоговые награды</h4>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                                  <div className="text-xs text-muted-foreground mb-1">Монеты</div>
+                                  <div className="text-lg font-bold text-yellow-600 dark:text-yellow-500">
+                                    +{rewards.coins || 0}
+                                  </div>
+                                </div>
+                                <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                                  <div className="text-xs text-muted-foreground mb-1">SP</div>
+                                  <div className="text-lg font-bold text-purple-600 dark:text-purple-500">
+                                    +{rewards.sp || 0}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
                     {rewards.levelUp && rewards.newLevel && (
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
