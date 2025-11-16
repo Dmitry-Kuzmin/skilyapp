@@ -83,20 +83,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   // В браузере (включая мобильный) всегда используем Dialog по центру
   const useSheet = shouldUseSheet(isMobile, isTelegramStrict);
   
-  // Логирование для отладки (можно убрать после проверки)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[BoostShop] Platform detection:', {
-      platform,
-      isMobile,
-      isTelegram,
-      isTelegramStrict,
-      useSheet,
-      hasTelegramWebApp,
-      telegramPlatform: typeof window !== 'undefined' && window.Telegram?.WebApp?.platform,
-      telegramInitData: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initData,
-      telegramUser: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initDataUnsafe?.user
-    });
-  }
+  // Логирование для отладки (только при первом рендере, чтобы не спамить)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && open) {
+      console.log('[BoostShop] Platform detection:', {
+        platform,
+        isMobile,
+        isTelegram,
+        isTelegramStrict,
+        useSheet,
+        hasTelegramWebApp,
+        telegramPlatform: typeof window !== 'undefined' && window.Telegram?.WebApp?.platform,
+        telegramInitData: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initData,
+        telegramUser: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initDataUnsafe?.user
+      });
+    }
+  }, [open]); // Только при открытии модалки
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -698,12 +700,42 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
-    try {
-      // Проверяем, что profileId действительно существует в базе
-      if (!profileId) {
-        throw new Error('profileId не установлен. Пожалуйста, обновите страницу и войдите снова.');
-      }
+    // Оптимистичное обновление UI - сразу обновляем состояние для мгновенной реакции
+    const newCoins = coins - boost.cost_coins;
+    const currentInventoryCount = getInventoryCount(boost.type);
+    const newInventory = [...inventory];
+    const existingBoostIndex = newInventory.findIndex(i => i.boost_type === boost.type);
+    
+    if (existingBoostIndex >= 0) {
+      newInventory[existingBoostIndex] = {
+        ...newInventory[existingBoostIndex],
+        quantity: newInventory[existingBoostIndex].quantity + 1
+      };
+    } else {
+      newInventory.push({
+        boost_type: boost.type,
+        quantity: 1
+      });
+    }
 
+    // Применяем оптимистичные обновления
+    setCoins(newCoins);
+    setInventory(newInventory);
+    setIsRefreshing(true);
+
+    // Анимации и звуки сразу для лучшего UX
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+    sounds.correctAnswer();
+    haptics.boostActivated();
+
+    // Показываем успешное сообщение сразу
+    toast({
+      title: '✅ Покупка успешна!',
+      description: `${boost.name_ru} добавлен в инвентарь`,
+    });
+
+    try {
       console.log('[BoostShop] Начало покупки:', { 
         profileId, 
         boostType: boost.type, 
@@ -711,77 +743,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         currentCoins: coins 
       });
 
-      // Проверяем существование профиля перед покупкой
-      const { data: profileCheck, error: profileCheckError } = await supabase
-        .from('profiles')
-        .select('id, coins')
-        .eq('id', profileId)
-        .single();
-
-      if (profileCheckError || !profileCheck) {
-        console.error('[BoostShop] Профиль не найден:', profileCheckError);
-        throw new Error(`Профиль не найден: ${profileCheckError?.message || 'Неизвестная ошибка'}. Пожалуйста, обновите страницу и войдите снова.`);
-      }
-
-      console.log('[BoostShop] Профиль найден, текущий баланс:', profileCheck.coins);
-
-      // Используем функцию increment_profile_value для списания монет
-      // Она использует SECURITY DEFINER и обходит RLS проблемы
-      const { data: coinsData, error: coinsError } = await supabase.rpc('increment_profile_value', {
-        p_profile_id: profileId,
-        p_column: 'coins',
-        p_amount: -boost.cost_coins
-      });
-
-      if (coinsError) {
-        console.error('[BoostShop] Ошибка списания монет:', coinsError);
-        console.error('[BoostShop] Детали ошибки списания:', {
-          code: coinsError.code,
-          message: coinsError.message,
-          details: coinsError.details,
-          hint: coinsError.hint
-        });
-        throw new Error(`Не удалось списать монеты: ${coinsError.message || coinsError.code || 'Неизвестная ошибка'}`);
-      }
-
-      console.log('[BoostShop] Монеты списаны успешно, результат:', coinsData);
-
-      // Добавляем буст в инвентарь используя функцию modify_boost_inventory
-      // Это более надежный способ, который обходит RLS проблемы
-      const { data: inventoryData, error: inventoryError } = await supabase.rpc('modify_boost_inventory', {
-        p_user_id: profileId,
-        p_boost_type: boost.type,
-        p_change: 1
-      });
-
-      if (inventoryError) {
-        console.error('[BoostShop] Ошибка добавления буста в инвентарь:', inventoryError);
-        console.error('[BoostShop] Детали ошибки инвентаря:', {
-          code: inventoryError.code,
-          message: inventoryError.message,
-          details: inventoryError.details,
-          hint: inventoryError.hint
-        });
-        
-        // Откатываем списание монет при ошибке
-        const { error: rollbackError } = await supabase.rpc('increment_profile_value', {
+      // Выполняем операции параллельно для скорости
+      const [coinsResult, inventoryResult, transactionResult] = await Promise.allSettled([
+        // Списание монет
+        supabase.rpc('increment_profile_value', {
           p_profile_id: profileId,
           p_column: 'coins',
-          p_amount: boost.cost_coins
-        });
-        
-        if (rollbackError) {
-          console.error('[BoostShop] Ошибка отката монет:', rollbackError);
-        }
-        
-        throw new Error(`Не удалось добавить буст в инвентарь: ${inventoryError.message || inventoryError.code || 'Неизвестная ошибка'}`);
-      }
-
-      console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
-
-      // Создаем транзакцию для истории используя RPC функцию (обходит RLS)
-      try {
-        const { data: transactionId, error: transactionError } = await supabase.rpc('create_transaction', {
+          p_amount: -boost.cost_coins
+        }),
+        // Добавление буста в инвентарь
+        supabase.rpc('modify_boost_inventory', {
+          p_user_id: profileId,
+          p_boost_type: boost.type,
+          p_change: 1
+        }),
+        // Создание транзакции (не критично, можно пропустить)
+        supabase.rpc('create_transaction', {
           p_user_id: profileId,
           p_transaction_type: 'coins_spent_boost',
           p_amount: -boost.cost_coins,
@@ -789,108 +766,92 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             boost_type: boost.type,
             boost_name: boost.name_ru,
           }
-        });
+        }).catch(err => {
+          console.warn('[BoostShop] Транзакция не создана (не критично):', err);
+          return { error: null }; // Игнорируем ошибку транзакции
+        })
+      ]);
 
-        if (transactionError) {
-          console.error('[BoostShop] Ошибка создания транзакции через RPC:', transactionError);
-          console.error('[BoostShop] Детали ошибки транзакции:', {
-            code: transactionError.code,
-            message: transactionError.message,
-            details: transactionError.details,
-            hint: transactionError.hint
-          });
-          // Не прерываем процесс, если транзакция не создалась
-        } else {
-          console.log('[BoostShop] ✅ Транзакция создана успешно через RPC, ID:', transactionId);
-        }
-      } catch (transactionErr: any) {
-        console.error('[BoostShop] Исключение при создании транзакции:', transactionErr);
-        console.error('[BoostShop] Детали исключения:', {
-          message: transactionErr?.message,
-          stack: transactionErr?.stack
-        });
+      // Проверяем результаты
+      if (coinsResult.status === 'rejected' || (coinsResult.status === 'fulfilled' && coinsResult.value.error)) {
+        const error = coinsResult.status === 'rejected' ? coinsResult.reason : coinsResult.value.error;
+        console.error('[BoostShop] Ошибка списания монет:', error);
+        // Откатываем оптимистичное обновление
+        setCoins(coins);
+        setInventory(inventory);
+        throw new Error(`Не удалось списать монеты: ${error?.message || 'Неизвестная ошибка'}`);
       }
 
-      // Анимации и звуки
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
-      sounds.correctAnswer();
-      haptics.boostActivated();
-
-      // Обновляем данные без скрытия контента
-      setIsRefreshing(true);
-      try {
-        // Небольшая задержка для гарантии, что данные в БД обновились
-        await new Promise(resolve => setTimeout(resolve, 500));
+      if (inventoryResult.status === 'rejected' || (inventoryResult.status === 'fulfilled' && inventoryResult.value.error)) {
+        const error = inventoryResult.status === 'rejected' ? inventoryResult.reason : inventoryResult.value.error;
+        console.error('[BoostShop] Ошибка добавления буста в инвентарь:', error);
         
-        // Обновляем баланс монет
-        const { data: updatedProfile, error: profileUpdateError } = await supabase
-          .from('profiles')
-          .select('coins')
-          .eq('id', profileId)
-          .single();
-
-        if (profileUpdateError) {
-          console.error('[BoostShop] Ошибка обновления профиля:', profileUpdateError);
-        } else if (updatedProfile) {
-          setCoins(updatedProfile.coins || 0);
-          console.log('[BoostShop] Баланс обновлен:', updatedProfile.coins);
-        }
-
-        // Обновляем инвентарь - используем более надежный запрос
-        const { data: updatedInventory, error: inventoryUpdateError } = await supabase
-          .from('boost_inventory')
-          .select('boost_type, quantity')
-          .eq('user_id', profileId);
-
-        if (inventoryUpdateError) {
-          console.error('[BoostShop] Ошибка обновления инвентаря:', inventoryUpdateError);
-        } else if (updatedInventory) {
-          console.log('[BoostShop] Инвентарь обновлен:', updatedInventory);
-          setInventory(updatedInventory);
-          
-          // Проверяем, что буст действительно добавлен
-          const purchasedBoost = updatedInventory.find(i => i.boost_type === boost.type);
-          if (!purchasedBoost || purchasedBoost.quantity === 0) {
-            console.warn('[BoostShop] ⚠️ Буст не найден в инвентаре после покупки! Перезагружаем данные...');
-            // Перезагружаем полностью при проблеме
-            await loadData();
-          }
-        } else {
-          console.warn('[BoostShop] ⚠️ Инвентарь пуст после покупки! Перезагружаем данные...');
-          await loadData();
-        }
-
-        // Обновляем историю транзакций после покупки
-        console.log('[BoostShop] Обновление истории транзакций...');
-        await loadTransactionHistory();
-        console.log('[BoostShop] История транзакций обновлена');
-      } catch (error) {
-        console.error('[BoostShop] Ошибка обновления данных:', error);
-        // При ошибке обновления все равно перезагружаем полностью
-        await loadData();
-        // Также пытаемся обновить историю
-        try {
-          await loadTransactionHistory();
-        } catch (historyError) {
-          console.error('[BoostShop] Ошибка обновления истории:', historyError);
-        }
-      } finally {
-        setIsRefreshing(false);
+        // Откатываем монеты
+        await supabase.rpc('increment_profile_value', {
+          p_profile_id: profileId,
+          p_column: 'coins',
+          p_amount: boost.cost_coins
+        }).catch(rollbackErr => {
+          console.error('[BoostShop] Ошибка отката монет:', rollbackErr);
+        });
+        
+        // Откатываем оптимистичное обновление
+        setCoins(coins);
+        setInventory(inventory);
+        throw new Error(`Не удалось добавить буст в инвентарь: ${error?.message || 'Неизвестная ошибка'}`);
       }
 
-      toast({
-        title: '✅ Покупка успешна!',
-        description: `${boost.name_ru} добавлен в инвентарь`,
-      });
+      console.log('[BoostShop] ✅ Покупка завершена успешно');
+
+      // Обновляем данные в фоне (не блокируем UI)
+      // Используем небольшую задержку для гарантии консистентности БД
+      setTimeout(async () => {
+        try {
+          // Параллельно загружаем актуальные данные
+          const [profileData, inventoryData] = await Promise.all([
+            supabase
+              .from('profiles')
+              .select('coins')
+              .eq('id', profileId)
+              .single(),
+            supabase
+              .from('boost_inventory')
+              .select('boost_type, quantity')
+              .eq('user_id', profileId)
+          ]);
+
+          // Обновляем состояние только если данные изменились
+          if (profileData.data && profileData.data.coins !== newCoins) {
+            console.log('[BoostShop] Синхронизация баланса:', profileData.data.coins);
+            setCoins(profileData.data.coins);
+          }
+
+          if (inventoryData.data) {
+            console.log('[BoostShop] Синхронизация инвентаря:', inventoryData.data);
+            setInventory(inventoryData.data);
+          }
+
+          // Обновляем историю транзакций в фоне
+          loadTransactionHistory().catch(err => {
+            console.warn('[BoostShop] Ошибка обновления истории (не критично):', err);
+          });
+        } catch (syncError) {
+          console.warn('[BoostShop] Ошибка синхронизации данных (не критично):', syncError);
+          // Не показываем ошибку пользователю - покупка уже успешна
+        } finally {
+          setIsRefreshing(false);
+        }
+      }, 300); // Уменьшена задержка с 500ms до 300ms
+
     } catch (error: any) {
       console.error('[BoostShop] Ошибка покупки:', error);
       
+      // Откатываем оптимистичные обновления
+      setCoins(coins);
+      setInventory(inventory);
+      setIsRefreshing(false);
+      
       const errorMessage = error?.message || error?.error?.message || 'Неизвестная ошибка';
-      console.error('[BoostShop] Детали ошибки:', {
-        message: errorMessage,
-        fullError: error
-      });
       
       toast({
         title: '❌ Ошибка покупки',
