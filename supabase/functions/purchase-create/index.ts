@@ -146,22 +146,63 @@ serve(async (req) => {
     
     const stripe = new Stripe(stripeSecret, { apiVersion: "2023-10-16" });
 
-    const { user_id, catalog_key } = await req.json();
-
-    if (!user_id || !catalog_key) {
+    // Парсим тело запроса с обработкой ошибок
+    let requestBody;
+    try {
+      // Сначала читаем как текст для отладки
+      const bodyText = await req.text();
+      console.log("[purchase-create] Raw request body:", bodyText);
+      
+      if (!bodyText || bodyText.trim() === '') {
+        return new Response(
+          JSON.stringify({ error: "Request body is empty" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      
+      // Парсим JSON
+      requestBody = JSON.parse(bodyText);
+      console.log("[purchase-create] Parsed request body:", JSON.stringify(requestBody));
+    } catch (parseError) {
+      console.error("[purchase-create] JSON parse error:", parseError);
       return new Response(
-        JSON.stringify({ error: "user_id and catalog_key are required" }),
+        JSON.stringify({ 
+          error: "Invalid JSON in request body", 
+          details: parseError instanceof Error ? parseError.message : String(parseError) 
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    if (!requestBody || typeof requestBody !== 'object') {
+      return new Response(
+        JSON.stringify({ error: "Request body must be a JSON object" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { user_id, catalog_key } = requestBody;
+
+    if (!user_id || !catalog_key) {
+      console.error("[purchase-create] Missing required fields:", { user_id: !!user_id, catalog_key: !!catalog_key });
+      return new Response(
+        JSON.stringify({ error: "user_id and catalog_key are required", received: { user_id: !!user_id, catalog_key: !!catalog_key } }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("[purchase-create] Processing purchase:", { user_id, catalog_key });
 
     const entry = CATALOG[catalog_key];
     if (!entry) {
+      console.error("[purchase-create] Invalid catalog_key:", catalog_key, "Available keys:", Object.keys(CATALOG));
       return new Response(
-        JSON.stringify({ error: "Invalid catalog key" }),
+        JSON.stringify({ error: `Invalid catalog key: ${catalog_key}`, available_keys: Object.keys(CATALOG) }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("[purchase-create] Found catalog entry:", { name: entry.name, amountCents: entry.amountCents, dbType: entry.dbType });
 
     const priceData: Record<string, unknown> = {
       currency: entry.currency,
@@ -220,8 +261,15 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("[purchase-create] error", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ 
+        error: "Internal server error",
+        message: errorMessage,
+        ...(errorStack && { stack: errorStack })
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

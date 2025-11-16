@@ -339,28 +339,69 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
+    console.log("[BoostShop] Starting coin purchase:", { profileId, catalogKey });
+
     try {
       // Создаем Stripe Checkout сессию
+      const requestBody = { user_id: profileId, catalog_key: catalogKey };
+      console.log("[BoostShop] Invoking purchase-create with body:", requestBody);
+      
       const { data, error } = await supabase.functions.invoke("purchase-create", {
-        body: { user_id: profileId, catalog_key: catalogKey },
+        body: requestBody,
       });
+      
+      console.log("[BoostShop] purchase-create response:", { data, error });
 
       if (error) {
         console.error("[BoostShop] Purchase error:", error);
+        
+        // Пытаемся получить детали ошибки из response
+        let errorMessage = error.message || 'Не удалось создать сессию оплаты';
+        let errorDetails = '';
+        
+        if (error.context) {
+          try {
+            const errorBody = await error.context.json?.();
+            if (errorBody?.error) {
+              errorMessage = errorBody.error;
+              if (errorBody.details) {
+                errorDetails = `\nДетали: ${errorBody.details}`;
+              }
+              if (errorBody.available_keys) {
+                errorDetails += `\nДоступные ключи: ${errorBody.available_keys.join(', ')}`;
+              }
+            }
+          } catch (e) {
+            console.warn("[BoostShop] Cannot parse error context:", e);
+          }
+        }
+        
         toast({
           title: '❌ Ошибка',
-          description: error.message || 'Не удалось создать сессию оплаты',
+          description: `${errorMessage}${errorDetails}`,
           variant: 'destructive',
+          duration: 6000,
         });
         return;
       }
 
       if (data?.error) {
-        console.error("[BoostShop] Error in response:", data.error);
+        console.error("[BoostShop] Error in response:", data);
+        const errorMessage = typeof data.error === 'string' 
+          ? data.error 
+          : JSON.stringify(data.error);
+        const errorDetails = data.details 
+          ? `\nДетали: ${data.details}` 
+          : '';
+        const availableKeys = data.available_keys 
+          ? `\nДоступные ключи: ${data.available_keys.join(', ')}` 
+          : '';
+        
         toast({
           title: '❌ Ошибка',
-          description: data.error,
+          description: `${errorMessage}${errorDetails}${availableKeys}`,
           variant: 'destructive',
+          duration: 6000,
         });
         return;
       }
