@@ -56,9 +56,33 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 
 export default function Duel() {
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
-  const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
-  const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
+  
+  // Защита от undefined для хуков
+  const userContext = useUserContext();
+  const lumiToast = useLumiToast();
+  const activeDuelHook = useActiveDuel();
+  
+  const { isAuthenticated, profileId, user, supabaseUser } = userContext || {
+    isAuthenticated: false,
+    profileId: null,
+    user: null,
+    supabaseUser: null,
+  };
+  
+  const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = lumiToast || {
+    showDuelJoinError: () => {},
+    showDuelJoinSuccess: () => {},
+    showDuelNotification: () => {},
+    ToastContainer: () => null,
+  };
+  
+  const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = activeDuelHook || {
+    activeDuel: null,
+    saveActiveDuel: () => {},
+    clearActiveDuel: () => {},
+    updateActiveDuel: () => {},
+    isChecking: false,
+  };
   const [mode, setMode] = useState<GameMode>('menu');
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);
