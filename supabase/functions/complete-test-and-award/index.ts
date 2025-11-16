@@ -330,15 +330,45 @@ serve(async (req) => {
       p_season_id: null
     });
 
-    if (configError || !configData) {
+    if (configError) {
       console.error("[complete-test-and-award] Config error:", configError);
       return new Response(
-        JSON.stringify({ error: "Reward configuration not found", details: configError?.message }),
+        JSON.stringify({ 
+          success: false,
+          error: "Reward configuration not found", 
+          details: configError?.message || configError?.toString(),
+          code: configError?.code
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!configData) {
+      console.error("[complete-test-and-award] Config data is null");
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: "Reward configuration is null",
+          details: "No active reward configuration found"
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const config: RewardConfig = configData as RewardConfig;
+    
+    // Валидация конфигурации
+    if (!config.baseCoins || !config.baseSP) {
+      console.error("[complete-test-and-award] Invalid config:", config);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: "Invalid reward configuration",
+          details: "Config missing required fields: baseCoins or baseSP"
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Проверка Premium статуса
     const { data: profile } = await supabase
@@ -437,28 +467,43 @@ serve(async (req) => {
     if (coinsError) {
       console.error("[complete-test-and-award] Coins update error:", coinsError);
       return new Response(
-        JSON.stringify({ error: "Failed to update coins balance" }),
+        JSON.stringify({ 
+          success: false,
+          error: "Failed to update coins balance",
+          details: coinsError.message || coinsError.toString()
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     // 2. Начисляем SP через season-sp функцию
-    const { data: spData, error: spError } = await supabase.functions.invoke("season-sp", {
-      body: {
-        user_id,
-        source_type: score === 100 ? "test_perfect" : "test_completed",
-        metadata: {
-          sp_earned: spReward,
-          test_id,
-          session_id,
-          score,
-          questions_count
-        }
-      },
-    });
-
-    if (spError) {
-      console.error("[complete-test-and-award] SP update error:", spError);
+    let spData: any = null;
+    let spError: any = null;
+    
+    try {
+      const spResponse = await supabase.functions.invoke("season-sp", {
+        body: {
+          user_id,
+          source_type: score === 100 ? "test_perfect" : "test_completed",
+          metadata: {
+            sp_earned: spReward,
+            test_id,
+            session_id,
+            score,
+            questions_count
+          }
+        },
+      });
+      
+      spData = spResponse.data;
+      spError = spResponse.error;
+      
+      if (spError) {
+        console.error("[complete-test-and-award] SP update error:", spError);
+        // Не прерываем процесс, но логируем ошибку
+      }
+    } catch (spInvokeError) {
+      console.error("[complete-test-and-award] SP function invoke error:", spInvokeError);
       // Не прерываем процесс, но логируем ошибку
     }
 
@@ -487,7 +532,12 @@ serve(async (req) => {
     if (insertError) {
       console.error("[complete-test-and-award] Insert error:", insertError);
       return new Response(
-        JSON.stringify({ error: "Failed to save test result" }),
+        JSON.stringify({ 
+          success: false,
+          error: "Failed to save test result",
+          details: insertError.message || insertError.toString(),
+          code: insertError.code
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -545,10 +595,15 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("[complete-test-and-award] Unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: error.message }),
+      JSON.stringify({ 
+        success: false,
+        error: "Internal server error", 
+        details: error?.message || error?.toString() || "Unknown error",
+        stack: error?.stack
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

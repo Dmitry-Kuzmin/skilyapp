@@ -201,16 +201,21 @@ const TestResults = () => {
         
         if (rewardError) {
           console.error('[TestResults] Reward error:', rewardError);
+          const errorMessage = rewardError.message || rewardError.toString() || "Неизвестная ошибка";
           toast.error("Ошибка при начислении наград", {
-            description: rewardError.message || "Попробуйте обновить страницу",
+            description: errorMessage,
+            duration: 8000,
           });
           return;
         }
         
         if (!rewardData || !rewardData.success) {
           console.error('[TestResults] Reward failed:', rewardData);
+          const errorMessage = rewardData?.error || rewardData?.details || "Не удалось начислить награды";
+          const errorCode = rewardData?.code ? ` (код: ${rewardData.code})` : '';
           toast.error("Не удалось начислить награды", {
-            description: rewardData?.error || "Попробуйте обновить страницу",
+            description: `${errorMessage}${errorCode}`,
+            duration: 8000,
           });
           return;
         }
