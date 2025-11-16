@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins } from "lucide-react";
+import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 type QuestionData = {
   id: string;
@@ -113,6 +114,7 @@ const TestResults = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const rewardLoggedRef = useRef(false);
+  const [isCalculatingRewards, setIsCalculatingRewards] = useState(true);
   const [rewards, setRewards] = useState<{
     coins?: number;
     sp?: number;
@@ -149,8 +151,12 @@ const TestResults = () => {
   // Начисление наград после получения данных (новая система)
   useEffect(() => {
     const handleRewards = async () => {
-      if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) return;
+      if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) {
+        setIsCalculatingRewards(false);
+        return;
+      }
       rewardLoggedRef.current = true;
+      setIsCalculatingRewards(true);
       
       // Вычисляем score из answers
       const correctCount = answers.filter(a => a.isCorrect).length;
@@ -248,6 +254,11 @@ const TestResults = () => {
           newLevel: rewardData.new_level || undefined,
         });
         
+        // Завершаем расчет с небольшой задержкой для плавности
+        setTimeout(() => {
+          setIsCalculatingRewards(false);
+        }, 300);
+        
         // Показываем уведомление о начислениях
         const rewardMessages = [];
         if (rewardData.coins_awarded) {
@@ -279,6 +290,7 @@ const TestResults = () => {
         toast.error("Ошибка при начислении наград", {
           description: error?.message || "Попробуйте обновить страницу",
         });
+        setIsCalculatingRewards(false);
       }
     };
     
@@ -734,39 +746,84 @@ const TestResults = () => {
               </motion.p>
 
               {/* Награды за тест */}
-              {rewards && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.45 }}
-                  className="mb-6 flex items-center justify-center gap-3 flex-wrap"
-                >
-                  {rewards.coins && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                      <Coins className="w-5 h-5 text-yellow-500" />
-                      <span className="font-semibold text-yellow-600 dark:text-yellow-500">
-                        +{rewards.coins} монет
-                      </span>
-                    </div>
-                  )}
-                  {rewards.sp && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                      <Trophy className="w-5 h-5 text-purple-500" />
-                      <span className="font-semibold text-purple-600 dark:text-purple-500">
-                        +{rewards.sp} SP
-                      </span>
-                    </div>
-                  )}
-                  {rewards.levelUp && rewards.newLevel && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-                      <Sparkles className="w-5 h-5 text-purple-500" />
-                      <span className="font-semibold text-purple-600 dark:text-purple-500">
-                        🎉 Уровень {rewards.newLevel}!
-                      </span>
-                    </div>
-                  )}
-                </motion.div>
-              )}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.45 }}
+                className="mb-6 flex items-center justify-center gap-3 flex-wrap"
+              >
+                {isCalculatingRewards ? (
+                  // Анимация загрузки расчета наград
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border border-border/50"
+                  >
+                    <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                    <span className="text-sm text-muted-foreground font-medium">
+                      Расчет наград...
+                    </span>
+                  </motion.div>
+                ) : rewards ? (
+                  // Отображение начисленных наград с анимацией счетчика
+                  <>
+                    {rewards.coins && rewards.coins > 0 && (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 shadow-lg shadow-yellow-500/10"
+                      >
+                        <motion.div
+                          animate={{ rotate: [0, 10, -10, 0] }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                          <Coins className="w-5 h-5 text-yellow-500" />
+                        </motion.div>
+                        <span className="font-semibold text-yellow-600 dark:text-yellow-500">
+                          +<AnimatedCounter value={rewards.coins} suffix=" монет" />
+                        </span>
+                      </motion.div>
+                    )}
+                    {rewards.sp && rewards.sp > 0 && (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 shadow-lg shadow-purple-500/10"
+                      >
+                        <motion.div
+                          animate={{ rotate: [0, -10, 10, 0] }}
+                          transition={{ duration: 0.5, delay: 0.3 }}
+                        >
+                          <Trophy className="w-5 h-5 text-purple-500" />
+                        </motion.div>
+                        <span className="font-semibold text-purple-600 dark:text-purple-500">
+                          +<AnimatedCounter value={rewards.sp} suffix=" SP" />
+                        </span>
+                      </motion.div>
+                    )}
+                    {rewards.levelUp && rewards.newLevel && (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 shadow-lg shadow-purple-500/10"
+                      >
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 0.6, delay: 0.4, repeat: 2 }}
+                        >
+                          <Sparkles className="w-5 h-5 text-purple-500" />
+                        </motion.div>
+                        <span className="font-semibold text-purple-600 dark:text-purple-500">
+                          🎉 Уровень {rewards.newLevel}!
+                        </span>
+                      </motion.div>
+                    )}
+                  </>
+                ) : null}
+              </motion.div>
 
               {/* Статистика с улучшенным дизайном */}
               <motion.div
