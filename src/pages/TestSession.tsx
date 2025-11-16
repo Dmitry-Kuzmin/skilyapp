@@ -215,6 +215,13 @@ const TestSession = () => {
   const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
   const [masteryRound, setMasteryRound] = useState(1);
   
+  // Boosts для Practice Mode
+  const [boosts, setBoosts] = useState({ fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0, translate: 0 });
+  const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
+  const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
+  const [showHint, setShowHint] = useState(false);
+  const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
+  
   const isTelegramApp = isTelegramMiniApp();
 
   // Сохраняем настройки в localStorage
@@ -936,6 +943,150 @@ const TestSession = () => {
 
     return () => clearTimeout(timeoutId);
   }, [currentIndex, questions, loading]);
+
+  // Загрузка бустов из инвентаря (только для practice mode)
+  useEffect(() => {
+    if (mode === "practice" && profileId) {
+      const loadBoosts = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('boost_inventory')
+            .select('boost_type, quantity')
+            .eq('user_id', profileId);
+
+          if (error) {
+            console.error('[TestSession] Error loading boosts:', error);
+            return;
+          }
+
+          if (data) {
+            const boostMap: any = { fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0, translate: 0 };
+            data.forEach((item: any) => {
+              if (item.boost_type in boostMap) {
+                boostMap[item.boost_type] = item.quantity;
+              }
+            });
+            setBoosts(boostMap);
+          }
+        } catch (error) {
+          console.error('[TestSession] Exception loading boosts:', error);
+        }
+      };
+
+      loadBoosts();
+    }
+  }, [mode, profileId]);
+
+  // Сброс использованных бустов при переходе к следующему вопросу
+  useEffect(() => {
+    if (questions.length > 0 && currentIndex >= 0) {
+      setUsedBoosts([]);
+      setHiddenOptions([]);
+      setShowHint(false);
+      setTranslationLanguage(null);
+    }
+  }, [currentIndex, questions.length]);
+
+  // Обработчик применения буста
+  const handleUseBoost = async (type: string, language?: 'ru' | 'en') => {
+    if (usedBoosts.includes(type) || selectedOption || boosts[type as keyof typeof boosts] === 0) {
+      return;
+    }
+
+    const currentQuestion = questions[currentIndex];
+    if (!currentQuestion) return;
+
+    // Получаем опции ответов для текущего вопроса
+    const questionOptions = (currentQuestion.answer_options && Array.isArray(currentQuestion.answer_options))
+      ? [...currentQuestion.answer_options].sort((a, b) => (a?.position || 0) - (b?.position || 0))
+      : [];
+
+    // Применяем эффект буста локально
+    if (type === 'fifty_fifty') {
+      // Убираем 2 неправильных ответа
+      const wrongOptions = questionOptions.filter(opt => !opt.is_correct);
+      const toHide = wrongOptions.slice(0, 2).map(opt => opt.id);
+      setHiddenOptions(toHide);
+      setUsedBoosts([...usedBoosts, type]);
+      
+      // Уменьшаем количество в инвентаре
+      if (profileId) {
+        await supabase.rpc('modify_boost_inventory', {
+          p_user_id: profileId,
+          p_boost_type: type,
+          p_change: -1
+        });
+        setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof boosts] - 1) }));
+      }
+      toast.success('50/50 применен');
+    } else if (type === 'hint') {
+      // Показываем подсказку (объяснение)
+      setShowHint(true);
+      setUsedBoosts([...usedBoosts, type]);
+      
+      if (profileId) {
+        await supabase.rpc('modify_boost_inventory', {
+          p_user_id: profileId,
+          p_boost_type: type,
+          p_change: -1
+        });
+        setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof boosts] - 1) }));
+      }
+      toast.success('Подсказка показана');
+    } else if (type === 'skip') {
+      // Пропускаем вопрос
+      setUsedBoosts([...usedBoosts, type]);
+      if (profileId) {
+        await supabase.rpc('modify_boost_inventory', {
+          p_user_id: profileId,
+          p_boost_type: type,
+          p_change: -1
+        });
+        setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof boosts] - 1) }));
+      }
+      toast.success('Вопрос пропущен');
+      // Переходим к следующему вопросу
+      if (currentIndex < questions.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        handleFinish();
+      }
+    } else if (type === 'translate') {
+      // Переключаем язык перевода
+      const lang = language || (translationLanguage === 'ru' ? 'en' : 'ru');
+      setTranslationLanguage(lang);
+      setShowTranslation(lang === 'ru');
+      setUsedBoosts([...usedBoosts, type]);
+      
+      if (profileId) {
+        await supabase.rpc('modify_boost_inventory', {
+          p_user_id: profileId,
+          p_boost_type: type,
+          p_change: -1
+        });
+        setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof boosts] - 1) }));
+      }
+      toast.success(`Перевод на ${lang === 'ru' ? 'русский' : 'английский'}`);
+    } else if (type === 'time_extend') {
+      // Добавляем время (если есть таймер)
+      if (timeLeft > 0) {
+        setTimeLeft(prev => prev + 30);
+        setUsedBoosts([...usedBoosts, type]);
+        
+        if (profileId) {
+          await supabase.rpc('modify_boost_inventory', {
+            p_user_id: profileId,
+            p_boost_type: type,
+            p_change: -1
+          });
+          setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof boosts] - 1) }));
+        }
+        toast.success('+30 секунд добавлено');
+      } else {
+        toast.error('Таймер недоступен в этом режиме');
+      }
+    }
+  };
 
   useEffect(() => {
     if (mode === "exam" && timeLeft > 0) {
@@ -1725,10 +1876,58 @@ const TestSession = () => {
         <div 
           data-testid="test-content-block"
           className={cn(
-            "pt-0 sm:pt-1 md:pt-3",
+            "pt-0 sm:pt-1 md:pt-3 relative",
             isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
           )}
         >
+        {/* Компактные бусты в правом верхнем углу (только для practice mode) */}
+        {mode === "practice" && profileId && (
+          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50 flex flex-col gap-1.5">
+            {Object.entries(boosts).map(([type, count]) => {
+              if (count === 0) return null;
+              
+              const boostConfig: Record<string, { icon: any; name: string; color: string }> = {
+                fifty_fifty: { icon: Grid3x3, name: '50/50', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20 dark:text-blue-400' },
+                hint: { icon: Lightbulb, name: 'Подсказка', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/30 hover:bg-yellow-500/20 dark:text-yellow-400' },
+                skip: { icon: ChevronRight, name: 'Пропустить', color: 'bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20 dark:text-green-400' },
+                translate: { icon: Languages, name: 'Перевод', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 hover:bg-purple-500/20 dark:text-purple-400' },
+                time_extend: { icon: Clock, name: '+30 сек', color: 'bg-orange-500/10 text-orange-600 border-orange-500/30 hover:bg-orange-500/20 dark:text-orange-400' },
+              };
+              
+              const config = boostConfig[type] || boostConfig.fifty_fifty;
+              const Icon = config.icon;
+              const isUsed = usedBoosts.includes(type);
+              const isDisabled = isUsed || selectedOption !== null;
+              
+              return (
+                <button
+                  key={type}
+                  onClick={() => {
+                    if (type === 'translate') {
+                      // Для translate показываем выбор языка
+                      const lang = translationLanguage === 'ru' ? 'en' : 'ru';
+                      handleUseBoost(type, lang);
+                    } else {
+                      handleUseBoost(type);
+                    }
+                  }}
+                  disabled={isDisabled}
+                  className={cn(
+                    "relative flex items-center gap-1.5 px-2 py-1.5 rounded-lg border text-xs font-medium transition-all shadow-sm backdrop-blur-sm",
+                    config.color,
+                    isDisabled && "opacity-50 cursor-not-allowed",
+                    !isDisabled && "hover:scale-105 active:scale-95"
+                  )}
+                  title={config.name}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-bold">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Индикатор активных бустов */}
         {profileId && (
           <div className="mb-2 flex justify-center">
