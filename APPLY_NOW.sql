@@ -95,22 +95,23 @@ SET search_path = public
 AS $$
 BEGIN
   -- Verify user exists
-  IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = p_user_id) THEN
+  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = p_user_id) THEN
     RAISE EXCEPTION 'User not found: %', p_user_id;
   END IF;
 
   -- Return transactions for the user
+  -- Используем явные имена таблиц и алиасы для избежания конфликтов
   RETURN QUERY
   SELECT 
-    t.id,
-    t.amount,
-    t.transaction_type,
-    t.metadata,
-    t.created_at
-  FROM transactions t
-  WHERE t.user_id = p_user_id
-  ORDER BY t.created_at DESC
-  LIMIT p_limit;
+    transactions.id,
+    transactions.amount,
+    transactions.transaction_type,
+    transactions.metadata,
+    transactions.created_at
+  FROM public.transactions
+  WHERE transactions.user_id = get_user_transactions.p_user_id
+  ORDER BY transactions.created_at DESC
+  LIMIT get_user_transactions.p_limit;
 END;
 $$;
 
