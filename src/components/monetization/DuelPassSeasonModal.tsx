@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2 } from "lucide-react";
+import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
