@@ -6,11 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Курс конвертации: 1 Star = 30 coins
-// Рассчитано на основе цен в Stripe:
-// - 100 монет = €2.99 ≈ 3 звезды (100/3 ≈ 33 coins/star)
-// - Учитывая комиссию Telegram (30%), используем консервативный курс: 1 Star = 30 coins
-const EXCHANGE_RATE_COINS_TO_STARS = 30;
+// Курс конвертации: 1 Star = 0.5 coins (или 1 coin = 2 stars)
+// Рассчитано на основе официальных цен Telegram Stars:
+// - Средняя цена 1 звезды: 0.02161 €
+// - 100 монет = €2.99 в Stripe
+// - С учетом комиссии Telegram (30%): €2.99 / 0.7 ≈ €4.27 → 198 звёзд
+// - Курс: 100 монет / 198 звёзд ≈ 0.5 coins/star
+// Используем упрощенный курс: 1 Star = 0.5 coins (1 coin = 2 stars)
+const EXCHANGE_RATE_COINS_TO_STARS = 0.5;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -61,6 +64,7 @@ serve(async (req) => {
       }
 
       // Рассчитать количество Stars (Math.round для честного округления)
+      // Формула: stars = coins / 0.5 = coins * 2 (1 coin = 2 stars)
       const starsAmount = Math.round(pkg.price_coins / EXCHANGE_RATE_COINS_TO_STARS);
 
       // Минимальная сумма для Telegram Stars: 1 звезда

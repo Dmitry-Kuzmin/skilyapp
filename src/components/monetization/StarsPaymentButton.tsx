@@ -19,10 +19,12 @@ interface StarsPaymentButtonProps {
  * Компонент кнопки оплаты через Telegram Stars
  * Показывается только в Telegram Mini App
  * 
- * Курс: 1 Star = 30 coins
- * Рассчитано на основе цен в Stripe:
- * - 100 монет = €2.99 ≈ 3 звезды (100/3 ≈ 33 coins/star)
- * - Учитывая комиссию Telegram (30%), используем консервативный курс: 1 Star = 30 coins
+ * Курс: 1 Star = 0.5 coins (или 1 coin = 2 stars)
+ * Рассчитано на основе официальных цен Telegram Stars:
+ * - Средняя цена 1 звезды: 0.02161 €
+ * - 100 монет = €2.99 в Stripe
+ * - С учетом комиссии Telegram (30%): €2.99 / 0.7 ≈ €4.27 → 198 звёзд
+ * - Курс: 100 монет / 198 звёзд ≈ 0.5 coins/star
  * Округление: Math.round для честной цены
  */
 export function StarsPaymentButton({ 
@@ -45,8 +47,9 @@ export function StarsPaymentButton({
     return null;
   }
 
-  // Рассчитать эквивалент в Stars (курс: 1 Star = 30 coins, округление Math.round)
-  const starsAmount = Math.round(priceCoins / 30);
+  // Рассчитать эквивалент в Stars (курс: 1 Star = 0.5 coins, т.е. 1 coin = 2 stars)
+  // Формула: stars = coins / 0.5 = coins * 2
+  const starsAmount = Math.round(priceCoins / 0.5);
 
   const handlePurchase = async () => {
     if (!profileId || !user?.id) {
