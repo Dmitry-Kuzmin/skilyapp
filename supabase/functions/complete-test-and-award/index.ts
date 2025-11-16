@@ -568,6 +568,18 @@ serve(async (req) => {
 
     const testResultId = insertedResult?.id;
 
+    if (!testResultId) {
+      console.error("[complete-test-and-award] Failed to get test_result_id from insert");
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: "Failed to get test result ID",
+          details: "Insert succeeded but ID is missing"
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // 4. Логируем транзакции
     await supabase.from("transactions").insert({
       user_id,
@@ -581,6 +593,7 @@ serve(async (req) => {
         premium: isPremium,
         abuse_penalty,
         diminishing_factor: diminishingFactor,
+        test_result_id: testResultId, // Добавляем ID результата для связи
       },
     });
 
