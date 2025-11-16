@@ -3422,6 +3422,33 @@ Respuesta: Depende del país de origen. Las licencias de la UE son válidas, par
 • Revisiones regulares del sistema de seguridad
 
 Más detalles en la Política de Privacidad.`,
+    "help.content.rules.referral.title": "Reglas del Programa de Referidos",
+    "help.content.rules.referral.content": `**Cómo funciona el programa de referidos:**
+
+**Para el que invita:**
+• Recibes un enlace de referido único
+• Cuando un amigo se registra usando tu enlace, recibe +50 monedas al registrarse
+• Recibes +100 monedas cuando tu amigo gana sus primeras 50 monedas
+• Cada amigo invitado puede traerte recompensas solo una vez
+
+**Para el invitado:**
+• Al registrarte mediante enlace de referido, recibes +50 monedas
+• Solo puedes usar un enlace de referido durante el registro
+• Después del registro, no puedes usar otro enlace de referido
+
+**Reglas y limitaciones:**
+• Un usuario solo puede usar un enlace de referido
+• Está prohibido crear cuentas falsas para recibir recompensas
+• Está prohibido usar múltiples cuentas para eludir restricciones
+• Las violaciones pueden llevar a la prohibición de cuenta y cancelación de recompensas
+• Las recompensas de referidos se otorgan automáticamente cuando se cumplen las condiciones
+• Las monedas no se pueden reembolsar o intercambiar por dinero real
+
+**Cómo usar:**
+• Comparte tu enlace de referido con amigos
+• El enlace está disponible en el perfil y en la sección del programa de referidos
+• Puedes rastrear el número de amigos invitados
+• El historial de recompensas se muestra en la sección del programa de referidos`,
     
     // FAQ section content
     "help.content.faq.general.title": "Preguntas Generales",
