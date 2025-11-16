@@ -49,7 +49,7 @@ interface DuelBattleFullscreenProps {
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
   const [isWaitingHidden, setIsWaitingHidden] = useState(false);
   const { profileId } = useUserContext();
-  const { saveActiveDuel, updateActiveDuel } = useActiveDuel();
+  const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -683,7 +683,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
     // Сохраняем состояние только если дуэль активна
     if (state.duelStarted && !state.duelFinished) {
-      updateActiveDuel({
+      const stateToSave = {
         duelId,
         duelCode,
         mode: isWaitingForOpponent ? 'waiting' : 'battle',
@@ -693,9 +693,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         totalQuestions: questions.length,
         myName,
         opponentName,
-      });
+      };
+
+      // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
+      if (activeDuel) {
+        updateActiveDuel(stateToSave);
+      } else {
+        saveActiveDuel(stateToSave);
+      }
     }
-  }, [duelId, duelCode, currentIndex, myScore, opponentScore, questions.length, myName, opponentName, isWaitingForOpponent, state.duelStarted, state.duelFinished, profileId, updateActiveDuel]);
+  }, [duelId, duelCode, currentIndex, myScore, opponentScore, questions.length, myName, opponentName, isWaitingForOpponent, state.duelStarted, state.duelFinished, profileId, activeDuel, saveActiveDuel, updateActiveDuel]);
 
   // Перезагружаем когда дуэль началась (игроки должны быть точно созданы)
   useEffect(() => {
@@ -1739,17 +1746,24 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           if (hidden) {
             // Сохраняем состояние при сворачивании на экране ожидания
             if (duelId && duelCode && profileId && questions.length > 0) {
-              updateActiveDuel({
+              const stateToSave = {
                 duelId,
                 duelCode,
-                mode: 'waiting',
+                mode: 'waiting' as const,
                 currentIndex: undefined, // Не сохраняем currentIndex в режиме ожидания
                 myScore,
                 opponentScore,
                 totalQuestions: questions.length,
                 myName,
                 opponentName,
-              });
+              };
+              
+              // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
+              if (activeDuel) {
+                updateActiveDuel(stateToSave);
+              } else {
+                saveActiveDuel(stateToSave);
+              }
             }
             // Notify parent that game is hidden - parent will show menu
             if (onHide) {
