@@ -1830,8 +1830,12 @@ const TestSession = () => {
     return currentQuestion.question_es;
   };
 
-  // Приоритет: showTranslation (кнопка) > testLanguage (настройки)
-  const displayQuestion = showTranslation 
+  // Приоритет: translationLanguage (буст) > showTranslation (кнопка) > testLanguage (настройки)
+  const displayQuestion = translationLanguage === 'ru'
+    ? currentQuestion.question_ru
+    : translationLanguage === 'en'
+    ? currentQuestion.question_en
+    : showTranslation 
     ? currentQuestion.question_ru 
     : getQuestionText(testLanguage);
   const displayTopic = currentQuestion.topics?.title_es || 'Sin tema';
@@ -2034,8 +2038,12 @@ const TestSession = () => {
                     const isSelected = selectedOption === option.id;
                     const isCorrect = option.is_correct;
                     const showResult = selectedOption !== null && mode === "practice";
-                    // Ответы тоже учитывают showTranslation (кнопка перевода)
-                    const displayText = showTranslation 
+                    // Ответы учитывают translationLanguage (буст перевода) > showTranslation (кнопка) > testLanguage (настройки)
+                    const displayText = translationLanguage === 'ru'
+                      ? option.text_ru
+                      : translationLanguage === 'en'
+                      ? option.text_en
+                      : showTranslation 
                       ? option.text_ru 
                       : (testLanguage === 'en' ? option.text_en : option.text_es);
                     
