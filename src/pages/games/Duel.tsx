@@ -6,14 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift } from 'lucide-react';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
-import { DuelLobby } from '@/components/duel/DuelLobby';
-import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
-import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
-import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
-import { DuelResult } from '@/components/duel/DuelResult';
-import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
-import { AuthModal } from '@/components/AuthModal';
+import { lazy, Suspense } from 'react';
 import { useUserContext } from '@/contexts/UserContext';
+
+// Lazy load тяжелые компоненты для оптимизации bundle
+const DuelLobby = lazy(() => import('@/components/duel/DuelLobby'));
+const DuelCreateModal = lazy(() => import('@/components/duel/DuelCreateModal'));
+const DuelJoinModal = lazy(() => import('@/components/duel/DuelJoinModal'));
+const DuelBattleFullscreen = lazy(() => import('@/components/duel/DuelBattleFullscreen'));
+const DuelResult = lazy(() => import('@/components/duel/DuelResult'));
+const DuelSkeleton = lazy(() => import('@/components/duel/DuelSkeleton'));
+const AuthModal = lazy(() => import('@/components/AuthModal'));
+
 import { useNotifications } from '@/hooks/useNotifications';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp } from '@/lib/telegram';
@@ -26,6 +30,13 @@ import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
 import { toast } from 'sonner';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
+
+// Fallback для lazy компонентов
+const ComponentLoader = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+  </div>
+);
 
 type GameMode = 'menu' | 'create' | 'join' | 'battle' | 'result';
 
@@ -804,28 +815,34 @@ export default function Duel() {
 
   // Показываем skeleton screen при начальной загрузке - ПОСЛЕ всех хуков!
   if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
-    return <DuelSkeleton />;
+    return (
+      <Suspense fallback={<ComponentLoader />}>
+        <DuelSkeleton />
+      </Suspense>
+    );
   }
 
   // Fullscreen modes - no Layout/Footer
   // But if hidden, show menu with widget overlay
   if (mode === 'battle' && duelId && !isBattleHidden) {
     return (
-      <DuelBattleFullscreen
-        duelId={duelId}
-        onExit={handleBackToMenu}
-        onDuelFinished={handleDuelFinished}
-        onHide={() => {
-          // When game is hidden, switch to menu mode
-          // State is already saved via updateActiveDuel/saveActiveDuel in DuelBattleFullscreen
-          // Force a small delay to ensure state is saved before switching modes
-          setTimeout(() => {
-            setIsBattleHidden(true);
-            setMode('menu');
-          }, 100);
-        }}
-        onWidgetExpand={handleWidgetExpand}
-      />
+      <Suspense fallback={<ComponentLoader />}>
+        <DuelBattleFullscreen
+          duelId={duelId}
+          onExit={handleBackToMenu}
+          onDuelFinished={handleDuelFinished}
+          onHide={() => {
+            // When game is hidden, switch to menu mode
+            // State is already saved via updateActiveDuel/saveActiveDuel in DuelBattleFullscreen
+            // Force a small delay to ensure state is saved before switching modes
+            setTimeout(() => {
+              setIsBattleHidden(true);
+              setMode('menu');
+            }, 100);
+          }}
+          onWidgetExpand={handleWidgetExpand}
+        />
+      </Suspense>
     );
   }
 
@@ -835,13 +852,15 @@ export default function Duel() {
       <ToastContainer />
       {mode === 'create' && duelCode ? (
         <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
-          <DuelLobby
-            duelId={duelId}
-            duelCode={duelCode}
-            onDuelCreated={handleDuelCreated}
-            onDuelStarted={handleDuelStarted}
-            onCancel={handleBackToMenu}
-          />
+          <Suspense fallback={<ComponentLoader />}>
+            <DuelLobby
+              duelId={duelId}
+              duelCode={duelCode}
+              onDuelCreated={handleDuelCreated}
+              onDuelStarted={handleDuelStarted}
+              onCancel={handleBackToMenu}
+            />
+          </Suspense>
         </div>
       ) : (
     <Layout>
@@ -1746,21 +1765,25 @@ export default function Duel() {
       )}
 
       {!isLoadingProfile && mode === 'create' && (
-        <DuelLobby
-          duelId={duelId}
-          duelCode={duelCode}
-          onDuelCreated={handleDuelCreated}
-          onDuelStarted={handleDuelStarted}
-          onCancel={handleBackToMenu}
-        />
+        <Suspense fallback={<ComponentLoader />}>
+          <DuelLobby
+            duelId={duelId}
+            duelCode={duelCode}
+            onDuelCreated={handleDuelCreated}
+            onDuelStarted={handleDuelStarted}
+            onCancel={handleBackToMenu}
+          />
+        </Suspense>
       )}
 
       {mode === 'result' && duelId && (
-        <DuelResult
-          duelId={duelId}
-          onRematch={() => setMode('create')}
-          onBackToMenu={handleBackToMenu}
-        />
+        <Suspense fallback={<ComponentLoader />}>
+          <DuelResult
+            duelId={duelId}
+            onRematch={() => setMode('create')}
+            onBackToMenu={handleBackToMenu}
+          />
+        </Suspense>
       )}
       
       {/* Debug: показываем состояние для отладки */}
@@ -1771,24 +1794,30 @@ export default function Duel() {
       )}
       
       {dataLoaded && (
-        <AuthModal
-          open={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-        />
+        <Suspense fallback={null}>
+          <AuthModal
+            open={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+          />
+        </Suspense>
       )}
 
       {/* Modals */}
-      <DuelCreateModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onDuelCreated={handleDuelCreated}
-      />
+      <Suspense fallback={null}>
+        <DuelCreateModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onDuelCreated={handleDuelCreated}
+        />
+      </Suspense>
 
-      <DuelJoinModal
-        open={showJoinModal}
-        onClose={() => setShowJoinModal(false)}
-        onDuelJoined={handleDuelJoined}
-      />
+      <Suspense fallback={null}>
+        <DuelJoinModal
+          open={showJoinModal}
+          onClose={() => setShowJoinModal(false)}
+          onDuelJoined={handleDuelJoined}
+        />
+      </Suspense>
       <BoostShopModal open={showShop} onOpenChange={setShowShop} />
       </div>
     </Layout>
