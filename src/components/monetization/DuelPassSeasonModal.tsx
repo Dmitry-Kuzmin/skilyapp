@@ -624,39 +624,134 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           )}
         </div>
 
-        {/* Кнопка покупки Premium Pass (если не куплен) */}
+        {/* Улучшенный баннер Premium Duel Pass */}
         {!hasPremiumPass && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-xl bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 border-2 border-yellow-500/30 relative overflow-hidden"
+            onClick={() => !hasPremiumForever && setShowPremiumSelector(true)}
+            className={cn(
+              "group relative overflow-hidden rounded-2xl border-2 transition-all duration-300",
+              "bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20",
+              "border-purple-500/30 hover:border-purple-500/50",
+              !hasPremiumForever && "cursor-pointer hover:shadow-2xl hover:shadow-purple-500/20",
+              "backdrop-blur-sm"
+            )}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-orange-500/5 animate-pulse" />
-            <div className="relative flex items-center justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Crown className="w-5 h-5 text-yellow-500" />
-                  <h4 className="font-bold text-lg">Premium Duel Pass</h4>
-                  {hasPremiumForever && (
-                    <Badge className="bg-green-500 text-white text-xs">
-                      Бесплатно
-                    </Badge>
+            {/* Анимированный фон */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(168,85,247,0.3),transparent_50%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(236,72,153,0.3),transparent_50%)]" />
+            
+            {/* Декоративные элементы */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/20 to-pink-500/20 rounded-full blur-2xl" />
+            
+            <div className="relative p-4 md:p-6">
+              {/* Заголовок и цена */}
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="relative">
+                      <Crown className="w-6 h-6 md:w-7 md:h-7 text-yellow-400 drop-shadow-lg" />
+                      <motion.div
+                        animate={{ rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                        className="absolute inset-0"
+                      >
+                        <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-yellow-300 absolute -top-1 -right-1" />
+                      </motion.div>
+                    </div>
+                    <h4 className="font-bold text-lg md:text-xl bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 bg-clip-text text-transparent">
+                      Premium Duel Pass
+                    </h4>
+                    {hasPremiumForever && (
+                      <Badge className="bg-green-500/90 text-white text-xs px-2 py-0.5 shadow-lg">
+                        Бесплатно
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Описание */}
+                  <p className="text-sm md:text-base text-foreground/90 mb-3 font-medium">
+                    {hasPremiumForever 
+                      ? 'У тебя Premium Forever - Duel Pass уже открыт!'
+                      : 'Что такое Duel Pass?'}
+                  </p>
+                  
+                  {!hasPremiumForever && (
+                    <p className="text-xs md:text-sm text-muted-foreground mb-4 leading-relaxed">
+                      Сезонная система наград, которая открывает эксклюзивные призы за прохождение дуэлей и выполнение заданий. Premium версия удваивает все награды!
+                    </p>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {hasPremiumForever 
-                    ? 'У тебя Premium Forever - Duel Pass уже открыт!'
-                    : 'Разблокируй все Premium награды и ускорь прогрессию'}
-                </p>
+                
+                {/* Кнопка покупки */}
+                {!hasPremiumForever && (
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex-shrink-0"
+                  >
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowPremiumSelector(true);
+                      }}
+                      size="lg"
+                      className="w-full md:w-auto bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 px-6 py-6 md:py-3"
+                    >
+                      <Sparkles className="w-5 h-5 md:w-4 md:h-4 mr-2" />
+                      <span className="text-base md:text-sm">Купить за 7.99€</span>
+                      <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </motion.div>
+                )}
               </div>
+              
+              {/* Выгоды Premium Duel Pass */}
               {!hasPremiumForever && (
-                <Button
-                  onClick={() => setShowPremiumSelector(true)}
-                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold shadow-lg"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Купить за 7.99€
-                </Button>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-purple-500/20">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                      <Gift className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">2x награды</p>
+                      <p className="text-[10px] text-muted-foreground">Удвоенные монеты и XP</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-yellow-500/20 flex items-center justify-center">
+                      <Star className="w-4 h-4 text-orange-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">Эксклюзивы</p>
+                      <p className="text-[10px] text-muted-foreground">Уникальные косметики</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-pink-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">Быстрый старт</p>
+                      <p className="text-[10px] text-muted-foreground">+5 уровней сразу</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
+                      <Trophy className="w-4 h-4 text-yellow-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground">Все сезоны</p>
+                      <p className="text-[10px] text-muted-foreground">Доступ ко всем наградам</p>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>
