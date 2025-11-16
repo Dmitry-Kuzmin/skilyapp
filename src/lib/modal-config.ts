@@ -96,13 +96,13 @@ export function getSheetContentClasses(type: keyof typeof MODAL_CONFIG.types = '
 
 /**
  * Определяет, нужно ли использовать Sheet вместо Dialog
- * Sheet используется для мобильных устройств ИЛИ Telegram Web App
- * В браузере на десктопе всегда используется Dialog по центру
+ * Sheet используется ТОЛЬКО в Telegram Web App (со свайпом снизу)
+ * В браузере (включая мобильный) всегда используется Dialog по центру
  */
 export function shouldUseSheet(isMobile: boolean, isTelegram: boolean = false) {
-  // В браузере на десктопе - всегда Dialog
-  // На мобильных или в Telegram Web App - Sheet
-  return isMobile || isTelegram;
+  // В браузере (не Telegram) - всегда Dialog, даже на мобильных
+  // В Telegram Web App - Sheet снизу со свайпом
+  return isTelegram; // Только для Telegram Web App
 }
 
 

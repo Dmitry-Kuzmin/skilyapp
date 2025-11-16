@@ -58,7 +58,9 @@ export function OpponentActivityIndicator({
   className,
   showTooltip = true 
 }: OpponentActivityIndicatorProps) {
-  const config = statusConfig[status];
+  // Защита от невалидного статуса
+  const validStatus = status && statusConfig[status] ? status : 'online';
+  const config = statusConfig[validStatus];
   const Icon = config.icon;
 
   return (
