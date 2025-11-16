@@ -65,7 +65,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   
   // Дополнительная проверка: если нет window.Telegram?.WebApp, то точно не Telegram
   const hasTelegramWebApp = typeof window !== 'undefined' && !!window.Telegram?.WebApp;
-  const isTelegramStrict = isTelegram && hasTelegramWebApp;
+  
+  // Финальная строгая проверка: должны быть И isTelegram И hasTelegramWebApp
+  // Также проверяем, что есть реальные данные пользователя (не мок)
+  const hasTelegramUser = typeof window !== 'undefined' && 
+                          !!window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const hasTelegramInitData = typeof window !== 'undefined' && 
+                              !!window.Telegram?.WebApp?.initData &&
+                              window.Telegram.WebApp.initData !== '';
+  
+  // isTelegramStrict = true только если ВСЕ условия выполнены
+  const isTelegramStrict = isTelegram && 
+                          hasTelegramWebApp && 
+                          (hasTelegramUser || hasTelegramInitData);
   
   // Sheet используется ТОЛЬКО в Telegram Web App (со свайпом снизу)
   // В браузере (включая мобильный) всегда используем Dialog по центру
