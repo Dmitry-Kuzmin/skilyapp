@@ -309,9 +309,21 @@ const TestResults = () => {
   const correctCount = correctAnswers.length;
   const incorrectCount = incorrectAnswers.length;
   const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-  // Для экзамена: максимум 3 ошибки (из 30 вопросов = минимум 27 правильных = 90%)
-  // Упрощенная логика: если ошибок <= 3, то процент всегда >= 90% при 30 вопросах
-  const passed = mode === "exam" ? incorrectCount <= 3 : true;
+  
+  // Стандарты DGT: минимум 90% правильных ответов для сдачи экзамена
+  // Для exam и sequential режимов применяем стандарты DGT
+  // Для practice режима более мягкие требования (80%)
+  let passed: boolean;
+  if (mode === "exam" || mode === "sequential") {
+    // DGT стандарт: минимум 90% правильных (максимум 10% ошибок)
+    // Для 30 вопросов = максимум 3 ошибки
+    // Для любого количества: максимум Math.ceil(questions.length * 0.1) ошибок
+    const maxAllowedErrors = Math.ceil(questions.length * 0.1);
+    passed = incorrectCount <= maxAllowedErrors && percentage >= 90;
+  } else {
+    // Practice режим: более мягкие требования (80%)
+    passed = percentage >= 80;
+  }
   
   // Статистика по темам для рекомендаций
   const topicStats: Record<string, { correct: number; incorrect: number; total: number; questions: QuestionData[] }> = {};
