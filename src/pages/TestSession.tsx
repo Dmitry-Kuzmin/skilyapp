@@ -1461,11 +1461,7 @@ const TestSession = () => {
       // НЕ открываем Lumi автоматически - только по клику пользователя
       // setShowAIExplanation(true); // ОТКЛЮЧЕНО для лучшего UX
       
-      if (isCorrect) {
-        toast.success("¡Correcto! ✅", { duration: 2000 });
-      } else {
-        toast.error("Incorrecto ❌", { duration: 2000 });
-      }
+      // Уведомления убраны - результат виден в UI через цветовую индикацию ответов
     } else {
       // Exam mode: no feedback, no early termination, just move to next question
       // Don't finish test early - let user complete all questions

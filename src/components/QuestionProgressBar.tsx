@@ -99,24 +99,32 @@ export function QuestionProgressBar({
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           </div>
           
-          {/* Visual indicators for answered questions */}
+          {/* Visual indicators for answered questions - стильные индикаторы */}
           {answers.length > 0 && (
             <div className="absolute inset-0 flex items-center">
               {answers.map((answer, idx) => {
                 const position = ((idx + 1) / totalQuestions) * 100;
                 return (
-                  <div
+                  <motion.div
                     key={idx}
-                    className="absolute w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full border border-background shadow-sm"
-                    style={{ left: `calc(${position}% - 4px)` }}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: idx * 0.05, duration: 0.3, type: "spring", stiffness: 200 }}
+                    className={cn(
+                      "absolute rounded-full shadow-lg border-2 transition-all duration-300",
+                      answer.isCorrect
+                        ? "w-3 h-3 sm:w-3.5 sm:h-3.5 bg-emerald-500 border-emerald-600 dark:border-emerald-400 shadow-emerald-500/50 hover:scale-110"
+                        : "w-3 h-3 sm:w-3.5 sm:h-3.5 bg-red-500 border-red-600 dark:border-red-400 shadow-red-500/50 hover:scale-110"
+                    )}
+                    style={{ 
+                      left: `calc(${position}% - ${answer.isCorrect ? '6px' : '6px'})`,
+                      top: '50%',
+                      transform: 'translateY(-50%)'
+                    }}
                   >
-                    <div
-                      className={answer.isCorrect 
-                        ? "w-full h-full rounded-full bg-emerald-500" 
-                        : "w-full h-full rounded-full bg-red-500"
-                      }
-                    />
-                  </div>
+                    {/* Внутренний блик для объема */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent" />
+                  </motion.div>
                 );
               })}
             </div>
