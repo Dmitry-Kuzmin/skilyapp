@@ -30,10 +30,10 @@ const plans = [
     description: "Полный доступ ко всем материалам, ускоренные монеты и без рекламы.",
   },
   {
-    key: "premium_yearly",
-    title: "Premium на год",
-    price: "€59.99 / год",
-    description: "Сэкономь 50% и учись без ограничений весь год.",
+    key: "premium_forever",
+    title: "Premium Forever",
+    price: "€59.99",
+    description: "Пожизненный доступ ко всем функциям. Duel Pass Premium автоматически открывается для каждого сезона.",
   },
 ];
 
@@ -62,7 +62,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         .from('pricing_packages')
         .select('id, package_key, title_ru, description_ru, price_coins, premium_days')
         .eq('is_active', true)
-        .in('package_key', ['premium_monthly', 'premium_yearly']);
+        .in('package_key', ['premium_monthly', 'premium_forever']);
 
       if (error) {
         console.error('[PaywallModal] Error loading packages:', error);
