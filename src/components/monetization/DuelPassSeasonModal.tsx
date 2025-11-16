@@ -46,19 +46,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   
   // Итоговый Premium статус: либо из хука, либо Premium Forever, либо Premium Pass для сезона
   // ВАЖНО: Premium Forever дает доступ ко всем Premium наградам автоматически
-  const isPremium = isPremiumFromHook || hasPremiumForever || hasPremiumPass;
-  
-  // Логирование для отладки Premium статуса (только при изменении)
-  const prevPremiumStatus = useRef<{isPremium: boolean; hasPremiumForever: boolean; hasPremiumPass: boolean} | null>(null);
-  useEffect(() => {
-    if (open && profileId) {
-      const currentStatus = { isPremium, hasPremiumForever, hasPremiumPass };
-      if (JSON.stringify(prevPremiumStatus.current) !== JSON.stringify(currentStatus)) {
-        console.log('[DuelPassSeasonModal] Premium статус изменился:', currentStatus);
-        prevPremiumStatus.current = currentStatus;
-      }
-    }
-  }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
+  // Мемоизируем для предотвращения лишних перерендеров
+  const isPremium = useMemo(() => {
+    return isPremiumFromHook || hasPremiumForever || hasPremiumPass;
+  }, [isPremiumFromHook, hasPremiumForever, hasPremiumPass]);
 
   const loadSeasonData = async (silent = false) => {
     try {
@@ -111,12 +102,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       const { data: hasPremiumForeverData, error: premiumForeverError } = await supabase
         .rpc('has_premium_forever', { p_user_id: profileId });
       
-      console.log('[DuelPassSeasonModal] Premium Forever check:', {
-        hasPremiumForeverData,
-        premiumForeverError,
-        profileId
-      });
-      
       // Fallback: проверяем напрямую через поля профиля
       if (premiumForeverError || hasPremiumForeverData === null || hasPremiumForeverData === undefined) {
         const { data: profileData } = await supabase
@@ -124,13 +109,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           .select('subscription_type, subscription_status, premium_forever_purchased_at')
           .eq('id', profileId)
           .single();
-        
-        console.log('[DuelPassSeasonModal] Profile data for Premium Forever check:', {
-          subscription_type: profileData?.subscription_type,
-          subscription_status: profileData?.subscription_status,
-          premium_forever_purchased_at: profileData?.premium_forever_purchased_at,
-          profileId
-        });
         
         // Premium Forever активен ТОЛЬКО если:
         // 1. premium_forever_purchased_at установлен (покупка была совершена)
@@ -140,10 +118,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           profileData?.subscription_type === 'lifetime' &&
           profileData?.subscription_status === 'pro';
         
-        console.log('[DuelPassSeasonModal] Premium Forever result (fallback):', isLifetime);
         setHasPremiumForever(isLifetime);
       } else {
-        console.log('[DuelPassSeasonModal] Premium Forever result (RPC):', hasPremiumForeverData === true);
         setHasPremiumForever(hasPremiumForeverData === true);
       }
 
@@ -157,10 +133,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       if (rewardsError) {
         console.error("[DuelPassSeasonModal] Rewards error", rewardsError);
       } else if (rewardsData) {
-        console.log("[DuelPassSeasonModal] Загружено наград из БД:", rewardsData.length, rewardsData);
-        setRewards(rewardsData);
-      } else {
-        console.warn("[DuelPassSeasonModal] Награды не найдены для сезона:", season.id);
+        // Обновляем только если данные действительно изменились
+        setRewards((prevRewards) => {
+          if (prevRewards.length !== rewardsData.length) {
+            return rewardsData;
+          }
+          const prevIds = prevRewards.map(r => `${r.level}-${r.id}`).sort().join(',');
+          const newIds = rewardsData.map(r => `${r.level}-${r.id}`).sort().join(',');
+          return prevIds !== newIds ? rewardsData : prevRewards;
+        });
       }
 
       // Получаем полученные награды из новой системы
@@ -175,7 +156,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       }
 
       if (claimedData) {
-        console.log("[DuelPassSeasonModal] Загружено полученных наград из БД:", claimedData);
         const claimed = new Set<number>();
         const claimedFree = new Set<number>();
         const claimedPremium = new Set<number>();
@@ -185,28 +165,33 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             // Бесплатная награда получена
             claimedFree.add(item.level);
             claimed.add(item.level);
-            console.log(`[DuelPassSeasonModal] Бесплатная награда уровня ${item.level} помечена как полученная`);
           } else {
             // Premium награда получена
             claimedPremium.add(item.level);
             if (isPremium) {
               claimed.add(item.level);
             }
-            console.log(`[DuelPassSeasonModal] Premium награда уровня ${item.level} помечена как полученная`);
           }
         });
         
-        console.log("[DuelPassSeasonModal] Итоговые множества:", {
-          claimedFree: Array.from(claimedFree),
-          claimedPremium: Array.from(claimedPremium),
-          claimed: Array.from(claimed)
+        // Обновляем только если данные изменились
+        setClaimedRewards((prev) => {
+          const prevStr = Array.from(prev).sort().join(',');
+          const newStr = Array.from(claimed).sort().join(',');
+          return prevStr !== newStr ? claimed : prev;
         });
         
-        setClaimedRewards(claimed);
-        setClaimedFreeRewards(claimedFree);
-        setClaimedPremiumRewards(claimedPremium);
-      } else {
-        console.log("[DuelPassSeasonModal] Нет полученных наград в БД");
+        setClaimedFreeRewards((prev) => {
+          const prevStr = Array.from(prev).sort().join(',');
+          const newStr = Array.from(claimedFree).sort().join(',');
+          return prevStr !== newStr ? claimedFree : prev;
+        });
+        
+        setClaimedPremiumRewards((prev) => {
+          const prevStr = Array.from(prev).sort().join(',');
+          const newStr = Array.from(claimedPremium).sort().join(',');
+          return prevStr !== newStr ? claimedPremium : prev;
+        });
       }
     } catch (error) {
       console.error("[DuelPassSeasonModal] Load error", error);
@@ -294,9 +279,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
 
   // Фильтрация наград (ВСЕГДА вызывается, даже если rewards пустой)
+  // Используем строковое представление Set для стабильности зависимостей
+  const claimedRewardsStr = useMemo(() => {
+    return Array.from(claimedRewards).sort().join(',');
+  }, [claimedRewards]);
+
   const filteredRewards = useMemo(() => {
-    if (!rewards || rewards.length === 0) {
-      console.log('[DuelPassSeasonModal] Нет наград для фильтрации');
+    // Не фильтруем во время загрузки или если нет данных
+    if (loading || !rewards || rewards.length === 0) {
       return [];
     }
     
@@ -310,16 +300,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       return true;
     });
     
-    console.log('[DuelPassSeasonModal] Фильтрация наград:', {
-      totalRewards: rewards.length,
-      currentLevel,
-      rewardFilter,
-      filteredCount: filtered.length,
-      claimedRewards: Array.from(claimedRewards)
-    });
-    
     return filtered;
-  }, [rewards, currentLevel, rewardFilter, claimedRewards]);
+  }, [rewards, currentLevel, rewardFilter, claimedRewardsStr, loading]);
 
   // Компонент информационной кнопки (вынесен на верхний уровень)
   const InfoButton = () => (
@@ -400,14 +382,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   );
 
   const handleRewardClick = async (reward: any) => {
-    console.log('[DuelPassSeasonModal] handleRewardClick:', {
-      level: reward.level,
-      hasFreeReward: !!reward.free_reward,
-      hasPremiumReward: !!reward.premium_reward,
-      isPremium,
-      freeClaimed: claimedFreeRewards.has(reward.level),
-      premiumClaimed: claimedPremiumRewards.has(reward.level)
-    });
     
     // Если пользователь Premium и есть Premium награда - получаем Premium награду
     if (isPremium && reward.premium_reward && !claimedPremiumRewards.has(reward.level)) {
@@ -649,6 +623,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           ) : (
             <Dialog open={open} onOpenChange={onOpenChange}>
               <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Загрузка Duel Pass</DialogTitle>
+                </DialogHeader>
                 <div className="flex-1 overflow-y-auto">
                   <SkeletonContent />
                 </div>
@@ -1454,6 +1431,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent className="max-w-4xl h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Duel Pass</DialogTitle>
+            </DialogHeader>
             <div className="flex-1 overflow-y-auto">
               <ModalContent />
             </div>

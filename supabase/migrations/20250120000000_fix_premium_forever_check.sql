@@ -97,3 +97,4 @@ COMMENT ON FUNCTION has_premium_forever(UUID) IS 'Проверяет, имеет
 
 
 
+
