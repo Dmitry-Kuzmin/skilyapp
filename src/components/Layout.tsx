@@ -218,9 +218,6 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
       )}
-          </div>
-        </div>
-      </header>
 
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
       <main 
