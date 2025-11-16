@@ -232,7 +232,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto"
               onClick={() => {
                 onOpenChange(false);
-                window.open('/referrals', '_blank');
+                window.location.href = '/help#rules';
               }}
             >
               Посмотреть условия и положения
