@@ -591,12 +591,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, onDuelFinished]);
   
-  // FALLBACK для Telegram WebApp: периодическая проверка счета соперника
-  // Если Realtime не работает, обновляем счет каждые 2 секунды
+  // FALLBACK для Telegram WebApp (особенно мобильная версия): периодическая проверка счета соперника
+  // Если Realtime не работает, обновляем счет каждые 1.5 секунды (более часто для мобильной версии)
   useEffect(() => {
     if (!duelId || !myPlayerId || !state.duelStarted) return;
     
-    // Проверяем счет каждые 2 секунды как fallback
+    // Проверяем, что мы в мобильной версии Telegram WebApp
+    const isMobileTelegram = typeof window !== 'undefined' && 
+      window.Telegram?.WebApp && 
+      (window.Telegram.WebApp.platform === 'ios' || window.Telegram.WebApp.platform === 'android');
+    
+    // В мобильной версии проверяем чаще (1.5 сек), в браузерной реже (2 сек)
+    const checkInterval = isMobileTelegram ? 1500 : 2000;
+    
+    // Проверяем счет периодически как fallback
     const scoreCheckInterval = setInterval(async () => {
       try {
         const { data: players, error } = await supabase
@@ -614,12 +622,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
             console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
             setOpponentScore(opponent.score);
-      }
+          }
         }
       } catch (error) {
         console.error('[DuelBattleFullscreen] Exception in score check fallback:', error);
       }
-    }, 2000); // Каждые 2 секунды
+    }, checkInterval);
     
     return () => clearInterval(scoreCheckInterval);
   }, [duelId, myPlayerId, state.duelStarted, opponentScore]);
