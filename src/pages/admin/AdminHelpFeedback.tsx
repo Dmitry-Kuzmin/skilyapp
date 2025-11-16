@@ -96,6 +96,30 @@ export function AdminHelpFeedback() {
 
       if (error) throw error;
 
+      // Create notification for the user who left the feedback
+      if (replyingTo.profile_id) {
+        const { error: notificationError } = await supabase
+          .from("duel_notifications")
+          .insert({
+            user_id: replyingTo.profile_id,
+            type: "help_feedback_reply",
+            title: "Ответ на ваш отзыв",
+            message: `Администратор ответил на ваш отзыв по разделу "${replyingTo.section_id}"`,
+            icon: "message-square",
+            metadata: {
+              feedback_id: replyingTo.id,
+              section_id: replyingTo.section_id,
+              subsection_id: replyingTo.subsection_id,
+              admin_reply: replyText.trim(),
+            },
+          });
+
+        if (notificationError) {
+          console.error("Error creating notification:", notificationError);
+          // Don't fail the whole operation if notification fails
+        }
+      }
+
       toast({
         title: "Успешно",
         description: "Ответ отправлен",
