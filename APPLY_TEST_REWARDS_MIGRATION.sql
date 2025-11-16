@@ -158,6 +158,10 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Инициализация дефолтной конфигурации
+-- Сначала удаляем старые записи, если есть
+DELETE FROM reward_config WHERE key = 'test_rewards' AND season_id IS NULL;
+
+-- Затем вставляем новую
 INSERT INTO reward_config (key, value, revision, is_active) VALUES
 ('test_rewards', '{
   "baseCoins": 10,
@@ -183,8 +187,7 @@ INSERT INTO reward_config (key, value, revision, is_active) VALUES
     "reductionPerTest": 0.01,
     "maxReduction": 0.20
   }
-}'::jsonb, 1, TRUE)
-ON CONFLICT (key, season_id, revision) DO NOTHING;
+}'::jsonb, 1, TRUE);
 
 -- Комментарии для документации
 COMMENT ON TABLE test_results IS 'Результаты прохождения тестов с наградами и метаданными для аналитики';
