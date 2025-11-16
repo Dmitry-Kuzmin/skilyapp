@@ -145,7 +145,7 @@ const Layout = ({ children }: LayoutProps) => {
               </span>
             </div>
 
-            <nav className="flex gap-1 min-w-0 flex-shrink overflow-x-auto scrollbar-hide">
+            <nav className="flex gap-1 min-w-0 flex-shrink">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
@@ -168,27 +168,22 @@ const Layout = ({ children }: LayoutProps) => {
 
             <div className="flex items-center gap-1 md:gap-2 min-w-0 flex-shrink-0">
               {isAuthenticated && (
-                <>
-                  <div className="min-w-0 flex-shrink-0">
-                    <WalletWidget />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigate('/referrals')}
-                    className="relative hidden sm:flex flex-shrink-0"
-                    title="Реферальная программа"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/referrals')}
+                  className="relative hidden sm:flex flex-shrink-0"
+                  title="Реферальная программа"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-5 h-5 shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path fill="currentColor" d="M19.25 14.75h-6.5v4.5H18c.69 0 1.25-.56 1.25-1.25zM9.118 3.958C7.931 3.257 6.71 3.35 6.03 4.03c-.257.258-.377.548-.382.818-.004.262.1.589.445.934.664.665 2.193 1.345 5.103 1.452-.216-1.574-1.083-2.688-2.078-3.276m8.852.072c-.68-.68-1.901-.773-3.088-.072-.995.588-1.863 1.702-2.08 3.276 2.912-.107 4.44-.787 5.105-1.452.346-.345.449-.672.445-.934-.005-.27-.125-.56-.382-.818M4.75 18c0 .69.56 1.25 1.25 1.25h5.25v-4.5h-6.5zm14.5-8c0-.69-.56-1.25-1.25-1.25h-5.25v4.5h6.5zm-14.5 3.25h6.5v-4.5H6c-.69 0-1.25.56-1.25 1.25zm16 4.75A2.75 2.75 0 0 1 18 20.75H6A2.75 2.75 0 0 1 3.25 18v-8a2.75 2.75 0 0 1 2.313-2.713 4 4 0 0 1-.53-.444c-.593-.592-.896-1.296-.885-2.019.012-.714.33-1.362.822-1.854 1.32-1.32 3.349-1.226 4.912-.303A5.7 5.7 0 0 1 12 4.901a5.7 5.7 0 0 1 2.118-2.234c1.563-.923 3.592-1.017 4.912.303.492.492.81 1.14.822 1.854.01.723-.292 1.427-.884 2.019a4 4 0 0 1-.532.444A2.75 2.75 0 0 1 20.75 10z" />
-                    </svg>
-                  </Button>
-                </>
+                    <path fill="currentColor" d="M19.25 14.75h-6.5v4.5H18c.69 0 1.25-.56 1.25-1.25zM9.118 3.958C7.931 3.257 6.71 3.35 6.03 4.03c-.257.258-.377.548-.382.818-.004.262.1.589.445.934.664.665 2.193 1.345 5.103 1.452-.216-1.574-1.083-2.688-2.078-3.276m8.852.072c-.68-.68-1.901-.773-3.088-.072-.995.588-1.863 1.702-2.08 3.276 2.912-.107 4.44-.787 5.105-1.452.346-.345.449-.672.445-.934-.005-.27-.125-.56-.382-.818M4.75 18c0 .69.56 1.25 1.25 1.25h5.25v-4.5h-6.5zm14.5-8c0-.69-.56-1.25-1.25-1.25h-5.25v4.5h6.5zm-14.5 3.25h6.5v-4.5H6c-.69 0-1.25.56-1.25 1.25zm16 4.75A2.75 2.75 0 0 1 18 20.75H6A2.75 2.75 0 0 1 3.25 18v-8a2.75 2.75 0 0 1 2.313-2.713 4 4 0 0 1-.53-.444c-.593-.592-.896-1.296-.885-2.019.012-.714.33-1.362.822-1.854 1.32-1.32 3.349-1.226 4.912-.303A5.7 5.7 0 0 1 12 4.901a5.7 5.7 0 0 1 2.118-2.234c1.563-.923 3.592-1.017 4.912.303.492.492.81 1.14.822 1.854.01.723-.292 1.427-.884 2.019a4 4 0 0 1-.532.444A2.75 2.75 0 0 1 20.75 10z" />
+                  </svg>
+                </Button>
               )}
               <div className="flex-shrink-0">
                 <NotificationsPanel />
@@ -209,6 +204,20 @@ const Layout = ({ children }: LayoutProps) => {
                 </Button>
               )}
             </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Wallet Widget Bar - отдельная строка под header */}
+      {isAuthenticated && !isTelegramApp && (
+        <div className="hidden md:block border-b border-border/50 backdrop-blur-xl bg-card/20 sticky top-16 z-40">
+          <div className="container mx-auto px-4 py-2">
+            <div className="flex items-center justify-end">
+              <WalletWidget />
+            </div>
+          </div>
+        </div>
+      )}
           </div>
         </div>
       </header>
