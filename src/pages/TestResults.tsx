@@ -4,6 +4,14 @@ import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -132,6 +140,7 @@ const TestResults = () => {
   } | null>(null);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
+  const [showRewardDetails, setShowRewardDetails] = useState(false);
   
   // Check if location.state exists
   if (!location.state) {
