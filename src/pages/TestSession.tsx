@@ -2108,6 +2108,23 @@ const TestSession = () => {
             })}
         </div>
 
+                {/* Hint (подсказка) - показывается при использовании буста */}
+                {showHint && currentQuestion.explanation_ru && mode === "practice" && (
+                  <div className="mb-4 sm:mb-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                    <div className="flex items-start gap-2">
+                      <Lightbulb className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h3 className="font-semibold text-sm text-yellow-700 dark:text-yellow-300 mb-1">Подсказка:</h3>
+                        <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                          {testLanguage === 'en' 
+                            ? (currentQuestion.explanation_en || currentQuestion.explanation_ru)
+                            : (currentQuestion.explanation_es || currentQuestion.explanation_ru)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Explanation убрано - теперь показывается через Lumi */}
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
