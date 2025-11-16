@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -903,7 +904,7 @@ const TestResults = () => {
                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20"
                       >
                         <Info className="w-4 h-4 text-orange-500" />
-                        <div className="flex flex-col">
+                        <div className="flex flex-col flex-1">
                           <span className="text-xs text-orange-600 dark:text-orange-500 font-medium">
                             Снижение: {Math.round((1 - rewards.details.abusePenalty) * 100)}%
                           </span>
@@ -911,6 +912,15 @@ const TestResults = () => {
                             Несколько быстрых тестов подряд
                           </span>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowSupportDialog(true)}
+                          className="h-7 px-2 text-xs text-orange-600 hover:text-orange-700 hover:bg-orange-500/20 shrink-0"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 mr-1" />
+                          Поддержка
+                        </Button>
                       </motion.div>
                     )}
                     {/* Кнопка детальной информации о расчете */}
