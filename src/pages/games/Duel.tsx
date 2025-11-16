@@ -56,10 +56,6 @@ export default function Duel() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [isBattleHidden, setIsBattleHidden] = useState(false);
-  const [hiddenDuelState, setHiddenDuelState] = useState<{
-    myScore: number;
-    totalQuestions: number;
-  } | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
   const isTelegramUser = isTelegramMiniApp();
@@ -805,32 +801,8 @@ export default function Duel() {
         onExit={handleBackToMenu}
         onDuelFinished={handleDuelFinished}
         onHide={() => {
-          // When game is hidden, switch to menu mode but keep duelId for widget
-          // We need to store the duel state for the widget
-          // Load current scores to show in widget
-          (async () => {
-            if (duelId && profileId) {
-              const { data: players } = await supabase
-                .from('duel_players')
-                .select('score')
-                .eq('duel_id', duelId)
-                .eq('user_id', profileId)
-                .single();
-              
-              const { data: duel } = await supabase
-                .from('duels')
-                .select('num_questions')
-                .eq('id', duelId)
-                .single();
-              
-              if (players && duel) {
-                setHiddenDuelState({
-                  myScore: players.score || 0,
-                  totalQuestions: duel.num_questions || 10
-                });
-              }
-            }
-          })();
+          // When game is hidden, switch to menu mode
+          // State is already saved via updateActiveDuel in DuelBattleFullscreen
           setIsBattleHidden(true);
           setMode('menu');
         }}
@@ -855,29 +827,7 @@ export default function Duel() {
         </div>
       ) : (
     <Layout>
-      {/* Render widget when battle is hidden */}
-      {isBattleHidden && duelId && hiddenDuelState && (
-        <DuelWaitingReplay
-          duelId={duelId}
-          myScore={hiddenDuelState.myScore}
-          totalQuestions={hiddenDuelState.totalQuestions}
-          onDuelFinished={handleDuelFinished}
-          initialHidden={true}
-          onExpand={() => {
-            // When widget expands, restore battle mode
-            setIsBattleHidden(false);
-            setMode('battle');
-            setHiddenDuelState(null);
-          }}
-          onHide={(hidden) => {
-            // Track hidden state
-            if (!hidden) {
-              setIsBattleHidden(false);
-              setMode('battle');
-            }
-          }}
-        />
-      )}
+      {/* Старый виджет убран - используем ActiveDuelWidget из Layout */}
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[1370px]">
       {isLoadingProfile && (
