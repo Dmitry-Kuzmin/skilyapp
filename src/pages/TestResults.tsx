@@ -207,6 +207,7 @@ const TestResults = () => {
         
         if (rewardError) {
           console.error('[TestResults] Reward error:', rewardError);
+          setIsCalculatingRewards(false);
           const errorMessage = rewardError.message || rewardError.toString() || "Неизвестная ошибка";
           toast.error("Ошибка при начислении наград", {
             description: errorMessage,
@@ -217,6 +218,7 @@ const TestResults = () => {
         
         if (!rewardData || !rewardData.success) {
           console.error('[TestResults] Reward failed:', rewardData);
+          setIsCalculatingRewards(false);
           const errorMessage = rewardData?.error || rewardData?.details || "Не удалось начислить награды";
           const errorCode = rewardData?.code ? ` (код: ${rewardData.code})` : '';
           toast.error("Не удалось начислить награды", {
@@ -745,18 +747,19 @@ const TestResults = () => {
                 {mode === "exam" ? "Modo examen" : mode === "sequential" ? "Тест последовательный" : "Modo práctica"}
               </motion.p>
 
-              {/* Награды за тест */}
+              {/* Награды за тест - всегда показываем блок */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.45 }}
-                className="mb-6 flex items-center justify-center gap-3 flex-wrap"
+                className="mb-6 flex items-center justify-center gap-3 flex-wrap min-h-[60px]"
               >
                 {isCalculatingRewards ? (
                   // Анимация загрузки расчета наград
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border border-border/50"
                   >
                     <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
@@ -764,7 +767,7 @@ const TestResults = () => {
                       Расчет наград...
                     </span>
                   </motion.div>
-                ) : rewards ? (
+                ) : rewards && (rewards.coins || rewards.sp) ? (
                   // Отображение начисленных наград с анимацией счетчика
                   <>
                     {rewards.coins && rewards.coins > 0 && (
