@@ -509,9 +509,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
     
     // CRITICAL BACKUP: If we're waiting for opponent and duel is finished, force transition
-    if (state.duelFinished && isWaitingForOpponent && hasFinishedMyQuestions) {
+    if (state.duelFinished && isWaitingForOpponent && hasFinishedMyQuestions && !hasTransitionedRef.current) {
       console.log('[DuelBattleFullscreen] 🔥 BACKUP: Duel finished while waiting - forcing transition');
-      onDuelFinished();
+      hasTransitionedRef.current = true;
+      
+      // Небольшая задержка для мобильной версии Telegram WebApp
+      setTimeout(() => {
+        onDuelFinished();
+      }, 100);
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
 
@@ -537,7 +542,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
       
       toast.success('🏁 Дуэль завершена!', { duration: 2000 });
-      onDuelFinished();
+      
+      // Небольшая задержка для мобильной версии Telegram WebApp чтобы экран ожидания успел скрыться
+      setTimeout(() => {
+        onDuelFinished();
+      }, 150);
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished]);
 
