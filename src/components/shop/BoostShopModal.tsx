@@ -475,7 +475,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
   };
 
-  const handleCoinPurchase = async (catalogKey: string) => {
+  const handleCoinPurchase = async (catalogKey: string, paymentMethod: 'stripe' | 'stars' = 'stripe') => {
     if (!profileId) {
       toast({
         title: '❌ Ошибка',
@@ -485,8 +485,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
-    // Если Telegram, используем Stars
-    if (isTelegram) {
+    // Если выбрана оплата через Stars (только в Telegram)
+    if (paymentMethod === 'stars' && isTelegram) {
       const coinsMap: Record<string, number> = {
         'coins_pack_100': 100,
         'coins_pack_500': 550,
@@ -497,6 +497,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       await handleCoinPurchaseStars(catalogKey, coinsAmount);
       return;
     }
+
+    // По умолчанию используем Stripe (работает и в браузере, и в Telegram)
 
     console.log("[BoostShop] Starting coin purchase:", { profileId, catalogKey });
 
@@ -1521,21 +1523,41 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         </div>
                         <div className="text-right">
                           <p className="font-bold">{pack.price}</p>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleCoinPurchase(pack.catalogKey)}
-                            className="mt-1"
-                            disabled={!profileId}
-                          >
-                            {isTelegram ? (
-                              <>
+                          {isTelegram ? (
+                            // В Telegram показываем обе опции оплаты
+                            <div className="flex flex-col gap-1.5 mt-1">
+                              <Button 
+                                size="sm" 
+                                onClick={() => handleCoinPurchase(pack.catalogKey, 'stripe')}
+                                className="w-full"
+                                disabled={!profileId}
+                                variant="default"
+                              >
+                                <CreditCard className="w-3 h-3 mr-1" />
+                                Stripe
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                onClick={() => handleCoinPurchase(pack.catalogKey, 'stars')}
+                                className="w-full"
+                                disabled={!profileId}
+                                variant="outline"
+                              >
                                 <Star className="w-3 h-3 mr-1" />
                                 Stars
-                              </>
-                            ) : (
-                              'Купить'
-                            )}
-                          </Button>
+                              </Button>
+                            </div>
+                          ) : (
+                            // В браузере только Stripe
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleCoinPurchase(pack.catalogKey, 'stripe')}
+                              className="mt-1"
+                              disabled={!profileId}
+                            >
+                              Купить
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </Card>
