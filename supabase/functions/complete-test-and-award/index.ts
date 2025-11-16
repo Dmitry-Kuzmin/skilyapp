@@ -434,6 +434,9 @@ serve(async (req) => {
 
     coinsReward = Math.round(coinsReward * abusePenalty);
     spReward = Math.round(spReward * abusePenalty);
+    
+    // Сохраняем abuse_penalty для использования ниже
+    const abuse_penalty = abusePenalty;
 
     // ============================================
     // Уровень C: Shadow Balancing (Diminishing Returns)
@@ -516,7 +519,7 @@ serve(async (req) => {
         sp_awarded: spReward,
         premium_used: isPremium,
         double_sp_used: double_sp_active,
-        abuse_penalty,
+        abuse_penalty: abuse_penalty,
         diminishing_factor: diminishingFactor,
         questions_multiplier: questionsMultiplier,
         base_coins_calculated: baseCoinsCalculated,
