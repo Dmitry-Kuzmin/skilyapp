@@ -1,0 +1,17 @@
+# Игнорируемые файлы для Cursor (ускоряет работу)
+node_modules/
+.git/
+dist/
+build/
+*.log
+.DS_Store
+*.cache
+.vscode/
+.idea/
+coverage/
+*.tsbuildinfo
+.next/
+out/
+.turbo/
+.cache/
+
