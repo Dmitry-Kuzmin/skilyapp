@@ -120,25 +120,34 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg p-0 overflow-hidden">
+        {/* Top Banner */}
+        <div className="bg-muted/50 px-6 py-2 border-b border-border">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              Заработай 10+ монет
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-6 w-6 -mr-2"
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-2">
             <Gift className="h-5 w-5 text-muted-foreground" />
             <DialogTitle className="text-lg font-semibold">
               Пригласи друзей
             </DialogTitle>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="px-6 pb-6 space-y-6">
           {/* Main Content */}
           <div className="space-y-4">
             <div>
