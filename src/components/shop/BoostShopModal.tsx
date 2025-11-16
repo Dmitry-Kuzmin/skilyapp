@@ -1467,8 +1467,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full px-4">
+            <TabsList className="grid w-full grid-cols-3 mt-4">
               <TabsTrigger value="boosts" className="text-xs">
                 <Zap className="w-3 h-3 mr-1" />
                 Бусты
