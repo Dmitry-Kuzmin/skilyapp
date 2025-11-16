@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Gift, Copy, Check, Zap, Crown, MessageCircle, Sparkles, X } from 'lucide-react';
+import { Gift, Copy, Check, Zap, Crown, MessageCircle, Sparkles, X, Link as LinkIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
@@ -195,19 +195,26 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
 
           {/* Referral Link Section */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Твоя ссылка приглашения:
-            </h3>
-            <div className="flex gap-2">
-              <Input
-                value={loading ? 'Загрузка...' : referralLink}
-                readOnly
-                className="flex-1 font-mono text-sm"
-              />
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Твоя ссылка приглашения:
+              </h3>
+              {referralData && (
+                <span className="text-sm text-muted-foreground">
+                  использовано <strong className="text-foreground">{referralData.total_referrals || 0}</strong> пользователями
+                </span>
+              )}
+            </div>
+            <div className="flex gap-2 items-center bg-muted/50 rounded-lg p-3 border border-border">
+              <LinkIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+              <span className="flex-1 font-mono text-sm text-foreground truncate">
+                {loading ? 'Загрузка...' : referralLink}
+              </span>
               <Button
                 onClick={handleCopyLink}
-                variant="outline"
-                className="shrink-0"
+                variant="default"
+                size="sm"
+                className="shrink-0 bg-background text-foreground hover:bg-muted border border-border"
               >
                 {copied ? (
                   <>
@@ -222,11 +229,6 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
                 )}
               </Button>
             </div>
-            {referralData && (
-              <p className="text-xs text-muted-foreground text-center">
-                использовано {referralData.total_referrals || 0} пользователями
-              </p>
-            )}
           </div>
 
           {/* Footer Link */}
