@@ -978,11 +978,11 @@ const TestResults = () => {
                               </div>
                             </div>
 
-                            {/* Штрафы и снижения */}
+                            {/* Снижения и балансировка */}
                             {(rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1) ||
                             (rewards.details.diminishingFactor !== undefined && rewards.details.diminishingFactor < 1) ? (
                               <div className="space-y-2">
-                                <h4 className="font-semibold text-sm">Примененные штрафы</h4>
+                                <h4 className="font-semibold text-sm">Балансировка наград</h4>
                                 <div className="space-y-1.5">
                                   {rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1 && (
                                     <div className="flex items-center justify-between p-2 rounded bg-orange-500/10 border border-orange-500/20">
