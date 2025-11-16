@@ -10,6 +10,7 @@ import {
   LogOut,
   Bell,
   FileUp,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +58,12 @@ const adminNavItems = [
     icon: FileUp,
     path: "/admin/pdf-upload",
   },
+  {
+    id: "help-feedback",
+    label: "Отзывы",
+    icon: MessageSquare,
+    path: "/admin/help-feedback",
+  },
 ];
 
 export function AdminLayout() {
@@ -66,13 +73,18 @@ export function AdminLayout() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [pendingReports, setPendingReports] = useState(0);
+  const [pendingFeedback, setPendingFeedback] = useState(0);
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
     checkAdminAccess();
     if (isAdmin) {
       fetchPendingReports();
-      const interval = setInterval(fetchPendingReports, 60000); // Check every minute
+      fetchPendingFeedback();
+      const interval = setInterval(() => {
+        fetchPendingReports();
+        fetchPendingFeedback();
+      }, 60000); // Check every minute
       return () => clearInterval(interval);
     }
   }, [isAdmin]);
@@ -130,6 +142,19 @@ export function AdminLayout() {
       setPendingReports(count || 0);
     } catch (error) {
       console.error("Error fetching pending reports:", error);
+    }
+  };
+
+  const fetchPendingFeedback = async () => {
+    try {
+      const { count } = await supabase
+        .from("help_feedback")
+        .select("*", { count: "exact", head: true })
+        .is("admin_reply", null);
+      
+      setPendingFeedback(count || 0);
+    } catch (error) {
+      console.error("Error fetching pending feedback:", error);
     }
   };
 
@@ -229,7 +254,12 @@ export function AdminLayout() {
                         (item.path === "/admin" && location.pathname === "/admin") ||
                         (item.path !== "/admin" && location.pathname.startsWith(item.path));
                       
-                      const showBadge = item.id === "reports" && pendingReports > 0;
+                      const showBadge = 
+                        (item.id === "reports" && pendingReports > 0) ||
+                        (item.id === "help-feedback" && pendingFeedback > 0);
+                      
+                      const badgeCount = item.id === "reports" ? pendingReports : 
+                                        item.id === "help-feedback" ? pendingFeedback : 0;
 
                       return (
                         <motion.button
@@ -254,7 +284,7 @@ export function AdminLayout() {
                           </div>
                           {showBadge && (
                             <Badge className="bg-orange-500 text-white text-xs">
-                              {pendingReports}
+                              {badgeCount}
                             </Badge>
                           )}
                         </motion.button>

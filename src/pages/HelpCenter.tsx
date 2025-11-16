@@ -38,6 +38,8 @@ const getTranslatedDuelEconomySubsections = (getTranslatedContent: (key: string,
 };
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContext } from "@/contexts/UserContext";
+import { HelpFeedbackModal } from "@/components/HelpFeedbackModal";
 
 interface Section {
   id: string;
@@ -56,9 +58,14 @@ interface Subsection {
 
 const HelpCenter = () => {
   const { t, language } = useLanguage();
+  const { user } = useUserContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showIntro, setShowIntro] = useState(true);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const [feedbackHelpful, setFeedbackHelpful] = useState<boolean | null>(null);
+  const [currentSectionId, setCurrentSectionId] = useState<string>("");
+  const [currentSubsectionId, setCurrentSubsectionId] = useState<string | undefined>(undefined);
   
   // Функция для получения переведенного контента с fallback на русский
   const getTranslatedContent = (key: string, fallback: string): string => {
@@ -1530,7 +1537,13 @@ Premium подписка включает все преимущества, оп�
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400"
+                  className="border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-400 transition-all"
+                  onClick={() => {
+                    setFeedbackHelpful(true);
+                    setCurrentSectionId(activeSection || "");
+                    setCurrentSubsectionId(undefined);
+                    setFeedbackModalOpen(true);
+                  }}
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   {t("help.yes")}
@@ -1538,7 +1551,13 @@ Premium подписка включает все преимущества, оп�
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400"
+                  className="border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400 transition-all"
+                  onClick={() => {
+                    setFeedbackHelpful(false);
+                    setCurrentSectionId(activeSection || "");
+                    setCurrentSubsectionId(undefined);
+                    setFeedbackModalOpen(true);
+                  }}
                 >
                   <XCircle className="w-4 h-4 mr-2" />
                   {t("help.no")}
@@ -1546,6 +1565,17 @@ Premium подписка включает все преимущества, оп�
               </div>
             </div>
           </div>
+        )}
+
+        {/* Feedback Modal */}
+        {feedbackHelpful !== null && (
+          <HelpFeedbackModal
+            open={feedbackModalOpen}
+            onOpenChange={setFeedbackModalOpen}
+            sectionId={currentSectionId}
+            subsectionId={currentSubsectionId}
+            helpful={feedbackHelpful}
+          />
         )}
       </div>
     </div>

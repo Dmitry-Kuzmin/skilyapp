@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -83,15 +83,15 @@ export function UserProfilePopover() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', profileId)
-        .single();
+      .from('profiles')
+      .select('*')
+      .eq('id', profileId)
+      .single();
 
       if (error) throw error;
 
-      if (data) {
-        setProfile(data);
+    if (data) {
+      setProfile(data);
       }
     } catch (error) {
       console.error('[UserProfilePopover] Failed to load profile:', error);
@@ -118,7 +118,7 @@ export function UserProfilePopover() {
 
   const handleLanguageChange = async (lang: 'ru' | 'en' | 'es') => {
     setLanguage(lang);
-    
+
     if (profileId) {
       await supabase
         .from('profiles')
@@ -142,20 +142,20 @@ export function UserProfilePopover() {
             className="relative group z-10"
             style={{ pointerEvents: 'auto' }}
           >
-            <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
-              <AvatarImage 
+          <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
+            <AvatarImage 
                 src={profile?.photo_url || user?.photo_url} 
-                alt={profile?.first_name || user?.first_name} 
-              />
-              <AvatarFallback 
-                className="text-white font-bold text-sm"
-                style={{ backgroundColor: avatarColor }}
-              >
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
-          </button>
+              alt={profile?.first_name || user?.first_name} 
+            />
+            <AvatarFallback 
+              className="text-white font-bold text-sm"
+              style={{ backgroundColor: avatarColor }}
+            >
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+        </button>
         </PopoverTrigger>
         <PopoverContent 
           className="w-80 p-0" 
@@ -206,7 +206,7 @@ export function UserProfilePopover() {
                 <Zap className="h-3 w-3 text-primary" />
                 Experience points
               </p>
-            </div>
+        </div>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-2">
@@ -232,17 +232,17 @@ export function UserProfilePopover() {
                 <Sparkles className="h-4 w-4 mr-1" />
                 Inventory
               </Button>
-              <Button
-                variant="outline"
+                <Button
+                  variant="outline"
                 className="h-9 text-sm"
                 onClick={() => {
                   setOpen(false);
                   setReferralModalOpen(true);
                 }}
-              >
+                >
                 <Gift className="h-4 w-4 mr-1" />
                 Invite
-              </Button>
+                </Button>
             </div>
 
             {/* Subscription Status */}
@@ -253,7 +253,7 @@ export function UserProfilePopover() {
               </div>
             )}
 
-            <Separator />
+          <Separator />
 
             {/* Edit Profile */}
             <button
@@ -363,7 +363,7 @@ export function UserProfilePopover() {
                     Light
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => {
+              onClick={() => {
                       setTheme('dark');
                       if (profileId) {
                         supabase
@@ -377,14 +377,14 @@ export function UserProfilePopover() {
                           .eq('id', profileId);
                       }
                       toast.success('Тема изменена');
-                    }}
+              }}
                     className={theme === 'dark' ? 'bg-accent' : ''}
-                  >
+            >
                     <Moon className="h-4 w-4 mr-2" />
                     Dark
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => {
+              onClick={() => {
                       setTheme('system');
                       if (profileId) {
                         supabase
@@ -398,29 +398,29 @@ export function UserProfilePopover() {
                           .eq('id', profileId);
                       }
                       toast.success('Тема изменена');
-                    }}
+              }}
                     className={theme === 'system' ? 'bg-accent' : ''}
-                  >
+            >
                     <Settings className="h-4 w-4 mr-2" />
                     System
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+          </div>
 
             {/* Sign Out - только для веб */}
-            {!isMiniApp && (
-              <>
-                <Separator />
+          {!isMiniApp && (
+            <>
+              <Separator />
                 <button
-                  onClick={handleLogout}
+                onClick={handleLogout}
                   className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-destructive/10 transition-colors text-sm text-destructive"
-                >
+              >
                   <LogOut className="h-4 w-4" />
                   <span>{t('logout') || 'Sign out'}</span>
                 </button>
-              </>
-            )}
+            </>
+          )}
           </div>
         </PopoverContent>
       </Popover>

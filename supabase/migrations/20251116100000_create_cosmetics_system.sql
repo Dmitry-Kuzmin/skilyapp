@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.sticker_definitions (
   description_ru TEXT,
   description_es TEXT,
   rarity TEXT NOT NULL CHECK (rarity IN ('common', 'rare', 'epic', 'legendary')),
-  image_url TEXT NOT NULL, -- URL изображения стикера
+  image_url TEXT, -- URL изображения стикера (nullable для эмодзи-стикеров)
   is_premium BOOLEAN DEFAULT false,
   is_animated BOOLEAN DEFAULT false,
   category TEXT, -- 'emoji', 'reaction', 'celebration'
@@ -93,6 +93,22 @@ CREATE TABLE IF NOT EXISTS public.user_stickers (
   obtained_metadata JSONB DEFAULT '{}'::jsonb,
   UNIQUE(user_id, sticker_id)
 );
+
+-- Исправление: делаем image_url nullable для существующих таблиц (если уже создана)
+DO $$
+BEGIN
+  -- Проверяем, существует ли таблица и имеет ли колонка NOT NULL
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'sticker_definitions' 
+    AND column_name = 'image_url'
+    AND is_nullable = 'NO'
+  ) THEN
+    ALTER TABLE public.sticker_definitions 
+      ALTER COLUMN image_url DROP NOT NULL;
+  END IF;
+END $$;
 
 -- ============================================
 -- 3. ИНДЕКСЫ ДЛЯ ПРОИЗВОДИТЕЛЬНОСТИ

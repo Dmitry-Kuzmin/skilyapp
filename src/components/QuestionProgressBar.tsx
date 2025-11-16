@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
 
 interface QuestionProgressBarProps {
   currentIndex: number;
@@ -51,25 +50,6 @@ export function QuestionProgressBar({
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
   const correctCount = answers.filter(a => a.isCorrect).length;
   const incorrectCount = answers.filter(a => !a.isCorrect).length;
-  
-  // Определяем размер индикатора в зависимости от ширины экрана
-  const [indicatorOffset, setIndicatorOffset] = useState(2);
-  
-  useEffect(() => {
-    const updateOffset = () => {
-      if (window.innerWidth < 640) {
-        setIndicatorOffset(2); // w-1 h-1 = 4px, половина = 2px
-      } else if (window.innerWidth < 768) {
-        setIndicatorOffset(3); // w-1.5 h-1.5 = 6px, половина = 3px
-      } else {
-        setIndicatorOffset(4); // w-2 h-2 = 8px, половина = 4px
-      }
-    };
-    
-    updateOffset();
-    window.addEventListener('resize', updateOffset);
-    return () => window.removeEventListener('resize', updateOffset);
-  }, []);
 
   return (
     <div className={cn("flex items-center gap-2 sm:gap-3", className)}>
@@ -136,11 +116,11 @@ export function QuestionProgressBar({
                     className={cn(
                       "absolute rounded-full transition-all duration-200",
                       answer.isCorrect
-                        ? "w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-emerald-500 shadow-[0_0_0_1px_rgba(16,185,129,0.2),0_0.5px_1px_rgba(0,0,0,0.1)] sm:shadow-[0_0_0_2px_rgba(16,185,129,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
-                        : "w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2),0_0.5px_1px_rgba(0,0,0,0.1)] sm:shadow-[0_0_0_2px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
+                        ? "w-2 h-2 bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
+                        : "w-2 h-2 bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
                     )}
                     style={{ 
-                      left: `calc(${position}% - ${indicatorOffset}px)`,
+                      left: `calc(${position}% - 4px)`,
                       top: '50%',
                       transform: 'translateY(-50%)',
                       zIndex: 10
