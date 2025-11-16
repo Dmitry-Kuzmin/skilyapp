@@ -58,13 +58,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
-  // Определяем Telegram более точно - только если действительно в Telegram Web App
+  // Определяем Telegram СТРОГО - только если действительно в Telegram Web App
   // В браузере (не Telegram) isTelegramMiniApp() должен вернуть false
-  const isTelegram = isTelegramMiniApp() || platform === 'telegram';
+  // Используем ТОЛЬКО isTelegramMiniApp() для надежности, игнорируем platform из контекста
+  const isTelegram = isTelegramMiniApp();
+  
+  // Дополнительная проверка: если нет window.Telegram?.WebApp, то точно не Telegram
+  const hasTelegramWebApp = typeof window !== 'undefined' && !!window.Telegram?.WebApp;
+  const isTelegramStrict = isTelegram && hasTelegramWebApp;
   
   // Sheet используется ТОЛЬКО в Telegram Web App (со свайпом снизу)
   // В браузере (включая мобильный) всегда используем Dialog по центру
-  const useSheet = shouldUseSheet(isMobile, isTelegram);
+  const useSheet = shouldUseSheet(isMobile, isTelegramStrict);
   
   // Логирование для отладки (можно убрать после проверки)
   if (process.env.NODE_ENV === 'development') {
@@ -72,9 +77,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       platform,
       isMobile,
       isTelegram,
+      isTelegramStrict,
       useSheet,
-      hasTelegramWebApp: typeof window !== 'undefined' && !!window.Telegram?.WebApp,
-      telegramPlatform: typeof window !== 'undefined' && window.Telegram?.WebApp?.platform
+      hasTelegramWebApp,
+      telegramPlatform: typeof window !== 'undefined' && window.Telegram?.WebApp?.platform,
+      telegramInitData: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initData,
+      telegramUser: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initDataUnsafe?.user
     });
   }
   const [boosts, setBoosts] = useState<Boost[]>([]);
@@ -1548,8 +1556,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         </div>
                         <div className="text-right">
                           <p className="font-bold">{pack.price}</p>
-                          {isTelegram ? (
-                            // В Telegram показываем обе опции оплаты
+                          {isTelegramStrict ? (
+                            // В Telegram Web App показываем обе опции оплаты
                             <div className="flex flex-col gap-1.5 mt-1">
                               <Button 
                                 size="sm" 
@@ -1573,7 +1581,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               </Button>
                             </div>
                           ) : (
-                            // В браузере только Stripe
+                            // В браузере только Stripe (кнопка Stars не показывается)
                             <Button 
                               size="sm" 
                               onClick={() => handleCoinPurchase(pack.catalogKey, 'stripe')}
