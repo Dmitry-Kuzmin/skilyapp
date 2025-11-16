@@ -2307,6 +2307,8 @@ More details in Privacy Policy.`,
     "help.section.shop.desc": "Comprar potenciadores, monedas y Premium",
     "help.section.spainLicense": "Carnet de Conducir en España",
     "help.section.spainLicense.desc": "Todo sobre obtener el carnet de conducir en España",
+    "help.section.rules": "Reglas",
+    "help.section.rules.desc": "Reglas de uso de la aplicación y términos de servicio",
     "help.section.faq": "Preguntas Frecuentes",
     "help.section.faq.desc": "Preguntas frecuentes",
     
