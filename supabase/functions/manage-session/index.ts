@@ -85,6 +85,7 @@ serve(async (req) => {
           success: true,
           session_id: result.session_id,
           previous_sessions_closed: result.previous_sessions_closed,
+          closed_same_device: result.closed_same_device || false,
           message: result.message,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }

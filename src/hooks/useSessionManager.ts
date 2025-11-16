@@ -6,25 +6,119 @@ import { toast } from 'sonner';
 
 /**
  * Хук для управления сессиями пользователя
- * Обеспечивает только 1 активную сессию одновременно
+ * Обеспечивает только 1 активная сессия одновременно
  */
 export function useSessionManager() {
   const { profileId } = useUserContext();
   const { deviceInfo, isRegistered } = useDeviceFingerprint();
   const sessionTokenRef = useRef<string | null>(null);
   const heartbeatIntervalRef = useRef<number | null>(null);
+  const hasInitializedRef = useRef(false);
+
+  // Получаем ключ для localStorage
+  const getStorageKey = useCallback(() => {
+    if (!profileId || !deviceInfo) return null;
+    return `session_token_${profileId}_${deviceInfo.fingerprint}`;
+  }, [profileId, deviceInfo]);
 
   // Генерируем уникальный токен сессии
   const generateSessionToken = useCallback(() => {
     return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
   }, []);
 
+  // Загружаем сохраненный токен из localStorage
+  const loadSavedToken = useCallback(() => {
+    const storageKey = getStorageKey();
+    if (!storageKey) return null;
+    
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Проверяем, что токен не старше 30 дней
+        const tokenAge = Date.now() - parsed.timestamp;
+        const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 дней
+        if (tokenAge < maxAge) {
+          return parsed.token;
+        } else {
+          // Удаляем устаревший токен
+          localStorage.removeItem(storageKey);
+        }
+      }
+    } catch (err) {
+      console.error('[SessionManager] Ошибка загрузки токена:', err);
+    }
+    return null;
+  }, [getStorageKey]);
+
+  // Сохраняем токен в localStorage
+  const saveToken = useCallback((token: string) => {
+    const storageKey = getStorageKey();
+    if (!storageKey) return;
+    
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({
+        token,
+        timestamp: Date.now(),
+        fingerprint: deviceInfo?.fingerprint,
+      }));
+    } catch (err) {
+      console.error('[SessionManager] Ошибка сохранения токена:', err);
+    }
+  }, [getStorageKey, deviceInfo]);
+
+  // Проверяем валидность токена
+  const validateToken = useCallback(async (token: string): Promise<boolean> => {
+    if (!profileId) return false;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-session', {
+        body: {
+          action: 'check',
+          user_id: profileId,
+          session_token: token,
+        },
+      });
+
+      if (error) return false;
+      return data?.is_valid === true;
+    } catch (err) {
+      console.error('[SessionManager] Ошибка проверки токена:', err);
+      return false;
+    }
+  }, [profileId]);
+
   // Создаем или обновляем сессию
   const createSession = useCallback(async () => {
     if (!profileId || !deviceInfo || !isRegistered) return;
+    
+    // Предотвращаем повторную инициализацию
+    if (hasInitializedRef.current && sessionTokenRef.current) {
+      return;
+    }
 
-    const token = generateSessionToken();
+    // Пытаемся загрузить сохраненный токен
+    let token = loadSavedToken();
+    let isNewToken = false;
+
+    // Если токен есть, проверяем его валидность
+    if (token) {
+      const isValid = await validateToken(token);
+      if (!isValid) {
+        // Токен невалиден, создаем новый
+        token = generateSessionToken();
+        isNewToken = true;
+      }
+    } else {
+      // Токена нет, создаем новый
+      token = generateSessionToken();
+      isNewToken = true;
+    }
+
     sessionTokenRef.current = token;
+    if (isNewToken) {
+      saveToken(token);
+    }
 
     try {
       const { data, error } = await supabase.functions.invoke('manage-session', {
@@ -40,17 +134,29 @@ export function useSessionManager() {
 
       if (error) throw error;
 
-      if (data?.previous_sessions_closed > 0) {
-        // Предыдущие сессии были закрыты
+      // Показываем уведомление только если:
+      // 1. Были закрыты предыдущие сессии
+      // 2. И это действительно новый токен (не восстановленный)
+      // 3. И это не первая инициализация
+      // 4. И закрытые сессии были с ДРУГОГО устройства (не с того же)
+      if (
+        data?.previous_sessions_closed > 0 && 
+        isNewToken && 
+        hasInitializedRef.current &&
+        !data?.closed_same_device
+      ) {
+        // Закрыты сессии с другого устройства - показываем уведомление
         toast.info('Вход выполнен с нового устройства', {
           description: 'Предыдущая сессия была завершена',
           duration: 5000,
         });
       }
+
+      hasInitializedRef.current = true;
     } catch (err) {
       console.error('[SessionManager] Ошибка создания сессии:', err);
     }
-  }, [profileId, deviceInfo, isRegistered, generateSessionToken]);
+  }, [profileId, deviceInfo, isRegistered, generateSessionToken, loadSavedToken, saveToken, validateToken]);
 
   // Обновляем активность сессии (heartbeat)
   const updateSessionActivity = useCallback(async () => {
@@ -103,12 +209,13 @@ export function useSessionManager() {
     }
   }, [profileId]);
 
-  // Инициализация сессии
+  // Инициализация сессии (только один раз при монтировании)
   useEffect(() => {
-    if (profileId && deviceInfo && isRegistered) {
+    if (profileId && deviceInfo && isRegistered && !hasInitializedRef.current) {
       createSession();
     }
-  }, [profileId, deviceInfo, isRegistered, createSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileId, deviceInfo?.fingerprint, isRegistered]);
 
   // Heartbeat: обновляем активность каждые 5 минут
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight } from "lucide-react";
+import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Info, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
@@ -18,6 +18,9 @@ import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RewardPreview } from "./RewardPreview";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { profileId } = useUserContext();
@@ -38,46 +41,24 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [showPremiumSelector, setShowPremiumSelector] = useState(false);
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number } | null>(null);
+  const [showInfoDialog, setShowInfoDialog] = useState(false);
   
-  // Итоговый Premium статус: либо из хука, либо Premium Forever
-  const isPremium = isPremiumFromHook || hasPremiumForever;
+  // Итоговый Premium статус: либо из хука, либо Premium Forever, либо Premium Pass для сезона
+  // ВАЖНО: Premium Forever дает доступ ко всем Premium наградам автоматически
+  const isPremium = isPremiumFromHook || hasPremiumForever || hasPremiumPass;
   
-  // Логирование для отладки Premium статуса
+  // Логирование для отладки Premium статуса (только при изменении)
+  const prevPremiumStatus = useRef<{isPremium: boolean; hasPremiumForever: boolean; hasPremiumPass: boolean} | null>(null);
   useEffect(() => {
     if (open && profileId) {
-      console.log('[DuelPassSeasonModal] Premium статус:', {
-        isPremiumFromHook,
-        hasPremiumForever,
-        isPremium,
-        profileId
-      });
-    }
-  }, [open, profileId, isPremiumFromHook, hasPremiumForever, isPremium]);
-
-  useEffect(() => {
-    if (open && profileId) {
-      loadSeasonData();
-      
-      // Проверяем, видел ли пользователь онбординг
-      const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-      if (!hasSeenOnboarding) {
-        // Показываем онбординг после загрузки данных
-        setTimeout(() => {
-          setShowOnboarding(true);
-        }, 500);
+      const currentStatus = { isPremium, hasPremiumForever, hasPremiumPass };
+      if (JSON.stringify(prevPremiumStatus.current) !== JSON.stringify(currentStatus)) {
+        console.log('[DuelPassSeasonModal] Premium статус изменился:', currentStatus);
+        prevPremiumStatus.current = currentStatus;
       }
     }
-  }, [open, profileId]);
-
-  // Автообновление данных каждые 30 секунд когда модалка открыта (тихое обновление без показа loading)
-  useEffect(() => {
-    if (open && profileId && activeSeason) {
-      const interval = setInterval(() => {
-        loadSeasonData(true); // true = тихое обновление
-      }, 30000); // Увеличено до 30 секунд
-      return () => clearInterval(interval);
-    }
-  }, [open, profileId, activeSeason]);
+  }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
 
   const loadSeasonData = async (silent = false) => {
     try {
@@ -176,7 +157,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       if (rewardsError) {
         console.error("[DuelPassSeasonModal] Rewards error", rewardsError);
       } else if (rewardsData) {
+        console.log("[DuelPassSeasonModal] Загружено наград из БД:", rewardsData.length, rewardsData);
         setRewards(rewardsData);
+      } else {
+        console.warn("[DuelPassSeasonModal] Награды не найдены для сезона:", season.id);
       }
 
       // Получаем полученные награды из новой системы
@@ -233,22 +217,218 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   };
 
+  useEffect(() => {
+    if (open && profileId) {
+      loadSeasonData();
+      
+      // Проверяем, видел ли пользователь онбординг
+      const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
+      if (!hasSeenOnboarding) {
+        // Показываем онбординг после загрузки данных
+        setTimeout(() => {
+          setShowOnboarding(true);
+        }, 500);
+      }
+    }
+  }, [open, profileId]);
+
+  // Автообновление данных каждые 30 секунд когда модалка открыта (тихое обновление без показа loading)
+  // Используем useRef для стабильной ссылки на функцию
+  const loadSeasonDataRef = useRef(loadSeasonData);
+  useEffect(() => {
+    loadSeasonDataRef.current = loadSeasonData;
+  });
+  
+  useEffect(() => {
+    if (open && profileId && activeSeason?.id) {
+      const interval = setInterval(() => {
+        loadSeasonDataRef.current(true); // true = тихое обновление
+      }, 30000); // Увеличено до 30 секунд
+      return () => clearInterval(interval);
+    }
+  }, [open, profileId, activeSeason?.id]); // Используем только id сезона вместо всего объекта
+
+  // Даты сезона (вычисляем всегда, даже если сезон еще не загружен)
+  const seasonStartDate = activeSeason?.start_date ? new Date(activeSeason.start_date) : null;
+  const seasonEndDate = activeSeason?.end_date ? new Date(activeSeason.end_date) : null;
+
+  // Таймер обратного отсчета (ВСЕГДА вызывается, даже если seasonEndDate null)
+  useEffect(() => {
+    if (!seasonEndDate) {
+      setTimeLeft(null);
+      return;
+    }
+    
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = seasonEndDate.getTime() - now.getTime();
+      
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+        return;
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      setTimeLeft({ days, hours, minutes });
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 60000); // Обновляем каждую минуту
+    
+    return () => clearInterval(interval);
+  }, [seasonEndDate]);
+
+  // Вычисляем значения для отображения (ВСЕГДА, даже если данных нет)
+  const currentSP = seasonProgress?.season_points || 0;
+  const currentLevel = seasonProgress?.level || 1;
+  const maxLevel = rewards.length || 30;
+  const totalSPNeeded = rewards.length > 0 ? (rewards[rewards.length - 1]?.sp_required || 3000) : 3000;
+  const progressPercent = totalSPNeeded > 0 ? Math.min((currentSP / totalSPNeeded) * 100, 100) : 0;
+
+  // Находим следующий уровень для расчета SP
+  const nextLevelReward = rewards.find((r) => r.level === currentLevel + 1);
+  const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
+  const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
+
+  // Фильтрация наград (ВСЕГДА вызывается, даже если rewards пустой)
+  const filteredRewards = useMemo(() => {
+    if (!rewards || rewards.length === 0) {
+      console.log('[DuelPassSeasonModal] Нет наград для фильтрации');
+      return [];
+    }
+    
+    const filtered = rewards.filter((reward) => {
+      const unlocked = currentLevel >= reward.level;
+      const isClaimed = claimedRewards.has(reward.level);
+      
+      if (rewardFilter === 'available') {
+        return unlocked && !isClaimed;
+      }
+      return true;
+    });
+    
+    console.log('[DuelPassSeasonModal] Фильтрация наград:', {
+      totalRewards: rewards.length,
+      currentLevel,
+      rewardFilter,
+      filteredCount: filtered.length,
+      claimedRewards: Array.from(claimedRewards)
+    });
+    
+    return filtered;
+  }, [rewards, currentLevel, rewardFilter, claimedRewards]);
+
+  // Компонент информационной кнопки (вынесен на верхний уровень)
+  const InfoButton = () => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("shrink-0", isMobile ? "h-8 w-8" : "h-9 w-9")}
+            onClick={() => setShowInfoDialog(true)}
+          >
+            <Info className={cn("text-muted-foreground hover:text-foreground transition-colors", isMobile ? "h-4 w-4" : "h-4 w-4")} />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="text-xs">Как работает Duel Pass?</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
+  // Информационный диалог (вынесен на верхний уровень, всегда рендерится)
+  const InfoDialog = () => (
+    <AlertDialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+      <AlertDialogContent className="max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-yellow-500" />
+            Как работает Duel Pass?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="space-y-4 pt-2">
+            <div className="space-y-3">
+              <div className="flex items-start gap-2">
+                <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-sm text-foreground">Как получать SP (Season Points)?</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Получайте SP за прохождение тестов (+25), победы в дуэлях (+30), ежедневный вход (+15) и выполнение заданий. Premium пользователи получают +20% бонус к SP.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <Target className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-sm text-foreground">Что такое уровни?</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Каждый уровень требует определенное количество SP. При достижении уровня вы получаете доступ к наградам этого уровня. Уровни открываются последовательно.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <Crown className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-sm text-foreground">Разница Free и Premium?</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    <strong>Бесплатные награды</strong> доступны всем. <strong>Premium награды</strong> доступны только пользователям с Premium подпиской или Premium Pass. Premium награды обычно более ценные и уникальные.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-2">
+                <Gift className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-sm text-foreground">Что такое награды путешествия?</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Это уникальные награды сезона: скины, бейджи, стикеры, бусты и монеты. Каждый сезон предлагает эксклюзивные награды, которые больше не будут доступны после окончания сезона.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
   const handleRewardClick = async (reward: any) => {
-    // Если пользователь премиум и есть обе награды - получаем обе последовательно
-    if (isPremium && reward.premium_reward) {
+    console.log('[DuelPassSeasonModal] handleRewardClick:', {
+      level: reward.level,
+      hasFreeReward: !!reward.free_reward,
+      hasPremiumReward: !!reward.premium_reward,
+      isPremium,
+      freeClaimed: claimedFreeRewards.has(reward.level),
+      premiumClaimed: claimedPremiumRewards.has(reward.level)
+    });
+    
+    // Если пользователь Premium и есть Premium награда - получаем Premium награду
+    if (isPremium && reward.premium_reward && !claimedPremiumRewards.has(reward.level)) {
       // Сначала получаем бесплатную награду (если есть и еще не получена)
-      if (reward.free_reward) {
+      if (reward.free_reward && !claimedFreeRewards.has(reward.level)) {
         await claimReward(reward.level, false);
       }
-      // Затем получаем премиум награду
+      // Затем получаем Premium награду
       await claimReward(reward.level, true);
-    } else if (reward.free_reward) {
-      // Если есть бесплатная награда - получаем её (независимо от премиум статуса)
+    } else if (reward.free_reward && !claimedFreeRewards.has(reward.level)) {
+      // Если есть бесплатная награда и она не получена - получаем её
       await claimReward(reward.level, false);
       
-      // Если есть премиум награда и пользователь не премиум - показываем модалку после получения бесплатной
-      if (reward.premium_reward && !isPremium) {
+      // Если есть Premium награда и пользователь Premium, но Premium еще не получена - получаем Premium
+      if (reward.premium_reward && isPremium && !claimedPremiumRewards.has(reward.level)) {
         // Небольшая задержка для показа анимации получения бесплатной награды
+        setTimeout(async () => {
+          await claimReward(reward.level, true);
+        }, 500);
+      } else if (reward.premium_reward && !isPremium) {
+        // Если пользователь НЕ Premium - показываем модалку после получения бесплатной
         setTimeout(() => {
           setPremiumRewardPreview({
             level: reward.level,
@@ -256,12 +436,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           });
         }, 500);
       }
-    } else if (reward.premium_reward && !isPremium) {
-      // Если есть только премиум награда и пользователь не премиум - показываем модалку
+    } else if (reward.premium_reward && !isPremium && !claimedPremiumRewards.has(reward.level)) {
+      // Если есть только Premium награда и пользователь НЕ Premium - показываем модалку
       setPremiumRewardPreview({
         level: reward.level,
         premium_reward: reward.premium_reward,
       });
+    } else if (isPremium && reward.premium_reward && !claimedPremiumRewards.has(reward.level)) {
+      // Если пользователь Premium и Premium награда не получена - получаем её
+      await claimReward(reward.level, true);
     }
   };
 
@@ -502,28 +685,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     );
   }
 
-  const currentSP = seasonProgress.season_points || 0;
-  const currentLevel = seasonProgress.level || 1;
-  const maxLevel = rewards.length || 30;
-  const totalSPNeeded = rewards[rewards.length - 1]?.sp_required || 3000;
-  const progressPercent = Math.min((currentSP / totalSPNeeded) * 100, 100);
-
-  // Находим следующий уровень для расчета SP
-  const nextLevelReward = rewards.find((r) => r.level === currentLevel + 1);
-  const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
-  const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
-
-  // Фильтрация наград
-  const filteredRewards = rewards.filter((reward) => {
-    const unlocked = currentLevel >= reward.level;
-    const isClaimed = claimedRewards.has(reward.level);
-    
-    if (rewardFilter === 'available') {
-      return unlocked && !isClaimed;
-    }
-    return true;
-  });
-
   // Общий контент модалки
   const ModalContent = () => {
     // Показываем skeleton во время загрузки
@@ -533,43 +694,97 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     
     return (
     <>
-      {/* Упрощенный Header */}
+      {/* Улучшенный Header с тематикой сезона */}
       {isMobile ? (
-        <SheetHeader className="px-4 pt-2 pb-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
+        <SheetHeader className="px-4 pt-2 pb-4 border-b bg-gradient-to-br from-orange-500/5 via-red-500/5 to-yellow-500/5 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500 rounded-full blur-2xl" />
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-red-500 rounded-full blur-xl" />
+          </div>
+          <div className="flex items-center gap-3 relative z-10">
+            <motion.div 
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0 ring-2 ring-orange-500/30"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
               <Trophy className="w-5 h-5 text-white" />
-            </div>
+            </motion.div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-xl font-bold">Duel Pass</SheetTitle>
-              <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
-                <span>{activeSeason.name_ru}</span>
-                <span>·</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {activeSeason.days_remaining} дней
-                </span>
+              <SheetTitle className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                Duel Pass
+              </SheetTitle>
+              <SheetDescription asChild>
+                <div className="text-xs mt-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-foreground">{activeSeason.name_ru}</span>
+                    {seasonStartDate && seasonEndDate && (
+                      <>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="text-muted-foreground">
+                          {seasonStartDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} - {seasonEndDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  {timeLeft && (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-500/10 border border-red-500/20 w-fit">
+                      <Clock className="w-3 h-3 text-red-500" />
+                      <span className="text-xs font-bold text-red-600">
+                        {timeLeft.days}д {String(timeLeft.hours).padStart(2, '0')}ч {String(timeLeft.minutes).padStart(2, '0')}м
+                      </span>
+                    </div>
+                  )}
+                </div>
               </SheetDescription>
             </div>
+            <InfoButton />
           </div>
         </SheetHeader>
       ) : (
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-              <Trophy className="w-5 h-5 text-white" />
+        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-br from-orange-500/5 via-red-500/5 to-yellow-500/5 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-500 rounded-full blur-2xl" />
+          </div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-3">
+              <motion.div 
+                className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center shadow-lg shrink-0 ring-2 ring-orange-500/30"
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <Trophy className="w-6 h-6 text-white" />
+              </motion.div>
+              <div className="flex-1 min-w-0">
+                <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 bg-clip-text text-transparent">
+                  Duel Pass
+                </DialogTitle>
+                <DialogDescription asChild>
+                  <div className="text-sm mt-1 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">{activeSeason.name_ru}</span>
+                      {seasonStartDate && seasonEndDate && (
+                        <>
+                          <span className="text-muted-foreground">·</span>
+                          <span className="text-muted-foreground">
+                            {seasonStartDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} - {seasonEndDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    {timeLeft && (
+                      <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 w-fit">
+                        <Clock className="w-3.5 h-3.5 text-red-500 animate-pulse" />
+                        <span className="text-xs font-bold text-red-600">
+                          {timeLeft.days}д {String(timeLeft.hours).padStart(2, '0')}ч {String(timeLeft.minutes).padStart(2, '0')}м
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </DialogDescription>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-bold">Duel Pass</DialogTitle>
-              <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
-                <span>{activeSeason.name_ru}</span>
-                <span>·</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {activeSeason.days_remaining} дней
-                </span>
-              </DialogDescription>
-            </div>
+            <InfoButton />
           </div>
         </DialogHeader>
       )}
@@ -597,11 +812,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
           
-          {/* Единый прогресс-бар */}
-          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
+          {/* Единый прогресс-бар с анимацией */}
+          <div className="relative h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full shadow-sm"
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             />
             {/* Тонкие маркеры уровней */}
             {rewards.slice(0, 10).map((r) => {
@@ -799,12 +1016,58 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
         )}
 
+        {/* Баннер сезонности - показываем всегда для ощущения ограниченности */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "flex items-center justify-between p-3 rounded-xl border transition-all",
+            timeLeft && timeLeft.days <= 7
+              ? "bg-gradient-to-r from-red-500/10 via-orange-500/10 to-yellow-500/10 border-red-500/20"
+              : "bg-gradient-to-r from-orange-500/5 via-red-500/5 to-yellow-500/5 border-orange-500/10"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Sparkles className={cn(
+              "w-4 h-4",
+              timeLeft && timeLeft.days <= 7 ? "text-red-500 animate-pulse" : "text-orange-500"
+            )} />
+            <div>
+              <p className="text-xs font-semibold text-foreground">
+                {timeLeft && timeLeft.days <= 7 ? "Сезон заканчивается!" : "Сезонный Duel Pass"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {timeLeft && timeLeft.days <= 7 ? "Успей получить все награды" : "Ограниченное время • Уникальные награды"}
+              </p>
+            </div>
+          </div>
+          {timeLeft && (
+            <Badge 
+              variant="outline" 
+              className={cn(
+                "text-xs",
+                timeLeft.days <= 7
+                  ? "bg-red-500/10 border-red-500/30 text-red-600"
+                  : "bg-orange-500/10 border-orange-500/30 text-orange-600"
+              )}
+            >
+              <Clock className="w-3 h-3 mr-1" />
+              {timeLeft.days}д {String(timeLeft.hours).padStart(2, '0')}ч
+            </Badge>
+          )}
+        </motion.div>
+
         {/* Современная таблица наград */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-bold text-foreground">
-              Награды по уровням
-            </h4>
+            <div>
+              <h4 className="text-sm font-bold text-foreground">
+                Награды по уровням
+              </h4>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Ограниченное время • Уникальные награды
+              </p>
+            </div>
             {/* Фильтры */}
             <div className="flex gap-2">
               <button
@@ -856,7 +1119,24 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRewards.map((reward) => {
+                  {filteredRewards.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center gap-2">
+                          <Gift className="w-8 h-8 text-muted-foreground/50" />
+                          <p className="text-sm font-medium">Нет наград для отображения</p>
+                          <p className="text-xs">
+                            {rewards.length === 0 
+                              ? 'Награды еще не загружены' 
+                              : rewardFilter === 'available' 
+                                ? 'Все доступные награды уже получены' 
+                                : 'Проверьте фильтры'}
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredRewards.map((reward) => {
                     const unlocked = currentLevel >= reward.level;
                     const isCurrent = currentLevel === reward.level;
                     
@@ -901,27 +1181,28 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         allClaimed = freeRewardClaimed && premiumRewardClaimed;
                       }
                       
-                      // Логирование для отладки (только для нечетных уровней, чтобы не спамить)
-                      if (reward.level % 2 === 1) {
-                        console.log(`[DuelPassSeasonModal] Уровень ${reward.level}:`, {
-                          unlocked,
-                          hasFreeReward,
-                          freeClaimed,
-                          freeRewardClaimed,
-                          hasPremiumReward: !!reward.premium_reward,
-                          isPremium,
-                          premiumClaimed,
-                          premiumRewardClaimed,
-                          allClaimed
-                        });
-                      }
+                      // Логирование отключено для предотвращения спама и мерцания
+                      // Раскомментируйте для отладки:
+                      // if (reward.level % 2 === 1 && process.env.NODE_ENV === 'development') {
+                      //   console.log(`[DuelPassSeasonModal] Уровень ${reward.level}:`, {
+                      //     unlocked,
+                      //     hasFreeReward,
+                      //     freeClaimed,
+                      //     freeRewardClaimed,
+                      //     hasPremiumReward: !!reward.premium_reward,
+                      //     isPremium,
+                      //     premiumClaimed,
+                      //     premiumRewardClaimed,
+                      //     allClaimed
+                      //   });
+                      // }
                     } else {
                       // Уровень не разблокирован - не может быть "получен"
                       allClaimed = false;
                     }
                     
                     return (
-                      <tr
+                      <motion.tr
                         key={reward.level}
                         className={cn(
                           "border-b border-border/50 transition-all cursor-pointer group",
@@ -932,6 +1213,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                             ? "hover:bg-muted/50" 
                             : "opacity-50"
                         )}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: reward.level * 0.02 }}
                         onClick={() => {
                           if (unlocked && !allClaimed) {
                             handleRewardClick(reward);
@@ -964,10 +1248,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         {/* Монетки (Free) */}
                         <td className="px-4 py-3">
                           {hasFreeCoins ? (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 w-fit">
-                              <Coins className="w-4 h-4 text-yellow-500 shrink-0" />
-                              <span className="text-sm font-semibold">{reward.free_reward.amount}</span>
-                            </div>
+                            <RewardPreview 
+                              reward={{ type: 'coins', amount: reward.free_reward.amount }}
+                              size="sm"
+                            />
+                          ) : reward.free_reward ? (
+                            <RewardPreview 
+                              reward={reward.free_reward}
+                              size="sm"
+                            />
                           ) : (
                             <span className="text-sm text-muted-foreground">—</span>
                           )}
@@ -976,34 +1265,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         {/* Корона (Premium) */}
                         <td className="px-4 py-3">
                           {reward.premium_reward ? (
-                            <div className={cn(
-                              "flex items-center gap-2 px-3 py-1.5 rounded-lg border w-fit transition-all",
-                              isPremium 
-                                ? "bg-yellow-500/10 border-yellow-500/20" 
-                                : "bg-muted/50 border-muted group-hover:border-yellow-500/30"
-                            )}>
-                              <Crown className={cn(
-                                "w-4 h-4 shrink-0",
-                                isPremium ? "text-yellow-600" : "text-muted-foreground"
-                              )} />
-                              {hasPremiumCoins ? (
-                                <span className={cn(
-                                  "text-sm font-semibold",
-                                  isPremium ? "text-foreground" : "text-muted-foreground"
-                                )}>
-                                  {reward.premium_reward.amount}
-                                </span>
-                              ) : hasPremiumOther ? (
-                                <span className={cn(
-                                  "text-xs font-medium",
-                                  isPremium ? "text-foreground" : "text-muted-foreground"
-                                )}>
-                                  {reward.premium_reward.type === 'skin' ? '🎨 Скин' :
-                                   reward.premium_reward.type === 'badge' ? '🏆 Бейдж' :
-                                   reward.premium_reward.type === 'boost' ? '⚡ Буст' :
-                                   reward.premium_reward.type === 'sticker' ? '😊 Стикер' : ''}
-                                </span>
-                              ) : null}
+                            <div className="flex items-center gap-2">
+                              <RewardPreview 
+                                reward={reward.premium_reward}
+                                isPremium={true}
+                                size="sm"
+                              />
                               {!isPremium && (
                                 <Sparkles className="w-3 h-3 text-yellow-500 animate-pulse" />
                               )}
@@ -1047,18 +1314,23 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                               )}
                             >
                               {hasFreeReward && !freeClaimed ? (
+                                // Есть бесплатная награда и она не получена
                                 "Получить"
                               ) : !hasFreeReward && reward.premium_reward && !isPremium ? (
+                                // Только Premium награда, но пользователь НЕ Premium - показываем что нужен Premium
                                 <>
                                   <Crown className="w-3.5 h-3.5 mr-1.5" />
                                   Premium
                                 </>
-                              ) : reward.premium_reward && isPremium && !premiumClaimed ? (
+                              ) : (reward.premium_reward && isPremium && !premiumClaimed) || (hasFreeReward && freeClaimed && reward.premium_reward && isPremium && !premiumClaimed) ? (
+                                // Есть Premium награда, пользователь Premium, но Premium награда не получена
+                                // Для Premium пользователей используем более понятный текст
                                 <>
                                   <Crown className="w-3.5 h-3.5 mr-1.5" />
-                                  Получить Premium
+                                  Забрать награду
                                 </>
                               ) : (
+                                // Все награды получены или нет доступных наград
                                 "Забрать"
                               )}
                             </Button>
@@ -1068,9 +1340,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                             </Badge>
                           )}
                         </td>
-                      </tr>
+                      </motion.tr>
                     );
-                  })}
+                  })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -1088,6 +1361,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   return (
     <>
+      {/* Информационный диалог (всегда рендерится) */}
+      <InfoDialog />
+      
       {/* Онбординг модалка - минималистичный */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
         <DialogContent className="max-w-lg">
