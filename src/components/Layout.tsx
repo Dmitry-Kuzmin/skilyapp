@@ -228,8 +228,8 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) */}
       <nav className={cn(
         "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-        "md:hidden",
-        isFullscreenMode && "hidden"
+        "flex md:hidden",
+        isFullscreenMode && "!hidden"
       )}>
         {/* Mobile Wallet Widget - компактная версия для мобильных */}
         {isAuthenticated && (
