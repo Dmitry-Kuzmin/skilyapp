@@ -119,15 +119,35 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <span className="text-xs md:text-sm font-semibold">{balance}</span>
         </Button>
 
-        {/* Duel Pass Mini Progress - компактная версия на мобильных */}
+        {/* Duel Pass - улучшенная версия для мобильных с прогресс-баром и SP */}
         {duelPassData && (
           <button
             onClick={() => setDuelPassModalOpen(true)}
-            className="flex items-center gap-1 px-1.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
-            title={`Duel Pass уровень ${duelPassData.level}`}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
+            title={`Duel Pass уровень ${duelPassData.level} - ${duelPassData.xp} SP`}
           >
-            <Trophy className="w-3 h-3 text-yellow-500" />
-            <span className="text-xs font-medium text-muted-foreground">{duelPassData.level}</span>
+            {/* Season Points */}
+            <div className="flex items-center gap-1">
+              <div className="w-4 h-4 rounded bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                <span className="text-[10px] font-bold text-purple-400">S</span>
+              </div>
+              <span className="text-xs font-semibold text-foreground">{duelPassData.xp}</span>
+            </div>
+            
+            {/* Разделитель */}
+            <div className="w-px h-4 bg-border" />
+            
+            {/* Уровень с прогресс-баром */}
+            <div className="flex items-center gap-1.5">
+              <Trophy className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
+              <div className="w-12 h-1 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
+                  style={{ width: `${Math.max(5, duelPassData.progress)}%` }}
+                />
+              </div>
+              <span className="text-xs font-semibold text-foreground min-w-[18px]">{duelPassData.level}</span>
+            </div>
           </button>
         )}
         {duelPassData && (
