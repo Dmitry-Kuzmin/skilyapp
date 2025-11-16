@@ -1884,60 +1884,6 @@ const TestSession = () => {
             isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
           )}
         >
-        {/* Компонент для рендеринга бустеров */}
-        {(() => {
-          if (mode !== "practice" || !profileId) return null;
-          
-          const availableBoosts = Object.entries(boosts).filter(([_, count]) => count > 0);
-          if (availableBoosts.length === 0) return null;
-          
-          const renderBoosts = () => (
-            <>
-              {availableBoosts.map(([type, count]) => {
-                const boostConfig: Record<string, { icon: any; name: string; color: string }> = {
-                  fifty_fifty: { icon: Grid3x3, name: '50/50', color: 'bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20 dark:text-blue-400' },
-                  hint: { icon: Lightbulb, name: 'Подсказка', color: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/30 hover:bg-yellow-500/20 dark:text-yellow-400' },
-                  skip: { icon: ChevronRight, name: 'Пропустить', color: 'bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20 dark:text-green-400' },
-                  translate: { icon: Languages, name: 'Перевод', color: 'bg-purple-500/10 text-purple-600 border-purple-500/30 hover:bg-purple-500/20 dark:text-purple-400' },
-                  time_extend: { icon: Clock, name: '+30 сек', color: 'bg-orange-500/10 text-orange-600 border-orange-500/30 hover:bg-orange-500/20 dark:text-orange-400' },
-                };
-                
-                const config = boostConfig[type] || boostConfig.fifty_fifty;
-                const Icon = config.icon;
-                const isUsed = usedBoosts.includes(type);
-                const isDisabled = isUsed || selectedOption !== null;
-                
-                return (
-                  <button
-                    key={type}
-                    onClick={() => {
-                      if (type === 'translate') {
-                        const lang = translationLanguage === 'ru' ? 'en' : 'ru';
-                        handleUseBoost(type, lang);
-                      } else {
-                        handleUseBoost(type);
-                      }
-                    }}
-                    disabled={isDisabled}
-                    className={cn(
-                      "relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all shadow-sm backdrop-blur-sm",
-                      config.color,
-                      isDisabled && "opacity-50 cursor-not-allowed",
-                      !isDisabled && "hover:scale-105 active:scale-95"
-                    )}
-                    title={config.name}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-[11px] font-bold">{count}</span>
-                  </button>
-                );
-              })}
-            </>
-          );
-          
-          return renderBoosts();
-        })()}
-
         {/* Индикатор активных бустов */}
         {profileId && (
           <div className="mb-2 flex justify-center">
