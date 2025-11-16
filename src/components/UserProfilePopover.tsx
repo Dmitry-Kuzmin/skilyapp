@@ -69,8 +69,7 @@ export function UserProfilePopover() {
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [avatarError, setAvatarError] = useState(false);
-  const [avatarLoaded, setAvatarLoaded] = useState(false);
+  const [avatarError, setAvatarError] = useState<Record<string, boolean>>({});
   const isMiniApp = isTelegramMiniApp();
 
   useEffect(() => {
@@ -78,6 +77,18 @@ export function UserProfilePopover() {
       loadProfile();
     }
   }, [profileId, open]);
+
+  // Reset avatar error when photo_url changes
+  useEffect(() => {
+    const photoUrl = profile?.photo_url || user?.photo_url;
+    if (photoUrl && avatarError[photoUrl]) {
+      setAvatarError(prev => {
+        const newState = { ...prev };
+        delete newState[photoUrl];
+        return newState;
+      });
+    }
+  }, [profile?.photo_url, user?.photo_url]);
 
   const loadProfile = async () => {
     if (!profileId) return;
@@ -145,10 +156,25 @@ export function UserProfilePopover() {
             style={{ pointerEvents: 'auto' }}
           >
           <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
-            <AvatarImage 
-                src={profile?.photo_url || user?.photo_url} 
-              alt={profile?.first_name || user?.first_name} 
-            />
+            {(() => {
+              const photoUrl = profile?.photo_url || user?.photo_url;
+              const hasError = photoUrl ? avatarError[photoUrl] : true;
+              
+              if (photoUrl && !hasError) {
+                return (
+                  <AvatarImage 
+                    src={photoUrl}
+                    alt={profile?.first_name || user?.first_name || 'User'}
+                    onError={() => {
+                      if (photoUrl) {
+                        setAvatarError(prev => ({ ...prev, [photoUrl]: true }));
+                      }
+                    }}
+                  />
+                );
+              }
+              return null;
+            })()}
             <AvatarFallback 
               className="text-white font-bold text-sm"
               style={{ backgroundColor: avatarColor }}
@@ -174,7 +200,25 @@ export function UserProfilePopover() {
               className="w-full flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
             >
               <Avatar className="h-10 w-10">
-                <AvatarImage src={profile?.photo_url || user?.photo_url} />
+                {(() => {
+                  const photoUrl = profile?.photo_url || user?.photo_url;
+                  const hasError = photoUrl ? avatarError[photoUrl] : true;
+                  
+                  if (photoUrl && !hasError) {
+                    return (
+                      <AvatarImage 
+                        src={photoUrl}
+                        alt={profile?.first_name || user?.first_name || 'User'}
+                        onError={() => {
+                          if (photoUrl) {
+                            setAvatarError(prev => ({ ...prev, [photoUrl]: true }));
+                          }
+                        }}
+                      />
+                    );
+                  }
+                  return null;
+                })()}
                 <AvatarFallback 
                   className="text-white font-bold text-sm"
                   style={{ backgroundColor: avatarColor }}
