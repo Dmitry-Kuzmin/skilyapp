@@ -57,32 +57,27 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 export default function Duel() {
   const [searchParams] = useSearchParams();
   
-  // Защита от undefined для хуков
+  // Защита от undefined для хуков - вызываем всегда, но проверяем результат
   const userContext = useUserContext();
   const lumiToast = useLumiToast();
   const activeDuelHook = useActiveDuel();
   
-  const { isAuthenticated, profileId, user, supabaseUser } = userContext || {
-    isAuthenticated: false,
-    profileId: null,
-    user: null,
-    supabaseUser: null,
-  };
+  // Безопасная деструктуризация с проверкой на undefined
+  const isAuthenticated = userContext?.isAuthenticated ?? false;
+  const profileId = userContext?.profileId ?? null;
+  const user = userContext?.user ?? null;
+  const supabaseUser = userContext?.supabaseUser ?? null;
   
-  const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = lumiToast || {
-    showDuelJoinError: () => {},
-    showDuelJoinSuccess: () => {},
-    showDuelNotification: () => {},
-    ToastContainer: () => null,
-  };
+  const showDuelJoinError = lumiToast?.showDuelJoinError ?? (() => {});
+  const showDuelJoinSuccess = lumiToast?.showDuelJoinSuccess ?? (() => {});
+  const showDuelNotification = lumiToast?.showDuelNotification ?? (() => {});
+  const ToastContainer = lumiToast?.ToastContainer ?? (() => null);
   
-  const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = activeDuelHook || {
-    activeDuel: null,
-    saveActiveDuel: () => {},
-    clearActiveDuel: () => {},
-    updateActiveDuel: () => {},
-    isChecking: false,
-  };
+  const activeDuel = activeDuelHook?.activeDuel ?? null;
+  const saveActiveDuel = activeDuelHook?.saveActiveDuel ?? (() => {});
+  const clearActiveDuel = activeDuelHook?.clearActiveDuel ?? (() => {});
+  const updateActiveDuel = activeDuelHook?.updateActiveDuel ?? (() => {});
+  const isChecking = activeDuelHook?.isChecking ?? false;
   const [mode, setMode] = useState<GameMode>('menu');
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);
