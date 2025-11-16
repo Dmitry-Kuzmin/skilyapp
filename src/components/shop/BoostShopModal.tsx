@@ -115,6 +115,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // Всегда перезагружаем данные при открытии модалки
       // Это гарантирует актуальность инвентаря и баланса
       loadData();
+      // Также загружаем историю транзакций при открытии
+      if (profileId && transactions.length === 0) {
+        loadTransactionHistory();
+      }
     }
   }, [open, profileId]); // Добавляем profileId в зависимости для перезагрузки при смене пользователя
 
