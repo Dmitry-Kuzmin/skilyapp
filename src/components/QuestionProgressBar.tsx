@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 interface QuestionProgressBarProps {
   currentIndex: number;
@@ -116,11 +117,11 @@ export function QuestionProgressBar({
                     className={cn(
                       "absolute rounded-full transition-all duration-200",
                       answer.isCorrect
-                        ? "w-2 h-2 bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
-                        : "w-2 h-2 bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
+                        ? "w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-emerald-500 shadow-[0_0_0_1px_rgba(16,185,129,0.2),0_0.5px_1px_rgba(0,0,0,0.1)] sm:shadow-[0_0_0_2px_rgba(16,185,129,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
+                        : "w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2),0_0.5px_1px_rgba(0,0,0,0.1)] sm:shadow-[0_0_0_2px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
                     )}
                     style={{ 
-                      left: `calc(${position}% - 4px)`,
+                      left: `calc(${position}% - ${indicatorOffset}px)`,
                       top: '50%',
                       transform: 'translateY(-50%)',
                       zIndex: 10
