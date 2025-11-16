@@ -99,7 +99,20 @@ export default function Duel() {
   const joinTotalRequired = joinPreviewBet > 0 ? joinPreviewBet + joinInsurancePremiumValue : joinPreviewBet;
   
   // Use realtime hook when duel is created
-  const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
+  const realtimeResult = useDuelRealtime(createdCode && duelId ? duelId : null);
+  const duelState = realtimeResult?.state || {
+    opponentJoined: false,
+    opponentScore: 0,
+    opponentAnswered: false,
+    opponentAnswerData: null,
+    duelStarted: false,
+    duelFinished: false,
+    currentQuestion: 0,
+    opponentCorrectCount: 0,
+    myScore: 0,
+    opponentActivityStatus: 'online' as const,
+    opponentLastSeen: null,
+  };
   
   // Initialize notifications for duel page - только после загрузки данных
   useNotifications({ showToasts: dataLoaded, playSounds: dataLoaded });
