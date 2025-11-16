@@ -165,23 +165,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         setCoins(profile.coins || 0);
       }
 
-      // Загрузка инвентаря - используем более надежный запрос
-      const { data: inventoryData, error: inventoryError } = await supabase
-        .from('boost_inventory')
-        .select('boost_type, quantity')
-        .eq('user_id', profileId)
-        .order('boost_type', { ascending: true });
+      // Загрузка инвентаря через RPC функцию (обходит RLS для Telegram пользователей)
+      const { data: inventoryData, error: inventoryError } = await supabase.rpc('get_user_boost_inventory', {
+        p_user_id: profileId
+      });
 
       if (inventoryError) {
-        console.error('[BoostShop] Ошибка загрузки инвентаря:', inventoryError);
-        console.error('[BoostShop] Детали ошибки инвентаря:', {
-          code: inventoryError.code,
-          message: inventoryError.message,
-          details: inventoryError.details,
-          hint: inventoryError.hint
-        });
+        console.error('[BoostShop] Ошибка загрузки инвентаря через RPC:', inventoryError);
+        // Fallback: пытаемся загрузить напрямую (может не работать для Telegram)
+        const { data: fallbackInventory } = await supabase
+          .from('boost_inventory')
+          .select('boost_type, quantity')
+          .eq('user_id', profileId)
+          .order('boost_type', { ascending: true });
+        
+        if (fallbackInventory) {
+          console.log('[BoostShop] Инвентарь загружен через fallback:', fallbackInventory);
+          setInventory(fallbackInventory);
+        } else {
+          console.log('[BoostShop] Инвентарь пуст для пользователя:', profileId);
+          setInventory([]);
+        }
       } else if (inventoryData) {
-        console.log('[BoostShop] Инвентарь загружен:', inventoryData);
+        console.log('[BoostShop] Инвентарь загружен через RPC:', inventoryData);
         setInventory(inventoryData);
       } else {
         console.log('[BoostShop] Инвентарь пуст для пользователя:', profileId);
@@ -814,10 +820,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               .select('coins')
               .eq('id', profileId)
               .single(),
-            supabase
-              .from('boost_inventory')
-              .select('boost_type, quantity')
-              .eq('user_id', profileId)
+            supabase.rpc('get_user_boost_inventory', {
+              p_user_id: profileId
+            }).catch(err => {
+              // Fallback на прямой запрос если RPC не работает
+              console.warn('[BoostShop] RPC для инвентаря не работает, используем fallback:', err);
+              return supabase
+                .from('boost_inventory')
+                .select('boost_type, quantity')
+                .eq('user_id', profileId);
+            })
           ]);
 
           // Обновляем состояние только если данные изменились

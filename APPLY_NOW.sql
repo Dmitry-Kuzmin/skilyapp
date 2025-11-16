@@ -120,5 +120,44 @@ GRANT EXECUTE ON FUNCTION public.get_user_transactions(UUID, INTEGER) TO authent
 GRANT EXECUTE ON FUNCTION public.get_user_transactions(UUID, INTEGER) TO anon;
 
 -- ============================================
--- ГОТОВО! Теперь транзакции создаются и загружаются через RPC функции
+-- СОЗДАНИЕ RPC ФУНКЦИИ ДЛЯ ПОЛУЧЕНИЯ ИНВЕНТАРЯ БУСТОВ
+-- ============================================
+-- Проблема: RLS политика для SELECT не работает для Telegram пользователей
+-- Решение: Используем RPC функцию с SECURITY DEFINER (обходит RLS)
+-- ============================================
+
+CREATE OR REPLACE FUNCTION public.get_user_boost_inventory(
+  p_user_id UUID
+)
+RETURNS TABLE (
+  boost_type TEXT,
+  quantity INTEGER
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Verify user exists
+  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE profiles.id = p_user_id) THEN
+    RAISE EXCEPTION 'User not found: %', p_user_id;
+  END IF;
+
+  -- Return inventory for the user
+  RETURN QUERY
+  SELECT 
+    boost_inventory.boost_type,
+    boost_inventory.quantity
+  FROM public.boost_inventory
+  WHERE boost_inventory.user_id = get_user_boost_inventory.p_user_id
+  ORDER BY boost_inventory.boost_type ASC;
+END;
+$$;
+
+-- Grant execute permission
+GRANT EXECUTE ON FUNCTION public.get_user_boost_inventory(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_user_boost_inventory(UUID) TO anon;
+
+-- ============================================
+-- ГОТОВО! Теперь транзакции и инвентарь работают через RPC функции
 -- ============================================
