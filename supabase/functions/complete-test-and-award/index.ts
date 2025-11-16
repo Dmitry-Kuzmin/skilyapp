@@ -530,7 +530,7 @@ serve(async (req) => {
     }
 
     // 3. Записываем результат теста
-    const { error: insertError } = await supabase
+    const { data: insertedResult, error: insertError } = await supabase
       .from('test_results')
       .insert({
         user_id,
@@ -549,7 +549,9 @@ serve(async (req) => {
         questions_multiplier: questionsMultiplier,
         base_coins_calculated: baseCoinsCalculated,
         base_sp_calculated: baseSPCalculated,
-      });
+      })
+      .select('id')
+      .single();
 
     if (insertError) {
       console.error("[complete-test-and-award] Insert error:", insertError);
@@ -563,6 +565,8 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const testResultId = insertedResult?.id;
 
     // 4. Логируем транзакции
     await supabase.from("transactions").insert({
