@@ -74,14 +74,14 @@ export function OpponentActivityIndicator({
     >
       <motion.div
         className={cn(
-          "w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center border border-opacity-50 shadow-sm",
+          "w-2.5 h-2.5 rounded-full flex items-center justify-center border",
           config.bgColor,
           config.borderColor,
           config.color
         )}
         animate={config.pulse ? {
-          scale: [1, 1.1, 1],
-          opacity: [1, 0.8, 1]
+          scale: [1, 1.15, 1],
+          opacity: [1, 0.85, 1]
         } : {}}
         transition={config.pulse ? {
           duration: 2,
@@ -94,28 +94,14 @@ export function OpponentActivityIndicator({
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           >
-            <Icon className="w-2.5 h-2.5 md:w-3 md:h-3" />
+            <Icon className="w-1.5 h-1.5" />
           </motion.div>
+        ) : status === 'online' ? (
+          <div className="w-1.5 h-1.5 rounded-full bg-current" />
         ) : (
-          <Icon className="w-2.5 h-2.5 md:w-3 md:h-3" />
+          <Icon className="w-1.5 h-1.5" />
         )}
       </motion.div>
-      
-      {/* Pulse ring для онлайн статуса */}
-      {status === 'online' && (
-        <motion.div
-          className="absolute inset-0 rounded-full border border-green-500/40"
-          animate={{
-            scale: [1, 1.5, 1.5],
-            opacity: [0.8, 0, 0]
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeOut"
-          }}
-        />
-      )}
     </motion.div>
   );
 }

@@ -1939,13 +1939,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
                 )}
-                {myScore > opponentScore && (
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
                 {/* Иконка страховки рядом с фото */}
                 {myInsuranceActive && (
                   <div className="absolute -bottom-0.5 -left-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-green-500/50">
@@ -2018,8 +2011,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                   </div>
                 )}
                 
-                {/* Индикатор активности соперника */}
-                <div className="absolute -bottom-0.5 -right-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-border/50">
+                {/* Индикатор активности соперника - компактный */}
+                <div className="absolute -bottom-0.5 -right-0.5 z-10">
                   <OpponentActivityIndicator 
                     status={opponentActivityStatus}
                     showTooltip={true}
@@ -2031,14 +2024,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                   <div className="absolute -bottom-0.5 -left-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-blue-500/50">
                     <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                   </div>
-                )}
-                
-                {opponentScore > myScore && (
-                  <motion.div
-                    className="absolute -top-1 -left-1 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-white"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
                 )}
                 
                 {/* Иконка молнии когда соперник отвечает */}
