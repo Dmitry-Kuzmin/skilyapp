@@ -92,20 +92,34 @@ export function UserProfilePopover() {
   }, [profile?.photo_url, user?.photo_url]);
 
   const loadProfile = async () => {
-    if (!profileId) return;
+    if (!profileId) {
+      console.log('[UserProfilePopover] No profileId, skipping load');
+      return;
+    }
 
     try {
       setLoading(true);
+      console.log('[UserProfilePopover] Loading profile for profileId:', profileId);
       const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', profileId)
       .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[UserProfilePopover] Error loading profile:', error);
+        throw error;
+      }
 
-    if (data) {
-      setProfile(data);
+      if (data) {
+        console.log('[UserProfilePopover] Profile loaded:', { 
+          id: data.id, 
+          photo_url: data.photo_url,
+          first_name: data.first_name 
+        });
+        setProfile(data);
+      } else {
+        console.warn('[UserProfilePopover] No profile data returned');
       }
     } catch (error) {
       console.error('[UserProfilePopover] Failed to load profile:', error);
@@ -161,18 +175,26 @@ export function UserProfilePopover() {
               const photoUrl = profile?.photo_url || user?.photo_url;
               const hasError = photoUrl ? (avatarError[photoUrl] || false) : false;
               
+              // Логирование для отладки
               if (photoUrl && !hasError) {
+                console.log('[UserProfilePopover] Rendering avatar image:', photoUrl);
                 return (
                   <AvatarImage 
                     src={photoUrl}
                     alt={profile?.first_name || user?.first_name || 'User'}
                     onError={() => {
+                      console.error('[UserProfilePopover] Avatar image failed to load:', photoUrl);
                       if (photoUrl) {
                         setAvatarError(prev => ({ ...prev, [photoUrl]: true }));
                       }
                     }}
+                    onLoad={() => {
+                      console.log('[UserProfilePopover] Avatar image loaded successfully:', photoUrl);
+                    }}
                   />
                 );
+              } else {
+                console.log('[UserProfilePopover] No avatar image - photoUrl:', photoUrl, 'hasError:', hasError);
               }
               return null;
             })()}
