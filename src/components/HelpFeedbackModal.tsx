@@ -27,24 +27,18 @@ export function HelpFeedbackModal({
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { user, profileId } = useUserContext();
+  const { user, supabaseUser, profileId, isAuthenticated } = useUserContext();
 
   const handleSubmit = async () => {
-    if (!user) {
-      toast({
-        title: "Ошибка",
-        description: "Необходимо войти в систему",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
+      // Get user_id from supabaseUser if available, otherwise null for anonymous feedback
+      const userId = supabaseUser?.id || null;
+      
       const { error } = await supabase.from("help_feedback").insert({
-        user_id: user.id,
-        profile_id: profileId,
+        user_id: userId,
+        profile_id: profileId || null,
         section_id: sectionId,
         subsection_id: subsectionId || null,
         helpful,
