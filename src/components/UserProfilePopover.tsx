@@ -187,7 +187,22 @@ export function UserProfilePopover() {
               className="w-full flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
             >
               <Avatar className="h-10 w-10">
-                <AvatarImage src={profile?.photo_url || user?.photo_url} />
+                {(() => {
+                  const photoUrl = profile?.photo_url || user?.photo_url;
+                  if (photoUrl) {
+                    return (
+                      <AvatarImage 
+                        src={photoUrl}
+                        alt={profile?.first_name || user?.first_name || 'User'}
+                        onError={(e) => {
+                          console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    );
+                  }
+                  return null;
+                })()}
                 <AvatarFallback 
                   className="text-white font-bold text-sm"
                   style={{ backgroundColor: avatarColor }}
