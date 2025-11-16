@@ -166,18 +166,18 @@ const Layout = ({ children }: LayoutProps) => {
               ))}
             </nav>
 
-            <div className="flex items-center gap-1 md:gap-2 min-w-0 flex-shrink-0">
+            <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
               {isAuthenticated && (
                 <>
                   {/* WalletWidget в header на больших экранах */}
-                  <div className="hidden lg:flex min-w-0 flex-shrink-0">
+                  <div className="hidden lg:flex min-w-0 flex-shrink-0 mr-1">
                     <WalletWidget />
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate('/referrals')}
-                    className="relative hidden sm:flex flex-shrink-0"
+                    className="relative hidden sm:flex flex-shrink-0 -mr-1"
                     title="Реферальная программа"
                   >
                     <svg
