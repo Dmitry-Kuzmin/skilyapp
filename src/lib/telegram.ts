@@ -6,14 +6,23 @@ export const getTelegramWebApp = () => {
 };
 
 export const isTelegramMiniApp = () => {
+  // Строгая проверка: только если действительно в Telegram Web App
+  if (typeof window === 'undefined') return false;
+  
   const webApp = getTelegramWebApp();
   if (!webApp) return false;
   
-  // Check if we have initData or user data
+  // Проверяем, что это действительно Telegram Web App, а не мок или заглушка
+  // Должны быть initData или user данные
   const hasInitData = webApp.initData && webApp.initData !== '';
   const hasUserData = !!webApp.initDataUnsafe?.user;
   
-  return hasInitData || hasUserData;
+  // Дополнительная проверка: platform должен быть 'web' или 'ios' или 'android' (Telegram платформы)
+  const platform = webApp.platform;
+  const isValidPlatform = platform === 'web' || platform === 'ios' || platform === 'android' || platform === 'tdesktop' || platform === 'macos' || platform === 'windows' || platform === 'linux';
+  
+  // Возвращаем true только если есть данные И платформа валидна
+  return (hasInitData || hasUserData) && isValidPlatform;
 };
 
 export const getTelegramUser = () => {

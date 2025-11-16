@@ -58,8 +58,25 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
-  const isTelegram = platform === 'telegram' || isTelegramMiniApp();
+  // Определяем Telegram более точно - только если действительно в Telegram Web App
+  // В браузере (не Telegram) isTelegramMiniApp() должен вернуть false
+  const isTelegram = isTelegramMiniApp() || platform === 'telegram';
+  
+  // Sheet используется только для мобильных устройств ИЛИ Telegram Web App
+  // В браузере на десктопе (не мобильный И не Telegram) используем Dialog по центру
   const useSheet = shouldUseSheet(isMobile, isTelegram);
+  
+  // Логирование для отладки (можно убрать после проверки)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[BoostShop] Platform detection:', {
+      platform,
+      isMobile,
+      isTelegram,
+      useSheet,
+      hasTelegramWebApp: typeof window !== 'undefined' && !!window.Telegram?.WebApp,
+      telegramPlatform: typeof window !== 'undefined' && window.Telegram?.WebApp?.platform
+    });
+  }
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
