@@ -19,6 +19,7 @@ import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
 import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
+import { ActiveBoostIndicator } from "@/components/ActiveBoostIndicator";
 
 type QuestionData = {
   id: string;
@@ -1728,6 +1729,13 @@ const TestSession = () => {
             isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
           )}
         >
+        {/* Индикатор активных бустов */}
+        {profileId && (
+          <div className="mb-2 flex justify-center">
+            <ActiveBoostIndicator userId={profileId} />
+          </div>
+        )}
+
         {/* Unified Progress Bar - переиспользуемый компонент */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
           <QuestionProgressBar
