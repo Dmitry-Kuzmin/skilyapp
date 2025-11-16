@@ -10,12 +10,13 @@ import { lazy, Suspense } from 'react';
 import { useUserContext } from '@/contexts/UserContext';
 
 // Lazy load тяжелые компоненты для оптимизации bundle
+// DuelSkeleton не lazy - используется сразу при загрузке
+import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
 const DuelLobby = lazy(() => import('@/components/duel/DuelLobby'));
 const DuelCreateModal = lazy(() => import('@/components/duel/DuelCreateModal'));
 const DuelJoinModal = lazy(() => import('@/components/duel/DuelJoinModal'));
 const DuelBattleFullscreen = lazy(() => import('@/components/duel/DuelBattleFullscreen'));
 const DuelResult = lazy(() => import('@/components/duel/DuelResult'));
-const DuelSkeleton = lazy(() => import('@/components/duel/DuelSkeleton'));
 const AuthModal = lazy(() => import('@/components/AuthModal'));
 
 import { useNotifications } from '@/hooks/useNotifications';
@@ -56,28 +57,9 @@ const getSeasonBonusPreview = (bet: number) => bet > 0 ? Math.round(20 * getRisk
 
 export default function Duel() {
   const [searchParams] = useSearchParams();
-  
-  // Защита от undefined для хуков - вызываем всегда, но проверяем результат
-  const userContext = useUserContext();
-  const lumiToast = useLumiToast();
-  const activeDuelHook = useActiveDuel();
-  
-  // Безопасная деструктуризация с проверкой на undefined
-  const isAuthenticated = userContext?.isAuthenticated ?? false;
-  const profileId = userContext?.profileId ?? null;
-  const user = userContext?.user ?? null;
-  const supabaseUser = userContext?.supabaseUser ?? null;
-  
-  const showDuelJoinError = lumiToast?.showDuelJoinError ?? (() => {});
-  const showDuelJoinSuccess = lumiToast?.showDuelJoinSuccess ?? (() => {});
-  const showDuelNotification = lumiToast?.showDuelNotification ?? (() => {});
-  const ToastContainer = lumiToast?.ToastContainer ?? (() => null);
-  
-  const activeDuel = activeDuelHook?.activeDuel ?? null;
-  const saveActiveDuel = activeDuelHook?.saveActiveDuel ?? (() => {});
-  const clearActiveDuel = activeDuelHook?.clearActiveDuel ?? (() => {});
-  const updateActiveDuel = activeDuelHook?.updateActiveDuel ?? (() => {});
-  const isChecking = activeDuelHook?.isChecking ?? false;
+  const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
+  const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
+  const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
   const [mode, setMode] = useState<GameMode>('menu');
   const [duelId, setDuelId] = useState<string | null>(null);
   const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -118,20 +100,7 @@ export default function Duel() {
   const joinTotalRequired = joinPreviewBet > 0 ? joinPreviewBet + joinInsurancePremiumValue : joinPreviewBet;
   
   // Use realtime hook when duel is created
-  const realtimeResult = useDuelRealtime(createdCode && duelId ? duelId : null);
-  const duelState = realtimeResult?.state || {
-    opponentJoined: false,
-    opponentScore: 0,
-    opponentAnswered: false,
-    opponentAnswerData: null,
-    duelStarted: false,
-    duelFinished: false,
-    currentQuestion: 0,
-    opponentCorrectCount: 0,
-    myScore: 0,
-    opponentActivityStatus: 'online' as const,
-    opponentLastSeen: null,
-  };
+  const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
   
   // Initialize notifications for duel page - только после загрузки данных
   useNotifications({ showToasts: dataLoaded, playSounds: dataLoaded });
@@ -847,11 +816,7 @@ export default function Duel() {
 
   // Показываем skeleton screen при начальной загрузке - ПОСЛЕ всех хуков!
   if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
-    return (
-      <Suspense fallback={<ComponentLoader />}>
-        <DuelSkeleton />
-      </Suspense>
-    );
+    return <DuelSkeleton />;
   }
 
   // Fullscreen modes - no Layout/Footer

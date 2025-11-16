@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import * as XLSX from 'xlsx';
+import { loadXLSX } from "@/utils/xlsxLoader";
 
 // Helper function to clean text fields
 const cleanText = (text: string | undefined | null): string => {
@@ -44,6 +44,8 @@ interface QuestionRow {
 
 export const importQuestions = async (file: File) => {
   try {
+    // Lazy load XLSX только когда нужен
+    const XLSX = await loadXLSX();
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import confetti from "canvas-confetti";
+import Confetti from "react-confetti";
 
 interface PremiumPlanSelectorProps {
   open: boolean;
@@ -187,30 +187,6 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
 
   const triggerConfetti = () => {
     setShowConfetti(true);
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#FFD700', '#FFA500', '#FF6347', '#FF1493', '#8A2BE2'],
-    });
-    
-    setTimeout(() => {
-      confetti({
-        particleCount: 50,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors: ['#FFD700', '#FFA500'],
-      });
-      confetti({
-        particleCount: 50,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors: ['#FF6347', '#FF1493'],
-      });
-    }, 250);
-
     setTimeout(() => setShowConfetti(false), 3000);
   };
 
@@ -394,16 +370,15 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         </DialogContent>
       </Dialog>
 
-      <AnimatePresence>
-        {showConfetti && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 pointer-events-none z-50"
-          />
-        )}
-      </AnimatePresence>
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
+          numberOfPieces={200}
+          colors={['#FFD700', '#FFA500', '#FF6347', '#FF1493', '#8A2BE2']}
+        />
+      )}
     </>
   );
 }

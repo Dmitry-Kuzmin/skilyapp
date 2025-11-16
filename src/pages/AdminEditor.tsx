@@ -11,9 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { EditorSidebar } from "@/components/admin-editor/EditorSidebar";
-import { TinyMCEEditor } from "@/components/admin-editor/TinyMCEEditor";
 import { MaterialPreview } from "@/components/admin-editor/MaterialPreview";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { lazy, Suspense } from "react";
 import { Panel as ResizablePanel, PanelGroup as ResizablePanelGroup, PanelResizeHandle as ResizableHandle } from "react-resizable-panels";
 import { PanelLeftClose, PanelLeft, Maximize2, Minimize2 } from "lucide-react";
@@ -28,10 +26,8 @@ import { generateHTMLPreview } from "@/utils/editor";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-// Lazy load editors to avoid export issues
+// Lazy load TipTap editor
 const TiptapEditor = lazy(() => import("@/components/admin-editor/TiptapEditorWrapper"));
-const QuillEditor = lazy(() => import("@/components/admin-editor/QuillEditorWrapper"));
-const LexicalEditor = lazy(() => import("@/components/admin-editor/LexicalEditorWrapper"));
 
 const AdminEditor = () => {
   const navigate = useNavigate();
@@ -60,7 +56,7 @@ const AdminEditor = () => {
   const [selectedTopicIdForSubtopic, setSelectedTopicIdForSubtopic] = useState<string | null>(null);
   const [selectedSubtopicIdForMaterial, setSelectedSubtopicIdForMaterial] = useState<string | null>(null);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
-  const [selectedEditor, setSelectedEditor] = useState<'tinymce' | 'tiptap' | 'quill' | 'lexical'>('lexical');
+  // Используем только TipTap редактор
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const editorRef = useRef<any>(null);
@@ -299,17 +295,8 @@ const AdminEditor = () => {
               </div>
             )}
             
-            {/* Right Side - Editor Tabs & Actions */}
+            {/* Right Side - Actions */}
             <div className="flex items-center gap-2">
-              <Tabs value={selectedEditor} onValueChange={(value) => setSelectedEditor(value as any)} className="w-auto">
-                <TabsList className="h-7 p-0.5">
-                  <TabsTrigger value="tinymce" className="text-xs px-2 py-1 h-6">Tiny</TabsTrigger>
-                  <TabsTrigger value="tiptap" className="text-xs px-2 py-1 h-6">Tip</TabsTrigger>
-                  <TabsTrigger value="quill" className="text-xs px-2 py-1 h-6">Quill</TabsTrigger>
-                  <TabsTrigger value="lexical" className="text-xs px-2 py-1 h-6">Lex</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              
               {selectedMaterialId && (
                 <>
                   {/* Save Status */}
@@ -360,71 +347,21 @@ const AdminEditor = () => {
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  {selectedEditor === 'tinymce' && (
-                    <TinyMCEEditor
+                  <Suspense fallback={
+                    <div className="flex-1 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                    </div>
+                  }>
+                    <TiptapEditor
                       content={editorContent}
                       onChange={handleContentChange}
                       placeholder="Начните вводить текст..."
                       materialId={selectedMaterialId || undefined}
                       editable={true}
-                      height={window.innerHeight - 150}
+                      height={isFullscreen ? window.innerHeight - 200 : 600}
                       onEditorReady={handleEditorReady}
                     />
-                  )}
-                  
-                  {selectedEditor === 'tiptap' && (
-                    <Suspense fallback={
-                        <div className="flex-1 flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                        </div>
-                      }>
-                        <TiptapEditor
-                          content={editorContent}
-                          onChange={handleContentChange}
-                          placeholder="Начните вводить текст..."
-                          materialId={selectedMaterialId || undefined}
-                          editable={true}
-                          height={isFullscreen ? window.innerHeight - 200 : 600}
-                          onEditorReady={handleEditorReady}
-                      />
-                    </Suspense>
-                  )}
-                  
-                  {selectedEditor === 'quill' && (
-                    <Suspense fallback={
-                      <div className="flex-1 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                      </div>
-                    }>
-                      <QuillEditor
-                        content={editorContent}
-                        onChange={handleContentChange}
-                        placeholder="Начните вводить текст..."
-                        materialId={selectedMaterialId || undefined}
-                        editable={true}
-                        height={window.innerHeight - 150}
-                        onEditorReady={handleEditorReady}
-                      />
-                    </Suspense>
-                  )}
-                  
-                  {selectedEditor === 'lexical' && (
-                    <Suspense fallback={
-                      <div className="flex-1 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                      </div>
-                    }>
-                      <LexicalEditor
-                        content={editorContent}
-                        onChange={handleContentChange}
-                        placeholder="Начните вводить текст..."
-                        materialId={selectedMaterialId || undefined}
-                        editable={true}
-                        height={window.innerHeight - 150}
-                        onEditorReady={handleEditorReady}
-                      />
-                    </Suspense>
-                  )}
+                  </Suspense>
                 </div>
               )}
             </>

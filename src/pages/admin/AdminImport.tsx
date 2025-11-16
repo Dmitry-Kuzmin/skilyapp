@@ -6,7 +6,7 @@ import { importRoadSigns, importLanguageTerms } from "@/utils/importData";
 import { importQuestions } from "@/utils/importQuestions";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Upload, CheckCircle2, Database, FileText, BookOpen, Map, Trash2, Download, BarChart3 } from "lucide-react";
-import * as XLSX from 'xlsx';
+import { loadXLSX } from "@/utils/xlsxLoader";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export function AdminImport() {
@@ -43,6 +43,8 @@ export function AdminImport() {
     setLoading(prev => ({ ...prev, [type]: true }));
     
     try {
+      // Lazy load XLSX только когда нужен
+      const XLSX = await loadXLSX();
       const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];

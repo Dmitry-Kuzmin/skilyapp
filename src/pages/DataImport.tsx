@@ -7,7 +7,7 @@ import { importRoadSigns, importLanguageTerms } from "@/utils/importData";
 import { importQuestions } from "@/utils/importQuestions";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Upload, CheckCircle2, Database, FileText, BookOpen, Map, Trash2, Download, BarChart3 } from "lucide-react";
-import * as XLSX from 'xlsx';
+import { loadXLSX } from "@/utils/xlsxLoader";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default function DataImport() {
@@ -147,6 +147,8 @@ export default function DataImport() {
       
       if (error) throw error;
       
+      // Lazy load XLSX для экспорта
+      const XLSX = await loadXLSX();
       const ws = XLSX.utils.json_to_sheet(data || []);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, tableName);
