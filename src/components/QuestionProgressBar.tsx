@@ -101,9 +101,12 @@ export function QuestionProgressBar({
           
           {/* Visual indicators for answered questions - современные компактные индикаторы */}
           {answers.length > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
               {answers.map((answer, idx) => {
-                const position = ((idx + 1) / totalQuestions) * 100;
+                // Правильный расчет позиции: центрируем индикатор на позиции вопроса
+                // Используем (idx + 0.5) для центрирования между границами сегмента
+                const position = ((idx + 0.5) / totalQuestions) * 100;
+                // w-2 h-2 = 8px, поэтому вычитаем 4px для центрирования
                 return (
                   <motion.div
                     key={idx}
@@ -119,7 +122,8 @@ export function QuestionProgressBar({
                     style={{ 
                       left: `calc(${position}% - 4px)`,
                       top: '50%',
-                      transform: 'translateY(-50%)'
+                      transform: 'translateY(-50%)',
+                      zIndex: 10
                     }}
                   >
                     {/* Тонкий блик для современного вида */}
