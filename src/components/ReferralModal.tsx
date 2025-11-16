@@ -120,15 +120,6 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg p-0 overflow-hidden">
-        {/* Top Banner */}
-        <div className="bg-muted/50 px-6 py-2 border-b border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">
-              Заработай 10+ монет
-            </span>
-          </div>
-        </div>
-
         <div className="px-6 pt-6 pb-6 space-y-6">
           {/* Main Content */}
           <div className="space-y-4">
