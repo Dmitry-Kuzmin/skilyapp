@@ -137,3 +137,4 @@ COMMENT ON FUNCTION auto_unlock_duel_pass_for_premium() IS 'Автоматиче
 COMMENT ON FUNCTION has_premium_forever(UUID) IS 'Проверяет, имеет ли пользователь Premium Forever подписку';
 COMMENT ON FUNCTION should_purchase_duel_pass(UUID, INTEGER) IS 'Проверяет, нужно ли пользователю покупать Duel Pass для сезона';
 
+

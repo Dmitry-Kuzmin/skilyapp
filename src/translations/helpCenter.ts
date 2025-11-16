@@ -562,6 +562,456 @@ Premium окупается за неделю активного использо
 • До 2 устройств могут использовать аккаунт без верификации
 • Только 1 активная сессия одновременно (другой вход закрывает предыдущую)
 • Watermark в тестах показывает ваше имя (защита от передачи аккаунта)`,
+    
+    // Duel Pass section content
+    "help.content.duelPass.overview.title": "Что такое Duel Pass?",
+    "help.content.duelPass.overview.content": `Duel Pass — это система уровней и наград, которая мотивирует вас к регулярным занятиям.
+
+За каждое действие (дуэли, выполнение челленджей) вы получаете Season Points (SP) для Duel Pass. При достижении определённого количества SP (100 SP за уровень) вы повышаете уровень и получаете награды.
+
+Прогресс Duel Pass отображается в WalletWidget в виде мини-полоски SP с текущим уровнем.`,
+    "help.content.duelPass.levels.title": "Уровни и награды",
+    "help.content.duelPass.levels.content": `Duel Pass состоит из 30 уровней, каждый требует 100 SP для достижения:
+
+**Бесплатные награды** — доступны всем пользователям:
+• Монеты (от 20 до 500)
+• Бусты (Retry, Second Chance, Double SP)
+• Стикеры (эмоции для дуэлей)
+• Бейджи (достижения)
+
+**Premium награды** — доступны только Premium пользователям:
+• Удвоенные монеты (от 50 до 1000)
+• Эксклюзивные бусты (улучшенные версии)
+• Скины (кастомизация аватара)
+• Эксклюзивные бейджи и стикеры
+• Трофеи (сезонные награды)
+
+**Примеры наград по уровням:**
+• Уровень 1: 20 монет (Free) / 50 монет (Premium)
+• Уровень 2: — / Double XP (1 день)
+• Уровень 3: Retry Boost / Second Chance
+• Уровень 5: — / Аватар сезона
+• Уровень 6: Double SP (1 матч) / Double SP (1 день)
+• Уровень 10: 50 монет / 250 монет
+• Уровень 15: Трофей (бронза) / Трофей (золото)
+• Уровень 30: — / Exclusive Seasonal Badge
+
+Награды можно получить только один раз за уровень. После получения они отмечаются как "Получено".`,
+    "help.content.duelPass.xp.title": "Как заработать Season Points (SP) для Duel Pass",
+    "help.content.duelPass.xp.content": `Season Points (SP) — это сезонные очки для прогресса в Duel Pass. Они начисляются за:
+
+**Дуэли:**
+• Без ставки:
+  - Победа: +30 SP
+  - Ничья: +15 SP
+  - Поражение: +5 SP
+
+• Со ставкой (базовый SP = 20 × множитель риска):
+  - Ставка 100 монет → множитель 1.25 → +25 SP
+  - Ставка 300 монет → множитель 1.5 → +30 SP
+  - Ставка 600 монет → множитель 2.0 → +40 SP
+  - Ставка 1000 монет → множитель 3.0 → +60 SP
+  - Страховка снижает множитель на -0.1
+
+**Бонусы:**
+• Premium пользователи: +20% SP за дуэли
+• Double SP Boost: x2 SP за дуэли на 1 час (можно купить за 150 монет)
+
+**Челленджи:**
+• Daily Challenges: от 100 до 150 SP
+• Weekly Challenges: от 400 до 600 SP
+• Seasonal Challenges: от 1000 до 1500 SP
+
+**Важно:**
+• Каждый уровень Duel Pass требует 100 SP
+• Всего 30 уровней в сезоне (3000 SP максимум)
+• Сезон длится 28 дней (4 недели)`,
+    "help.content.duelPass.claiming.title": "Как получить награды",
+    "help.content.duelPass.claiming.content": `Чтобы получить награду Duel Pass:
+
+1. Достигните нужного уровня, накопив достаточно XP
+2. Откройте Duel Pass на главной странице или через магазин
+3. Нажмите кнопку "Получить" на доступной награде
+4. Награда автоматически добавится в ваш баланс
+
+Награды можно получить в любое время после достижения уровня. Если вы пропустили уровень, вы всё равно можете получить все предыдущие награды.`,
+    "help.content.duelPass.premium.title": "Duel Pass Premium",
+    "help.content.duelPass.premium.content": `Premium пользователи получают дополнительные преимущества:
+
+• Удвоенные награды на каждом уровне
+• Эксклюзивные Premium награды (скины, бейджи, стикеры)
+• +20% Season Points (SP) за дуэли
+• Приоритетный доступ к новым уровням
+
+**Как получить Premium Duel Pass:**
+
+• **Premium Forever** — автоматически открыт для всех сезонов (бесплатно)
+• **Premium подписка** — автоматически открыт на время подписки
+• **Отдельная покупка** — €7.99 за один сезон (через Duel Pass модалку)
+
+Premium Duel Pass можно приобрести отдельно или получить автоматически с Premium подпиской.`,
+    "help.content.duelPass.seasons.title": "Сезоны Duel Pass",
+    "help.content.duelPass.seasons.content": `Duel Pass работает по сезонам:
+
+• Каждый сезон длится 28 дней (4 недели)
+• В начале нового сезона прогресс сбрасывается
+• Всего 30 уровней в сезоне (каждый уровень = 100 SP)
+• Новые уровни и награды появляются каждый сезон
+• Специальные события и бонусы в течение сезона
+
+**Season Points (SP):**
+• SP — это сезонные очки, которые вы получаете за:
+  - Дуэли (без ставки: +30 за победу, +15 за ничью, +5 за поражение)
+  - Дуэли со ставкой: 20 × множитель риска (до x3 при ставке 1000 монет)
+  - Выполнение челленджей (Daily, Weekly, Seasonal)
+  - Double SP Boost — удваивает SP за дуэли на 1 час
+
+• Premium пользователи получают +20% SP за дуэли
+• Double SP Boost можно активировать из инвентаря (стоит 150 монет)
+
+Следите за обновлениями, чтобы не пропустить новый сезон!`,
+    "help.content.duelPass.challenges.title": "Сезонные челленджи",
+    "help.content.duelPass.challenges.content": `Челленджи помогают заработать дополнительные Season Points:
+
+**Daily Challenges (Ежедневные):**
+• Обновляются каждый день в 00:00 UTC
+• 3 челленджа в день
+• Награды: от 100 до 150 SP за выполнение
+• Примеры:
+  - Выиграй 2 дуэли → +120 SP
+  - Пройди 10 тестов → +100 SP
+  - Сделай 3 ставки → +150 SP
+
+**Weekly Challenges (Еженедельные):**
+• Обновляются каждый понедельник
+• Более сложные задачи
+• Награды: от 400 до 600 SP
+• Примеры:
+  - Победи 10 дуэлей → +600 SP
+  - Соверши 5 страхованных ставок → +400 SP
+  - Заверши неделю без пропусков → +400 SP
+
+**Seasonal Challenges (Сезонные):**
+• Доступны весь сезон
+• Самые сложные задачи
+• Награды: от 1000 до 1500 SP
+• Примеры:
+  - Выиграй 5 дуэлей со ставкой → +1000 SP
+  - Выиграй со ставкой ≥600 → +1500 SP
+  - Победи 3 раза со страховкой → +1500 SP
+
+Выполняйте челленджи регулярно, чтобы максимизировать свой прогресс в Duel Pass!`,
+    
+    // Cosmetics section content
+    "help.content.cosmetics.overview.title": "Обзор системы косметики",
+    "help.content.cosmetics.overview.content": `Система косметики позволяет персонализировать ваш профиль и игровой опыт с помощью скинов, бейджей и стикеров.
+
+Все косметические предметы можно получить через Duel Pass, ежедневные награды и специальные события. Каждый предмет имеет свою редкость и уникальные визуальные эффекты.
+
+Доступ к инвентарю: нажмите на кнопку "Inventory" в профиле пользователя (верхняя панель) или перейдите по адресу /inventory.`,
+    "help.content.cosmetics.skins.title": "Скины (Skins)",
+    "help.content.cosmetics.skins.content": `Скины — это кастомизация вашего аватара:
+
+• Только один скин может быть активен одновременно
+• Скины имеют уникальные цвета и эффекты
+• Редкость: Common, Rare, Epic, Legendary
+• Легендарные скины имеют анимацию
+
+Доступные скины:
+• 🎨 Стандартный (Common) — базовый скин
+• 🔥 Огненный (Rare) — с эффектом огня
+• ❄️ Ледяной (Rare) — с эффектом льда
+• 👑 Золотой (Epic, Premium) — с эффектом сияния
+• 💎 Алмазный (Legendary, Premium) — с анимацией и sparkle эффектом
+
+Как активировать скин:
+1. Откройте Inventory → вкладка "Скины"
+2. Выберите нужный скин
+3. Нажмите "Активировать"
+4. Скин применится к вашему аватару`,
+    "help.content.cosmetics.badges.title": "Бейджи (Badges)",
+    "help.content.cosmetics.badges.content": `Бейджи — это достижения и статусные знаки:
+
+• Можно отображать до 3 бейджей в профиле
+• Бейджи видны другим пользователям
+• Категории: Achievement (достижения), Seasonal (сезонные), Special (особые)
+• Редкость влияет на визуальные эффекты
+
+Доступные бейджи:
+• 🏆 Победитель x10/50/100 — за победы в дуэлях
+• 🔥 Серия 7 — за 7 дней подряд
+• ⭐ Идеальный — за 100% правильных ответов
+• 📅 Сезон 1 — за участие в первом сезоне
+• 👑 Premium — для Premium пользователей
+
+Как управлять бейджами:
+1. Откройте Inventory → вкладка "Бейджи"
+2. Выберите бейдж
+3. Нажмите "Показать в профиле" (максимум 3)
+4. Бейдж отобразится в вашем профиле`,
+    "help.content.cosmetics.stickers.title": "Стикеры (Stickers)",
+    "help.content.cosmetics.stickers.content": `Стикеры — это эмоции для использования в дуэлях:
+
+• Стикеры расходные (количество уменьшается при использовании)
+• Категории: Emoji, Reaction, Celebration
+• Можно использовать во время дуэлей для выражения эмоций
+• Редкость определяет визуальные эффекты
+
+Доступные стикеры:
+• 🔥 Огонь (Common) — выражает восхищение
+• 👏 Аплодисменты (Common) — поддержка
+• 🤔 Думаю (Common) — размышление
+• 😮 Вау (Rare) — удивление
+• 😂 Смех (Rare) — веселье
+• 🏆 Трофей (Epic, Premium) — празднование победы
+
+Как использовать стикеры:
+• В дуэлях: нажмите на иконку стикера во время игры
+• Количество отображается в инвентаре
+• Пополняйте запас через Duel Pass и награды`,
+    "help.content.cosmetics.rarity.title": "Система редкости",
+    "help.content.cosmetics.rarity.content": `Все косметические предметы имеют редкость:
+
+| Редкость | Цвет | Описание | Особенности |
+|----------|------|----------|-------------|
+| Common | Серый | Базовые предметы | Стандартные эффекты |
+| Rare | Синий | Редкие предметы | Улучшенные эффекты |
+| Epic | Фиолетовый | Эпические предметы | Специальные эффекты |
+| Legendary | Золотой | Легендарные предметы | Анимация и уникальные эффекты |
+
+Редкость влияет на:
+• Визуальные эффекты (цвета, анимации)
+• Престиж и статус
+• Сложность получения
+• Уникальность предмета`,
+    "help.content.cosmetics.obtaining.title": "Как получить косметику",
+    "help.content.cosmetics.obtaining.content": `Косметические предметы можно получить через:
+
+• **Duel Pass** — основной источник косметики:
+  - Скины на уровнях 5, 10, 15, 20, 25, 30
+  - Бейджи на уровнях 3, 7, 12, 18, 24, 28
+  - Стикеры на уровнях 2, 6, 11, 16, 22, 27
+  - Premium награды для Premium пользователей
+
+• **Ежедневные бонусы**:
+  - Специальные награды за серии
+  - Стикеры за 7, 14, 21 дней
+  - Бейджи за 30, 60, 90 дней
+
+• **Магазин** (в разработке):
+  - Покупка за монеты
+  - Специальные наборы
+  - Сезонные предложения
+
+• **События** (в разработке):
+  - Временные события
+  - Эксклюзивная косметика
+  - Коллекционные предметы
+
+При получении косметики показывается красивая анимация с конфетти!`,
+    "help.content.cosmetics.inventory.title": "Инвентарь",
+    "help.content.cosmetics.inventory.content": `Инвентарь — это место, где хранятся все ваши косметические предметы:
+
+**Как открыть инвентарь:**
+1. Нажмите на аватар в верхней панели
+2. В выпадающем меню нажмите "Inventory"
+3. Или перейдите по адресу /inventory
+
+**Вкладки инвентаря:**
+• Скины — просмотр и активация скинов
+• Бейджи — управление отображением бейджей
+• Стикеры — просмотр количества стикеров
+
+**Функции инвентаря:**
+• Просмотр всех полученных предметов
+• Информация о редкости и источнике получения
+• Активация/деактивация косметики
+• Фильтры по типам и редкости
+• Статистика коллекции`,
+    "help.content.cosmetics.animation.title": "Анимация получения",
+    "help.content.cosmetics.animation.content": `При получении косметики через Duel Pass показывается специальная анимация:
+
+• **Конфетти** — 200 частиц с физикой
+• **Bounce эффект** — анимация появления предмета
+• **Sparkle эффекты** — для легендарных предметов
+• **Информационная карточка**:
+  - Название и описание предмета
+  - Редкость с цветовой индикацией
+  - Тип косметики
+  - Кнопка подтверждения
+
+Анимация автоматически закрывается через несколько секунд или по клику на кнопку "Отлично!".`,
+    "help.content.cosmetics.tips.title": "Советы по косметике",
+    "help.content.cosmetics.tips.content": `Чтобы максимизировать свою коллекцию:
+
+• **Регулярно проходите Duel Pass** — основной источник косметики
+• **Заходите каждый день** — ежедневные бонусы дают стикеры и бейджи
+• **Получайте Premium** — эксклюзивная косметика только для Premium
+• **Участвуйте в событиях** — уникальные предметы
+• **Собирайте коллекции** — полные наборы дают бонусы
+• **Показывайте свои бейджи** — делитесь достижениями
+• **Используйте стикеры в дуэлях** — выражайте эмоции
+
+Следите за обновлениями — новая косметика добавляется каждый сезон!`,
+    
+    // Shop section content
+    "help.content.shop.overview.title": "Что такое магазин?",
+    "help.content.shop.overview.content": `Магазин — это место, где вы можете купить бусты, пополнить баланс монет и получить Premium подписку.
+
+Магазин открывается по клику на WalletWidget в верхней панели навигации или через кнопку "Магазин бустов" на странице игр.`,
+    "help.content.shop.tabs.title": "Вкладки магазина",
+    "help.content.shop.tabs.content": `Магазин разделён на три вкладки:
+
+1. Бусты — покупка различных бустов для улучшения результатов:
+   • Популярные бусты — доступны всем пользователям
+   • Премиум бусты — только для Premium пользователей
+   • Каждый буст имеет описание, цену и количество в инвентаре
+
+2. Монеты — пополнение баланса монет:
+   • Пакеты монет различных размеров (100, 500, 1200, 3000)
+   • Бонусные монеты при покупке больших пакетов
+   • Безопасная оплата через Stripe
+
+3. Premium & Duel Pass — подписки и премиум функции:
+   • Premium подписка (месяц/год)
+   • Duel Pass Premium
+   • Сравнение тарифов и преимуществ`,
+    "help.content.shop.boosts.title": "Бусты",
+    "help.content.shop.boosts.content": `Бусты — это временные улучшения, которые помогают вам в тестах и играх:
+
+• **Типы бустов:**
+  - Увеличение времени на ответ
+  - Подсказки и подсказки
+  - Дополнительные попытки
+  - Увеличение наград
+  - **Double SP Boost** ⚡ — удваивает Season Points за дуэли на 1 час (150 монет)
+
+• **Покупка бустов:**
+  - Выберите нужный буст в магазине
+  - Проверьте свой баланс монет
+  - Нажмите "Купить"
+  - Буст автоматически добавится в инвентарь
+
+• **Использование бустов:**
+  - Бусты применяются автоматически при необходимости
+  - Или вручную перед началом теста/игры
+  - Каждый буст имеет ограниченное количество использований
+  - **Double SP Boost** активируется из инвентаря и действует 1 час
+
+• **Double SP Boost:**
+  - Стоимость: 150 монет
+  - Длительность: 1 час
+  - Эффект: x2 Season Points за все дуэли
+  - Можно использовать несколько раз подряд
+  - Идеально для быстрого прогресса в Duel Pass`,
+    "help.content.shop.coins.title": "Покупка монет",
+    "help.content.shop.coins.content": `Пополнить баланс монет можно через вкладку "Монеты" в магазине:
+
+• Доступные пакеты:
+  - 100 монет — €2.99
+  - 500 монет — €9.99 (+50 бонус)
+  - 1200 монет — €19.99 (+200 бонус)
+  - 3000 монет — €39.99 (+500 бонус)
+
+• Процесс покупки:
+  1. Выберите нужный пакет
+  2. Нажмите "Купить"
+  3. Вас перенаправит на безопасную страницу оплаты Stripe
+  4. После оплаты монеты автоматически добавятся в баланс
+
+Все покупки сохраняются в истории транзакций.`,
+    "help.content.shop.premium.title": "Premium в магазине",
+    "help.content.shop.premium.content": `Получить Premium можно через вкладку "Premium & Duel Pass":
+
+• Выберите тарифный план (месяц или год)
+• Нажмите "Выбрать"
+• Вас перенаправит на страницу оплаты Stripe
+• После оплаты Premium активируется автоматически
+
+Premium подписка включает все преимущества, описанные в разделе "Premium подписка".`,
+    
+    // Spain License section content
+    "help.content.spainLicense.requirements.title": "Требования для получения прав",
+    "help.content.spainLicense.requirements.content": `Для получения водительских прав в Испании необходимо:
+
+• Быть не моложе 18 лет (для категории B)
+• Пройти медицинское обследование
+• Пройти теоретический экзамен (30 вопросов, максимум 3 ошибки)
+• Пройти практический экзамен по вождению
+• Оплатить соответствующие сборы
+
+Экзамены проводятся DGT (Dirección General de Tráfico).`,
+    "help.content.spainLicense.exam.title": "Экзамен DGT",
+    "help.content.spainLicense.exam.content": `Теоретический экзамен состоит из 30 вопросов с несколькими вариантами ответов:
+
+• Время на экзамен: 30 минут
+• Максимум ошибок: 3
+• Формат: вопросы с изображениями и текстом
+• Языки: испанский, каталанский, баскский, галисийский
+
+Практический экзамен включает:
+• Проверку навыков вождения
+• Выполнение маневров
+• Соблюдение правил дорожного движения`,
+    "help.content.spainLicense.preparation.title": "Подготовка к экзамену",
+    "help.content.spainLicense.preparation.content": `Рекомендации по подготовке:
+
+• Изучайте официальные материалы DGT
+• Проходите тесты регулярно
+• Изучайте дорожные знаки
+• Практикуйтесь с вопросами из базы DGT
+• Используйте приложение Sdadim для тренировки
+
+Регулярная практика — ключ к успеху!`,
+    "help.content.spainLicense.faq.title": "Часто задаваемые вопросы",
+    "help.content.spainLicense.faq.content": `Вопрос: Сколько стоит получение прав в Испании?
+Ответ: Стоимость варьируется, но обычно составляет от 600 до 1500 евро, включая обучение, экзамены и сборы.
+
+Вопрос: Можно ли сдать экзамен на русском языке?
+Ответ: Нет, экзамен доступен только на официальных языках Испании. Но вы можете использовать перевод в приложении для подготовки.
+
+Вопрос: Сколько раз можно пересдавать экзамен?
+Ответ: Количество попыток не ограничено, но каждая пересдача требует оплаты.
+
+Вопрос: Действительны ли права из другой страны?
+Ответ: Зависит от страны происхождения. ЕС права действительны, для других стран может потребоваться обмен или пересдача.`,
+    
+    // FAQ section content
+    "help.content.faq.general.title": "Общие вопросы",
+    "help.content.faq.general.items": [
+      "Как зарегистрироваться? — Используйте Telegram или веб-браузер для регистрации",
+      "Приложение бесплатное? — Да, базовые функции бесплатны, есть премиум функции",
+      "Работает ли приложение офлайн? — Нет, требуется подключение к интернету",
+      "На каких устройствах работает? — Веб-версия работает на всех устройствах, Telegram версия в Telegram",
+      "Как связаться с поддержкой? — Через Telegram или email support@sdadim.com"
+    ],
+    "help.content.faq.technical.title": "Технические вопросы",
+    "help.content.faq.technical.items": [
+      "Приложение не загружается — Проверьте интернет-соединение и обновите страницу",
+      "Не сохраняется прогресс — Убедитесь, что вы авторизованы и данные синхронизированы",
+      "Ошибки в вопросах — Используйте кнопку 'Сообщить о проблеме' в тестах",
+      "Медленная работа — Очистите кэш браузера или перезапустите приложение",
+      "Не работают изображения — Проверьте настройки контента в браузере"
+    ],
+    "help.content.faq.account.title": "Аккаунт и данные",
+    "help.content.faq.account.items": [
+      "Как изменить профиль? — Откройте меню профиля и нажмите 'Редактировать'",
+      "Как удалить аккаунт? — Обратитесь в поддержку для удаления аккаунта",
+      "Можно ли иметь несколько аккаунтов? — Да, но прогресс не синхронизируется",
+      "Как восстановить пароль? — Используйте функцию восстановления пароля при входе",
+      "Где хранятся мои данные? — Данные хранятся безопасно в соответствии с политикой конфиденциальности"
+    ],
+    "help.content.faq.premium.title": "Premium и монеты",
+    "help.content.faq.premium.items": [
+      "Как получить Premium? — Через магазин, главную страницу или страницу игр",
+      "Что включает Premium? — Безлимитный доступ, удвоенные награды, Duel Pass Premium, без рекламы",
+      "Что такое Premium Forever? — Пожизненная Premium подписка за €59.99, автоматически открывает Duel Pass Premium для всех сезонов",
+      "Как пополнить баланс монет? — Через магазин → вкладка 'Монеты'",
+      "Можно ли отменить Premium? — Да, в любой момент через Stripe кабинет (кроме Premium Forever)",
+      "Что такое Duel Pass? — Система уровней и наград за регулярные занятия",
+      "Что такое Season Points (SP)? — Сезонные очки для прогресса в Duel Pass, зарабатываются за дуэли и челленджи",
+      "Как работает Double SP Boost? — Удваивает SP за дуэли на 1 час, стоит 150 монет, активируется из инвентаря"
+    ],
   },
   en: {
     // Header
@@ -1124,6 +1574,456 @@ After clicking the button, you will be redirected to a secure Stripe payment pag
 • Up to 2 devices can use the account without verification
 • Only 1 active session at a time (another login closes the previous one)
 • Watermark in tests shows your name (account transfer protection)`,
+    
+    // Duel Pass section content
+    "help.content.duelPass.overview.title": "What is Duel Pass?",
+    "help.content.duelPass.overview.content": `Duel Pass is a level and reward system that motivates you to practice regularly.
+
+For each action (duels, completing challenges) you receive Season Points (SP) for Duel Pass. When you reach a certain amount of SP (100 SP per level), you level up and receive rewards.
+
+Duel Pass progress is displayed in WalletWidget as a mini SP bar with current level.`,
+    "help.content.duelPass.levels.title": "Levels and Rewards",
+    "help.content.duelPass.levels.content": `Duel Pass consists of 30 levels, each requiring 100 SP to reach:
+
+**Free Rewards** — available to all users:
+• Coins (from 20 to 500)
+• Boosts (Retry, Second Chance, Double SP)
+• Stickers (emotions for duels)
+• Badges (achievements)
+
+**Premium Rewards** — available only to Premium users:
+• Doubled coins (from 50 to 1000)
+• Exclusive boosts (enhanced versions)
+• Skins (avatar customization)
+• Exclusive badges and stickers
+• Trophies (seasonal rewards)
+
+**Reward Examples by Level:**
+• Level 1: 20 coins (Free) / 50 coins (Premium)
+• Level 2: — / Double XP (1 day)
+• Level 3: Retry Boost / Second Chance
+• Level 5: — / Season Avatar
+• Level 6: Double SP (1 match) / Double SP (1 day)
+• Level 10: 50 coins / 250 coins
+• Level 15: Trophy (bronze) / Trophy (gold)
+• Level 30: — / Exclusive Seasonal Badge
+
+Rewards can only be claimed once per level. After claiming, they are marked as "Claimed".`,
+    "help.content.duelPass.xp.title": "How to Earn Season Points (SP) for Duel Pass",
+    "help.content.duelPass.xp.content": `Season Points (SP) are seasonal points for progress in Duel Pass. They are awarded for:
+
+**Duels:**
+• Without bet:
+  - Win: +30 SP
+  - Draw: +15 SP
+  - Defeat: +5 SP
+
+• With bet (base SP = 20 × risk multiplier):
+  - 100 coin bet → multiplier 1.25 → +25 SP
+  - 300 coin bet → multiplier 1.5 → +30 SP
+  - 600 coin bet → multiplier 2.0 → +40 SP
+  - 1000 coin bet → multiplier 3.0 → +60 SP
+  - Insurance reduces multiplier by -0.1
+
+**Bonuses:**
+• Premium users: +20% SP for duels
+• Double SP Boost: x2 SP for duels for 1 hour (can be bought for 150 coins)
+
+**Challenges:**
+• Daily Challenges: from 100 to 150 SP
+• Weekly Challenges: from 400 to 600 SP
+• Seasonal Challenges: from 1000 to 1500 SP
+
+**Important:**
+• Each Duel Pass level requires 100 SP
+• Total 30 levels per season (3000 SP maximum)
+• Season lasts 28 days (4 weeks)`,
+    "help.content.duelPass.claiming.title": "How to Claim Rewards",
+    "help.content.duelPass.claiming.content": `To claim a Duel Pass reward:
+
+1. Reach the required level by accumulating enough XP
+2. Open Duel Pass on main page or via shop
+3. Click "Claim" button on available reward
+4. Reward automatically adds to your balance
+
+Rewards can be claimed at any time after reaching the level. If you missed a level, you can still claim all previous rewards.`,
+    "help.content.duelPass.premium.title": "Duel Pass Premium",
+    "help.content.duelPass.premium.content": `Premium users receive additional benefits:
+
+• Doubled rewards at every level
+• Exclusive Premium rewards (skins, badges, stickers)
+• +20% Season Points (SP) for duels
+• Priority access to new levels
+
+**How to Get Premium Duel Pass:**
+
+• **Premium Forever** — automatically unlocked for all seasons (free)
+• **Premium subscription** — automatically unlocked for subscription duration
+• **Separate purchase** — €7.99 for one season (via Duel Pass modal)
+
+Premium Duel Pass can be purchased separately or obtained automatically with Premium subscription.`,
+    "help.content.duelPass.seasons.title": "Duel Pass Seasons",
+    "help.content.duelPass.seasons.content": `Duel Pass works in seasons:
+
+• Each season lasts 28 days (4 weeks)
+• At the start of a new season, progress resets
+• Total 30 levels per season (each level = 100 SP)
+• New levels and rewards appear each season
+• Special events and bonuses during the season
+
+**Season Points (SP):**
+• SP are seasonal points you receive for:
+  - Duels (without bet: +30 for win, +15 for draw, +5 for defeat)
+  - Duels with bet: 20 × risk multiplier (up to x3 with 1000 coin bet)
+  - Completing challenges (Daily, Weekly, Seasonal)
+  - Double SP Boost — doubles SP for duels for 1 hour
+
+• Premium users receive +20% SP for duels
+• Double SP Boost can be activated from inventory (costs 150 coins)
+
+Stay tuned for updates so you don't miss a new season!`,
+    "help.content.duelPass.challenges.title": "Seasonal Challenges",
+    "help.content.duelPass.challenges.content": `Challenges help you earn additional Season Points:
+
+**Daily Challenges:**
+• Update every day at 00:00 UTC
+• 3 challenges per day
+• Rewards: from 100 to 150 SP for completion
+• Examples:
+  - Win 2 duels → +120 SP
+  - Complete 10 tests → +100 SP
+  - Make 3 bets → +150 SP
+
+**Weekly Challenges:**
+• Update every Monday
+• More difficult tasks
+• Rewards: from 400 to 600 SP
+• Examples:
+  - Win 10 duels → +600 SP
+  - Make 5 insured bets → +400 SP
+  - Complete week without misses → +400 SP
+
+**Seasonal Challenges:**
+• Available all season
+• Most difficult tasks
+• Rewards: from 1000 to 1500 SP
+• Examples:
+  - Win 5 duels with bets → +1000 SP
+  - Win with bet ≥600 → +1500 SP
+  - Win 3 times with insurance → +1500 SP
+
+Complete challenges regularly to maximize your Duel Pass progress!`,
+    
+    // Cosmetics section content
+    "help.content.cosmetics.overview.title": "Cosmetics System Overview",
+    "help.content.cosmetics.overview.content": `The cosmetics system allows you to personalize your profile and gaming experience with skins, badges and stickers.
+
+All cosmetic items can be obtained through Duel Pass, daily rewards and special events. Each item has its own rarity and unique visual effects.
+
+Access to inventory: click the "Inventory" button in user profile (top panel) or go to /inventory.`,
+    "help.content.cosmetics.skins.title": "Skins",
+    "help.content.cosmetics.skins.content": `Skins are avatar customization:
+
+• Only one skin can be active at a time
+• Skins have unique colors and effects
+• Rarity: Common, Rare, Epic, Legendary
+• Legendary skins have animation
+
+Available skins:
+• 🎨 Standard (Common) — basic skin
+• 🔥 Fire (Rare) — with fire effect
+• ❄️ Ice (Rare) — with ice effect
+• 👑 Golden (Epic, Premium) — with shine effect
+• 💎 Diamond (Legendary, Premium) — with animation and sparkle effect
+
+How to activate skin:
+1. Open Inventory → "Skins" tab
+2. Select desired skin
+3. Click "Activate"
+4. Skin will be applied to your avatar`,
+    "help.content.cosmetics.badges.title": "Badges",
+    "help.content.cosmetics.badges.content": `Badges are achievements and status symbols:
+
+• Can display up to 3 badges in profile
+• Badges are visible to other users
+• Categories: Achievement, Seasonal, Special
+• Rarity affects visual effects
+
+Available badges:
+• 🏆 Winner x10/50/100 — for duel wins
+• 🔥 Streak 7 — for 7 days in a row
+• ⭐ Perfect — for 100% correct answers
+• 📅 Season 1 — for participating in first season
+• 👑 Premium — for Premium users
+
+How to manage badges:
+1. Open Inventory → "Badges" tab
+2. Select badge
+3. Click "Show in profile" (maximum 3)
+4. Badge will appear in your profile`,
+    "help.content.cosmetics.stickers.title": "Stickers",
+    "help.content.cosmetics.stickers.content": `Stickers are emotions for use in duels:
+
+• Stickers are consumable (quantity decreases when used)
+• Categories: Emoji, Reaction, Celebration
+• Can be used during duels to express emotions
+• Rarity determines visual effects
+
+Available stickers:
+• 🔥 Fire (Common) — expresses admiration
+• 👏 Applause (Common) — support
+• 🤔 Thinking (Common) — reflection
+• 😮 Wow (Rare) — surprise
+• 😂 Laugh (Rare) — fun
+• 🏆 Trophy (Epic, Premium) — victory celebration
+
+How to use stickers:
+• In duels: click sticker icon during game
+• Quantity displayed in inventory
+• Replenish stock through Duel Pass and rewards`,
+    "help.content.cosmetics.rarity.title": "Rarity System",
+    "help.content.cosmetics.rarity.content": `All cosmetic items have rarity:
+
+| Rarity | Color | Description | Features |
+|--------|-------|-------------|----------|
+| Common | Gray | Basic items | Standard effects |
+| Rare | Blue | Rare items | Enhanced effects |
+| Epic | Purple | Epic items | Special effects |
+| Legendary | Gold | Legendary items | Animation and unique effects |
+
+Rarity affects:
+• Visual effects (colors, animations)
+• Prestige and status
+• Difficulty of obtaining
+• Item uniqueness`,
+    "help.content.cosmetics.obtaining.title": "How to Get Cosmetics",
+    "help.content.cosmetics.obtaining.content": `Cosmetic items can be obtained through:
+
+• **Duel Pass** — main source of cosmetics:
+  - Skins at levels 5, 10, 15, 20, 25, 30
+  - Badges at levels 3, 7, 12, 18, 24, 28
+  - Stickers at levels 2, 6, 11, 16, 22, 27
+  - Premium rewards for Premium users
+
+• **Daily Bonuses**:
+  - Special rewards for streaks
+  - Stickers for 7, 14, 21 days
+  - Badges for 30, 60, 90 days
+
+• **Shop** (in development):
+  - Purchase for coins
+  - Special sets
+  - Seasonal offers
+
+• **Events** (in development):
+  - Temporary events
+  - Exclusive cosmetics
+  - Collectible items
+
+When obtaining cosmetics, a beautiful animation with confetti is shown!`,
+    "help.content.cosmetics.inventory.title": "Inventory",
+    "help.content.cosmetics.inventory.content": `Inventory is where all your cosmetic items are stored:
+
+**How to Open Inventory:**
+1. Click on avatar in top panel
+2. In dropdown menu click "Inventory"
+3. Or go to /inventory
+
+**Inventory Tabs:**
+• Skins — view and activate skins
+• Badges — manage badge display
+• Stickers — view sticker quantity
+
+**Inventory Functions:**
+• View all obtained items
+• Information about rarity and source
+• Activate/deactivate cosmetics
+• Filters by type and rarity
+• Collection statistics`,
+    "help.content.cosmetics.animation.title": "Obtaining Animation",
+    "help.content.cosmetics.animation.content": `When obtaining cosmetics through Duel Pass, a special animation is shown:
+
+• **Confetti** — 200 particles with physics
+• **Bounce Effect** — item appearance animation
+• **Sparkle Effects** — for legendary items
+• **Info Card**:
+  - Item name and description
+  - Rarity with color indicator
+  - Cosmetic type
+  - Confirmation button
+
+Animation automatically closes after a few seconds or on clicking "Great!" button.`,
+    "help.content.cosmetics.tips.title": "Cosmetics Tips",
+    "help.content.cosmetics.tips.content": `To maximize your collection:
+
+• **Regularly complete Duel Pass** — main source of cosmetics
+• **Visit every day** — daily bonuses give stickers and badges
+• **Get Premium** — exclusive cosmetics only for Premium
+• **Participate in events** — unique items
+• **Collect sets** — complete sets give bonuses
+• **Show your badges** — share achievements
+• **Use stickers in duels** — express emotions
+
+Stay tuned for updates — new cosmetics are added every season!`,
+    
+    // Shop section content
+    "help.content.shop.overview.title": "What is the Shop?",
+    "help.content.shop.overview.content": `The shop is where you can buy boosts, top up your coin balance and get Premium subscription.
+
+The shop opens by clicking WalletWidget in the top navigation panel or via the "Boost Shop" button on the games page.`,
+    "help.content.shop.tabs.title": "Shop Tabs",
+    "help.content.shop.tabs.content": `The shop is divided into three tabs:
+
+1. Boosts — purchase various boosts to improve results:
+   • Popular boosts — available to all users
+   • Premium boosts — only for Premium users
+   • Each boost has description, price and quantity in inventory
+
+2. Coins — top up coin balance:
+   • Coin packs of various sizes (100, 500, 1200, 3000)
+   • Bonus coins when purchasing large packs
+   • Secure payment via Stripe
+
+3. Premium & Duel Pass — subscriptions and premium features:
+   • Premium subscription (month/year)
+   • Duel Pass Premium
+   • Plan comparison and benefits`,
+    "help.content.shop.boosts.title": "Boosts",
+    "help.content.shop.boosts.content": `Boosts are temporary improvements that help you in tests and games:
+
+• **Boost Types:**
+  - Increased answer time
+  - Hints and tips
+  - Additional attempts
+  - Increased rewards
+  - **Double SP Boost** ⚡ — doubles Season Points for duels for 1 hour (150 coins)
+
+• **Buying Boosts:**
+  - Select desired boost in shop
+  - Check your coin balance
+  - Click "Buy"
+  - Boost automatically adds to inventory
+
+• **Using Boosts:**
+  - Boosts apply automatically when needed
+  - Or manually before starting test/game
+  - Each boost has limited number of uses
+  - **Double SP Boost** activates from inventory and lasts 1 hour
+
+• **Double SP Boost:**
+  - Cost: 150 coins
+  - Duration: 1 hour
+  - Effect: x2 Season Points for all duels
+  - Can be used multiple times in a row
+  - Perfect for quick Duel Pass progress`,
+    "help.content.shop.coins.title": "Buying Coins",
+    "help.content.shop.coins.content": `You can top up coin balance through the "Coins" tab in shop:
+
+• Available packs:
+  - 100 coins — €2.99
+  - 500 coins — €9.99 (+50 bonus)
+  - 1200 coins — €19.99 (+200 bonus)
+  - 3000 coins — €39.99 (+500 bonus)
+
+• Purchase process:
+  1. Select desired pack
+  2. Click "Buy"
+  3. You will be redirected to secure Stripe payment page
+  4. After payment, coins automatically add to balance
+
+All purchases are saved in transaction history.`,
+    "help.content.shop.premium.title": "Premium in Shop",
+    "help.content.shop.premium.content": `You can get Premium through the "Premium & Duel Pass" tab:
+
+• Select plan (month or year)
+• Click "Choose"
+• You will be redirected to Stripe payment page
+• After payment, Premium activates automatically
+
+Premium subscription includes all benefits described in the "Premium Subscription" section.`,
+    
+    // Spain License section content
+    "help.content.spainLicense.requirements.title": "Requirements for Getting License",
+    "help.content.spainLicense.requirements.content": `To get a driving license in Spain you need:
+
+• Be at least 18 years old (for category B)
+• Pass medical examination
+• Pass theoretical exam (30 questions, maximum 3 errors)
+• Pass practical driving exam
+• Pay corresponding fees
+
+Exams are conducted by DGT (Dirección General de Tráfico).`,
+    "help.content.spainLicense.exam.title": "DGT Exam",
+    "help.content.spainLicense.exam.content": `The theoretical exam consists of 30 multiple-choice questions:
+
+• Exam time: 30 minutes
+• Maximum errors: 3
+• Format: questions with images and text
+• Languages: Spanish, Catalan, Basque, Galician
+
+Practical exam includes:
+• Driving skills check
+• Maneuver execution
+• Traffic rules compliance`,
+    "help.content.spainLicense.preparation.title": "Exam Preparation",
+    "help.content.spainLicense.preparation.content": `Preparation recommendations:
+
+• Study official DGT materials
+• Take tests regularly
+• Study road signs
+• Practice with questions from DGT database
+• Use Sdadim app for training
+
+Regular practice is the key to success!`,
+    "help.content.spainLicense.faq.title": "Frequently Asked Questions",
+    "help.content.spainLicense.faq.content": `Question: How much does getting a license in Spain cost?
+Answer: Cost varies, but usually ranges from 600 to 1500 euros, including training, exams and fees.
+
+Question: Can I take the exam in Russian?
+Answer: No, the exam is only available in official languages of Spain. But you can use translation in the app for preparation.
+
+Question: How many times can I retake the exam?
+Answer: Number of attempts is unlimited, but each retake requires payment.
+
+Question: Are licenses from other countries valid?
+Answer: Depends on country of origin. EU licenses are valid, for other countries exchange or retake may be required.`,
+    
+    // FAQ section content
+    "help.content.faq.general.title": "General Questions",
+    "help.content.faq.general.items": [
+      "How to register? — Use Telegram or web browser for registration",
+      "Is the app free? — Yes, basic features are free, there are premium features",
+      "Does the app work offline? — No, internet connection is required",
+      "What devices does it work on? — Web version works on all devices, Telegram version in Telegram",
+      "How to contact support? — Via Telegram or email support@sdadim.com"
+    ],
+    "help.content.faq.technical.title": "Technical Questions",
+    "help.content.faq.technical.items": [
+      "App doesn't load — Check internet connection and refresh the page",
+      "Progress not saving — Make sure you're logged in and data is synced",
+      "Errors in questions — Use 'Report issue' button in tests",
+      "Slow performance — Clear browser cache or restart the app",
+      "Images not working — Check content settings in browser"
+    ],
+    "help.content.faq.account.title": "Account and Data",
+    "help.content.faq.account.items": [
+      "How to change profile? — Open profile menu and click 'Edit'",
+      "How to delete account? — Contact support for account deletion",
+      "Can I have multiple accounts? — Yes, but progress doesn't sync",
+      "How to recover password? — Use password recovery function when logging in",
+      "Where is my data stored? — Data is stored securely in accordance with privacy policy"
+    ],
+    "help.content.faq.premium.title": "Premium and Coins",
+    "help.content.faq.premium.items": [
+      "How to get Premium? — Via shop, main page or games page",
+      "What does Premium include? — Unlimited access, doubled rewards, Duel Pass Premium, ad-free",
+      "What is Premium Forever? — Lifetime Premium subscription for €59.99, automatically unlocks Duel Pass Premium for all seasons",
+      "How to top up coin balance? — Via shop → 'Coins' tab",
+      "Can I cancel Premium? — Yes, at any time via Stripe dashboard (except Premium Forever)",
+      "What is Duel Pass? — Level and reward system for regular practice",
+      "What are Season Points (SP)? — Seasonal points for Duel Pass progress, earned for duels and challenges",
+      "How does Double SP Boost work? — Doubles SP for duels for 1 hour, costs 150 coins, activates from inventory"
+    ],
   },
   es: {
     // Header
@@ -1686,6 +2586,456 @@ Después de hacer clic en el botón, serás redirigido a una página de pago seg
 • Hasta 2 dispositivos pueden usar la cuenta sin verificación
 • Solo 1 sesión activa a la vez (otro inicio cierra la anterior)
 • La marca de agua en las pruebas muestra tu nombre (protección contra transferencia de cuenta)`,
+    
+    // Duel Pass section content
+    "help.content.duelPass.overview.title": "¿Qué es Duel Pass?",
+    "help.content.duelPass.overview.content": `Duel Pass es un sistema de niveles y recompensas que te motiva a practicar regularmente.
+
+Por cada acción (duelos, completar desafíos) recibes Season Points (SP) para Duel Pass. Al alcanzar cierta cantidad de SP (100 SP por nivel), subes de nivel y recibes recompensas.
+
+El progreso de Duel Pass se muestra en WalletWidget como una mini barra SP con el nivel actual.`,
+    "help.content.duelPass.levels.title": "Niveles y Recompensas",
+    "help.content.duelPass.levels.content": `Duel Pass consta de 30 niveles, cada uno requiere 100 SP para alcanzar:
+
+**Recompensas Gratuitas** — disponibles para todos los usuarios:
+• Monedas (de 20 a 500)
+• Potenciadores (Retry, Second Chance, Double SP)
+• Pegatinas (emociones para duelos)
+• Insignias (logros)
+
+**Recompensas Premium** — disponibles solo para usuarios Premium:
+• Monedas duplicadas (de 50 a 1000)
+• Potenciadores exclusivos (versiones mejoradas)
+• Skins (personalización de avatar)
+• Insignias y pegatinas exclusivas
+• Trofeos (recompensas estacionales)
+
+**Ejemplos de Recompensas por Nivel:**
+• Nivel 1: 20 monedas (Gratis) / 50 monedas (Premium)
+• Nivel 2: — / Double XP (1 día)
+• Nivel 3: Retry Boost / Second Chance
+• Nivel 5: — / Avatar de Temporada
+• Nivel 6: Double SP (1 partida) / Double SP (1 día)
+• Nivel 10: 50 monedas / 250 monedas
+• Nivel 15: Trofeo (bronce) / Trofeo (oro)
+• Nivel 30: — / Insignia Estacional Exclusiva
+
+Las recompensas solo se pueden reclamar una vez por nivel. Después de reclamar, se marcan como "Reclamado".`,
+    "help.content.duelPass.xp.title": "Cómo Ganar Season Points (SP) para Duel Pass",
+    "help.content.duelPass.xp.content": `Los Season Points (SP) son puntos estacionales para progreso en Duel Pass. Se otorgan por:
+
+**Duelos:**
+• Sin apuesta:
+  - Victoria: +30 SP
+  - Empate: +15 SP
+  - Derrota: +5 SP
+
+• Con apuesta (SP base = 20 × multiplicador de riesgo):
+  - Apuesta 100 monedas → multiplicador 1.25 → +25 SP
+  - Apuesta 300 monedas → multiplicador 1.5 → +30 SP
+  - Apuesta 600 monedas → multiplicador 2.0 → +40 SP
+  - Apuesta 1000 monedas → multiplicador 3.0 → +60 SP
+  - El seguro reduce el multiplicador en -0.1
+
+**Bonos:**
+• Usuarios Premium: +20% SP por duelos
+• Double SP Boost: x2 SP por duelos durante 1 hora (se puede comprar por 150 monedas)
+
+**Desafíos:**
+• Desafíos Diarios: de 100 a 150 SP
+• Desafíos Semanales: de 400 a 600 SP
+• Desafíos Estacionales: de 1000 a 1500 SP
+
+**Importante:**
+• Cada nivel de Duel Pass requiere 100 SP
+• Total 30 niveles por temporada (3000 SP máximo)
+• La temporada dura 28 días (4 semanas)`,
+    "help.content.duelPass.claiming.title": "Cómo Reclamar Recompensas",
+    "help.content.duelPass.claiming.content": `Para reclamar una recompensa de Duel Pass:
+
+1. Alcanza el nivel requerido acumulando suficiente XP
+2. Abre Duel Pass en la página principal o a través de la tienda
+3. Haz clic en el botón "Reclamar" en la recompensa disponible
+4. La recompensa se añade automáticamente a tu balance
+
+Las recompensas se pueden reclamar en cualquier momento después de alcanzar el nivel. Si perdiste un nivel, aún puedes reclamar todas las recompensas anteriores.`,
+    "help.content.duelPass.premium.title": "Duel Pass Premium",
+    "help.content.duelPass.premium.content": `Los usuarios Premium reciben beneficios adicionales:
+
+• Recompensas duplicadas en cada nivel
+• Recompensas Premium exclusivas (skins, insignias, pegatinas)
+• +20% Season Points (SP) por duelos
+• Acceso prioritario a nuevos niveles
+
+**Cómo Obtener Duel Pass Premium:**
+
+• **Premium Forever** — automáticamente desbloqueado para todas las temporadas (gratis)
+• **Suscripción Premium** — automáticamente desbloqueado durante la suscripción
+• **Compra Separada** — €7.99 por una temporada (a través del modal de Duel Pass)
+
+Duel Pass Premium se puede comprar por separado u obtener automáticamente con suscripción Premium.`,
+    "help.content.duelPass.seasons.title": "Temporadas de Duel Pass",
+    "help.content.duelPass.seasons.content": `Duel Pass funciona por temporadas:
+
+• Cada temporada dura 28 días (4 semanas)
+• Al inicio de una nueva temporada, el progreso se reinicia
+• Total 30 niveles por temporada (cada nivel = 100 SP)
+• Nuevos niveles y recompensas aparecen cada temporada
+• Eventos especiales y bonos durante la temporada
+
+**Season Points (SP):**
+• Los SP son puntos estacionales que recibes por:
+  - Duelos (sin apuesta: +30 por victoria, +15 por empate, +5 por derrota)
+  - Duelos con apuesta: 20 × multiplicador de riesgo (hasta x3 con apuesta de 1000 monedas)
+  - Completar desafíos (Diarios, Semanales, Estacionales)
+  - Double SP Boost — duplica SP por duelos durante 1 hora
+
+• Los usuarios Premium reciben +20% SP por duelos
+• Double SP Boost se puede activar desde el inventario (cuesta 150 monedas)
+
+¡Mantente al día con las actualizaciones para no perderte una nueva temporada!`,
+    "help.content.duelPass.challenges.title": "Desafíos Estacionales",
+    "help.content.duelPass.challenges.content": `Los desafíos te ayudan a ganar Season Points adicionales:
+
+**Desafíos Diarios:**
+• Se actualizan cada día a las 00:00 UTC
+• 3 desafíos por día
+• Recompensas: de 100 a 150 SP por completar
+• Ejemplos:
+  - Gana 2 duelos → +120 SP
+  - Completa 10 pruebas → +100 SP
+  - Haz 3 apuestas → +150 SP
+
+**Desafíos Semanales:**
+• Se actualizan cada lunes
+• Tareas más difíciles
+• Recompensas: de 400 a 600 SP
+• Ejemplos:
+  - Gana 10 duelos → +600 SP
+  - Haz 5 apuestas aseguradas → +400 SP
+  - Completa semana sin faltas → +400 SP
+
+**Desafíos Estacionales:**
+• Disponibles toda la temporada
+• Tareas más difíciles
+• Recompensas: de 1000 a 1500 SP
+• Ejemplos:
+  - Gana 5 duelos con apuestas → +1000 SP
+  - Gana con apuesta ≥600 → +1500 SP
+  - Gana 3 veces con seguro → +1500 SP
+
+¡Completa desafíos regularmente para maximizar tu progreso en Duel Pass!`,
+    
+    // Cosmetics section content
+    "help.content.cosmetics.overview.title": "Resumen del Sistema de Cosméticos",
+    "help.content.cosmetics.overview.content": `El sistema de cosméticos te permite personalizar tu perfil y experiencia de juego con skins, insignias y pegatinas.
+
+Todos los objetos cosméticos se pueden obtener a través de Duel Pass, recompensas diarias y eventos especiales. Cada objeto tiene su propia rareza y efectos visuales únicos.
+
+Acceso al inventario: haz clic en el botón "Inventory" en el perfil de usuario (panel superior) o ve a /inventory.`,
+    "help.content.cosmetics.skins.title": "Skins",
+    "help.content.cosmetics.skins.content": `Los skins son personalización de avatar:
+
+• Solo un skin puede estar activo a la vez
+• Los skins tienen colores y efectos únicos
+• Rareza: Common, Rare, Epic, Legendary
+• Los skins legendarios tienen animación
+
+Skins disponibles:
+• 🎨 Estándar (Common) — skin básico
+• 🔥 Fuego (Rare) — con efecto de fuego
+• ❄️ Hielo (Rare) — con efecto de hielo
+• 👑 Dorado (Epic, Premium) — con efecto de brillo
+• 💎 Diamante (Legendary, Premium) — con animación y efecto sparkle
+
+Cómo activar skin:
+1. Abre Inventory → pestaña "Skins"
+2. Selecciona el skin deseado
+3. Haz clic en "Activar"
+4. El skin se aplicará a tu avatar`,
+    "help.content.cosmetics.badges.title": "Insignias",
+    "help.content.cosmetics.badges.content": `Las insignias son logros y símbolos de estado:
+
+• Se pueden mostrar hasta 3 insignias en el perfil
+• Las insignias son visibles para otros usuarios
+• Categorías: Achievement (logros), Seasonal (estacionales), Special (especiales)
+• La rareza afecta los efectos visuales
+
+Insignias disponibles:
+• 🏆 Ganador x10/50/100 — por victorias en duelos
+• 🔥 Racha 7 — por 7 días seguidos
+• ⭐ Perfecto — por 100% respuestas correctas
+• 📅 Temporada 1 — por participar en primera temporada
+• 👑 Premium — para usuarios Premium
+
+Cómo gestionar insignias:
+1. Abre Inventory → pestaña "Insignias"
+2. Selecciona insignia
+3. Haz clic en "Mostrar en perfil" (máximo 3)
+4. La insignia aparecerá en tu perfil`,
+    "help.content.cosmetics.stickers.title": "Pegatinas",
+    "help.content.cosmetics.stickers.content": `Las pegatinas son emociones para usar en duelos:
+
+• Las pegatinas son consumibles (la cantidad disminuye al usarse)
+• Categorías: Emoji, Reaction, Celebration
+• Se pueden usar durante duelos para expresar emociones
+• La rareza determina los efectos visuales
+
+Pegatinas disponibles:
+• 🔥 Fuego (Common) — expresa admiración
+• 👏 Aplausos (Common) — apoyo
+• 🤔 Pensando (Common) — reflexión
+• 😮 Wow (Rare) — sorpresa
+• 😂 Risa (Rare) — diversión
+• 🏆 Trofeo (Epic, Premium) — celebración de victoria
+
+Cómo usar pegatinas:
+• En duelos: haz clic en el icono de pegatina durante el juego
+• La cantidad se muestra en el inventario
+• Repone el stock a través de Duel Pass y recompensas`,
+    "help.content.cosmetics.rarity.title": "Sistema de Rareza",
+    "help.content.cosmetics.rarity.content": `Todos los objetos cosméticos tienen rareza:
+
+| Rareza | Color | Descripción | Características |
+|--------|-------|-------------|-----------------|
+| Common | Gris | Objetos básicos | Efectos estándar |
+| Rare | Azul | Objetos raros | Efectos mejorados |
+| Epic | Morado | Objetos épicos | Efectos especiales |
+| Legendary | Dorado | Objetos legendarios | Animación y efectos únicos |
+
+La rareza afecta:
+• Efectos visuales (colores, animaciones)
+• Prestigio y estado
+• Dificultad de obtención
+• Singularidad del objeto`,
+    "help.content.cosmetics.obtaining.title": "Cómo Obtener Cosméticos",
+    "help.content.cosmetics.obtaining.content": `Los objetos cosméticos se pueden obtener a través de:
+
+• **Duel Pass** — fuente principal de cosméticos:
+  - Skins en niveles 5, 10, 15, 20, 25, 30
+  - Insignias en niveles 3, 7, 12, 18, 24, 28
+  - Pegatinas en niveles 2, 6, 11, 16, 22, 27
+  - Recompensas Premium para usuarios Premium
+
+• **Bonos Diarios**:
+  - Recompensas especiales por rachas
+  - Pegatinas por 7, 14, 21 días
+  - Insignias por 30, 60, 90 días
+
+• **Tienda** (en desarrollo):
+  - Compra por monedas
+  - Sets especiales
+  - Ofertas estacionales
+
+• **Eventos** (en desarrollo):
+  - Eventos temporales
+  - Cosméticos exclusivos
+  - Objetos coleccionables
+
+¡Al obtener cosméticos se muestra una hermosa animación con confeti!`,
+    "help.content.cosmetics.inventory.title": "Inventario",
+    "help.content.cosmetics.inventory.content": `El inventario es donde se almacenan todos tus objetos cosméticos:
+
+**Cómo Abrir Inventario:**
+1. Haz clic en el avatar en el panel superior
+2. En el menú desplegable haz clic en "Inventory"
+3. O ve a /inventory
+
+**Pestañas del Inventario:**
+• Skins — ver y activar skins
+• Insignias — gestionar visualización de insignias
+• Pegatinas — ver cantidad de pegatinas
+
+**Funciones del Inventario:**
+• Ver todos los objetos obtenidos
+• Información sobre rareza y fuente
+• Activar/desactivar cosméticos
+• Filtros por tipo y rareza
+• Estadísticas de colección`,
+    "help.content.cosmetics.animation.title": "Animación de Obtención",
+    "help.content.cosmetics.animation.content": `Al obtener cosméticos a través de Duel Pass, se muestra una animación especial:
+
+• **Confeti** — 200 partículas con física
+• **Efecto Bounce** — animación de aparición del objeto
+• **Efectos Sparkle** — para objetos legendarios
+• **Tarjeta Informativa**:
+  - Nombre y descripción del objeto
+  - Rareza con indicador de color
+  - Tipo de cosmético
+  - Botón de confirmación
+
+La animación se cierra automáticamente después de unos segundos o al hacer clic en el botón "¡Genial!".`,
+    "help.content.cosmetics.tips.title": "Consejos sobre Cosméticos",
+    "help.content.cosmetics.tips.content": `Para maximizar tu colección:
+
+• **Completa Duel Pass regularmente** — fuente principal de cosméticos
+• **Visita cada día** — los bonos diarios dan pegatinas e insignias
+• **Obtén Premium** — cosméticos exclusivos solo para Premium
+• **Participa en eventos** — objetos únicos
+• **Recolecta sets** — sets completos dan bonos
+• **Muestra tus insignias** — comparte logros
+• **Usa pegatinas en duelos** — expresa emociones
+
+¡Mantente al día con las actualizaciones — nuevos cosméticos se añaden cada temporada!`,
+    
+    // Shop section content
+    "help.content.shop.overview.title": "¿Qué es la Tienda?",
+    "help.content.shop.overview.content": `La tienda es donde puedes comprar potenciadores, recargar tu balance de monedas y obtener suscripción Premium.
+
+La tienda se abre haciendo clic en WalletWidget en el panel de navegación superior o a través del botón "Tienda de Potenciadores" en la página de juegos.`,
+    "help.content.shop.tabs.title": "Pestañas de la Tienda",
+    "help.content.shop.tabs.content": `La tienda está dividida en tres pestañas:
+
+1. Potenciadores — compra varios potenciadores para mejorar resultados:
+   • Potenciadores populares — disponibles para todos los usuarios
+   • Potenciadores Premium — solo para usuarios Premium
+   • Cada potenciador tiene descripción, precio y cantidad en inventario
+
+2. Monedas — recarga de balance de monedas:
+   • Paquetes de monedas de varios tamaños (100, 500, 1200, 3000)
+   • Monedas de bono al comprar paquetes grandes
+   • Pago seguro vía Stripe
+
+3. Premium & Duel Pass — suscripciones y funciones premium:
+   • Suscripción Premium (mes/año)
+   • Duel Pass Premium
+   • Comparación de planes y beneficios`,
+    "help.content.shop.boosts.title": "Potenciadores",
+    "help.content.shop.boosts.content": `Los potenciadores son mejoras temporales que te ayudan en pruebas y juegos:
+
+• **Tipos de Potenciadores:**
+  - Tiempo aumentado para respuesta
+  - Pistas y consejos
+  - Intentos adicionales
+  - Recompensas aumentadas
+  - **Double SP Boost** ⚡ — duplica Season Points por duelos durante 1 hora (150 monedas)
+
+• **Comprar Potenciadores:**
+  - Selecciona el potenciador deseado en la tienda
+  - Verifica tu balance de monedas
+  - Haz clic en "Comprar"
+  - El potenciador se añade automáticamente al inventario
+
+• **Usar Potenciadores:**
+  - Los potenciadores se aplican automáticamente cuando es necesario
+  - O manualmente antes de comenzar prueba/juego
+  - Cada potenciador tiene número limitado de usos
+  - **Double SP Boost** se activa desde el inventario y dura 1 hora
+
+• **Double SP Boost:**
+  - Costo: 150 monedas
+  - Duración: 1 hora
+  - Efecto: x2 Season Points por todos los duelos
+  - Se puede usar varias veces seguidas
+  - Perfecto para progreso rápido en Duel Pass`,
+    "help.content.shop.coins.title": "Comprar Monedas",
+    "help.content.shop.coins.content": `Puedes recargar el balance de monedas a través de la pestaña "Monedas" en la tienda:
+
+• Paquetes disponibles:
+  - 100 monedas — €2.99
+  - 500 monedas — €9.99 (+50 bono)
+  - 1200 monedas — €19.99 (+200 bono)
+  - 3000 monedas — €39.99 (+500 bono)
+
+• Proceso de compra:
+  1. Selecciona el paquete deseado
+  2. Haz clic en "Comprar"
+  3. Serás redirigido a la página de pago segura de Stripe
+  4. Después del pago, las monedas se añaden automáticamente al balance
+
+Todas las compras se guardan en el historial de transacciones.`,
+    "help.content.shop.premium.title": "Premium en la Tienda",
+    "help.content.shop.premium.content": `Puedes obtener Premium a través de la pestaña "Premium & Duel Pass":
+
+• Selecciona el plan (mes o año)
+• Haz clic en "Elegir"
+• Serás redirigido a la página de pago de Stripe
+• Después del pago, Premium se activa automáticamente
+
+La suscripción Premium incluye todos los beneficios descritos en la sección "Suscripción Premium".`,
+    
+    // Spain License section content
+    "help.content.spainLicense.requirements.title": "Requisitos para Obtener Licencia",
+    "help.content.spainLicense.requirements.content": `Para obtener licencia de conducir en España necesitas:
+
+• Tener al menos 18 años (para categoría B)
+• Pasar examen médico
+• Pasar examen teórico (30 preguntas, máximo 3 errores)
+• Pasar examen práctico de conducción
+• Pagar tasas correspondientes
+
+Los exámenes son realizados por DGT (Dirección General de Tráfico).`,
+    "help.content.spainLicense.exam.title": "Examen DGT",
+    "help.content.spainLicense.exam.content": `El examen teórico consiste en 30 preguntas de opción múltiple:
+
+• Tiempo del examen: 30 minutos
+• Máximo de errores: 3
+• Formato: preguntas con imágenes y texto
+• Idiomas: español, catalán, vasco, gallego
+
+El examen práctico incluye:
+• Verificación de habilidades de conducción
+• Ejecución de maniobras
+• Cumplimiento de reglas de tráfico`,
+    "help.content.spainLicense.preparation.title": "Preparación para el Examen",
+    "help.content.spainLicense.preparation.content": `Recomendaciones de preparación:
+
+• Estudia materiales oficiales de DGT
+• Haz pruebas regularmente
+• Estudia señales de tráfico
+• Practica con preguntas de la base de datos DGT
+• Usa la aplicación Sdadim para entrenar
+
+¡La práctica regular es la clave del éxito!`,
+    "help.content.spainLicense.faq.title": "Preguntas Frecuentes",
+    "help.content.spainLicense.faq.content": `Pregunta: ¿Cuánto cuesta obtener licencia en España?
+Respuesta: El costo varía, pero generalmente oscila entre 600 y 1500 euros, incluyendo formación, exámenes y tasas.
+
+Pregunta: ¿Puedo hacer el examen en ruso?
+Respuesta: No, el examen solo está disponible en idiomas oficiales de España. Pero puedes usar traducción en la aplicación para preparación.
+
+Pregunta: ¿Cuántas veces puedo repetir el examen?
+Respuesta: El número de intentos es ilimitado, pero cada repetición requiere pago.
+
+Pregunta: ¿Son válidas las licencias de otros países?
+Respuesta: Depende del país de origen. Las licencias de la UE son válidas, para otros países puede requerirse intercambio o repetición.`,
+    
+    // FAQ section content
+    "help.content.faq.general.title": "Preguntas Generales",
+    "help.content.faq.general.items": [
+      "¿Cómo registrarse? — Usa Telegram o navegador web para registro",
+      "¿La aplicación es gratuita? — Sí, las funciones básicas son gratuitas, hay funciones premium",
+      "¿Funciona la aplicación sin conexión? — No, se requiere conexión a internet",
+      "¿En qué dispositivos funciona? — La versión web funciona en todos los dispositivos, la versión Telegram en Telegram",
+      "¿Cómo contactar soporte? — A través de Telegram o email support@sdadim.com"
+    ],
+    "help.content.faq.technical.title": "Preguntas Técnicas",
+    "help.content.faq.technical.items": [
+      "La aplicación no carga — Verifica conexión a internet y actualiza la página",
+      "El progreso no se guarda — Asegúrate de estar autenticado y que los datos estén sincronizados",
+      "Errores en preguntas — Usa el botón 'Reportar problema' en las pruebas",
+      "Rendimiento lento — Limpia la caché del navegador o reinicia la aplicación",
+      "Las imágenes no funcionan — Verifica configuraciones de contenido en el navegador"
+    ],
+    "help.content.faq.account.title": "Cuenta y Datos",
+    "help.content.faq.account.items": [
+      "¿Cómo cambiar perfil? — Abre el menú de perfil y haz clic en 'Editar'",
+      "¿Cómo eliminar cuenta? — Contacta soporte para eliminación de cuenta",
+      "¿Puedo tener varias cuentas? — Sí, pero el progreso no se sincroniza",
+      "¿Cómo recuperar contraseña? — Usa la función de recuperación de contraseña al iniciar sesión",
+      "¿Dónde se almacenan mis datos? — Los datos se almacenan de forma segura de acuerdo con la política de privacidad"
+    ],
+    "help.content.faq.premium.title": "Premium y Monedas",
+    "help.content.faq.premium.items": [
+      "¿Cómo obtener Premium? — A través de la tienda, página principal o página de juegos",
+      "¿Qué incluye Premium? — Acceso ilimitado, recompensas duplicadas, Duel Pass Premium, sin anuncios",
+      "¿Qué es Premium Forever? — Suscripción Premium de por vida por €59.99, desbloquea automáticamente Duel Pass Premium para todas las temporadas",
+      "¿Cómo recargar balance de monedas? — A través de la tienda → pestaña 'Monedas'",
+      "¿Puedo cancelar Premium? — Sí, en cualquier momento a través del panel de Stripe (excepto Premium Forever)",
+      "¿Qué es Duel Pass? — Sistema de niveles y recompensas por práctica regular",
+      "¿Qué son Season Points (SP)? — Puntos estacionales para progreso en Duel Pass, se ganan por duelos y desafíos",
+      "¿Cómo funciona Double SP Boost? — Duplica SP por duelos durante 1 hora, cuesta 150 monedas, se activa desde el inventario"
+    ],
   },
 };
 

@@ -428,3 +428,4 @@ COMMENT ON FUNCTION create_or_update_session(UUID, UUID, TEXT, INET, TEXT, INTEG
 COMMENT ON FUNCTION can_change_password(UUID) IS 'Проверяет возможность смены пароля (cooldown 7 дней)';
 COMMENT ON FUNCTION register_password_change(UUID, INET, TEXT) IS 'Регистрирует факт смены пароля для отслеживания cooldown';
 
+

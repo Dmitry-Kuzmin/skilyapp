@@ -1616,48 +1616,14 @@ Deno.serve(async (req) => {
       }
 
       case 'join_duel': {
-        console.log('[Duel Manager] join_duel params:', JSON.stringify(params, null, 2));
-        console.log('[Duel Manager] join_duel profileId:', profileId);
-        console.log('[Duel Manager] join_duel params type:', typeof params);
-        console.log('[Duel Manager] join_duel params.code:', params.code, 'type:', typeof params.code);
-        
-        if (!profileId) {
-          console.error('[Duel Manager] join_duel: No profileId available');
-          return new Response(JSON.stringify({ error: 'Profile not found. Please login.' }), {
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-        
-        let validated: any;
-        try {
-          validated = joinDuelSchema.parse(params);
-          console.log('[Duel Manager] join_duel validation successful:', validated);
-        } catch (validationError: any) {
-          console.error('[Duel Manager] join_duel validation error:', validationError);
-          console.error('[Duel Manager] Validation error details:', JSON.stringify(validationError.errors || validationError, null, 2));
-          return new Response(JSON.stringify({ 
-            error: 'Invalid request parameters',
-            details: validationError.errors || validationError.message,
-            receivedParams: params
-          }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-        
+        const validated = joinDuelSchema.parse(params);
         let { code, insurance_enabled, insurance_rate, insurance_coverage_rate, security_context } = validated;
         
-        console.log('[Duel Manager] join_duel after validation - code:', code, 'type:', typeof code);
-        
         // Normalize code to uppercase and ensure it's exactly 4 characters
-        code = String(code).toUpperCase().trim().slice(0, 4);
-        
-        console.log('[Duel Manager] join_duel after normalization - code:', code, 'length:', code.length);
+        code = code.toUpperCase().trim().slice(0, 4);
         
         // Validate length after normalization
         if (code.length !== 4) {
-          console.error('[Duel Manager] join_duel: Code length invalid after normalization:', code.length);
           return new Response(JSON.stringify({ error: 'Code must be exactly 4 characters' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
