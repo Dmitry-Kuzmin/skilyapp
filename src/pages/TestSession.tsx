@@ -2028,7 +2028,9 @@ const TestSession = () => {
 
                 {/* Answer Options */}
                 <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
-                  {sortedOptions.map((option, optionIndex) => {
+                  {sortedOptions
+                    .filter(option => !hiddenOptions.includes(option.id)) // Скрываем опции, скрытые бустом 50/50
+                    .map((option, optionIndex) => {
                     const isSelected = selectedOption === option.id;
                     const isCorrect = option.is_correct;
                     const showResult = selectedOption !== null && mode === "practice";
