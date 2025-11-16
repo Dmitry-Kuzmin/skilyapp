@@ -20,6 +20,10 @@ export default defineConfig(({ mode }) => ({
       ".trycloudflare.com", // Cloudflare Tunnel
       ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
     ],
+    // Оптимизация для быстрой загрузки
+    hmr: {
+      overlay: true,
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
@@ -32,6 +36,25 @@ export default defineConfig(({ mode }) => ({
     esbuildOptions: {
       jsx: 'automatic',
     },
+  },
+  build: {
+    // Оптимизация сборки для production
+    target: 'esnext',
+    minify: 'esbuild',
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        // Разделение чанков для лучшего кеширования
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
+          'query-vendor': ['@tanstack/react-query'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+        },
+      },
+    },
+    // Увеличиваем лимит предупреждений для больших чанков
+    chunkSizeWarningLimit: 1000,
   },
   ssr: {
     noExternal: ['react-quill'],

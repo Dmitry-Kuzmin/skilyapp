@@ -25,12 +25,12 @@ if ! lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1 ; then
     fi
 fi
 
-# Запускаем cloudflared tunnel
+# Запускаем cloudflared tunnel с оптимизациями
 echo "🌐 Запуск Cloudflare Tunnel..."
 echo ""
 
-# Используем quick tunnel (временный URL)
-cloudflared tunnel --url http://localhost:$PORT 2>&1 | while IFS= read -r line; do
+# Используем quick tunnel (временный URL) с оптимизациями производительности
+cloudflared tunnel --url http://localhost:$PORT --protocol http2 --compression-quality 0 2>&1 | while IFS= read -r line; do
     # Ищем строку с URL
     if [[ $line == *"https://"*".trycloudflare.com"* ]]; then
         TUNNEL_URL=$(echo "$line" | grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' | head -1)
