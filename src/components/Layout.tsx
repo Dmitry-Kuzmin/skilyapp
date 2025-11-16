@@ -131,28 +131,28 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* Top Navigation for Desktop - Hide in Telegram */}
       <header className={cn(
-        "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50",
+        "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50 overflow-x-hidden w-full",
         isTelegramApp ? "hidden" : "hidden md:block"
       )}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl gradient-primary">
+        <div className="container mx-auto px-4 max-w-full">
+          <div className="flex items-center justify-between h-16 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl gradient-primary flex-shrink-0">
                 <Crown className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent whitespace-nowrap">
                 Sdadim
               </span>
             </div>
 
-            <nav className="flex gap-1">
+            <nav className="flex gap-1 min-w-0 flex-shrink overflow-x-auto scrollbar-hide">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.href}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300",
+                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 whitespace-nowrap flex-shrink-0",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
@@ -160,21 +160,23 @@ const Layout = ({ children }: LayoutProps) => {
                     )
                   }
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
                   <span className="font-medium">{item.name}</span>
                 </NavLink>
               ))}
             </nav>
 
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex items-center gap-1 md:gap-2 min-w-0 flex-shrink-0">
               {isAuthenticated && (
                 <>
-                  <WalletWidget />
+                  <div className="min-w-0 flex-shrink-0">
+                    <WalletWidget />
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate('/referrals')}
-                    className="relative hidden sm:flex"
+                    className="relative hidden sm:flex flex-shrink-0"
                     title="Реферальная программа"
                   >
                     <svg
@@ -188,15 +190,19 @@ const Layout = ({ children }: LayoutProps) => {
                   </Button>
                 </>
               )}
-              <NotificationsPanel />
+              <div className="flex-shrink-0">
+                <NotificationsPanel />
+              </div>
               {isAuthenticated ? (
-                <UserProfilePopover />
+                <div className="flex-shrink-0">
+                  <UserProfilePopover />
+                </div>
               ) : (
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
-                  className="hidden sm:flex"
+                  className="hidden sm:flex flex-shrink-0"
                 >
                   <LogIn className="w-5 h-5 mr-2" />
                   {t('login')}

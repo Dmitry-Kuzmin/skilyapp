@@ -354,11 +354,19 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased transition-colors duration-300;
     min-height: var(--tg-viewport-stable-height, 100vh);
     margin: 0;
     box-sizing: border-box;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
     
     /* Отступы от системных UI элементов (Dynamic Island, статус-бар, home indicator) */
     padding-top: var(--app-safe-top);
