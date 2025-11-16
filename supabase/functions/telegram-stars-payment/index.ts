@@ -6,8 +6,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Курс конвертации: 1 Star = 100 coins
-const EXCHANGE_RATE_COINS_TO_STARS = 100;
+// Курс конвертации: 1 Star = 30 coins
+// Рассчитано на основе цен в Stripe:
+// - 100 монет = €2.99 ≈ 3 звезды (100/3 ≈ 33 coins/star)
+// - Учитывая комиссию Telegram (30%), используем консервативный курс: 1 Star = 30 coins
+const EXCHANGE_RATE_COINS_TO_STARS = 30;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

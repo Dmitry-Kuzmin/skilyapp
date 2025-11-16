@@ -17,8 +17,8 @@ export const MODAL_CONFIG = {
   
   // Размеры для Mobile/Telegram
   mobile: {
-    height: 'h-[90vh]',
-    maxHeight: 'max-h-[90vh]',
+    height: 'h-[85vh]',
+    maxHeight: 'max-h-[85vh]',
   },
   
   // Общие настройки
@@ -37,8 +37,8 @@ export const MODAL_CONFIG = {
   // Настройки для разных типов модалок
   types: {
     shop: {
-      desktop: { maxWidth: 'max-w-lg', height: 'h-[85vh]' },
-      mobile: { height: 'h-[90vh]' },
+      desktop: { maxWidth: 'max-w-lg', height: 'h-[80vh]' },
+      mobile: { height: 'h-[85vh]' },
     },
     duelPass: {
       desktop: { maxWidth: 'max-w-4xl', height: 'h-[85vh]' },

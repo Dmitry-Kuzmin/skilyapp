@@ -706,18 +706,23 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
+    // Сохраняем оригинальные значения для возможного отката
+    const originalCoins = coins;
+    const originalInventory = [...inventory];
+
     // Оптимистичное обновление UI - сразу обновляем состояние для мгновенной реакции
     const newCoins = coins - boost.cost_coins;
-    const currentInventoryCount = getInventoryCount(boost.type);
     const newInventory = [...inventory];
     const existingBoostIndex = newInventory.findIndex(i => i.boost_type === boost.type);
     
     if (existingBoostIndex >= 0) {
+      // Увеличиваем количество существующего буста
       newInventory[existingBoostIndex] = {
         ...newInventory[existingBoostIndex],
         quantity: newInventory[existingBoostIndex].quantity + 1
       };
     } else {
+      // Добавляем новый буст в инвентарь
       newInventory.push({
         boost_type: boost.type,
         quantity: 1
@@ -750,7 +755,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       });
 
       // Выполняем операции параллельно для скорости
-      const [coinsResult, inventoryResult, transactionResult] = await Promise.allSettled([
+      // Критичные операции: списание монет и добавление буста
+      // Транзакция - не критична, выполняем отдельно
+      const [coinsResult, inventoryResult] = await Promise.allSettled([
         // Списание монет
         supabase.rpc('increment_profile_value', {
           p_profile_id: profileId,
@@ -762,29 +769,37 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           p_user_id: profileId,
           p_boost_type: boost.type,
           p_change: 1
-        }),
-        // Создание транзакции (не критично, можно пропустить)
-        supabase.rpc('create_transaction', {
-          p_user_id: profileId,
-          p_transaction_type: 'coins_spent_boost',
-          p_amount: -boost.cost_coins,
-          p_metadata: {
-            boost_type: boost.type,
-            boost_name: boost.name_ru,
-          }
-        }).catch(err => {
-          console.warn('[BoostShop] Транзакция не создана (не критично):', err);
-          return { error: null }; // Игнорируем ошибку транзакции
         })
       ]);
+
+      // Создание транзакции выполняем отдельно (не критично)
+      // Не блокируем основной поток, если транзакция не создалась
+      supabase.rpc('create_transaction', {
+        p_user_id: profileId,
+        p_transaction_type: 'coins_spent_boost',
+        p_amount: -boost.cost_coins,
+        p_metadata: {
+          boost_type: boost.type,
+          boost_name: boost.name_ru,
+        }
+      }).then(result => {
+        if (result.error) {
+          console.warn('[BoostShop] Транзакция не создана (не критично):', result.error);
+        } else {
+          console.log('[BoostShop] ✅ Транзакция создана успешно через RPC, ID:', result.data);
+        }
+      }).catch(err => {
+        console.warn('[BoostShop] Транзакция не создана (не критично):', err);
+      });
 
       // Проверяем результаты
       if (coinsResult.status === 'rejected' || (coinsResult.status === 'fulfilled' && coinsResult.value.error)) {
         const error = coinsResult.status === 'rejected' ? coinsResult.reason : coinsResult.value.error;
         console.error('[BoostShop] Ошибка списания монет:', error);
-        // Откатываем оптимистичное обновление
-        setCoins(coins);
-        setInventory(inventory);
+        // Откатываем оптимистичное обновление к оригинальным значениям
+        setCoins(originalCoins);
+        setInventory(originalInventory);
+        setIsRefreshing(false);
         throw new Error(`Не удалось списать монеты: ${error?.message || 'Неизвестная ошибка'}`);
       }
 
@@ -801,9 +816,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           console.error('[BoostShop] Ошибка отката монет:', rollbackErr);
         });
         
-        // Откатываем оптимистичное обновление
-        setCoins(coins);
-        setInventory(inventory);
+        // Откатываем оптимистичное обновление к оригинальным значениям
+        setCoins(originalCoins);
+        setInventory(originalInventory);
+        setIsRefreshing(false);
         throw new Error(`Не удалось добавить буст в инвентарь: ${error?.message || 'Неизвестная ошибка'}`);
       }
 
@@ -814,33 +830,68 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       setTimeout(async () => {
         try {
           // Параллельно загружаем актуальные данные
-          const [profileData, inventoryData] = await Promise.all([
+          const [profileResult, inventoryResult] = await Promise.allSettled([
             supabase
               .from('profiles')
               .select('coins')
               .eq('id', profileId)
               .single(),
-            supabase.rpc('get_user_boost_inventory', {
-              p_user_id: profileId
-            }).catch(err => {
-              // Fallback на прямой запрос если RPC не работает
-              console.warn('[BoostShop] RPC для инвентаря не работает, используем fallback:', err);
-              return supabase
-                .from('boost_inventory')
-                .select('boost_type, quantity')
-                .eq('user_id', profileId);
-            })
+            // Пытаемся загрузить через RPC, если не работает - fallback
+            (async () => {
+              try {
+                const result = await supabase.rpc('get_user_boost_inventory', {
+                  p_user_id: profileId
+                });
+                if (result.error) {
+                  throw result.error;
+                }
+                return result;
+              } catch (err) {
+                // Fallback на прямой запрос если RPC не работает (404 или другая ошибка)
+                console.warn('[BoostShop] RPC для инвентаря не работает, используем fallback:', err);
+                return await supabase
+                  .from('boost_inventory')
+                  .select('boost_type, quantity')
+                  .eq('user_id', profileId);
+              }
+            })()
           ]);
 
+          // Обрабатываем результаты
+          const profileData = profileResult.status === 'fulfilled' ? profileResult.value : null;
+          const inventoryData = inventoryResult.status === 'fulfilled' ? inventoryResult.value : null;
+
           // Обновляем состояние только если данные изменились
-          if (profileData.data && profileData.data.coins !== newCoins) {
-            console.log('[BoostShop] Синхронизация баланса:', profileData.data.coins);
-            setCoins(profileData.data.coins);
+          if (profileData.data) {
+            const actualCoins = profileData.data.coins || 0;
+            if (actualCoins !== newCoins) {
+              console.log('[BoostShop] Синхронизация баланса:', actualCoins, '(было оптимистично:', newCoins, ')');
+              setCoins(actualCoins);
+            } else {
+              console.log('[BoostShop] Баланс совпадает с оптимистичным обновлением:', actualCoins);
+            }
           }
 
-          if (inventoryData.data) {
-            console.log('[BoostShop] Синхронизация инвентаря:', inventoryData.data);
-            setInventory(inventoryData.data);
+          if (inventoryData && inventoryData.data) {
+            // Всегда синхронизируем инвентарь с БД для гарантии точности
+            const dbInventory = inventoryData.data;
+            console.log('[BoostShop] Синхронизация инвентаря из БД:', dbInventory);
+            
+            // Проверяем, что купленный буст действительно есть в инвентаре
+            const purchasedBoost = dbInventory.find(i => i.boost_type === boost.type);
+            if (purchasedBoost) {
+              console.log('[BoostShop] ✅ Буст подтвержден в БД:', purchasedBoost.boost_type, 'количество:', purchasedBoost.quantity);
+            } else {
+              console.warn('[BoostShop] ⚠️ Буст не найден в БД после синхронизации:', boost.type);
+              // Если буста нет в БД, но он был в оптимистичном обновлении - это проблема
+              // Но мы все равно используем данные из БД как источник истины
+            }
+            
+            // Обновляем инвентарь данными из БД (источник истины)
+            setInventory(dbInventory);
+          } else if (inventoryData && inventoryData.error) {
+            console.error('[BoostShop] Ошибка загрузки инвентаря при синхронизации:', inventoryData.error);
+            // Не обновляем инвентарь, оставляем оптимистичное обновление
           }
 
           // Обновляем историю транзакций в фоне
@@ -858,9 +909,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     } catch (error: any) {
       console.error('[BoostShop] Ошибка покупки:', error);
       
-      // Откатываем оптимистичные обновления
-      setCoins(coins);
-      setInventory(inventory);
+      // Откатываем оптимистичные обновления к оригинальным значениям
+      setCoins(originalCoins);
+      setInventory(originalInventory);
       setIsRefreshing(false);
       
       const errorMessage = error?.message || error?.error?.message || 'Неизвестная ошибка';
@@ -906,13 +957,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 <SheetTitle className="text-base md:text-lg font-semibold truncate">Магазин</SheetTitle>
               </div>
               <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-                <button
-                  onClick={() => onOpenChange(false)}
-                  className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-                >
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </button>
               <Popover open={showHistory} onOpenChange={setShowHistory}>
                 <PopoverTrigger asChild>
                   <button 
@@ -1371,10 +1415,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsList>
 
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent value="boosts" className="px-0 py-3 md:py-4 space-y-3 mt-3 md:mt-4">
               <>
                   {regularBoosts.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 px-4">
                       <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
                       <div className="space-y-2">
                         {regularBoosts.map((boost) => (
@@ -1391,7 +1435,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   )}
 
                   {premiumBoosts.length > 0 && (
-                    <div className="space-y-2 mt-4">
+                    <div className="space-y-2 mt-4 px-4">
                       <div className="flex items-center gap-2 px-1">
                         <h3 className="text-sm font-semibold text-muted-foreground">Премиум бусты</h3>
                         <Badge className="gradient-gold border-none text-xs px-1.5 py-0">Premium</Badge>

@@ -10,16 +10,26 @@ const ToastProvider = ToastPrimitives.Provider;
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Viewport
-    ref={ref}
-    className={cn(
-      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
-      className,
-    )}
-    {...props}
-  />
-));
+>(({ className, ...props }, ref) => {
+  // Определяем, находимся ли мы в Telegram Web App
+  const isTelegram = typeof window !== 'undefined' && 
+    window.Telegram?.WebApp?.initData && 
+    window.Telegram?.WebApp?.initData !== 'mock_init_data';
+  
+  return (
+    <ToastPrimitives.Viewport
+      ref={ref}
+      className={cn(
+        "fixed z-[100] flex max-h-screen w-full flex-col-reverse p-4",
+        // Для Telegram Web App добавляем отступ сверху, чтобы не перекрывалось UI Telegram
+        isTelegram ? "top-16 sm:top-20" : "top-0 sm:top-auto",
+        "sm:bottom-0 sm:right-0 sm:flex-col md:max-w-[420px]",
+        className,
+      )}
+      {...props}
+    />
+  );
+});
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(

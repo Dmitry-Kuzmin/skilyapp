@@ -66,30 +66,35 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     // Обработка свайпа для закрытия (только для bottom sheet)
     const handleTouchStart = (e: React.TouchEvent) => {
       if (side !== "bottom") return;
-      // Проверяем, что свайп начинается от верха sheet
+      // Проверяем, что свайп начинается от верха sheet (включая индикатор свайпа)
       const touchY = e.touches[0].clientY;
       const rect = contentRef.current?.getBoundingClientRect();
-      if (rect && touchY - rect.top < 50) { // Только если свайп начинается в верхних 50px
+      if (rect && touchY - rect.top < 80) { // Увеличиваем зону до 80px для лучшего UX
         setStartY(touchY);
         setIsDragging(true);
+        // Предотвращаем скролл при начале свайпа
+        if (contentRef.current) {
+          contentRef.current.style.touchAction = 'pan-y';
+        }
       }
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
       if (side !== "bottom" || startY === null || !isDragging) return;
-      e.preventDefault(); // Предотвращаем скролл страницы
+      
       const currentYPos = e.touches[0].clientY;
       const diff = currentYPos - startY;
       
       // Разрешаем свайп только вниз
       if (diff > 0 && contentRef.current) {
+        e.preventDefault(); // Предотвращаем скролл страницы только при свайпе вниз
         setCurrentY(diff);
-        contentRef.current.style.transform = `translateY(${Math.min(diff, 300)}px)`;
+        contentRef.current.style.transform = `translateY(${Math.min(diff, 400)}px)`;
         contentRef.current.style.transition = 'none';
         // Затемняем overlay при свайпе
         const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
         if (overlay) {
-          const opacity = Math.max(0, 0.8 - (diff / 300) * 0.8);
+          const opacity = Math.max(0, 0.8 - (diff / 400) * 0.8);
           overlay.style.opacity = opacity.toString();
         }
       }
@@ -99,7 +104,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       if (side !== "bottom" || startY === null || !isDragging) return;
       
       if (contentRef.current) {
-        const threshold = 100; // Минимальное расстояние для закрытия
+        const threshold = 80; // Уменьшаем порог для более легкого закрытия
         
         if (currentY && currentY > threshold) {
           // Закрываем sheet через Radix API - используем onOpenChange из props
@@ -120,12 +125,16 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         } else {
           // Возвращаем на место с анимацией
           contentRef.current.style.transform = '';
-          contentRef.current.style.transition = '';
+          contentRef.current.style.transition = 'transform 0.3s ease-out';
           const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
           if (overlay) {
             overlay.style.opacity = '0.8';
+            overlay.style.transition = 'opacity 0.3s ease-out';
           }
         }
+        
+        // Восстанавливаем touchAction
+        contentRef.current.style.touchAction = '';
       }
       
       setStartY(null);
