@@ -11,7 +11,6 @@ import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
 import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelResult } from '@/components/duel/DuelResult';
-import { DuelWaitingReplay } from '@/components/duel/DuelWaitingReplay';
 import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
 import { AuthModal } from '@/components/AuthModal';
 import { useUserContext } from '@/contexts/UserContext';
