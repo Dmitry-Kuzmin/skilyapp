@@ -388,10 +388,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       const telegramUserId = webApp.initDataUnsafe?.user?.id;
       if (!telegramUserId) {
+        console.error("[BoostShop] Telegram user ID not found:", {
+          hasWebApp: !!webApp,
+          hasInitDataUnsafe: !!webApp.initDataUnsafe,
+          initDataUnsafe: webApp.initDataUnsafe,
+          user: webApp.initDataUnsafe?.user
+        });
+        
         toast({
           title: '❌ Ошибка',
-          description: 'Не удалось получить ID пользователя Telegram',
+          description: 'Не удалось получить ID пользователя Telegram. Попробуйте оплатить через Stripe или обновите страницу.',
           variant: 'destructive',
+          duration: 6000,
         });
         return;
       }
