@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, Star } from 'lucide-react';
 import { getTelegramWebApp } from '@/lib/telegram';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -200,8 +200,11 @@ export function StarsPaymentButton({
         </>
       ) : (
         <>
-          <Sparkles className="w-4 h-4 mr-2" />
-          Оплатить {starsAmount}⭐
+          <Sparkles className="w-4 h-4 mr-1.5" />
+          <span className="flex items-center gap-1">
+            Оплатить {starsAmount}
+            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          </span>
         </>
       )}
     </Button>
