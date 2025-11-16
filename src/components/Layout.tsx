@@ -136,7 +136,7 @@ const Layout = ({ children }: LayoutProps) => {
         "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50 overflow-x-hidden w-full",
         isTelegramApp ? "hidden" : "hidden md:block"
       )}>
-        <div className="container mx-auto px-4 max-w-full">
+        <div className="container mx-auto px-4 max-w-[1370px]">
           <div className="flex items-center justify-between h-16 min-w-0">
             <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl gradient-primary flex-shrink-0">

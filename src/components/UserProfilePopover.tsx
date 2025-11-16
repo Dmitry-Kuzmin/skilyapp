@@ -72,11 +72,12 @@ export function UserProfilePopover() {
   const [avatarError, setAvatarError] = useState<Record<string, boolean>>({});
   const isMiniApp = isTelegramMiniApp();
 
+  // Загружаем профиль сразу при монтировании, не только при открытии попапа
   useEffect(() => {
-    if (profileId && open) {
+    if (profileId) {
       loadProfile();
     }
-  }, [profileId, open]);
+  }, [profileId]);
 
   // Reset avatar error when photo_url changes
   useEffect(() => {
@@ -158,7 +159,7 @@ export function UserProfilePopover() {
           <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
             {(() => {
               const photoUrl = profile?.photo_url || user?.photo_url;
-              const hasError = photoUrl ? avatarError[photoUrl] : true;
+              const hasError = photoUrl ? (avatarError[photoUrl] || false) : false;
               
               if (photoUrl && !hasError) {
                 return (
@@ -202,7 +203,7 @@ export function UserProfilePopover() {
               <Avatar className="h-10 w-10">
                 {(() => {
                   const photoUrl = profile?.photo_url || user?.photo_url;
-                  const hasError = photoUrl ? avatarError[photoUrl] : true;
+                  const hasError = photoUrl ? (avatarError[photoUrl] || false) : false;
                   
                   if (photoUrl && !hasError) {
                     return (
