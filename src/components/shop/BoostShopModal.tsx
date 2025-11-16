@@ -622,186 +622,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return;
       }
 
-      // Открываем Stripe Checkout в попапе
-      const width = 600;
-      const height = 700;
-      const left = (window.screen.width - width) / 2;
-      const top = (window.screen.height - height) / 2;
-
-      const popup = window.open(
-        data.url,
-        'Stripe Checkout',
-        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
-      );
-
-      if (!popup) {
-        toast({
-          title: '⚠️ Внимание',
-          description: 'Пожалуйста, разрешите открытие всплывающих окон для этого сайта',
-          variant: 'destructive',
-        });
-        return;
+      // Используем redirect вместо popup для избежания блокировки браузера
+      // В Telegram Web App используем window.open для нативного опыта
+      if (isTelegram && window.Telegram?.WebApp) {
+        // В Telegram пробуем открыть в новой вкладке
+        const popup = window.open(data.url, '_blank');
+        if (!popup) {
+          // Если popup заблокирован, используем redirect
+          window.location.href = data.url;
+        }
+      } else {
+        // В браузере всегда используем redirect
+        window.location.href = data.url;
       }
-
-      // Слушаем сообщения от попапа
-      const handleMessage = async (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) return;
-        
-        if (event.data?.type === 'STRIPE_SUCCESS') {
-          // Покупка успешна, проверяем статус
-          setTimeout(async () => {
-            await checkPurchaseStatus();
-          }, 2000);
-        } else if (event.data?.type === 'STRIPE_CANCEL') {
-          // Покупка отменена
-          toast({
-            title: 'ℹ️ Оплата отменена',
-            description: 'Вы можете попробовать снова в любое время',
-          });
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-
-      // Отслеживаем закрытие попапа и проверяем статус покупки
-      const checkPurchaseStatus = async () => {
-        try {
-          // Проверяем последнюю покупку пользователя
-          const { data: purchases } = await supabase
-            .from('purchases')
-            .select('id, status, metadata, stripe_session_id, created_at')
-            .eq('user_id', profileId)
-            .order('created_at', { ascending: false })
-            .limit(5);
-
-          if (purchases && purchases.length > 0) {
-            // Ищем последнюю покупку (pending или completed)
-            const lastPurchase = purchases[0];
-            
-            // Если покупка pending, пытаемся обработать её вручную
-            if (lastPurchase.status === 'pending' && lastPurchase.stripe_session_id) {
-              console.log("[BoostShop] Found pending purchase, attempting to process:", lastPurchase.stripe_session_id);
-              
-              try {
-                const { data: processData, error: processError } = await supabase.functions.invoke("process-purchase", {
-                  body: { 
-                    session_id: lastPurchase.stripe_session_id,
-                    user_id: profileId 
-                  },
-                });
-
-                if (processError) {
-                  console.error("[BoostShop] Error processing purchase:", processError);
-                } else if (processData?.success) {
-                  console.log("[BoostShop] Purchase processed successfully:", processData);
-                  
-                  // Получаем актуальный баланс после обработки
-                  const { data: updatedProfile } = await supabase
-                    .from('profiles')
-                    .select('coins')
-                    .eq('id', profileId)
-                    .single();
-                  
-                  await loadData(); // Обновляем баланс
-                  
-                  // Используем coins_added из ответа или вычисляем из metadata
-                  const coinsAmount = processData.coins_added || lastPurchase.metadata?.coins || 0;
-                  
-                  if (coinsAmount > 0) {
-                    toast({
-                      title: '✅ Покупка успешна!',
-                      description: `Вы получили ${coinsAmount} монет. Баланс: ${updatedProfile?.coins || coins} монет`,
-                      duration: 6000,
-                    });
-                    setShowConfetti(true);
-                    setTimeout(() => setShowConfetti(false), 3000);
-                    return true;
-                  } else {
-                    // Если coins_added не указан, но покупка успешна, проверяем баланс
-                    const oldCoins = coins;
-                    const newCoins = updatedProfile?.coins || coins;
-                    if (newCoins > oldCoins) {
-                      const actualCoinsAdded = newCoins - oldCoins;
-                      toast({
-                        title: '✅ Покупка успешна!',
-                        description: `Вы получили ${actualCoinsAdded} монет. Баланс: ${newCoins} монет`,
-                        duration: 6000,
-                      });
-                      setShowConfetti(true);
-                      setTimeout(() => setShowConfetti(false), 3000);
-                      return true;
-                    }
-                  }
-                }
-              } catch (processErr) {
-                console.error("[BoostShop] Exception processing purchase:", processErr);
-              }
-            }
-            
-            // Ищем покупку со статусом completed, созданную недавно (последние 5 минут)
-            const recentCompleted = purchases.find(p => 
-              p.status === 'completed' && 
-              new Date(p.created_at).getTime() > Date.now() - 5 * 60 * 1000
-            );
-
-            if (recentCompleted) {
-              const coinsAmount = recentCompleted.metadata?.coins || 0;
-              if (coinsAmount > 0) {
-                await loadData(); // Обновляем баланс
-                toast({
-                  title: '✅ Покупка успешна!',
-                  description: `Вы получили ${coinsAmount} монет`,
-                  duration: 5000,
-                });
-                setShowConfetti(true);
-                setTimeout(() => setShowConfetti(false), 3000);
-                return true; // Покупка найдена
-              }
-            }
-          }
-          return false;
-        } catch (error) {
-          console.error("[BoostShop] Error checking purchase status:", error);
-          return false;
-        }
-      };
-
-      // Проверяем статус покупки каждую секунду после закрытия попапа
-      const checkInterval = setInterval(async () => {
-        try {
-          // Проверяем, закрыт ли попап
-          if (popup.closed) {
-            clearInterval(checkInterval);
-            
-            // Даем время webhook обработаться (2 секунды)
-            setTimeout(async () => {
-              let attempts = 0;
-              const maxAttempts = 10; // Проверяем до 10 раз (10 секунд)
-              
-              const statusCheckInterval = setInterval(async () => {
-                attempts++;
-                const found = await checkPurchaseStatus();
-                
-                if (found || attempts >= maxAttempts) {
-                  clearInterval(statusCheckInterval);
-                  if (!found && attempts >= maxAttempts) {
-                    // Если покупка не найдена, просто обновляем данные
-                    await loadData();
-                  }
-                }
-              }, 1000);
-            }, 2000);
-          }
-        } catch (error) {
-          console.error("[BoostShop] Error checking popup:", error);
-        }
-      }, 500);
-
-      // Очищаем интервал через 5 минут (на случай если попап не закрылся)
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        window.removeEventListener('message', handleMessage);
-      }, 5 * 60 * 1000);
+      
+      return; // Прерываем выполнение, так как происходит redirect
 
     } catch (err: any) {
       console.error("[BoostShop] Purchase error:", err);
@@ -1026,6 +861,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 <SheetTitle className="text-base md:text-lg font-semibold truncate">Магазин</SheetTitle>
               </div>
               <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </button>
               <Popover open={showHistory} onOpenChange={setShowHistory}>
                 <PopoverTrigger asChild>
                   <button 
@@ -1719,6 +1561,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent 
             side="bottom" 
+            hideCloseButton
             className={cn(
               getSheetContentClasses('shop', isMobile),
               // Убираем пустое пространство снизу для Telegram Web App

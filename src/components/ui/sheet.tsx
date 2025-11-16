@@ -49,29 +49,116 @@ const sheetVariants = cva(
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {}
+    VariantProps<typeof sheetVariants> {
+  hideCloseButton?: boolean;
+}
 
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
-  ({ side = "bottom", className, children, ...props }, ref) => (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content 
-        ref={ref} 
-        className={cn(sheetVariants({ side }), className)} 
-        {...props}
-      >
-        {/* Индикатор для свайпа вниз (только для bottom sheet) */}
-        {side === "bottom" && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
-        )}
-        {children}
-        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
-      </SheetPrimitive.Content>
-    </SheetPortal>
-  ),
+  ({ side = "bottom", className, children, hideCloseButton = false, ...props }, ref) => {
+    const contentRef = React.useRef<HTMLDivElement>(null);
+    const [startY, setStartY] = React.useState<number | null>(null);
+    const [currentY, setCurrentY] = React.useState<number | null>(null);
+    const [isDragging, setIsDragging] = React.useState(false);
+
+    // Объединяем refs
+    React.useImperativeHandle(ref, () => contentRef.current as any);
+
+    // Обработка свайпа для закрытия (только для bottom sheet)
+    const handleTouchStart = (e: React.TouchEvent) => {
+      if (side !== "bottom") return;
+      // Проверяем, что свайп начинается от верха sheet
+      const touchY = e.touches[0].clientY;
+      const rect = contentRef.current?.getBoundingClientRect();
+      if (rect && touchY - rect.top < 50) { // Только если свайп начинается в верхних 50px
+        setStartY(touchY);
+        setIsDragging(true);
+      }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (side !== "bottom" || startY === null || !isDragging) return;
+      e.preventDefault(); // Предотвращаем скролл страницы
+      const currentYPos = e.touches[0].clientY;
+      const diff = currentYPos - startY;
+      
+      // Разрешаем свайп только вниз
+      if (diff > 0 && contentRef.current) {
+        setCurrentY(diff);
+        contentRef.current.style.transform = `translateY(${Math.min(diff, 300)}px)`;
+        contentRef.current.style.transition = 'none';
+        // Затемняем overlay при свайпе
+        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+        if (overlay) {
+          const opacity = Math.max(0, 0.8 - (diff / 300) * 0.8);
+          overlay.style.opacity = opacity.toString();
+        }
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (side !== "bottom" || startY === null || !isDragging) return;
+      
+      if (contentRef.current) {
+        const threshold = 100; // Минимальное расстояние для закрытия
+        
+        if (currentY && currentY > threshold) {
+          // Закрываем sheet через Radix API - используем onOpenChange из props
+          if (props.onOpenChange) {
+            props.onOpenChange(false);
+          } else {
+            // Fallback: программно закрываем через событие ESC
+            const escEvent = new KeyboardEvent('keydown', {
+              key: 'Escape',
+              code: 'Escape',
+              keyCode: 27,
+              which: 27,
+              bubbles: true,
+              cancelable: true
+            });
+            contentRef.current.dispatchEvent(escEvent);
+          }
+        } else {
+          // Возвращаем на место с анимацией
+          contentRef.current.style.transform = '';
+          contentRef.current.style.transition = '';
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay) {
+            overlay.style.opacity = '0.8';
+          }
+        }
+      }
+      
+      setStartY(null);
+      setCurrentY(null);
+      setIsDragging(false);
+    };
+
+    return (
+      <SheetPortal>
+        <SheetOverlay />
+        <SheetPrimitive.Content 
+          ref={contentRef}
+          className={cn(sheetVariants({ side }), className)} 
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          {...props}
+        >
+          {/* Индикатор для свайпа вниз (только для bottom sheet) */}
+          {side === "bottom" && (
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
+          )}
+          {children}
+          {!hideCloseButton && (
+            <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </SheetPrimitive.Close>
+          )}
+        </SheetPrimitive.Content>
+      </SheetPortal>
+    );
+  },
 );
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
