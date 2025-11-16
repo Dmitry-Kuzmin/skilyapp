@@ -79,6 +79,7 @@ export function getDialogContentClasses(type: keyof typeof MODAL_CONFIG.types = 
 
 /**
  * Классы для SheetContent с фиксированной высотой
+ * Для Telegram Web App используем bottom sheet с поддержкой свайпа
  */
 export function getSheetContentClasses(type: keyof typeof MODAL_CONFIG.types = 'default', isMobile = false) {
   const config = getModalConfig(type);
@@ -88,7 +89,17 @@ export function getSheetContentClasses(type: keyof typeof MODAL_CONFIG.types = '
     sizeConfig.height || MODAL_CONFIG.mobile.height,
     sizeConfig.maxHeight || MODAL_CONFIG.mobile.maxHeight,
     'overflow-hidden flex flex-col p-0',
+    // Убираем пустое пространство снизу
+    'pb-safe',
   ].filter(Boolean).join(' ');
+}
+
+/**
+ * Определяет, нужно ли использовать Sheet вместо Dialog
+ * Sheet используется для мобильных устройств и Telegram Web App
+ */
+export function shouldUseSheet(isMobile: boolean, isTelegram: boolean = false) {
+  return isMobile || isTelegram;
 }
 
 

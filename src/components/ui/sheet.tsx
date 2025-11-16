@@ -52,12 +52,20 @@ interface SheetContentProps
     VariantProps<typeof sheetVariants> {}
 
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
-  ({ side = "right", className, children, ...props }, ref) => (
+  ({ side = "bottom", className, children, ...props }, ref) => (
     <SheetPortal>
       <SheetOverlay />
-      <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+      <SheetPrimitive.Content 
+        ref={ref} 
+        className={cn(sheetVariants({ side }), className)} 
+        {...props}
+      >
+        {/* Индикатор для свайпа вниз (только для bottom sheet) */}
+        {side === "bottom" && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
+        )}
         {children}
-        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>

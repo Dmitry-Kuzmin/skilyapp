@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,8 +18,10 @@ import { motion } from 'framer-motion';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
 import { ModalSkeleton } from '@/components/ui/modal-skeleton';
-import { getDialogContentClasses } from '@/lib/modal-config';
+import { getDialogContentClasses, getSheetContentClasses, shouldUseSheet } from '@/lib/modal-config';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isTelegramMiniApp } from '@/lib/telegram';
+import { cn } from '@/lib/utils';
 
 interface BoostShopModalProps {
   open: boolean;
@@ -55,7 +58,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
-  const isTelegram = platform === 'telegram';
+  const isTelegram = platform === 'telegram' || isTelegramMiniApp();
+  const useSheet = shouldUseSheet(isMobile, isTelegram);
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -71,9 +75,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   useEffect(() => {
     if (open) {
+      // Всегда перезагружаем данные при открытии модалки
+      // Это гарантирует актуальность инвентаря и баланса
       loadData();
     }
-  }, [open]);
+  }, [open, profileId]); // Добавляем profileId в зависимости для перезагрузки при смене пользователя
 
   const loadData = async () => {
     if (!profileId) {
@@ -116,16 +122,27 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         setCoins(profile.coins || 0);
       }
 
-      // Загрузка инвентаря
+      // Загрузка инвентаря - используем более надежный запрос
       const { data: inventoryData, error: inventoryError } = await supabase
         .from('boost_inventory')
         .select('boost_type, quantity')
-        .eq('user_id', profileId);
+        .eq('user_id', profileId)
+        .order('boost_type', { ascending: true });
 
       if (inventoryError) {
         console.error('[BoostShop] Ошибка загрузки инвентаря:', inventoryError);
+        console.error('[BoostShop] Детали ошибки инвентаря:', {
+          code: inventoryError.code,
+          message: inventoryError.message,
+          details: inventoryError.details,
+          hint: inventoryError.hint
+        });
       } else if (inventoryData) {
+        console.log('[BoostShop] Инвентарь загружен:', inventoryData);
         setInventory(inventoryData);
+      } else {
+        console.log('[BoostShop] Инвентарь пуст для пользователя:', profileId);
+        setInventory([]);
       }
     } catch (error) {
       console.error('[BoostShop] Ошибка загрузки данных магазина:', error);
@@ -860,25 +877,45 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // Обновляем данные без скрытия контента
       setIsRefreshing(true);
       try {
+        // Небольшая задержка для гарантии, что данные в БД обновились
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Обновляем баланс монет
-        const { data: updatedProfile } = await supabase
+        const { data: updatedProfile, error: profileUpdateError } = await supabase
           .from('profiles')
           .select('coins')
           .eq('id', profileId)
           .single();
 
-        if (updatedProfile) {
+        if (profileUpdateError) {
+          console.error('[BoostShop] Ошибка обновления профиля:', profileUpdateError);
+        } else if (updatedProfile) {
           setCoins(updatedProfile.coins || 0);
+          console.log('[BoostShop] Баланс обновлен:', updatedProfile.coins);
         }
 
-        // Обновляем инвентарь
-        const { data: updatedInventory } = await supabase
+        // Обновляем инвентарь - используем более надежный запрос
+        const { data: updatedInventory, error: inventoryUpdateError } = await supabase
           .from('boost_inventory')
           .select('boost_type, quantity')
           .eq('user_id', profileId);
 
-        if (updatedInventory) {
+        if (inventoryUpdateError) {
+          console.error('[BoostShop] Ошибка обновления инвентаря:', inventoryUpdateError);
+        } else if (updatedInventory) {
+          console.log('[BoostShop] Инвентарь обновлен:', updatedInventory);
           setInventory(updatedInventory);
+          
+          // Проверяем, что буст действительно добавлен
+          const purchasedBoost = updatedInventory.find(i => i.boost_type === boost.type);
+          if (!purchasedBoost || purchasedBoost.quantity === 0) {
+            console.warn('[BoostShop] ⚠️ Буст не найден в инвентаре после покупки! Перезагружаем данные...');
+            // Перезагружаем полностью при проблеме
+            await loadData();
+          }
+        } else {
+          console.warn('[BoostShop] ⚠️ Инвентарь пуст после покупки! Перезагружаем данные...');
+          await loadData();
         }
       } catch (error) {
         console.error('[BoostShop] Ошибка обновления данных:', error);
@@ -934,13 +971,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом */}
-        <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-              <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
-            </div>
-            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+        {useSheet ? (
+          <SheetHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
+                <SheetTitle className="text-base md:text-lg font-semibold truncate">Магазин</SheetTitle>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <Popover open={showHistory} onOpenChange={setShowHistory}>
                 <PopoverTrigger asChild>
                   <button 
@@ -1150,9 +1188,230 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               >
                 <X className="w-4 h-4" />
               </Button>
+              </div>
             </div>
-          </div>
-        </DialogHeader>
+          </SheetHeader>
+        ) : (
+          <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
+                <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
+              </div>
+              <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              <Popover open={showHistory} onOpenChange={setShowHistory}>
+                <PopoverTrigger asChild>
+                  <button 
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                    onClick={async () => {
+                      setShowHistory(true);
+                      if (transactions.length === 0) {
+                        await loadTransactionHistory();
+                      }
+                    }}
+                  >
+                <Coins className="w-4 h-4 text-gold" />
+                <span className="text-sm font-semibold">{coins}</span>
+                    <History className="w-3 h-3 text-muted-foreground ml-0.5" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 p-0" align="end">
+                  <div className="p-4 border-b space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        История монет
+                      </h4>
+                      <span className="text-xs text-muted-foreground">
+                        {transactions.length} операций
+                      </span>
+                    </div>
+                    
+                    {/* Filters */}
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <Button
+                        variant={filterCategory === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('all')}
+                      >
+                        Все
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'earn' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('earn')}
+                      >
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        Доходы
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'spend' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('spend')}
+                      >
+                        <TrendingDown className="h-3 w-3 mr-1" />
+                        Расходы
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'purchase' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('purchase')}
+                      >
+                        <CreditCard className="h-3 w-3 mr-1" />
+                        Покупки
+                      </Button>
+                      <Button
+                        variant={filterCategory === 'reward' ? 'default' : 'outline'}
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => setFilterCategory('reward')}
+                      >
+                        <Gift className="h-3 w-3 mr-1" />
+                        Награды
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="max-h-[500px] overflow-y-auto p-2">
+                    {loadingHistory ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+                      </div>
+                    ) : (() => {
+                      const filtered = filterCategory === 'all' 
+                        ? transactions 
+                        : transactions.filter(tx => tx.category === filterCategory);
+                      
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="text-center py-12 text-muted-foreground">
+                              <div className="space-y-3">
+                                {filterCategory === 'all' ? (
+                                  <>
+                                    <Coins className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Здесь появятся твои транзакции</p>
+                                      <p className="text-xs">Начни зарабатывать монеты, проходя тесты и дуэли!</p>
+                                    </div>
+                                    {!isPremium && (
+                                      <div className="pt-2">
+                                        <Badge variant="secondary" className="text-xs">
+                                          💡 Premium удваивает награды
+                                        </Badge>
+                                      </div>
+                                    )}
+                                  </>
+                                ) : filterCategory === 'earn' ? (
+                                  <>
+                                    <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет доходов</p>
+                                      <p className="text-xs">Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!</p>
+                                    </div>
+                                  </>
+                                ) : filterCategory === 'spend' ? (
+                                  <>
+                                    <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет расходов</p>
+                                      <p className="text-xs">Покупай бусты и используй их для улучшения результатов!</p>
+                                    </div>
+                                  </>
+                                ) : filterCategory === 'purchase' ? (
+                                  <>
+                                    <CreditCard className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет покупок</p>
+                                      <p className="text-xs">Пополни баланс монет или получи Premium для больше возможностей!</p>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Gift className="h-12 w-12 mx-auto opacity-30" />
+                                    <div>
+                                      <p className="text-sm font-medium mb-1">Нет наград</p>
+                                      <p className="text-xs">Получай награды за Duel Pass, рефералов и достижения!</p>
+                                    </div>
+                                  </>
+                                )}
+                                {filterCategory !== 'all' && (
+                                  <p className="text-xs mt-2 pt-2 border-t border-border/50">Попробуйте другой фильтр</p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+                      
+                      return (
+                        <div className="space-y-1">
+                          {filtered.map((tx, idx) => {
+                            const IconComponent = tx.icon || (tx.amount > 0 ? TrendingUp : TrendingDown);
+                            return (
+                              <motion.div
+                                key={tx.id || idx}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: idx * 0.02 }}
+                                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className={`p-2 rounded-lg flex-shrink-0 ${
+                                    tx.amount > 0 
+                                      ? 'bg-green-500/10 text-green-600' 
+                                      : 'bg-red-500/10 text-red-600'
+                                  }`}>
+                                    <IconComponent className="h-4 w-4" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{tx.description}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <p className="text-xs text-muted-foreground">
+                                        {new Date(tx.created_at).toLocaleDateString('ru', { 
+                                          day: 'numeric',
+                                          month: 'short',
+                                          hour: '2-digit',
+                                          minute: '2-digit' 
+                                        })}
+                                      </p>
+                                      {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
+                                        <Badge variant="secondary" className="text-xs h-4 px-1.5">
+                                          {tx.category === 'purchase' ? 'Покупка' : tx.category === 'reward' ? 'Награда' : ''}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
+                                  tx.amount > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                  {tx.amount > 0 ? '+' : ''}{tx.amount}
+                                </span>
+                              </motion.div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </PopoverContent>
+              </Popover>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="h-8 w-8"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              </div>
+            </div>
+          </DialogHeader>
+        )}
 
         <div className="relative">
           {isRefreshing && (
@@ -1385,6 +1644,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       </>
     );
   };
+
+  // Используем Sheet для мобильных/Telegram, Dialog для десктопа
+  if (useSheet) {
+    return (
+      <>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+          <SheetContent 
+            side="bottom" 
+            className={cn(
+              getSheetContentClasses('shop', isMobile),
+              // Убираем пустое пространство снизу для Telegram Web App
+              'pb-0 rounded-t-2xl'
+            )}
+          >
+            <div className="flex-1 overflow-y-auto">
+              <ModalContent />
+            </div>
+          </SheetContent>
+        </Sheet>
+        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      </>
+    );
+  }
 
   return (
     <>
