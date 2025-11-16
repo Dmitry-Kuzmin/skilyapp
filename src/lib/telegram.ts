@@ -22,6 +22,18 @@ export const isTelegramMiniApp = () => {
   const hasInitData = webApp.initData && webApp.initData !== '';
   const hasUserData = !!webApp.initDataUnsafe?.user;
   
+  // КРИТИЧНО: Проверяем, что это НЕ мок из index.html
+  // Мок имеет initData = 'mock_init_data' - это не валидный Telegram initData
+  const isMockData = webApp.initData === 'mock_init_data' || 
+                     webApp.initData?.startsWith('mock_') ||
+                     (webApp.initDataUnsafe?.user?.id === 123456789 && 
+                      webApp.initDataUnsafe?.user?.username === 'test_user');
+  
+  if (isMockData) {
+    console.log('[Telegram] Mock detected, not a real Telegram Web App');
+    return false;
+  }
+  
   // Если нет ни initData, ни user - это точно не Telegram Web App
   if (!hasInitData && !hasUserData) {
     return false;
