@@ -19,6 +19,7 @@ import { WalletWidget } from "./navigation/WalletWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 import { useSessionManager } from "@/hooks/useSessionManager";
+import { ReferralModal } from "./ReferralModal";
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,6 +33,7 @@ const Layout = ({ children }: LayoutProps) => {
   const { activeDuel } = useActiveDuel();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [referralModalOpen, setReferralModalOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
   const mainContentRef = useRef<HTMLElement>(null);
   
@@ -176,7 +178,7 @@ const Layout = ({ children }: LayoutProps) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate('/referrals')}
+                    onClick={() => setReferralModalOpen(true)}
                     className="relative hidden sm:flex flex-shrink-0 -mr-1"
                     title="Реферальная программа"
                   >

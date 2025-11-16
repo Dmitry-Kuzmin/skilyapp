@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProfileModal } from "@/components/ProfileModal";
+import { ReferralModal } from "@/components/ReferralModal";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
@@ -65,6 +66,7 @@ export function UserProfilePopover() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const isMiniApp = isTelegramMiniApp();
@@ -235,7 +237,7 @@ export function UserProfilePopover() {
                 className="h-9 text-sm"
                 onClick={() => {
                   setOpen(false);
-                  navigate('/referrals');
+                  setReferralModalOpen(true);
                 }}
               >
                 <Gift className="h-4 w-4 mr-1" />
