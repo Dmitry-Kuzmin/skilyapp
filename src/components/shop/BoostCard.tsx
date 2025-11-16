@@ -58,11 +58,17 @@ export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <h4 className="font-semibold text-sm truncate">{boost.name_ru}</h4>
-          {inventoryCount > 0 && (
-            <Badge variant="outline" className="text-xs border-success/50 text-success px-1.5 py-0">
-              {inventoryCount}
-            </Badge>
-          )}
+          {/* Индикатор количества - всегда показываем, даже если 0, для консистентности */}
+          <Badge 
+            variant="outline" 
+            className={`text-xs px-1.5 py-0 min-w-[20px] text-center ${
+              inventoryCount > 0 
+                ? 'border-success/50 text-success bg-success/10' 
+                : 'border-muted-foreground/30 text-muted-foreground bg-muted/30'
+            }`}
+          >
+            {inventoryCount}
+          </Badge>
           {isPremium && (
             <Badge className="gradient-gold border-none text-xs px-1.5 py-0">
               Premium
