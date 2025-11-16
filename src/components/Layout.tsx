@@ -303,6 +303,9 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+      
+      {/* Referral Modal */}
+      <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </div>
   );
 };
