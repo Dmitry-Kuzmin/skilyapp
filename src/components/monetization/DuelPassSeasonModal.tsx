@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { profileId } = useUserContext();
-  const { isPremium } = usePremium();
+  const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [rewardFilter, setRewardFilter] = useState<'all' | 'available'>('all');
@@ -38,6 +38,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [showPremiumSelector, setShowPremiumSelector] = useState(false);
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
+  
+  // Итоговый Premium статус: либо из хука, либо Premium Forever
+  const isPremium = isPremiumFromHook || hasPremiumForever;
+  
+  // Логирование для отладки Premium статуса
+  useEffect(() => {
+    if (open && profileId) {
+      console.log('[DuelPassSeasonModal] Premium статус:', {
+        isPremiumFromHook,
+        hasPremiumForever,
+        isPremium,
+        profileId
+      });
+    }
+  }, [open, profileId, isPremiumFromHook, hasPremiumForever, isPremium]);
 
   useEffect(() => {
     if (open && profileId) {
