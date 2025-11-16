@@ -383,20 +383,14 @@ serve(async (req) => {
       (profile?.trial_until && new Date(profile.trial_until) > now);
 
     // ============================================
-    // Уровень A: Hard Limits
+    // Уровень A: Hard Limits (проверка, но не блокировка)
     // ============================================
+    // Вместо полного блокирования, просто логируем предупреждение
+    // Реальная защита от абуза будет через detectAbusePattern
     const hardLimitsCheck = checkHardLimits(test_duration_seconds, questions_count, config);
     if (!hardLimitsCheck.passed) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Test duration too short",
-          reason: hardLimitsCheck.reason,
-          coins_awarded: 0,
-          sp_awarded: 0
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      console.warn("[complete-test-and-award] Hard limits check failed:", hardLimitsCheck.reason);
+      // Не блокируем, но это будет учтено в abuse detection
     }
 
     // ============================================

@@ -171,8 +171,8 @@ INSERT INTO reward_config (key, value, revision, is_active) VALUES
   "maxCoinsPerTest": 500,
   "maxSPPerTest": 200,
   "minCoinsPerTest": 2,
-  "minTestDurationBase": 25,
-  "minTestDurationPerQuestion": 1.2,
+  "minTestDurationBase": 10,
+  "minTestDurationPerQuestion": 0.5,
   "abuseDetection": {
     "enabled": true,
     "minAnswerSpeedSeconds": 2,
