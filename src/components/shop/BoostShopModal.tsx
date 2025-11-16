@@ -1006,7 +1006,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
     
     return (
-      <>
+      <div className="w-full max-w-full overflow-x-hidden">
         {showConfetti && (
           <Confetti
             width={600}
@@ -1708,7 +1708,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
           </Tabs>
         </div>
-      </>
+      </div>
     );
   };
 

@@ -19,6 +19,18 @@ export function useOpponentScoreSync(
   const { setInterval, clearInterval } = useDuelTimers();
   const lastScoreRef = useRef(initialScore || 0);
   
+  // Debug: логируем изменения параметров
+  useEffect(() => {
+    console.log('[useOpponentScoreSync] Hook params:', {
+      duelId,
+      myPlayerId,
+      duelStarted,
+      initialScore,
+      currentScore: opponentScore,
+      realtimeScore: state.opponentScore
+    });
+  }, [duelId, myPlayerId, duelStarted, initialScore, opponentScore, state.opponentScore]);
+  
   // Обновляем начальное значение если оно изменилось
   useEffect(() => {
     if (initialScore !== undefined && initialScore !== lastScoreRef.current) {
@@ -30,6 +42,7 @@ export function useOpponentScoreSync(
 
   // Основной способ: синхронизация через Realtime
   useEffect(() => {
+    // Если Realtime передал валидный счет, обновляем
     if (typeof state.opponentScore === 'number' && state.opponentScore >= 0) {
       // Используем ref для сравнения, чтобы избежать проблем с зависимостями
       if (state.opponentScore !== lastScoreRef.current) {
@@ -37,8 +50,14 @@ export function useOpponentScoreSync(
         setOpponentScore(state.opponentScore);
         lastScoreRef.current = state.opponentScore;
       }
+    } 
+    // Если Realtime счет = 0, но у нас есть начальное значение > 0, используем начальное
+    else if (state.opponentScore === 0 && initialScore !== undefined && initialScore > 0 && lastScoreRef.current === 0) {
+      console.log('[useOpponentScoreSync] 🔄 Realtime score is 0, but we have initial score > 0, using initial:', initialScore);
+      setOpponentScore(initialScore);
+      lastScoreRef.current = initialScore;
     }
-  }, [state.opponentScore]);
+  }, [state.opponentScore, initialScore]);
 
   // Fallback: периодическая проверка для мобильной версии Telegram WebApp
   useEffect(() => {
