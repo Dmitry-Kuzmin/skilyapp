@@ -165,13 +165,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       }
 
       // Получаем полученные награды из новой системы
-      const { data: claimedData } = await supabase
+      const { data: claimedData, error: claimedError } = await supabase
         .from("user_claimed_rewards")
         .select("level, is_premium")
         .eq("user_id", profileId)
         .eq("season", season.season_number);
 
+      if (claimedError) {
+        console.error("[DuelPassSeasonModal] Ошибка загрузки полученных наград:", claimedError);
+      }
+
       if (claimedData) {
+        console.log("[DuelPassSeasonModal] Загружено полученных наград из БД:", claimedData);
         const claimed = new Set<number>();
         const claimedFree = new Set<number>();
         const claimedPremium = new Set<number>();
@@ -181,18 +186,28 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             // Бесплатная награда получена
             claimedFree.add(item.level);
             claimed.add(item.level);
+            console.log(`[DuelPassSeasonModal] Бесплатная награда уровня ${item.level} помечена как полученная`);
           } else {
             // Premium награда получена
             claimedPremium.add(item.level);
             if (isPremium) {
               claimed.add(item.level);
             }
+            console.log(`[DuelPassSeasonModal] Premium награда уровня ${item.level} помечена как полученная`);
           }
+        });
+        
+        console.log("[DuelPassSeasonModal] Итоговые множества:", {
+          claimedFree: Array.from(claimedFree),
+          claimedPremium: Array.from(claimedPremium),
+          claimed: Array.from(claimed)
         });
         
         setClaimedRewards(claimed);
         setClaimedFreeRewards(claimedFree);
         setClaimedPremiumRewards(claimedPremium);
+      } else {
+        console.log("[DuelPassSeasonModal] Нет полученных наград в БД");
       }
     } catch (error) {
       console.error("[DuelPassSeasonModal] Load error", error);
@@ -831,6 +846,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     const isCurrent = currentLevel === reward.level;
                     
                     // Проверяем наличие наград
+                    const hasFreeReward = !!reward.free_reward; // Есть ли бесплатная награда вообще
                     const hasFreeCoins = reward.free_reward?.type === 'coins' && reward.free_reward?.amount;
                     const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
                     const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
@@ -843,21 +859,47 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     let allClaimed = false;
                     if (unlocked) {
                       // Проверяем бесплатную награду
-                      const freeRewardClaimed = hasFreeCoins ? freeClaimed : true; // Если нет бесплатной - считаем "полученной"
+                      // Если есть бесплатная награда - она должна быть получена
+                      // Если нет бесплатной награды - не учитываем её (считаем "полученной" условно)
+                      const freeRewardClaimed = hasFreeReward ? freeClaimed : true;
                       
                       // Проверяем Premium награду
-                      let premiumRewardClaimed = true;
+                      let premiumRewardClaimed = true; // По умолчанию true (если нет Premium награды)
                       if (reward.premium_reward) {
                         if (isPremium) {
                           // Если пользователь Premium - Premium награда должна быть получена
                           premiumRewardClaimed = premiumClaimed;
                         } else {
-                          // Если пользователь НЕ Premium - Premium награда не считается (она недоступна)
-                          premiumRewardClaimed = true; // Не учитываем Premium награду для не-Premium пользователей
+                          // Если пользователь НЕ Premium - Premium награда недоступна
+                          // НО! Если у уровня ТОЛЬКО Premium награда (нет бесплатной), то уровень НЕ может быть "получен"
+                          // для не-Premium пользователя, пока он не станет Premium
+                          // Если есть бесплатная награда - Premium не учитываем (она недоступна)
+                          premiumRewardClaimed = hasFreeReward ? true : false; // Если нет бесплатной - Premium обязательна
                         }
                       }
                       
-                      allClaimed = freeRewardClaimed && premiumRewardClaimed;
+                      // КРИТИЧНО: Если у уровня ТОЛЬКО Premium награда (нет бесплатной) и пользователь НЕ Premium,
+                      // то награда НЕ может быть получена (она недоступна)
+                      if (!hasFreeReward && reward.premium_reward && !isPremium) {
+                        allClaimed = false; // Premium награда недоступна для не-Premium пользователей
+                      } else {
+                        allClaimed = freeRewardClaimed && premiumRewardClaimed;
+                      }
+                      
+                      // Логирование для отладки (только для нечетных уровней, чтобы не спамить)
+                      if (reward.level % 2 === 1) {
+                        console.log(`[DuelPassSeasonModal] Уровень ${reward.level}:`, {
+                          unlocked,
+                          hasFreeReward,
+                          freeClaimed,
+                          freeRewardClaimed,
+                          hasPremiumReward: !!reward.premium_reward,
+                          isPremium,
+                          premiumClaimed,
+                          premiumRewardClaimed,
+                          allClaimed
+                        });
+                      }
                     } else {
                       // Уровень не разблокирован - не может быть "получен"
                       allClaimed = false;
@@ -989,9 +1031,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                 ((hasFreeCoins && freeClaimed) || !hasFreeCoins) && reward.premium_reward && !isPremium && !premiumClaimed && "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
                               )}
                             >
-                              {hasFreeCoins && !freeClaimed ? (
+                              {hasFreeReward && !freeClaimed ? (
                                 "Получить"
-                              ) : reward.premium_reward && !isPremium && !premiumClaimed ? (
+                              ) : !hasFreeReward && reward.premium_reward && !isPremium ? (
+                                <>
+                                  <Crown className="w-3.5 h-3.5 mr-1.5" />
+                                  Premium
+                                </>
+                              ) : reward.premium_reward && isPremium && !premiumClaimed ? (
                                 <>
                                   <Crown className="w-3.5 h-3.5 mr-1.5" />
                                   Получить Premium

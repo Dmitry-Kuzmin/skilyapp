@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { getTelegramWebApp } from '@/lib/telegram';
@@ -47,9 +47,39 @@ export function StarsPaymentButton({
     return null;
   }
 
-  // Рассчитать эквивалент в Stars (курс: 1 Star = 0.5 coins, т.е. 1 coin = 2 stars)
-  // Формула: stars = coins / 0.5 = coins * 2
-  const starsAmount = Math.round(priceCoins / 0.5);
+  // Рассчитать эквивалент в Stars
+  // Используем price_stars из БД, если доступно (правильный расчет на основе евро)
+  // Иначе используем старый расчет на основе coins (для обратной совместимости)
+  const [starsAmount, setStarsAmount] = useState<number>(0);
+  
+  useEffect(() => {
+    // Загружаем price_stars из БД
+    const loadStarsPrice = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('pricing_packages')
+          .select('price_stars, price_coins')
+          .eq('package_key', packageKey)
+          .eq('is_active', true)
+          .single();
+        
+        if (!error && data) {
+          // Используем price_stars если есть, иначе рассчитываем на основе coins
+          const stars = data.price_stars || Math.round(data.price_coins / 0.5);
+          setStarsAmount(stars);
+        } else {
+          // Fallback: рассчитываем на основе переданного priceCoins
+          setStarsAmount(Math.round(priceCoins / 0.5));
+        }
+      } catch (err) {
+        console.error('[StarsPaymentButton] Error loading stars price:', err);
+        // Fallback: рассчитываем на основе переданного priceCoins
+        setStarsAmount(Math.round(priceCoins / 0.5));
+      }
+    };
+    
+    loadStarsPrice();
+  }, [packageKey, priceCoins]);
 
   const handlePurchase = async () => {
     if (!profileId || !user?.id) {

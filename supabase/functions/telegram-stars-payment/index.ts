@@ -50,7 +50,7 @@ serve(async (req) => {
       // ПРОВЕРКА 1: Получить и проверить пакет (fraud protection)
       const { data: pkg, error: pkgError } = await supabase
         .from('pricing_packages')
-        .select('*')
+        .select('*, price_stars')
         .eq('package_key', package_key)
         .eq('is_active', true)
         .single();
@@ -63,9 +63,11 @@ serve(async (req) => {
         );
       }
 
-      // Рассчитать количество Stars (Math.round для честного округления)
-      // Формула: stars = coins / 0.5 = coins * 2 (1 coin = 2 stars)
-      const starsAmount = Math.round(pkg.price_coins / EXCHANGE_RATE_COINS_TO_STARS);
+      // Используем price_stars из БД, если оно есть (правильный расчет на основе евро)
+      // Если price_stars нет, используем старый расчет на основе coins (для обратной совместимости)
+      const starsAmount = pkg.price_stars 
+        ? pkg.price_stars 
+        : Math.round(pkg.price_coins / EXCHANGE_RATE_COINS_TO_STARS);
 
       // Минимальная сумма для Telegram Stars: 1 звезда
       // Максимальная сумма: 10000 звезд
