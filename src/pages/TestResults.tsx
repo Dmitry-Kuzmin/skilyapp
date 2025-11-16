@@ -751,15 +751,15 @@ const TestResults = () => {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.45 }}
+                transition={{ delay: isCalculatingRewards ? 0 : 0.45 }}
                 className="mb-6 flex items-center justify-center gap-3 flex-wrap min-h-[60px]"
               >
                 {isCalculatingRewards ? (
-                  // Анимация загрузки расчета наград
+                  // Анимация загрузки расчета наград - показывается сразу без задержки
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border border-border/50"
                   >
                     <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
