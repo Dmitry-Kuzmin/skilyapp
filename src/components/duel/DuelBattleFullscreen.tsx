@@ -2063,54 +2063,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 )}
               </div>
             </motion.div>
-          </div>
-
-        {betInfo && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="w-full mb-3 md:mb-4"
-          >
-            <div className="flex items-center gap-2">
-              {/* Банк дуэли - компактная версия */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="relative overflow-hidden rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/15 dark:from-amber-500/25 dark:to-orange-500/20 border border-amber-400/30 dark:border-amber-600/40 px-2.5 py-1.5 shadow-sm flex items-center gap-2 min-w-0 flex-1"
-              >
-                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-amber-500/20 dark:bg-amber-500/30 flex items-center justify-center">
-                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-tight truncate">
+            
+            {/* Компактные индикаторы банка и награды - только для браузера */}
+            {betInfo && safeArea?.platform !== 'telegram' && (
+              <div className="flex items-center gap-2.5 ml-4">
+                {/* Банк - компактный индикатор */}
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-400/20">
+                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400 whitespace-nowrap">
                     {betInfo.totalBank.toLocaleString('ru-RU')}
-                  </p>
-                  <p className="text-[9px] text-muted-foreground/70 leading-tight truncate">
-                    по {betInfo.betAmount.toLocaleString('ru-RU')}
-                  </p>
+                  </span>
                 </div>
-              </motion.div>
-
-              {/* Season Points - компактная версия */}
-              <motion.div
-                whileHover={{ scale: 1.03 }}
-                className="relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-500/20 to-indigo-500/15 dark:from-purple-500/25 dark:to-indigo-500/20 border border-purple-400/30 dark:border-purple-600/40 px-2.5 py-1.5 shadow-sm flex items-center gap-2 min-w-0 flex-1"
-              >
-                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-purple-500/20 dark:bg-purple-500/30 flex items-center justify-center">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                
+                {/* SP награда - компактный индикатор */}
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 dark:bg-purple-500/15 border border-purple-400/20">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                  <span className="text-xs font-bold text-purple-700 dark:text-purple-400 whitespace-nowrap">
+                    +{seasonBonusDisplay}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-purple-700 dark:text-purple-400 leading-tight truncate">
-                    +{seasonBonusDisplay} SP
-                  </p>
-                  <p className="text-[9px] text-muted-foreground/70 leading-tight truncate">
-                    за победу
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
+              </div>
+            )}
+          </div>
 
           {/* Right Side - Boosts & Combo */}
           <div className="flex items-center gap-2 flex-wrap">
