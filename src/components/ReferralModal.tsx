@@ -119,7 +119,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden">
         {/* Top Banner */}
         <div className="bg-muted/50 px-6 py-2 border-b border-border">
           <div className="flex items-center justify-between">
@@ -137,59 +137,86 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
           </div>
         </div>
 
-        {/* Header */}
-        <div className="px-6 pt-6 pb-4">
-          <div className="flex items-center gap-2">
-            <Gift className="h-5 w-5 text-muted-foreground" />
-            <DialogTitle className="text-lg font-semibold">
-              Пригласи друзей
-            </DialogTitle>
-          </div>
-        </div>
+        <div className="p-6 space-y-6">
+          {/* Main Content - Two Column Layout */}
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Left Side - Text Content */}
+            <div className="flex-1 space-y-6">
+              <div>
+                <h2 className="text-3xl font-black mb-2 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  Пригласи друзей
+                </h2>
+                <p className="text-muted-foreground">
+                  и заработай монеты
+                </p>
+              </div>
 
-        <div className="px-6 pb-6 space-y-6">
-          {/* Main Content */}
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-1">
-                Пригласи друзей
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                и заработай монеты
-              </p>
-            </div>
-
-            {/* How it works */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Как это работает:
-              </h3>
-              <div className="space-y-2.5">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <Zap className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm">Поделись своей ссылкой</p>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <Crown className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm">
-                    Они регистрируются и получают <strong className="text-foreground">+50 монет</strong>
-                  </p>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm">
-                    Ты получаешь <strong className="text-foreground">+100 монет</strong> когда они заработают свои первые 50 монет
-                  </p>
+              {/* How it works */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Как это работает:
+                </h3>
+                <div className="space-y-3">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center">
+                      <Zap className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Поделись своей ссылкой</p>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
+                      <Crown className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        Они регистрируются и получают <strong className="text-green-600">+50 монет</strong>
+                      </p>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex items-start gap-3"
+                  >
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-pink-600 flex items-center justify-center">
+                      <MessageCircle className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        Ты получаешь <strong className="text-pink-600">+100 монет</strong> когда они заработают свои первые 50 монет
+                      </p>
+                    </div>
+                  </motion.div>
                 </div>
               </div>
+            </div>
+
+            {/* Right Side - Graphic */}
+            <div className="flex-shrink-0">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600 flex items-center justify-center relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                <Sparkles className="h-16 w-16 md:h-20 md:w-20 text-white relative z-10" />
+              </motion.div>
             </div>
           </div>
 
@@ -213,13 +240,19 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               <Button
                 onClick={handleCopyLink}
                 variant="default"
-                size="icon"
-                className="shrink-0 bg-background text-foreground hover:bg-muted border border-border h-8 w-8"
+                size="sm"
+                className="shrink-0 bg-background text-foreground hover:bg-muted border border-border"
               >
                 {copied ? (
-                  <Check className="h-4 w-4 text-green-600" />
+                  <>
+                    <Check className="h-4 w-4 mr-2 text-green-600" />
+                    Скопировано
+                  </>
                 ) : (
-                  <Copy className="h-4 w-4" />
+                  <>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Копировать
+                  </>
                 )}
               </Button>
             </div>
