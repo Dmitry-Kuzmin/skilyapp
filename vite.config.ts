@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => ({
       ".ngrok-free.app",
       ".ngrok.app",
       "unlogical-despairful-stuart.ngrok-free.dev",
+      ".trycloudflare.com", // Cloudflare Tunnel
+      ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
     ],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
