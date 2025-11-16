@@ -136,6 +136,75 @@ export default function Duel() {
     }
   }, [betAmount]);
 
+  // Восстановление состояния активной дуэли при загрузке страницы
+  useEffect(() => {
+    // Ждем завершения проверки activeDuel и загрузки данных
+    if (isChecking || !dataLoaded) return;
+    
+    // Проверяем URL параметр duelId (приоритет выше)
+    const urlDuelId = searchParams.get('duelId');
+    
+    if (urlDuelId) {
+      console.log('[Duel] 🔄 Restoring duel from URL:', urlDuelId);
+      setDuelId(urlDuelId);
+      
+      // Проверяем статус дуэли и переходим к нужному экрану
+      const checkAndRestore = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('duels')
+            .select('status, code')
+            .eq('id', urlDuelId)
+            .maybeSingle();
+          
+          if (error || !data) {
+            console.error('[Duel] Error checking duel status:', error);
+            return;
+          }
+          
+          setDuelCode(data.code);
+          
+          if (data.status === 'active') {
+            // Если дуэль активна - переходим к битве
+            console.log('[Duel] ✅ Duel is active, going to battle');
+            handleDuelStarted(urlDuelId);
+          } else if (data.status === 'waiting') {
+            // Если дуэль в ожидании - переходим к лобби
+            console.log('[Duel] ⏳ Duel is waiting, going to lobby');
+            setMode('create');
+          }
+        } catch (err) {
+          console.error('[Duel] Exception checking duel:', err);
+        }
+      };
+      
+      checkAndRestore();
+      return;
+    }
+    
+    // Если нет URL параметра, проверяем activeDuel
+    if (activeDuel && activeDuel.duelId) {
+      console.log('[Duel] 🔄 Restoring active duel from localStorage:', {
+        duelId: activeDuel.duelId,
+        mode: activeDuel.mode,
+        currentIndex: activeDuel.currentIndex
+      });
+      
+      setDuelId(activeDuel.duelId);
+      setDuelCode(activeDuel.duelCode);
+      
+      // Переходим к нужному экрану в зависимости от режима
+      if (activeDuel.mode === 'battle') {
+        console.log('[Duel] ✅ Restoring to battle mode');
+        handleDuelStarted(activeDuel.duelId);
+      } else if (activeDuel.mode === 'waiting') {
+        console.log('[Duel] ⏳ Restoring to waiting mode');
+        setMode('create');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isChecking, activeDuel, searchParams, dataLoaded]);
+
   useEffect(() => {
     // Показываем уведомления только после полной загрузки данных
     if (!dataLoaded) return;
