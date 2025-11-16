@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Loader2 } from "lucide-react";
+import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Loader2, Info, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -120,6 +120,15 @@ const TestResults = () => {
     sp?: number;
     levelUp?: boolean;
     newLevel?: number;
+    details?: {
+      baseCoins?: number;
+      baseSP?: number;
+      abusePenalty?: number;
+      diminishingFactor?: number;
+      testsToday?: number;
+      premiumUsed?: boolean;
+      doubleSPUsed?: boolean;
+    };
   } | null>(null);
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
@@ -248,18 +257,26 @@ const TestResults = () => {
           console.warn('[TestResults] XP error (non-critical):', xpError);
         }
         
-        // Сохраняем результаты начислений
+        // Сохраняем результаты начислений с детальной информацией
         setRewards({
           coins: rewardData.coins_awarded || 0,
           sp: rewardData.sp_awarded || 0,
           levelUp: rewardData.level_up || false,
           newLevel: rewardData.new_level || undefined,
+          // Детальная информация для UI
+          details: {
+            baseCoins: rewardData.base_coins,
+            baseSP: rewardData.base_sp,
+            abusePenalty: rewardData.abuse_penalty,
+            diminishingFactor: rewardData.diminishing_factor,
+            testsToday: rewardData.tests_today,
+            premiumUsed: isPremium,
+            doubleSPUsed: doubleSPActive || false,
+          }
         });
         
-        // Завершаем расчет с небольшой задержкой для плавности
-        setTimeout(() => {
-          setIsCalculatingRewards(false);
-        }, 300);
+        // Завершаем расчет сразу - анимация счетчика начнется автоматически
+        setIsCalculatingRewards(false);
         
         // Показываем уведомление о начислениях
         const rewardMessages = [];
@@ -768,41 +785,93 @@ const TestResults = () => {
                     </span>
                   </motion.div>
                 ) : rewards && (rewards.coins || rewards.sp) ? (
-                  // Отображение начисленных наград с анимацией счетчика
+                  // Отображение начисленных наград с анимацией счетчика и индикаторами бонусов
                   <>
                     {rewards.coins && rewards.coins > 0 && (
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 shadow-lg shadow-yellow-500/10"
+                        transition={{ delay: 0, type: "spring", stiffness: 200 }}
+                        className="relative flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 shadow-lg shadow-yellow-500/10"
                       >
                         <motion.div
                           animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ duration: 0.5, delay: 0.2 }}
+                          transition={{ duration: 0.5, delay: 0.1 }}
                         >
                           <Coins className="w-5 h-5 text-yellow-500" />
                         </motion.div>
-                        <span className="font-semibold text-yellow-600 dark:text-yellow-500">
-                          +<AnimatedCounter value={rewards.coins} suffix=" монет" />
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-yellow-600 dark:text-yellow-500">
+                            +<AnimatedCounter value={rewards.coins} suffix=" монет" />
+                          </span>
+                          {rewards.details?.premiumUsed && (
+                            <span className="text-xs text-yellow-500/70 flex items-center gap-1">
+                              <Crown className="w-3 h-3" />
+                              Premium x1.5
+                            </span>
+                          )}
+                        </div>
                       </motion.div>
                     )}
                     {rewards.sp && rewards.sp > 0 && (
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 shadow-lg shadow-purple-500/10"
+                        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                        className="relative flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20 shadow-lg shadow-purple-500/10"
                       >
                         <motion.div
                           animate={{ rotate: [0, -10, 10, 0] }}
-                          transition={{ duration: 0.5, delay: 0.3 }}
+                          transition={{ duration: 0.5, delay: 0.2 }}
                         >
                           <Trophy className="w-5 h-5 text-purple-500" />
                         </motion.div>
-                        <span className="font-semibold text-purple-600 dark:text-purple-500">
-                          +<AnimatedCounter value={rewards.sp} suffix=" SP" />
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-purple-600 dark:text-purple-500">
+                            +<AnimatedCounter value={rewards.sp} suffix=" SP" />
+                          </span>
+                          <div className="flex items-center gap-2 text-xs text-purple-500/70">
+                            {rewards.details?.premiumUsed && (
+                              <span className="flex items-center gap-1">
+                                <Crown className="w-3 h-3" />
+                                Premium x1.2
+                              </span>
+                            )}
+                            {rewards.details?.doubleSPUsed && (
+                              <span className="flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                Double SP x2
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                    {/* Визуализация diminishing returns */}
+                    {rewards.details?.diminishingFactor && rewards.details.diminishingFactor < 1 && (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20"
+                      >
+                        <TrendingDown className="w-4 h-4 text-orange-500" />
+                        <span className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                          Снижение: {Math.round((1 - rewards.details.diminishingFactor) * 100)}%
+                        </span>
+                      </motion.div>
+                    )}
+                    {/* Индикатор abuse penalty */}
+                    {rewards.details?.abusePenalty && rewards.details.abusePenalty < 1 && (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20"
+                      >
+                        <Info className="w-4 h-4 text-red-500" />
+                        <span className="text-xs text-red-600 dark:text-red-500 font-medium">
+                          Штраф: {Math.round((1 - rewards.details.abusePenalty) * 100)}%
                         </span>
                       </motion.div>
                     )}

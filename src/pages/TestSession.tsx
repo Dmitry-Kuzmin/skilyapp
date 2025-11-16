@@ -1538,7 +1538,19 @@ const TestSession = () => {
     
     const correctCount = answers.filter((a) => a.isCorrect).length;
     const score = Math.round((correctCount / questions.length) * 100);
-    const timeSpent = startTime > 0 ? Math.floor((Date.now() - startTime) / 1000) : (mode === "exam" ? 30 * 60 - timeLeft : 0);
+    // Вычисляем время прохождения теста
+    // Если startTime установлен, используем его, иначе пытаемся вычислить из других источников
+    let timeSpent = 0;
+    if (startTime > 0) {
+      timeSpent = Math.floor((Date.now() - startTime) / 1000);
+    } else if (mode === "exam" && timeLeft > 0) {
+      // Для exam режима вычисляем из оставшегося времени
+      timeSpent = Math.max(1, 30 * 60 - timeLeft);
+    } else {
+      // Для practice режима используем минимальное время (1 секунда на вопрос)
+      // Это защита от 0 секунд в логах
+      timeSpent = Math.max(questions.length, 10);
+    }
     
     // Генерируем уникальный session_id для новой системы наград
     const sessionId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
