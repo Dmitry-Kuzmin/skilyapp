@@ -679,7 +679,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // Сохраняем состояние активной дуэли при изменениях
   useEffect(() => {
-    if (!duelId || !profileId || !questions.length || !duelCode || isWaitingForOpponent) return;
+    if (!duelId || !profileId || !questions.length || !duelCode) return;
 
     // Сохраняем состояние только если дуэль активна
     if (state.duelStarted && !state.duelFinished) {
@@ -687,7 +687,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         duelId,
         duelCode,
         mode: isWaitingForOpponent ? 'waiting' : 'battle',
-        currentIndex,
+        currentIndex: isWaitingForOpponent ? undefined : currentIndex, // Не сохраняем currentIndex в режиме ожидания
         myScore,
         opponentScore,
         totalQuestions: questions.length,
