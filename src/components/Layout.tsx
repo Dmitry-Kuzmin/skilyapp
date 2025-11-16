@@ -20,6 +20,7 @@ import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 import { useSessionManager } from "@/hooks/useSessionManager";
 import { ReferralModal } from "./ReferralModal";
+import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
 
 interface LayoutProps {
   children: ReactNode;
@@ -128,6 +129,8 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="telegram-app-container min-h-screen flex flex-col">
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
+      {/* Edge Swipe Back Area (Telegram/Mobile) */}
+      <EdgeSwipeBack />
       
       {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
       
@@ -247,8 +250,10 @@ const Layout = ({ children }: LayoutProps) => {
       )}>
         {/* Mobile Wallet Widget - компактная версия для мобильных */}
         {isAuthenticated && (
-          <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between bg-card/50 flex-shrink-0">
+          <div className="px-3 py-2 border-b border-border/50 space-y-2 bg-card/50 flex-shrink-0">
             <WalletWidget />
+            {/* Active Duel Widget для мобильных */}
+            <ActiveDuelWidget />
           </div>
         )}
         
