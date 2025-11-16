@@ -20,7 +20,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { balance } = useCoins();
   const [shopOpen, setShopOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
-  const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number } | null>(null);
+  const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number; spToNextLevel: number } | null>(null);
 
   useEffect(() => {
     if (!profileId) return;
@@ -81,14 +81,16 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           setDuelPassData({
             level: currentLevel,
             xp: currentSP,
-            progress: Math.max(0, progressPercent)
+            progress: Math.max(0, progressPercent),
+            spToNextLevel: spToNextLevel
           });
         } else {
           // Fallback если нет наград
           setDuelPassData({
             level: currentLevel,
             xp: currentSP,
-            progress: 0
+            progress: 0,
+            spToNextLevel: 0
           });
         }
       } catch (error) {
