@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Loader2, Info, TrendingDown } from "lucide-react";
+import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins, Loader2, Info, TrendingDown, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -141,6 +141,10 @@ const TestResults = () => {
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
   const [expandedExplanations, setExpandedExplanations] = useState<Record<string, boolean>>({});
   const [showRewardDetails, setShowRewardDetails] = useState(false);
+  const [showSupportDialog, setShowSupportDialog] = useState(false);
+  const [supportMessage, setSupportMessage] = useState("");
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [testResultId, setTestResultId] = useState<string | null>(null);
   
   // Check if location.state exists
   if (!location.state) {
@@ -279,6 +283,11 @@ const TestResults = () => {
         } catch (xpError) {
           // Игнорируем ошибки XP (не критично)
           console.warn('[TestResults] XP error (non-critical):', xpError);
+        }
+        
+        // Сохраняем test_result_id если он есть в ответе
+        if (rewardData.test_result_id) {
+          setTestResultId(rewardData.test_result_id);
         }
         
         // Сохраняем результаты начислений с детальной информацией
@@ -1342,6 +1351,114 @@ const TestResults = () => {
           </Button>
         </div>
       </div>
+
+      {/* Диалог обращения в поддержку */}
+      <Dialog open={showSupportDialog} onOpenChange={setShowSupportDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Обратиться в поддержку</DialogTitle>
+            <DialogDescription>
+              Если вы считаете, что снижение наград применено несправедливо, опишите ситуацию. 
+              Мы отправим полный отчет о расчете наград в админку для проверки.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Ваше сообщение (необязательно)</label>
+              <Textarea
+                placeholder="Опишите ситуацию, если хотите..."
+                value={supportMessage}
+                onChange={(e) => setSupportMessage(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowSupportDialog(false);
+                  setSupportMessage("");
+                }}
+                disabled={isSubmittingReport}
+              >
+                Отмена
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!profileId || !rewards || !rewards.details) return;
+                  
+                  setIsSubmittingReport(true);
+                  try {
+                    const { data, error } = await supabase.functions.invoke("submit-reward-report", {
+                      body: {
+                        user_id: profileId,
+                        report_type: "reward_penalty",
+                        session_id: sessionId,
+                        test_result_id: testResultId,
+                        reward_calculation_data: {
+                          // Полный контекст расчета
+                          session_id: sessionId,
+                          test_id: testId,
+                          test_info: testInfo,
+                          mode,
+                          score: Math.round((answers.filter(a => a.isCorrect).length / questions.length) * 100),
+                          questions_count: questions.length,
+                          correct_count: answers.filter(a => a.isCorrect).length,
+                          test_duration_seconds: timeSpent,
+                          // Награды
+                          rewards: {
+                            coins: rewards.coins,
+                            sp: rewards.sp,
+                            base_coins: rewards.details.baseCoins,
+                            base_sp: rewards.details.baseSP,
+                            abuse_penalty: rewards.details.abusePenalty,
+                            diminishing_factor: rewards.details.diminishingFactor,
+                            tests_today: rewards.details.testsToday,
+                            premium_used: rewards.details.premiumUsed,
+                            double_sp_used: rewards.details.doubleSPUsed,
+                          },
+                        },
+                        user_message: supportMessage || undefined,
+                      },
+                    });
+
+                    if (error) throw error;
+
+                    toast.success("Отчет отправлен", {
+                      description: "Мы рассмотрим ваше обращение в ближайшее время.",
+                      duration: 5000,
+                    });
+
+                    setShowSupportDialog(false);
+                    setSupportMessage("");
+                  } catch (error: any) {
+                    console.error("[TestResults] Error submitting report:", error);
+                    toast.error("Ошибка отправки отчета", {
+                      description: error?.message || "Попробуйте позже",
+                    });
+                  } finally {
+                    setIsSubmittingReport(false);
+                  }
+                }}
+                disabled={isSubmittingReport}
+              >
+                {isSubmittingReport ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Отправка...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Отправить
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

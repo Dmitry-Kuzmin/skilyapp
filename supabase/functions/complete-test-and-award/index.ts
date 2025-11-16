@@ -607,6 +607,7 @@ serve(async (req) => {
         sp_awarded: spReward,
         base_coins: baseCoinsCalculated,
         base_sp: baseSPCalculated,
+        test_result_id: testResultId, // Добавляем ID результата для связи с отчетами
         abuse_penalty,
         diminishing_factor: diminishingFactor,
         tests_today: diminishing.testsToday,
