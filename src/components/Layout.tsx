@@ -228,17 +228,17 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) */}
       <nav className={cn(
         "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-        "flex md:hidden",
+        "flex flex-col md:hidden",
         isFullscreenMode && "!hidden"
       )}>
         {/* Mobile Wallet Widget - компактная версия для мобильных */}
         {isAuthenticated && (
-          <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between bg-card/50">
+          <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between bg-card/50 flex-shrink-0">
             <WalletWidget />
           </div>
         )}
         
-        <div className="grid grid-cols-5 gap-1 px-2 py-2">
+        <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href || 
               (location.pathname === '/games/duel' && (item as any).isActiveDuel);
