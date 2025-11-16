@@ -57,41 +57,55 @@ TUNNEL_LOG="/tmp/cloudflared-tunnel.log"
 cloudflared tunnel --url http://localhost:$PORT > "$TUNNEL_LOG" 2>&1 &
 TUNNEL_PID=$!
 
-# Ждём получения URL
+# Ждём получения URL (проверяем несколько раз)
 echo "⏳ Ожидание получения Cloudflare Tunnel URL..."
-sleep 8
-
-# Извлекаем URL из логов
-TUNNEL_URL=$(grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' "$TUNNEL_LOG" | head -1)
+TUNNEL_URL=""
+for i in {1..10}; do
+    sleep 2
+    TUNNEL_URL=$(grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' "$TUNNEL_LOG" 2>/dev/null | head -1)
+    if [ -n "$TUNNEL_URL" ]; then
+        break
+    fi
+done
 
 if [ -z "$TUNNEL_URL" ]; then
     echo "⚠️  Не удалось получить URL из логов, проверяем вручную..."
-    cat "$TUNNEL_LOG"
+    echo "Последние строки лога:"
+    tail -20 "$TUNNEL_LOG" 2>/dev/null || echo "Лог пуст"
     echo ""
     echo "💡 Попробуйте запустить tunnel отдельно:"
     echo "   ./scripts/start-cloudflare-tunnel.sh"
-    exit 1
+    echo ""
+    echo "Или проверьте URL вручную в выводе cloudflared выше"
+    # Не выходим, продолжаем работу - пользователь может увидеть URL в выводе
 fi
 
-echo ""
-echo "✅ Cloudflare Tunnel запущен!"
-echo "🌐 URL: $TUNNEL_URL"
-echo ""
-echo "📱 Обновление Web App URL в Telegram Bot..."
-
-# Обновляем Web App URL если указан токен
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
-    node scripts/set-telegram-webapp-url.js "$TUNNEL_URL" "$TELEGRAM_BOT_TOKEN" || {
-        echo "⚠️  Не удалось обновить URL автоматически"
-        echo "💡 Обновите вручную через BotFather или используйте:"
-        echo "   TELEGRAM_BOT_TOKEN=your_token node scripts/set-telegram-webapp-url.js $TUNNEL_URL"
-    }
-else
-    echo "💡 Для автоматического обновления URL установите:"
-    echo "   export TELEGRAM_BOT_TOKEN=your_token"
+if [ -n "$TUNNEL_URL" ]; then
     echo ""
-    echo "Или обновите вручную через BotFather:"
-    echo "   /setmenubutton -> выберите бота -> укажите URL: $TUNNEL_URL"
+    echo "✅ Cloudflare Tunnel запущен!"
+    echo "🌐 URL: $TUNNEL_URL"
+    echo ""
+    echo "📱 Обновление Web App URL в Telegram Bot..."
+
+    # Обновляем Web App URL если указан токен
+    if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+        node scripts/set-telegram-webapp-url.js "$TUNNEL_URL" "$TELEGRAM_BOT_TOKEN" || {
+            echo "⚠️  Не удалось обновить URL автоматически"
+            echo "💡 Обновите вручную через BotFather или используйте:"
+            echo "   TELEGRAM_BOT_TOKEN=your_token node scripts/set-telegram-webapp-url.js $TUNNEL_URL"
+        }
+    else
+        echo "💡 Для автоматического обновления URL установите:"
+        echo "   export TELEGRAM_BOT_TOKEN=your_token"
+        echo ""
+        echo "Или обновите вручную через BotFather:"
+        echo "   /setmenubutton -> выберите бота -> укажите URL: $TUNNEL_URL"
+    fi
+else
+    echo ""
+    echo "⚠️  URL не получен автоматически"
+    echo "💡 Найдите URL в выводе cloudflared выше (строка с https://...trycloudflare.com)"
+    echo "💡 Затем обновите вручную через BotFather или скрипт"
 fi
 
 echo ""
