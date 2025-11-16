@@ -2072,47 +2072,42 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="w-full mb-3 md:mb-4"
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
-              {/* Банк дуэли */}
+            <div className="flex items-center gap-2">
+              {/* Банк дуэли - компактная версия */}
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15 dark:from-amber-500/20 dark:via-yellow-500/15 dark:to-orange-500/20 border border-amber-400/30 dark:border-amber-600/40 p-3 shadow-sm"
+                whileHover={{ scale: 1.03 }}
+                className="relative overflow-hidden rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/15 dark:from-amber-500/25 dark:to-orange-500/20 border border-amber-400/30 dark:border-amber-600/40 px-2.5 py-1.5 shadow-sm flex items-center gap-2 min-w-0 flex-1"
               >
-                <div className="absolute top-0 right-0 w-16 h-16 bg-amber-400/10 rounded-full blur-2xl" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Банк</p>
-                  </div>
-                  <p className="text-lg font-black text-amber-700 dark:text-amber-400 leading-tight">
+                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-amber-500/20 dark:bg-amber-500/30 flex items-center justify-center">
+                  <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-tight truncate">
                     {betInfo.totalBank.toLocaleString('ru-RU')}
                   </p>
-                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
+                  <p className="text-[9px] text-muted-foreground/70 leading-tight truncate">
                     по {betInfo.betAmount.toLocaleString('ru-RU')}
                   </p>
                 </div>
               </motion.div>
 
-              {/* Season Points */}
+              {/* Season Points - компактная версия */}
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500/15 via-pink-500/10 to-indigo-500/15 dark:from-purple-500/20 dark:via-pink-500/15 dark:to-indigo-500/20 border border-purple-400/30 dark:border-purple-600/40 p-3 shadow-sm"
+                whileHover={{ scale: 1.03 }}
+                className="relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-500/20 to-indigo-500/15 dark:from-purple-500/25 dark:to-indigo-500/20 border border-purple-400/30 dark:border-purple-600/40 px-2.5 py-1.5 shadow-sm flex items-center gap-2 min-w-0 flex-1"
               >
-                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-400/10 rounded-full blur-2xl" />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Награда</p>
-                  </div>
-                  <p className="text-lg font-black text-purple-700 dark:text-purple-400 leading-tight">
+                <div className="flex-shrink-0 w-7 h-7 rounded-md bg-purple-500/20 dark:bg-purple-500/30 flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-purple-700 dark:text-purple-400 leading-tight truncate">
                     +{seasonBonusDisplay} SP
                   </p>
-                  <p className="text-[9px] text-muted-foreground/80 mt-0.5">
+                  <p className="text-[9px] text-muted-foreground/70 leading-tight truncate">
                     за победу
                   </p>
                 </div>
               </motion.div>
-
             </div>
           </motion.div>
         )}
