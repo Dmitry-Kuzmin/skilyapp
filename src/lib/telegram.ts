@@ -9,20 +9,44 @@ export const isTelegramMiniApp = () => {
   // Строгая проверка: только если действительно в Telegram Web App
   if (typeof window === 'undefined') return false;
   
-  const webApp = getTelegramWebApp();
-  if (!webApp) return false;
+  // Проверяем, что window.Telegram существует и это не мок
+  if (!window.Telegram || !window.Telegram.WebApp) return false;
   
-  // Проверяем, что это действительно Telegram Web App, а не мок или заглушка
+  const webApp = window.Telegram.WebApp;
+  
+  // КРИТИЧНО: Проверяем, что это НЕ браузер
+  // В браузере window.Telegram может быть моком или заглушкой
+  // Проверяем наличие реальных данных Telegram Web App
+  
   // Должны быть initData или user данные
   const hasInitData = webApp.initData && webApp.initData !== '';
   const hasUserData = !!webApp.initDataUnsafe?.user;
   
-  // Дополнительная проверка: platform должен быть 'web' или 'ios' или 'android' (Telegram платформы)
-  const platform = webApp.platform;
-  const isValidPlatform = platform === 'web' || platform === 'ios' || platform === 'android' || platform === 'tdesktop' || platform === 'macos' || platform === 'windows' || platform === 'linux';
+  // Если нет ни initData, ни user - это точно не Telegram Web App
+  if (!hasInitData && !hasUserData) {
+    return false;
+  }
   
-  // Возвращаем true только если есть данные И платформа валидна
-  return (hasInitData || hasUserData) && isValidPlatform;
+  // Дополнительная проверка: platform должен быть валидной Telegram платформой
+  const platform = webApp.platform;
+  const isValidPlatform = platform === 'web' || 
+                          platform === 'ios' || 
+                          platform === 'android' || 
+                          platform === 'tdesktop' || 
+                          platform === 'macos' || 
+                          platform === 'windows' || 
+                          platform === 'linux';
+  
+  // Если платформа не валидна - это не Telegram
+  if (!isValidPlatform) {
+    return false;
+  }
+  
+  // Дополнительная проверка: версия должна быть валидной (Telegram Web App всегда имеет версию)
+  const hasVersion = webApp.version && typeof webApp.version === 'string';
+  
+  // Возвращаем true только если есть данные, платформа валидна И есть версия
+  return (hasInitData || hasUserData) && isValidPlatform && hasVersion;
 };
 
 export const getTelegramUser = () => {
