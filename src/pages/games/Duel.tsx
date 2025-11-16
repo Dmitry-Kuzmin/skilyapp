@@ -193,14 +193,52 @@ export default function Duel() {
       setDuelId(activeDuel.duelId);
       setDuelCode(activeDuel.duelCode);
       
-      // Переходим к нужному экрану в зависимости от режима
-      if (activeDuel.mode === 'battle') {
-        console.log('[Duel] ✅ Restoring to battle mode');
-        handleDuelStarted(activeDuel.duelId);
-      } else if (activeDuel.mode === 'waiting') {
-        console.log('[Duel] ⏳ Restoring to waiting mode');
-        setMode('create');
-      }
+      // Проверяем актуальный статус дуэли в БД для определения правильного экрана
+      const checkDuelStatusAndRestore = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('duels')
+            .select('status')
+            .eq('id', activeDuel.duelId)
+            .maybeSingle();
+          
+          if (error || !data) {
+            console.error('[Duel] Error checking duel status for restore:', error);
+            // Fallback: используем сохраненный режим
+            if (activeDuel.mode === 'battle') {
+              handleDuelStarted(activeDuel.duelId);
+            } else if (activeDuel.mode === 'waiting') {
+              setMode('create');
+            }
+            return;
+          }
+          
+          // Определяем правильный экран на основе актуального статуса
+          if (data.status === 'finished') {
+            // Дуэль завершена - переходим к результатам
+            console.log('[Duel] ✅ Duel is finished, going to results');
+            handleDuelFinished();
+          } else if (data.status === 'active') {
+            // Дуэль активна - переходим к битве
+            console.log('[Duel] ✅ Duel is active, restoring to battle mode');
+            handleDuelStarted(activeDuel.duelId);
+          } else if (data.status === 'waiting' || activeDuel.mode === 'waiting') {
+            // Дуэль в ожидании - переходим к лобби
+            console.log('[Duel] ⏳ Duel is waiting, restoring to lobby');
+            setMode('create');
+          }
+        } catch (err) {
+          console.error('[Duel] Exception checking duel status for restore:', err);
+          // Fallback: используем сохраненный режим
+          if (activeDuel.mode === 'battle') {
+            handleDuelStarted(activeDuel.duelId);
+          } else if (activeDuel.mode === 'waiting') {
+            setMode('create');
+          }
+        }
+      };
+      
+      checkDuelStatusAndRestore();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isChecking, activeDuel, searchParams, dataLoaded]);
