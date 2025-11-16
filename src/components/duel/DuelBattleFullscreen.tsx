@@ -824,9 +824,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               setCurrentIndex(state.currentIndex);
             } else if (state.duelId === duelId && state.mode === 'waiting') {
               // Если режим 'waiting', значит пользователь уже закончил все вопросы
-              console.log('[DuelBattleFullscreen] ⏳ User finished all questions, not restoring currentIndex');
+              console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
               setCurrentIndex(data.questions.length - 1); // Устанавливаем на последний вопрос
               setHasFinishedMyQuestions(true);
+              setIsWaitingForOpponent(true); // Показываем экран ожидания
             }
           } catch (e) {
             console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
@@ -912,9 +913,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                   setCurrentIndex(state.currentIndex);
                 } else if (state.duelId === duelId && state.mode === 'waiting') {
                   // Если режим 'waiting', значит пользователь уже закончил все вопросы
-                  console.log('[DuelBattleFullscreen] ⏳ User finished all questions, not restoring currentIndex');
+                  console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
                   setCurrentIndex(data.length - 1); // Устанавливаем на последний вопрос
                   setHasFinishedMyQuestions(true);
+                  setIsWaitingForOpponent(true); // Показываем экран ожидания
                 }
               } catch (e) {
                 console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
