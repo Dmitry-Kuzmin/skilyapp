@@ -51,6 +51,25 @@ export function QuestionProgressBar({
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
   const correctCount = answers.filter(a => a.isCorrect).length;
   const incorrectCount = answers.filter(a => !a.isCorrect).length;
+  
+  // Определяем размер индикатора в зависимости от ширины экрана
+  const [indicatorOffset, setIndicatorOffset] = useState(2);
+  
+  useEffect(() => {
+    const updateOffset = () => {
+      if (window.innerWidth < 640) {
+        setIndicatorOffset(2); // w-1 h-1 = 4px, половина = 2px
+      } else if (window.innerWidth < 768) {
+        setIndicatorOffset(3); // w-1.5 h-1.5 = 6px, половина = 3px
+      } else {
+        setIndicatorOffset(4); // w-2 h-2 = 8px, половина = 4px
+      }
+    };
+    
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+    return () => window.removeEventListener('resize', updateOffset);
+  }, []);
 
   return (
     <div className={cn("flex items-center gap-2 sm:gap-3", className)}>
