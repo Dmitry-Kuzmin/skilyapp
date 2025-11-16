@@ -69,6 +69,8 @@ export function UserProfilePopover() {
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+  const [avatarLoaded, setAvatarLoaded] = useState(false);
   const isMiniApp = isTelegramMiniApp();
 
   useEffect(() => {
