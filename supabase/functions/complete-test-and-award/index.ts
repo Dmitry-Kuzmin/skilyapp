@@ -207,25 +207,50 @@ async function detectAbusePattern(
   
   let penalty = 1.0;
   
-  // Проверка 1: слишком быстрые тесты
-  const speedPenalty = avgDuration < 60 ? 0.7 : (avgDuration < 90 ? 0.85 : 1.0);
+  // ВАЖНО: Штраф применяется ТОЛЬКО если есть несколько подозрительных тестов подряд
+  // Один быстрый тест - это нормально (пользователь может быстро отвечать)
+  const minTestsForPenalty = 3; // Минимум 3 теста для применения штрафа
+  
+  if (allTests.length < minTestsForPenalty) {
+    // Недостаточно данных - не применяем штраф
+    return 1.0;
+  }
+  
+  // Проверка 1: слишком быстрые тесты (только если ВСЕ тесты очень быстрые)
+  // Смягчаем: если хотя бы один тест нормальный, не штрафуем
+  const allFastTests = allTests.every(t => (t.test_duration_seconds || 0) < 60);
+  const speedPenalty = (allFastTests && avgDuration < 45) ? 0.9 : 1.0; // Смягчено: было 0.7, стало 0.9 и только если ВСЕ быстрые
   penalty *= speedPenalty;
   
-  // Проверка 2: низкий score + высокая скорость
-  const behaviorPenalty = (avgScore < 40 && avgDuration < 60) ? 0.6 : 1.0;
+  // Проверка 2: низкий score + высокая скорость (только если ВСЕ тесты плохие)
+  // Смягчаем: если хотя бы один тест с нормальным score, не штрафуем
+  const allLowScore = allTests.every(t => t.score < 40);
+  const behaviorPenalty = (allLowScore && avgScore < 30 && avgDuration < 45) ? 0.85 : 1.0; // Смягчено: было 0.6, стало 0.85
   penalty *= behaviorPenalty;
   
-  // Проверка 3: одинаковые паттерны (боты)
+  // Проверка 3: одинаковые паттерны (боты) - это главный индикатор
+  // Если все тесты имеют одинаковое количество вопросов и одинаковую длительность - это бот
   const uniqueQ = new Set(allTests.map(t => t.questions_count));
-  const patternPenalty = (uniqueQ.size === 1 && allTests.length >= config.abuseDetection.suspiciousPatternThreshold) ? 0.85 : 1.0;
+  const uniqueDurations = new Set(allTests.map(t => Math.round((t.test_duration_seconds || 0) / 10) * 10)); // Округляем до 10 секунд
+  const isBotPattern = (uniqueQ.size === 1 && uniqueDurations.size === 1 && allTests.length >= config.abuseDetection.suspiciousPatternThreshold);
+  const patternPenalty = isBotPattern ? 0.7 : 1.0; // Это реальный признак бота
   penalty *= patternPenalty;
   
   // Проверка 4: слишком быстрые ответы (невозможно для человека)
+  // Смягчаем: проверяем только если ВСЕ тесты имеют нереально быстрые ответы
   const avgAnswerSpeed = avgDuration / avgQ;
-  const answerSpeedPenalty = avgAnswerSpeed < config.abuseDetection.minAnswerSpeedSeconds ? 0.5 : 1.0;
+  const allUnrealisticSpeed = allTests.every(t => {
+    const answerSpeed = (t.test_duration_seconds || 0) / t.questions_count;
+    return answerSpeed < config.abuseDetection.minAnswerSpeedSeconds;
+  });
+  const answerSpeedPenalty = (allUnrealisticSpeed && avgAnswerSpeed < config.abuseDetection.minAnswerSpeedSeconds * 0.8) ? 0.6 : 1.0; // Смягчено: только если ВСЕ нереально быстрые
   penalty *= answerSpeedPenalty;
   
-  // Минимальный штраф
+  // Минимальный штраф - не применяем если penalty близок к 1.0 (меньше 5% снижения)
+  if (penalty > 0.95) {
+    return 1.0; // Недостаточно признаков злоупотребления
+  }
+  
   return Math.max(config.abuseDetection.minPenalty, penalty);
 }
 

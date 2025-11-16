@@ -885,18 +885,23 @@ const TestResults = () => {
                         </span>
                       </motion.div>
                     )}
-                    {/* Индикатор abuse penalty */}
+                    {/* Индикатор abuse penalty - переименован в более мягкую формулировку */}
                     {rewards.details?.abusePenalty && rewards.details.abusePenalty < 1 && (
                       <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20"
                       >
-                        <Info className="w-4 h-4 text-red-500" />
-                        <span className="text-xs text-red-600 dark:text-red-500 font-medium">
-                          Штраф: {Math.round((1 - rewards.details.abusePenalty) * 100)}%
-                        </span>
+                        <Info className="w-4 h-4 text-orange-500" />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-orange-600 dark:text-orange-500 font-medium">
+                            Снижение: {Math.round((1 - rewards.details.abusePenalty) * 100)}%
+                          </span>
+                          <span className="text-[10px] text-orange-500/70">
+                            Несколько быстрых тестов подряд
+                          </span>
+                        </div>
                       </motion.div>
                     )}
                     {/* Кнопка детальной информации о расчете */}
@@ -980,12 +985,17 @@ const TestResults = () => {
                                 <h4 className="font-semibold text-sm">Примененные штрафы</h4>
                                 <div className="space-y-1.5">
                                   {rewards.details.abusePenalty !== undefined && rewards.details.abusePenalty < 1 && (
-                                    <div className="flex items-center justify-between p-2 rounded bg-red-500/10 border border-red-500/20">
+                                    <div className="flex items-center justify-between p-2 rounded bg-orange-500/10 border border-orange-500/20">
                                       <div className="flex items-center gap-2">
-                                        <Info className="w-4 h-4 text-red-500" />
-                                        <span className="text-sm">Штраф за подозрительное поведение</span>
+                                        <Info className="w-4 h-4 text-orange-500" />
+                                        <div className="flex flex-col">
+                                          <span className="text-sm">Снижение за быстрые тесты</span>
+                                          <span className="text-xs text-muted-foreground">
+                                            Система обнаружила несколько быстрых тестов подряд. Это нормально, если вы просто быстро отвечаете!
+                                          </span>
+                                        </div>
                                       </div>
-                                      <span className="text-sm font-semibold text-red-600">
+                                      <span className="text-sm font-semibold text-orange-600">
                                         -{Math.round((1 - rewards.details.abusePenalty) * 100)}%
                                       </span>
                                     </div>
