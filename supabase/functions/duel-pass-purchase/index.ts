@@ -56,9 +56,13 @@ serve(async (req) => {
     }
 
     // 3. Проверяем Premium Forever - если есть, открываем бесплатно
+    // Premium Forever активен ТОЛЬКО если:
+    // 1. premium_forever_purchased_at установлен (покупка была совершена)
+    // 2. И subscription_type = 'lifetime' И subscription_status = 'pro'
     const hasPremiumForever = 
-      (profile.subscription_type === 'lifetime' && profile.subscription_status === 'pro') ||
-      profile.subscription_status === 'lifetime';
+      !!profile.premium_forever_purchased_at &&
+      profile.subscription_type === 'lifetime' &&
+      profile.subscription_status === 'pro';
 
     if (hasPremiumForever) {
       // Premium Forever - открываем Duel Pass бесплатно

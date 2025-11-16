@@ -111,18 +111,45 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         setHasPremiumPass(progressData[0].premium_pass_purchased || false);
       }
 
-      // Проверяем Premium Forever статус
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('subscription_type, subscription_status')
-        .eq('id', profileId)
-        .single();
+      // Проверяем Premium Forever статус через функцию БД (более надежно)
+      const { data: hasPremiumForeverData, error: premiumForeverError } = await supabase
+        .rpc('has_premium_forever', { p_user_id: profileId });
       
-      const isLifetime = 
-        (profileData?.subscription_type === 'lifetime' && profileData?.subscription_status === 'pro') ||
-        profileData?.subscription_status === 'lifetime';
+      console.log('[DuelPassSeasonModal] Premium Forever check:', {
+        hasPremiumForeverData,
+        premiumForeverError,
+        profileId
+      });
       
-      setHasPremiumForever(isLifetime);
+      // Fallback: проверяем напрямую через поля профиля
+      if (premiumForeverError || hasPremiumForeverData === null || hasPremiumForeverData === undefined) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('subscription_type, subscription_status, premium_forever_purchased_at')
+          .eq('id', profileId)
+          .single();
+        
+        console.log('[DuelPassSeasonModal] Profile data for Premium Forever check:', {
+          subscription_type: profileData?.subscription_type,
+          subscription_status: profileData?.subscription_status,
+          premium_forever_purchased_at: profileData?.premium_forever_purchased_at,
+          profileId
+        });
+        
+        // Premium Forever активен ТОЛЬКО если:
+        // 1. premium_forever_purchased_at установлен (покупка была совершена)
+        // 2. И subscription_type = 'lifetime' И subscription_status = 'pro'
+        const isLifetime = 
+          !!profileData?.premium_forever_purchased_at &&
+          profileData?.subscription_type === 'lifetime' &&
+          profileData?.subscription_status === 'pro';
+        
+        console.log('[DuelPassSeasonModal] Premium Forever result (fallback):', isLifetime);
+        setHasPremiumForever(isLifetime);
+      } else {
+        console.log('[DuelPassSeasonModal] Premium Forever result (RPC):', hasPremiumForeverData === true);
+        setHasPremiumForever(hasPremiumForeverData === true);
+      }
 
       // Получаем награды сезона
       const { data: rewardsData, error: rewardsError } = await supabase
@@ -636,7 +663,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         )}
 
         {/* Индикатор Premium Forever */}
-        {hasPremiumForever && hasPremiumPass && (
+        {/* Показываем ТОЛЬКО если действительно есть Premium Forever (без проверки hasPremiumPass) */}
+        {hasPremiumForever && (
           <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             <div className="flex-1">

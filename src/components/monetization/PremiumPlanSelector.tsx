@@ -228,13 +228,17 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
     
     const { data } = await supabase
       .from('profiles')
-      .select('subscription_type, subscription_status')
+      .select('subscription_type, subscription_status, premium_forever_purchased_at')
       .eq('id', profileId)
       .single();
     
+    // Premium Forever активен ТОЛЬКО если:
+    // 1. premium_forever_purchased_at установлен (покупка была совершена)
+    // 2. И subscription_type = 'lifetime' И subscription_status = 'pro'
     const isLifetime = 
-      (data?.subscription_type === 'lifetime' && data?.subscription_status === 'pro') ||
-      data?.subscription_status === 'lifetime';
+      !!data?.premium_forever_purchased_at &&
+      data?.subscription_type === 'lifetime' &&
+      data?.subscription_status === 'pro';
     
     setHasPremiumForever(isLifetime);
   };

@@ -28,8 +28,12 @@ DECLARE
   v_active_season_id INTEGER;
 BEGIN
   -- Проверяем, является ли пользователь Premium Forever
-  IF (NEW.subscription_type = 'lifetime' AND NEW.subscription_status IN ('pro', 'lifetime'))
-     OR (NEW.subscription_status = 'lifetime') THEN
+  -- Premium Forever активен ТОЛЬКО если:
+  -- 1. premium_forever_purchased_at установлен (покупка была совершена)
+  -- 2. И subscription_type = 'lifetime' И subscription_status = 'pro'
+  IF NEW.premium_forever_purchased_at IS NOT NULL
+     AND NEW.subscription_type = 'lifetime'
+     AND NEW.subscription_status = 'pro' THEN
     -- Получаем активный сезон
     SELECT id INTO v_active_season_id
     FROM public.duel_pass_seasons
@@ -51,14 +55,14 @@ BEGIN
         NEW.id,
         v_active_season_id,
         true,
-        COALESCE(NEW.premium_forever_purchased_at, CURRENT_TIMESTAMP)
+        NEW.premium_forever_purchased_at
       )
       ON CONFLICT (user_id, season_id) 
       DO UPDATE SET 
         premium_pass_purchased = true,
         premium_pass_purchased_at = COALESCE(
           user_season_progress.premium_pass_purchased_at,
-          COALESCE(NEW.premium_forever_purchased_at, CURRENT_TIMESTAMP)
+          NEW.premium_forever_purchased_at
         );
     END IF;
   END IF;
@@ -74,8 +78,9 @@ AFTER INSERT OR UPDATE OF subscription_type, subscription_status, premium_foreve
 ON public.profiles
 FOR EACH ROW
 WHEN (
-  (NEW.subscription_type = 'lifetime' AND NEW.subscription_status IN ('pro', 'lifetime'))
-  OR (NEW.subscription_status = 'lifetime')
+  NEW.premium_forever_purchased_at IS NOT NULL
+  AND NEW.subscription_type = 'lifetime'
+  AND NEW.subscription_status = 'pro'
 )
 EXECUTE FUNCTION auto_unlock_duel_pass_for_premium();
 
@@ -89,8 +94,12 @@ DECLARE
   v_has_lifetime BOOLEAN;
 BEGIN
   SELECT 
-    (subscription_type = 'lifetime' AND subscription_status IN ('pro', 'lifetime'))
-    OR (subscription_status = 'lifetime')
+    -- Premium Forever активен ТОЛЬКО если:
+    -- 1. premium_forever_purchased_at установлен (покупка была совершена)
+    -- 2. И subscription_type = 'lifetime' И subscription_status = 'pro'
+    premium_forever_purchased_at IS NOT NULL
+    AND subscription_type = 'lifetime'
+    AND subscription_status = 'pro'
   INTO v_has_lifetime
   FROM public.profiles
   WHERE id = p_user_id;

@@ -41,9 +41,13 @@ serve(async (req) => {
     const now = new Date();
     
     // Проверяем Premium Forever (lifetime)
+    // Premium Forever активен ТОЛЬКО если:
+    // 1. premium_forever_purchased_at установлен (покупка была совершена)
+    // 2. И subscription_type = 'lifetime' И subscription_status = 'pro'
     const hasPremiumForever = 
-      (profile.subscription_type === 'lifetime' && profile.subscription_status === 'pro') ||
-      profile.subscription_status === 'lifetime';
+      !!profile.premium_forever_purchased_at &&
+      profile.subscription_type === 'lifetime' &&
+      profile.subscription_status === 'pro';
     
     const premiumUntilDate = profile.premium_until ? new Date(profile.premium_until) : null;
     const trialUntilDate = profile.trial_until ? new Date(profile.trial_until) : null;
