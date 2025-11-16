@@ -801,9 +801,12 @@ export default function Duel() {
         onDuelFinished={handleDuelFinished}
         onHide={() => {
           // When game is hidden, switch to menu mode
-          // State is already saved via updateActiveDuel in DuelBattleFullscreen
-          setIsBattleHidden(true);
-          setMode('menu');
+          // State is already saved via updateActiveDuel/saveActiveDuel in DuelBattleFullscreen
+          // Force a small delay to ensure state is saved before switching modes
+          setTimeout(() => {
+            setIsBattleHidden(true);
+            setMode('menu');
+          }, 100);
         }}
         onWidgetExpand={handleWidgetExpand}
       />
