@@ -750,6 +750,30 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
 
+      // Создаем транзакцию для истории
+      try {
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
+            user_id: profileId,
+            amount: -boost.cost_coins,
+            transaction_type: 'coins_spent_boost',
+            metadata: {
+              boost_type: boost.type,
+              boost_name: boost.name_ru,
+            }
+          });
+
+        if (transactionError) {
+          console.error('[BoostShop] Ошибка создания транзакции:', transactionError);
+          // Не прерываем процесс, если транзакция не создалась
+        } else {
+          console.log('[BoostShop] Транзакция создана успешно');
+        }
+      } catch (transactionErr) {
+        console.error('[BoostShop] Исключение при создании транзакции:', transactionErr);
+      }
+
       // Анимации и звуки
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
