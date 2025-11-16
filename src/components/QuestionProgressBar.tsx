@@ -28,6 +28,9 @@ interface QuestionProgressBarProps {
   // Optional: Answers for visual indicators
   answers?: Array<{ isCorrect: boolean }>;
   
+  // Optional: Boosts content (for practice mode)
+  boostsContent?: React.ReactNode;
+  
   className?: string;
 }
 
@@ -45,6 +48,7 @@ export function QuestionProgressBar({
   SettingsMenuComponent,
   customLeftContent,
   answers = [],
+  boostsContent,
   className,
 }: QuestionProgressBarProps) {
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
@@ -149,6 +153,13 @@ export function QuestionProgressBar({
           </div>
         )}
       </div>
+
+      {/* Boosts (desktop only - рядом с прогресс-баром) */}
+      {boostsContent && (
+        <div className="hidden md:flex items-center gap-1.5 shrink-0">
+          {boostsContent}
+        </div>
+      )}
 
       {/* Right Side Controls - Bookmark + Settings */}
       <div className="flex items-center gap-2 shrink-0">
