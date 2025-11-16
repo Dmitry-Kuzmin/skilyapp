@@ -370,23 +370,23 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
         {/* Drag Handle */}
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-        </div>
+            </div>
         
         {/* Header */}
         <div className="px-4 sm:px-6 pb-4 border-b border-border">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/20">
-                <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div>
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-orange-100 p-2 dark:bg-orange-900/20">
+                  <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
                 <h2 className="text-lg sm:text-xl font-semibold">
-                  {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
+                    {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  {language === "es"
-                    ? "Ayúdanos a mejorar. Describe el problema que encontraste."
-                    : "Помогите нам улучшиться. Опишите проблему, которую вы нашли."}
+                    {language === "es"
+                      ? "Ayúdanos a mejorar. Describe el problema que encontraste."
+                      : "Помогите нам улучшиться. Опишите проблему, которую вы нашли."}
                 </p>
               </div>
             </div>
@@ -405,7 +405,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
               <X className="w-5 h-5" />
             </button>
           </div>
-        </div>
+                </div>
 
         {/* Content */}
         <div 
@@ -438,89 +438,89 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
             </div>
           ) : (
             <>
-              {questionText && (
+            {questionText && (
                 <div className="rounded-lg border border-border/50 bg-muted/30 p-3 mb-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">
-                    {language === "es" ? "Pregunta:" : "Вопрос:"}
-                  </p>
-                  <p className="text-sm text-foreground line-clamp-2">{questionText}</p>
-                </div>
-              )}
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  {language === "es" ? "Pregunta:" : "Вопрос:"}
+                </p>
+                <p className="text-sm text-foreground line-clamp-2">{questionText}</p>
+              </div>
+            )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="report-type">
-                    {language === "es" ? "Tipo de problema" : "Тип проблемы"}
-                  </Label>
-                  <Select value={reportType} onValueChange={(value) => setReportType(value as ReportType)}>
-                    <SelectTrigger id="report-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(reportTypeLabels).map(([key, labels]) => (
-                        <SelectItem key={key} value={key}>
-                          {labels[lang]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="report-type">
+                  {language === "es" ? "Tipo de problema" : "Тип проблемы"}
+                </Label>
+                <Select value={reportType} onValueChange={(value) => setReportType(value as ReportType)}>
+                  <SelectTrigger id="report-type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(reportTypeLabels).map(([key, labels]) => (
+                      <SelectItem key={key} value={key}>
+                        {labels[lang]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">
-                    {language === "es" ? "Descripción del problema" : "Описание проблемы"}
-                    <span className="text-destructive ml-1">*</span>
-                  </Label>
-                  <Textarea
-                    id="description"
-                    placeholder={
-                      language === "es"
-                        ? "Describe detalladamente el problema que encontraste..."
-                        : "Подробно опишите проблему, которую вы нашли..."
-                    }
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={5}
-                    className="resize-none"
-                    disabled={isSubmitting}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {language === "es"
-                      ? "Mínimo 10 caracteres"
-                      : "Минимум 10 символов"}
-                  </p>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">
+                  {language === "es" ? "Descripción del problema" : "Описание проблемы"}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder={
+                    language === "es"
+                      ? "Describe detalladamente el problema que encontraste..."
+                      : "Подробно опишите проблему, которую вы нашли..."
+                  }
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={5}
+                  className="resize-none"
+                  disabled={isSubmitting}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {language === "es"
+                    ? "Mínimo 10 caracteres"
+                    : "Минимум 10 символов"}
+                </p>
+              </div>
 
                 <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end pt-2 pb-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleClose}
-                    disabled={isSubmitting}
-                  >
-                    {language === "es" ? "Cancelar" : "Отмена"}
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || description.trim().length < 10}
-                    className="min-w-[120px]"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {language === "es" ? "Enviando..." : "Отправка..."}
-                      </>
-                    ) : (
-                      <>
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        {language === "es" ? "Enviar reporte" : "Отправить отчет"}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </>
-          )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                >
+                  {language === "es" ? "Cancelar" : "Отмена"}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || description.trim().length < 10}
+                  className="min-w-[120px]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {language === "es" ? "Enviando..." : "Отправка..."}
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="mr-2 h-4 w-4" />
+                      {language === "es" ? "Enviar reporte" : "Отправить отчет"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </>
+        )}
         </div>
       </div>
     </>

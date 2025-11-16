@@ -82,13 +82,13 @@ export function AIExplanationDialog({
       }
       
       if (explanationToShow) {
-        // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
-        setMessages([
-          {
-            role: "assistant",
+      // Добавляем explanation как первое сообщение (без вызова AI - экономим токены!)
+      setMessages([
+        {
+          role: "assistant",
             content: explanationToShow
-          }
-        ]);
+        }
+      ]);
         console.log('[AI Chat] 📝 Показано explanation из БД (без AI вызова)', { 
           language: showTranslation ? 'ru' : (explanation === explanationEs ? 'es' : explanation === explanationEn ? 'en' : 'unknown'),
           hasRu: !!explanationRu,
@@ -623,10 +623,10 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
         >
           <DialogTitle className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-muted-foreground" />
-              <span className="text-base font-medium text-foreground">
-                AI Помощник DGT
-              </span>
+            <Sparkles className="w-4 h-4 text-muted-foreground" />
+            <span className="text-base font-medium text-foreground">
+              AI Помощник DGT
+            </span>
             </div>
             <Button 
               variant="ghost" 

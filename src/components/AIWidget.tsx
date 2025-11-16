@@ -78,13 +78,13 @@ export const AIWidget = ({
       }
       
       if (explanationToShow) {
-        setMessages([
-          {
-            role: "assistant",
+      setMessages([
+        {
+          role: "assistant",
             content: explanationToShow
-          }
-        ]);
-      }
+        }
+      ]);
+    }
     }
   }, [explanation, explanationRu, explanationEs, explanationEn, showTranslation]);
 
@@ -312,7 +312,7 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
     <Card 
       ref={widgetRef}
       className={cn(
-        "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
+      "flex flex-col overflow-hidden border border-border/50 shadow-lg bg-background transition-all duration-300 rounded-2xl",
         isExpanded ? "" : "h-auto"
       )}
       style={{

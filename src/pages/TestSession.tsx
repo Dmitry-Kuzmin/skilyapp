@@ -1462,7 +1462,7 @@ const TestSession = () => {
       // setShowAIExplanation(true); // ОТКЛЮЧЕНО для лучшего UX
       
       // Уведомления убраны - результат виден в UI через цветовую индикацию ответов
-    } else {
+      } else {
       // Exam mode: no feedback, no early termination, just move to next question
       // Don't finish test early - let user complete all questions
       // Reset selection and move to next question immediately
@@ -1539,6 +1539,9 @@ const TestSession = () => {
     const correctCount = answers.filter((a) => a.isCorrect).length;
     const score = Math.round((correctCount / questions.length) * 100);
     const timeSpent = startTime > 0 ? Math.floor((Date.now() - startTime) / 1000) : (mode === "exam" ? 30 * 60 - timeLeft : 0);
+    
+    // Генерируем уникальный session_id для новой системы наград
+    const sessionId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
       // Если это sequential тест, обновляем прогресс через функцию
@@ -1590,6 +1593,7 @@ const TestSession = () => {
         timeSpent,
         testId,
         testInfo,
+        sessionId, // Передаем session_id для новой системы наград
       },
     });
   };
@@ -2088,7 +2092,7 @@ const TestSession = () => {
             <AlertTriangle className="w-4 h-4 sm:w-4.5 sm:h-4.5 mr-2 text-muted-foreground" />
             <span>{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
           </Button>
-        </div>
+      </div>
       </div>
 
         {/* Question Map Bottom Sheet */}

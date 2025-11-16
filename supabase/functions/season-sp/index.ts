@@ -95,8 +95,8 @@ serve(async (req) => {
       }
     }
     
-    // Для challenge_reward берем SP из metadata
-    if (source_type === 'challenge_reward' && metadata?.sp_earned) {
+    // Для challenge_reward и test_completed/test_perfect берем SP из metadata (если передано)
+    if ((source_type === 'challenge_reward' || source_type === 'test_completed' || source_type === 'test_perfect') && metadata?.sp_earned) {
       spGain = metadata.sp_earned;
     }
     

@@ -136,16 +136,17 @@ const TestResults = () => {
     );
   }
 
-  const { questions, answers, mode, timeSpent, testId, testInfo } = location.state as {
+  const { questions, answers, mode, timeSpent, testId, testInfo, sessionId } = location.state as {
     questions: QuestionData[];
     answers: Answer[];
     mode: string;
     timeSpent: number;
     testId?: string;
     testInfo?: { id: string; title: string };
+    sessionId?: string;
   };
 
-  // Начисление наград после получения данных
+  // Начисление наград после получения данных (новая система)
   useEffect(() => {
     const handleRewards = async () => {
       if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) return;
@@ -155,72 +156,103 @@ const TestResults = () => {
       const correctCount = answers.filter(a => a.isCorrect).length;
       const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
       
+      // Используем session_id из state или генерируем новый
+      const finalSessionId = sessionId || `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
       try {
-        // Начисляем монеты
-        const { data: coinsData, error: coinsError } = await supabase.functions.invoke("coins-earn", {
-          body: { user_id: profileId, reward_type: "complete_test" },
-        });
+        // Проверяем Premium статус
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('premium_until, trial_until')
+          .eq('id', profileId)
+          .single();
         
-        if (coinsError) {
-          console.error('[TestResults] Coins error:', coinsError);
-        }
+        const now = new Date();
+        const isPremium = (profile?.premium_until && new Date(profile.premium_until) > now) ||
+                         (profile?.trial_until && new Date(profile.trial_until) > now);
         
-        // Начисляем Season Points за прохождение теста
-        const sourceType = score === 100 ? "test_perfect" : "test_completed";
-        const { data: spData, error: spError } = await supabase.functions.invoke("season-sp", {
-          body: { 
-            user_id: profileId, 
-            source_type: sourceType,
-            metadata: { 
-              questions_count: questions.length,
-              score: score 
-            }
+        // Проверяем активный Double SP boost
+        const { data: activeBoost } = await supabase
+          .from('active_boosts')
+          .select('effect_multiplier')
+          .eq('user_id', profileId)
+          .eq('effect_type', 'sp_multiplier')
+          .gt('expires_at', now.toISOString())
+          .order('expires_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        const doubleSPActive = activeBoost && activeBoost.effect_multiplier && parseFloat(activeBoost.effect_multiplier.toString()) >= 2;
+        
+        // Вызываем новую функцию complete-test-and-award
+        const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
+          body: {
+            user_id: profileId,
+            test_id: testId || null,
+            session_id: finalSessionId,
+            score: score,
+            questions_count: questions.length,
+            correct_count: correctCount,
+            test_duration_seconds: timeSpent,
+            premium_flag: isPremium,
+            double_sp_active: doubleSPActive || false,
           },
         });
         
-        if (spError) {
-          console.error('[TestResults] SP error:', spError);
+        if (rewardError) {
+          console.error('[TestResults] Reward error:', rewardError);
+          toast.error("Ошибка при начислении наград", {
+            description: rewardError.message || "Попробуйте обновить страницу",
+          });
+          return;
+        }
+        
+        if (!rewardData || !rewardData.success) {
+          console.error('[TestResults] Reward failed:', rewardData);
+          toast.error("Не удалось начислить награды", {
+            description: rewardData?.error || "Попробуйте обновить страницу",
+          });
+          return;
         }
         
         // Также начисляем XP для обратной совместимости
-        const { data: xpData, error: xpError } = await supabase.functions.invoke("duel-pass-xp", {
-          body: { user_id: profileId, source_type: "test" },
-        });
-        
-        if (xpError) {
-          console.error('[TestResults] XP error:', xpError);
-        }
-        
-        // Отслеживаем прогресс челленджей
-        await supabase.functions.invoke("season-challenges-track", {
-          body: {
-            user_id: profileId,
-            source_type: sourceType,
-            metadata: {
-              questions_count: questions.length,
-              score: score
+        try {
+          const { data: xpData } = await supabase.functions.invoke("duel-pass-xp", {
+            body: { user_id: profileId, source_type: "test" },
+          });
+          
+          if (xpData?.level_up) {
+            const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
+              body: { trigger: "duel_pass_level_up" },
+            });
+            const message = suggestion?.suggestion?.message;
+            if (message) {
+              toast.info(message);
             }
-          },
-        });
+          }
+        } catch (xpError) {
+          // Игнорируем ошибки XP (не критично)
+          console.warn('[TestResults] XP error (non-critical):', xpError);
+        }
         
         // Сохраняем результаты начислений
         setRewards({
-          coins: coinsData?.reward_amount || 10,
-          sp: spData?.sp_added || (sourceType === "test_perfect" ? 35 : 25),
-          levelUp: spData?.level_up || false,
-          newLevel: spData?.level || undefined,
+          coins: rewardData.coins_awarded || 0,
+          sp: rewardData.sp_awarded || 0,
+          levelUp: rewardData.level_up || false,
+          newLevel: rewardData.new_level || undefined,
         });
         
         // Показываем уведомление о начислениях
         const rewardMessages = [];
-        if (coinsData?.reward_amount) {
-          rewardMessages.push(`+${coinsData.reward_amount} монет`);
+        if (rewardData.coins_awarded) {
+          rewardMessages.push(`+${rewardData.coins_awarded} монет`);
         }
-        if (spData?.sp_added) {
-          rewardMessages.push(`+${spData.sp_added} SP`);
+        if (rewardData.sp_awarded) {
+          rewardMessages.push(`+${rewardData.sp_awarded} SP`);
         }
-        if (spData?.level_up) {
-          rewardMessages.push(`🎉 Новый уровень Duel Pass: ${spData.level}!`);
+        if (rewardData.level_up) {
+          rewardMessages.push(`🎉 Новый уровень Duel Pass: ${rewardData.new_level}!`);
         }
         
         if (rewardMessages.length > 0) {
@@ -230,25 +262,23 @@ const TestResults = () => {
           });
         }
         
-        if (xpData?.level_up) {
-          const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
-            body: { trigger: "duel_pass_level_up" },
+        // Показываем уведомление о diminishing returns, если есть
+        if (rewardData.message) {
+          toast.info(rewardData.message, {
+            duration: 6000,
           });
-          const message = suggestion?.suggestion?.message;
-          if (message) {
-            toast.info(message);
-          }
         }
-      } catch (error) {
+        
+      } catch (error: any) {
         console.error('[TestResults] Error handling rewards:', error);
         toast.error("Ошибка при начислении наград", {
-          description: "Попробуйте обновить страницу",
+          description: error?.message || "Попробуйте обновить страницу",
         });
       }
     };
     
     handleRewards();
-  }, [profileId, questions, answers]);
+  }, [profileId, questions, answers, timeSpent, testId]);
 
   const [nextTest, setNextTest] = useState<{ id: string; title: string; status: string } | null>(null);
   const [loadingNextTest, setLoadingNextTest] = useState(false);

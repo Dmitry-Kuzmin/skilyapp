@@ -111,6 +111,7 @@ ALTER TABLE help_feedback
 
 -- Drop existing insert policy if exists
 DROP POLICY IF EXISTS "Users can insert their own feedback" ON help_feedback;
+DROP POLICY IF EXISTS "Anyone can insert feedback" ON help_feedback;
 
 -- Policy: Anyone can insert feedback (authenticated or anonymous)
 -- If user_id is provided, it must match auth.uid()
@@ -130,9 +131,23 @@ CREATE INDEX IF NOT EXISTS idx_help_feedback_user_id ON help_feedback(user_id) W
 
 -- Migration 3: Add notification type for help feedback replies
 -- Add 'help_feedback_reply' notification type for help center feedback replies
+
+-- Step 1: Check existing notification types (for debugging)
+-- Uncomment the line below to see what types exist in the table:
+-- SELECT DISTINCT type FROM duel_notifications;
+
+-- Step 2: Drop existing constraint
 ALTER TABLE duel_notifications 
   DROP CONSTRAINT IF EXISTS duel_notifications_type_check;
 
+-- Step 3: Update any invalid notification types (if any exist)
+-- This handles cases where there might be unexpected types
+UPDATE duel_notifications 
+SET type = 'reminder' 
+WHERE type NOT IN ('start', 'progress', 'boost', 'finish', 'timeout', 'opponent_ahead', 'opponent_behind', 'reminder', 'help_feedback_reply')
+AND type IS NOT NULL;
+
+-- Step 4: Add new constraint with help_feedback_reply type
 ALTER TABLE duel_notifications 
   ADD CONSTRAINT duel_notifications_type_check 
   CHECK (type IN ('start', 'progress', 'boost', 'finish', 'timeout', 'opponent_ahead', 'opponent_behind', 'reminder', 'help_feedback_reply'));
