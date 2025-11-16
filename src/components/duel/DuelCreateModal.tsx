@@ -391,3 +391,5 @@ export function DuelCreateModal({ open, onClose, onDuelCreated }: DuelCreateModa
     </Dialog>
   );
 }
+
+export default DuelCreateModal;

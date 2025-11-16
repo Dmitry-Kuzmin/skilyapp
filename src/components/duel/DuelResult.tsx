@@ -777,3 +777,5 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
     </div>
   );
 }
+
+export default DuelResult;

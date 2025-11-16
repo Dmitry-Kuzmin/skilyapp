@@ -2081,3 +2081,5 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     </div>
   );
 }
+
+export default DuelBattleFullscreen;

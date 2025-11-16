@@ -46,3 +46,5 @@ export function DuelSkeleton() {
   );
 }
 
+export default DuelSkeleton;
+

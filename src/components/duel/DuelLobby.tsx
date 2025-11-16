@@ -264,3 +264,5 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
   return null;
 }
+
+export default DuelLobby;

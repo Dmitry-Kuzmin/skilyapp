@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -399,13 +399,49 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   };
 
+  // Мемоизация текущего вопроса для оптимизации
+  const currentQuestion = useMemo(() => questions[currentIndex], [questions, currentIndex]);
+
+  // Функция завершения дуэли (объявлена раньше для использования в зависимостях)
+  const finishDuel = useCallback(async () => {
+    try {
+      console.log('[DuelBattle] Finishing duel - I completed all questions');
+      
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'finish_duel',
+          profile_id: profileId,
+          duel_id: duelId,
+        },
+      });
+
+      if (error) throw error;
+
+      // Server returns finished: true if both players finished, false if waiting
+      if (data?.finished === true) {
+        // Both finished - go to results immediately
+        console.log('[DuelBattle] Both players finished, going to results');
+        toast.success('🏁 Дуэль завершена!', { duration: 3000 });
+        onDuelFinished();
+      } else {
+        // Wait for opponent - show waiting screen
+        console.log('[DuelBattle] Waiting for opponent to finish');
+        toast.info('⏳ Ожидание соперника...', { duration: 3000 });
+        setIsWaitingForOpponent(true);
+      }
+    } catch (error) {
+      console.error('Error finishing duel:', error);
+      toast.error('Ошибка завершения дуэли');
+    }
+  }, [profileId, duelId, onDuelFinished]);
+
   // ============================================================================
   // CRITICAL: USE SERVER-PROVIDED BOOST EFFECTS ONLY
   // ============================================================================
   // All boost logic is calculated on server
   // Client only displays effects from server response
   // ============================================================================
-  const handleUseBoost = async (type: string, language?: 'ru' | 'en') => {
+  const handleUseBoost = useCallback(async (type: string, language?: 'ru' | 'en') => {
     if (usedBoosts.includes(type) || answered) return;
 
     try {
@@ -465,9 +501,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     } catch (error: any) {
       toast.error(error.message || 'Ошибка использования буста', { duration: 4000 });
     }
-  };
+  }, [usedBoosts, answered, profileId, duelId, currentIndex, questions.length, currentQuestion, finishDuel]);
 
-  const handleAnswer = async (optionId: string) => {
+  const handleAnswer = useCallback(async (optionId: string) => {
     if (answered) return;
 
     setAnswered(true);
@@ -612,9 +648,9 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
       }, 2500);
     }
-  };
+  }, [answered, profileId, duelId, currentIndex, questions.length, timeLeft, onDuelFinished]);
 
-  const handleTimeout = async () => {
+  const handleTimeout = useCallback(async () => {
     if (answered) return;
     
     setAnswered(true);
@@ -709,40 +745,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       } else {
         finishDuel();
       }
-    }, 3000);
-  };
-
-  const finishDuel = async () => {
-    try {
-      console.log('[DuelBattle] Finishing duel - I completed all questions');
-      
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'finish_duel',
-          profile_id: profileId,
-          duel_id: duelId,
-        },
-      });
-
-      if (error) throw error;
-
-      // Server returns finished: true if both players finished, false if waiting
-      if (data?.finished === true) {
-        // Both finished - go to results immediately
-        console.log('[DuelBattle] Both players finished, going to results');
-        toast.success('🏁 Дуэль завершена!', { duration: 3000 });
-        onDuelFinished();
-      } else {
-        // Wait for opponent - show waiting screen
-        console.log('[DuelBattle] Waiting for opponent to finish');
-        toast.info('⏳ Ожидание соперника...', { duration: 3000 });
-        setIsWaitingForOpponent(true);
-      }
-    } catch (error) {
-      console.error('Error finishing duel:', error);
-      toast.error('Ошибка завершения дуэли');
-    }
-  };
+      }, 3000);
+  }, [answered, profileId, duelId, currentIndex, questions.length, skipCount, finishDuel]);
 
   // ============================================================================
   // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
@@ -766,7 +770,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     );
   }
 
-  const currentQuestion = questions[currentIndex];
   if (!currentQuestion || !currentQuestion.question_snapshot) {
     return (
       <div className="text-center p-8">
