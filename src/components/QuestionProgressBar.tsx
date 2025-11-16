@@ -99,9 +99,9 @@ export function QuestionProgressBar({
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           </div>
           
-          {/* Visual indicators for answered questions - стильные индикаторы */}
+          {/* Visual indicators for answered questions - современные компактные индикаторы */}
           {answers.length > 0 && (
-            <div className="absolute inset-0 flex items-center">
+            <div className="absolute inset-0 flex items-center justify-center">
               {answers.map((answer, idx) => {
                 const position = ((idx + 1) / totalQuestions) * 100;
                 return (
@@ -109,21 +109,21 @@ export function QuestionProgressBar({
                     key={idx}
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: idx * 0.05, duration: 0.3, type: "spring", stiffness: 200 }}
+                    transition={{ delay: idx * 0.03, duration: 0.2, type: "spring", stiffness: 300 }}
                     className={cn(
-                      "absolute rounded-full shadow-lg border-2 transition-all duration-300",
+                      "absolute rounded-full transition-all duration-200",
                       answer.isCorrect
-                        ? "w-3 h-3 sm:w-3.5 sm:h-3.5 bg-emerald-500 border-emerald-600 dark:border-emerald-400 shadow-emerald-500/50 hover:scale-110"
-                        : "w-3 h-3 sm:w-3.5 sm:h-3.5 bg-red-500 border-red-600 dark:border-red-400 shadow-red-500/50 hover:scale-110"
+                        ? "w-2 h-2 bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
+                        : "w-2 h-2 bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
                     )}
                     style={{ 
-                      left: `calc(${position}% - ${answer.isCorrect ? '6px' : '6px'})`,
+                      left: `calc(${position}% - 4px)`,
                       top: '50%',
                       transform: 'translateY(-50%)'
                     }}
                   >
-                    {/* Внутренний блик для объема */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent" />
+                    {/* Тонкий блик для современного вида */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 via-transparent to-transparent" />
                   </motion.div>
                 );
               })}
