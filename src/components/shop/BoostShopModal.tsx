@@ -469,10 +469,48 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             .limit(5);
 
           if (purchases && purchases.length > 0) {
-            // Ищем покупку со статусом completed, созданную недавно (последние 2 минуты)
+            // Ищем последнюю покупку (pending или completed)
+            const lastPurchase = purchases[0];
+            
+            // Если покупка pending, пытаемся обработать её вручную
+            if (lastPurchase.status === 'pending' && lastPurchase.stripe_session_id) {
+              console.log("[BoostShop] Found pending purchase, attempting to process:", lastPurchase.stripe_session_id);
+              
+              try {
+                const { data: processData, error: processError } = await supabase.functions.invoke("process-purchase", {
+                  body: { 
+                    session_id: lastPurchase.stripe_session_id,
+                    user_id: profileId 
+                  },
+                });
+
+                if (processError) {
+                  console.error("[BoostShop] Error processing purchase:", processError);
+                } else if (processData?.success) {
+                  console.log("[BoostShop] Purchase processed successfully:", processData);
+                  await loadData(); // Обновляем баланс
+                  
+                  const coinsAmount = processData.coins_added || lastPurchase.metadata?.coins || 0;
+                  if (coinsAmount > 0) {
+                    toast({
+                      title: '✅ Покупка успешна!',
+                      description: `Вы получили ${coinsAmount} монет`,
+                      duration: 5000,
+                    });
+                    setShowConfetti(true);
+                    setTimeout(() => setShowConfetti(false), 3000);
+                    return true;
+                  }
+                }
+              } catch (processErr) {
+                console.error("[BoostShop] Exception processing purchase:", processErr);
+              }
+            }
+            
+            // Ищем покупку со статусом completed, созданную недавно (последние 5 минут)
             const recentCompleted = purchases.find(p => 
               p.status === 'completed' && 
-              new Date(p.created_at).getTime() > Date.now() - 2 * 60 * 1000
+              new Date(p.created_at).getTime() > Date.now() - 5 * 60 * 1000
             );
 
             if (recentCompleted) {
