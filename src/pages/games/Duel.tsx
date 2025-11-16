@@ -219,9 +219,17 @@ export default function Duel() {
             console.log('[Duel] ✅ Duel is finished, going to results');
             handleDuelFinished();
           } else if (data.status === 'active') {
-            // Дуэль активна - переходим к битве
-            console.log('[Duel] ✅ Duel is active, restoring to battle mode');
-            handleDuelStarted(activeDuel.duelId);
+            // Дуэль активна - проверяем режим сохраненного состояния
+            if (activeDuel.mode === 'waiting') {
+              // Если пользователь уже закончил все вопросы - переходим к экрану ожидания
+              console.log('[Duel] ⏳ User finished all questions, restoring to waiting screen');
+              handleDuelStarted(activeDuel.duelId);
+              // DuelBattleFullscreen сам определит что нужно показать экран ожидания
+            } else {
+              // Переходим к битве
+              console.log('[Duel] ✅ Duel is active, restoring to battle mode');
+              handleDuelStarted(activeDuel.duelId);
+            }
           } else if (data.status === 'waiting' || activeDuel.mode === 'waiting') {
             // Дуэль в ожидании - переходим к лобби
             console.log('[Duel] ⏳ Duel is waiting, restoring to lobby');

@@ -810,14 +810,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             });
         setQuestions(data.questions);
         
-        // Восстанавливаем currentIndex из сохраненного состояния
+        // Восстанавливаем currentIndex из сохраненного состояния (только если не закончили все вопросы)
         const savedState = localStorage.getItem('active_duel_state');
         if (savedState) {
           try {
             const state = JSON.parse(savedState);
-            if (state.duelId === duelId && state.currentIndex !== undefined && state.currentIndex < data.questions.length) {
+            // Не восстанавливаем если пользователь уже закончил все вопросы (currentIndex >= totalQuestions - 1)
+            if (state.duelId === duelId && 
+                state.currentIndex !== undefined && 
+                state.currentIndex < data.questions.length &&
+                state.currentIndex < data.questions.length - 1) { // Не восстанавливаем если на последнем вопросе
               console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
               setCurrentIndex(state.currentIndex);
+            } else if (state.duelId === duelId && state.mode === 'waiting') {
+              // Если режим 'waiting', значит пользователь уже закончил все вопросы
+              console.log('[DuelBattleFullscreen] ⏳ User finished all questions, not restoring currentIndex');
+              setCurrentIndex(data.questions.length - 1); // Устанавливаем на последний вопрос
+              setHasFinishedMyQuestions(true);
             }
           } catch (e) {
             console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
@@ -889,19 +898,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         console.log('[DuelBattleFullscreen] ✅ Loaded questions directly:', data.length);
         setQuestions(data);
         
-        // Восстанавливаем currentIndex из сохраненного состояния
-        const savedState = localStorage.getItem('active_duel_state');
-        if (savedState) {
-          try {
-            const state = JSON.parse(savedState);
-            if (state.duelId === duelId && state.currentIndex !== undefined && state.currentIndex < data.length) {
-              console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
-              setCurrentIndex(state.currentIndex);
+            // Восстанавливаем currentIndex из сохраненного состояния (только если не закончили все вопросы)
+            const savedState = localStorage.getItem('active_duel_state');
+            if (savedState) {
+              try {
+                const state = JSON.parse(savedState);
+                // Не восстанавливаем если пользователь уже закончил все вопросы
+                if (state.duelId === duelId && 
+                    state.currentIndex !== undefined && 
+                    state.currentIndex < data.length &&
+                    state.currentIndex < data.length - 1) { // Не восстанавливаем если на последнем вопросе
+                  console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
+                  setCurrentIndex(state.currentIndex);
+                } else if (state.duelId === duelId && state.mode === 'waiting') {
+                  // Если режим 'waiting', значит пользователь уже закончил все вопросы
+                  console.log('[DuelBattleFullscreen] ⏳ User finished all questions, not restoring currentIndex');
+                  setCurrentIndex(data.length - 1); // Устанавливаем на последний вопрос
+                  setHasFinishedMyQuestions(true);
+                }
+              } catch (e) {
+                console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
+              }
             }
-          } catch (e) {
-            console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
-          }
-        }
       } else {
         console.error('[DuelBattleFullscreen] ❌ No questions found in database');
         toast.error('Вопросы не найдены. Попробуйте перезагрузить страницу.');
@@ -1717,6 +1735,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         onHide={(hidden) => {
           setIsWaitingHidden(hidden);
           if (hidden) {
+            // Сохраняем состояние при сворачивании на экране ожидания
+            if (duelId && duelCode && profileId && questions.length > 0) {
+              updateActiveDuel({
+                duelId,
+                duelCode,
+                mode: 'waiting',
+                currentIndex: undefined, // Не сохраняем currentIndex в режиме ожидания
+                myScore,
+                opponentScore,
+                totalQuestions: questions.length,
+                myName,
+                opponentName,
+              });
+            }
             // Notify parent that game is hidden - parent will show menu
             if (onHide) {
               onHide();

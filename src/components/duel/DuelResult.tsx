@@ -27,13 +27,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const [showAIWidget, setShowAIWidget] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
   const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
+  const rewardsAppliedRef = useRef(false); // Защита от двойного начисления
 
   useEffect(() => {
     loadResults();
   }, [duelId]);
 
   useEffect(() => {
-    if (results && profileId) {
+    if (results && profileId && !rewardsAppliedRef.current) {
+      rewardsAppliedRef.current = true; // Помечаем что начисление началось
+      
       const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
       const metadata = {
         duel_id: duelId,
@@ -88,6 +91,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           }
         } catch (err) {
           console.error('[DuelResult] Error applying rewards:', err);
+          rewardsAppliedRef.current = false; // Сбрасываем при ошибке для возможности повтора
         }
       };
       
