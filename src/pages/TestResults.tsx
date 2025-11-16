@@ -196,17 +196,32 @@ const TestResults = () => {
                          (profile?.trial_until && new Date(profile.trial_until) > now);
         
         // Проверяем активный Double SP boost
-        const { data: activeBoost } = await supabase
+        // Важно: проверяем с небольшим запасом времени (5 секунд) для надежности
+        const boostCheckTime = new Date(now.getTime() + 5000); // +5 секунд запас
+        const { data: activeBoost, error: boostError } = await supabase
           .from('active_boosts')
-          .select('effect_multiplier')
+          .select('effect_multiplier, expires_at')
           .eq('user_id', profileId)
           .eq('effect_type', 'sp_multiplier')
-          .gt('expires_at', now.toISOString())
+          .gt('expires_at', boostCheckTime.toISOString())
           .order('expires_at', { ascending: false })
           .limit(1)
           .maybeSingle();
         
+        if (boostError) {
+          console.warn('[TestResults] Error checking active boost:', boostError);
+        }
+        
         const doubleSPActive = activeBoost && activeBoost.effect_multiplier && parseFloat(activeBoost.effect_multiplier.toString()) >= 2;
+        
+        if (doubleSPActive) {
+          console.log('[TestResults] ✅ Double SP boost активен:', {
+            multiplier: activeBoost.effect_multiplier,
+            expiresAt: activeBoost.expires_at
+          });
+        } else {
+          console.log('[TestResults] ℹ️ Double SP boost не активен или не найден');
+        }
         
         // Вызываем новую функцию complete-test-and-award
         const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
