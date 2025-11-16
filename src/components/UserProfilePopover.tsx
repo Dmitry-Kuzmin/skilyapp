@@ -427,6 +427,9 @@ export function UserProfilePopover() {
       
       {/* Profile Modal для расширенных настроек */}
       <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
+      
+      {/* Referral Modal */}
+      <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </>
   );
 }
