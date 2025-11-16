@@ -20,6 +20,7 @@ import { AdminSync } from "./pages/admin/AdminSync";
 import { AdminImport } from "./pages/admin/AdminImport";
 import { AdminPDFUpload } from "./pages/admin/AdminPDFUpload";
 import { AdminHelpFeedback } from "./pages/admin/AdminHelpFeedback";
+import { AdminRewardReports } from "./pages/admin/AdminRewardReports";
 import AdminEditor from "./pages/AdminEditor";
 import AdminQuestionReports from "./pages/AdminQuestionReports";
 import Achievements from "./pages/Achievements";
@@ -149,6 +150,7 @@ const App = () => {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="reports" element={<AdminQuestionReports />} />
+            <Route path="reward-reports" element={<AdminRewardReports />} />
             <Route path="help-feedback" element={<AdminHelpFeedback />} />
             <Route path="editor" element={<AdminEditor />} />
             <Route path="sync" element={<AdminSync />} />

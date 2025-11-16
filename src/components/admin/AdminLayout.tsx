@@ -11,6 +11,7 @@ import {
   Bell,
   FileUp,
   MessageSquare,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,6 +65,12 @@ const adminNavItems = [
     icon: MessageSquare,
     path: "/admin/help-feedback",
   },
+  {
+    id: "reward-reports",
+    label: "Отчеты о наградах",
+    icon: AlertTriangle,
+    path: "/admin/reward-reports",
+  },
 ];
 
 export function AdminLayout() {
@@ -74,6 +81,7 @@ export function AdminLayout() {
   const [authLoading, setAuthLoading] = useState(true);
   const [pendingReports, setPendingReports] = useState(0);
   const [pendingFeedback, setPendingFeedback] = useState(0);
+  const [pendingRewardReports, setPendingRewardReports] = useState(0);
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
@@ -81,9 +89,11 @@ export function AdminLayout() {
     if (isAdmin) {
       fetchPendingReports();
       fetchPendingFeedback();
+      fetchPendingRewardReports();
       const interval = setInterval(() => {
         fetchPendingReports();
         fetchPendingFeedback();
+        fetchPendingRewardReports();
       }, 60000); // Check every minute
       return () => clearInterval(interval);
     }
@@ -155,6 +165,19 @@ export function AdminLayout() {
       setPendingFeedback(count || 0);
     } catch (error) {
       console.error("Error fetching pending feedback:", error);
+    }
+  };
+
+  const fetchPendingRewardReports = async () => {
+    try {
+      const { count } = await supabase
+        .from("admin_reports")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+      
+      setPendingRewardReports(count || 0);
+    } catch (error) {
+      console.error("Error fetching pending reward reports:", error);
     }
   };
 
@@ -256,10 +279,12 @@ export function AdminLayout() {
                       
                       const showBadge = 
                         (item.id === "reports" && pendingReports > 0) ||
-                        (item.id === "help-feedback" && pendingFeedback > 0);
+                        (item.id === "help-feedback" && pendingFeedback > 0) ||
+                        (item.id === "reward-reports" && pendingRewardReports > 0);
                       
                       const badgeCount = item.id === "reports" ? pendingReports : 
-                                        item.id === "help-feedback" ? pendingFeedback : 0;
+                                        item.id === "help-feedback" ? pendingFeedback :
+                                        item.id === "reward-reports" ? pendingRewardReports : 0;
 
                       return (
                         <motion.button
