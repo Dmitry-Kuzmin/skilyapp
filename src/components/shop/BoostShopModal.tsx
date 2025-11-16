@@ -754,24 +754,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
 
-      // Создаем транзакцию для истории
+      // Создаем транзакцию для истории используя RPC функцию (обходит RLS)
       try {
-        const { data: transactionData, error: transactionError } = await supabase
-          .from('transactions')
-          .insert({
-            user_id: profileId,
-            amount: -boost.cost_coins,
-            transaction_type: 'coins_spent_boost',
-            metadata: {
-              boost_type: boost.type,
-              boost_name: boost.name_ru,
-            }
-          })
-          .select()
-          .single();
+        const { data: transactionId, error: transactionError } = await supabase.rpc('create_transaction', {
+          p_user_id: profileId,
+          p_transaction_type: 'coins_spent_boost',
+          p_amount: -boost.cost_coins,
+          p_metadata: {
+            boost_type: boost.type,
+            boost_name: boost.name_ru,
+          }
+        });
 
         if (transactionError) {
-          console.error('[BoostShop] Ошибка создания транзакции:', transactionError);
+          console.error('[BoostShop] Ошибка создания транзакции через RPC:', transactionError);
           console.error('[BoostShop] Детали ошибки транзакции:', {
             code: transactionError.code,
             message: transactionError.message,
@@ -780,7 +776,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           });
           // Не прерываем процесс, если транзакция не создалась
         } else {
-          console.log('[BoostShop] ✅ Транзакция создана успешно:', transactionData);
+          console.log('[BoostShop] ✅ Транзакция создана успешно через RPC, ID:', transactionId);
         }
       } catch (transactionErr: any) {
         console.error('[BoostShop] Исключение при создании транзакции:', transactionErr);

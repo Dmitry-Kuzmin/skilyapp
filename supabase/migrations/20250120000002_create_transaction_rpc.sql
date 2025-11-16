@@ -1,11 +1,7 @@
--- ============================================
--- ИСПРАВЛЕНИЕ: СОЗДАНИЕ ТРАНЗАКЦИЙ ЧЕРЕЗ RPC ФУНКЦИЮ
--- ============================================
--- Проблема: RLS политика не работает для Telegram пользователей
--- Решение: Используем RPC функцию с SECURITY DEFINER (обходит RLS)
--- ============================================
+-- Create RPC function to insert transactions (bypasses RLS)
+-- This function uses SECURITY DEFINER to allow users to create their own transactions
+-- Works for both Telegram and Web users
 
--- Создаем RPC функцию для создания транзакций
 CREATE OR REPLACE FUNCTION public.create_transaction(
   p_user_id UUID,
   p_transaction_type TEXT,
@@ -67,10 +63,7 @@ BEGIN
 END;
 $$;
 
--- Grant execute permission to authenticated and anon users
+-- Grant execute permission to authenticated users
 GRANT EXECUTE ON FUNCTION public.create_transaction(UUID, TEXT, INTEGER, JSONB) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_transaction(UUID, TEXT, INTEGER, JSONB) TO anon;
 
--- ============================================
--- ГОТОВО! Теперь транзакции создаются через RPC функцию
--- ============================================
