@@ -1162,7 +1162,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={getDialogContentClasses('shop', isMobile)} hideCloseButton>
+        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0">
           <div className="flex-1 overflow-y-auto">
             <ModalContent />
           </div>

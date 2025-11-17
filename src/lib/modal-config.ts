@@ -56,9 +56,14 @@ export const MODAL_CONFIG = {
 } as const;
 
 /**
+ * Тип модалки
+ */
+export type ModalType = keyof typeof MODAL_CONFIG.types;
+
+/**
  * Получить конфигурацию для типа модалки
  */
-export function getModalConfig(type: keyof typeof MODAL_CONFIG.types = 'default') {
+export function getModalConfig(type: ModalType = 'default') {
   return MODAL_CONFIG.types[type] || MODAL_CONFIG.types.default;
 }
 
