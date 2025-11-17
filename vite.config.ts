@@ -82,7 +82,9 @@ export default defineConfig(({ mode }) => {
               id.includes('recharts') ||
               id.includes('lucide-react') ||
               id.includes('use-sync-external-store') ||
-              id.includes('useSyncExternalStore')
+              id.includes('useSyncExternalStore') ||
+              id.includes('use-callback-ref') ||
+              id.includes('use-sidecar')
             ) {
               return 'react-vendor';
             }
