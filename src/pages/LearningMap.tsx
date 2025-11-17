@@ -672,6 +672,10 @@ function buildStructuredCurriculum(
       ...topicBlueprint,
       title: localizedTopicTitle,
       description: localizedTopicDescription,
+      // передаём визуальные поля темы в карточку модуля
+      cover_image: dbTopic?.cover_image,
+      gradient_from: dbTopic?.gradient_from,
+      gradient_to: dbTopic?.gradient_to,
       topicId: dbTopic?.id,
       progressPercent: progress?.progressPercent ?? 0,
       isCompleted: progress?.completed ?? false,

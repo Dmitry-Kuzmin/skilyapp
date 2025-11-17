@@ -30,6 +30,9 @@ export interface StructuredCurriculumTopic extends CurriculumBlueprintTopic {
   progressPercent: number;
   isCompleted: boolean;
   sections: StructuredCurriculumSection[];
+  cover_image?: string;
+  gradient_from?: string;
+  gradient_to?: string;
 }
 
 interface CurriculumMatrixProps {
@@ -149,6 +152,22 @@ export const CurriculumMatrix = ({
                   </div>
                   {topic.description && (
                     <p className="text-slate-600 text-sm max-w-2xl">{topic.description}</p>
+                  )}
+                  {topic.cover_image && (
+                    <div className="mt-2 w-full max-w-xs">
+                      <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+                        <img
+                          src={topic.cover_image}
+                          alt={topic.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
 

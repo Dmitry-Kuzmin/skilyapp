@@ -125,6 +125,16 @@ const translations: Record<Language, Record<string, string>> = {
     selectQuestionCount: "Elige el número de preguntas",
     startTest: "Comenzar test",
     
+    // Learning map / curriculum
+    completed: "Completado",
+    in_progress: "En progreso",
+    locked: "Bloqueado",
+    coming_soon: "Próximamente",
+    module: "Módulo",
+    progress: "Progreso",
+    continue_topic: "Continuar módulo",
+    block: "Bloque",
+    
     // Footer
     footer: {
       companyDescription: "Plataforma educativa para la preparación de exámenes DGT en España",
@@ -251,6 +261,16 @@ const translations: Record<Language, Record<string, string>> = {
     selectQuestionCount: "Select number of questions",
     startTest: "Start test",
     
+    // Learning map / curriculum
+    completed: "Completed",
+    in_progress: "In progress",
+    locked: "Locked",
+    coming_soon: "Coming soon",
+    module: "Module",
+    progress: "Progress",
+    continue_topic: "Continue module",
+    block: "Block",
+    
     // Footer
     footer: {
       companyDescription: "Educational platform for DGT exam preparation in Spain",
@@ -376,6 +396,16 @@ const translations: Record<Language, Record<string, string>> = {
     inviteFriends: "ПРИГЛАСИТЬ ДРУЗЕЙ",
     selectQuestionCount: "Выбери количество вопросов",
     startTest: "Начать тест",
+    
+    // Learning map / curriculum
+    completed: "Изучено",
+    in_progress: "В процессе",
+    locked: "Закрыто",
+    coming_soon: "Скоро",
+    module: "Модуль",
+    progress: "Прогресс",
+    continue_topic: "Продолжить тему",
+    block: "Блок",
     
     // Footer
     footer: {
