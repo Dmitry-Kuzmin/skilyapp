@@ -1,16 +1,20 @@
 import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 import { useSafeArea } from "@/hooks/useSafeArea";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
   const safeArea = useSafeArea();
+  const isTelegram = isTelegramMiniApp();
 
   // Вычисляем отступ сверху с учетом safe area для Telegram
-  const topOffset = safeArea.platform === 'telegram' 
-    ? safeArea.top + safeArea.contentTop + 16
+  // Учитываем высоту нативной навигации Telegram (кнопка Назад и т.д.)
+  const TELEGRAM_NAV_HEIGHT = 110; // Высота встроенной навигации Telegram WebApp
+  const topOffset = isTelegram 
+    ? safeArea.top + safeArea.contentTop + TELEGRAM_NAV_HEIGHT + 16
     : 16;
 
   return (

@@ -1465,21 +1465,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }}
     >
       {/* Toast Notifications */}
-      {/* Учитываем отступы для Telegram WebApp */}
+      {/* Учитываем отступы для Telegram WebApp - увеличен отступ для видимости */}
       <div 
-        className="fixed z-50 space-y-2 max-w-sm"
+        className="fixed z-[100] space-y-2 max-w-sm pointer-events-none"
         style={{
-          top: `${totalTopPadding + 16}px`,
+          top: `${totalTopPadding + (safeArea?.platform === 'telegram' ? 20 : 16)}px`,
           right: `${totalRightPadding + 16}px`
         }}
       >
         <AnimatePresence mode="popLayout">
-          {toastNotifications.map((notif) => (
-            <NotificationToast
+          {toastNotifications.map((notif, index) => (
+            <div
               key={notif.id}
-              {...notif}
-              onClose={() => setToastNotifications(prev => prev.filter(n => n.id !== notif.id))}
-            />
+              className="pointer-events-auto"
+              style={{
+                marginTop: index > 0 ? '8px' : '0'
+              }}
+            >
+              <NotificationToast
+                {...notif}
+                onClose={() => setToastNotifications(prev => prev.filter(n => n.id !== notif.id))}
+              />
+            </div>
           ))}
         </AnimatePresence>
       </div>

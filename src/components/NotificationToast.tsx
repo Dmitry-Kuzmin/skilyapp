@@ -15,7 +15,7 @@ export function NotificationToast({ title, message, icon, onClose }: Notificatio
       initial={{ opacity: 0, y: -20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className="fixed top-4 right-4 z-50 max-w-sm w-full"
+      className="relative max-w-sm w-full"
     >
       <div className="bg-card border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 p-4 backdrop-blur-xl">
         <div className="flex items-start gap-3">
