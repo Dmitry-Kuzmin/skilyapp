@@ -450,16 +450,17 @@ const Tests = () => {
               {topics.map((topic) => (
                 <Card
                   key={topic.id}
-                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow p-0"
+                  className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-primary/30"
                   onClick={() => handleStartPath(`/tests/${topic.id}`)}
                 >
-                  {/* Image/Gradient */}
-                  <div className="relative w-full aspect-video overflow-hidden">
+                  {/* Image/Gradient Container */}
+                  <div className="relative w-full h-36 overflow-hidden bg-muted">
                     {topic.cover_image ? (
                       <img
                         src={topic.cover_image}
                         alt={topic.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
@@ -467,38 +468,48 @@ const Tests = () => {
                       />
                     ) : (
                       <div
-                        className="w-full h-full flex items-center justify-center"
+                        className="w-full h-full flex items-center justify-center relative"
                         style={{
                           background: topic.gradient_from && topic.gradient_to
                             ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
                             : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
                         }}
                       >
-                        <div className="text-white/20 text-5xl font-black">
+                        <div className="text-white/15 text-6xl font-black">
                           {topic.number}
                         </div>
                       </div>
                     )}
                     
+                    {/* Overlay for better text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    
                     {/* Premium Badge */}
                     {topic.is_premium && (
-                      <div className="absolute top-2 right-2">
-                        <Badge className="bg-yellow-500 text-white text-[10px] px-2 py-0.5 gap-1">
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge className="bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 gap-1 shadow-lg">
                           <Star className="w-3 h-3 fill-white" />
                           Premium
                         </Badge>
                       </div>
                     )}
+                    
+                    {/* Question Count Badge */}
+                    <div className="absolute bottom-2 left-2 z-10">
+                      <Badge variant="secondary" className="bg-black/60 text-white text-[10px] backdrop-blur-sm border-0">
+                        {topic.questions} вопросов
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-base mb-1 line-clamp-2">
+                  <div className="p-3">
+                    <div className="text-[11px] font-medium text-muted-foreground mb-1">
+                      Тема {topic.number}
+                    </div>
+                    <h3 className="font-bold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                       {topic.name}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Тема {topic.number} • {topic.questions} вопросов
-                    </p>
                   </div>
                 </Card>
               ))}

@@ -1,18 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
 
-/**
- * EdgeSwipeBack
- * Узкая невидимая зона слева, которая распознает горизонтальный свайп вправо
- * и выполняет навигацию назад. Активна в Telegram Mini App и/или на мобильных экранах.
- */
+// EdgeSwipeBack component handles left-edge swipe gesture to navigate back.
+// It is enabled for Telegram Mini App users and mobile screens, except on the root path.
 export const EdgeSwipeBack: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const areaRef = useRef<HTMLDivElement | null>(null);
-
-  const [enabled, setEnabled] = useState<boolean>(() => {
+  const [enabled, setEnabled] = useState(() => {
     if (typeof window === "undefined") return false;
     const isSmallScreen = window.matchMedia?.("(max-width: 768px)")?.matches ?? true;
     return isTelegramMiniApp() || isSmallScreen;
@@ -28,41 +23,33 @@ export const EdgeSwipeBack: React.FC = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Не показываем на корневом экране, чтобы не провоцировать ложные назад
   const isRoot = location.pathname === "/";
   if (!enabled || isRoot) return null;
 
-  let startX = 0;
-  let startY = 0;
-  let active = false;
+  const startRef = useRef({ x: 0, y: 0, active: false });
 
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
     const t = e.touches[0];
-    startX = t.clientX;
-    startY = t.clientY;
-    active = true;
+    startRef.current = { x: t.clientX, y: t.clientY, active: true };
   };
 
-  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!active) return;
+  const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    if (!startRef.current.active) return;
     const t = e.touches[0];
-    const dx = t.clientX - startX;
-    const dy = Math.abs(t.clientY - startY);
-    // Порог по горизонтали и ограничение вертикального отклонения
+    const dx = t.clientX - startRef.current.x;
+    const dy = Math.abs(t.clientY - startRef.current.y);
     if (dx > 80 && dy < 40) {
-      active = false;
+      startRef.current.active = false;
       navigate(-1);
     }
   };
 
-  const onTouchEnd = () => {
-    active = false;
+  const reset = () => {
+    startRef.current.active = false;
   };
 
   return (
     <div
-      ref={areaRef}
-      // Узкая зона захвата у левого края. Высокий z-index, но pointer-events только на область.
       style={{
         position: "fixed",
         top: 0,
@@ -70,21 +57,17 @@ export const EdgeSwipeBack: React.FC = () => {
         width: 24,
         height: "100vh",
         zIndex: 9999,
-        // Разрешаем вертикальную прокрутку, чтобы не блокировать скролл;
-        // горизонтальные жесты остаются детектируемыми
         touchAction: "pan-y",
-        // Невидимая зона
         background: "transparent",
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      onTouchCancel={onTouchEnd}
+      onTouchEnd={reset}
+      onTouchCancel={reset}
       aria-hidden="true"
     />
   );
 };
-
 
 
 
