@@ -155,8 +155,9 @@ export const CurriculumMatrix = ({
                         willChange: "transform",
                       }}
                     />
-                    {/* Стильный лаконичный overlay - диагональный градиент */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-white/10 to-transparent dark:from-black/50 dark:via-black/20 dark:to-transparent" />
+                    {/* Усиленное затемнение для читаемости текста */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent dark:from-black/60 dark:via-black/30 dark:to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/40 to-white/10 dark:from-black/80 dark:via-black/50 dark:to-black/20" />
                   </>
                 )}
 
@@ -180,7 +181,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-[11px] uppercase tracking-[0.2em] font-medium",
                           topic.cover_image 
-                            ? "text-slate-800 dark:text-slate-200" 
+                            ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
                             : "text-muted-foreground"
                         )}
                       >
@@ -190,7 +191,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-base sm:text-lg font-bold tracking-tight",
                           topic.cover_image 
-                            ? "text-slate-900 dark:text-slate-50" 
+                            ? "text-slate-900 dark:text-slate-50 drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" 
                             : "text-foreground"
                         )}
                       >
@@ -203,7 +204,7 @@ export const CurriculumMatrix = ({
                       className={cn(
                         "text-sm max-w-2xl font-medium",
                         topic.cover_image 
-                          ? "text-slate-800 dark:text-slate-200" 
+                          ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
                           : "text-muted-foreground"
                       )}
                     >
