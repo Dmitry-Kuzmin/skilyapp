@@ -155,9 +155,9 @@ export const CurriculumMatrix = ({
                         willChange: "transform",
                       }}
                     />
-                    {/* Усиленное затемнение для читаемости текста */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent dark:from-black/60 dark:via-black/30 dark:to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/40 to-white/10 dark:from-black/80 dark:via-black/50 dark:to-black/20" />
+                    {/* Усиленное затемнение для читаемости текста - более сильное на мобилке */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent dark:from-black/70 dark:via-black/40 dark:to-transparent md:from-black/40 md:via-black/20 md:to-transparent dark:md:from-black/60 dark:md:via-black/30 dark:md:to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/60 to-white/20 dark:from-black/90 dark:via-black/70 dark:to-black/40 md:from-white/70 md:via-white/40 md:to-white/10 dark:md:from-black/80 dark:md:via-black/50 dark:md:to-black/20" />
                   </>
                 )}
 
@@ -181,7 +181,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-[11px] uppercase tracking-[0.2em] font-medium",
                           topic.cover_image 
-                            ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
+                            ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] md:drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
                             : "text-muted-foreground"
                         )}
                       >
@@ -191,7 +191,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-base sm:text-lg font-bold tracking-tight",
                           topic.cover_image 
-                            ? "text-slate-900 dark:text-slate-50 drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" 
+                            ? "text-slate-900 dark:text-slate-50 drop-shadow-[0_3px_6px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] md:drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)] dark:md:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" 
                             : "text-foreground"
                         )}
                       >
@@ -204,7 +204,7 @@ export const CurriculumMatrix = ({
                       className={cn(
                         "text-sm max-w-2xl font-medium",
                         topic.cover_image 
-                          ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
+                          ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] md:drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
                           : "text-muted-foreground"
                       )}
                     >
