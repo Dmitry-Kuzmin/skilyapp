@@ -80,7 +80,9 @@ export default defineConfig(({ mode }) => {
               id.includes('next-themes') ||
               id.includes('framer-motion') ||
               id.includes('recharts') ||
-              id.includes('lucide-react')
+              id.includes('lucide-react') ||
+              id.includes('use-sync-external-store') ||
+              id.includes('useSyncExternalStore')
             ) {
               return 'react-vendor';
             }
