@@ -12,6 +12,13 @@ export interface StructuredCurriculumItem {
   title: string;
   subtopicId?: string;
   status: ItemStatus;
+  /**
+   * kind:
+   * - undefined | "subtopic"  → обычная подтема
+   * - "training_test"        → тренировочный тест по теме
+   * - "final_test"           → итоговый тест по модулю
+   */
+  kind?: "subtopic" | "training_test" | "final_test";
 }
 
 export interface StructuredCurriculumSection extends CurriculumSection {
@@ -29,6 +36,8 @@ interface CurriculumMatrixProps {
   topics: StructuredCurriculumTopic[];
   onSubtopicClick: (subtopicId: string) => void;
   onTopicClick?: (topicId: string) => void;
+  onTrainingTestClick?: (topicId: string) => void;
+  onFinalTestClick?: (topicId: string) => void;
 }
 
 const palettes = [
@@ -58,7 +67,13 @@ const palettes = [
   },
 ];
 
-export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: CurriculumMatrixProps) => {
+export const CurriculumMatrix = ({
+  topics,
+  onSubtopicClick,
+  onTopicClick,
+  onTrainingTestClick,
+  onFinalTestClick,
+}: CurriculumMatrixProps) => {
   const { t } = useLanguage();
 
   const statusConfig: Record<
@@ -206,16 +221,31 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
                       {section.items.map((item) => {
                         const config = statusConfig[item.status];
                         const Icon = config.icon;
+                        const isTestItem =
+                          item.kind === "training_test" || item.kind === "final_test";
+
+                        const disabled =
+                          item.status === "locked" ||
+                          item.status === "placeholder" ||
+                          (!item.subtopicId && !isTestItem);
 
                         return (
                           <button
                             key={`${section.title}-${item.code}-${item.title}`}
-                            onClick={() => item.subtopicId && onSubtopicClick(item.subtopicId)}
-                            disabled={
-                              !item.subtopicId ||
-                              item.status === "locked" ||
-                              item.status === "placeholder"
-                            }
+                            onClick={() => {
+                              if (item.kind === "training_test" && topic.topicId && onTrainingTestClick) {
+                                onTrainingTestClick(topic.topicId);
+                                return;
+                              }
+                              if (item.kind === "final_test" && topic.topicId && onFinalTestClick) {
+                                onFinalTestClick(topic.topicId);
+                                return;
+                              }
+                              if (item.subtopicId) {
+                                onSubtopicClick(item.subtopicId);
+                              }
+                            }}
+                            disabled={disabled}
                             className={cn(
                               "group relative rounded-xl px-3 py-2 min-w-[180px] text-left transition-all duration-150",
                               "flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50",

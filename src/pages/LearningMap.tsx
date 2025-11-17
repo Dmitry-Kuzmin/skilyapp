@@ -460,6 +460,8 @@ const LearningMap = () => {
               topics={structuredCurriculum}
               onSubtopicClick={handleSubtopicClick}
               onTopicClick={handleTopicClick}
+              onTrainingTestClick={(topicId) => navigate(`/tests?topic=${topicId}`)}
+              onFinalTestClick={(topicId) => navigate(`/test/module/${topicId}`)}
             />
           )}
         </div>
@@ -576,6 +578,7 @@ function buildStructuredCurriculum(
           title: localizedTitle,
           subtopicId: matched?.id,
           status,
+          kind: "subtopic",
         };
       }),
     }));
@@ -601,8 +604,53 @@ function buildStructuredCurriculum(
             title: localizedTitle,
             subtopicId: subtopic.id,
             status: statusById.get(subtopic.id) ?? "locked",
+            kind: "subtopic",
           };
         }),
+      });
+    }
+
+    // Добавляем секцию с тестами по модулю, если тема существует в базе
+    if (dbTopic) {
+      const canAccessTests = (progressMap.get(dbTopic.id)?.isUnlocked ?? true) || !progress;
+
+      const testsSectionTitle =
+        language === "es"
+          ? "Pruebas del módulo"
+          : language === "en"
+          ? "Module tests"
+          : "Тесты по модулю";
+
+      const trainingTestTitle =
+        language === "es"
+          ? "Test de entrenamiento por tema"
+          : language === "en"
+          ? "Training test by topic"
+          : "Тренировочный тест по теме";
+
+      const finalTestTitle =
+        language === "es"
+          ? "Test final del módulo"
+          : language === "en"
+          ? "Final module test"
+          : "Итоговый тест по модулю";
+
+      sections.push({
+        title: testsSectionTitle,
+        items: [
+          {
+            code: "T1",
+            title: trainingTestTitle,
+            status: canAccessTests ? "active" : "locked",
+            kind: "training_test",
+          },
+          {
+            code: "T2",
+            title: finalTestTitle,
+            status: progress?.completed ? "completed" : canAccessTests ? "active" : "locked",
+            kind: "final_test",
+          },
+        ],
       });
     }
 

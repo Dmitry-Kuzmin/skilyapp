@@ -1,5 +1,5 @@
 import { useState, useEffect, Fragment } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -46,6 +46,7 @@ const getQuestionLabel = (count: number) => {
 
 const Tests = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, profileId } = useUserContext();
   const { t } = useLanguage(); // Используем существующий LanguageContext!
   const { isPremium } = usePremium();
@@ -91,10 +92,18 @@ const Tests = () => {
   useEffect(() => {
     loadTopics();
     if (isAuthenticated && profileId) {
-    loadStats();
+      loadStats();
       loadChallengeBankCount();
     }
   }, [isAuthenticated, profileId]);
+
+  // Если пришли с карты обучения с параметром ?topic=ID, выбираем эту тему по умолчанию
+  useEffect(() => {
+    const fromTopic = searchParams.get("topic");
+    if (fromTopic) {
+      setSelectedTopic(fromTopic);
+    }
+  }, [searchParams]);
 
   const loadChallengeBankCount = async () => {
     if (!profileId) return;

@@ -1120,6 +1120,38 @@ const TestSession = () => {
           title: `DGT Экзамен ${category}`,
         });
       }
+      // Итоговый тест по модулю: короткий экзамен по одной теме
+      else if (mode === "module" && topic) {
+        const { data, error } = await supabase
+          .from("questions_new")
+          .select(
+            `
+            *,
+            topics (title_ru, title_es),
+            answer_options (*)
+          `
+          )
+          .eq("topic_id", topic);
+
+        if (error) throw error;
+
+        const uniqueQuestionsMap = new Map<string, (typeof data)[0]>();
+        (data || []).forEach((q) => {
+          if (!uniqueQuestionsMap.has(q.id)) {
+            uniqueQuestionsMap.set(q.id, q);
+          }
+        });
+        const uniqueQuestions = Array.from(uniqueQuestionsMap.values());
+
+        const shuffled = uniqueQuestions.sort(() => Math.random() - 0.5);
+        const limited = shuffled.slice(0, 20); // короче, чем обычный экзамен
+
+        setQuestions(limited);
+        setTestInfo({
+          id: `module_${topic}`,
+          title: "Итоговый тест по модулю",
+        });
+      }
       // Если это sequential тест, загружаем вопросы через функцию
       else if (testId) {
         // Получаем информацию о тесте
@@ -1537,7 +1569,7 @@ const TestSession = () => {
     }
     
     const correctCount = answers.filter((a) => a.isCorrect).length;
-    const score = Math.round((correctCount / questions.length) * 100);
+    const score = Math.round((correctCount / Math.max(1, questions.length)) * 100);
     const timeSpent = startTime > 0 ? Math.floor((Date.now() - startTime) / 1000) : (mode === "exam" ? 30 * 60 - timeLeft : 0);
 
     try {
@@ -1556,6 +1588,26 @@ const TestSession = () => {
         }
       }
 
+      // Для module-теста сохраняем прогресс по теме с мягким порогом (>= 70%)
+      if (mode === "module" && profileId && topic) {
+        try {
+          await supabase
+            .from("user_topic_progress")
+            .upsert(
+              {
+                user_id: profileId,
+                topic_id: topic,
+                subtopic_id: null,
+                completed: score >= 70,
+                score,
+              },
+              { onConflict: "user_id,topic_id,subtopic_id" }
+            );
+        } catch (progressError) {
+          console.error("Error updating module topic progress:", progressError);
+        }
+      }
+
       // Сохраняем в game_sessions для совместимости
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -1569,7 +1621,13 @@ const TestSession = () => {
           const duration = timeSpent;
           const sessionData = {
             user_id: profile.id,
-            game_type: testId ? "test_sequential" : (mode === "exam" ? "test_exam" : "test_practice"),
+            game_type: testId
+              ? "test_sequential"
+              : mode === "exam"
+              ? "test_exam"
+              : mode === "module"
+              ? "test_module"
+              : "test_practice",
             score: Math.min(Math.max(0, score), 100), // Ensure 0-100 range
             total_questions: Math.min(Math.max(1, questions.length), 100), // Ensure 1-100 range
             duration_seconds: Math.min(Math.max(0, duration), 7200), // Ensure 0-7200 range
