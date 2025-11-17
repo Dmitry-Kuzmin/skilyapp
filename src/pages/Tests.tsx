@@ -446,20 +446,20 @@ const Tests = () => {
         {topics.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4">Тесты по темам</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {topics.map((topic) => (
                 <Card
                   key={topic.id}
-                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-200"
+                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow p-0"
                   onClick={() => handleStartPath(`/tests/${topic.id}`)}
                 >
                   {/* Image/Gradient */}
-                  <div className="relative w-full h-28 overflow-hidden">
+                  <div className="relative w-full aspect-video overflow-hidden">
                     {topic.cover_image ? (
                       <img
                         src={topic.cover_image}
                         alt={topic.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
@@ -474,7 +474,7 @@ const Tests = () => {
                             : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
                         }}
                       >
-                        <div className="text-white/20 text-4xl font-black">
+                        <div className="text-white/20 text-5xl font-black">
                           {topic.number}
                         </div>
                       </div>
@@ -483,29 +483,22 @@ const Tests = () => {
                     {/* Premium Badge */}
                     {topic.is_premium && (
                       <div className="absolute top-2 right-2">
-                        <div className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-lg">
-                          <Star className="w-2.5 h-2.5 fill-white" />
-                          Pro
-                        </div>
+                        <Badge className="bg-yellow-500 text-white text-[10px] px-2 py-0.5 gap-1">
+                          <Star className="w-3 h-3 fill-white" />
+                          Premium
+                        </Badge>
                       </div>
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="p-3">
-                    <p className="text-[10px] font-medium text-muted-foreground mb-1">
-                      Тема {topic.number}
-                    </p>
-                    <h3 className="font-semibold text-sm leading-tight line-clamp-2 mb-2 group-hover:text-primary transition-colors min-h-[2.5rem]">
+                  <div className="p-4">
+                    <h3 className="font-semibold text-base mb-1 line-clamp-2">
                       {topic.name}
                     </h3>
-                    
-                    <div className="flex items-center gap-1 text-muted-foreground pt-2 border-t border-border/50">
-                      <BookOpen className="w-3 h-3" />
-                      <span className="text-xs">
-                        {topic.questions}
-                      </span>
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Тема {topic.number} • {topic.questions} вопросов
+                    </p>
                   </div>
                 </Card>
               ))}
