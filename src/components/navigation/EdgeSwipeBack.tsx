@@ -30,7 +30,11 @@ export const EdgeSwipeBack: React.FC = () => {
 
   const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
     const t = e.touches[0];
-    startRef.current = { x: t.clientX, y: t.clientY, active: true };
+    // Проверяем, что касание началось в левой части экрана (первые 24px)
+    if (t.clientX <= 24) {
+      startRef.current = { x: t.clientX, y: t.clientY, active: true };
+      e.stopPropagation(); // Останавливаем всплытие, чтобы не конфликтовать с другими элементами
+    }
   };
 
   const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
@@ -38,9 +42,19 @@ export const EdgeSwipeBack: React.FC = () => {
     const t = e.touches[0];
     const dx = t.clientX - startRef.current.x;
     const dy = Math.abs(t.clientY - startRef.current.y);
-    if (dx > 80 && dy < 40) {
+    // Улучшенная логика: свайп вправо (dx > 60) с небольшим вертикальным отклонением
+    if (dx > 60 && dy < 50) {
       startRef.current.active = false;
-      navigate(-1);
+      e.preventDefault(); // Предотвращаем конфликты с другими жестами
+      e.stopPropagation(); // Останавливаем всплытие события
+      
+      // Специальная обработка для дуэли
+      if (location.pathname.includes('/duel') || location.pathname.includes('/games/duel')) {
+        console.log('[EdgeSwipeBack] Exiting duel via swipe');
+        navigate('/games');
+      } else {
+        navigate(-1);
+      }
     }
   };
 
@@ -56,9 +70,10 @@ export const EdgeSwipeBack: React.FC = () => {
         left: 0,
         width: 24,
         height: "100vh",
-        zIndex: 9999,
-        touchAction: "pan-y",
+        zIndex: 99999, // Увеличиваем z-index чтобы быть выше всех элементов дуэли
+        touchAction: "pan-y", // Разрешаем только вертикальный скролл, горизонтальный обрабатываем сами
         background: "transparent",
+        pointerEvents: "auto", // Убеждаемся, что элемент может получать события
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

@@ -37,6 +37,16 @@ export const TelegramNavigation = () => {
     if (!webApp) return;
 
     const handleBack = () => {
+      console.log('[TelegramNavigation] BackButton clicked, current path:', location.pathname);
+      
+      // Специальная обработка для дуэли - всегда выходим из дуэли на страницу игр
+      if (location.pathname.includes('/duel') || location.pathname.includes('/games/duel')) {
+        console.log('[TelegramNavigation] Exiting duel via BackButton');
+        navigate('/games');
+        return;
+      }
+      
+      // Обычная навигация назад
       if (window.history.length > 1) {
         navigate(-1);
       } else {
@@ -58,7 +68,7 @@ export const TelegramNavigation = () => {
     return () => {
       webApp.BackButton.offClick(handleBack);
     };
-  }, [isTelegramReady, navigate]);
+  }, [isTelegramReady, navigate, location.pathname]);
 
   // Управляем отображением BackButton в зависимости от текущего маршрута
   useEffect(() => {
@@ -68,9 +78,13 @@ export const TelegramNavigation = () => {
     if (!webApp) return;
 
     const isMainScreen = location.pathname === "/";
+    const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
+    
+    // В дуэли BackButton всегда должен быть виден и работать
     if (isMainScreen) {
       webApp.BackButton.hide();
     } else {
+      // Показываем BackButton для всех страниц, включая дуэль
       webApp.BackButton.show();
     }
   }, [isTelegramReady, location.pathname]);
