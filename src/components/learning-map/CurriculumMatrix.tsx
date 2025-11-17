@@ -67,22 +67,22 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
   > = {
     completed: {
       label: t("completed"),
-      className: "bg-emerald-500/15 text-emerald-100 border border-emerald-500/30",
+      className: "bg-emerald-50 text-emerald-800 border border-emerald-100",
       icon: CheckCircle2,
     },
     active: {
       label: t("in_progress"),
-      className: "bg-sky-500/20 text-sky-100 border border-sky-500/40",
+      className: "bg-sky-50 text-sky-800 border border-sky-100",
       icon: Play,
     },
     locked: {
       label: t("locked"),
-      className: "bg-slate-900/40 text-slate-500 border border-slate-800",
+      className: "bg-slate-50 text-slate-400 border border-slate-200",
       icon: Lock,
     },
     placeholder: {
       label: t("coming_soon"),
-      className: "bg-slate-900/30 text-slate-500 border border-slate-800 border-dashed",
+      className: "bg-slate-50 text-slate-400 border border-slate-200 border-dashed",
       icon: Sparkles,
     },
   };
