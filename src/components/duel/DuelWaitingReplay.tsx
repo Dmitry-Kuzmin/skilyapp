@@ -254,12 +254,108 @@ export function DuelWaitingReplay({
     }
   }, [realtimeState.duelFinished, safeCallOnDuelFinished]);
   
-  // Используем Realtime счет соперника (вместо периодических проверок)
+  // Используем Realtime счет соперника + fallback для Telegram WebApp
   useEffect(() => {
     if (typeof realtimeState.opponentScore === 'number' && realtimeState.opponentScore >= 0) {
       setOpponentScore(realtimeState.opponentScore);
     }
   }, [realtimeState.opponentScore]);
+
+  // Fallback: периодическая проверка счета соперника для Telegram WebApp (каждые 2 секунды)
+  useEffect(() => {
+    if (isDuelFinished || !duelId || !profileId) return;
+    
+    const isMobileTelegram = typeof window !== 'undefined' && 
+      window.Telegram?.WebApp && 
+      (window.Telegram.WebApp.platform === 'ios' || window.Telegram.WebApp.platform === 'android');
+    
+    // Для Telegram WebApp проверяем чаще (каждые 2 секунды)
+    const checkInterval = isMobileTelegram ? 2000 : 3000;
+    
+    const scoreCheckInterval = setInterval(async () => {
+      try {
+        const { data: players, error } = await supabase
+          .from('duel_players')
+          .select('id, score, user_id')
+          .eq('duel_id', duelId);
+        
+        if (error) {
+          console.error('[DuelWaitingReplay] Error checking opponent score (fallback):', error);
+          return;
+        }
+        
+        if (players && players.length >= 2) {
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
+            console.log('[DuelWaitingReplay] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
+            setOpponentScore(opponent.score);
+          }
+        }
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Exception in score check fallback:', error);
+      }
+    }, checkInterval);
+    
+    return () => clearInterval(scoreCheckInterval);
+  }, [duelId, profileId, isDuelFinished, opponentScore]);
+
+  // КРИТИЧНО: Периодическая проверка статуса дуэли для перехода к результатам (особенно важно для Telegram WebApp)
+  useEffect(() => {
+    if (isDuelFinished || !duelId || !profileId) return;
+    
+    const isMobileTelegram = typeof window !== 'undefined' && 
+      window.Telegram?.WebApp && 
+      (window.Telegram.WebApp.platform === 'ios' || window.Telegram.WebApp.platform === 'android');
+    
+    // Для Telegram WebApp проверяем чаще (каждые 2 секунды)
+    // Для десктопа - реже (каждые 3 секунды)
+    const checkInterval = isMobileTelegram ? 2000 : 3000;
+    
+    const checkDuelStatus = async () => {
+      if (isDuelFinishedRef.current) return;
+      
+      try {
+        // Проверяем статус дуэли напрямую из БД
+        const { data: duel, error } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', duelId)
+          .single();
+        
+        if (error) {
+          console.error('[DuelWaitingReplay] Error checking duel status (periodic):', error);
+          return;
+        }
+        
+        if (duel?.status === 'finished' && !isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] ✅✅✅ PERIODIC CHECK: Duel status is finished! Transitioning to results');
+          isDuelFinishedRef.current = true;
+          setIsDuelFinished(true);
+          
+          try {
+            sounds.victory();
+          } catch (err) {
+            console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
+          }
+          
+          toast.success('🏁 Дуэль завершена!', {
+            description: 'Переход к результатам...',
+            duration: 1500,
+          });
+          
+          safeCallOnDuelFinished();
+        }
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Exception in periodic status check:', error);
+      }
+    };
+    
+    // Проверяем сразу и затем периодически
+    checkDuelStatus();
+    const statusCheckInterval = setInterval(checkDuelStatus, checkInterval);
+    
+    return () => clearInterval(statusCheckInterval);
+  }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
 
   // Проверка отключения соперника каждые 5 секунд
   useEffect(() => {
