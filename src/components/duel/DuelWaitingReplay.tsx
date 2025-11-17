@@ -262,6 +262,13 @@ export function DuelWaitingReplay({
   }, [realtimeState.opponentScore]);
 
   // Fallback: периодическая проверка счета соперника для Telegram WebApp (каждые 2 секунды)
+  // Используем ref для отслеживания последнего счета, чтобы избежать проблем с зависимостями
+  const lastOpponentScoreRef = useRef(opponentScore);
+  
+  useEffect(() => {
+    lastOpponentScoreRef.current = opponentScore;
+  }, [opponentScore]);
+  
   useEffect(() => {
     if (isDuelFinished || !duelId || !profileId) return;
     
@@ -286,9 +293,13 @@ export function DuelWaitingReplay({
         
         if (players && players.length >= 2) {
           const opponent = players.find((p: any) => p.user_id !== profileId);
-          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
-            console.log('[DuelWaitingReplay] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
-            setOpponentScore(opponent.score);
+          if (opponent && typeof opponent.score === 'number') {
+            const currentScore = lastOpponentScoreRef.current;
+            if (opponent.score !== currentScore) {
+              console.log('[DuelWaitingReplay] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', currentScore, ')');
+              setOpponentScore(opponent.score);
+              lastOpponentScoreRef.current = opponent.score;
+            }
           }
         }
       } catch (error) {
@@ -297,7 +308,7 @@ export function DuelWaitingReplay({
     }, checkInterval);
     
     return () => clearInterval(scoreCheckInterval);
-  }, [duelId, profileId, isDuelFinished, opponentScore]);
+  }, [duelId, profileId, isDuelFinished]);
 
   // КРИТИЧНО: Периодическая проверка статуса дуэли для перехода к результатам (особенно важно для Telegram WebApp)
   useEffect(() => {
@@ -459,70 +470,10 @@ export function DuelWaitingReplay({
     return () => clearTimeout(maxWaitTimeout);
   }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
   
-  // ОПТИМИЗИРОВАНО: Проверка при каждом обновлении ответов соперника
-  // Если у соперника есть все ответы - переходим мгновенно (Realtime уже должен был обновить статус)
-  useEffect(() => {
-    // Пропускаем если уже завершено или Realtime уже сообщил о завершении
-    if (isDuelFinishedRef.current || realtimeState.duelFinished) {
-      return;
-    }
-    
-    if (opponentAnswers.length >= totalQuestions) {
-      console.log('[DuelWaitingReplay] 🔥 Opponent has ALL answers! Transitioning immediately...');
-      console.log('[DuelWaitingReplay] Opponent answers:', opponentAnswers.length, 'Required:', totalQuestions);
-      
-      // Переходим мгновенно - Realtime должен был уже обновить статус
-      // Если нет - делаем быструю проверку без задержек
-      const quickCheck = async () => {
-        if (isDuelFinishedRef.current) return;
-        
-        try {
-          // Быстрая проверка статуса через Edge Function (без задержек)
-          const { data, error } = await supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'check_status',
-              duel_id: duelId,
-              profile_id: profileId
-            }
-          });
-          
-          // Если статус finished или есть ошибка - переходим сразу
-          if (data?.status === 'finished' || data?.finished === true || error) {
-            if (!isDuelFinishedRef.current) {
-              console.log('[DuelWaitingReplay] ✅✅✅ Transitioning to results immediately');
-              isDuelFinishedRef.current = true;
-              setIsDuelFinished(true);
-              
-              try {
-                sounds.victory();
-              } catch (err) {
-                console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
-              }
-              
-              toast.success('🏁 Дуэль завершена!', {
-                description: 'Переход к результатам...',
-                duration: 1500,
-              });
-              
-              safeCallOnDuelFinished();
-            }
-          }
-        } catch (err) {
-          console.error('[DuelWaitingReplay] Error in quick check:', err);
-          // При ошибке переходим сразу - у соперника все ответы
-          if (!isDuelFinishedRef.current) {
-            console.log('[DuelWaitingReplay] 🔥 Transitioning on error - opponent has all answers');
-            isDuelFinishedRef.current = true;
-            setIsDuelFinished(true);
-            safeCallOnDuelFinished();
-          }
-        }
-      };
-      
-      // Выполняем проверку без задержек
-      quickCheck();
-    }
-  }, [opponentAnswers.length, totalQuestions, duelId, profileId, safeCallOnDuelFinished, realtimeState.duelFinished]);
+  // КРИТИЧНО: УБРАНА преждевременная проверка по количеству ответов
+  // Теперь переход происходит ТОЛЬКО когда Edge Function подтвердил что дуэль finished
+  // Это предотвращает преждевременный переход когда второй игрок еще не закончил
+  // Проверка статуса дуэли происходит через периодические проверки и Realtime
 
   // Check if opponent finished all questions
   // КРИТИЧНО: Используем Edge Function вместо прямого запроса к БД (обходит RLS проблемы)

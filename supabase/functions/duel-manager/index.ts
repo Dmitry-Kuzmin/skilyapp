@@ -2460,17 +2460,17 @@ Deno.serve(async (req) => {
           });
         }
 
-        // CRITICAL: Delay to ensure current player's last answer is fully committed to database
-        // Increased delay for second player to avoid race condition
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // CRITICAL: Increased delay to ensure current player's last answer is fully committed to database
+        // Increased delay for better race condition protection
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Check if both players finished by counting their answers
         // IMPORTANT: Count answers AFTER current player's last answer is saved
-        // We'll check twice with a delay to handle race conditions
+        // We'll check multiple times with delays to handle race conditions reliably
         let allPlayersFinished = false;
         let playerAnswerCounts: { [playerId: string]: number } = {};
         
-        // First check
+        // Function to check if all players finished
         const checkPlayersFinished = async (): Promise<boolean> => {
           let allFinished = true;
           const counts: { [playerId: string]: number } = {};
@@ -2502,17 +2502,28 @@ Deno.serve(async (req) => {
           return allFinished;
         };
         
-        // First check
+        // First check (after 1 second delay)
         allPlayersFinished = await checkPlayersFinished();
         
-        // If not finished, wait a bit more and check again (race condition protection)
+        // If not finished, wait more and check again (race condition protection)
         if (!allPlayersFinished) {
-          console.log('[finish_duel] First check: not all finished, waiting 300ms and rechecking...');
-          await new Promise(resolve => setTimeout(resolve, 300));
+          console.log('[finish_duel] First check: not all finished, waiting 500ms and rechecking...');
+          await new Promise(resolve => setTimeout(resolve, 500));
           allPlayersFinished = await checkPlayersFinished();
           
           if (allPlayersFinished) {
             console.log('[finish_duel] ✅ Second check: all players finished!');
+          } else {
+            // Third check with additional delay for extra safety
+            console.log('[finish_duel] Second check: still not all finished, waiting 500ms for final check...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            allPlayersFinished = await checkPlayersFinished();
+            
+            if (allPlayersFinished) {
+              console.log('[finish_duel] ✅ Third check: all players finished!');
+            } else {
+              console.log('[finish_duel] ⚠️ Third check: still not all finished - waiting for opponent');
+            }
           }
         }
 
