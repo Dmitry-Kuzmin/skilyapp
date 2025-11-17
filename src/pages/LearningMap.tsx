@@ -43,13 +43,19 @@ const LearningMap = () => {
   }, [language]);
 
   useEffect(() => {
-    if (topics.length === 0) return;
+    console.log('[LearningMap] Topics effect triggered:', { topicsLength: topics.length, isAuthenticated, profileId });
+    if (topics.length === 0) {
+      console.log('[LearningMap] No topics yet, waiting...');
+      return;
+    }
 
     if (isAuthenticated && profileId) {
+      console.log('[LearningMap] Loading user profile and progress...');
       Promise.all([loadUserProfile(), loadProgress()]).catch((error) => {
         console.error("[LearningMap] Error loading data:", error);
       });
     } else {
+      console.log('[LearningMap] Not authenticated, setting default progress');
       const defaultProgress = new Map<string, TopicProgress>();
       topics.forEach((topic, index) => {
         defaultProgress.set(topic.id, {
@@ -62,6 +68,7 @@ const LearningMap = () => {
       });
       setTopicsProgress(defaultProgress);
       setLoading(false);
+      console.log('[LearningMap] Default progress set, loading:', false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topics.length, isAuthenticated, profileId]);
@@ -335,43 +342,52 @@ const LearningMap = () => {
     },
   ];
 
+  console.log('[LearningMap] Render state:', { loading, error, topicsLength: topics.length, topicsProgressSize: topicsProgress.size });
+
   if (loading) {
+    console.log('[LearningMap] Rendering loading state');
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-          <p className="text-muted-foreground">
-            {isEs
-              ? "Cargando mapa de aprendizaje..."
-              : isEn
-              ? "Loading learning map..."
-              : "Загрузка карты обучения..."}
-          </p>
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
+            <p className="text-muted-foreground">
+              {isEs
+                ? "Cargando mapa de aprendizaje..."
+                : isEn
+                ? "Loading learning map..."
+                : "Загрузка карты обучения..."}
+            </p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (error) {
+    console.log('[LearningMap] Rendering error state:', error);
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-md">
-          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
-            <BookOpen className="w-8 h-8 text-destructive" />
+      <Layout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center space-y-4 max-w-md">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+              <BookOpen className="w-8 h-8 text-destructive" />
+            </div>
+            <h2 className="text-2xl font-bold">
+              {isEs ? "Error de carga" : isEn ? "Loading error" : "Ошибка загрузки"}
+            </h2>
+            <p className="text-muted-foreground">{error}</p>
+            <Button onClick={() => {
+              console.log('[LearningMap] Retry button clicked');
+              setError(null);
+              setLoading(true);
+              loadLearningMap();
+            }}>
+              {isEs ? "Intentar de nuevo" : isEn ? "Try again" : "Попробовать снова"}
+            </Button>
           </div>
-          <h2 className="text-2xl font-bold">
-            {isEs ? "Error de carga" : isEn ? "Loading error" : "Ошибка загрузки"}
-          </h2>
-          <p className="text-muted-foreground">{error}</p>
-          <Button onClick={() => {
-            setError(null);
-            setLoading(true);
-            loadLearningMap();
-          }}>
-            {isEs ? "Intentar de nuevo" : isEn ? "Try again" : "Попробовать снова"}
-          </Button>
         </div>
-      </div>
+      </Layout>
     );
   }
 
