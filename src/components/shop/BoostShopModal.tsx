@@ -919,21 +919,23 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
-              <TabsTrigger value="boosts" className="text-xs">
-                <Zap className="w-3 h-3 mr-1" />
-                Бусты
-              </TabsTrigger>
-              <TabsTrigger value="coins" className="text-xs">
-                <Coins className="w-3 h-3 mr-1" />
-                Монеты
-              </TabsTrigger>
-              <TabsTrigger value="premium" className="text-xs">
-                <Crown className="w-3 h-3 mr-1" />
-                Premium
-              </TabsTrigger>
-            </TabsList>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full overflow-hidden">
+            <div className="px-4 pt-4 pb-0">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="boosts" className="text-xs truncate">
+                  <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">Бусты</span>
+                </TabsTrigger>
+                <TabsTrigger value="coins" className="text-xs truncate">
+                  <Coins className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">Монеты</span>
+                </TabsTrigger>
+                <TabsTrigger value="premium" className="text-xs truncate">
+                  <Crown className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">Premium</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Boosts Tab */}
             <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
@@ -1162,8 +1164,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0">
-          <div className="flex-1 overflow-y-auto">
+        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0 overflow-x-hidden">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <ModalContent />
           </div>
         </DialogContent>
