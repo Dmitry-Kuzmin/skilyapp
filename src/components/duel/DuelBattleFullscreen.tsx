@@ -24,6 +24,7 @@ import { DuelSettingsMenu } from './DuelSettingsMenu';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { useDuelData } from '@/hooks/useDuelData';
+import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 
 const duelRiskMultiplierPreview = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -654,6 +655,31 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       onDuelFinished();
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished]);
+
+  // Обработка Telegram BackButton для дуэли
+  useEffect(() => {
+    if (!isTelegramMiniApp()) return;
+    
+    const webApp = getTelegramWebApp();
+    if (!webApp || !webApp.BackButton) return;
+
+    // Показываем BackButton в дуэли
+    webApp.BackButton.show();
+
+    // Обработчик для выхода из дуэли
+    const handleBack = () => {
+      console.log('[DuelBattleFullscreen] BackButton clicked - exiting duel');
+      onExit();
+    };
+
+    // Вешаем обработчик
+    webApp.BackButton.onClick(handleBack);
+
+    // Cleanup
+    return () => {
+      webApp.BackButton.offClick(handleBack);
+    };
+  }, [onExit]);
 
   // Sync opponent score from realtime - основной способ обновления счета
   useEffect(() => {
@@ -1488,7 +1514,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         paddingTop: `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,
         paddingRight: `${totalRightPadding}px`,
-        paddingBottom: `${totalBottomPadding}px`
+        paddingBottom: `${totalBottomPadding}px`,
+        // Убеждаемся, что не блокируем touch события для EdgeSwipeBack
+        touchAction: 'pan-y pinch-zoom'
       }}
     >
       {/* Toast Notifications */}

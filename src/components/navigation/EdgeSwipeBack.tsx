@@ -34,6 +34,8 @@ export const EdgeSwipeBack: React.FC = () => {
     if (t.clientX <= 24) {
       startRef.current = { x: t.clientX, y: t.clientY, active: true };
       e.stopPropagation(); // Останавливаем всплытие, чтобы не конфликтовать с другими элементами
+      e.preventDefault(); // Предотвращаем стандартное поведение
+      console.log('[EdgeSwipeBack] Touch started at:', t.clientX, t.clientY);
     }
   };
 
@@ -70,10 +72,12 @@ export const EdgeSwipeBack: React.FC = () => {
         left: 0,
         width: 24,
         height: "100vh",
-        zIndex: 99999, // Увеличиваем z-index чтобы быть выше всех элементов дуэли
-        touchAction: "pan-y", // Разрешаем только вертикальный скролл, горизонтальный обрабатываем сами
+        zIndex: 999999, // Максимальный z-index чтобы быть выше ВСЕХ элементов, включая дуэль
+        touchAction: "none", // Полный контроль над touch событиями
         background: "transparent",
         pointerEvents: "auto", // Убеждаемся, что элемент может получать события
+        // Убеждаемся, что элемент не блокируется другими
+        isolation: "isolate", // Создаём новый stacking context
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
