@@ -19,6 +19,8 @@ import { usePremium } from '@/hooks/usePremium';
 import { ModalSkeleton } from '@/components/ui/modal-skeleton';
 import { getDialogContentClasses } from '@/lib/modal-config';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
+import { getTelegramWebApp } from '@/lib/telegram';
 
 interface BoostShopModalProps {
   open: boolean;
@@ -52,9 +54,11 @@ interface Transaction {
 }
 
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
-  const { profileId } = useUserContext();
+  const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
+  const webApp = getTelegramWebApp();
+  const showStarsPayment = platform === 'telegram' && !!webApp;
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -994,12 +998,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
                 <div className="grid gap-3">
                   {[
-                    { amount: 100, price: '€2.99', bonus: 0, catalogKey: 'coins_pack_100' },
-                    { amount: 500, price: '€9.99', bonus: 50, catalogKey: 'coins_pack_500' },
-                    { amount: 1200, price: '€19.99', bonus: 200, catalogKey: 'coins_pack_1200' },
-                    { amount: 3000, price: '€39.99', bonus: 500, catalogKey: 'coins_pack_3000' },
+                    { amount: 100, price: '€2.99', bonus: 0, catalogKey: 'coins_pack_100', packageKey: 'coins_100', priceCoins: 100 },
+                    { amount: 500, price: '€9.99', bonus: 50, catalogKey: 'coins_pack_500', packageKey: 'coins_500', priceCoins: 550 },
+                    { amount: 1200, price: '€19.99', bonus: 200, catalogKey: 'coins_pack_1200', packageKey: 'coins_1200', priceCoins: 1400 },
+                    { amount: 3000, price: '€39.99', bonus: 500, catalogKey: 'coins_pack_3000', packageKey: 'coins_3000', priceCoins: 3500 },
                   ].map((pack, idx) => (
-                    <Card key={idx} className="p-4 hover:border-primary/50 transition-colors cursor-pointer">
+                    <Card key={idx} className="p-4 hover:border-primary/50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
@@ -1014,16 +1018,37 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             )}
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end gap-2">
                           <p className="font-bold">{pack.price}</p>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleCoinPurchase(pack.catalogKey)}
-                            className="mt-1"
-                            disabled={!profileId}
-                          >
-                            Купить
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleCoinPurchase(pack.catalogKey)}
+                              className="mt-1"
+                              disabled={!profileId}
+                              variant="default"
+                            >
+                              Купить
+                            </Button>
+                            {showStarsPayment && (
+                              <StarsPaymentButton
+                                packageKey={pack.packageKey}
+                                priceCoins={pack.priceCoins}
+                                onSuccess={() => {
+                                  loadData(); // Обновить баланс после успешной оплаты
+                                  toast({
+                                    title: '✅ Оплата успешна!',
+                                    description: `Вы получили ${pack.amount} монет`,
+                                    duration: 5000,
+                                  });
+                                  setShowConfetti(true);
+                                  setTimeout(() => setShowConfetti(false), 3000);
+                                }}
+                                variant="outline"
+                                size="sm"
+                              />
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Card>
