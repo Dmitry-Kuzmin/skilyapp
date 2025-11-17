@@ -129,12 +129,34 @@ export const CurriculumMatrix = ({
             </div>
 
             <div className="relative space-y-4">
-              <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="space-y-2">
+              <header
+                className={cn(
+                  "relative rounded-xl overflow-hidden p-4 sm:p-5 md:p-6",
+                  "flex flex-col gap-4 md:flex-row md:items-center md:justify-between",
+                  topic.cover_image && "min-h-[140px] md:min-h-[120px]"
+                )}
+                style={
+                  topic.cover_image
+                    ? {
+                        backgroundImage: `url(${topic.cover_image})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }
+                    : undefined
+                }
+              >
+                {/* Overlay для читаемости текста поверх картинки */}
+                {topic.cover_image && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/90 to-white/70 md:from-white/90 md:via-white/85 md:to-white/60" />
+                )}
+
+                {/* Контент header с relative позиционированием для overlay */}
+                <div className="relative z-10 flex-1 space-y-2">
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold",
+                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-sm",
                         topic.isCompleted ? "bg-emerald-500 text-white" : palette.badgeBg,
                         !topic.topicId && "bg-slate-200 text-slate-500"
                       )}
@@ -142,37 +164,38 @@ export const CurriculumMatrix = ({
                       {topic.number}
                     </div>
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                      <p
+                        className={cn(
+                          "text-[11px] uppercase tracking-[0.2em]",
+                          topic.cover_image ? "text-slate-600" : "text-slate-400"
+                        )}
+                      >
                         {t("module")}
                       </p>
-                      <h2 className="text-base sm:text-lg font-semibold tracking-tight text-slate-900">
+                      <h2
+                        className={cn(
+                          "text-base sm:text-lg font-semibold tracking-tight",
+                          topic.cover_image ? "text-slate-900 drop-shadow-sm" : "text-slate-900"
+                        )}
+                      >
                         {topic.title}
                       </h2>
                     </div>
                   </div>
                   {topic.description && (
-                    <p className="text-slate-600 text-sm max-w-2xl">{topic.description}</p>
+                    <p
+                      className={cn(
+                        "text-sm max-w-2xl",
+                        topic.cover_image ? "text-slate-700" : "text-slate-600"
+                      )}
+                    >
+                      {topic.description}
+                    </p>
                   )}
                 </div>
 
-                <div className="flex flex-wrap gap-3 md:items-center md:justify-end">
-                  {topic.cover_image && (
-                    <div className="hidden md:block">
-                      <div className="relative w-40 h-24 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm">
-                        <img
-                          src={topic.cover_image}
-                          alt={topic.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = "none";
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+                <div className="relative z-10 flex flex-wrap gap-3 md:items-center md:justify-end">
+                  <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-slate-200/80 rounded-xl px-3 py-2 shadow-sm">
                     <div className="relative">
                       <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
                         <path
@@ -197,7 +220,7 @@ export const CurriculumMatrix = ({
                       </span>
                     </div>
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
                         {t("progress")}
                       </p>
                       <p className="text-sm font-semibold text-slate-900">
@@ -209,7 +232,7 @@ export const CurriculumMatrix = ({
                   {topic.topicId && onTopicClick && (
                     <Button
                       variant="secondary"
-                      className="rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-semibold px-4 py-3"
+                      className="rounded-xl bg-white/95 backdrop-blur-sm text-slate-900 hover:bg-white border border-slate-200/80 font-semibold px-4 py-3 shadow-sm"
                       onClick={() => onTopicClick(topic.topicId!)}
                     >
                       {t("continue_topic")}
@@ -217,24 +240,6 @@ export const CurriculumMatrix = ({
                   )}
                 </div>
               </header>
-
-              {/* Обложка модуля под заголовком на мобильных, чтобы не ломать сетку */}
-              {topic.cover_image && (
-                <div className="mt-2 md:hidden">
-                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm">
-                    <img
-                      src={topic.cover_image}
-                      alt={topic.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-3">
                 {topic.sections.map((section) => (
