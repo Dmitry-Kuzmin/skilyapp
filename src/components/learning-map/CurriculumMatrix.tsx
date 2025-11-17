@@ -135,9 +135,9 @@ export const CurriculumMatrix = ({
             <div className="relative space-y-4">
               <header
                 className={cn(
-                  "relative rounded-xl overflow-hidden p-4 sm:p-5 md:p-6",
-                  "flex flex-col gap-4 md:flex-row md:items-center md:justify-between",
-                  topic.cover_image && "min-h-[160px] md:min-h-[140px]"
+                  "relative rounded-xl overflow-hidden p-3 sm:p-4 md:p-5 lg:p-6",
+                  "flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between",
+                  topic.cover_image && "min-h-[140px] sm:min-h-[160px] md:min-h-[140px]"
                 )}
               >
                 {/* Фоновое изображение с премиум качеством */}
@@ -162,11 +162,11 @@ export const CurriculumMatrix = ({
                 )}
 
                 {/* Контент header с relative позиционированием для overlay */}
-                <div className="relative z-10 flex-1 space-y-2">
-                  <div className="flex items-center gap-3">
+                <div className="relative z-10 flex-1 space-y-1.5 sm:space-y-2">
+                  <div className="flex items-start sm:items-center gap-2 sm:gap-3">
                     <div
                       className={cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-lg",
+                        "h-9 w-9 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex items-center justify-center text-base sm:text-lg font-bold shadow-lg flex-shrink-0",
                         topic.isCompleted 
                           ? "bg-emerald-500 dark:bg-emerald-600 text-white ring-2 ring-emerald-200 dark:ring-emerald-700" 
                           : `${palette.badgeBg} ${palette.badgeText}`,
@@ -176,10 +176,10 @@ export const CurriculumMatrix = ({
                     >
                       {topic.number}
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p
                         className={cn(
-                          "text-[11px] uppercase tracking-[0.2em] font-medium",
+                          "text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium",
                           topic.cover_image 
                             ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] md:drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
                             : "text-muted-foreground"
@@ -189,7 +189,7 @@ export const CurriculumMatrix = ({
                       </p>
                       <h2
                         className={cn(
-                          "text-base sm:text-lg font-bold tracking-tight",
+                          "text-sm sm:text-base md:text-lg font-bold tracking-tight break-words",
                           topic.cover_image 
                             ? "text-slate-900 dark:text-slate-50 drop-shadow-[0_3px_6px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] md:drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)] dark:md:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" 
                             : "text-foreground"
@@ -202,7 +202,7 @@ export const CurriculumMatrix = ({
                   {topic.description && (
                     <p
                       className={cn(
-                        "text-sm max-w-2xl font-medium",
+                        "text-xs sm:text-sm max-w-2xl font-medium break-words",
                         topic.cover_image 
                           ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] md:drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
                           : "text-muted-foreground"
@@ -213,15 +213,15 @@ export const CurriculumMatrix = ({
                   )}
                 </div>
 
-                <div className="relative z-10 flex flex-wrap gap-3 md:items-center md:justify-end">
+                <div className="relative z-10 flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
                   <div className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2 shadow-lg transition-all",
+                    "flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-lg transition-all w-full sm:w-auto",
                     topic.cover_image 
                       ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border border-white/90 dark:border-black/90 ring-1 ring-white/50 dark:ring-black/50" 
                       : "bg-muted border border-border"
                   )}>
-                    <div className="relative">
-                      <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+                    <div className="relative flex-shrink-0">
+                      <svg className="w-8 h-8 sm:w-10 sm:h-10 -rotate-90" viewBox="0 0 36 36">
                         <path
                           className="text-muted-foreground/30"
                           strokeWidth="3.5"
@@ -239,18 +239,18 @@ export const CurriculumMatrix = ({
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] sm:text-xs font-bold text-foreground">
                         {Math.round(topic.progressPercent)}%
                       </span>
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className={cn(
-                        "text-[11px] uppercase tracking-[0.2em] font-medium",
+                        "text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium truncate",
                         topic.cover_image ? "text-slate-600 dark:text-slate-400" : "text-muted-foreground"
                       )}>
                         {t("progress")}
                       </p>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-xs sm:text-sm font-bold text-foreground truncate">
                         {topic.isCompleted ? t("completed") : t("in_progress")}
                       </p>
                     </div>
@@ -259,8 +259,9 @@ export const CurriculumMatrix = ({
                   {topic.topicId && onTopicClick && (
                     <Button
                       variant="secondary"
+                      size="sm"
                       className={cn(
-                        "rounded-xl font-bold px-4 py-3 shadow-lg transition-all hover:scale-105",
+                        "rounded-lg sm:rounded-xl font-bold px-3 py-2 sm:px-4 sm:py-3 shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-xs sm:text-sm",
                         topic.cover_image
                           ? "bg-white/95 dark:bg-black/95 backdrop-blur-md text-foreground hover:bg-white dark:hover:bg-black border border-white/90 dark:border-black/90 ring-1 ring-white/50 dark:ring-black/50"
                           : "bg-background text-foreground hover:bg-muted border border-border"
@@ -273,25 +274,25 @@ export const CurriculumMatrix = ({
                 </div>
               </header>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {topic.sections.map((section) => (
                   <section
                     key={section.title}
-                    className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4 space-y-3"
+                    className="rounded-lg sm:rounded-xl border border-border bg-muted/30 p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3"
                   >
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                           {t("block")}
                         </p>
-                        <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
+                        <h3 className="text-xs sm:text-sm font-semibold text-foreground break-words">{section.title}</h3>
                       </div>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[10px] sm:text-[11px] text-muted-foreground flex-shrink-0">
                         {section.items.length}
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {section.items.map((item) => {
                         const config = statusConfig[item.status];
                         const Icon = config.icon;
@@ -321,21 +322,21 @@ export const CurriculumMatrix = ({
                             }}
                             disabled={disabled}
                             className={cn(
-                              "group relative rounded-xl px-3 py-2 min-w-[180px] text-left transition-all duration-150",
-                              "flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                              "group relative rounded-lg sm:rounded-xl px-2.5 py-2 sm:px-3 sm:py-2 text-left transition-all duration-150",
+                              "flex flex-col gap-1.5 sm:gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                               config.className,
                               !item.subtopicId && "cursor-default"
                             )}
                           >
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-                                {item.code && <span>{item.code}</span>}
-                                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
-                                <span>{config.label}</span>
+                            <div className="flex items-center justify-between gap-2 sm:gap-3">
+                              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground flex-1 min-w-0">
+                                {item.code && <span className="truncate">{item.code}</span>}
+                                {item.code && <div className="h-1 w-1 rounded-full bg-muted-foreground/30 flex-shrink-0" />}
+                                <span className="truncate">{config.label}</span>
                               </div>
-                              <Icon className="w-3 h-3" />
+                              <Icon className="w-3 h-3 flex-shrink-0" />
                             </div>
-                            <p className="text-sm font-medium leading-snug text-foreground">
+                            <p className="text-xs sm:text-sm font-medium leading-snug text-foreground break-words">
                               {item.title}
                             </p>
                           </button>

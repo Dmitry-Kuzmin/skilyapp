@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, BookOpen, FileText, Languages } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, BookOpen, FileText, Languages, CheckCircle2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -282,121 +282,258 @@ const SubtopicDetail = () => {
     );
   }
 
+  const progressPercent = allSubtopics.length > 0 
+    ? ((currentIndex + 1) / allSubtopics.length) * 100 
+    : 0;
+
+  const getTypeConfig = () => {
+    switch (subtopic.type) {
+      case "material":
+        return {
+          icon: BookOpen,
+          label: "Материал",
+          color: "text-primary",
+          bgGradient: "from-primary/10 to-primary/5",
+          borderColor: "border-primary/20",
+        };
+      case "test":
+        return {
+          icon: FileText,
+          label: "Тест",
+          color: "text-secondary",
+          bgGradient: "from-secondary/10 to-secondary/5",
+          borderColor: "border-secondary/20",
+        };
+      case "terms":
+        return {
+          icon: Languages,
+          label: "Термины",
+          color: "text-emerald-500",
+          bgGradient: "from-emerald-500/10 to-emerald-500/5",
+          borderColor: "border-emerald-500/20",
+        };
+      default:
+        return {
+          icon: BookOpen,
+          label: "Урок",
+          color: "text-muted-foreground",
+          bgGradient: "from-muted to-muted/50",
+          borderColor: "border-border",
+        };
+    }
+  };
+
+  const typeConfig = getTypeConfig();
+  const IconComponent = typeConfig.icon;
+
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(`/topic/${subtopic.topic_id}`)}
-            className="shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              {subtopic.type === "material" && <BookOpen className="w-5 h-5 text-primary" />}
-              {subtopic.type === "test" && <FileText className="w-5 h-5 text-secondary" />}
-              {subtopic.type === "terms" && <Languages className="w-5 h-5 text-success" />}
-              <h1 className="text-2xl md:text-3xl font-bold truncate">{subtopic.title_ru}</h1>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Подтема {subtopic.order_index} из {allSubtopics.length}
-            </p>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        {allSubtopics.length > 1 && (
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
+      <div className="min-h-screen bg-background">
+        {/* Современный Header с градиентом */}
+        <div className={cn(
+          "relative overflow-hidden border-b",
+          `bg-gradient-to-br ${typeConfig.bgGradient}`,
+          typeConfig.borderColor
+        )}>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.05),transparent_50%)]" />
+          
+          <div className="container mx-auto px-4 py-4 sm:py-6 relative z-10">
+            {/* Навигация назад */}
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(`/topic/${subtopic.topic_id}`)}
+                className="shrink-0 hover:bg-background/50"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Предыдущая
+                <ArrowLeft className="w-5 h-5" />
               </Button>
-              <span className="text-sm text-muted-foreground">
-                {currentIndex + 1} / {allSubtopics.length}
-              </span>
-              <Button
-                variant="outline"
-                onClick={handleNext}
-                disabled={currentIndex === allSubtopics.length - 1}
-              >
-                Следующая
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <IconComponent className={cn("w-4 h-4 sm:w-5 sm:h-5", typeConfig.color)} />
+                  <span className={cn("text-xs sm:text-sm font-medium", typeConfig.color)}>
+                    {typeConfig.label}
+                  </span>
+                </div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">
+                  {subtopic.title_ru}
+                </h1>
+              </div>
+              {isCompleted && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    Изучено
+                  </span>
+                </div>
+              )}
             </div>
-          </Card>
-        )}
 
-        {/* Content */}
-        {subtopic.type === "material" && material && (
-          <MaterialViewer
-            material={material}
-            onComplete={handleComplete}
-            isCompleted={isCompleted}
-          />
-        )}
+            {/* Прогресс и навигация */}
+            {allSubtopics.length > 1 && (
+              <div className="space-y-3">
+                {/* Прогресс-бар */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-muted-foreground">
+                      Подтема {currentIndex + 1} из {allSubtopics.length}
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {Math.round(progressPercent)}%
+                    </span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                </div>
 
-        {subtopic.type === "terms" && (
-          <div className="space-y-4">
-            <Card className="p-6">
-              <h2 className="text-xl font-bold mb-4">Термины темы</h2>
-              <p className="text-muted-foreground mb-4">
-                Изучи термины, связанные с этой темой
-              </p>
-            </Card>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {terms.map((term) => (
-                <LanguageTermCard key={term.id} term={term} />
-              ))}
-            </div>
-            {terms.length === 0 && (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">Термины пока не добавлены</p>
-              </Card>
-            )}
-            {terms.length > 0 && !isCompleted && (
-              <div className="flex justify-end pt-4">
-                <Button onClick={handleComplete} size="lg">
-                  Отметить как изученное
-                </Button>
+                {/* Навигационные кнопки */}
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrevious}
+                    disabled={currentIndex === 0}
+                    className="flex-1 sm:flex-none"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Предыдущая</span>
+                  </Button>
+                  
+                  <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-background/50 border border-border">
+                    <span className="text-sm font-semibold text-foreground">
+                      {currentIndex + 1}
+                    </span>
+                    <span className="text-xs text-muted-foreground">/</span>
+                    <span className="text-sm text-muted-foreground">
+                      {allSubtopics.length}
+                    </span>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNext}
+                    disabled={currentIndex === allSubtopics.length - 1}
+                    className="flex-1 sm:flex-none"
+                  >
+                    <span className="hidden sm:inline">Следующая</span>
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {subtopic.type === "test" && test && (
-          <Card className="p-6 space-y-4">
-            <div>
-              <h2 className="text-xl font-bold mb-2">{test.title_ru}</h2>
-              <p className="text-muted-foreground">
-                Вопросов: {test.question_count} | Минимальный балл: {test.min_pass_percent}%
-              </p>
+        {/* Content Area */}
+        <div className="container mx-auto px-4 py-6 sm:py-8 pb-20 md:pb-8">
+          {subtopic.type === "material" && material && (
+            <div className="space-y-6">
+              <MaterialViewer
+                material={material}
+                onComplete={handleComplete}
+                isCompleted={isCompleted}
+              />
             </div>
-            <Button onClick={handleStartTest} size="lg" className="w-full">
-              <FileText className="w-4 h-4 mr-2" />
-              Начать тест
-            </Button>
-          </Card>
-        )}
+          )}
 
-        {/* Empty State */}
-        {subtopic.type === "material" && !material && (
-          <Card className="p-8 text-center">
-            <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Материал пока не добавлен</h3>
-            <p className="text-muted-foreground">
-              Материал для этой подтемы будет добавлен в ближайшее время
-            </p>
-          </Card>
-        )}
+          {subtopic.type === "terms" && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">Термины темы</h2>
+                <p className="text-muted-foreground">
+                  Изучи термины, связанные с этой темой
+                </p>
+              </div>
+              
+              {terms.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {terms.map((term) => (
+                      <LanguageTermCard key={term.id} term={term} />
+                    ))}
+                  </div>
+                  
+                  {!isCompleted && (
+                    <div className="flex justify-end pt-4">
+                      <Button 
+                        onClick={handleComplete} 
+                        size="lg"
+                        className="rounded-xl shadow-lg"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Отметить как изученное
+                      </Button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Card className="p-12 text-center border-dashed">
+                  <Languages className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2 text-foreground">
+                    Термины пока не добавлены
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Термины для этой темы будут добавлены в ближайшее время
+                  </p>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {subtopic.type === "test" && test && (
+            <Card className="p-6 sm:p-8 space-y-6 border-2">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-secondary/10">
+                    <FileText className="w-6 h-6 text-secondary" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-foreground mb-2">
+                      {test.title_ru}
+                    </h2>
+                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">Вопросов:</span>
+                        {test.question_count}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">Минимальный балл:</span>
+                        {test.min_pass_percent}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleStartTest} 
+                size="lg" 
+                className="w-full rounded-xl shadow-lg h-12 text-base font-semibold"
+              >
+                <FileText className="w-5 h-5 mr-2" />
+                Начать тест
+              </Button>
+            </Card>
+          )}
+
+          {/* Empty State для материалов */}
+          {subtopic.type === "material" && !material && (
+            <Card className="p-12 text-center border-dashed">
+              <BookOpen className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">
+                Материал пока не добавлен
+              </h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Материал для этой подтемы будет добавлен в ближайшее время
+              </p>
+            </Card>
+          )}
+        </div>
       </div>
     </Layout>
   );
