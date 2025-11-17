@@ -155,12 +155,8 @@ export const CurriculumMatrix = ({
                         willChange: "transform",
                       }}
                     />
-                    {/* Легкий blur для премиум эффекта */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/20 dark:from-black/30 dark:via-transparent dark:to-black/40" />
-                    {/* Улучшенный overlay для читаемости - более темное затемнение */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/60 to-white/40 md:from-white/65 md:via-white/55 md:to-white/35 dark:from-black/90 dark:via-black/85 dark:to-black/70 dark:md:from-black/85 dark:md:via-black/80 dark:md:to-black/65" />
-                    {/* Дополнительный радиальный градиент для глубины - усиленный */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.6),transparent_50%)] dark:bg-[radial-gradient(circle_at_20%_30%,rgba(0,0,0,0.6),transparent_50%)]" />
+                    {/* Стильный лаконичный overlay - диагональный градиент */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-white/10 to-transparent dark:from-black/50 dark:via-black/20 dark:to-transparent" />
                   </>
                 )}
 
@@ -184,7 +180,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-[11px] uppercase tracking-[0.2em] font-medium",
                           topic.cover_image 
-                            ? "text-slate-700 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]" 
+                            ? "text-slate-800 dark:text-slate-200" 
                             : "text-muted-foreground"
                         )}
                       >
@@ -194,7 +190,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-base sm:text-lg font-bold tracking-tight",
                           topic.cover_image 
-                            ? "text-slate-900 dark:text-slate-50 drop-shadow-[0_3px_6px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)]" 
+                            ? "text-slate-900 dark:text-slate-50" 
                             : "text-foreground"
                         )}
                       >
@@ -207,7 +203,7 @@ export const CurriculumMatrix = ({
                       className={cn(
                         "text-sm max-w-2xl font-medium",
                         topic.cover_image 
-                          ? "text-slate-800 dark:text-slate-100 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]" 
+                          ? "text-slate-800 dark:text-slate-200" 
                           : "text-muted-foreground"
                       )}
                     >
