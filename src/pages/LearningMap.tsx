@@ -374,9 +374,9 @@ const LearningMap = () => {
         <div className="container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8">
           <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-xs font-medium text-slate-600">
+                <span className="text-xs font-medium text-muted-foreground">
                   {isEs
                     ? "Mapa estructurada del curso de tráfico"
                     : isEn
@@ -384,7 +384,7 @@ const LearningMap = () => {
                     : "Структурированная карта курса ПДД"}
                 </span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 {isEs ? "Mapa de aprendizaje" : isEn ? "Learning map" : "Карта обучения"}
               </h1>
               <p className="text-sm text-muted-foreground max-w-xl">
@@ -400,12 +400,12 @@ const LearningMap = () => {
               {heroStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-xl bg-white border border-slate-200 px-3 py-2 min-w-[120px]"
+                  className="rounded-xl bg-card border border-border px-3 py-2 min-w-[120px]"
                 >
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                     {stat.label}
                   </p>
-                  <p className="text-sm font-semibold mt-1 text-slate-900">{stat.value}</p>
+                  <p className="text-sm font-semibold mt-1 text-foreground">{stat.value}</p>
                 </div>
               ))}
               <Button
@@ -436,18 +436,18 @@ const LearningMap = () => {
           </section>
 
           {structuredCurriculum.length === 0 ? (
-            <div className="text-center py-20 text-slate-400">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 mb-4">
-                <BookOpen className="w-8 h-8 text-white/50" />
+            <div className="text-center py-20 text-muted-foreground">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
+                <BookOpen className="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 {isEs
                   ? "Temas aún no añadidas"
                   : isEn
                   ? "Topics not added yet"
                   : "Темы пока не добавлены"}
               </h3>
-              <p className="text-slate-600 max-w-md mx-auto">
+              <p className="text-muted-foreground max-w-md mx-auto">
                 {isEs
                   ? "Estamos recopilando contenido. Vuelve más tarde para ver la ruta completa."
                   : isEn

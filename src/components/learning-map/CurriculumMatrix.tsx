@@ -45,28 +45,32 @@ interface CurriculumMatrixProps {
 
 const palettes = [
   {
-    badgeBg: "bg-sky-50",
-    badgeText: "text-sky-700",
-    badgeBorder: "border-sky-100",
-    progressColor: "text-sky-500",
+    badgeBg: "bg-sky-50 dark:bg-sky-950/50",
+    badgeText: "text-sky-700 dark:text-sky-300",
+    badgeBorder: "border-sky-100 dark:border-sky-800",
+    progressColor: "text-sky-500 dark:text-sky-400",
+    glow: "bg-sky-500/20",
   },
   {
-    badgeBg: "bg-emerald-50",
-    badgeText: "text-emerald-700",
-    badgeBorder: "border-emerald-100",
-    progressColor: "text-emerald-500",
+    badgeBg: "bg-emerald-50 dark:bg-emerald-950/50",
+    badgeText: "text-emerald-700 dark:text-emerald-300",
+    badgeBorder: "border-emerald-100 dark:border-emerald-800",
+    progressColor: "text-emerald-500 dark:text-emerald-400",
+    glow: "bg-emerald-500/20",
   },
   {
-    badgeBg: "bg-violet-50",
-    badgeText: "text-violet-700",
-    badgeBorder: "border-violet-100",
-    progressColor: "text-violet-500",
+    badgeBg: "bg-violet-50 dark:bg-violet-950/50",
+    badgeText: "text-violet-700 dark:text-violet-300",
+    badgeBorder: "border-violet-100 dark:border-violet-800",
+    progressColor: "text-violet-500 dark:text-violet-400",
+    glow: "bg-violet-500/20",
   },
   {
-    badgeBg: "bg-amber-50",
-    badgeText: "text-amber-700",
-    badgeBorder: "border-amber-100",
-    progressColor: "text-amber-500",
+    badgeBg: "bg-amber-50 dark:bg-amber-950/50",
+    badgeText: "text-amber-700 dark:text-amber-300",
+    badgeBorder: "border-amber-100 dark:border-amber-800",
+    progressColor: "text-amber-500 dark:text-amber-400",
+    glow: "bg-amber-500/20",
   },
 ];
 
@@ -85,22 +89,22 @@ export const CurriculumMatrix = ({
   > = {
     completed: {
       label: t("completed"),
-      className: "bg-emerald-50 text-emerald-800 border border-emerald-100",
+      className: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/50",
       icon: CheckCircle2,
     },
     active: {
       label: t("in_progress"),
-      className: "bg-sky-50 text-sky-800 border border-sky-100",
+      className: "bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border border-sky-100 dark:border-sky-800/50",
       icon: Play,
     },
     locked: {
       label: t("locked"),
-      className: "bg-slate-50 text-slate-400 border border-slate-200",
+      className: "bg-muted/50 text-muted-foreground border border-border",
       icon: Lock,
     },
     placeholder: {
       label: t("coming_soon"),
-      className: "bg-slate-50 text-slate-400 border border-slate-200 border-dashed",
+      className: "bg-muted/50 text-muted-foreground border border-border border-dashed",
       icon: Sparkles,
     },
   };
@@ -114,7 +118,7 @@ export const CurriculumMatrix = ({
           <Card
             key={`${topic.number}-${topic.title}`}
             className={cn(
-              "relative overflow-hidden rounded-2xl border border-slate-200 bg-white",
+              "relative overflow-hidden rounded-2xl border border-border bg-card",
               "px-4 py-4 sm:px-6 sm:py-5"
             )}
           >
@@ -152,11 +156,11 @@ export const CurriculumMatrix = ({
                       }}
                     />
                     {/* Легкий blur для премиум эффекта */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/10" />
-                    {/* Улучшенный overlay для читаемости - более прозрачный */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/75 to-white/55 md:from-white/80 md:via-white/70 md:to-white/45" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/10 dark:from-black/20 dark:via-transparent dark:to-black/30" />
+                    {/* Улучшенный overlay для читаемости - адаптивный под тему */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/75 to-white/55 md:from-white/80 md:via-white/70 md:to-white/45 dark:from-black/85 dark:via-black/75 dark:to-black/55 dark:md:from-black/80 dark:md:via-black/70 dark:md:to-black/45" />
                     {/* Дополнительный радиальный градиент для глубины */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.4),transparent_60%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.4),transparent_60%)] dark:bg-[radial-gradient(circle_at_20%_30%,rgba(0,0,0,0.4),transparent_60%)]" />
                   </>
                 )}
 
@@ -166,9 +170,11 @@ export const CurriculumMatrix = ({
                     <div
                       className={cn(
                         "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-lg",
-                        topic.isCompleted ? "bg-emerald-500 text-white ring-2 ring-emerald-200" : palette.badgeBg,
-                        !topic.topicId && "bg-slate-200 text-slate-500",
-                        topic.cover_image && "ring-2 ring-white/50"
+                        topic.isCompleted 
+                          ? "bg-emerald-500 dark:bg-emerald-600 text-white ring-2 ring-emerald-200 dark:ring-emerald-700" 
+                          : `${palette.badgeBg} ${palette.badgeText}`,
+                        !topic.topicId && "bg-muted text-muted-foreground",
+                        topic.cover_image && "ring-2 ring-white/50 dark:ring-black/50"
                       )}
                     >
                       {topic.number}
@@ -177,7 +183,9 @@ export const CurriculumMatrix = ({
                       <p
                         className={cn(
                           "text-[11px] uppercase tracking-[0.2em] font-medium",
-                          topic.cover_image ? "text-slate-700 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" : "text-slate-400"
+                          topic.cover_image 
+                            ? "text-slate-700 dark:text-slate-300 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
+                            : "text-muted-foreground"
                         )}
                       >
                         {t("module")}
@@ -186,8 +194,8 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-base sm:text-lg font-bold tracking-tight",
                           topic.cover_image 
-                            ? "text-slate-900 drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)]" 
-                            : "text-slate-900"
+                            ? "text-slate-900 dark:text-slate-100 drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" 
+                            : "text-foreground"
                         )}
                       >
                         {topic.title}
@@ -199,8 +207,8 @@ export const CurriculumMatrix = ({
                       className={cn(
                         "text-sm max-w-2xl font-medium",
                         topic.cover_image 
-                          ? "text-slate-800 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" 
-                          : "text-slate-600"
+                          ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" 
+                          : "text-muted-foreground"
                       )}
                     >
                       {topic.description}
@@ -212,20 +220,20 @@ export const CurriculumMatrix = ({
                   <div className={cn(
                     "flex items-center gap-3 rounded-xl px-3 py-2 shadow-lg transition-all",
                     topic.cover_image 
-                      ? "bg-white/95 backdrop-blur-md border border-white/90 ring-1 ring-white/50" 
-                      : "bg-slate-50 border border-slate-200"
+                      ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border border-white/90 dark:border-black/90 ring-1 ring-white/50 dark:ring-black/50" 
+                      : "bg-muted border border-border"
                   )}>
                     <div className="relative">
                       <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
                         <path
-                          className="text-slate-200"
+                          className="text-muted-foreground/30"
                           strokeWidth="3.5"
                           stroke="currentColor"
                           fill="none"
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path
-                          className="text-sky-500"
+                          className={palette.progressColor}
                           strokeWidth="3.5"
                           strokeLinecap="round"
                           stroke="currentColor"
@@ -234,18 +242,18 @@ export const CurriculumMatrix = ({
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-900">
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
                         {Math.round(topic.progressPercent)}%
                       </span>
                     </div>
                     <div>
                       <p className={cn(
                         "text-[11px] uppercase tracking-[0.2em] font-medium",
-                        topic.cover_image ? "text-slate-600" : "text-slate-500"
+                        topic.cover_image ? "text-slate-600 dark:text-slate-400" : "text-muted-foreground"
                       )}>
                         {t("progress")}
                       </p>
-                      <p className="text-sm font-bold text-slate-900">
+                      <p className="text-sm font-bold text-foreground">
                         {topic.isCompleted ? t("completed") : t("in_progress")}
                       </p>
                     </div>
@@ -257,8 +265,8 @@ export const CurriculumMatrix = ({
                       className={cn(
                         "rounded-xl font-bold px-4 py-3 shadow-lg transition-all hover:scale-105",
                         topic.cover_image
-                          ? "bg-white/95 backdrop-blur-md text-slate-900 hover:bg-white border border-white/90 ring-1 ring-white/50"
-                          : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
+                          ? "bg-white/95 dark:bg-black/95 backdrop-blur-md text-foreground hover:bg-white dark:hover:bg-black border border-white/90 dark:border-black/90 ring-1 ring-white/50 dark:ring-black/50"
+                          : "bg-background text-foreground hover:bg-muted border border-border"
                       )}
                       onClick={() => onTopicClick(topic.topicId!)}
                     >
@@ -272,16 +280,16 @@ export const CurriculumMatrix = ({
                 {topic.sections.map((section) => (
                   <section
                     key={section.title}
-                    className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 sm:p-4 space-y-3"
+                    className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4 space-y-3"
                   >
                     <div className="flex items-center justify-between flex-wrap gap-3">
                       <div>
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                           {t("block")}
                         </p>
-                        <h3 className="text-sm font-semibold text-slate-900">{section.title}</h3>
+                        <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
                       </div>
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-[11px] text-muted-foreground">
                         {section.items.length}
                       </span>
                     </div>
@@ -317,20 +325,20 @@ export const CurriculumMatrix = ({
                             disabled={disabled}
                             className={cn(
                               "group relative rounded-xl px-3 py-2 min-w-[180px] text-left transition-all duration-150",
-                              "flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
+                              "flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                               config.className,
                               !item.subtopicId && "cursor-default"
                             )}
                           >
                             <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-slate-400">
+                              <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-muted-foreground">
                                 {item.code && <span>{item.code}</span>}
-                                <div className="h-1 w-1 rounded-full bg-white/30" />
+                                <div className="h-1 w-1 rounded-full bg-muted-foreground/30" />
                                 <span>{config.label}</span>
                               </div>
                               <Icon className="w-3 h-3" />
                             </div>
-                            <p className="text-sm font-medium leading-snug text-slate-900">
+                            <p className="text-sm font-medium leading-snug text-foreground">
                               {item.title}
                             </p>
                           </button>
