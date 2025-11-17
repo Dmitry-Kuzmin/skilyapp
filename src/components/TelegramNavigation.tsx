@@ -6,6 +6,38 @@ export const TelegramNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
+  // Инициализируем BackButton один раз и вешаем стабильный обработчик
+  useEffect(() => {
+    if (!isTelegramMiniApp()) return;
+    
+    const webApp = getTelegramWebApp();
+    if (!webApp) return;
+
+    const handleBack = () => {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/");
+        // Если мы уже на главном экране, закрываем Mini App
+        if (typeof webApp.close === "function") {
+          try {
+            webApp.close();
+          } catch (error) {
+            console.warn("[TelegramNavigation] Unable to close WebApp:", error);
+          }
+        }
+      }
+    };
+
+    webApp.BackButton.onClick(handleBack);
+    webApp.MainButton.hide();
+
+    return () => {
+      webApp.BackButton.offClick(handleBack);
+    };
+  }, [navigate]);
+
+  // Управляем отображением BackButton в зависимости от текущего маршрута
   useEffect(() => {
     if (!isTelegramMiniApp()) return;
     
@@ -13,26 +45,12 @@ export const TelegramNavigation = () => {
     if (!webApp) return;
 
     const isMainScreen = location.pathname === "/";
-
-    // BackButton handling
     if (isMainScreen) {
       webApp.BackButton.hide();
     } else {
       webApp.BackButton.show();
-      webApp.BackButton.onClick(() => {
-        navigate(-1);
-      });
     }
-
-    // Hide MainButton completely
-    webApp.MainButton.hide();
-
-    // Cleanup
-    return () => {
-      webApp.BackButton.offClick(() => {});
-      webApp.MainButton.offClick(() => {});
-    };
-  }, [location.pathname, navigate]);
+  }, [location.pathname]);
 
   // Handle safe area insets updates
   useEffect(() => {
