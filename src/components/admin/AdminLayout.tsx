@@ -12,6 +12,7 @@ import {
   FileUp,
   MessageSquare,
   AlertTriangle,
+  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,6 +71,12 @@ const adminNavItems = [
     label: "Отчеты о наградах",
     icon: AlertTriangle,
     path: "/admin/reward-reports",
+  },
+  {
+    id: "test-covers",
+    label: "Обложки тестов",
+    icon: ImageIcon,
+    path: "/admin/test-covers",
   },
 ];
 

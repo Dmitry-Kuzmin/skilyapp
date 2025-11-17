@@ -574,8 +574,8 @@ const Admin = () => {
           </Card>
         </div>
 
-        {/* Test Covers Management */}
-        <Card>
+        {/* Test Covers Management - перемещено выше для лучшей видимости */}
+        <Card className="border-primary/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ImageIcon className="w-5 h-5" />
