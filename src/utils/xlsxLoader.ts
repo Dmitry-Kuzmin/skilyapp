@@ -30,3 +30,4 @@ export const getXLSX = (): typeof import('xlsx') | null => {
   return xlsxModule;
 };
 
+
