@@ -53,15 +53,12 @@ export default defineConfig(({ mode }) => {
         manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
-            // React core (самые базовые библиотеки)
-            if (id.includes('react/') && !id.includes('react-dom') && !id.includes('react-router')) {
-              return 'react-core';
+            // КРИТИЧНО: React и React DOM должны быть в ОДНОМ chunk
+            // Иначе на Vercel возникает ошибка forwardRef из-за порядка загрузки
+            if (id.includes('react/') || id.includes('react-dom')) {
+              return 'react-vendor';
             }
-            // React DOM
-            if (id.includes('react-dom')) {
-              return 'react-dom';
-            }
-            // React Router
+            // React Router (зависит от React)
             if (id.includes('react-router')) {
               return 'react-router';
             }
