@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag, TrendingUp, Crown, Sparkles } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, ShoppingBag, TrendingUp, Crown, Sparkles, Trophy, Brain, Gamepad2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,6 +33,9 @@ const Games = () => {
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  
+  // Переключение между вариантами баннера: 1 или 2
+  const BANNER_VARIANT = 1; // Измените на 2 для второго варианта
 
   useEffect(() => {
     if (profileId) {
@@ -239,45 +242,163 @@ const Games = () => {
     <>
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-        {/* Hero Section */}
-        <Card className="p-4 md:p-6 lg:p-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-2 border-primary/20">
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex-1">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">Игры</h1>
-                <p className="text-muted-foreground text-sm md:text-base lg:text-lg">
-                  Учись играя! Закрепляй термины в увлекательном формате
-                </p>
+        {/* Hero Section - Вариант 1: С анимацией и статистикой */}
+        {BANNER_VARIANT === 1 && (
+          <Card className="relative p-6 md:p-8 lg:p-10 bg-gradient-to-br from-primary/20 via-card to-secondary/20 border-2 border-primary/30 overflow-hidden group">
+            {/* Декоративные элементы */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-all duration-500" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 group-hover:bg-secondary/20 transition-all duration-500" />
+            
+            <div className="relative z-10 space-y-6">
+              {/* Заголовок с иконкой */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-primary to-secondary shadow-lg">
+                  <Gamepad2 className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                    Игры
+                  </h1>
+                  <p className="text-muted-foreground text-sm md:text-base mt-1">
+                    Учись играя, побеждай знаниями
+                  </p>
+                </div>
               </div>
-              {!isPremium && (
-                <Button 
-                  size="lg"
-                  onClick={() => setPaywallOpen(true)}
-                  className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 to-orange-500"
-                >
-                  <Crown className="w-4 h-4 mr-2" />
-                  Получить Premium
-                </Button>
-              )}
-            </div>
 
-            {/* Game Mode Badges */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="px-2 md:px-3 py-1 text-xs md:text-sm">
-                <Swords className="w-3 h-3 mr-1" />
-                Популярно
-              </Badge>
-              <Badge variant="outline" className="px-2 md:px-3 py-1 text-xs md:text-sm">
-                <Zap className="w-3 h-3 mr-1" />
-                Хардкор
-              </Badge>
-              <Badge variant="outline" className="px-2 md:px-3 py-1 text-xs md:text-sm">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Новинка
-              </Badge>
+              {/* Статистика в карточках */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                <div className="p-3 md:p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-primary/20">
+                  <div className="text-2xl md:text-3xl font-black text-primary">{stats.gamesPlayed}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Игр сыграно</div>
+                </div>
+                <div className="p-3 md:p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-secondary/20">
+                  <div className="text-2xl md:text-3xl font-black text-secondary">{stats.studiedTerms}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Терминов изучено</div>
+                </div>
+                <div className="p-3 md:p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-primary/20 col-span-2 md:col-span-1">
+                  <div className="text-2xl md:text-3xl font-black text-primary">{stats.averageResult}%</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Средний результат</div>
+                </div>
+              </div>
+
+              {/* Кнопка Premium и бейджи в одной строке */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="px-3 py-1.5 text-xs md:text-sm bg-primary/10 border-primary/30">
+                    <Swords className="w-3 h-3 mr-1.5" />
+                    Популярно
+                  </Badge>
+                  <Badge variant="outline" className="px-3 py-1.5 text-xs md:text-sm bg-secondary/10 border-secondary/30">
+                    <Zap className="w-3 h-3 mr-1.5" />
+                    Хардкор
+                  </Badge>
+                  <Badge variant="outline" className="px-3 py-1.5 text-xs md:text-sm bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/30">
+                    <Sparkles className="w-3 h-3 mr-1.5" />
+                    Новинка
+                  </Badge>
+                </div>
+                {!isPremium && (
+                  <Button 
+                    size="lg"
+                    onClick={() => setPaywallOpen(true)}
+                    className="w-full sm:w-auto bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 hover:from-yellow-600 hover:via-orange-600 hover:to-red-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <Crown className="w-4 h-4 mr-2" />
+                    Получить Premium
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
+
+        {/* Hero Section - Вариант 2: Минималистичный с акцентом на CTA */}
+        {BANNER_VARIANT === 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="relative p-8 md:p-10 lg:p-12 bg-gradient-to-br from-primary/15 via-card/80 to-secondary/15 border-2 border-primary/25 overflow-hidden">
+              {/* Фоновый паттерн */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
+                  backgroundSize: '24px 24px'
+                }} />
+              </div>
+
+              <div className="relative z-10">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                  <div className="flex-1 space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+                        <Gamepad2 className="relative w-10 h-10 md:w-12 md:h-12 text-primary" />
+                      </div>
+                      <div>
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight">
+                          <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                            Игры
+                          </span>
+                        </h1>
+                        <p className="text-lg md:text-xl text-muted-foreground mt-2 font-medium">
+                          Учись играя! Закрепляй термины в увлекательном формате
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Инлайн статистика */}
+                    <div className="flex items-center gap-6 text-sm md:text-base">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="w-4 h-4 text-yellow-500" />
+                        <span className="font-bold">{stats.gamesPlayed}</span>
+                        <span className="text-muted-foreground">игр</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Brain className="w-4 h-4 text-primary" />
+                        <span className="font-bold">{stats.studiedTerms}</span>
+                        <span className="text-muted-foreground">терминов</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-green-500" />
+                        <span className="font-bold">{stats.averageResult}%</span>
+                        <span className="text-muted-foreground">результат</span>
+                      </div>
+                    </div>
+
+                    {/* Бейджи */}
+                    <div className="flex items-center gap-2 flex-wrap pt-2">
+                      <Badge className="px-3 py-1 bg-primary/20 text-primary border-primary/30">
+                        <Swords className="w-3 h-3 mr-1.5" />
+                        Популярно
+                      </Badge>
+                      <Badge className="px-3 py-1 bg-secondary/20 text-secondary border-secondary/30">
+                        <Zap className="w-3 h-3 mr-1.5" />
+                        Хардкор
+                      </Badge>
+                      <Badge className="px-3 py-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-orange-600 border-yellow-500/30">
+                        <Sparkles className="w-3 h-3 mr-1.5" />
+                        Новинка
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {!isPremium && (
+                    <Button 
+                      size="lg"
+                      onClick={() => setPaywallOpen(true)}
+                      className="w-full lg:w-auto bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-white font-bold px-8 py-6 text-lg"
+                    >
+                      <Crown className="w-5 h-5 mr-2" />
+                      Получить Premium
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Games Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
