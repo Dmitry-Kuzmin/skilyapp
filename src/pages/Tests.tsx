@@ -16,11 +16,26 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
 import { useCoins } from "@/hooks/useCoins";
 
-const getTopicGradient = (topic?: { gradient_from?: string; gradient_to?: string }) => {
+const ACCENT_GRADIENTS = [
+  { from: "#111827", via: "#4338CA", to: "#C084FC", glow: "#C084FC55" },
+  { from: "#0F172A", via: "#2563EB", to: "#38BDF8", glow: "#38BDF855" },
+  { from: "#18181B", via: "#EC4899", to: "#F97316", glow: "#F9731655" },
+  { from: "#020617", via: "#14B8A6", to: "#86EFAC", glow: "#14B8A655" },
+  { from: "#111827", via: "#FACC15", to: "#F97316", glow: "#FACC1555" },
+];
+
+const getTopicGradient = (topicIndex: number, topic?: { gradient_from?: string; gradient_to?: string }) => {
   if (topic?.gradient_from && topic?.gradient_to) {
-    return `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`;
+    return {
+      background: `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`,
+      glow: `${topic.gradient_to || topic.gradient_from}33`,
+    };
   }
-  return "linear-gradient(135deg, #6d28d9 0%, #2563eb 50%, #14b8a6 100%)";
+  const accent = ACCENT_GRADIENTS[topicIndex % ACCENT_GRADIENTS.length];
+  return {
+    background: `linear-gradient(135deg, ${accent.from} 0%, ${accent.via} 50%, ${accent.to} 100%)`,
+    glow: accent.glow,
+  };
 };
 
 const getQuestionLabel = (count: number) => {
@@ -76,7 +91,7 @@ const Tests = () => {
   useEffect(() => {
     loadTopics();
     if (isAuthenticated && profileId) {
-      loadStats();
+    loadStats();
       loadChallengeBankCount();
     }
   }, [isAuthenticated, profileId]);
@@ -130,36 +145,36 @@ const Tests = () => {
       if (!response.ok) {
         // Fallback: загружаем из базы данных, если Google Sheets недоступен
         const { data: dbTopics, error: dbError } = await supabase
-          .from("topics")
-          .select(`
-            id,
-            number,
-            title_ru,
-            cover_image,
-            gradient_from,
-            gradient_to,
-            is_premium
-          `)
-          .order('number');
+        .from("topics")
+        .select(`
+          id,
+          number,
+          title_ru,
+          cover_image,
+          gradient_from,
+          gradient_to,
+          is_premium
+        `)
+        .order('number');
 
         if (dbError) throw dbError;
 
-        const topicsWithCounts = await Promise.all(
+      const topicsWithCounts = await Promise.all(
           (dbTopics || []).map(async (topic) => {
-            const { count } = await supabase
-              .from("questions_new")
-              .select("*", { count: 'exact', head: true })
-              .eq('topic_id', topic.id);
+          const { count } = await supabase
+            .from("questions_new")
+            .select("*", { count: 'exact', head: true })
+            .eq('topic_id', topic.id);
 
-            return {
-              id: topic.id,
-              number: topic.number,
-              name: topic.title_ru,
-              questions: count || 0,
-              cover_image: topic.cover_image,
-              gradient_from: topic.gradient_from,
-              gradient_to: topic.gradient_to,
-              is_premium: topic.is_premium,
+          return {
+            id: topic.id,
+            number: topic.number,
+            name: topic.title_ru,
+            questions: count || 0,
+            cover_image: topic.cover_image,
+            gradient_from: topic.gradient_from,
+            gradient_to: topic.gradient_to,
+            is_premium: topic.is_premium,
             };
           })
         );
@@ -225,7 +240,7 @@ const Tests = () => {
           };
         })
       );
-      
+
       setTopics(topicsFromSheets);
     } catch (error) {
       console.error("Error loading topics:", error);
@@ -250,13 +265,13 @@ const Tests = () => {
       const errors = totalAnswered - correct;
       const accuracy = totalAnswered > 0 ? Math.round((correct / totalAnswered) * 100) : 0;
 
-      setStats({
+        setStats({
         ...stats,
         totalAnswered,
         correct,
         errors,
-        accuracy,
-      });
+          accuracy,
+        });
     } catch (error) {
       console.error("Error loading stats:", error);
     }
@@ -272,7 +287,7 @@ const Tests = () => {
 
   return (
     <Fragment>
-      <Layout>
+    <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 pb-20 md:pb-4 max-w-[1370px]">
         {/* Header */}
         <div className="mb-8">
@@ -302,20 +317,20 @@ const Tests = () => {
           <h2 className="text-xl font-bold mb-4">{t('practiceMode')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Random - с выбором количества */}
-        <Card
+            <Card
               className="p-5 hover:shadow-lg transition-all group"
-        >
+            >
               <div className="flex flex-col items-center text-center space-y-4">
                 <div className="w-14 h-14 rounded-full bg-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/30 transition-colors">
                   <Shuffle className="w-7 h-7 text-teal-600 dark:text-teal-400" />
                 </div>
-              <div>
+                <div>
                   <h3 className="font-semibold mb-1">{t('random')}</h3>
                   <p className="text-xs text-muted-foreground">
                     {t('selectQuestionCount')}
                   </p>
                 </div>
-                
+
                 {/* Кнопки выбора количества */}
                 <div className="grid grid-cols-4 gap-2 w-full">
                   {[10, 20, 30, 40].map((count) => (
@@ -336,16 +351,16 @@ const Tests = () => {
                       {count}
                     </button>
                   ))}
-              </div>
+                </div>
 
                 {/* Кнопка запуска */}
-              <Button
+                <Button
                   onClick={() => handleStartPath(`/test/practice?count=${randomQuestionCount}`)}
                   className="w-full bg-teal-600 hover:bg-teal-700 text-white"
                   size="sm"
-              >
+                >
                   {t('startTest')}
-              </Button>
+                </Button>
             </div>
           </Card>
 
@@ -432,71 +447,83 @@ const Tests = () => {
           <div className="mb-12">
             <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-widest">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-white text-xs font-semibold uppercase tracking-[0.3em] shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                   Личный маршрут
                 </div>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight">Тесты по темам</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white drop-shadow">Тесты по темам</h2>
+                <p className="text-sm text-white/60 mt-1">
                   Выберите тему, чтобы сосредоточиться на конкретном блоке вопросов
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {topics.map((topic) => (
+            {topics.map((topic) => (
                 <Card
                   key={topic.id}
-                  className="group relative overflow-hidden cursor-pointer border border-border/40 bg-gradient-to-br from-white/70 via-white/40 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/0 backdrop-blur-xl rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
+                  className="group relative overflow-hidden cursor-pointer border border-white/5 bg-[#05070d] rounded-[26px] shadow-[0_30px_80px_rgba(6,8,20,0.65)] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40"
                   onClick={() => handleStartPath(`/tests/${topic.id}`)}
                 >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl" style={{ background: getTopicGradient(topic) }} />
-                  <div className="relative flex flex-col gap-4 p-5">
-                    <div className="relative overflow-hidden rounded-2xl h-36 border border-white/40 dark:border-white/10 shadow-inner">
-                      {topic.cover_image ? (
-                        <img
-                          src={topic.cover_image}
-                          alt={topic.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full" style={{ background: getTopicGradient(topic) }} />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/80" />
-                      <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur border-white/30">
-                          {topic.questions} {getQuestionLabel(topic.questions)}
-                        </Badge>
-                        <Badge variant="secondary" className="bg-black/30 text-white/90 backdrop-blur border-white/20">
-                          Тема {topic.number}
-                        </Badge>
-                      </div>
-                      {topic.is_premium && (
-                        <div className="absolute top-3 right-3">
-                          <Badge className="bg-yellow-400/80 text-black shadow-lg flex items-center gap-1">
-                            <Star className="w-3 h-3" />
-                            Premium
-                          </Badge>
+                  {(() => {
+                    const gradient = getTopicGradient(topic.number - 1, topic);
+                    return (
+                      <>
+                        <div className="absolute inset-0 opacity-50 group-hover:opacity-80 blur-2xl transition-opacity duration-500" style={{ background: gradient.background }} />
+                        <div className="relative flex flex-col gap-5 p-6">
+                          <div className="relative overflow-hidden rounded-[20px] h-40 border border-white/10 bg-black/40 shadow-inner">
+                            {topic.cover_image ? (
+                              <img
+                                src={topic.cover_image}
+                                alt={topic.name}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full" style={{ background: gradient.background }} />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/90" />
+                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                              <Badge variant="secondary" className="bg-black/50 text-white text-[11px] backdrop-blur border-white/20">
+                                {topic.questions} {getQuestionLabel(topic.questions)}
+                              </Badge>
+                              <Badge variant="secondary" className="bg-white/15 text-white text-[11px] backdrop-blur border-white/20">
+                                Тема {topic.number}
+                              </Badge>
+                            </div>
+                            {topic.is_premium && (
+                              <div className="absolute top-4 right-4">
+                                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-200 text-black shadow-lg flex items-center gap-1 text-xs">
+                                  <Star className="w-3 h-3" />
+                                  Premium
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-start justify-between gap-4 text-white">
+                            <div>
+                              <p className="text-xs uppercase tracking-[0.4em] text-white/50">Тема {topic.number}</p>
+                              <h3 className="text-xl font-semibold leading-tight mt-1">{topic.name}</h3>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="gap-1 text-white hover:text-white/80 hover:bg-white/5"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartPath(`/tests/${topic.id}`);
+                              }}
+                            >
+                              Пройти
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs uppercase tracking-widest text-muted-foreground">Тема {topic.number}</p>
-                        <h3 className="text-lg font-semibold leading-tight mt-1">{topic.name}</h3>
-                      </div>
-                      <Button variant="ghost" size="sm" className="gap-1 text-primary hover:text-primary/80" onClick={(e) => {
-                        e.stopPropagation();
-                        handleStartPath(`/tests/${topic.id}`);
-                      }}>
-                        Пройти
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+                      </>
+                    );
+                  })()}
                 </Card>
               ))}
             </div>
@@ -590,8 +617,8 @@ const Tests = () => {
                     <span className="text-muted-foreground">{t('correctAnswers')}</span>
                     <span className="font-semibold text-green-600 dark:text-green-400">{stats.correct}</span>
                 </div>
-                </div>
-              </div>
+          </div>
+        </div>
 
               <Button className="w-full" variant="outline">
                 {t('moreStatistics')}
@@ -608,14 +635,14 @@ const Tests = () => {
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold">
                   Д
-                </div>
+            </div>
                 <span className="font-semibold">{t('you')}</span>
                 <Trophy className="w-5 h-5 text-yellow-500" />
-                </div>
+            </div>
               <div className="flex items-center gap-2">
                 <div className="text-2xl">🚗</div>
                 <span className="font-bold">0</span>
-              </div>
+            </div>
           </div>
             <Button className="w-full bg-green-600 hover:bg-green-700">
               {t('inviteFriends')}
@@ -628,7 +655,7 @@ const Tests = () => {
           <ExamReadinessCard />
         )}
       </div>
-      </Layout>
+    </Layout>
       <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
     </Fragment>
   );
