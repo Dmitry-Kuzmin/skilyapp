@@ -153,9 +153,12 @@ export const CurriculumMatrix = ({
                   {topic.description && (
                     <p className="text-slate-600 text-sm max-w-2xl">{topic.description}</p>
                   )}
+                </div>
+
+                <div className="flex flex-wrap gap-3 md:items-center md:justify-end">
                   {topic.cover_image && (
-                    <div className="mt-2 w-full max-w-xs">
-                      <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+                    <div className="hidden md:block">
+                      <div className="relative w-40 h-24 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm">
                         <img
                           src={topic.cover_image}
                           alt={topic.title}
@@ -169,9 +172,6 @@ export const CurriculumMatrix = ({
                       </div>
                     </div>
                   )}
-                </div>
-
-                <div className="flex flex-wrap gap-3">
                   <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
                     <div className="relative">
                       <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
@@ -217,6 +217,24 @@ export const CurriculumMatrix = ({
                   )}
                 </div>
               </header>
+
+              {/* Обложка модуля под заголовком на мобильных, чтобы не ломать сетку */}
+              {topic.cover_image && (
+                <div className="mt-2 md:hidden">
+                  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-sm">
+                    <img
+                      src={topic.cover_image}
+                      alt={topic.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-3">
                 {topic.sections.map((section) => (
