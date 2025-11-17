@@ -53,14 +53,18 @@ export default defineConfig(({ mode }) => {
         manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
-            // КРИТИЧНО: React и React DOM должны быть в ОДНОМ chunk
-            // Иначе на Vercel возникает ошибка forwardRef из-за порядка загрузки
-            if (id.includes('react/') || id.includes('react-dom')) {
+            // КРИТИЧНО: React, React DOM и все React-зависимые библиотеки в ОДНОМ chunk
+            // Это гарантирует правильный порядок загрузки на Vercel и предотвращает ошибку forwardRef
+            if (
+              id.includes('react/') || 
+              id.includes('react-dom') ||
+              id.includes('react-router') ||
+              id.includes('@radix-ui') ||
+              id.includes('@tanstack/react-query') ||
+              id.includes('react-hook-form') ||
+              id.includes('@hookform')
+            ) {
               return 'react-vendor';
-            }
-            // React Router (зависит от React)
-            if (id.includes('react-router')) {
-              return 'react-router';
             }
             // Supabase
             if (id.includes('@supabase')) {
@@ -73,14 +77,6 @@ export default defineConfig(({ mode }) => {
             // Framer Motion (большая библиотека анимаций)
             if (id.includes('framer-motion')) {
               return 'framer-motion';
-            }
-            // Radix UI компоненты
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
-            }
-            // TanStack Query
-            if (id.includes('@tanstack/react-query')) {
-              return 'react-query';
             }
             // Recharts (графики)
             if (id.includes('recharts')) {
@@ -101,10 +97,6 @@ export default defineConfig(({ mode }) => {
             // Date библиотеки
             if (id.includes('date-fns')) {
               return 'date-libs';
-            }
-            // Form библиотеки
-            if (id.includes('react-hook-form') || id.includes('@hookform')) {
-              return 'form-libs';
             }
             // Validation библиотеки
             if (id.includes('zod')) {
