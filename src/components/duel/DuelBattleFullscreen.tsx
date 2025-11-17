@@ -839,27 +839,27 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // Логирование safe area только при изменении значений (не при каждом рендере)
   useEffect(() => {
-    const TELEGRAM_NAV_HEIGHT = 115;
-    const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
+    const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';
+    const TELEGRAM_NAV_HEIGHT_MOBILE = 60;
+    const telegramNavPadding = isTelegramMobile ? TELEGRAM_NAV_HEIGHT_MOBILE : 0;
     const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
-    const totalLeftPadding = Math.round(safeArea.left);
-    const totalRightPadding = Math.round(safeArea.right);
     const PROGRESS_BAR_HEIGHT = 60;
+    const progressBarTop = isTelegramMobile ? totalTopPadding - 15 : totalTopPadding;
+    const contentTopPadding = isTelegramMobile
+      ? progressBarTop + PROGRESS_BAR_HEIGHT - 2
+      : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
     console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
       platform: safeArea.platform,
+      isTelegramMobile,
       safeAreaTop: `${safeArea.top}px`,
       safeAreaContentTop: `${safeArea.contentTop}px (уменьшено в 2 раза)`,
-      telegramNavHeight: `${TELEGRAM_NAV_HEIGHT}px`,
+      telegramNavHeight: `${TELEGRAM_NAV_HEIGHT_MOBILE}px`,
       telegramNavPadding: `${telegramNavPadding}px`,
-      totalTopPadding: `${totalTopPadding}px (итоговый отступ)`,
-      calculation: `${safeArea.top} + ${safeArea.contentTop} + ${telegramNavPadding} = ${totalTopPadding}`,
-      safeAreaLeft: `${safeArea.left}px`,
-      safeAreaRight: `${safeArea.right}px`,
-      totalLeftPadding: `${totalLeftPadding}px`,
-      totalRightPadding: `${totalRightPadding}px`,
-      progressBarTop: `${totalTopPadding}px`,
-      contentPaddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 8 : 0)}px`,
+      totalTopPadding: `${totalTopPadding}px`,
+      progressBarTop: `${progressBarTop}px (поднят на 15px для мобильной версии)`,
+      contentTopPadding: `${contentTopPadding}px`,
+      calculation: `${safeArea.top} + ${safeArea.contentTop} + ${telegramNavPadding} = ${totalTopPadding}, progressBarTop: ${progressBarTop}, contentTopPadding: ${contentTopPadding}`,
     });
   }, [safeArea.platform, safeArea.top, safeArea.contentTop, safeArea.left, safeArea.right, safeArea.bottom, safeArea.contentBottom]);
 
@@ -1578,7 +1578,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         {/* Header - Scores & Boosts - Premium Design */}
         <div className={`flex items-center justify-between gap-3 flex-wrap ${
           isTelegramMobile 
-            ? '-mt-16 mb-0' // Сильно уменьшаем зазор в мобильной версии Telegram
+            ? '-mt-8 mb-2' // Умеренное уменьшение зазора в мобильной версии Telegram
             : isTelegramDesktop 
             ? 'mb-3 md:mb-4' // Обычный отступ для десктопной версии
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
@@ -1883,7 +1883,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`flex-1 flex flex-col min-h-0 ${isTelegramMobile ? '-mt-8' : ''}`}
+          className="flex-1 flex flex-col min-h-0"
         >
           <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             {/* Question Image */}
