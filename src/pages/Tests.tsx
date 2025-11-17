@@ -444,86 +444,95 @@ const Tests = () => {
 
         {/* Topics Section - Practice Tests by Topic */}
         {topics.length > 0 && (
-          <div className="mb-12">
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-white text-xs font-semibold uppercase tracking-[0.3em] shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                  Личный маршрут
-                </div>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight text-white drop-shadow">Тесты по темам</h2>
-                <p className="text-sm text-white/60 mt-1">
-                  Выберите тему, чтобы сосредоточиться на конкретном блоке вопросов
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {topics.map((topic) => (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Тесты по темам</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {topics.map((topic) => (
                 <Card
                   key={topic.id}
-                  className="group relative overflow-hidden cursor-pointer border border-white/5 bg-[#05070d] rounded-[26px] shadow-[0_30px_80px_rgba(6,8,20,0.65)] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40"
+                  className="group relative overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
                   onClick={() => handleStartPath(`/tests/${topic.id}`)}
                 >
-                  {(() => {
-                    const gradient = getTopicGradient(topic.number - 1, topic);
-                    return (
-                      <>
-                        <div className="absolute inset-0 opacity-50 group-hover:opacity-80 blur-2xl transition-opacity duration-500" style={{ background: gradient.background }} />
-                        <div className="relative flex flex-col gap-5 p-6">
-                          <div className="relative overflow-hidden rounded-[20px] h-40 border border-white/10 bg-black/40 shadow-inner">
-                            {topic.cover_image ? (
-                              <img
-                                src={topic.cover_image}
-                                alt={topic.name}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                }}
-                              />
-                            ) : (
-                              <div className="w-full h-full" style={{ background: gradient.background }} />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/90" />
-                            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                              <Badge variant="secondary" className="bg-black/50 text-white text-[11px] backdrop-blur border-white/20">
-                                {topic.questions} {getQuestionLabel(topic.questions)}
-                              </Badge>
-                              <Badge variant="secondary" className="bg-white/15 text-white text-[11px] backdrop-blur border-white/20">
-                                Тема {topic.number}
-                              </Badge>
-                            </div>
-                            {topic.is_premium && (
-                              <div className="absolute top-4 right-4">
-                                <Badge className="bg-gradient-to-r from-amber-400 to-yellow-200 text-black shadow-lg flex items-center gap-1 text-xs">
-                                  <Star className="w-3 h-3" />
-                                  Premium
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-start justify-between gap-4 text-white">
-                            <div>
-                              <p className="text-xs uppercase tracking-[0.4em] text-white/50">Тема {topic.number}</p>
-                              <h3 className="text-xl font-semibold leading-tight mt-1">{topic.name}</h3>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="gap-1 text-white hover:text-white/80 hover:bg-white/5"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStartPath(`/tests/${topic.id}`);
-                              }}
-                            >
-                              Пройти
-                              <ArrowRight className="w-4 h-4" />
-                            </Button>
+                  {/* Cover Image */}
+                  {topic.cover_image ? (
+                    <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-muted to-muted/50">
+                      <img
+                        src={topic.cover_image}
+                        alt={topic.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                      {/* Gradient Overlay */}
+                      <div
+                        className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
+                        style={{
+                          background: topic.gradient_from && topic.gradient_to
+                            ? `linear-gradient(to top, ${topic.gradient_from}80 0%, ${topic.gradient_to}40 50%, transparent 100%)`
+                            : 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)'
+                        }}
+                      />
+                      {/* Premium Badge */}
+                      {topic.is_premium && (
+                        <div className="absolute top-2 right-2">
+                          <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            Premium
                           </div>
                         </div>
-                      </>
-                    );
-                  })()}
+                      )}
+                      {/* Question Count */}
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded">
+                          {topic.questions} вопросов
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Fallback gradient if no cover image
+                    <div
+                      className="h-32 w-full relative overflow-hidden"
+                      style={{
+                        background: topic.gradient_from && topic.gradient_to
+                          ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
+                          : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                      }}
+                    >
+                      {/* Topic Number */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-white text-4xl font-bold opacity-30">
+                          {topic.number}
+                        </div>
+                      </div>
+                      {/* Premium Badge */}
+                      {topic.is_premium && (
+                        <div className="absolute top-2 right-2">
+                          <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            Premium
+                          </div>
+                        </div>
+                      )}
+                      {/* Question Count */}
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded">
+                          {topic.questions} вопросов
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Card Content */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                      {topic.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Тема {topic.number}
+                    </p>
+                  </div>
                 </Card>
               ))}
             </div>
