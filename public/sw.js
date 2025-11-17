@@ -16,7 +16,7 @@ const STATIC_ASSETS = [
 ];
 
 // Установка Service Worker
-self.addEventListener('install', (event: any) => {
+self.addEventListener('install', (event) => {
   console.log('[SW] Installing Service Worker...');
   
   event.waitUntil(
@@ -31,7 +31,7 @@ self.addEventListener('install', (event: any) => {
 });
 
 // Активация Service Worker
-self.addEventListener('activate', (event: any) => {
+self.addEventListener('activate', (event) => {
   console.log('[SW] Activating Service Worker...');
   
   event.waitUntil(
@@ -53,7 +53,7 @@ self.addEventListener('activate', (event: any) => {
 });
 
 // Перехват запросов
-self.addEventListener('fetch', (event: any) => {
+self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
@@ -112,7 +112,7 @@ self.addEventListener('fetch', (event: any) => {
 });
 
 // Обработка сообщений от клиента
-self.addEventListener('message', (event: any) => {
+self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
