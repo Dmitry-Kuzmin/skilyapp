@@ -315,8 +315,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (!duelId || !profileId) {
       console.log('[DuelBattleFullscreen] ⚠️ Missing duelId or profileId:', { duelId, profileId });
       return;
-    }
-
+          }
+    
     console.log('[DuelBattleFullscreen] 🚀 Component mounted, syncing data...', { duelId, profileId });
     syncQuestions();
     syncPlayers();
@@ -1441,7 +1441,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
   // ПОЛНЫЕ ОТСТУПЫ для игры дуэль (увеличены по просьбе пользователя)
   // + дополнительный отступ для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
-  const TELEGRAM_NAV_HEIGHT = 95; // Высота встроенной навигации Telegram WebApp (увеличено для предотвращения перекрытия кнопкой "Назад")
+  const TELEGRAM_NAV_HEIGHT = 110; // Высота встроенной навигации Telegram WebApp (увеличено для предотвращения перекрытия кнопкой "Назад")
   const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
   
   const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
@@ -1546,7 +1546,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-4 mb-0' : 'mb-3 md:mb-4'}`}>
+        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-4 mb-2' : 'mb-3 md:mb-4'}`}>
           {/* Scores - Enhanced - Центрированы в Telegram */}
           <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
@@ -1847,7 +1847,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 flex flex-col min-h-0"
+          className={`flex-1 flex flex-col min-h-0 ${safeArea?.platform === 'telegram' ? '-mt-2' : ''}`}
         >
           <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             {/* Question Image */}
