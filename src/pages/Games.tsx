@@ -141,7 +141,7 @@ const Games = () => {
       let totalPercentage = 0;
       let validSessions = 0;
 
-      sessions.forEach(session => {
+      sessions.forEach((session: { score: number; total_questions: number }) => {
         if (session.total_questions > 0) {
           const percentage = (session.score / session.total_questions) * 100;
           totalPercentage += percentage;
