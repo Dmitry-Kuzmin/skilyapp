@@ -1,9 +1,10 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers } from "lucide-react";
+import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +15,19 @@ import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
 import { useCoins } from "@/hooks/useCoins";
+
+const getTopicGradient = (topic?: { gradient_from?: string; gradient_to?: string }) => {
+  if (topic?.gradient_from && topic?.gradient_to) {
+    return `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`;
+  }
+  return "linear-gradient(135deg, #6d28d9 0%, #2563eb 50%, #14b8a6 100%)";
+};
+
+const getQuestionLabel = (count: number) => {
+  if (count === 1) return "вопрос";
+  if (count >= 2 && count <= 4) return "вопроса";
+  return "вопросов";
+};
 
 const Tests = () => {
   const navigate = useNavigate();
@@ -415,95 +429,73 @@ const Tests = () => {
 
         {/* Topics Section - Practice Tests by Topic */}
         {topics.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Тесты по темам</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="mb-12">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-widest">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Личный маршрут
+                </div>
+                <h2 className="mt-3 text-3xl font-bold tracking-tight">Тесты по темам</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Выберите тему, чтобы сосредоточиться на конкретном блоке вопросов
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {topics.map((topic) => (
                 <Card
                   key={topic.id}
-                  className="group relative overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 border-transparent hover:border-primary/30"
+                  className="group relative overflow-hidden cursor-pointer border border-border/40 bg-gradient-to-br from-white/70 via-white/40 to-white/10 dark:from-white/5 dark:via-white/5 dark:to-white/0 backdrop-blur-xl rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
                   onClick={() => handleStartPath(`/tests/${topic.id}`)}
                 >
-                  {/* Cover Image */}
-                  {topic.cover_image ? (
-                    <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-muted to-muted/50">
-                      <img
-                        src={topic.cover_image}
-                        alt={topic.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => {
-                          // Fallback to gradient if image fails to load
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
-                      {/* Gradient Overlay */}
-                      <div
-                        className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
-                        style={{
-                          background: topic.gradient_from && topic.gradient_to
-                            ? `linear-gradient(to top, ${topic.gradient_from}80 0%, ${topic.gradient_to}40 50%, transparent 100%)`
-                            : 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)'
-                        }}
-                      />
-                      {/* Premium Badge */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-3xl" style={{ background: getTopicGradient(topic) }} />
+                  <div className="relative flex flex-col gap-4 p-5">
+                    <div className="relative overflow-hidden rounded-2xl h-36 border border-white/40 dark:border-white/10 shadow-inner">
+                      {topic.cover_image ? (
+                        <img
+                          src={topic.cover_image}
+                          alt={topic.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full" style={{ background: getTopicGradient(topic) }} />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/80" />
+                      <div className="absolute top-3 left-3 flex items-center gap-2">
+                        <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur border-white/30">
+                          {topic.questions} {getQuestionLabel(topic.questions)}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-black/30 text-white/90 backdrop-blur border-white/20">
+                          Тема {topic.number}
+                        </Badge>
+                      </div>
                       {topic.is_premium && (
-                        <div className="absolute top-2 right-2">
-                          <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-yellow-400/80 text-black shadow-lg flex items-center gap-1">
                             <Star className="w-3 h-3" />
                             Premium
-                          </div>
+                          </Badge>
                         </div>
                       )}
-                      {/* Question Count */}
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded">
-                          {topic.questions} вопросов
-                        </div>
-                      </div>
                     </div>
-                  ) : (
-                    // Fallback gradient if no cover image
-                    <div
-                      className="h-32 w-full relative overflow-hidden"
-                      style={{
-                        background: topic.gradient_from && topic.gradient_to
-                          ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
-                          : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
-                      }}
-                    >
-                      {/* Topic Number */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-white text-4xl font-bold opacity-30">
-                          {topic.number}
-                        </div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground">Тема {topic.number}</p>
+                        <h3 className="text-lg font-semibold leading-tight mt-1">{topic.name}</h3>
                       </div>
-                      {/* Premium Badge */}
-                      {topic.is_premium && (
-                        <div className="absolute top-2 right-2">
-                          <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                            <Star className="w-3 h-3" />
-                            Premium
-                          </div>
-                        </div>
-                      )}
-                      {/* Question Count */}
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded">
-                          {topic.questions} вопросов
-                        </div>
-                      </div>
+                      <Button variant="ghost" size="sm" className="gap-1 text-primary hover:text-primary/80" onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartPath(`/tests/${topic.id}`);
+                      }}>
+                        Пройти
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
                     </div>
-                  )}
-                  
-                  {/* Card Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-1 line-clamp-2 group-hover:text-primary transition-colors">
-                      {topic.name}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Тема {topic.number}
-                    </p>
                   </div>
                 </Card>
               ))}
