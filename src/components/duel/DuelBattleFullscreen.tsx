@@ -846,7 +846,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const PROGRESS_BAR_HEIGHT = 60;
     const progressBarTop = isTelegramMobile ? totalTopPadding - 15 : totalTopPadding;
     const contentTopPadding = isTelegramMobile
-      ? progressBarTop + PROGRESS_BAR_HEIGHT - 2
+      ? progressBarTop + PROGRESS_BAR_HEIGHT - 50 // Уменьшено на 50px для мобильной версии
       : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
     console.log('[DuelBattleFullscreen] 🎮 Safe area values:', {
@@ -858,7 +858,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       telegramNavPadding: `${telegramNavPadding}px`,
       totalTopPadding: `${totalTopPadding}px`,
       progressBarTop: `${progressBarTop}px (поднят на 15px для мобильной версии)`,
-      contentTopPadding: `${contentTopPadding}px`,
+      contentTopPadding: `${contentTopPadding}px (уменьшен на 50px для мобильной версии)`,
+      gapBetweenProgressAndContent: isTelegramMobile ? `${progressBarTop + PROGRESS_BAR_HEIGHT - contentTopPadding}px` : 'N/A',
       calculation: `${safeArea.top} + ${safeArea.contentTop} + ${telegramNavPadding} = ${totalTopPadding}, progressBarTop: ${progressBarTop}, contentTopPadding: ${contentTopPadding}`,
     });
   }, [safeArea.platform, safeArea.top, safeArea.contentTop, safeArea.left, safeArea.right, safeArea.bottom, safeArea.contentBottom]);
@@ -1472,10 +1473,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     ? totalTopPadding - 15 
     : totalTopPadding;
   
-  // Вычисляем отступ для контента: для мобильной версии Telegram делаем минимальный зазор
+  // Вычисляем отступ для контента: для мобильной версии Telegram уменьшаем на 50px
   const contentTopPadding =
     isTelegramMobile
-      ? progressBarTop + PROGRESS_BAR_HEIGHT - 2 // Минимальный зазор (2px) между прогресс-баром и контентом
+      ? progressBarTop + PROGRESS_BAR_HEIGHT - 50 // Уменьшаем зазор на 50px между прогресс-баром и контентом
       : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
@@ -1495,7 +1496,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="fixed z-50 space-y-2 max-w-sm"
         style={{
-          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : isTelegramDesktop ? 8 : 16)}px`,
+          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? -42 : isTelegramDesktop ? 8 : 16)}px`, // Поднимаем на 50px для мобильной версии (8 - 50 = -42)
           right: `${totalRightPadding + 16}px`
         }}
       >
@@ -1578,7 +1579,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         {/* Header - Scores & Boosts - Premium Design */}
         <div className={`flex items-center justify-between gap-3 flex-wrap ${
           isTelegramMobile 
-            ? '-mt-8 mb-2' // Умеренное уменьшение зазора в мобильной версии Telegram
+            ? 'mb-2' // Убираем отрицательный margin, чтобы блок не выходил за границы
             : isTelegramDesktop 
             ? 'mb-3 md:mb-4' // Обычный отступ для десктопной версии
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
