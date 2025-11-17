@@ -2,37 +2,54 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  // Base path for GitHub Pages (if repo is not in root)
-  // For root repo, use '/' or leave empty
-  base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
-  server: {
-    host: "::",
-    port: 8080,
-    allowedHosts: [
-      "localhost",
-      ".ngrok.io",
-      ".ngrok-free.app",
-      ".ngrok.app",
-      "unlogical-despairful-stuart.ngrok-free.dev",
-      ".trycloudflare.com", // Cloudflare Tunnel
-      ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
-    ],
-  },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+export default defineConfig(({ mode }) => {
+  const shouldAnalyze = Boolean(process.env.ANALYZE);
+
+  const plugins = [
+    react(),
+    mode === "development" && componentTagger(),
+    shouldAnalyze &&
+      visualizer({
+        filename: "dist/stats.html",
+        gzipSize: true,
+        brotliSize: true,
+        template: "treemap",
+        open: true,
+      }),
+  ].filter(Boolean);
+
+  return {
+    // Base path for GitHub Pages (if repo is not in root)
+    // For root repo, use '/' or leave empty
+    base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
+    server: {
+      host: "::",
+      port: 8080,
+      allowedHosts: [
+        "localhost",
+        ".ngrok.io",
+        ".ngrok-free.app",
+        ".ngrok.app",
+        "unlogical-despairful-stuart.ngrok-free.dev",
+        ".trycloudflare.com", // Cloudflare Tunnel
+        ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
+      ],
     },
-  },
-  build: {
-    minify: 'esbuild', // Используем esbuild (быстрее чем terser)
-    target: 'es2015',
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
+    plugins,
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
+    build: {
+      minify: 'esbuild', // Используем esbuild (быстрее чем terser)
+      target: 'es2015',
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
             // React core (самые базовые библиотеки)
@@ -127,14 +144,15 @@ export default defineConfig(({ mode }) => ({
             }
             return 'vendor';
           }
+          },
         },
       },
+      chunkSizeWarningLimit: 1000,
     },
-    chunkSizeWarningLimit: 1000,
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      jsx: 'automatic',
+    optimizeDeps: {
+      esbuildOptions: {
+        jsx: 'automatic',
+      },
     },
-  },
-}));
+  };
+});

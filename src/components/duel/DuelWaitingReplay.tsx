@@ -192,40 +192,52 @@ export function DuelWaitingReplay({
       return; // Не нужен fallback или уже закончили
     }
     
-    console.log('[DuelWaitingReplay] 🔄 Telegram WebApp detected - enabling fallback polling every 5 seconds');
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
-    // ОПТИМИЗАЦИЯ: Увеличен интервал fallback polling с 1.5 до 5 секунд для экономии запросов
-    // Realtime подписка должна обрабатывать большинство обновлений
-    const fallbackInterval = setInterval(() => {
-      if (isDuelFinishedRef.current) {
-        // Уже закончили, не нужно проверять
-        clearInterval(fallbackInterval);
-        return;
-      }
+    const scheduleNext = () => {
+      if (isDuelFinishedRef.current) return;
       
-      console.log('[DuelWaitingReplay] 🔄 Fallback: Checking opponent progress (Telegram WebApp)');
+      const now = Date.now();
+      const realtimeFresh = connectionStatus === 'connected' && now - lastEventAt < 5000;
+      const baseDelay = realtimeFresh ? 15000 : 5000;
+      const jitter = Math.floor(Math.random() * 1500);
+      const delay = baseDelay + jitter;
       
-      // Проверяем статус дуэли и загружаем ответы соперника
-      // Используем refs для доступа к функциям
-      if (loadOpponentDataRef.current) {
-        loadOpponentDataRef.current().catch(err => {
-          console.error('[DuelWaitingReplay] Fallback: Error loading opponent data:', err);
+      timeoutId = setTimeout(async () => {
+        if (isDuelFinishedRef.current) {
+          return;
+        }
+        
+        console.log('[DuelWaitingReplay] 🔄 Adaptive fallback polling', {
+          connectionStatus,
+          lastEventDelta: now - lastEventAt,
+          delay,
         });
-      }
-      
-      // Также проверяем статус через Edge Function
-      if (checkIfOpponentFinishedRef.current) {
-        checkIfOpponentFinishedRef.current(false).catch(err => {
-          console.error('[DuelWaitingReplay] Fallback: Error checking opponent finished:', err);
-        });
-      }
-    }, 5000); // ОПТИМИЗАЦИЯ: Увеличено с 1.5 до 5 секунд для экономии Edge Function вызовов
+        
+        try {
+          if (loadOpponentDataRef.current) {
+            await loadOpponentDataRef.current();
+          }
+          
+          if (checkIfOpponentFinishedRef.current) {
+            await checkIfOpponentFinishedRef.current(!realtimeFresh);
+          }
+        } catch (error) {
+          console.error('[DuelWaitingReplay] Fallback: polling error', error);
+        } finally {
+          scheduleNext();
+        }
+      }, delay);
+    };
+    
+    scheduleNext();
     
     return () => {
-      console.log('[DuelWaitingReplay] 🧹 Cleaning up fallback interval');
-      clearInterval(fallbackInterval);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
-  }, [duelId, isDuelFinished]); // Зависимости для перезапуска при изменении
+  }, [connectionStatus, lastEventAt, duelId]);
   
   // ОПТИМИЗИРОВАНО: Используем Realtime статус дуэли для МГНОВЕННОГО перехода к результатам
   // Это основной и самый быстрый способ определения завершения дуэли

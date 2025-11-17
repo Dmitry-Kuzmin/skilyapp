@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, Zap, Flame, Shield, Users, Trophy, Swords, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelSettingsMenu } from './DuelSettingsMenu';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
+import { useDuelData } from '@/hooks/useDuelData';
 
 const duelRiskMultiplierPreview = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -50,6 +51,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [isWaitingHidden, setIsWaitingHidden] = useState(false);
   const { profileId } = useUserContext();
   const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
+  const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -122,6 +124,95 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const opponentInsuranceActive = betInfo ? (betInfo.isHost ? betInfo.opponentInsurance : betInfo.hostInsurance) : false;
   const opponentCoverageDisplay = betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageOpponent : betInfo.coverageHost) || 0) * 100) : 0;
   const seasonBonusDisplay = betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0;
+
+  const hydrateQuestions = useCallback((questionList: any[]) => {
+    setQuestions(questionList);
+
+    const savedState = localStorage.getItem('active_duel_state');
+    if (!savedState) {
+      return;
+    }
+
+    try {
+      const stored = JSON.parse(savedState);
+      if (stored.duelId !== duelId) {
+        return;
+      }
+
+      if (stored.mode === 'waiting') {
+        setCurrentIndex(Math.max(questionList.length - 1, 0));
+        setHasFinishedMyQuestions(true);
+        setIsWaitingForOpponent(true);
+        return;
+      }
+
+      if (
+        typeof stored.currentIndex === 'number' &&
+        stored.currentIndex >= 0 &&
+        stored.currentIndex < questionList.length - 1
+      ) {
+        setCurrentIndex(stored.currentIndex);
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error parsing saved duel state:', error);
+    }
+  }, [duelId]);
+
+  const syncBoostInventory = useCallback(async () => {
+    try {
+      const inventory = await fetchBoostInventory();
+      setBoosts(inventory.filter((item) => item.quantity > 0));
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error syncing boosts:', error);
+    }
+  }, [fetchBoostInventory]);
+
+  const syncBetInfo = useCallback(async () => {
+    try {
+      const info = await fetchBetInfo();
+      setBetInfo(info);
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error syncing bet info:', error);
+    }
+  }, [fetchBetInfo]);
+
+  const syncPlayers = useCallback(async () => {
+    try {
+      const players = await fetchPlayers();
+      if (!players) return;
+
+      setMyPlayerId(players.myPlayerId);
+      setMyScore(players.myScore);
+      setOpponentScore(players.opponentScore);
+      setMyName(players.myName);
+      setOpponentName(players.opponentName);
+
+      const myPlayer = players.players.find((p) => p.user_id === profileId);
+      const opponent = players.players.find((p) => p.user_id !== profileId);
+
+      if (myPlayer?.profiles?.photo_url) {
+        setMyPhotoUrl(getImageUrl(myPlayer.profiles.photo_url));
+      }
+      if (opponent?.profiles?.photo_url) {
+        setOpponentPhotoUrl(getImageUrl(opponent.profiles.photo_url));
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Error syncing players:', error);
+    }
+  }, [fetchPlayers, profileId]);
+
+  const syncQuestions = useCallback(async () => {
+    try {
+      setLoading(true);
+      const questionList = await fetchQuestions();
+      hydrateQuestions(questionList);
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] Failed to load questions:', error);
+      toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchQuestions, hydrateQuestions]);
   
   // Format time helper
   const formatTime = (ms: number) => {
@@ -224,14 +315,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (!duelId || !profileId) {
       console.log('[DuelBattleFullscreen] ⚠️ Missing duelId or profileId:', { duelId, profileId });
       return;
-          }
-    
-    console.log('[DuelBattleFullscreen] 🚀 Component mounted, loading data...', { duelId, profileId });
-    loadQuestions();
-    loadScores();
-    loadBoosts();
-    loadBetInfo();
-  }, [duelId, profileId]);
+    }
+
+    console.log('[DuelBattleFullscreen] 🚀 Component mounted, syncing data...', { duelId, profileId });
+    syncQuestions();
+    syncPlayers();
+    syncBoostInventory();
+    syncBetInfo();
+  }, [duelId, profileId, syncBetInfo, syncBoostInventory, syncPlayers, syncQuestions]);
 
   // ОПТИМИЗАЦИЯ: Heartbeat увеличен до 15 секунд (было 5) для экономии Edge Function вызовов
   // Realtime подписка уже отслеживает активность, heartbeat нужен только как fallback
@@ -413,7 +504,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   useEffect(() => {
     if (state.duelStarted && questions.length > 0 && !loading) {
       console.log('[DuelBattleFullscreen] Duel started, loading scores...');
-      setTimeout(() => loadScores(), 500);
+      setTimeout(() => {
+        syncPlayers();
+      }, 500);
     }
   }, [state.duelStarted, questions.length, loading]);
 
@@ -672,7 +765,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (profileId && duelId) {
       // Даем время на создание игроков в базе
       const timer = setTimeout(() => {
-      loadScores();
+        syncPlayers();
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -727,7 +820,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       console.log('[DuelBattleFullscreen] 🔄 useEffect: Duel started, reloading scores', { myPlayerId });
       // Увеличиваем задержку, чтобы гарантировать что игроки созданы
       const timer = setTimeout(() => {
-        loadScores();
+        syncPlayers();
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -778,532 +871,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   useEffect(() => {
     setTranslationLanguage(null);
   }, [currentIndex]);
-
-  const loadQuestions = async () => {
-    if (!duelId || !profileId) {
-      console.warn('[DuelBattleFullscreen] ⚠️ Cannot load questions: missing duelId or profileId', { duelId, profileId });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      console.log('[DuelBattleFullscreen] 🔄 Loading questions for duel:', duelId, 'profile:', profileId);
-      
-      // Retry логика с экспоненциальной задержкой
-      const maxRetries = 3;
-      let lastError: any = null;
-      
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          // Увеличиваем таймаут для каждого запроса (30 секунд)
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 30 секунд')), 30000);
-          });
-
-          const invokePromise = supabase.functions.invoke('duel-manager', {
-        body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
-      });
-
-          const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
-
-          console.log(`[DuelBattleFullscreen] Questions response (attempt ${attempt + 1}):`, { 
-            hasData: !!data, 
-            hasError: !!error,
-            questionsCount: data?.questions?.length,
-            error: error?.message 
-          });
-
-          if (error) {
-            lastError = error;
-            // Если это не последняя попытка, ждем перед повтором
-            if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
-              console.log(`[DuelBattleFullscreen] ⏳ Retrying in ${delay}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw error;
-          }
-          
-          if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-            console.log('[DuelBattleFullscreen] ✅ Loaded questions:', data.questions.length);
-            console.log('[DuelBattleFullscreen] First question sample:', {
-              id: data.questions[0]?.id,
-              hasSnapshot: !!data.questions[0]?.question_snapshot,
-              position: data.questions[0]?.position
-            });
-        setQuestions(data.questions);
-        
-        // Восстанавливаем currentIndex из сохраненного состояния (только если не закончили все вопросы)
-        const savedState = localStorage.getItem('active_duel_state');
-        if (savedState) {
-          try {
-            const state = JSON.parse(savedState);
-            // Не восстанавливаем если пользователь уже закончил все вопросы (currentIndex >= totalQuestions - 1)
-            if (state.duelId === duelId && 
-                state.currentIndex !== undefined && 
-                state.currentIndex < data.questions.length &&
-                state.currentIndex < data.questions.length - 1) { // Не восстанавливаем если на последнем вопросе
-              console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
-              setCurrentIndex(state.currentIndex);
-            } else if (state.duelId === duelId && state.mode === 'waiting') {
-              // Если режим 'waiting', значит пользователь уже закончил все вопросы
-              console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
-              setCurrentIndex(data.questions.length - 1); // Устанавливаем на последний вопрос
-              setHasFinishedMyQuestions(true);
-              setIsWaitingForOpponent(true); // Показываем экран ожидания
-            }
-          } catch (e) {
-            console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
-          }
-        }
-        
-            return; // Успешно загружено
-      } else {
-            console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
-              hasData: !!data,
-              questionsType: typeof data?.questions,
-              questionsIsArray: Array.isArray(data?.questions),
-              questionsLength: data?.questions?.length,
-              fullData: data
-            });
-            // Пробуем fallback
-            break;
-          }
-        } catch (attemptError: any) {
-          lastError = attemptError;
-          console.warn(`[DuelBattleFullscreen] ⚠️ Attempt ${attempt + 1} failed:`, attemptError?.message);
-          
-          // Если это не последняя попытка, ждем перед повтором
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            console.log(`[DuelBattleFullscreen] ⏳ Retrying in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
-        }
-      }
-
-      // Если все попытки не удались, пробуем fallback
-      console.log('[DuelBattleFullscreen] 🔄 All retries failed, trying direct database query...');
-      await loadQuestionsDirect();
-      
-    } catch (error: any) {
-      console.error('[DuelBattleFullscreen] ❌ Exception loading questions:', error);
-      console.error('[DuelBattleFullscreen] Error details:', JSON.stringify(error, null, 2));
-      
-      // Последняя попытка - прямой запрос
-      try {
-        await loadQuestionsDirect();
-      } catch (fallbackError) {
-        console.error('[DuelBattleFullscreen] ❌ Fallback also failed:', fallbackError);
-        toast.error(`Ошибка загрузки вопросов: ${error?.message || 'Неизвестная ошибка'}`);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fallback функция для прямого запроса к базе
-  const loadQuestionsDirect = async () => {
-    try {
-      console.log('[DuelBattleFullscreen] 🔄 Loading questions directly from database...');
-      
-      const { data, error } = await supabase
-        .from('duel_questions')
-        .select('*')
-        .eq('duel_id', duelId)
-        .order('position');
-
-      if (error) {
-        console.error('[DuelBattleFullscreen] ❌ Error loading questions directly:', error);
-        throw error;
-      }
-
-      if (data && Array.isArray(data) && data.length > 0) {
-        console.log('[DuelBattleFullscreen] ✅ Loaded questions directly:', data.length);
-        setQuestions(data);
-        
-            // Восстанавливаем currentIndex из сохраненного состояния (только если не закончили все вопросы)
-            const savedState = localStorage.getItem('active_duel_state');
-            if (savedState) {
-              try {
-                const state = JSON.parse(savedState);
-                // Не восстанавливаем если пользователь уже закончил все вопросы
-                if (state.duelId === duelId && 
-                    state.currentIndex !== undefined && 
-                    state.currentIndex < data.length &&
-                    state.currentIndex < data.length - 1) { // Не восстанавливаем если на последнем вопросе
-                  console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
-                  setCurrentIndex(state.currentIndex);
-                } else if (state.duelId === duelId && state.mode === 'waiting') {
-                  // Если режим 'waiting', значит пользователь уже закончил все вопросы
-                  console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
-                  setCurrentIndex(data.length - 1); // Устанавливаем на последний вопрос
-                  setHasFinishedMyQuestions(true);
-                  setIsWaitingForOpponent(true); // Показываем экран ожидания
-                }
-              } catch (e) {
-                console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
-              }
-            }
-      } else {
-        console.error('[DuelBattleFullscreen] ❌ No questions found in database');
-        toast.error('Вопросы не найдены. Попробуйте перезагрузить страницу.');
-      }
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] ❌ Exception in loadQuestionsDirect:', error);
-      throw error;
-    }
-  };
-
-  const loadScores = async () => {
-    if (!duelId || !profileId) {
-      console.warn('[DuelBattleFullscreen] ⚠️ Cannot load scores: missing duelId or profileId', { duelId, profileId });
-        return;
-      }
-
-    console.log('[DuelBattleFullscreen] 🔄 Loading scores for duel:', duelId, 'profile:', profileId);
-
-    try {
-      // Используем Edge Function для загрузки игроков (обходит RLS и проблемы с транзакциями)
-      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'get_players',
-          duel_id: duelId,
-          profile_id: profileId
-        }
-      });
-
-      if (edgeError) {
-        console.error('[DuelBattleFullscreen] ❌ Error loading players via Edge Function:', edgeError);
-        // Fallback к прямому запросу
-        return await loadScoresDirect();
-      }
-
-      const players = edgeData?.players || [];
-      console.log('[DuelBattleFullscreen] 📊 Players data received from Edge Function:', {
-        count: players.length,
-        players: players.map((p: any) => ({ 
-          id: p.id, 
-          user_id: p.user_id, 
-          score: p.score, 
-          name: p.name,
-          hasName: !!p.name && p.name !== 'Игрок'
-        }))
-      });
-      
-      // КРИТИЧНО: Проверяем что имена получены
-      const playersWithoutNames = players.filter((p: any) => !p.name || p.name === 'Игрок' || p.name.trim() === '');
-      if (playersWithoutNames.length > 0) {
-        console.warn('[DuelBattleFullscreen] ⚠️ Some players have no valid name from Edge Function:', playersWithoutNames.map((p: any) => ({ 
-          user_id: p.user_id, 
-          name: p.name,
-          hasName: !!p.name && p.name !== 'Игрок'
-        })));
-        // Если Edge Function не вернул имена, используем fallback
-        console.log('[DuelBattleFullscreen] 🔄 Falling back to direct query for names...');
-        await loadScoresDirect();
-        return; // Не продолжаем, так как loadScoresDirect уже установил имена
-      }
-        
-      if (players.length >= 2) {
-        const myPlayer = players.find((p: any) => p.user_id === profileId);
-        const opponent = players.find((p: any) => p.user_id !== profileId);
-        
-        console.log('[DuelBattleFullscreen] 🔍 Found players:', {
-          myPlayer: myPlayer ? { id: myPlayer.id, score: myPlayer.score, name: myPlayer.name, nameLength: myPlayer.name?.length } : null,
-          opponent: opponent ? { id: opponent.id, score: opponent.score, name: opponent.name, nameLength: opponent.name?.length } : null
-        });
-        
-        // КРИТИЧНО: устанавливаем myPlayerId СРАЗУ
-        if (myPlayer?.id) {
-          console.log('[DuelBattleFullscreen] ✅ Setting myPlayerId:', myPlayer.id);
-          setMyPlayerId(myPlayer.id);
-        }
-        
-        // КРИТИЧНО: устанавливаем счета СРАЗУ
-        if (typeof myPlayer?.score === 'number') {
-          console.log('[DuelBattleFullscreen] ✅ Setting my score:', myPlayer.score);
-          setMyScore(myPlayer.score);
-          } else {
-          setMyScore(0);
-        }
-        
-        if (typeof opponent?.score === 'number') {
-          console.log('[DuelBattleFullscreen] ✅ Setting opponent score:', opponent.score);
-          setOpponentScore(opponent.score);
-            } else {
-          setOpponentScore(0);
-        }
-        
-        // Устанавливаем имена игроков (проверяем что имя валидно и не пустое)
-        if (myPlayer?.name && myPlayer.name.trim() && myPlayer.name !== 'Игрок' && myPlayer.name.trim() !== 'Игрок') {
-          const trimmedName = myPlayer.name.trim();
-          console.log('[DuelBattleFullscreen] ✅ Setting my name:', trimmedName);
-          setMyName(trimmedName);
-          } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for my player, using fallback. Name was:', myPlayer?.name);
-          setMyName('Вы');
-        }
-        
-        if (opponent?.name && opponent.name.trim() && opponent.name !== 'Игрок' && opponent.name.trim() !== 'Игрок') {
-          const trimmedName = opponent.name.trim();
-          console.log('[DuelBattleFullscreen] ✅ Setting opponent name:', trimmedName);
-          setOpponentName(trimmedName);
-            } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ No valid name for opponent, using fallback. Name was:', opponent?.name);
-          setOpponentName('Соперник');
-        }
-      } else if (players.length === 1) {
-        // Только один игрок
-        const player = players[0];
-        if (player.user_id === profileId && player.id) {
-          setMyPlayerId(player.id);
-          setMyScore(typeof player.score === 'number' ? player.score : 0);
-          if (player.name) {
-            setMyName(player.name);
-            }
-          }
-      } else {
-        // Нет игроков - повторяем попытку
-        console.warn('[DuelBattleFullscreen] ⚠️ No players found! Will retry...');
-        if (state.duelStarted) {
-        setTimeout(() => {
-            console.log('[DuelBattleFullscreen] 🔄 Retrying loadScores after no players found...');
-            loadScores();
-          }, 1500);
-        }
-      }
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] ❌ Exception loading scores:', error);
-      // Fallback к прямому запросу
-      await loadScoresDirect();
-    }
-  };
-
-  // Fallback функция для прямого запроса к базе
-  const loadScoresDirect = async () => {
-    try {
-      console.log('[DuelBattleFullscreen] 🔄 Loading scores directly from DB (separate queries)');
-      
-      // Загружаем игроков БЕЗ JOIN (чтобы избежать проблем с RLS)
-      const { data: players, error: playersError } = await supabase
-        .from('duel_players')
-        .select('id, user_id, score, correct_count')
-        .eq('duel_id', duelId);
-
-      if (playersError) {
-        console.error('[DuelBattleFullscreen] ❌ Error loading players:', playersError);
-        return;
-      }
-
-      if (!players || players.length < 2) {
-        console.warn('[DuelBattleFullscreen] ⚠️ Not enough players found:', players?.length || 0);
-        return;
-      }
-
-      const myPlayer = players.find(p => p.user_id === profileId);
-      const opponent = players.find(p => p.user_id !== profileId);
-      
-      if (myPlayer?.id) {
-        setMyPlayerId(myPlayer.id);
-        setMyScore(myPlayer?.score || 0);
-      }
-      
-      if (opponent) {
-        setOpponentScore(opponent.score || 0);
-      }
-
-      // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
-      const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
-      
-      if (userIds.length > 0) {
-        console.log('[DuelBattleFullscreen] 🔄 Loading profiles one by one for userIds:', userIds);
-        
-        // Загружаем профили по одному через Promise.all
-        const profilePromises = userIds.map(async (userId) => {
-          const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('id, first_name, username, photo_url')
-            .eq('id', userId)
-            .single();
-          
-          if (error) {
-            console.error(`[DuelBattleFullscreen] ❌ Error loading profile for ${userId}:`, {
-              error: error.message,
-              code: error.code,
-              details: error.details,
-              hint: error.hint
-            });
-            return null;
-          }
-          
-          if (!profile) {
-            console.warn(`[DuelBattleFullscreen] ⚠️ Profile not found for userId: ${userId}`);
-            return null;
-          }
-          
-          return { userId, profile };
-        });
-        
-        const profileResults = await Promise.all(profilePromises);
-        const profilesMap = new Map();
-        
-        profileResults.forEach((result) => {
-          if (result && result.profile) {
-            profilesMap.set(result.userId, result.profile);
-          }
-        });
-
-        console.log('[DuelBattleFullscreen] ✅ Loaded profiles:', Array.from(profilesMap.entries()).map(([id, p]: [string, any]) => ({
-          id,
-          first_name: p.first_name,
-          username: p.username,
-        })));
-        
-        // Устанавливаем имена и фото
-        if (myPlayer?.user_id) {
-          const myProfile = profilesMap.get(myPlayer.user_id);
-          if (myProfile) {
-            const name = myProfile.first_name || myProfile.username || 'Вы';
-            console.log('[DuelBattleFullscreen] ✅ Setting my name from direct query:', name);
-            setMyName(name);
-            if (myProfile.photo_url) {
-              setMyPhotoUrl(getImageUrl(myProfile.photo_url));
-            }
-          } else {
-            console.warn('[DuelBattleFullscreen] ⚠️ No profile found for my player');
-            setMyName('Вы');
-          }
-        }
-
-        if (opponent?.user_id) {
-          const opponentProfile = profilesMap.get(opponent.user_id);
-          if (opponentProfile) {
-            const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
-            console.log('[DuelBattleFullscreen] ✅ Setting opponent name from direct query:', name);
-            setOpponentName(name);
-            if (opponentProfile.photo_url) {
-              setOpponentPhotoUrl(getImageUrl(opponentProfile.photo_url));
-            }
-          } else {
-            console.warn('[DuelBattleFullscreen] ⚠️ No profile found for opponent');
-            setOpponentName('Соперник');
-          }
-        }
-      }
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] ❌ Exception in loadScoresDirect:', error);
-    }
-  };
-
-
-  const loadBoosts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('boost_inventory')
-        .select('boost_type, quantity')
-        .eq('user_id', profileId)
-        .gt('quantity', 0);
-
-      if (error) {
-        console.error('Error loading boosts:', error);
-        return;
-      }
-
-      if (data) setBoosts(data);
-    } catch (error) {
-      console.error('Exception loading boosts:', error);
-    }
-  };
-
-  const loadBetInfo = async () => {
-    if (!duelId) {
-      console.log('[DuelBattleFullscreen] ⚠️ No duelId provided for loadBetInfo');
-      return;
-    }
-    
-    const isTelegram = typeof window !== 'undefined' && !!window.Telegram?.WebApp;
-    console.log('[DuelBattleFullscreen] 🔄 Loading bet info:', { duelId, profileId, isTelegram });
-    
-    try {
-      const { data: duelData, error: duelError } = await supabase
-        .from('duels')
-        .select('bet_amount, host_user')
-        .eq('id', duelId)
-        .single();
-      
-      if (duelError) {
-        console.error('[DuelBattleFullscreen] ❌ Error loading duel bet info:', {
-          error: duelError,
-          code: duelError.code,
-          message: duelError.message,
-          details: duelError.details,
-          hint: duelError.hint,
-          duelId,
-          profileId,
-          isTelegram
-        });
-        setBetInfo(null);
-        return;
-      }
-      
-      if (!duelData) {
-        console.warn('[DuelBattleFullscreen] ⚠️ No duel data returned:', { duelId, profileId });
-        setBetInfo(null);
-        return;
-      }
-      
-      if (!(duelData.bet_amount > 0)) {
-        console.log('[DuelBattleFullscreen] ℹ️ No bet amount in duel:', { 
-          betAmount: duelData.bet_amount, 
-          duelId,
-          profileId 
-        });
-        setBetInfo(null);
-        return;
-      }
-      
-      console.log('[DuelBattleFullscreen] ✅ Duel bet data loaded:', {
-        betAmount: duelData.bet_amount,
-        hostUser: duelData.host_user,
-        isHost: duelData.host_user === profileId
-      });
-      
-      const { data: betRow, error: betError } = await supabase
-        .from('duel_bets')
-        .select('host_insurance_enabled, host_coverage_rate, opponent_insurance_enabled, opponent_coverage_rate')
-        .eq('duel_id', duelId)
-        .maybeSingle();
-      
-      if (betError) {
-        console.warn('[DuelBattleFullscreen] ⚠️ Error loading bet insurance info (non-critical):', betError);
-        // Продолжаем без данных о страховке
-      }
-      
-      const betInfoData = {
-        betAmount: duelData.bet_amount,
-        totalBank: duelData.bet_amount * 2,
-        isHost: duelData.host_user === profileId,
-        hostInsurance: !!betRow?.host_insurance_enabled,
-        opponentInsurance: !!betRow?.opponent_insurance_enabled,
-        coverageHost: betRow?.host_coverage_rate || 0,
-        coverageOpponent: betRow?.opponent_coverage_rate || 0,
-      };
-      
-      console.log('[DuelBattleFullscreen] ✅ Bet info set:', betInfoData);
-      setBetInfo(betInfoData);
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] ⚠️ Exception loading bet info:', {
-        error,
-        duelId,
-        profileId,
-        isTelegram,
-        errorMessage: error instanceof Error ? error.message : String(error)
-      });
-      setBetInfo(null);
-    }
-  };
 
   const handleBoostUse = async (boostType: string, language?: 'ru' | 'en') => {
     // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
@@ -1378,7 +945,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         },
       });
 
-      await loadBoosts();
+      await syncBoostInventory();
     } catch (error) {
       console.error('Error using boost:', error);
     }
@@ -1538,7 +1105,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
       } else {
         // Fallback: reload from DB if server doesn't return score
-        await loadScores();
+        await syncPlayers();
       }
 
       // Всегда переходим к следующему вопросу, даже если сервер не ответил

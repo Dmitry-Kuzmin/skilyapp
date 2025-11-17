@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:tunnel": "./scripts/start-dev-with-tunnel.sh",
     "build": "tsc && vite build",
+    "build:analyze": "ANALYZE=true tsc && ANALYZE=true vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",

@@ -32,6 +32,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   });
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const myPlayerIdRef = useRef<string | null | undefined>(myPlayerId);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error'>('connecting');
+  const [lastEventAt, setLastEventAt] = useState(() => Date.now());
+  const markEvent = () => setLastEventAt(Date.now());
   
   // Update ref when myPlayerId changes and reload scores
   useEffect(() => {
@@ -97,6 +100,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `id=eq.${duelId}`,
         },
         (payload) => {
+          markEvent();
           console.log('[useDuelRealtime] 🔥🔥🔥 Duel UPDATE event received!');
           console.log('[useDuelRealtime] Payload:', payload);
           console.log('[useDuelRealtime] Duel data:', payload.new);
@@ -127,6 +131,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         () => {
+          markEvent();
           console.log('[useDuelRealtime] Opponent joined!');
           setState(prev => ({ ...prev, opponentJoined: true }));
         }
@@ -140,6 +145,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         async (payload) => {
+          markEvent();
           const updatedPlayer = payload.new as any;
           const currentMyPlayerId = myPlayerIdRef.current;
           
@@ -220,6 +226,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           filter: `duel_id=eq.${duelId}`,
         },
         (payload) => {
+          markEvent();
           console.log('[useDuelRealtime] Answer received:', payload);
           
           // Проверяем, что это ответ соперника, а не мой
@@ -242,6 +249,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       )
       .subscribe((status) => {
         console.log('[useDuelRealtime] Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          setConnectionStatus('connected');
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setConnectionStatus('error');
+        } else if (status === 'CLOSED') {
+          setConnectionStatus('connecting');
+        }
         
         if (status === 'SUBSCRIBED') {
           console.log('[useDuelRealtime] Successfully subscribed, checking current duel status...');
@@ -299,5 +313,5 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     }
   };
 
-  return { state, broadcast };
+  return { state, broadcast, connectionStatus, lastEventAt };
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,48 +6,60 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { ReferralWelcome } from "@/components/ReferralWelcome";
-import Index from "./pages/Index";
-import LearningMap from "./pages/LearningMap";
-import TopicDetail from "./pages/TopicDetail";
-import SubtopicDetail from "./pages/SubtopicDetail";
-import Tests from "./pages/Tests";
-import Learning from "./pages/Learning";
-import Games from "./pages/Games";
-import NotFound from "./pages/NotFound";
-import { AdminLayout } from "./components/admin/AdminLayout";
-import { AdminDashboard } from "./pages/admin/AdminDashboard";
-import { AdminSync } from "./pages/admin/AdminSync";
-import { AdminImport } from "./pages/admin/AdminImport";
-import { AdminTestCovers } from "./pages/admin/AdminTestCovers";
-import AdminEditor from "./pages/AdminEditor";
-import AdminQuestionReports from "./pages/AdminQuestionReports";
-import Achievements from "./pages/Achievements";
-import RaceGame from "./pages/games/RaceGame";
-import GuessTheSign from "./pages/games/GuessTheSign";
-import MatchingGame from "./pages/games/MatchingGame";
-import Duel from "./pages/games/Duel";
-import FourVariantsGame from "./pages/games/FourVariantsGame";
-import RoadRace from "./pages/games/RoadRace";
-import FlashCardsGame from "./pages/games/FlashCardsGame";
-import TestSession from "./pages/TestSession";
-import TestResults from "./pages/TestResults";
-import SequentialTests from "./pages/SequentialTests";
-import RoadSigns from "./pages/RoadSigns";
-import Dictionary from "./pages/Dictionary";
-import DataImport from "./pages/DataImport";
-import DailyBonus from "./pages/DailyBonus";
-import DGTTestsSimple from "./pages/DGTTestsSimple";
-import ChallengeBank from "./pages/ChallengeBank";
-import Referrals from "./pages/Referrals";
-import InviteLanding from "./pages/InviteLanding";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import SubscriptionTerms from "./pages/SubscriptionTerms";
-import HelpCenter from "./pages/HelpCenter";
-import DuelLeaderboard from "./pages/DuelLeaderboard";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCancel from "./pages/PaymentCancel";
-import Inventory from "./pages/Inventory";
+import { PageLoader } from "@/components/PageLoader";
+
+const Index = lazy(() => import("./pages/Index"));
+const LearningMap = lazy(() => import("./pages/LearningMap"));
+const TopicDetail = lazy(() => import("./pages/TopicDetail"));
+const SubtopicDetail = lazy(() => import("./pages/SubtopicDetail"));
+const Tests = lazy(() => import("./pages/Tests"));
+const Learning = lazy(() => import("./pages/Learning"));
+const Games = lazy(() => import("./pages/Games"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLayout = lazy(() =>
+  import("./components/admin/AdminLayout").then((module) => ({ default: module.AdminLayout }))
+);
+const AdminDashboard = lazy(() =>
+  import("./pages/admin/AdminDashboard").then((module) => ({ default: module.AdminDashboard }))
+);
+const AdminSync = lazy(() =>
+  import("./pages/admin/AdminSync").then((module) => ({ default: module.AdminSync }))
+);
+const AdminImport = lazy(() =>
+  import("./pages/admin/AdminImport").then((module) => ({ default: module.AdminImport }))
+);
+const AdminTestCovers = lazy(() =>
+  import("./pages/admin/AdminTestCovers").then((module) => ({ default: module.AdminTestCovers }))
+);
+const AdminEditor = lazy(() => import("./pages/AdminEditor"));
+const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
+const Achievements = lazy(() => import("./pages/Achievements"));
+const RaceGame = lazy(() => import("./pages/games/RaceGame"));
+const GuessTheSign = lazy(() => import("./pages/games/GuessTheSign"));
+const MatchingGame = lazy(() => import("./pages/games/MatchingGame"));
+const Duel = lazy(() => import("./pages/games/Duel"));
+const FourVariantsGame = lazy(() => import("./pages/games/FourVariantsGame"));
+const RoadRace = lazy(() => import("./pages/games/RoadRace"));
+const FlashCardsGame = lazy(() => import("./pages/games/FlashCardsGame"));
+const TestSession = lazy(() => import("./pages/TestSession"));
+const TestResults = lazy(() => import("./pages/TestResults"));
+const SequentialTests = lazy(() => import("./pages/SequentialTests"));
+const RoadSigns = lazy(() => import("./pages/RoadSigns"));
+const Dictionary = lazy(() => import("./pages/Dictionary"));
+const DataImport = lazy(() => import("./pages/DataImport"));
+const DailyBonus = lazy(() => import("./pages/DailyBonus"));
+const DGTTestsSimple = lazy(() => import("./pages/DGTTestsSimple"));
+const ChallengeBank = lazy(() => import("./pages/ChallengeBank"));
+const Referrals = lazy(() => import("./pages/Referrals"));
+const InviteLanding = lazy(() => import("./pages/InviteLanding"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
+const Inventory = lazy(() => import("./pages/Inventory"));
 
 const queryClient = new QueryClient();
 
@@ -120,6 +132,7 @@ const App = () => {
         )}
         
         <BrowserRouter basename={basename}>
+          <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<LearningMap />} />
           <Route path="/dashboard" element={<Index />} />
@@ -169,6 +182,7 @@ const App = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+          </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

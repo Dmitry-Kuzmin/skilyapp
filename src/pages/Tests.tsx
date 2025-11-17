@@ -451,17 +451,17 @@ const Tests = () => {
             </div>
         </div>
 
-        {/* Topics Section - Practice Tests by Topic */}
+        {/* Topics Section - Updated Design v2 */}
         {topics.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4">Тесты по темам</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {topics.map((topic) => (
-                <Card
-                  key={topic.id}
-                  className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 border-transparent hover:border-primary/30"
-                  onClick={() => handleStartPath(`/tests/${topic.id}`)}
-                >
+              <Card
+                key={topic.id}
+                className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-4 border-red-500 bg-red-100"
+                onClick={() => handleStartPath(`/tests/${topic.id}`)}
+              >
                   {/* Image/Gradient Container */}
                   <div className="relative w-full h-36 overflow-hidden bg-muted">
                     {topic.cover_image ? (
