@@ -21,7 +21,7 @@ import { useCoins } from "@/hooks/useCoins";
 import { cn } from "@/lib/utils";
 
 const ACCENT_GRADIENTS = [
-  { from: "#111827", via: "#4338CA", to: "#C084FC", glow: "#C084FC55" },
+  { from: "#111827", via: "#2563EB", to: "#3B82F6", glow: "#3B82F655" },
   { from: "#0F172A", via: "#2563EB", to: "#38BDF8", glow: "#38BDF855" },
   { from: "#18181B", via: "#EC4899", to: "#F97316", glow: "#F9731655" },
   { from: "#020617", via: "#14B8A6", to: "#86EFAC", glow: "#14B8A655" },
@@ -311,37 +311,13 @@ const Tests = () => {
     }
   };
 
-  const parseCSVRow = (row: string): string[] => {
-    const result: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let i = 0; i < row.length; i++) {
-      const char = row[i];
-      
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    result.push(current.trim());
-    return result;
-  };
-
   const loadTopics = async () => {
     try {
-      // Загружаем темы из Google Sheets
-      const sheetsId = '10TQX3YzteSx-nHFJZMnMejM167fqjAvz6hq-j7dZrUE';
-      const topicsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=Topics`;
+      // Оптимизация: загружаем темы напрямую из базы данных (быстрее чем Google Sheets)
+      // и используем один запрос для подсчета вопросов по всем темам сразу
       
-      const response = await fetch(topicsUrl);
-      if (!response.ok) {
-        // Fallback: загружаем из базы данных, если Google Sheets недоступен
-        const { data: dbTopics, error: dbError } = await supabase
+      // Загружаем все темы из базы данных
+      const { data: dbTopics, error: dbError } = await supabase
         .from("topics")
         .select(`
           id,
@@ -354,91 +330,50 @@ const Tests = () => {
         `)
         .order('number');
 
-        if (dbError) throw dbError;
-
-      const topicsWithCounts = await Promise.all(
-          (dbTopics || []).map(async (topic) => {
-          const { count } = await supabase
-            .from("questions_new")
-            .select("*", { count: 'exact', head: true })
-            .eq('topic_id', topic.id);
-
-          return {
-            id: topic.id,
-            number: topic.number,
-            name: topic.title_ru,
-            questions: count || 0,
-            cover_image: topic.cover_image,
-            gradient_from: topic.gradient_from,
-            gradient_to: topic.gradient_to,
-            is_premium: topic.is_premium,
-            };
-          })
-        );
-        setTopics(topicsWithCounts);
+      if (dbError) throw dbError;
+      if (!dbTopics || dbTopics.length === 0) {
+        setTopics([]);
         return;
       }
-      
-      const csvText = await response.text();
-      const allRows = csvText.split('\n').filter(row => row.trim());
-      
-      // Пропускаем заголовок (первую строку)
-      const rows = allRows.slice(1);
-      
-      // Получаем все темы из базы для сопоставления ID и cover_image
-      const { data: dbTopics } = await supabase
-        .from("topics")
-        .select("id, number, cover_image, gradient_from, gradient_to, is_premium")
-        .order('number');
-      
-      const topicIdMap = new Map((dbTopics || []).map(t => [t.number, t]));
-      
-      const parseBool = (val?: string): boolean => {
-        if (!val) return false;
-        return val.toLowerCase() === 'true' || val === '✔' || val === '1' || val.toLowerCase() === 'yes';
-      };
-      
-      const topicsFromSheets = await Promise.all(
-        rows.map(async (row) => {
-          const columns = parseCSVRow(row);
-          
-          const number = parseInt(columns[0]) || 0;
-          const name = columns[1] || `Тема ${number}`;
-          const gradientFrom = columns[3] || undefined;
-          const gradientTo = columns[4] || undefined;
-          const isPremium = parseBool(columns[5]);
-          
-          const dbTopic = topicIdMap.get(number);
-          const topicId = dbTopic?.id || `topic-${number}`;
-          
-          // Используем cover_image из базы данных (приоритет), если нет - из Google Sheets
-          const coverImage = dbTopic?.cover_image || columns[2] || undefined;
-          
-          // Используем градиенты из базы данных, если нет - из Google Sheets
-          const finalGradientFrom = dbTopic?.gradient_from || gradientFrom;
-          const finalGradientTo = dbTopic?.gradient_to || gradientTo;
-          const finalIsPremium = dbTopic?.is_premium || isPremium;
-          
-          // Загружаем количество вопросов для темы
-            const { count } = await supabase
-              .from("questions_new")
-              .select("*", { count: 'exact', head: true })
-              .eq('topic_id', topicId);
-          
-          return {
-            id: topicId,
-            number,
-            name,
-            questions: count || 0,
-            cover_image: coverImage,
-            gradient_from: finalGradientFrom,
-            gradient_to: finalGradientTo,
-            is_premium: finalIsPremium,
-          };
-        })
-      );
 
-      setTopics(topicsFromSheets);
+      // Получаем количество вопросов для всех тем одним запросом через RPC или подзапрос
+      // Используем более эффективный способ - загружаем все вопросы с topic_id и группируем на клиенте
+      const topicIds = dbTopics.map(t => t.id);
+      
+      // Загружаем все вопросы одним запросом (только topic_id для подсчета)
+      const { data: questionsData, error: questionsError } = await supabase
+        .from("questions_new")
+        .select("topic_id")
+        .in('topic_id', topicIds);
+
+      if (questionsError) {
+        console.warn("Error loading questions count:", questionsError);
+        // Продолжаем без подсчета вопросов
+      }
+
+      // Группируем вопросы по topic_id на клиенте (быстрее чем множественные запросы)
+      const questionsCountMap = new Map<string, number>();
+      if (questionsData) {
+        questionsData.forEach(q => {
+          if (q.topic_id) {
+            questionsCountMap.set(q.topic_id, (questionsCountMap.get(q.topic_id) || 0) + 1);
+          }
+        });
+      }
+
+      // Формируем финальный массив тем с количеством вопросов
+      const topicsWithCounts = dbTopics.map(topic => ({
+        id: topic.id,
+        number: topic.number,
+        name: topic.title_ru || `Тема ${topic.number}`,
+        questions: questionsCountMap.get(topic.id) || 0,
+        cover_image: topic.cover_image,
+        gradient_from: topic.gradient_from,
+        gradient_to: topic.gradient_to,
+        is_premium: topic.is_premium || false,
+      }));
+
+      setTopics(topicsWithCounts);
     } catch (error) {
       console.error("Error loading topics:", error);
       toast.error("Не удалось загрузить темы");
@@ -611,8 +546,8 @@ const Tests = () => {
               onClick={() => handleStartPath("/test/mastery")}
             >
               <div className="flex flex-col items-center text-center space-y-3">
-                <div className="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
-                  <Trophy className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+                <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                  <Trophy className="w-7 h-7 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="font-semibold">{t('masteryMode')}</h3>
                 <p className="text-xs text-muted-foreground">
@@ -669,7 +604,7 @@ const Tests = () => {
                         style={{
                           background: topic.gradient_from && topic.gradient_to
                             ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
-                            : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                            : 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)'
                         }}
                       >
                         {topic.number}
@@ -772,7 +707,7 @@ const Tests = () => {
               {/* Header with Level and Points */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
                     Д
                   </div>
                   <div>
@@ -814,7 +749,7 @@ const Tests = () => {
             <h3 className="font-bold text-lg mb-4">{t('leaderboard')}</h3>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold">
                   Д
             </div>
                 <span className="font-semibold">{t('you')}</span>

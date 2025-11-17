@@ -179,7 +179,7 @@ export const DuolingoLearningPath = ({
           >
             <button
               onClick={onStartClick}
-              className="relative bg-gradient-to-r from-[#CE82FF] to-[#8B5CF6] hover:from-[#D69FFF] hover:to-[#9D6DFF] text-white border-0 px-8 py-5 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 group"
+              className="relative bg-gradient-to-r from-[#3B82F6] to-[#2563EB] hover:from-[#60A5FA] hover:to-[#3B82F6] text-white border-0 px-8 py-5 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center gap-3 group"
             >
               {/* Иконка play в круге */}
               <div className="relative flex-shrink-0">

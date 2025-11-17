@@ -27,47 +27,15 @@ if (import.meta.env.DEV || import.meta.env.MODE === 'development') {
 
 // Validate environment variables
 if (!SUPABASE_URL || SUPABASE_URL === '' || SUPABASE_URL === 'undefined') {
-  const errorMsg = '❌ VITE_SUPABASE_URL is not set! Please configure it in Vercel Environment Variables.';
-  console.error(errorMsg);
+  console.error('❌ VITE_SUPABASE_URL is not set!');
   console.error('Available env vars:', Object.keys(import.meta.env).filter(k => k.includes('SUPABASE')));
-  console.error('Current SUPABASE_URL value:', SUPABASE_URL);
-  
-  // В production показываем более понятную ошибку пользователю
-  if (import.meta.env.PROD) {
-    document.body.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: system-ui; padding: 20px; text-align: center;">
-        <div>
-          <h1 style="color: #ef4444; margin-bottom: 16px;">⚠️ Ошибка конфигурации</h1>
-          <p style="color: #64748b; margin-bottom: 8px;">Приложение не может подключиться к базе данных.</p>
-          <p style="color: #64748b; font-size: 14px;">Пожалуйста, проверьте настройки переменных окружения в Vercel.</p>
-          <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">Ошибка: VITE_SUPABASE_URL не установлен</p>
-        </div>
-      </div>
-    `;
-  }
-  throw new Error(errorMsg);
+  throw new Error('VITE_SUPABASE_URL is required. Please set it in your environment variables or GitHub Secrets.');
 }
 
 if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === '' || SUPABASE_PUBLISHABLE_KEY === 'undefined') {
-  const errorMsg = '❌ VITE_SUPABASE_PUBLISHABLE_KEY is not set! Please configure it in Vercel Environment Variables.';
-  console.error(errorMsg);
+  console.error('❌ VITE_SUPABASE_PUBLISHABLE_KEY is not set!');
   console.error('Available env vars:', Object.keys(import.meta.env).filter(k => k.includes('SUPABASE')));
-  console.error('Current SUPABASE_PUBLISHABLE_KEY length:', SUPABASE_PUBLISHABLE_KEY?.length || 0);
-  
-  // В production показываем более понятную ошибку пользователю
-  if (import.meta.env.PROD) {
-    document.body.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: system-ui; padding: 20px; text-align: center;">
-        <div>
-          <h1 style="color: #ef4444; margin-bottom: 16px;">⚠️ Ошибка конфигурации</h1>
-          <p style="color: #64748b; margin-bottom: 8px;">Приложение не может подключиться к базе данных.</p>
-          <p style="color: #64748b; font-size: 14px;">Пожалуйста, проверьте настройки переменных окружения в Vercel.</p>
-          <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">Ошибка: VITE_SUPABASE_PUBLISHABLE_KEY не установлен</p>
-        </div>
-      </div>
-    `;
-  }
-  throw new Error(errorMsg);
+  throw new Error('VITE_SUPABASE_PUBLISHABLE_KEY is required. Please set it in your environment variables or GitHub Secrets.');
 }
 
 // Log configuration (without exposing the full key)

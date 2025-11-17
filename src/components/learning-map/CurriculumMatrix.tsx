@@ -45,32 +45,32 @@ interface CurriculumMatrixProps {
 
 const palettes = [
   {
-    badgeBg: "bg-sky-50 dark:bg-sky-950/50",
-    badgeText: "text-sky-700 dark:text-sky-300",
-    badgeBorder: "border-sky-100 dark:border-sky-800",
-    progressColor: "text-sky-500 dark:text-sky-400",
-    glow: "bg-sky-500/20",
+    badgeBg: "bg-slate-50 dark:bg-slate-950/50",
+    badgeText: "text-slate-700 dark:text-slate-300",
+    badgeBorder: "border-slate-100 dark:border-slate-800",
+    progressColor: "text-slate-600 dark:text-slate-400",
+    glow: "bg-slate-500/10",
   },
   {
-    badgeBg: "bg-emerald-50 dark:bg-emerald-950/50",
-    badgeText: "text-emerald-700 dark:text-emerald-300",
-    badgeBorder: "border-emerald-100 dark:border-emerald-800",
-    progressColor: "text-emerald-500 dark:text-emerald-400",
-    glow: "bg-emerald-500/20",
+    badgeBg: "bg-neutral-50 dark:bg-neutral-950/50",
+    badgeText: "text-neutral-700 dark:text-neutral-300",
+    badgeBorder: "border-neutral-100 dark:border-neutral-800",
+    progressColor: "text-neutral-600 dark:text-neutral-400",
+    glow: "bg-neutral-500/10",
   },
   {
-    badgeBg: "bg-violet-50 dark:bg-violet-950/50",
-    badgeText: "text-violet-700 dark:text-violet-300",
-    badgeBorder: "border-violet-100 dark:border-violet-800",
-    progressColor: "text-violet-500 dark:text-violet-400",
-    glow: "bg-violet-500/20",
+    badgeBg: "bg-zinc-50 dark:bg-zinc-950/50",
+    badgeText: "text-zinc-700 dark:text-zinc-300",
+    badgeBorder: "border-zinc-100 dark:border-zinc-800",
+    progressColor: "text-zinc-600 dark:text-zinc-400",
+    glow: "bg-zinc-500/10",
   },
   {
-    badgeBg: "bg-amber-50 dark:bg-amber-950/50",
-    badgeText: "text-amber-700 dark:text-amber-300",
-    badgeBorder: "border-amber-100 dark:border-amber-800",
-    progressColor: "text-amber-500 dark:text-amber-400",
-    glow: "bg-amber-500/20",
+    badgeBg: "bg-gray-50 dark:bg-gray-950/50",
+    badgeText: "text-gray-700 dark:text-gray-300",
+    badgeBorder: "border-gray-100 dark:border-gray-800",
+    progressColor: "text-gray-600 dark:text-gray-400",
+    glow: "bg-gray-500/10",
   },
 ];
 
@@ -89,12 +89,12 @@ export const CurriculumMatrix = ({
   > = {
     completed: {
       label: t("completed"),
-      className: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/50",
+      className: "bg-slate-50 dark:bg-slate-950/30 text-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-800/50",
       icon: CheckCircle2,
     },
     active: {
       label: t("in_progress"),
-      className: "bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border border-sky-100 dark:border-sky-800/50",
+      className: "bg-blue-50 dark:bg-blue-950/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50",
       icon: Play,
     },
     locked: {
@@ -118,31 +118,23 @@ export const CurriculumMatrix = ({
           <Card
             key={`${topic.number}-${topic.title}`}
             className={cn(
-              "relative overflow-hidden rounded-2xl border border-border bg-card",
-              "px-4 py-4 sm:px-6 sm:py-5"
+              "relative overflow-hidden rounded-2xl border border-border",
+              "bg-card/80 dark:bg-card/90 backdrop-blur-sm",
+              "px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
             )}
           >
-            <div className="absolute inset-0 opacity-60 pointer-events-none">
-              <div
-                className={cn(
-                  "absolute -top-32 -right-20 w-72 h-72 blur-[120px] rounded-full",
-                  palette.badgeBg
-                )}
-              />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_45%)]" />
-            </div>
-
-            <div className="relative space-y-4">
+            <div className="relative space-y-3 sm:space-y-4">
               <header
                 className={cn(
-                  "relative rounded-xl overflow-hidden p-3 sm:p-4 md:p-5 lg:p-6",
-                  "flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between",
-                  topic.cover_image && "min-h-[140px] sm:min-h-[160px] md:min-h-[140px]"
+                  "relative rounded-xl overflow-hidden",
+                  "p-2.5 sm:p-3 md:p-4 lg:p-5",
+                  "flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between",
+                  topic.cover_image && "min-h-[100px] sm:min-h-[120px] md:min-h-[140px]"
                 )}
               >
-                {/* Фоновое изображение с премиум качеством */}
+                {/* Подложка только под контент */}
                 {topic.cover_image && (
-                  <>
+                  <div className="absolute inset-0 rounded-xl overflow-hidden">
                     <div
                       className="absolute inset-0"
                       style={{
@@ -150,15 +142,24 @@ export const CurriculumMatrix = ({
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
-                        imageRendering: "crisp-edges",
-                        WebkitImageRendering: "-webkit-optimize-contrast",
-                        willChange: "transform",
                       }}
                     />
-                    {/* Усиленное затемнение для читаемости текста - более сильное на мобилке */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent dark:from-black/70 dark:via-black/40 dark:to-transparent md:from-black/40 md:via-black/20 md:to-transparent dark:md:from-black/60 dark:md:via-black/30 dark:md:to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/60 to-white/20 dark:from-black/90 dark:via-black/70 dark:to-black/40 md:from-white/70 md:via-white/40 md:to-white/10 dark:md:from-black/80 dark:md:via-black/50 dark:md:to-black/20" />
-                  </>
+                    {/* Легкое затемнение для читаемости */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent dark:from-black/60 dark:via-black/30 dark:to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/50 to-white/20 dark:from-black/85 dark:via-black/60 dark:to-black/30" />
+                  </div>
+                )}
+
+                {/* Декоративная подложка без обложки */}
+                {!topic.cover_image && (
+                  <div className="absolute inset-0 rounded-xl opacity-40 pointer-events-none">
+                    <div
+                      className={cn(
+                        "absolute -top-16 -right-12 w-48 h-48 blur-[100px] rounded-full",
+                        palette.badgeBg
+                      )}
+                    />
+                  </div>
                 )}
 
                 {/* Контент header с relative позиционированием для overlay */}
@@ -166,12 +167,12 @@ export const CurriculumMatrix = ({
                   <div className="flex items-start sm:items-center gap-2 sm:gap-3">
                     <div
                       className={cn(
-                        "h-9 w-9 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex items-center justify-center text-base sm:text-lg font-bold shadow-lg flex-shrink-0",
+                        "h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex items-center justify-center text-sm sm:text-lg font-bold shadow-md flex-shrink-0 transition-all",
                         topic.isCompleted 
-                          ? "bg-emerald-500 dark:bg-emerald-600 text-white ring-2 ring-emerald-200 dark:ring-emerald-700" 
+                          ? "bg-slate-600 dark:bg-slate-500 text-white ring-2 ring-slate-300 dark:ring-slate-700" 
                           : `${palette.badgeBg} ${palette.badgeText}`,
                         !topic.topicId && "bg-muted text-muted-foreground",
-                        topic.cover_image && "ring-2 ring-white/50 dark:ring-black/50"
+                        topic.cover_image && "ring-2 ring-white/60 dark:ring-black/60 bg-white/90 dark:bg-black/90 backdrop-blur-sm"
                       )}
                     >
                       {topic.number}
@@ -215,15 +216,15 @@ export const CurriculumMatrix = ({
 
                 <div className="relative z-10 flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
                   <div className={cn(
-                    "flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-lg transition-all w-full sm:w-auto",
+                    "flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl px-2 py-1.5 sm:px-2.5 sm:py-2 shadow-md transition-all w-full sm:w-auto",
                     topic.cover_image 
-                      ? "bg-white/95 dark:bg-black/95 backdrop-blur-md border border-white/90 dark:border-black/90 ring-1 ring-white/50 dark:ring-black/50" 
-                      : "bg-muted border border-border"
+                      ? "bg-white/85 dark:bg-black/85 backdrop-blur-sm border border-white/80 dark:border-black/80" 
+                      : "bg-muted/80 dark:bg-muted/60 backdrop-blur-sm border border-border/50"
                   )}>
                     <div className="relative flex-shrink-0">
-                      <svg className="w-8 h-8 sm:w-10 sm:h-10 -rotate-90" viewBox="0 0 36 36">
+                      <svg className="w-7 h-7 sm:w-9 sm:h-9 -rotate-90" viewBox="0 0 36 36">
                         <path
-                          className="text-muted-foreground/30"
+                          className="text-muted-foreground/20"
                           strokeWidth="3.5"
                           stroke="currentColor"
                           fill="none"
@@ -239,18 +240,18 @@ export const CurriculumMatrix = ({
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-[10px] sm:text-xs font-bold text-foreground">
+                      <span className="absolute inset-0 flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-foreground">
                         {Math.round(topic.progressPercent)}%
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={cn(
-                        "text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium truncate",
+                        "text-[9px] sm:text-[10px] uppercase tracking-[0.15em] font-medium truncate",
                         topic.cover_image ? "text-slate-600 dark:text-slate-400" : "text-muted-foreground"
                       )}>
                         {t("progress")}
                       </p>
-                      <p className="text-xs sm:text-sm font-bold text-foreground truncate">
+                      <p className="text-[11px] sm:text-xs font-bold text-foreground truncate">
                         {topic.isCompleted ? t("completed") : t("in_progress")}
                       </p>
                     </div>
@@ -261,10 +262,10 @@ export const CurriculumMatrix = ({
                       variant="secondary"
                       size="sm"
                       className={cn(
-                        "rounded-lg sm:rounded-xl font-bold px-3 py-2 sm:px-4 sm:py-3 shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-xs sm:text-sm",
+                        "rounded-lg sm:rounded-xl font-semibold px-2.5 py-1.5 sm:px-3 sm:py-2 shadow-md transition-all hover:scale-[1.02] w-full sm:w-auto text-[11px] sm:text-xs",
                         topic.cover_image
-                          ? "bg-white/95 dark:bg-black/95 backdrop-blur-md text-foreground hover:bg-white dark:hover:bg-black border border-white/90 dark:border-black/90 ring-1 ring-white/50 dark:ring-black/50"
-                          : "bg-background text-foreground hover:bg-muted border border-border"
+                          ? "bg-white/85 dark:bg-black/85 backdrop-blur-sm text-foreground hover:bg-white dark:hover:bg-black border border-white/80 dark:border-black/80"
+                          : "bg-background/80 dark:bg-background/60 backdrop-blur-sm text-foreground hover:bg-muted border border-border/50"
                       )}
                       onClick={() => onTopicClick(topic.topicId!)}
                     >

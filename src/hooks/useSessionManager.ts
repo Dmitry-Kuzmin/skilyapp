@@ -80,11 +80,14 @@ export function useSessionManager() {
         },
       });
 
-      if (error) return false;
+      if (error) {
+        console.warn('[SessionManager] Ошибка проверки токена (продолжаем работу):', error);
+        return true; // В случае ошибки продолжаем работу
+      }
       return data?.is_valid === true;
     } catch (err) {
-      console.error('[SessionManager] Ошибка проверки токена:', err);
-      return false;
+      console.warn('[SessionManager] Ошибка проверки токена (продолжаем работу):', err);
+      return true; // В случае ошибки продолжаем работу
     }
   }, [profileId]);
 
@@ -132,7 +135,11 @@ export function useSessionManager() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', error);
+        hasInitializedRef.current = true;
+        return; // В случае ошибки продолжаем работу без блокировки
+      }
 
       // Показываем уведомление только если:
       // 1. Были закрыты предыдущие сессии
@@ -154,7 +161,8 @@ export function useSessionManager() {
 
       hasInitializedRef.current = true;
     } catch (err) {
-      console.error('[SessionManager] Ошибка создания сессии:', err);
+      console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', err);
+      hasInitializedRef.current = true; // В случае ошибки продолжаем работу
     }
   }, [profileId, deviceInfo, isRegistered, generateSessionToken, loadSavedToken, saveToken, validateToken]);
 
@@ -188,7 +196,10 @@ export function useSessionManager() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.warn('[SessionManager] Ошибка проверки сессии (продолжаем работу):', error);
+        return true; // В случае ошибки продолжаем работу
+      }
 
       if (!data?.is_valid) {
         // Сессия невалидна - пользователь был выгнан
@@ -204,7 +215,7 @@ export function useSessionManager() {
 
       return true;
     } catch (err) {
-      console.error('[SessionManager] Ошибка проверки сессии:', err);
+      console.warn('[SessionManager] Ошибка проверки сессии (продолжаем работу):', err);
       return true; // В случае ошибки продолжаем работу
     }
   }, [profileId]);

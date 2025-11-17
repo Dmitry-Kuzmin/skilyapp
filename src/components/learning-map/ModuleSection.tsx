@@ -53,7 +53,7 @@ export const ModuleSection = ({
                 </div>
                 <div className="h-1.5 w-24 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>

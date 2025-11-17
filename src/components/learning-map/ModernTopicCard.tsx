@@ -43,8 +43,8 @@ export const ModernTopicCard = ({
     }
     if (isActive) {
       return {
-        gradient: "linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)",
-        borderColor: "#6366F1",
+        gradient: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)",
+        borderColor: "#2563EB",
         textColor: "#FFFFFF",
         iconColor: "#FFFFFF",
       };
@@ -67,7 +67,7 @@ export const ModernTopicCard = ({
           "relative w-[280px] h-[180px] rounded-2xl p-6 cursor-pointer transition-all duration-300",
           "backdrop-blur-sm border-2",
           "hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98]",
-          isActive && !isCompleted && "ring-4 ring-purple-200",
+          isActive && !isCompleted && "ring-4 ring-blue-200",
           !isUnlocked && "opacity-60 cursor-not-allowed"
         )}
         style={{

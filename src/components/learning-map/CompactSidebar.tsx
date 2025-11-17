@@ -33,7 +33,7 @@ export const CompactSidebar = ({
       )}
     >
       {/* Статистика */}
-      <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+      <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
         <h3 className="text-lg font-bold text-gray-900 mb-4">Прогресс</h3>
         <div className="space-y-4">
           {/* Общий прогресс */}
@@ -48,7 +48,7 @@ export const CompactSidebar = ({
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
                 style={{ width: `${completionPercent}%` }}
               />
             </div>
@@ -98,7 +98,7 @@ export const CompactSidebar = ({
       {/* Достижения */}
       <Card className="p-6 border-gray-200">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-purple-600" />
+          <TrendingUp className="w-5 h-5 text-blue-600" />
           <h3 className="text-lg font-bold text-gray-900">Достижения</h3>
         </div>
         <p className="text-sm text-gray-600">

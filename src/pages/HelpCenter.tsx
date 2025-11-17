@@ -1211,21 +1211,21 @@ Premium подписка включает все преимущества, оп�
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-purple-600 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:shadow-purple-500/50 transition-all duration-300 group-hover:scale-105">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-300 group-hover:scale-105">
                 <Crown className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">Sdadim</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Sdadim</span>
             </Link>
 
             {/* Search */}
             <div className="flex-1 max-w-xl mx-4 md:mx-8">
               <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-purple-500 dark:group-focus-within:text-purple-400 transition-colors" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors" />
                 <Input
                   placeholder={t("help.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-20 bg-gray-50/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-purple-300 dark:focus:border-purple-600 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200"
+                  className="pl-10 pr-20 bg-gray-50/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200"
                 />
                 <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm">
                   ⌘K
@@ -1253,7 +1253,7 @@ Premium подписка включает все преимущества, оп�
                   className={cn(
                     "h-full px-3 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap flex-shrink-0",
                     isActive
-                      ? "border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-400"
+                      ? "border-blue-600 dark:border-blue-500 text-blue-700 dark:text-blue-400 font-semibold"
                       : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                   )}
                 >
@@ -1284,10 +1284,10 @@ Premium подписка включает все преимущества, оп�
                     onClick={() => scrollToSection(section.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-                        <Icon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center group-hover:scale-105 transition-transform border border-blue-100 dark:border-blue-800/40">
+                        <Icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all" />
+                      <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{section.title}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{section.description}</p>

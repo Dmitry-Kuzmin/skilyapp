@@ -43,7 +43,7 @@ export const EnhancedLessonNode = ({
 
   const getTypeColor = () => {
     if (subtopic.type === "test") return "bg-amber-100 text-amber-700 border-amber-200";
-    if (subtopic.type === "terms") return "bg-purple-100 text-purple-700 border-purple-200";
+    if (subtopic.type === "terms") return "bg-blue-100 text-blue-700 border-blue-200";
     return "bg-blue-100 text-blue-700 border-blue-200";
   };
 

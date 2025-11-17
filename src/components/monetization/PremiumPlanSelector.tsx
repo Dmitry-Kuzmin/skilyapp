@@ -370,15 +370,15 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         </DialogContent>
       </Dialog>
 
-      {showConfetti && (
+        {showConfetti && (
         <Confetti
           width={window.innerWidth}
           height={window.innerHeight}
           recycle={false}
           numberOfPieces={200}
           colors={['#FFD700', '#FFA500', '#FF6347', '#FF1493', '#8A2BE2']}
-        />
-      )}
+          />
+        )}
     </>
   );
 }

@@ -46,7 +46,7 @@ export const EnhancedModuleSection = ({
     const schemes = [
       { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-900", accent: "bg-blue-500", light: "bg-blue-100" },
       { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-900", accent: "bg-emerald-500", light: "bg-emerald-100" },
-      { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-900", accent: "bg-purple-500", light: "bg-purple-100" },
+      { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-900", accent: "bg-blue-500", light: "bg-blue-100" },
       { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-900", accent: "bg-amber-500", light: "bg-amber-100" },
       { bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-900", accent: "bg-rose-500", light: "bg-rose-100" },
       { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-900", accent: "bg-indigo-500", light: "bg-indigo-100" },

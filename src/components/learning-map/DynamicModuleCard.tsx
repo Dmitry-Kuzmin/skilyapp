@@ -59,12 +59,12 @@ export const DynamicModuleCard = ({
         button: "bg-white/20 hover:bg-white/30"
       },
       { 
-        gradient: "from-purple-500 via-purple-600 to-purple-700",
-        bg: "bg-purple-50",
-        border: "border-purple-300",
-        text: "text-purple-900",
-        accent: "bg-purple-500",
-        light: "bg-purple-100",
+        gradient: "from-blue-500 via-blue-600 to-blue-700",
+        bg: "bg-blue-50",
+        border: "border-blue-300",
+        text: "text-blue-900",
+        accent: "bg-blue-500",
+        light: "bg-blue-100",
         button: "bg-white/20 hover:bg-white/30"
       },
       { 
