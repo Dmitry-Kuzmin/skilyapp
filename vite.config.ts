@@ -54,11 +54,16 @@ export default defineConfig(({ mode }) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
             // КРИТИЧНО: ВСЕ React-зависимые библиотеки в ОДНОМ chunk
-            // Это гарантирует правильный порядок загрузки на Vercel и предотвращает ошибки forwardRef/useLayoutEffect
+            // Проверяем ПЕРВЫМ, чтобы гарантировать правильный порядок загрузки
+            // Это предотвращает ошибки forwardRef/useLayoutEffect на Vercel
+            
+            // Широкий паттерн для всех библиотек с "react" в пути
+            if (id.includes('/react') || id.includes('\\react')) {
+              return 'react-vendor';
+            }
+            
+            // Специфичные проверки для известных React-зависимых библиотек
             if (
-              id.includes('react/') || 
-              id.includes('react-dom') ||
-              id.includes('react-router') ||
               id.includes('@radix-ui') ||
               id.includes('@tanstack/react-query') ||
               id.includes('react-hook-form') ||
@@ -74,7 +79,8 @@ export default defineConfig(({ mode }) => {
               id.includes('vaul') ||
               id.includes('next-themes') ||
               id.includes('framer-motion') ||
-              id.includes('recharts')
+              id.includes('recharts') ||
+              id.includes('lucide-react')
             ) {
               return 'react-vendor';
             }
@@ -89,10 +95,6 @@ export default defineConfig(({ mode }) => {
             // XLSX (Excel файлы) - используется только в админке
             if (id.includes('xlsx')) {
               return 'xlsx';
-            }
-            // Lucide icons (большая библиотека иконок)
-            if (id.includes('lucide-react')) {
-              return 'lucide-icons';
             }
             // Sonner (toast уведомления)
             if (id.includes('sonner')) {
