@@ -1451,6 +1451,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
   const PROGRESS_BAR_HEIGHT = 60;
+  const contentTopPadding =
+    safeArea?.platform === 'telegram'
+      ? totalTopPadding + 8 // минимальный зазор между прогресс-баром и контентом
+      : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
@@ -1542,11 +1546,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="min-h-full flex flex-col p-3 md:p-4 pb-6 max-w-4xl mx-auto"
         style={{
-          paddingTop: `${totalTopPadding + PROGRESS_BAR_HEIGHT - (safeArea?.platform === 'telegram' ? 20 : 0)}px` // В Telegram убираем зазор между счетом и панелью прогресса (вычитаем 20px для плотного прилегания)
+          paddingTop: `${contentTopPadding}px`
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-12 mb-0' : 'mb-3 md:mb-4'}`}>
+        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-6 mb-0' : 'mb-3 md:mb-4'}`}>
           {/* Scores - Enhanced - Центрированы в Telegram */}
           <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
