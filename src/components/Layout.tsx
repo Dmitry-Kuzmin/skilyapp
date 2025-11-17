@@ -246,7 +246,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
       <main 
         ref={mainContentRef}
-        className="telegram-main-content flex-1"
+        className="telegram-main-content flex-1 bg-background"
         style={{}}
       >
         {children}

@@ -370,7 +370,7 @@ const LearningMap = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8">
           <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
