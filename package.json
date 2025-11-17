@@ -22,6 +22,7 @@
     "telegram:delete": "node scripts/setup-telegram-webhook.js '' --delete",
     "dev:telegram": "./scripts/dev-telegram.sh",
     "tunnel:start": "./scripts/start-cloudflare-tunnel.sh",
+    "tunnel:start:lt": "./scripts/start-localtunnel.sh",
     "tunnel:start:save": "./scripts/start-tunnel-with-persistent-url.sh",
     "tunnel:url": "./scripts/get-tunnel-url.sh",
     "tunnel:set-url": "node scripts/set-telegram-webapp-url.js"
