@@ -22,34 +22,35 @@ export default defineConfig(({ mode }) => {
   ].filter(Boolean);
 
   return {
-    // Base path for GitHub Pages (if repo is not in root)
-    // For root repo, use '/' or leave empty
-    base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
-    server: {
-      host: "::",
-      port: 8080,
-      allowedHosts: [
-        "localhost",
-        ".ngrok.io",
-        ".ngrok-free.app",
-        ".ngrok.app",
-        "unlogical-despairful-stuart.ngrok-free.dev",
-        ".trycloudflare.com", // Cloudflare Tunnel
-        ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
-      ],
-    },
+  // Base path for GitHub Pages (if repo is not in root)
+  // For root repo, use '/' or leave empty
+  base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
+  server: {
+    host: "::",
+    port: 8080,
+    allowedHosts: [
+      "localhost",
+      ".ngrok.io",
+      ".ngrok-free.app",
+      ".ngrok.app",
+      "unlogical-despairful-stuart.ngrok-free.dev",
+      ".trycloudflare.com", // Cloudflare Tunnel
+      ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
+      ".loca.lt", // Localtunnel (короткие URL)
+    ],
+  },
     plugins,
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
-      },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
-    build: {
-      minify: 'esbuild', // Используем esbuild (быстрее чем terser)
-      target: 'es2015',
-      rollupOptions: {
-        output: {
-          manualChunks: (id) => {
+  },
+  build: {
+    minify: 'esbuild', // Используем esbuild (быстрее чем terser)
+    target: 'es2015',
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
             // React core (самые базовые библиотеки)
@@ -144,15 +145,15 @@ export default defineConfig(({ mode }) => {
             }
             return 'vendor';
           }
-          },
         },
       },
-      chunkSizeWarningLimit: 1000,
     },
-    optimizeDeps: {
-      esbuildOptions: {
-        jsx: 'automatic',
-      },
+    chunkSizeWarningLimit: 1000,
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      jsx: 'automatic',
     },
+  },
   };
 });
