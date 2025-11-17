@@ -47,12 +47,10 @@ export function UnifiedModal({
             className={cn(
               // Базовые стили для bottom sheet
               "fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out",
-              // Позиционирование снизу
-              "inset-x-0 bottom-0",
-              // Скругление сверху
-              "rounded-t-[20px] sm:rounded-t-[24px]",
-              // Отступы от краев экрана
-              "mx-2 mb-2 sm:mx-3 sm:mb-3",
+            // Позиционирование снизу без отступов
+            "inset-x-0 bottom-0",
+            // Скругление сверху
+            "rounded-t-[20px] sm:rounded-t-[24px]",
               // Высота и максимальная высота
               sizeConfig.height || "h-[90vh]",
               sizeConfig.maxHeight || "max-h-[90vh]",

@@ -52,12 +52,10 @@ const DialogContent = React.forwardRef<
           className={cn(
             // Базовые стили для bottom sheet
             "fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out",
-            // Позиционирование снизу
+            // Позиционирование снизу без отступов
             "inset-x-0 bottom-0",
             // Скругление сверху
             "rounded-t-[20px]",
-            // Отступы от краев экрана
-            "mx-2 mb-2",
             // Высота и максимальная высота
             sizeConfig.height || "h-[90vh]",
             sizeConfig.maxHeight || "max-h-[90vh]",

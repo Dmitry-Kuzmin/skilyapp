@@ -1,14 +1,37 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
 
 export const TelegramNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isTelegramReady, setTelegramReady] = useState(() => isTelegramMiniApp());
+
+  // Пуллим доступность Telegram WebApp после монтирования,
+  // чтобы не пропустить момент, когда initData появится чуть позже.
+  useEffect(() => {
+    if (isTelegramReady) return;
+    let attempts = 0;
+    const interval = window.setInterval(() => {
+      attempts += 1;
+      if (isTelegramMiniApp()) {
+        setTelegramReady(true);
+        window.clearInterval(interval);
+      } else if (attempts > 40) {
+        // Через ~10 секунд прекращаем попытки, логируем для отладки
+        window.clearInterval(interval);
+        console.warn("[TelegramNavigation] WebApp not detected within timeout");
+      }
+    }, 250);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [isTelegramReady]);
   
   // Инициализируем BackButton один раз и вешаем стабильный обработчик
   useEffect(() => {
-    if (!isTelegramMiniApp()) return;
+    if (!isTelegramReady) return;
     
     const webApp = getTelegramWebApp();
     if (!webApp) return;
@@ -35,11 +58,11 @@ export const TelegramNavigation = () => {
     return () => {
       webApp.BackButton.offClick(handleBack);
     };
-  }, [navigate]);
+  }, [isTelegramReady, navigate]);
 
   // Управляем отображением BackButton в зависимости от текущего маршрута
   useEffect(() => {
-    if (!isTelegramMiniApp()) return;
+    if (!isTelegramReady) return;
     
     const webApp = getTelegramWebApp();
     if (!webApp) return;
@@ -50,11 +73,11 @@ export const TelegramNavigation = () => {
     } else {
       webApp.BackButton.show();
     }
-  }, [location.pathname]);
+  }, [isTelegramReady, location.pathname]);
 
   // Handle safe area insets updates
   useEffect(() => {
-    if (!isTelegramMiniApp()) return;
+    if (!isTelegramReady) return;
     
     const webApp = getTelegramWebApp();
     if (!webApp) return;
@@ -193,7 +216,7 @@ export const TelegramNavigation = () => {
         webApp.offEvent('viewportChanged', handleViewportChanged);   // Альтернативное имя
       }
     };
-  }, []);
+  }, [isTelegramReady]);
 
   return null; // This component only manages Telegram WebApp buttons
 };
