@@ -3,8 +3,10 @@
  * Улучшает производительность и позволяет работать offline
  */
 
-const CACHE_NAME = 'sdadim-dgt-prep-v1';
-const STATIC_CACHE_NAME = 'sdadim-static-v1';
+// Обновляем версию кэша при каждом деплое, чтобы очистить старые файлы
+const CACHE_VERSION = 'v2-' + Date.now();
+const CACHE_NAME = `sdadim-dgt-prep-${CACHE_VERSION}`;
+const STATIC_CACHE_NAME = `sdadim-static-${CACHE_VERSION}`;
 
 // Ресурсы для кэширования при установке
 const STATIC_ASSETS = [
@@ -36,8 +38,8 @@ self.addEventListener('activate', (event: any) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // Удаляем старые кэши
-          if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
+          // Удаляем ВСЕ старые кэши (более агрессивная очистка)
+          if (!cacheName.includes(CACHE_VERSION)) {
             console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -64,15 +66,24 @@ self.addEventListener('fetch', (event: any) => {
     return;
   }
 
-  // Стратегия: Network First, затем Cache
+  // Стратегия: Network First с проверкой версии
+  // Для JS/CSS файлов всегда проверяем сеть (не используем кэш для старых версий)
+  const isStaticAsset = url.pathname.match(/\.(js|css|html)$/);
+  
   event.respondWith(
-    fetch(request)
+    fetch(request, {
+      // Добавляем заголовок для предотвращения кэширования старых версий
+      cache: isStaticAsset ? 'no-cache' : 'default',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
       .then((response) => {
         // Клонируем ответ для кэширования
         const responseToCache = response.clone();
 
-        // Кэшируем успешные ответы
-        if (response.status === 200) {
+        // Кэшируем только успешные ответы (не кэшируем JS/CSS агрессивно)
+        if (response.status === 200 && !isStaticAsset) {
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, responseToCache);
           });
@@ -81,17 +92,21 @@ self.addEventListener('fetch', (event: any) => {
         return response;
       })
       .catch(() => {
-        // Если сеть недоступна, используем кэш
-        return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          // Если нет в кэше, возвращаем offline страницу
-          if (request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-        });
+        // Если сеть недоступна, используем кэш только для не-JS/CSS файлов
+        if (!isStaticAsset) {
+          return caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            
+            // Если нет в кэше, возвращаем offline страницу
+            if (request.mode === 'navigate') {
+              return caches.match('/index.html');
+            }
+          });
+        }
+        // Для JS/CSS файлов не используем кэш при ошибке сети
+        return new Response('Network error', { status: 408 });
       })
   );
 });
