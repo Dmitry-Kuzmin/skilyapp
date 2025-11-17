@@ -445,22 +445,22 @@ const Tests = () => {
         {/* Topics Section - Practice Tests by Topic */}
         {topics.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6">Тесты по темам</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <h2 className="text-2xl font-bold mb-4">Тесты по темам</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {topics.map((topic) => (
-                <div
+                <Card
                   key={topic.id}
-                  className="group cursor-pointer"
+                  className="group cursor-pointer overflow-hidden hover:shadow-lg transition-all duration-200 border border-border/50"
                   onClick={() => handleStartPath(`/tests/${topic.id}`)}
                 >
-                  <Card className="overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 bg-card">
-                    {/* Image/Gradient Container */}
-                    <div className="relative h-48 w-full overflow-hidden">
+                  <div className="flex items-center gap-4 p-3">
+                    {/* Image/Gradient - Left side */}
+                    <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden">
                       {topic.cover_image ? (
                         <img
                           src={topic.cover_image}
                           alt={topic.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
@@ -468,68 +468,57 @@ const Tests = () => {
                         />
                       ) : (
                         <div
-                          className="w-full h-full"
+                          className="w-full h-full flex items-center justify-center"
                           style={{
                             background: topic.gradient_from && topic.gradient_to
                               ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
                               : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
                           }}
                         >
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-white/20 text-7xl font-black">
-                              {topic.number}
-                            </div>
+                          <div className="text-white/30 text-3xl font-black">
+                            {topic.number}
                           </div>
                         </div>
                       )}
                       
-                      {/* Premium Badge - Top Right */}
+                      {/* Premium Badge */}
                       {topic.is_premium && (
-                        <div className="absolute top-3 right-3">
-                          <div className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                            <Star className="w-3 h-3 fill-white" />
-                            Premium
+                        <div className="absolute top-1 right-1">
+                          <div className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow">
+                            <Star className="w-2.5 h-2.5 fill-white" />
+                            Pro
                           </div>
                         </div>
                       )}
                     </div>
 
-                    {/* Card Content */}
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3 mb-3">
+                    {/* Content - Right side */}
+                    <div className="flex-1 min-w-0 py-1">
+                      <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-muted-foreground mb-1">
-                            Тема {topic.number}
-                          </div>
-                          <h3 className="font-bold text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                          <h3 className="font-semibold text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                             {topic.name}
                           </h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Тема {topic.number}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <BookOpen className="w-4 h-4" />
-                          <span className="text-sm font-medium">
-                            {topic.questions} {getQuestionLabel(topic.questions)}
-                          </span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-3 text-xs font-semibold gap-1 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStartPath(`/tests/${topic.id}`);
-                          }}
-                        >
-                          Начать
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Button>
+                      <div className="flex items-center gap-1.5 text-muted-foreground mt-2">
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span className="text-xs font-medium">
+                          {topic.questions} {getQuestionLabel(topic.questions)}
+                        </span>
                       </div>
                     </div>
-                  </Card>
-                </div>
+
+                    {/* Arrow Icon */}
+                    <div className="flex-shrink-0 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
+                      <ArrowRight className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                  </div>
+                </Card>
               ))}
             </div>
           </div>
