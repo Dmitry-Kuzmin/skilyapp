@@ -694,7 +694,7 @@ const AdminQuestionReports = () => {
                   </div>
 
                   {/* Status Update */}
-                  <div className="border-2 rounded-xl p-5 bg-gradient-to-br from-blue-50/50 to-blue-100/30 dark:from-purple-950/20 dark:to-blue-900/10">
+                  <div className="border-2 rounded-xl p-5 bg-gradient-to-br from-blue-50/50 to-blue-100/30 dark:from-blue-950/20 dark:to-blue-900/10">
                     <Label htmlFor="status" className="text-base font-semibold mb-3 block flex items-center gap-2">
                       <Clock className="h-5 w-5 text-blue-600" />
                       Изменить статус
