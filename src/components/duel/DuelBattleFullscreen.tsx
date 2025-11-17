@@ -72,6 +72,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [combo, setCombo] = useState(0);
   const [boosts, setBoosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const isLoadingRef = useRef(false); // ОПТИМИЗАЦИЯ: Ref для предотвращения повторных вызовов
   const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
   const [eliminatedOptions, setEliminatedOptions] = useState<string[]>([]);
   const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
@@ -202,7 +203,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }, [fetchPlayers, profileId]);
 
   const syncQuestions = useCallback(async () => {
+    // ОПТИМИЗАЦИЯ: Предотвращаем повторные вызовы если уже идет загрузка
+    if (isLoadingRef.current) {
+      console.log('[DuelBattleFullscreen] ⚠️ Questions already loading, skipping sync');
+      return;
+    }
     try {
+      isLoadingRef.current = true;
       setLoading(true);
       const questionList = await fetchQuestions();
       hydrateQuestions(questionList);
@@ -210,6 +217,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       console.error('[DuelBattleFullscreen] Failed to load questions:', error);
       toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     } finally {
+      isLoadingRef.current = false;
       setLoading(false);
     }
   }, [fetchQuestions, hydrateQuestions]);
@@ -1453,7 +1461,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const PROGRESS_BAR_HEIGHT = 60;
   const contentTopPadding =
     safeArea?.platform === 'telegram'
-      ? totalTopPadding + 8 // минимальный зазор между прогресс-баром и контентом
+      ? totalTopPadding + PROGRESS_BAR_HEIGHT - 8 // Уменьшаем зазор: прогресс-бар + его высота - небольшой отступ для плотного прилегания
       : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
@@ -1523,10 +1531,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           }
           customLeftContent={
         <motion.div
-              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border border-border shrink-0"
+              className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border shrink-0 ${
+                timeLeft < 10000 ? 'border-destructive' : 'border-border'
+              }`}
               animate={{ 
                 scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
-                borderColor: timeLeft < 10000 ? ['hsl(var(--border))', 'hsl(var(--destructive))', 'hsl(var(--border))'] : 'hsl(var(--border))'
+                boxShadow: timeLeft < 10000 
+                  ? ['0 0 0px rgba(239, 68, 68, 0)', '0 0 8px rgba(239, 68, 68, 0.5)', '0 0 0px rgba(239, 68, 68, 0)']
+                  : '0 0 0px rgba(0, 0, 0, 0)'
               }}
               transition={{ duration: 0.5, repeat: timeLeft < 10000 ? Infinity : 0 }}
             >
@@ -1550,7 +1562,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-6 mb-0' : 'mb-3 md:mb-4'}`}>
+        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-12 mb-1' : 'mb-3 md:mb-4'}`}>
           {/* Scores - Enhanced - Центрированы в Telegram */}
           <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
