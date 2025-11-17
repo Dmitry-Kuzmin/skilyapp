@@ -220,7 +220,7 @@ const Layout = ({ children }: LayoutProps) => {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
+                  onClick={() => setAuthModalOpen(true)}
                   className="hidden sm:flex flex-shrink-0"
                 >
                   <LogIn className="w-5 h-5 mr-2" />
@@ -305,7 +305,7 @@ const Layout = ({ children }: LayoutProps) => {
               <UserProfilePopover />
             ) : (
               <button
-                onClick={() => platform === 'web' ? setAuthModalOpen(true) : navigate('/auth')}
+                onClick={() => setAuthModalOpen(true)}
                 className="flex flex-col items-center gap-1 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
               >
                 <LogIn className="w-6 h-6" />
