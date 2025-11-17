@@ -159,13 +159,13 @@ const Tests = () => {
       // Пропускаем заголовок (первую строку)
       const rows = allRows.slice(1);
       
-      // Получаем все темы из базы для сопоставления ID
+      // Получаем все темы из базы для сопоставления ID и cover_image
       const { data: dbTopics } = await supabase
         .from("topics")
-        .select("id, number")
+        .select("id, number, cover_image, gradient_from, gradient_to, is_premium")
         .order('number');
       
-      const topicIdMap = new Map((dbTopics || []).map(t => [t.number, t.id]));
+      const topicIdMap = new Map((dbTopics || []).map(t => [t.number, t]));
       
       const parseBool = (val?: string): boolean => {
         if (!val) return false;
@@ -178,12 +178,20 @@ const Tests = () => {
           
           const number = parseInt(columns[0]) || 0;
           const name = columns[1] || `Тема ${number}`;
-          const coverImage = columns[2] || undefined;
           const gradientFrom = columns[3] || undefined;
           const gradientTo = columns[4] || undefined;
           const isPremium = parseBool(columns[5]);
           
-          const topicId = topicIdMap.get(number) || `topic-${number}`;
+          const dbTopic = topicIdMap.get(number);
+          const topicId = dbTopic?.id || `topic-${number}`;
+          
+          // Используем cover_image из базы данных (приоритет), если нет - из Google Sheets
+          const coverImage = dbTopic?.cover_image || columns[2] || undefined;
+          
+          // Используем градиенты из базы данных, если нет - из Google Sheets
+          const finalGradientFrom = dbTopic?.gradient_from || gradientFrom;
+          const finalGradientTo = dbTopic?.gradient_to || gradientTo;
+          const finalIsPremium = dbTopic?.is_premium || isPremium;
           
           // Загружаем количество вопросов для темы
             const { count } = await supabase
@@ -197,9 +205,9 @@ const Tests = () => {
             name,
             questions: count || 0,
             cover_image: coverImage,
-            gradient_from: gradientFrom,
-            gradient_to: gradientTo,
-            is_premium: isPremium,
+            gradient_from: finalGradientFrom,
+            gradient_to: finalGradientTo,
+            is_premium: finalIsPremium,
           };
         })
       );
