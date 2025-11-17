@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,73 +6,47 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { ReferralWelcome } from "@/components/ReferralWelcome";
-import { Loader2 } from "lucide-react";
+import Index from "./pages/Index";
+import LearningMap from "./pages/LearningMap";
+import TopicDetail from "./pages/TopicDetail";
+import SubtopicDetail from "./pages/SubtopicDetail";
+import Tests from "./pages/Tests";
+import Learning from "./pages/Learning";
+import Games from "./pages/Games";
+import NotFound from "./pages/NotFound";
 import { AdminLayout } from "./components/admin/AdminLayout";
-
-// Fallback компонент для загрузки
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-  </div>
-);
-
-// Основные страницы (часто используемые) - можно оставить или lazy
-const Index = lazy(() => import("./pages/Index"));
-const LearningMap = lazy(() => import("./pages/LearningMap"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-
-// Страницы обучения
-const TopicDetail = lazy(() => import("./pages/TopicDetail"));
-const SubtopicDetail = lazy(() => import("./pages/SubtopicDetail"));
-const Learning = lazy(() => import("./pages/Learning"));
-
-// Страницы тестов
-const Tests = lazy(() => import("./pages/Tests"));
-const TestSession = lazy(() => import("./pages/TestSession"));
-const TestResults = lazy(() => import("./pages/TestResults"));
-const SequentialTests = lazy(() => import("./pages/SequentialTests"));
-const ChallengeBank = lazy(() => import("./pages/ChallengeBank"));
-const DGTTestsSimple = lazy(() => import("./pages/DGTTestsSimple"));
-
-// Страницы игр
-const Games = lazy(() => import("./pages/Games"));
-const RaceGame = lazy(() => import("./pages/games/RaceGame"));
-const GuessTheSign = lazy(() => import("./pages/games/GuessTheSign"));
-const MatchingGame = lazy(() => import("./pages/games/MatchingGame"));
-const Duel = lazy(() => import("./pages/games/Duel"));
-const FourVariantsGame = lazy(() => import("./pages/games/FourVariantsGame"));
-const RoadRace = lazy(() => import("./pages/games/RoadRace"));
-const FlashCardsGame = lazy(() => import("./pages/games/FlashCardsGame"));
-
-// Админ страницы
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const AdminSync = lazy(() => import("./pages/admin/AdminSync"));
-const AdminImport = lazy(() => import("./pages/admin/AdminImport"));
-const AdminEditor = lazy(() => import("./pages/AdminEditor"));
-const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
-
-// Справочники и утилиты
-const RoadSigns = lazy(() => import("./pages/RoadSigns"));
-const Dictionary = lazy(() => import("./pages/Dictionary"));
-const DataImport = lazy(() => import("./pages/DataImport"));
-
-// Профиль и достижения
-const Achievements = lazy(() => import("./pages/Achievements"));
-const Referrals = lazy(() => import("./pages/Referrals"));
-const Inventory = lazy(() => import("./pages/Inventory"));
-const DailyBonus = lazy(() => import("./pages/DailyBonus"));
-const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
-
-// Платежи и подписки
-const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
-const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
-
-// Информационные страницы
-const Terms = lazy(() => import("./pages/Terms"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
-const HelpCenter = lazy(() => import("./pages/HelpCenter"));
-const InviteLanding = lazy(() => import("./pages/InviteLanding"));
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminSync } from "./pages/admin/AdminSync";
+import { AdminImport } from "./pages/admin/AdminImport";
+import AdminEditor from "./pages/AdminEditor";
+import AdminQuestionReports from "./pages/AdminQuestionReports";
+import Achievements from "./pages/Achievements";
+import RaceGame from "./pages/games/RaceGame";
+import GuessTheSign from "./pages/games/GuessTheSign";
+import MatchingGame from "./pages/games/MatchingGame";
+import Duel from "./pages/games/Duel";
+import FourVariantsGame from "./pages/games/FourVariantsGame";
+import RoadRace from "./pages/games/RoadRace";
+import FlashCardsGame from "./pages/games/FlashCardsGame";
+import TestSession from "./pages/TestSession";
+import TestResults from "./pages/TestResults";
+import SequentialTests from "./pages/SequentialTests";
+import RoadSigns from "./pages/RoadSigns";
+import Dictionary from "./pages/Dictionary";
+import DataImport from "./pages/DataImport";
+import DailyBonus from "./pages/DailyBonus";
+import DGTTestsSimple from "./pages/DGTTestsSimple";
+import ChallengeBank from "./pages/ChallengeBank";
+import Referrals from "./pages/Referrals";
+import InviteLanding from "./pages/InviteLanding";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import SubscriptionTerms from "./pages/SubscriptionTerms";
+import HelpCenter from "./pages/HelpCenter";
+import DuelLeaderboard from "./pages/DuelLeaderboard";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
+import Inventory from "./pages/Inventory";
 
 const queryClient = new QueryClient();
 
@@ -145,56 +119,54 @@ const App = () => {
         )}
         
         <BrowserRouter basename={basename}>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<LearningMap />} />
-            <Route path="/dashboard" element={<Index />} />
-            <Route path="/topic/:id" element={<TopicDetail />} />
-            <Route path="/subtopic/:id" element={<SubtopicDetail />} />
-            <Route path="/tests" element={<Tests />} />
-            <Route path="/tests/sequential" element={<SequentialTests />} />
-            <Route path="/tests/challenge-bank" element={<ChallengeBank />} />
-            <Route path="/test/:mode" element={<TestSession />} />
-            <Route path="/test/:mode/:topic" element={<TestSession />} />
-            <Route path="/test/sequential/:testId" element={<TestSession />} />
-            <Route path="/test/challenge-bank" element={<TestSession />} />
-            <Route path="/test/results" element={<TestResults />} />
-            <Route path="/learning" element={<Learning />} />
-            <Route path="/games" element={<Games />} />
-            <Route path="/games/race" element={<RaceGame />} />
-            <Route path="/games/guess-sign" element={<GuessTheSign />} />
-            <Route path="/games/matching" element={<MatchingGame />} />
-            <Route path="/games/duel" element={<Duel />} />
-            <Route path="/games/four-variants" element={<FourVariantsGame />} />
-            <Route path="/games/road-race" element={<RoadRace />} />
-            <Route path="/games/flashcards" element={<FlashCardsGame />} />
-            <Route path="/achievements" element={<Achievements />} />
-            <Route path="/referrals" element={<Referrals />} />
-            <Route path="/join/:code" element={<InviteLanding />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="reports" element={<AdminQuestionReports />} />
-              <Route path="editor" element={<AdminEditor />} />
-              <Route path="sync" element={<AdminSync />} />
-              <Route path="import" element={<AdminImport />} />
-            </Route>
-            <Route path="/road-signs" element={<RoadSigns />} />
-            <Route path="/dictionary" element={<Dictionary />} />
-            <Route path="/data-import" element={<DataImport />} />
-            <Route path="/daily-bonus" element={<DailyBonus />} />
-            <Route path="/dgt-tests" element={<DGTTestsSimple />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/subscription-terms" element={<SubscriptionTerms />} />
-            <Route path="/help" element={<HelpCenter />} />
-            <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/success" element={<PaymentSuccess />} />
-            <Route path="/cancel" element={<PaymentCancel />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/" element={<LearningMap />} />
+          <Route path="/dashboard" element={<Index />} />
+          <Route path="/topic/:id" element={<TopicDetail />} />
+          <Route path="/subtopic/:id" element={<SubtopicDetail />} />
+          <Route path="/tests" element={<Tests />} />
+          <Route path="/tests/sequential" element={<SequentialTests />} />
+          <Route path="/tests/challenge-bank" element={<ChallengeBank />} />
+          <Route path="/test/:mode" element={<TestSession />} />
+          <Route path="/test/:mode/:topic" element={<TestSession />} />
+          <Route path="/test/sequential/:testId" element={<TestSession />} />
+          <Route path="/test/challenge-bank" element={<TestSession />} />
+          <Route path="/test/results" element={<TestResults />} />
+          <Route path="/learning" element={<Learning />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/games/race" element={<RaceGame />} />
+          <Route path="/games/guess-sign" element={<GuessTheSign />} />
+          <Route path="/games/matching" element={<MatchingGame />} />
+          <Route path="/games/duel" element={<Duel />} />
+          <Route path="/games/four-variants" element={<FourVariantsGame />} />
+          <Route path="/games/road-race" element={<RoadRace />} />
+          <Route path="/games/flashcards" element={<FlashCardsGame />} />
+          <Route path="/achievements" element={<Achievements />} />
+          <Route path="/referrals" element={<Referrals />} />
+          <Route path="/join/:code" element={<InviteLanding />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="reports" element={<AdminQuestionReports />} />
+            <Route path="editor" element={<AdminEditor />} />
+            <Route path="sync" element={<AdminSync />} />
+            <Route path="import" element={<AdminImport />} />
+          </Route>
+          <Route path="/road-signs" element={<RoadSigns />} />
+          <Route path="/dictionary" element={<Dictionary />} />
+          <Route path="/data-import" element={<DataImport />} />
+          <Route path="/daily-bonus" element={<DailyBonus />} />
+          <Route path="/dgt-tests" element={<DGTTestsSimple />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/subscription-terms" element={<SubscriptionTerms />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/success" element={<PaymentSuccess />} />
+          <Route path="/cancel" element={<PaymentCancel />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
