@@ -1,12 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
-<<<<<<< Updated upstream
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
-=======
-import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, Maximize2, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical } from "lucide-react";
->>>>>>> Stashed changes
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -18,15 +14,11 @@ import { cn } from "@/lib/utils";
 import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
 import { AIExplanationDialog } from "@/components/AIExplanationDialog";
-<<<<<<< Updated upstream
 import { AIWidget } from "@/components/AIWidget";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
 import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
-=======
-import { TestSettingsMenu } from "@/components/TestSettingsMenu";
->>>>>>> Stashed changes
 
 type QuestionData = {
   id: string;
@@ -202,17 +194,12 @@ const TestSession = () => {
   });
   const [ambientMusic, setAmbientMusic] = useState(() => {
     const saved = localStorage.getItem('test-ambient-music');
-<<<<<<< Updated upstream
     return saved ? saved === 'true' : false; // По умолчанию выключено
-=======
-    return saved ? saved === 'true' : false;
->>>>>>> Stashed changes
   });
   const [fontSize, setFontSize] = useState(() => {
     const saved = localStorage.getItem('test-font-size');
     return saved ? parseInt(saved) : 1;
   });
-<<<<<<< Updated upstream
   const [testLanguage, setTestLanguage] = useState<'es' | 'en'>(() => {
     const saved = localStorage.getItem('test-language');
     // Если сохранен 'ru', заменяем на 'es' (русский доступен только через кнопку перевода)
@@ -227,12 +214,6 @@ const TestSession = () => {
   const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
   const [masteryRound, setMasteryRound] = useState(1);
   
-=======
-  const [testLanguage, setTestLanguage] = useState<'es' | 'ru' | 'en'>(() => {
-    const saved = localStorage.getItem('test-language');
-    return (saved as 'es' | 'ru' | 'en') || 'es';
-  });
->>>>>>> Stashed changes
   const isTelegramApp = isTelegramMiniApp();
 
   // Сохраняем настройки в localStorage
@@ -256,7 +237,6 @@ const TestSession = () => {
     localStorage.setItem('test-ambient-music', ambientMusic.toString());
   }, [ambientMusic]);
 
-<<<<<<< Updated upstream
   // Ambient Music Effect - стабильная работа с обработкой ошибок
   useEffect(() => {
     let audioElement: HTMLAudioElement | null = null;
@@ -569,39 +549,6 @@ const TestSession = () => {
         audioElement.pause();
         audioElement.src = '';
         audioElement = null;
-=======
-  // Ambient Music Effect - простой ambient трек
-  useEffect(() => {
-    let audioElement: HTMLAudioElement | null = null;
-
-    if (ambientMusic) {
-      audioElement = new Audio();
-      
-      // Используем простой спокойный трек (можно заменить на свой)
-      // Free ambient music - calm piano for concentration
-      audioElement.src = 'https://assets.mixkit.co/music/preview/mixkit-calm-and-relax-1740.mp3';
-      audioElement.loop = true; // Бесконечный loop одного трека
-      audioElement.volume = 0.10; // Очень тихо, не мешает концентрации
-      
-      // Воспроизводим
-      const playPromise = audioElement.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('[TestSession] 🎵 Ambient music started');
-          })
-          .catch(err => {
-            console.log('[TestSession] 🎵 Autoplay blocked - music will start after user interaction');
-          });
-      }
-    }
-
-    return () => {
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.src = '';
-        console.log('[TestSession] 🎵 Ambient music stopped');
->>>>>>> Stashed changes
       }
     };
   }, [ambientMusic]);
@@ -628,13 +575,7 @@ const TestSession = () => {
       window.speechSynthesis.cancel();
 
       const currentQuestion = questions[currentIndex];
-<<<<<<< Updated upstream
       const questionText = testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es;
-=======
-      const questionText = testLanguage === 'ru' ? currentQuestion.question_ru : 
-                          testLanguage === 'en' ? currentQuestion.question_en :
-                          currentQuestion.question_es;
->>>>>>> Stashed changes
 
       // Ждем загрузки голосов
       await new Promise(resolve => {
@@ -650,15 +591,7 @@ const TestSession = () => {
       
       // Выбираем лучший голос для языка
       let preferredVoice = null;
-<<<<<<< Updated upstream
       if (testLanguage === 'en') {
-=======
-      if (testLanguage === 'ru') {
-        // Для русского: ищем женский Google или Yandex голос
-        preferredVoice = voices.find(v => v.lang.startsWith('ru') && (v.name.includes('Google') || v.name.includes('Yandex') || v.name.includes('Female'))) ||
-                        voices.find(v => v.lang.startsWith('ru'));
-      } else if (testLanguage === 'en') {
->>>>>>> Stashed changes
         // Для английского: ищем Google US Female
         preferredVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google') && v.name.includes('Female')) ||
                         voices.find(v => v.lang === 'en-US');
@@ -670,13 +603,7 @@ const TestSession = () => {
       }
 
       const utterance = new SpeechSynthesisUtterance(questionText);
-<<<<<<< Updated upstream
       utterance.lang = testLanguage === 'en' ? 'en-US' : 'es-ES';
-=======
-      utterance.lang = testLanguage === 'ru' ? 'ru-RU' : 
-                       testLanguage === 'en' ? 'en-US' : 
-                       'es-ES';
->>>>>>> Stashed changes
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;
@@ -818,7 +745,6 @@ const TestSession = () => {
   }, [profileId, currentIndex, questions]);
 
   const checkIfBookmarked = async () => {
-<<<<<<< Updated upstream
     if (!profileId || !questions.length || !questions[currentIndex]?.id) {
       console.log('[Bookmark] Check skipped:', { profileId, hasQuestions: questions.length > 0, questionId: questions[currentIndex]?.id });
       return;
@@ -826,11 +752,6 @@ const TestSession = () => {
 
     try {
       console.log('[Bookmark] Checking if bookmarked:', { profileId, questionId: questions[currentIndex].id });
-=======
-    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
-
-    try {
->>>>>>> Stashed changes
       const { data, error } = await supabase
         .from('user_challenge_questions')
         .select('id')
@@ -838,7 +759,6 @@ const TestSession = () => {
         .eq('question_id', questions[currentIndex].id)
         .maybeSingle();
 
-<<<<<<< Updated upstream
       console.log('[Bookmark] Check result:', { data, error });
 
       if (error && error.code !== 'PGRST116') {
@@ -848,17 +768,10 @@ const TestSession = () => {
       setIsQuestionBookmarked(!!data);
     } catch (error) {
       console.error('[Bookmark] Error checking bookmark:', error);
-=======
-      if (error && error.code !== 'PGRST116') throw error;
-      setIsQuestionBookmarked(!!data);
-    } catch (error) {
-      console.error('Error checking bookmark:', error);
->>>>>>> Stashed changes
     }
   };
 
   const toggleBookmark = async () => {
-<<<<<<< Updated upstream
     console.log('[Bookmark] Toggle called:', {
       profileId,
       questionId: questions[currentIndex]?.id,
@@ -882,9 +795,6 @@ const TestSession = () => {
       console.log('[Bookmark] Already loading, skipping');
       return;
     }
-=======
-    if (!profileId || !questions.length || !questions[currentIndex]?.id || bookmarkLoading) return;
->>>>>>> Stashed changes
 
     const questionId = questions[currentIndex].id;
 
@@ -893,7 +803,6 @@ const TestSession = () => {
 
       if (isQuestionBookmarked) {
         // Удаляем из закладок
-<<<<<<< Updated upstream
         console.log('[Bookmark] Removing bookmark:', { profileId, questionId });
         const { error, data } = await supabase
           .from('user_challenge_questions')
@@ -908,34 +817,20 @@ const TestSession = () => {
           console.error('[Bookmark] Delete error:', error);
           throw error;
         }
-=======
-        const { error } = await supabase
-          .from('user_challenge_questions')
-          .delete()
-          .eq('user_id', profileId)
-          .eq('question_id', questionId);
-
-        if (error) throw error;
->>>>>>> Stashed changes
         toast.success("Удалено из закладок");
         setIsQuestionBookmarked(false);
       } else {
         // Добавляем в закладки
-<<<<<<< Updated upstream
         console.log('[Bookmark] Adding bookmark:', { profileId, questionId });
         
         // Сначала проверяем, есть ли уже запись
         const { data: existing, error: checkError } = await supabase
-=======
-        const { data: existing } = await supabase
->>>>>>> Stashed changes
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
           .eq('question_id', questionId)
           .maybeSingle();
 
-<<<<<<< Updated upstream
         console.log('[Bookmark] Check existing:', { existing, checkError });
 
         if (checkError && checkError.code !== 'PGRST116') {
@@ -946,27 +841,18 @@ const TestSession = () => {
         if (existing) {
           // Уже есть, просто показываем сообщение
           console.log('[Bookmark] Already exists:', existing);
-=======
-        if (existing) {
-          // Уже есть, просто показываем сообщение
->>>>>>> Stashed changes
           toast.success("Вопрос уже в закладках");
           setIsQuestionBookmarked(true);
         } else {
           // Создаем новую запись с times_wrong = 0 (добавлено вручную)
-<<<<<<< Updated upstream
           console.log('[Bookmark] Inserting new bookmark');
           const { data: insertData, error: insertError } = await supabase
-=======
-          const { error: insertError } = await supabase
->>>>>>> Stashed changes
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
               question_id: questionId,
               times_wrong: 0, // 0 означает добавлено вручную, не через ошибку
               last_wrong_at: new Date().toISOString(),
-<<<<<<< Updated upstream
             })
             .select();
 
@@ -981,16 +867,10 @@ const TestSession = () => {
             });
             throw insertError;
           }
-=======
-            });
-
-          if (insertError) throw insertError;
->>>>>>> Stashed changes
           toast.success("Добавлено в закладки");
           setIsQuestionBookmarked(true);
         }
       }
-<<<<<<< Updated upstream
     } catch (error: any) {
       console.error('[Bookmark] Error toggling bookmark:', error);
       const errorMessage = error?.message || error?.details || "Не удалось изменить закладку";
@@ -1002,11 +882,6 @@ const TestSession = () => {
         error
       });
       toast.error(`Не удалось изменить закладку: ${errorMessage}`);
-=======
-    } catch (error) {
-      console.error('Error toggling bookmark:', error);
-      toast.error("Не удалось изменить закладку");
->>>>>>> Stashed changes
     } finally {
       setBookmarkLoading(false);
     }
@@ -1124,7 +999,6 @@ const TestSession = () => {
           title: '💡 Банк Сложных Вопросов™',
         });
       }
-<<<<<<< Updated upstream
       // Режим Mastery - случайные вопросы для прохождения "до победного"
       else if (mode === 'mastery') {
         let query = supabase
@@ -1177,8 +1051,6 @@ const TestSession = () => {
           title: '⚠️ Сложные Вопросы',
         });
       }
-=======
->>>>>>> Stashed changes
       // Если это DGT тест, загружаем из dgt_questions
       else if (mode === 'dgt' && topic) {
         const category = topic.toUpperCase();
@@ -1501,7 +1373,6 @@ const TestSession = () => {
     };
 
     setAnswers([...(answers || []), newAnswer]);
-<<<<<<< Updated upstream
     
     // Mastery Mode: добавляем неправильные вопросы для повторения
     if (mode === "mastery" && !isCorrect) {
@@ -1509,29 +1380,19 @@ const TestSession = () => {
         setMasteryWrongQuestions([...masteryWrongQuestions, currentQuestion.id]);
       }
     }
-=======
-    setLastAnswerCorrect(isCorrect);
->>>>>>> Stashed changes
     
     // НЕ показываем Lumi автоматически - только по клику на floating button
     // Это экономит токены AI
 
-<<<<<<< Updated upstream
     // Добавляем вопрос в Challenge Bank при первой ошибке (не в mastery mode)
     if (!isCorrect && profileId && mode !== "mastery") {
       try {
         console.log('[Challenge Bank] Условия: isCorrect=', isCorrect, 'profileId=', profileId, 'mode=', mode);
         
-=======
-    // Добавляем вопрос в Challenge Bank при первой ошибке
-    if (!isCorrect && profileId) {
-      try {
->>>>>>> Stashed changes
         // Проверяем, первая ли это ошибка в тесте
         const wrongAnswersInThisTest = answers.filter(a => !a.isCorrect).length;
         const showNotification = wrongAnswersInThisTest === 0 && isFirstWrongAnswer;
         
-<<<<<<< Updated upstream
         console.log('[Challenge Bank] wrongAnswersInThisTest=', wrongAnswersInThisTest, 'isFirstWrongAnswer=', isFirstWrongAnswer, 'showNotification=', showNotification);
         
         // Закрашиваем иконку синим при ЛЮБОЙ ошибке
@@ -1548,26 +1409,12 @@ const TestSession = () => {
         // Добавляем или обновляем вопрос в Challenge Bank
         // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
         const { data: existing, error: selectError } = await supabase
-=======
-        if (showNotification) {
-          setIsFirstWrongAnswer(false);
-          setShowChallengeBankNotification(true);
-          // Скрываем уведомление через 5 секунд
-          setTimeout(() => {
-            setShowChallengeBankNotification(false);
-          }, 5000);
-        }
-
-        // Добавляем или обновляем вопрос в Challenge Bank
-        const { data: existing } = await supabase
->>>>>>> Stashed changes
           .from('user_challenge_questions')
           .select('id, times_wrong')
           .eq('user_id', profileId)
           .eq('question_id', currentQuestion.id)
           .maybeSingle();
 
-<<<<<<< Updated upstream
         if (selectError) {
           console.error('[Challenge Bank] Ошибка при проверке существующего вопроса:', selectError);
         }
@@ -1576,11 +1423,6 @@ const TestSession = () => {
           // Обновляем существующую запись
           // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
           const { error: updateError } = await supabase
-=======
-        if (existing) {
-          // Обновляем существующую запись
-          await supabase
->>>>>>> Stashed changes
             .from('user_challenge_questions')
             .update({
               times_wrong: existing.times_wrong + 1,
@@ -1589,7 +1431,6 @@ const TestSession = () => {
               updated_at: new Date().toISOString(),
             })
             .eq('id', existing.id);
-<<<<<<< Updated upstream
           
           if (updateError) {
             console.error('[Challenge Bank] Ошибка при обновлении:', updateError);
@@ -1600,11 +1441,6 @@ const TestSession = () => {
           // Создаем новую запись
           // @ts-ignore - таблица user_challenge_questions существует в БД, но типы не обновлены
           const { error: insertError } = await supabase
-=======
-        } else {
-          // Создаем новую запись
-          await supabase
->>>>>>> Stashed changes
             .from('user_challenge_questions')
             .insert({
               user_id: profileId,
@@ -1612,7 +1448,6 @@ const TestSession = () => {
               times_wrong: 1,
               last_wrong_at: new Date().toISOString(),
             });
-<<<<<<< Updated upstream
           
           if (insertError) {
             console.error('[Challenge Bank] Ошибка при вставке:', insertError);
@@ -1625,12 +1460,6 @@ const TestSession = () => {
       }
     } else {
       console.log('[Challenge Bank] Условия не выполнены: isCorrect=', isCorrect, 'profileId=', !!profileId, 'mode=', mode);
-=======
-        }
-      } catch (error) {
-        console.error('Error adding to Challenge Bank:', error);
-      }
->>>>>>> Stashed changes
     }
 
     // Save user progress
@@ -1660,23 +1489,11 @@ const TestSession = () => {
       console.error("Error saving progress:", error);
     }
 
-<<<<<<< Updated upstream
     if (mode === "practice" || mode === "dgt" || mode === "mastery") {
       // НЕ открываем Lumi автоматически - только по клику пользователя
       // setShowAIExplanation(true); // ОТКЛЮЧЕНО для лучшего UX
       
       // Уведомления убраны - результат виден в UI через цветовую индикацию ответов
-=======
-    if (mode === "practice" || mode === "dgt") {
-      // Открываем AI чат после ответа
-      setShowAIExplanation(true);
-      
-      if (isCorrect) {
-        toast.success("¡Correcto! ✅", { duration: 2000 });
-      } else {
-        toast.error("Incorrecto ❌", { duration: 2000 });
-      }
->>>>>>> Stashed changes
     } else {
       // Exam mode: no feedback, no early termination, just move to next question
       // Don't finish test early - let user complete all questions
@@ -1698,25 +1515,16 @@ const TestSession = () => {
     setCurrentIndex(index);
     setSelectedOption(null);
     setShowTranslation(false);
-<<<<<<< Updated upstream
     setShowAIExplanation(false); // Закрываем AI чат
-=======
-    setShowAIExplanation(false); // Закрываем AI чат при переходе
->>>>>>> Stashed changes
   };
 
   const nextQuestion = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelectedOption(null);
-<<<<<<< Updated upstream
       // Always reset translation and AI chat, especially for exam mode
       setShowTranslation(false);
       setShowAIExplanation(false);
-=======
-      setShowTranslation(false);
-      setShowAIExplanation(false); // Закрываем AI чат
->>>>>>> Stashed changes
     } else {
       finishTest();
     }
@@ -1924,15 +1732,6 @@ const TestSession = () => {
     'text-base sm:text-lg md:text-xl', // default
     'text-lg sm:text-xl md:text-2xl',  // large
   ];
-<<<<<<< Updated upstream
-=======
-  
-  const getExplanation = (lang: 'ru' | 'es'): string | null => {
-    return lang === 'es' ? currentQuestion.explanation_es : currentQuestion.explanation_ru;
-  };
-  
-  const displayExplanation = getExplanation('es');
->>>>>>> Stashed changes
   
   const toggleTranslation = async () => {
     setIsTransitioning(true);
@@ -1954,7 +1753,6 @@ const TestSession = () => {
 
   return (
     <Layout>
-<<<<<<< Updated upstream
       {/* Layout: В экзамене - центрированный широкий блок, в practice - grid с AI Widget */}
         <div className={cn(
         "mx-auto transition-all duration-300",
@@ -1970,32 +1768,6 @@ const TestSession = () => {
           className={cn(
             "pt-0 sm:pt-1 md:pt-3",
             isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
-=======
-      {/* Основной контент */}
-      <div className={cn(
-        "container mx-auto transition-all duration-300 pt-0 pb-1 sm:pt-1 sm:pb-2 md:py-3 pb-16 md:pb-4",
-        isTelegramApp ? "px-2 sm:px-4" : "px-4 max-w-[1370px]"
-      )}>
-        {/* Header Row - Title and Close button (browser only) */}
-        <div className="mb-2 sm:mb-3 flex items-center justify-between -mt-6 sm:-mt-3 md:mt-0">
-          {/* Large Title - Bigger on mobile */}
-          <div className="flex-1">
-            <h1 className="text-3xl sm:text-3xl md:text-4xl font-bold text-foreground text-center">
-              {testId ? (testInfo?.title || "Тест") : (mode === "exam" ? "Экзамен" : "Практика")}
-            </h1>
-          </div>
-          
-          {/* Close button - Only in browser, not Telegram */}
-          {!isTelegramApp && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="ml-2 shrink-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
-            >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
->>>>>>> Stashed changes
           )}
         >
         {/* Unified Progress Bar - переиспользуемый компонент */}
@@ -2039,7 +1811,6 @@ const TestSession = () => {
                 </div>
                 )}
 
-<<<<<<< Updated upstream
                 {/* Mastery Round Indicator */}
                 {mode === "mastery" && masteryRound > 1 && (
                   <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-500/10 backdrop-blur-md border border-purple-500/30 shadow-sm shrink-0">
@@ -2052,124 +1823,6 @@ const TestSession = () => {
               </>
             }
           />
-=======
-        {/* Timer, Bookmark and Question Map */}
-        <div className="mb-2 sm:mb-4 flex items-center justify-end gap-2 sm:gap-3">
-          {mode === "exam" && (
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background border-2 border-border/50 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
-              <Clock className={`w-5 h-5 sm:w-6 sm:h-6 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
-              <span className={`font-mono font-semibold text-sm sm:text-base ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>
-                {formatTime(timeLeft)}
-              </span>
-            </div>
-          )}
-          
-          {/* Bookmark Button - как на driving-tests.org */}
-          {profileId && (
-            <div className="relative">
-              <button
-                onClick={toggleBookmark}
-                disabled={bookmarkLoading}
-                className={cn(
-                  "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl shadow-sm hover:shadow-md transition-all active:scale-95 backdrop-blur-sm border-2",
-                  isQuestionBookmarked
-                    ? "bg-blue-500 border-blue-500 text-white hover:bg-blue-600"
-                    : "bg-background border-border/50 hover:bg-muted/50"
-                )}
-                title={isQuestionBookmarked ? "Удалить из закладок" : "Добавить в закладки"}
-              >
-                {isQuestionBookmarked ? (
-                  <BookmarkCheck className="w-5 h-5" />
-                ) : (
-                  <Bookmark className="w-5 h-5" />
-                )}
-              </button>
-
-              {/* Challenge Bank Notification - указатель прямо у иконки */}
-              {showChallengeBankNotification && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 animate-lumi-slide-in">
-                  <div className="relative">
-                    {/* Стрелка вверх к bookmark */}
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-blue-500" />
-                    
-                    <div className="bg-blue-500 text-white rounded-xl shadow-2xl p-3 w-[200px]">
-                      <button
-                        onClick={() => setShowChallengeBankNotification(false)}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-blue-500 hover:bg-gray-100 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                      
-                      <p className="font-bold text-xs mb-1.5">
-                        💾 Сохранено!
-                      </p>
-                      <p className="text-[10px] opacity-90 leading-snug mb-2">
-                        Вопрос добавлен в твой банк для практики
-                      </p>
-                      <button
-                        onClick={() => {
-                          setShowChallengeBankNotification(false);
-                          navigate('/tests/challenge-bank');
-                        }}
-                        className="w-full bg-white/20 hover:bg-white/30 text-white text-[10px] font-medium py-1 rounded transition-colors"
-                      >
-                        Посмотреть банк →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Settings Button (три точки) с выпадающим меню */}
-          <TestSettingsMenu
-            open={showTestSettings}
-            onOpenChange={setShowTestSettings}
-            voiceOver={voiceOver}
-            onVoiceOverChange={setVoiceOver}
-            answerPopularity={answerPopularity}
-            onAnswerPopularityChange={setAnswerPopularity}
-            ambientMusic={ambientMusic}
-            onAmbientMusicChange={setAmbientMusic}
-            fontSize={fontSize}
-            onFontSizeChange={setFontSize}
-            language={testLanguage}
-            onLanguageChange={setTestLanguage}
-          />
-
-          <button
-            onClick={() => setShowQuestionMap(true)}
-            className="relative flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all cursor-pointer active:scale-95 backdrop-blur-sm overflow-hidden border-2 border-border/50"
-          >
-            {/* Animated progress border - используем accent цвет вместо primary */}
-            <div
-              className="absolute inset-0 rounded-xl pointer-events-none"
-              style={{
-                background: `conic-gradient(
-                  from -90deg,
-                  hsl(var(--accent-foreground) / 0.6) 0deg,
-                  hsl(var(--accent-foreground) / 0.6) ${(answers.length / questions.length) * 360}deg,
-                  transparent ${(answers.length / questions.length) * 360}deg,
-                  transparent 360deg
-                )`,
-                padding: '2px',
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-                transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            />
-            
-            {/* Content */}
-            <div className="relative z-10 flex items-center gap-2">
-              <Grid3x3 className="w-5 h-5 sm:w-6 sm:h-6 text-foreground/70" />
-              <span className="font-semibold text-foreground text-sm sm:text-base">
-                {currentIndex + 1}/{questions.length}
-              </span>
-            </div>
-          </button>
->>>>>>> Stashed changes
         </div>
 
 
@@ -2190,13 +1843,8 @@ const TestSession = () => {
               <div className="flex flex-col">
                 {/* Question Text */}
                 <div className="mb-4 sm:mb-6">
-<<<<<<< Updated upstream
                   <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
                     <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
-=======
-                  <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-                    <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
->>>>>>> Stashed changes
                       {displayQuestion}
                     </h2>
                     {/* Translation Button (Practice Only) - в правом нижнем углу */}
@@ -2206,32 +1854,12 @@ const TestSession = () => {
                         className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
                         title={showTranslation ? "Показать оригинал" : "Показать перевод на русский"}
                       >
-<<<<<<< Updated upstream
                         <Languages className="w-3 h-3" />
                         <span>{showTranslation ? "ES" : "RU"}</span>
                       </button>
                     )}
           </div>
         </div>
-=======
-                        <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                        <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                        <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowReportModal(true)}
-                    className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
-                  >
-                    <AlertTriangle className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                    <span className="hidden sm:inline">{language === "es" ? "Reportar problema" : "Сообщить о проблеме"}</span>
-                    <span className="sm:hidden">{language === "es" ? "Reportar" : "Проблема"}</span>
-                  </Button>
-                </div>
->>>>>>> Stashed changes
 
                 {/* Answer Options */}
                 <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
@@ -2242,7 +1870,6 @@ const TestSession = () => {
                     // Ответы тоже учитывают showTranslation (кнопка перевода)
                     const displayText = showTranslation 
                       ? option.text_ru 
-<<<<<<< Updated upstream
                       : (testLanguage === 'en' ? option.text_en : option.text_es);
                     
                     // Mock popularity data (в реальной версии загружать из БД)
@@ -2250,15 +1877,6 @@ const TestSession = () => {
               
               return (
                 <button
-=======
-                      : (testLanguage === 'ru' ? option.text_ru : testLanguage === 'en' ? option.text_en : option.text_es);
-                    
-                    // Mock popularity data (в реальной версии загружать из БД)
-                    const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
-
-                    return (
-                      <button
->>>>>>> Stashed changes
                         key={option.id}
                         onClick={() => {
                           if (mode === "exam") {
@@ -2269,11 +1887,7 @@ const TestSession = () => {
                           }
                         }}
                         disabled={mode === "practice" && selectedOption !== null}
-<<<<<<< Updated upstream
                   className={`
-=======
-                        className={`
->>>>>>> Stashed changes
                           w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                           ${showResult
                             ? isCorrect
@@ -2284,11 +1898,7 @@ const TestSession = () => {
                             : isSelected
                             ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
                             : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
-<<<<<<< Updated upstream
                     }
-=======
-                          }
->>>>>>> Stashed changes
                           ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
                         `}
                       >
@@ -2327,7 +1937,6 @@ const TestSession = () => {
 
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
-<<<<<<< Updated upstream
                   {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
           {mode === "practice" && (
                     <button
@@ -2348,35 +1957,6 @@ const TestSession = () => {
                   
                   {mode === "practice" && selectedOption ? (
               <Button
-=======
-                  {/* Lumi Avatar - только на мобильном, слева от кнопки */}
-                  {isTelegramApp && (
-                    <button
-                      onClick={() => setIsLumiMinimized(false)}
-                      className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-lg flex items-center justify-center transition-all active:scale-95 shrink-0 relative overflow-hidden lg:hidden"
-                      aria-label="Спросить Lumi"
-                    >
-                      <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-400 opacity-30 blur-md" />
-                    </button>
-                  )}
-
-                  {currentIndex > 0 && mode === "practice" && (
-                    <Button 
-                      onClick={prevQuestion} 
-                      variant="outline"
-                      className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
-                      size="sm"
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
-                      <span className="hidden sm:inline">Назад</span>
-                      <span className="sm:hidden">←</span>
-                    </Button>
-                  )}
-                  
-                  {mode === "practice" && selectedOption ? (
-                    <Button 
->>>>>>> Stashed changes
                       onClick={nextQuestion} 
                       className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
                     >
@@ -2411,7 +1991,6 @@ const TestSession = () => {
             <>
           {/* Question Text */}
               <div className="mb-4 sm:mb-6">
-<<<<<<< Updated upstream
                 <div className="relative p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
                   <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'} pr-12`}>
                     {displayQuestion}
@@ -2430,31 +2009,6 @@ const TestSession = () => {
                 </div>
           </div>
 
-=======
-                <div className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-card border-2 border-border/50 shadow-sm">
-            <h2 className={`${fontSizeClasses[fontSize]} font-semibold leading-relaxed sm:leading-relaxed text-foreground whitespace-pre-line transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-              {displayQuestion}
-            </h2>
-                </div>
-          </div>
-
-          {/* Translation & Explanation Buttons (Practice Only) */}
-          {mode === "practice" && (
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleTranslation}
-                className="text-[10px] sm:text-xs h-8 sm:h-9 px-2 sm:px-3"
-              >
-                <Languages className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1" />
-                <span className="hidden sm:inline">{showTranslation ? "Español" : "Русский перевод"}</span>
-                <span className="sm:hidden">{showTranslation ? "ES" : "RU"}</span>
-              </Button>
-            </div>
-          )}
-
->>>>>>> Stashed changes
           {/* Answer Options */}
           <div className="space-y-2 sm:space-y-2.5 mb-4 sm:mb-6">
             {sortedOptions.map((option, optionIndex) => {
@@ -2464,11 +2018,7 @@ const TestSession = () => {
               // Ответы тоже учитывают showTranslation (кнопка перевода)
               const displayText = showTranslation 
                 ? option.text_ru 
-<<<<<<< Updated upstream
                 : (testLanguage === 'en' ? option.text_en : option.text_es);
-=======
-                : (testLanguage === 'ru' ? option.text_ru : testLanguage === 'en' ? option.text_en : option.text_es);
->>>>>>> Stashed changes
               
               // Mock popularity data
               const mockPopularity = isCorrect ? Math.floor(75 + Math.random() * 20) : Math.floor(5 + Math.random() * 20);
@@ -2494,8 +2044,8 @@ const TestSession = () => {
                         ? "border-red-500 bg-gradient-to-r from-red-500/15 to-red-500/5 shadow-xl shadow-red-500/25 animate-fade-in"
                         : "border-border/20 opacity-40"
                       : isSelected
-                      ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
-                      : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
+                          ? "border-accent bg-gradient-to-r from-accent/15 to-accent/5 shadow-xl shadow-accent/30 scale-[1.02] ring-2 ring-accent/20"
+                          : "border-border/40 hover:border-accent/60 hover:bg-gradient-to-r hover:from-accent/5 hover:to-transparent hover:scale-[1.01] hover:shadow-lg"
                     }
                     ${selectedOption === null && "cursor-pointer active:scale-[0.99]"}
                   `}
@@ -2533,7 +2083,6 @@ const TestSession = () => {
 
           {/* Explanation убрано - теперь показывается через Lumi */}
 
-<<<<<<< Updated upstream
           {/* Navigation Buttons - с аватаром Lumi на мобильном */}
           <div className="flex gap-2 items-center">
             {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
@@ -2542,16 +2091,6 @@ const TestSession = () => {
                 onClick={() => setShowAIExplanation(true)}
                 className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
                 aria-label="Спросить Lumi"
-=======
-          {/* Navigation Buttons */}
-          <div className="flex gap-2 items-center">
-            {currentIndex > 0 && mode === "practice" && (
-              <Button 
-                onClick={prevQuestion} 
-                variant="outline"
-                className="w-auto shrink-0 h-10 sm:h-11 px-3 sm:px-4"
-                size="sm"
->>>>>>> Stashed changes
               >
                 {/* Пульсирующий эффект */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
@@ -2592,10 +2131,9 @@ const TestSession = () => {
               </Button>
             )}
           </div>
-          </>
+            </>
           )}
         </Card>
-      </div>
 
         {/* Report Problem Button - под блоком с тестом */}
         <div className="mt-4 sm:mt-5 flex justify-center">
@@ -2844,9 +2382,7 @@ const TestSession = () => {
         questionId={currentQuestion.id}
         questionText={showTranslation ? currentQuestion.question_ru : (testLanguage === 'en' ? currentQuestion.question_en : currentQuestion.question_es)}
       />
-      </div>
 
-<<<<<<< Updated upstream
 
       {/* AI Explanation Dialog - работает всегда в practice режиме */}
       {mode === "practice" && (
@@ -2865,18 +2401,6 @@ const TestSession = () => {
           explanationRu={selectedOption ? currentQuestion.explanation_ru : null}
           explanationEs={selectedOption ? currentQuestion.explanation_es : null}
           explanationEn={selectedOption ? currentQuestion.explanation_en : null}
-=======
-      {/* AI Explanation Dialog - старый проверенный чат */}
-      {mode === "practice" && selectedOption && (
-        <AIExplanationDialog
-          open={showAIExplanation}
-          onClose={() => setShowAIExplanation(false)}
-          question={currentQuestion.question_es}
-          correctAnswer={sortedOptions.find(opt => opt.is_correct)?.text_es || ''}
-          userAnswer={sortedOptions.find(opt => opt.id === selectedOption)?.text_es}
-          isCorrect={sortedOptions.find(opt => opt.id === selectedOption)?.is_correct || false}
-          explanation={currentQuestion.explanation_es}
->>>>>>> Stashed changes
           topic={currentQuestion.topics?.title_es}
           imageUrl={currentQuestion.image_url}
           showTranslation={showTranslation}
