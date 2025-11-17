@@ -7,6 +7,7 @@ import { useDuelTimers } from './useDuelTimers';
 /**
  * Унифицированный хук для синхронизации счета соперника
  * Объединяет Realtime подписку и fallback проверки
+ * Оптимизирован для стабильной работы в Telegram WebApp
  */
 export function useOpponentScoreSync(
   duelId: string | null,
@@ -19,17 +20,26 @@ export function useOpponentScoreSync(
   const { setTimeout: setTimeoutTimer, setInterval, clearTimeout: clearTimeoutTimer, clearInterval } = useDuelTimers();
   const lastScoreRef = useRef(initialScore || 0);
   const hasInitializedRef = useRef(false);
+  const lastRealtimeUpdateRef = useRef<number>(0);
+  const realtimeWorkingRef = useRef(true);
   
-  // Debug: логируем изменения параметров (без opponentScore в зависимостях чтобы избежать циклов)
+  // Определяем платформу один раз
+  const isMobileTelegram = typeof window !== 'undefined' && 
+    window.Telegram?.WebApp && 
+    (window.Telegram.WebApp.platform === 'ios' || window.Telegram.WebApp.platform === 'android');
+  
+  // Debug: логируем изменения параметров
   useEffect(() => {
     console.log('[useOpponentScoreSync] Hook params:', {
       duelId,
       myPlayerId,
       duelStarted,
       initialScore,
-      realtimeScore: state.opponentScore
+      realtimeScore: state.opponentScore,
+      currentScore: opponentScore,
+      isMobileTelegram
     });
-  }, [duelId, myPlayerId, duelStarted, initialScore, state.opponentScore]);
+  }, [duelId, myPlayerId, duelStarted, initialScore, state.opponentScore, opponentScore, isMobileTelegram]);
   
   // Обновляем начальное значение если оно изменилось
   useEffect(() => {
@@ -45,12 +55,12 @@ export function useOpponentScoreSync(
   useEffect(() => {
     // Если Realtime передал валидный счет, обновляем
     if (typeof state.opponentScore === 'number' && state.opponentScore >= 0) {
-      // КРИТИЧНО: Не обновляем на 0, если у нас уже есть счет > 0 (это может быть ошибка Realtime)
-      // Исключение: если счет действительно был сброшен (например, при новой дуэли)
-      if (state.opponentScore === 0 && lastScoreRef.current > 0 && hasInitializedRef.current) {
-        console.log('[useOpponentScoreSync] ⚠️ Ignoring Realtime score update to 0 (current score:', lastScoreRef.current, ')');
-        return;
-      }
+      // Отслеживаем что Realtime работает
+      lastRealtimeUpdateRef.current = Date.now();
+      realtimeWorkingRef.current = true;
+      
+      // УБРАНО: Защита от обновления на 0 - она блокировала валидные обновления
+      // Вместо этого доверяем Realtime как основному источнику истины
       
       // Используем ref для сравнения, чтобы избежать проблем с зависимостями
       if (state.opponentScore !== lastScoreRef.current) {
@@ -66,7 +76,6 @@ export function useOpponentScoreSync(
   useEffect(() => {
     if (!duelId || !myPlayerId) return;
     
-    // Немедленно проверяем счет при установке myPlayerId или начале дуэли
     const checkScoreImmediately = async () => {
       try {
         const { data: players, error } = await supabase
@@ -81,10 +90,14 @@ export function useOpponentScoreSync(
         
         if (players && players.length >= 2) {
           const opponent = players.find((p: any) => p.id !== myPlayerId);
-          if (opponent && typeof opponent.score === 'number' && opponent.score !== lastScoreRef.current) {
-            console.log('[useOpponentScoreSync] 🔄 Immediate check: Updating opponent score:', opponent.score, '(was:', lastScoreRef.current, ')');
-            setOpponentScore(opponent.score);
-            lastScoreRef.current = opponent.score;
+          if (opponent && typeof opponent.score === 'number') {
+            // Обновляем только если счет действительно изменился
+            if (opponent.score !== lastScoreRef.current) {
+              console.log('[useOpponentScoreSync] 🔄 Immediate check: Updating opponent score:', opponent.score, '(was:', lastScoreRef.current, ')');
+              setOpponentScore(opponent.score);
+              lastScoreRef.current = opponent.score;
+              hasInitializedRef.current = true;
+            }
           }
         }
       } catch (error) {
@@ -97,22 +110,28 @@ export function useOpponentScoreSync(
     return () => clearTimeoutTimer(timer);
   }, [duelId, myPlayerId, duelStarted, setTimeoutTimer, clearTimeoutTimer]);
 
-  // Fallback: периодическая проверка для мобильной версии Telegram WebApp
+  // Fallback: периодическая проверка (более частая для Telegram WebApp)
   useEffect(() => {
     if (!duelId || !myPlayerId || !duelStarted) return;
 
-    // Определяем интервал проверки в зависимости от платформы
-    const isMobileTelegram = typeof window !== 'undefined' && 
-      window.Telegram?.WebApp && 
-      (window.Telegram.WebApp.platform === 'ios' || window.Telegram.WebApp.platform === 'android');
-    
+    // Для Telegram WebApp используем более частую проверку (каждую секунду)
+    // Для десктопа - реже (каждые 2 секунды)
     const checkInterval = isMobileTelegram 
-      ? DUEL_TIMINGS.SCORE_CHECK_INTERVAL_MOBILE 
+      ? 1000  // 1 секунда для Telegram WebApp
       : DUEL_TIMINGS.SCORE_CHECK_INTERVAL_DESKTOP;
 
     // Проверяем счет периодически как fallback
     const scoreCheckInterval = setInterval(async () => {
       try {
+        // Проверяем, работает ли Realtime (если последнее обновление было > 5 секунд назад)
+        const timeSinceLastRealtime = Date.now() - lastRealtimeUpdateRef.current;
+        const shouldUseFallback = isMobileTelegram || timeSinceLastRealtime > 5000;
+        
+        if (!shouldUseFallback && realtimeWorkingRef.current) {
+          // Realtime работает нормально, пропускаем проверку
+          return;
+        }
+        
         const { data: players, error } = await supabase
           .from('duel_players')
           .select('id, score, user_id')
@@ -125,10 +144,20 @@ export function useOpponentScoreSync(
         
         if (players && players.length >= 2) {
           const opponent = players.find((p: any) => p.id !== myPlayerId);
-          if (opponent && typeof opponent.score === 'number' && opponent.score !== lastScoreRef.current) {
-            console.log('[useOpponentScoreSync] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', lastScoreRef.current, ')');
-            setOpponentScore(opponent.score);
-            lastScoreRef.current = opponent.score;
+          if (opponent && typeof opponent.score === 'number') {
+            // Обновляем только если счет действительно изменился
+            if (opponent.score !== lastScoreRef.current) {
+              console.log('[useOpponentScoreSync] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', lastScoreRef.current, ')');
+              setOpponentScore(opponent.score);
+              lastScoreRef.current = opponent.score;
+              hasInitializedRef.current = true;
+              
+              // Если fallback сработал, значит Realtime может не работать
+              if (timeSinceLastRealtime > 5000) {
+                realtimeWorkingRef.current = false;
+                console.warn('[useOpponentScoreSync] ⚠️ Realtime may not be working, relying on fallback polling');
+              }
+            }
           }
         }
       } catch (error) {
@@ -137,7 +166,7 @@ export function useOpponentScoreSync(
     }, checkInterval);
     
     return () => clearInterval(scoreCheckInterval);
-  }, [duelId, myPlayerId, duelStarted, setInterval, clearInterval]);
+  }, [duelId, myPlayerId, duelStarted, setInterval, clearInterval, isMobileTelegram]);
 
   return opponentScore;
 }

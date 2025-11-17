@@ -66,22 +66,15 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             if (opponent) {
               const newScore = typeof opponent.score === 'number' ? opponent.score : undefined;
               const newCorrectCount = typeof opponent.correct_count === 'number' ? opponent.correct_count : undefined;
-              // КРИТИЧНО: Обновляем счет только если он валидный
-              // Это предотвращает сброс счета на 0 при перезагрузке
+              // УБРАНО: Защита от обновления на 0 - она блокировала валидные обновления
+              // Доверяем данным из БД как источнику истины
               if (newScore !== undefined) {
-                setState(prev => {
-                  // Не обновляем на 0, если текущий счет > 0 (защита от ошибочных обновлений)
-                  if (newScore === 0 && prev.opponentScore > 0) {
-                    console.warn('[useDuelRealtime] ⚠️ Ignoring reload to 0 (current score:', prev.opponentScore, ')');
-                    return prev;
-                  }
-                  console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore, '(was:', prev.opponentScore, ')');
-                  return {
-                    ...prev,
-                    opponentScore: newScore,
-                    opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
-                  };
-                });
+                console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore);
+                setState(prev => ({
+                  ...prev,
+                  opponentScore: newScore,
+                  opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
+                }));
               } else if (newCorrectCount !== undefined) {
                 // Обновляем только correctCount если score невалидный
                 setState(prev => ({
