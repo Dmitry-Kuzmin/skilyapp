@@ -1446,11 +1446,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
+  // Определяем мобильная ли версия Telegram
+  const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';
+  const isTelegramDesktop = safeArea.platform === 'telegram' && !isTelegramMobile;
+
   // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
-  // ПОЛНЫЕ ОТСТУПЫ для игры дуэль (увеличены по просьбе пользователя)
-  // + дополнительный отступ для встроенной навигации Telegram (кнопки Назад, три точки, стрелка)
-  const TELEGRAM_NAV_HEIGHT = 115; // Высота встроенной навигации Telegram WebApp (увеличено для предотвращения перекрытия кнопкой "Назад")
-  const telegramNavPadding = safeArea.platform === 'telegram' ? TELEGRAM_NAV_HEIGHT : 0;
+  // Для мобильной версии Telegram: используем меньший отступ для навигации
+  // Для десктопной версии Telegram: отступ не нужен
+  const TELEGRAM_NAV_HEIGHT_MOBILE = 60; // Высота встроенной навигации Telegram WebApp для мобильных
+  const telegramNavPadding = isTelegramMobile ? TELEGRAM_NAV_HEIGHT_MOBILE : 0;
   
   const totalTopPadding = Math.round(safeArea.top + safeArea.contentTop + telegramNavPadding);
   const totalBottomPadding = Math.round(safeArea.bottom + safeArea.contentBottom);
@@ -1459,9 +1463,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
   const PROGRESS_BAR_HEIGHT = 60;
+  
+  // Вычисляем отступ для контента: для мобильной версии Telegram делаем минимальный зазор
   const contentTopPadding =
-    safeArea?.platform === 'telegram'
-      ? totalTopPadding + PROGRESS_BAR_HEIGHT - 8 // Уменьшаем зазор: прогресс-бар + его высота - небольшой отступ для плотного прилегания
+    isTelegramMobile
+      ? totalTopPadding + PROGRESS_BAR_HEIGHT - 2 // Минимальный зазор (2px) между прогресс-баром и контентом
       : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
@@ -1477,11 +1483,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }}
     >
       {/* Toast Notifications */}
-      {/* Учитываем отступы для Telegram WebApp */}
+      {/* Учитываем отступы для Telegram WebApp: разные для мобильной и десктопной версии */}
       <div 
         className="fixed z-50 space-y-2 max-w-sm"
         style={{
-          top: `${totalTopPadding + (safeArea?.platform === 'telegram' ? 40 : 16)}px`,
+          top: `${totalTopPadding + (isTelegramMobile ? 16 : isTelegramDesktop ? 8 : 16)}px`,
           right: `${totalRightPadding + 16}px`
         }}
       >
@@ -1503,16 +1509,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           top: `${totalTopPadding}px`,
           paddingLeft: `${totalLeftPadding}px`,
           paddingRight: `${totalRightPadding}px`,
-          paddingTop: safeArea?.platform === 'telegram' ? '4px' : '8px',
-          paddingBottom: safeArea?.platform === 'telegram' ? '4px' : '8px'
+          paddingTop: isTelegramMobile || isTelegramDesktop ? '4px' : '8px',
+          paddingBottom: isTelegramMobile || isTelegramDesktop ? '4px' : '8px'
         }}
       >
         <div className="max-w-4xl mx-auto px-2">
           <QuestionProgressBar
           currentIndex={currentIndex}
           totalQuestions={questions.length}
-          onClose={safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram' ? onExit : undefined}
-          showClose={safeArea?.platform !== 'ios' && safeArea?.platform !== 'android' && safeArea?.platform !== 'telegram'}
+          onClose={!isTelegramMobile && !isTelegramDesktop ? onExit : undefined}
+          showClose={!isTelegramMobile && !isTelegramDesktop}
           showQuestionMap={false}
           onToggleBookmark={profileId ? toggleBookmark : undefined}
           isBookmarked={isQuestionBookmarked}
@@ -1562,9 +1568,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`flex items-center justify-between gap-3 flex-wrap ${safeArea?.platform === 'telegram' ? '-mt-12 mb-1' : 'mb-3 md:mb-4'}`}>
-          {/* Scores - Enhanced - Центрированы в Telegram */}
-          <div className={`flex items-center gap-3 md:gap-5 ${safeArea?.platform === 'telegram' ? 'flex-1 justify-center' : ''}`}>
+        <div className={`flex items-center justify-between gap-3 flex-wrap ${
+          isTelegramMobile 
+            ? '-mt-16 mb-0' // Сильно уменьшаем зазор в мобильной версии Telegram
+            : isTelegramDesktop 
+            ? 'mb-3 md:mb-4' // Обычный отступ для десктопной версии
+            : 'mb-3 md:mb-4' // Обычный отступ для браузера
+        }`}>
+          {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
+          <div className={`flex items-center gap-3 md:gap-5 ${isTelegramMobile ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
             <motion.div 
               className="flex items-center gap-2 md:gap-3 group"
