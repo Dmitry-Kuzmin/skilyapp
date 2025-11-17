@@ -242,15 +242,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   }, [fontSize]);
   
   // Check if question is bookmarked
-  const checkIfBookmarked = async () => {
-    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
+  const checkIfBookmarked = useCallback(async () => {
+    // Используем question_id (ID вопроса из questions_new), а не id (ID записи в duel_questions)
+    if (!profileId || !questions.length || !questions[currentIndex]?.question_id) return;
     
     try {
       const { data, error } = await supabase
         .from('user_challenge_questions')
         .select('id')
         .eq('user_id', profileId)
-        .eq('question_id', questions[currentIndex].id)
+        .eq('question_id', questions[currentIndex].question_id)
         .maybeSingle();
       
       if (error && error.code !== 'PGRST116') throw error;
@@ -258,14 +259,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     } catch (error) {
       console.error('[DuelBattleFullscreen] Error checking bookmark:', error);
     }
-  };
+  }, [profileId, questions, currentIndex]);
   
   // Toggle bookmark
   const toggleBookmark = async () => {
-    if (!profileId || !questions.length || !questions[currentIndex]?.id) return;
+    // Используем question_id (ID вопроса из questions_new), а не id (ID записи в duel_questions)
+    if (!profileId || !questions.length || !questions[currentIndex]?.question_id) return;
     
     setBookmarkLoading(true);
-    const questionId = questions[currentIndex].id;
+    const questionId = questions[currentIndex].question_id;
     
     try {
       if (isQuestionBookmarked) {
@@ -314,10 +316,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   // Check bookmark on question change
   useEffect(() => {
-    if (profileId && questions.length > 0 && questions[currentIndex]?.id) {
+    // Используем question_id (ID вопроса из questions_new), а не id (ID записи в duel_questions)
+    if (profileId && questions.length > 0 && questions[currentIndex]?.question_id) {
       checkIfBookmarked();
     }
-  }, [profileId, currentIndex, questions]);
+  }, [profileId, currentIndex, questions, checkIfBookmarked]);
 
   useEffect(() => {
     if (!duelId || !profileId) {
