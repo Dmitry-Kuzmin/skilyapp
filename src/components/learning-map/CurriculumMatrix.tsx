@@ -133,22 +133,31 @@ export const CurriculumMatrix = ({
                 className={cn(
                   "relative rounded-xl overflow-hidden p-4 sm:p-5 md:p-6",
                   "flex flex-col gap-4 md:flex-row md:items-center md:justify-between",
-                  topic.cover_image && "min-h-[140px] md:min-h-[120px]"
+                  topic.cover_image && "min-h-[160px] md:min-h-[140px]"
                 )}
-                style={
-                  topic.cover_image
-                    ? {
+              >
+                {/* Фоновое изображение с премиум качеством */}
+                {topic.cover_image && (
+                  <>
+                    <div
+                      className="absolute inset-0"
+                      style={{
                         backgroundImage: `url(${topic.cover_image})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
-                      }
-                    : undefined
-                }
-              >
-                {/* Overlay для читаемости текста поверх картинки */}
-                {topic.cover_image && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/90 to-white/70 md:from-white/90 md:via-white/85 md:to-white/60" />
+                        imageRendering: "crisp-edges",
+                        WebkitImageRendering: "-webkit-optimize-contrast",
+                        willChange: "transform",
+                      }}
+                    />
+                    {/* Легкий blur для премиум эффекта */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/10" />
+                    {/* Улучшенный overlay для читаемости - более прозрачный */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/75 to-white/55 md:from-white/80 md:via-white/70 md:to-white/45" />
+                    {/* Дополнительный радиальный градиент для глубины */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.4),transparent_60%)]" />
+                  </>
                 )}
 
                 {/* Контент header с relative позиционированием для overlay */}
@@ -156,9 +165,10 @@ export const CurriculumMatrix = ({
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-sm",
-                        topic.isCompleted ? "bg-emerald-500 text-white" : palette.badgeBg,
-                        !topic.topicId && "bg-slate-200 text-slate-500"
+                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-lg",
+                        topic.isCompleted ? "bg-emerald-500 text-white ring-2 ring-emerald-200" : palette.badgeBg,
+                        !topic.topicId && "bg-slate-200 text-slate-500",
+                        topic.cover_image && "ring-2 ring-white/50"
                       )}
                     >
                       {topic.number}
@@ -166,16 +176,18 @@ export const CurriculumMatrix = ({
                     <div>
                       <p
                         className={cn(
-                          "text-[11px] uppercase tracking-[0.2em]",
-                          topic.cover_image ? "text-slate-600" : "text-slate-400"
+                          "text-[11px] uppercase tracking-[0.2em] font-medium",
+                          topic.cover_image ? "text-slate-700 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" : "text-slate-400"
                         )}
                       >
                         {t("module")}
                       </p>
                       <h2
                         className={cn(
-                          "text-base sm:text-lg font-semibold tracking-tight",
-                          topic.cover_image ? "text-slate-900 drop-shadow-sm" : "text-slate-900"
+                          "text-base sm:text-lg font-bold tracking-tight",
+                          topic.cover_image 
+                            ? "text-slate-900 drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)]" 
+                            : "text-slate-900"
                         )}
                       >
                         {topic.title}
@@ -185,8 +197,10 @@ export const CurriculumMatrix = ({
                   {topic.description && (
                     <p
                       className={cn(
-                        "text-sm max-w-2xl",
-                        topic.cover_image ? "text-slate-700" : "text-slate-600"
+                        "text-sm max-w-2xl font-medium",
+                        topic.cover_image 
+                          ? "text-slate-800 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" 
+                          : "text-slate-600"
                       )}
                     >
                       {topic.description}
@@ -195,7 +209,12 @@ export const CurriculumMatrix = ({
                 </div>
 
                 <div className="relative z-10 flex flex-wrap gap-3 md:items-center md:justify-end">
-                  <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-slate-200/80 rounded-xl px-3 py-2 shadow-sm">
+                  <div className={cn(
+                    "flex items-center gap-3 rounded-xl px-3 py-2 shadow-lg transition-all",
+                    topic.cover_image 
+                      ? "bg-white/95 backdrop-blur-md border border-white/90 ring-1 ring-white/50" 
+                      : "bg-slate-50 border border-slate-200"
+                  )}>
                     <div className="relative">
                       <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
                         <path
@@ -215,15 +234,18 @@ export const CurriculumMatrix = ({
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-800">
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-900">
                         {Math.round(topic.progressPercent)}%
                       </span>
                     </div>
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">
+                      <p className={cn(
+                        "text-[11px] uppercase tracking-[0.2em] font-medium",
+                        topic.cover_image ? "text-slate-600" : "text-slate-500"
+                      )}>
                         {t("progress")}
                       </p>
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-bold text-slate-900">
                         {topic.isCompleted ? t("completed") : t("in_progress")}
                       </p>
                     </div>
@@ -232,7 +254,12 @@ export const CurriculumMatrix = ({
                   {topic.topicId && onTopicClick && (
                     <Button
                       variant="secondary"
-                      className="rounded-xl bg-white/95 backdrop-blur-sm text-slate-900 hover:bg-white border border-slate-200/80 font-semibold px-4 py-3 shadow-sm"
+                      className={cn(
+                        "rounded-xl font-bold px-4 py-3 shadow-lg transition-all hover:scale-105",
+                        topic.cover_image
+                          ? "bg-white/95 backdrop-blur-md text-slate-900 hover:bg-white border border-white/90 ring-1 ring-white/50"
+                          : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
+                      )}
                       onClick={() => onTopicClick(topic.topicId!)}
                     >
                       {t("continue_topic")}
