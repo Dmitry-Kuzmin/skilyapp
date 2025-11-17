@@ -1813,9 +1813,9 @@ const TestSession = () => {
 
                 {/* Mastery Round Indicator */}
                 {mode === "mastery" && masteryRound > 1 && (
-                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-purple-500/10 backdrop-blur-md border border-purple-500/30 shadow-sm shrink-0">
-                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
-                    <span className="font-semibold text-xs sm:text-sm text-purple-600 dark:text-purple-400">
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-blue-500/10 backdrop-blur-md border border-blue-500/30 shadow-sm shrink-0">
+                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+                    <span className="font-semibold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
                       Раунд {masteryRound}
             </span>
                 </div>

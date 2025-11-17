@@ -110,12 +110,12 @@ const DailyBonusCard = ({
             
             {todayReward.badge && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-purple-500" />
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-blue-500" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Бейдж</p>
-                  <p className="font-bold text-purple-500">Награда!</p>
+                  <p className="font-bold text-blue-500">Награда!</p>
                 </div>
               </div>
             )}

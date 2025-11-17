@@ -47,7 +47,7 @@ export function DuelWidget({
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-blue-500 rounded-lg flex items-center justify-center">
                 <Swords className="w-4 h-4 text-white" />
               </div>
               <div>
@@ -111,7 +111,7 @@ export function DuelWidget({
           <Button
             onClick={onExpand}
             size="sm"
-            className="w-full h-8 text-xs font-bold bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
+            className="w-full h-8 text-xs font-bold bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
           >
             <Eye className="w-3 h-3 mr-1.5" />
             Развернуть игру

@@ -684,7 +684,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 </div>
                 <div className="relative w-24 h-2 bg-muted/50 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-full shadow-sm"
+                    className="h-full bg-gradient-to-r from-primary via-blue-500 to-pink-500 rounded-full shadow-sm"
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
                     transition={{ type: "spring", stiffness: 100, damping: 20 }}

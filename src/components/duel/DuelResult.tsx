@@ -482,13 +482,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           {/* Rewards Section - Ultra Modern Design */}
           {rewards && (
             <motion.div 
-              className="relative overflow-hidden bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 border-2 border-purple-500/30 rounded-2xl p-4 shadow-2xl"
+              className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-pink-500/10 to-orange-500/10 border-2 border-blue-500/30 rounded-2xl p-4 shadow-2xl"
               initial={{ y: 20, opacity: 0, scale: 0.95 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
             >
               {/* Animated background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-pink-500/5 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-pink-500/5 animate-pulse" />
               
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-2 mb-4">
@@ -496,9 +496,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                   >
-                    <Sparkles className="w-5 h-5 text-purple-500" />
+                    <Sparkles className="w-5 h-5 text-blue-500" />
                   </motion.div>
-                  <h3 className="font-black text-base bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
+                  <h3 className="font-black text-base bg-gradient-to-r from-blue-600 via-pink-600 to-orange-600 dark:from-blue-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
                     Награды
                   </h3>
                   <motion.div
@@ -512,17 +512,17 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 <div className="grid grid-cols-2 gap-3">
                   {/* Season Points (SP) */}
                   <motion.div 
-                    className="relative group bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-3 border-2 border-purple-500/40 shadow-lg overflow-hidden"
+                    className="relative group bg-gradient-to-br from-blue-500/20 to-pink-500/20 rounded-xl p-3 border-2 border-blue-500/40 shadow-lg overflow-hidden"
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.8 }}
                     whileHover={{ scale: 1.05 }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="relative flex flex-col items-center gap-1">
-                      <Star className="w-5 h-5 text-purple-500 mb-1" />
-                      <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">Season Points</span>
-                      <span className="text-xl font-black text-purple-700 dark:text-purple-300">
+                      <Star className="w-5 h-5 text-blue-500 mb-1" />
+                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Season Points</span>
+                      <span className="text-xl font-black text-blue-700 dark:text-blue-300">
                         +{rewards.sp}
                       </span>
                       {results.betAmount === 0 && (
@@ -553,7 +553,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 {/* Bonus Coins & Insurance */}
                 {(rewards.bonusCoins > 0 || rewards.insuranceRefund) && (
                   <motion.div 
-                    className="mt-3 pt-3 border-t border-purple-500/20"
+                    className="mt-3 pt-3 border-t border-blue-500/20"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.9 }}
@@ -594,18 +594,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7 }}
           >
-            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 p-3">
+            <Card className="bg-gradient-to-br from-blue-500/10 to-pink-500/10 border-blue-500/20 p-3">
               <div className="flex items-center gap-2 mb-2">
-                <Award className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                <Award className="w-4 h-4 text-blue-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-xs">Прогресс до Мастера</div>
                   <div className="text-[10px] text-muted-foreground">
                     Ещё {10 - (results.myCorrect || 0)} побед
                   </div>
                 </div>
-                <TrendingUp className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                <TrendingUp className="w-4 h-4 text-blue-500 flex-shrink-0" />
               </div>
-              <Progress value={(results.myCorrect || 0) * 10} className="h-2 bg-purple-500/20" />
+              <Progress value={(results.myCorrect || 0) * 10} className="h-2 bg-blue-500/20" />
             </Card>
           </motion.div>
 

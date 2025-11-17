@@ -35,7 +35,7 @@ const boostConfig = {
   },
   skip: {
     icon: SkipForward,
-    gradient: 'from-purple-400 via-pink-400 to-purple-500',
+    gradient: 'from-blue-400 via-pink-400 to-blue-500',
     glowColor: 'rgba(168, 85, 247, 0.4)',
     description: 'Пропуск: Пропускает текущий вопрос',
   },

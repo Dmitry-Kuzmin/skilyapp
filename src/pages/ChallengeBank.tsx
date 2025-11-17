@@ -184,10 +184,10 @@ const ChallengeBank = () => {
               </div>
             </Card>
 
-            <Card className="p-4 bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-2 border-purple-500/20">
+            <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-2 border-blue-500/20">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-purple-500" />
+                <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-blue-500" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.avg_wrong_count}</p>

@@ -1312,13 +1312,13 @@ Premium подписка включает все преимущества, оп�
                         className={cn(
                           "w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
                           isActive
-                            ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-500"
                             : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100"
                         )}
                       >
                         <Icon className={cn(
                           "w-4 h-4 flex-shrink-0",
-                          isActive ? "text-purple-600 dark:text-purple-400" : "text-gray-400 dark:text-gray-500"
+                          isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400 dark:text-gray-500"
                         )} />
                         <span className="truncate">{section.title}</span>
                       </button>
@@ -1335,8 +1335,8 @@ Premium подписка включает все преимущества, оп�
                   <div className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center gap-3 mb-3">
                       {currentSection.icon && (
-                        <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                          <currentSection.icon className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0 border border-blue-100 dark:border-blue-800/40">
+                          <currentSection.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                         </div>
                       )}
                       <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">{currentSection.title}</h1>
@@ -1387,7 +1387,7 @@ Premium подписка включает все преимущества, оп�
                                           <div className="inline-block min-w-full align-middle">
                                             {/* Заголовок */}
                                             <div className={cn(
-                                              "grid gap-3 px-6 py-4 bg-gradient-to-r from-purple-50 via-purple-50/50 to-blue-50 dark:from-purple-900/30 dark:via-purple-900/20 dark:to-blue-900/30 border-b border-gray-200/50 dark:border-gray-800/50",
+                                              "grid gap-3 px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-800",
                                               colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
                                             )}>
                                               {headerCells.map((cell, cellIdx) => (
@@ -1401,7 +1401,7 @@ Premium подписка включает все преимущества, оп�
                                               const cells = row.split('|').filter(c => c.trim()).map(c => c.trim());
                                               return (
                                                 <div key={rowIdx} className={cn(
-                                                  "grid gap-3 px-6 py-4 border-b border-gray-100/50 dark:border-gray-800/50 last:border-b-0 hover:bg-gradient-to-r hover:from-purple-50/30 hover:to-blue-50/30 dark:hover:from-purple-900/20 dark:hover:to-blue-900/20 transition-all duration-200",
+                                                  "grid gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 last:border-b-0 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-200",
                                                   colCount === 5 ? "grid-cols-5" : colCount === 4 ? "grid-cols-4" : colCount === 3 ? "grid-cols-3" : "grid-cols-2"
                                                 )}>
                                                   {cells.map((cell, cellIdx) => (
@@ -1455,7 +1455,7 @@ Premium подписка включает все преимущества, оп�
                                   const text = line.replace(/^[•\-\*]\s+/, '').replace(/\*\*/g, '');
                                   processedLines.push(
                                     <div key={idx} className="flex items-start gap-2 my-2">
-                                      <ChevronRight className="w-4 h-4 text-purple-500 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                                      <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                                       <span className="text-gray-700 dark:text-gray-300 flex-1">{text}</span>
                                     </div>
                                   );
@@ -1490,7 +1490,7 @@ Premium подписка включает все преимущества, оп�
                             <ul className="mt-4 space-y-2 list-none">
                               {subsection.items.map((item, idx) => (
                                 <li key={idx} className="flex items-start gap-2">
-                                  <ChevronRight className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-1 flex-shrink-0" />
+                                  <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" />
                                   <span className="text-gray-700 dark:text-gray-300">{item}</span>
                                 </li>
                               ))}
@@ -1519,7 +1519,7 @@ Premium подписка включает все преимущества, оп�
                             e.preventDefault();
                             document.getElementById(sub.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                           }}
-                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                         >
                           {sub.title}
                         </a>

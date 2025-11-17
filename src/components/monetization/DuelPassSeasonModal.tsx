@@ -52,7 +52,7 @@ const rarityLabelsMap: Record<string, string> = {
 const rarityColorsMap: Record<string, string> = {
   common: "text-slate-500",
   rare: "text-sky-500",
-  epic: "text-purple-500",
+  epic: "text-blue-500",
   legendary: "text-amber-500",
 };
 
@@ -1260,7 +1260,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
           <div className="relative h-3 bg-muted rounded-full overflow-hidden">
             <motion.div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-full"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-blue-500 to-primary rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -1326,8 +1326,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <BookOpen className="w-4 h-4 text-blue-500" />
             <span className="text-xs font-semibold">+25</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-purple-500/50 transition-colors">
-            <Trophy className="w-4 h-4 text-purple-500" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
+            <Trophy className="w-4 h-4 text-blue-500" />
             <span className="text-xs font-semibold">+30</span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-green-500/50 transition-colors">
@@ -1361,20 +1361,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             onClick={() => !hasPremiumForever && setShowPremiumSelector(true)}
             className={cn(
               "group relative overflow-hidden rounded-2xl border-2 transition-all duration-300",
-              "bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20",
-              "border-purple-500/30 hover:border-purple-500/50",
-              !hasPremiumForever && "cursor-pointer hover:shadow-2xl hover:shadow-purple-500/20",
+              "bg-gradient-to-br from-blue-500/20 via-pink-500/20 to-orange-500/20",
+              "border-blue-500/30 hover:border-blue-500/50",
+              !hasPremiumForever && "cursor-pointer hover:shadow-2xl hover:shadow-blue-500/20",
               "backdrop-blur-sm"
             )}
           >
             {/* Анимированный фон */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-pink-500/10 to-orange-500/10 opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(168,85,247,0.3),transparent_50%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(236,72,153,0.3),transparent_50%)]" />
             
             {/* Декоративные элементы */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/20 to-pink-500/20 rounded-full blur-2xl" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-400/20 to-pink-500/20 rounded-full blur-2xl" />
             
             <div className="relative p-4 md:p-6">
               {/* Заголовок и цена */}
@@ -1428,7 +1428,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         setShowPremiumSelector(true);
                       }}
                       size="lg"
-                      className="w-full md:w-auto bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 hover:from-purple-700 hover:via-pink-700 hover:to-orange-700 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 px-6 py-6 md:py-3"
+                      className="w-full md:w-auto bg-gradient-to-r from-blue-600 via-pink-600 to-orange-600 hover:from-blue-700 hover:via-pink-700 hover:to-orange-700 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 px-6 py-6 md:py-3"
                     >
                       <Sparkles className="w-5 h-5 md:w-4 md:h-4 mr-2" />
                       <span className="text-base md:text-sm">Купить за 7.99€</span>
@@ -1440,10 +1440,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               
               {/* Выгоды Premium Duel Pass */}
               {!hasPremiumForever && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-purple-500/20">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-blue-500/20">
                   <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                      <Gift className="w-4 h-4 text-purple-400" />
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-pink-500/20 flex items-center justify-center">
+                      <Gift className="w-4 h-4 text-blue-400" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-foreground">2x награды</p>
@@ -1462,7 +1462,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   </div>
                   
                   <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-blue-500/20 flex items-center justify-center">
                       <Zap className="w-4 h-4 text-pink-400" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -1783,7 +1783,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-              <Sparkles className="w-5 h-5 text-purple-500 mt-0.5 shrink-0" />
+              <Sparkles className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
               <div>
                 <h4 className="font-semibold mb-1 text-sm">Как получить SP?</h4>
                 <ul className="text-xs text-muted-foreground space-y-1">

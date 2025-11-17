@@ -86,7 +86,7 @@ export function ReferralWelcome({ referralCode, onAccept, onDecline }: ReferralW
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-indigo-500/20 backdrop-blur-md z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-gradient-to-br from-pink-500/20 via-blue-500/20 to-indigo-500/20 backdrop-blur-md z-50 flex items-center justify-center p-4"
       >
         <motion.div
           initial={{ scale: 0.8, y: 50 }}
@@ -97,7 +97,7 @@ export function ReferralWelcome({ referralCode, onAccept, onDecline }: ReferralW
         >
           <Card className="relative p-8 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl overflow-hidden">
             {/* Animated background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-blue-500/10 to-indigo-500/10 animate-pulse" />
             
             {/* Close button */}
             <button
@@ -119,7 +119,7 @@ export function ReferralWelcome({ referralCode, onAccept, onDecline }: ReferralW
                   repeat: Infinity,
                   repeatDelay: 1 
                 }}
-                className="w-20 h-20 mx-auto bg-gradient-to-br from-pink-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl"
+                className="w-20 h-20 mx-auto bg-gradient-to-br from-pink-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-xl"
               >
                 <Gift className="h-10 w-10 text-white" />
               </motion.div>
@@ -130,7 +130,7 @@ export function ReferralWelcome({ referralCode, onAccept, onDecline }: ReferralW
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
+                  className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-pink-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent"
                 >
                   Вас пригласил друг!
                 </motion.h2>
@@ -141,9 +141,9 @@ export function ReferralWelcome({ referralCode, onAccept, onDecline }: ReferralW
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
-                className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/30"
+                className="flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 to-blue-500/10 border border-pink-500/30"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
                   {referrerName.charAt(0).toUpperCase()}
                 </div>
                 <div className="text-left">
@@ -194,7 +194,7 @@ export function ReferralWelcome({ referralCode, onAccept, onDecline }: ReferralW
                   onClick={handleAccept}
                   disabled={accepting}
                   size="lg"
-                  className="w-full h-14 text-lg font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transition-all relative overflow-hidden group"
+                  className="w-full h-14 text-lg font-black bg-gradient-to-r from-pink-500 via-blue-600 to-indigo-600 hover:from-pink-600 hover:via-blue-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transition-all relative overflow-hidden group"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   {accepting ? (

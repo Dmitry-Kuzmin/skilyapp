@@ -57,7 +57,7 @@ export function DuelJoin({ onDuelJoined, onCancel }: DuelJoinProps) {
       <div className="max-w-md mx-auto animate-fade-in">
       <Card className="p-8 space-y-8 bg-gradient-to-br from-card to-primary/5 border-primary/20">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500/20 to-blue-500/20 rounded-full flex items-center justify-center mb-4">
             <LogIn className="h-8 w-8 text-primary" />
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">

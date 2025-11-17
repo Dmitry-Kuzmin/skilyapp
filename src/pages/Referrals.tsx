@@ -217,7 +217,7 @@ export default function Referrals() {
         >
           <div className="flex items-center justify-center gap-3">
             <Gift className="h-10 w-10 text-pink-500" />
-            <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-pink-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Пригласи друзей
             </h1>
           </div>
@@ -232,9 +232,9 @@ export default function Referrals() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="p-6 sm:p-8 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10 border-2 border-pink-500/30 relative overflow-hidden">
+          <Card className="p-6 sm:p-8 bg-gradient-to-br from-pink-500/10 via-blue-500/10 to-indigo-500/10 border-2 border-pink-500/30 relative overflow-hidden">
             {/* Background glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-indigo-500/20 blur-3xl opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-blue-500/20 to-indigo-500/20 blur-3xl opacity-50" />
             
             <div className="relative space-y-4">
               <div className="flex items-center gap-2">
@@ -248,13 +248,13 @@ export default function Referrals() {
               >
                 <div className="bg-white/90 dark:bg-background/90 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border-2 border-pink-500/40 shadow-xl">
                   <div className="text-xs text-muted-foreground text-center mb-2 uppercase tracking-wide">Ваш код</div>
-                  <div className="text-4xl sm:text-5xl font-black tracking-wider text-center bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  <div className="text-4xl sm:text-5xl font-black tracking-wider text-center bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
                     {referralData?.referral_code || 'LOADING'}
                   </div>
                 </div>
                 
                 {/* Referral Link Display */}
-                <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 backdrop-blur-sm p-4 rounded-xl border-2 border-pink-500/30">
+                <div className="bg-gradient-to-r from-pink-500/10 to-blue-500/10 backdrop-blur-sm p-4 rounded-xl border-2 border-pink-500/30">
                   <div className="text-xs text-muted-foreground mb-2 uppercase tracking-wide flex items-center gap-2">
                     <Sparkles className="h-3 w-3" />
                     Персональная страница приглашения
@@ -290,7 +290,7 @@ export default function Referrals() {
                   <Button
                     onClick={handleShare}
                     size="lg"
-                    className="flex-1 font-bold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                    className="flex-1 font-bold bg-gradient-to-r from-pink-500 to-blue-600 hover:from-pink-600 hover:to-blue-700"
                   >
                     <Share2 className="mr-2 h-5 w-5" />
                     Поделиться
@@ -369,7 +369,7 @@ export default function Referrals() {
         >
           <Card className="p-6">
             <h3 className="text-lg font-black mb-4 flex items-center gap-2">
-              <Users className="h-5 w-5 text-purple-500" />
+              <Users className="h-5 w-5 text-blue-500" />
               Ваши рефералы ({referredUsers.length})
             </h3>
             
@@ -391,7 +391,7 @@ export default function Referrals() {
                       className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 border border-border/50"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-blue-600 flex items-center justify-center text-white font-bold">
                           {referred.first_name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -485,7 +485,7 @@ export default function Referrals() {
           <Button
             onClick={handleShare}
             size="lg"
-            className="w-full h-14 text-lg font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-pink-500/50 transition-all relative overflow-hidden group"
+            className="w-full h-14 text-lg font-black bg-gradient-to-r from-pink-500 via-blue-600 to-indigo-600 hover:from-pink-600 hover:via-blue-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-pink-500/50 transition-all relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             <Share2 className="mr-2 h-6 w-6 relative z-10" />

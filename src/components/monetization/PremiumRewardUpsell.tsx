@@ -184,7 +184,7 @@ export function PremiumRewardUpsell({
                   )}
                   
                   {reward.premium_reward.type === "boost" && (
-                    <div className="w-24 h-24 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-500 to-blue-500 shadow-2xl">
+                    <div className="w-24 h-24 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-500 shadow-2xl">
                       <Zap className="w-12 h-12 text-white" />
                     </div>
                   )}
@@ -204,7 +204,7 @@ export function PremiumRewardUpsell({
                       <div className="flex items-center justify-center gap-1 pt-1">
                         <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                           rewardData.rarity === "legendary" ? "bg-yellow-500/20 text-yellow-700 border border-yellow-500/30" :
-                          rewardData.rarity === "epic" ? "bg-purple-500/20 text-purple-700 border border-purple-500/30" :
+                          rewardData.rarity === "epic" ? "bg-blue-500/20 text-blue-700 border border-blue-500/30" :
                           rewardData.rarity === "rare" ? "bg-blue-500/20 text-blue-700 border border-blue-500/30" :
                           "bg-gray-500/20 text-gray-700 border border-gray-500/30"
                         }`}>

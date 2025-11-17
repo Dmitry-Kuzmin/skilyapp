@@ -39,10 +39,10 @@ const rarityColors = {
     glow: "shadow-blue-500/50",
   },
   epic: {
-    bg: "bg-purple-500/20",
-    border: "border-purple-500",
-    text: "text-purple-700",
-    glow: "shadow-purple-500/50",
+    bg: "bg-blue-500/20",
+    border: "border-blue-500",
+    text: "text-blue-700",
+    glow: "shadow-blue-500/50",
   },
   legendary: {
     bg: "bg-yellow-500/20",

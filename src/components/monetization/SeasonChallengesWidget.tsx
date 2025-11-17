@@ -222,7 +222,7 @@ export function SeasonChallengesWidget() {
                   </Badge>
                 )}
                 {challenge.challenge_type === 'weekly' && (
-                  <Badge className="text-[10px] bg-purple-500/10 text-purple-600 border-purple-500/20">
+                  <Badge className="text-[10px] bg-blue-500/10 text-blue-600 border-blue-500/20">
                     Неделя
                   </Badge>
                 )}
@@ -252,7 +252,7 @@ export function SeasonChallengesWidget() {
                 
                 {/* Награды */}
                 <div className="flex items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1 text-purple-600">
+                  <div className="flex items-center gap-1 text-blue-600">
                     <Trophy className="w-3 h-3" />
                     <span className="font-semibold">+{challenge.reward_sp} SP</span>
                   </div>

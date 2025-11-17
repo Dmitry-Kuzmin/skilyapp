@@ -130,8 +130,8 @@ export const TestSettingsMenu = ({
           {/* Ambient music */}
           <div className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-muted/30 transition-colors">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-md bg-purple-500/10 flex items-center justify-center">
-                <Music className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <div className="w-8 h-8 rounded-md bg-blue-500/10 flex items-center justify-center">
+                <Music className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
               <span className="font-medium text-sm">Музыка</span>
             </div>

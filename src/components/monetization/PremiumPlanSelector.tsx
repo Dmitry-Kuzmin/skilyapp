@@ -57,7 +57,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
       priceStars: PRICES.lifetime.stars,
       badge: 'ПОПУЛЯРНО',
       badgeColor: 'bg-gradient-to-r from-yellow-500 to-orange-500',
-      gradient: 'from-purple-500 via-pink-500 to-red-500',
+      gradient: 'from-blue-500 via-indigo-500 to-blue-600',
       features: [
         'Все функции навсегда',
         'Автоматический Duel Pass каждый сезон',

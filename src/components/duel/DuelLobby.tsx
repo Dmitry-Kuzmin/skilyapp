@@ -170,10 +170,10 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
           {/* Header - упрощено */}
           <div className="space-y-2">
-            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-primary via-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-primary via-blue-500 to-pink-500 rounded-xl flex items-center justify-center">
               <Users className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-blue-500 to-pink-500 bg-clip-text text-transparent">
               Ожидание соперника
             </h2>
             <p className="text-muted-foreground text-xs">Поделитесь кодом с другом</p>
@@ -182,7 +182,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
           {/* Code Display - упрощено, без лишних обёрток */}
           <div className="py-4">
             <div className="bg-card p-6 rounded-xl border-2 border-primary/30">
-              <div className="text-4xl font-black tracking-[0.2em] mb-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <div className="text-4xl font-black tracking-[0.2em] mb-2 bg-gradient-to-r from-primary via-blue-500 to-pink-500 bg-clip-text text-transparent">
                 {duelCode}
               </div>
               <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground font-semibold uppercase">
@@ -208,7 +208,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
               <Button
                 onClick={handleShare}
                 size="lg"
-                className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-primary to-purple-500"
+                className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-primary to-blue-500"
               >
                 <Share2 className="mr-2 h-4 w-4" />
                 Поделиться

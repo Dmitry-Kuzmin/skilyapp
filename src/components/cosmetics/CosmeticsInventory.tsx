@@ -76,7 +76,7 @@ interface UserSticker {
 const rarityColors = {
   common: "bg-gray-500/20 text-gray-700 border-gray-500/30",
   rare: "bg-blue-500/20 text-blue-700 border-blue-500/30",
-  epic: "bg-purple-500/20 text-purple-700 border-purple-500/30",
+  epic: "bg-blue-500/20 text-blue-700 border-blue-500/30",
   legendary: "bg-yellow-500/20 text-yellow-700 border-yellow-500/30",
 };
 

@@ -90,7 +90,7 @@ const WeeklyCalendar = ({ currentStreak, weeklyRewards }: WeeklyCalendarProps) =
                 {/* Special badge indicator */}
                 {dayReward.reward.badge && (
                   <div className="absolute -top-1 -right-1">
-                    <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
                       <Crown className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                     </div>
                   </div>

@@ -703,17 +703,17 @@ const TestResults = () => {
                     </div>
                   )}
                   {rewards.sp && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                      <Trophy className="w-5 h-5 text-purple-500" />
-                      <span className="font-semibold text-purple-600 dark:text-purple-500">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <Trophy className="w-5 h-5 text-blue-500" />
+                      <span className="font-semibold text-blue-600 dark:text-blue-500">
                         +{rewards.sp} SP
                       </span>
                     </div>
                   )}
                   {rewards.levelUp && rewards.newLevel && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30">
-                      <Sparkles className="w-5 h-5 text-purple-500" />
-                      <span className="font-semibold text-purple-600 dark:text-purple-500">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30">
+                      <Sparkles className="w-5 h-5 text-blue-500" />
+                      <span className="font-semibold text-blue-600 dark:text-blue-500">
                         🎉 Уровень {rewards.newLevel}!
                       </span>
                     </div>

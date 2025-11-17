@@ -1583,7 +1583,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                     />
                   </div>
                 ) : (
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
                     <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
                 )}
@@ -1709,9 +1709,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 </div>
                 
                 {/* SP награда - компактный индикатор */}
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 dark:bg-purple-500/15 border border-purple-400/20">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-                  <span className="text-xs font-bold text-purple-700 dark:text-purple-400 whitespace-nowrap">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/15 border border-blue-400/20">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                  <span className="text-xs font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                     +{seasonBonusDisplay}
                   </span>
                 </div>
@@ -1759,7 +1759,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 fifty_fifty: { icon: Sparkles, label: '50/50', gradient: 'from-yellow-400 via-orange-400 to-orange-500', bg: 'bg-gradient-to-br from-yellow-400/90 to-orange-500/90' },
                 time_extend: { icon: Timer, label: '+30s', gradient: 'from-blue-400 via-cyan-400 to-cyan-500', bg: 'bg-gradient-to-br from-blue-400/90 to-cyan-500/90' },
                 hint: { icon: HelpCircle, label: 'Hint', gradient: 'from-orange-400 via-amber-400 to-amber-500', bg: 'bg-gradient-to-br from-orange-400/90 to-amber-500/90' },
-                skip: { icon: SkipForward, label: 'Skip', gradient: 'from-purple-400 via-pink-400 to-pink-500', bg: 'bg-gradient-to-br from-purple-400/90 to-pink-500/90' },
+                skip: { icon: SkipForward, label: 'Skip', gradient: 'from-blue-400 via-indigo-400 to-indigo-500', bg: 'bg-gradient-to-br from-blue-400/90 to-indigo-500/90' },
                 translate: { icon: Globe, label: 'Translate', gradient: 'from-green-400 via-emerald-400 to-emerald-500', bg: 'bg-gradient-to-br from-green-400/90 to-emerald-500/90' },
               }[boost.boost_type] || { icon: Zap, label: boost.boost_type, gradient: 'from-gray-500 to-gray-600', bg: 'bg-gradient-to-br from-gray-500/90 to-gray-600/90' };
               

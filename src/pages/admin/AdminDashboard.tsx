@@ -140,8 +140,8 @@ export function AdminDashboard() {
       description: "Синхронизация с Google Sheets",
       icon: Database,
       path: "/admin/sync",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+      color: "text-blue-600",
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
       delay: 0.3,
     },
     {
@@ -219,8 +219,8 @@ export function AdminDashboard() {
           title="Вопросы"
           value={stats.questions}
           icon={FileQuestion}
-          iconColor="text-purple-600"
-          iconBgColor="bg-purple-50 dark:bg-purple-900/20"
+          iconColor="text-blue-600"
+          iconBgColor="bg-blue-50 dark:bg-blue-900/20"
           description="Тестовых вопросов"
         />
         <StatsWidget

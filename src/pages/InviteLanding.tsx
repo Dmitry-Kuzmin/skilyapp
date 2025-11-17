@@ -164,7 +164,7 @@ export default function InviteLanding() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-indigo-950/20 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-indigo-50 dark:from-pink-950/20 dark:via-blue-950/20 dark:to-indigo-950/20 flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 text-center">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
           <p className="text-muted-foreground">Загрузка...</p>
@@ -175,7 +175,7 @@ export default function InviteLanding() {
 
   if (!userStats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-indigo-950/20 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-indigo-50 dark:from-pink-950/20 dark:via-blue-950/20 dark:to-indigo-950/20 flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 text-center">
           <p className="text-destructive">Пользователь не найден</p>
         </Card>
@@ -186,7 +186,7 @@ export default function InviteLanding() {
   const userName = userStats.first_name || userStats.username || 'Пользователь';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-indigo-950/20 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-indigo-50 dark:from-pink-950/20 dark:via-blue-950/20 dark:to-indigo-950/20 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -205,7 +205,7 @@ export default function InviteLanding() {
             opacity: [0.1, 0.2, 0.1]
           }}
           transition={{ duration: 25, repeat: Infinity, delay: 5 }}
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full blur-3xl"
         />
       </div>
 
@@ -219,12 +219,12 @@ export default function InviteLanding() {
           <motion.div
             animate={{ rotate: [0, -5, 5, 0] }}
             transition={{ duration: 3, repeat: Infinity }}
-            className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-br from-pink-500 via-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl"
+            className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 bg-gradient-to-br from-pink-500 via-blue-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl"
           >
             <div className="text-5xl sm:text-6xl">🚗</div>
           </motion.div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-pink-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
             {userName} приглашает тебя<br />учить ПДД!
           </h1>
           
@@ -242,7 +242,7 @@ export default function InviteLanding() {
         >
           <Card className="p-6 sm:p-8 bg-white/80 dark:bg-background/80 backdrop-blur-xl border-2 border-pink-500/30 shadow-2xl">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-black text-3xl sm:text-4xl shadow-lg">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-pink-500 to-blue-600 flex items-center justify-center text-white font-black text-3xl sm:text-4xl shadow-lg">
                 {userName.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -272,11 +272,11 @@ export default function InviteLanding() {
 
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-pink-500/10 border border-blue-500/30"
                 >
-                  <Zap className="h-8 w-8 text-purple-500" />
+                  <Zap className="h-8 w-8 text-blue-500" />
                   <div>
-                    <div className="text-2xl font-black text-purple-600 dark:text-purple-400">
+                    <div className="text-2xl font-black text-blue-600 dark:text-blue-400">
                       {userStats.xp.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">Набрал XP</div>
@@ -364,7 +364,7 @@ export default function InviteLanding() {
                     <p className="font-bold">+100 монет для {userName} когда ты заработаешь 50</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-500" />
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
                     <p className="font-bold">Доступ ко всем играм и тестам</p>
                   </div>
                 </div>
@@ -410,7 +410,7 @@ export default function InviteLanding() {
             onClick={handleJoin}
             disabled={accepting}
             size="lg"
-            className="w-full h-16 text-xl font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-pink-500/50 transition-all relative overflow-hidden group"
+            className="w-full h-16 text-xl font-black bg-gradient-to-r from-pink-500 via-blue-600 to-indigo-600 hover:from-pink-600 hover:via-blue-700 hover:to-indigo-700 text-white shadow-2xl hover:shadow-pink-500/50 transition-all relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
             

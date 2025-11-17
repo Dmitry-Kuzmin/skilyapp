@@ -174,7 +174,7 @@ const Layout = ({ children }: LayoutProps) => {
                       isActive
                         ? "bg-primary text-primary-foreground shadow-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                      (item as any).isActiveDuel && "bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20"
+                      (item as any).isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
                     )
                   }
                 >
@@ -283,7 +283,7 @@ const Layout = ({ children }: LayoutProps) => {
                   isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground",
-                  (item as any).isActiveDuel && "bg-gradient-to-b from-primary/10 to-purple-500/10"
+                  (item as any).isActiveDuel && "bg-gradient-to-b from-primary/10 to-blue-500/10"
                 )}
               >
                 <item.icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />

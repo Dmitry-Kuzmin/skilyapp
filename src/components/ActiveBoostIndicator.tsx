@@ -86,7 +86,7 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-lg border shadow-lg",
               boost.type === 'double_sp' 
-                ? "bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400"
+                ? "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400"
                 : "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400",
               className
             )}

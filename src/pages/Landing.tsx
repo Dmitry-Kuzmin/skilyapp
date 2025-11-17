@@ -109,8 +109,8 @@ const Landing = () => {
       icon: Brain,
       title: "AI помощник",
       description: "Задавайте вопросы и получайте мгновенные ответы на русском и испанском языках",
-      gradient: "from-purple-500 to-pink-500",
-      bgGradient: "from-purple-500/10 via-pink-500/5 to-purple-500/10"
+      gradient: "from-blue-500 to-pink-500",
+      bgGradient: "from-blue-500/10 via-pink-500/5 to-blue-500/10"
     },
     {
       icon: Gamepad2,
@@ -137,8 +137,8 @@ const Landing = () => {
       icon: MessageSquare,
       title: "Дуэли и соревнования",
       description: "Соревнуйтесь с друзьями в реальном времени и улучшайте свои навыки",
-      gradient: "from-indigo-500 to-purple-500",
-      bgGradient: "from-indigo-500/10 via-purple-500/5 to-indigo-500/10"
+      gradient: "from-indigo-500 to-blue-500",
+      bgGradient: "from-indigo-500/10 via-blue-500/5 to-indigo-500/10"
     },
     {
       icon: Shield,
@@ -833,7 +833,7 @@ const Landing = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {[
-              { icon: Brain, title: "AI адаптивность", desc: "Становится умнее вместе с вами", gradient: "from-purple-500 to-pink-500" },
+              { icon: Brain, title: "AI адаптивность", desc: "Становится умнее вместе с вами", gradient: "from-blue-500 to-pink-500" },
               { icon: Target, title: "Высококачественные изображения", desc: "Для более эффективного визуального обучения", gradient: "from-blue-500 to-cyan-500" },
               { icon: Gamepad2, title: "Игровые элементы", desc: "Делают обучение увлекательным", gradient: "from-green-500 to-emerald-500" },
               { icon: TrendingUp, title: "Отслеживание прогресса", desc: "Показывает, насколько вы круты", gradient: "from-orange-500 to-red-500" }

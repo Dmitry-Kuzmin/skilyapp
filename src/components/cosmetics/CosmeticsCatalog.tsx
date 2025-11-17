@@ -83,10 +83,10 @@ const rarityColors = {
     glow: "shadow-blue-500/20",
   },
   epic: {
-    bg: "bg-purple-500/10",
-    text: "text-purple-700 dark:text-purple-300",
-    border: "border-purple-500/30",
-    glow: "shadow-purple-500/20",
+    bg: "bg-blue-500/10",
+    text: "text-blue-700 dark:text-blue-300",
+    border: "border-blue-500/30",
+    glow: "shadow-blue-500/20",
   },
   legendary: {
     bg: "bg-gradient-to-br from-yellow-500/20 to-orange-500/20",
@@ -106,7 +106,7 @@ const rarityLabels = {
 const rarityGradients = {
   common: "from-gray-400 to-gray-600",
   rare: "from-blue-400 to-blue-600",
-  epic: "from-purple-400 to-purple-600",
+  epic: "from-blue-400 to-blue-600",
   legendary: "from-yellow-400 via-orange-400 to-yellow-600",
 };
 
@@ -213,7 +213,7 @@ export function CosmeticsCatalog() {
     }
     
     if ('category' in item && item.category === 'seasonal') {
-      return { icon: Calendar, text: "Duel Pass", color: "text-purple-500" };
+      return { icon: Calendar, text: "Duel Pass", color: "text-blue-500" };
     }
     
     if ('category' in item && item.category === 'achievement') {
@@ -306,7 +306,7 @@ export function CosmeticsCatalog() {
                           "w-full aspect-square rounded-xl flex items-center justify-center text-6xl font-extrabold text-white relative overflow-hidden group/skin",
                           "shadow-2xl",
                           skin.rarity === "legendary" && "shadow-yellow-500/50",
-                          skin.rarity === "epic" && "shadow-purple-500/50",
+                          skin.rarity === "epic" && "shadow-blue-500/50",
                           skin.rarity === "rare" && "shadow-blue-500/50",
                           skin.metadata.animated && "animate-pulse"
                         )}
@@ -356,7 +356,7 @@ export function CosmeticsCatalog() {
                         <div className={cn(
                           "absolute inset-0 rounded-xl border-2 opacity-50",
                           skin.rarity === "legendary" && "border-yellow-400/50",
-                          skin.rarity === "epic" && "border-purple-400/50",
+                          skin.rarity === "epic" && "border-blue-400/50",
                           skin.rarity === "rare" && "border-blue-400/50",
                           skin.rarity === "common" && "border-gray-400/50"
                         )} />
@@ -471,7 +471,7 @@ export function CosmeticsCatalog() {
                           "w-full aspect-square rounded-2xl flex items-center justify-center relative overflow-hidden group/badge",
                           "shadow-xl",
                           badge.rarity === "legendary" && "bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-yellow-500/20 shadow-yellow-500/30",
-                          badge.rarity === "epic" && "bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-purple-500/20 shadow-purple-500/30",
+                          badge.rarity === "epic" && "bg-gradient-to-br from-blue-500/20 via-pink-500/20 to-blue-500/20 shadow-blue-500/30",
                           badge.rarity === "rare" && "bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-blue-500/20 shadow-blue-500/30",
                           badge.rarity === "common" && "bg-gradient-to-br from-gray-500/20 via-gray-400/20 to-gray-500/20"
                         )}
@@ -493,7 +493,7 @@ export function CosmeticsCatalog() {
                               className={cn(
                                 "w-24 h-24 drop-shadow-2xl",
                                 badge.rarity === "legendary" && "text-yellow-400",
-                                badge.rarity === "epic" && "text-purple-400",
+                                badge.rarity === "epic" && "text-blue-400",
                                 badge.rarity === "rare" && "text-blue-400",
                                 badge.rarity === "common" && "text-gray-400"
                               )}
@@ -536,7 +536,7 @@ export function CosmeticsCatalog() {
                         <div className={cn(
                           "absolute -inset-1 rounded-2xl opacity-0 group-hover/badge:opacity-100 transition-opacity duration-500 blur-sm",
                           badge.rarity === "legendary" && "bg-yellow-400",
-                          badge.rarity === "epic" && "bg-purple-400",
+                          badge.rarity === "epic" && "bg-blue-400",
                           badge.rarity === "rare" && "bg-blue-400"
                         )} />
                       </motion.div>
@@ -656,7 +656,7 @@ export function CosmeticsCatalog() {
                           "w-full aspect-square rounded-2xl flex items-center justify-center relative overflow-hidden group/sticker",
                           "shadow-lg",
                           sticker.rarity === "legendary" && "bg-gradient-to-br from-yellow-400/30 via-orange-400/30 to-yellow-400/30 shadow-yellow-500/40",
-                          sticker.rarity === "epic" && "bg-gradient-to-br from-purple-400/30 via-pink-400/30 to-purple-400/30 shadow-purple-500/40",
+                          sticker.rarity === "epic" && "bg-gradient-to-br from-blue-400/30 via-pink-400/30 to-blue-400/30 shadow-blue-500/40",
                           sticker.rarity === "rare" && "bg-gradient-to-br from-blue-400/30 via-cyan-400/30 to-blue-400/30 shadow-blue-500/40",
                           sticker.rarity === "common" && "bg-gradient-to-br from-gray-300/30 via-gray-200/30 to-gray-300/30"
                         )}
@@ -688,7 +688,7 @@ export function CosmeticsCatalog() {
                         <div className={cn(
                           "absolute inset-0 rounded-2xl border-2 opacity-30",
                           sticker.rarity === "legendary" && "border-yellow-400",
-                          sticker.rarity === "epic" && "border-purple-400",
+                          sticker.rarity === "epic" && "border-blue-400",
                           sticker.rarity === "rare" && "border-blue-400",
                           sticker.rarity === "common" && "border-gray-400"
                         )} />

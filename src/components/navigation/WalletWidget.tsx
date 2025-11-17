@@ -128,8 +128,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           >
             {/* Season Points */}
             <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                <span className="text-[10px] font-bold text-purple-400">S</span>
+              <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
+                <span className="text-[10px] font-bold text-blue-400">S</span>
               </div>
               <span className="text-xs font-semibold text-foreground">{duelPassData.xp}</span>
             </div>

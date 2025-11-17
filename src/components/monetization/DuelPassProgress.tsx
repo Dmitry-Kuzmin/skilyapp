@@ -366,7 +366,7 @@ export function DuelPassProgress() {
                       size="sm"
                       onClick={() => claimReward(reward.level)}
                       disabled={claimingLevel === reward.level}
-                      className="ml-3 bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90"
+                      className="ml-3 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
                     >
                       {claimingLevel === reward.level ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
