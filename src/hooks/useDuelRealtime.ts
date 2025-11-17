@@ -66,20 +66,12 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
             if (opponent) {
               const newScore = typeof opponent.score === 'number' ? opponent.score : undefined;
               const newCorrectCount = typeof opponent.correct_count === 'number' ? opponent.correct_count : undefined;
-              // УБРАНО: Защита от обновления на 0 - она блокировала валидные обновления
-              // Доверяем данным из БД как источнику истины
-              if (newScore !== undefined) {
+              if (newScore !== undefined || newCorrectCount !== undefined) {
                 console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore);
-                setState(prev => ({
-                  ...prev,
-                  opponentScore: newScore,
+                setState(prev => ({ 
+                  ...prev, 
+                  opponentScore: newScore !== undefined ? newScore : prev.opponentScore,
                   opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount
-                }));
-              } else if (newCorrectCount !== undefined) {
-                // Обновляем только correctCount если score невалидный
-                setState(prev => ({
-                  ...prev,
-                  opponentCorrectCount: newCorrectCount
                 }));
               }
             }
@@ -204,9 +196,18 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               }
             }
           } else {
-            // myPlayerId не установлен - НЕ обновляем счет, так как не можем определить соперника
-            // Это предотвращает обновление счета на 0 или неправильное значение
-            console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, skipping score update (cannot determine opponent)');
+            // myPlayerId не установлен - обновляем opponentScore как fallback
+            console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, using fallback logic');
+            if (typeof updatedPlayer.score === 'number') {
+              console.log('[useDuelRealtime] ✅ Updating score (fallback):', updatedPlayer.score);
+            setState(prev => ({ 
+              ...prev, 
+                opponentScore: updatedPlayer.score,
+                opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
+                  ? updatedPlayer.correct_count 
+                  : prev.opponentCorrectCount
+            }));
+            }
           }
         }
       )

@@ -176,24 +176,14 @@ serve(async (req) => {
     // Проверяем Premium Pass для бонуса +20% SP
     const { data: profile } = await supabase
       .from("profiles")
-      .select("premium_until, trial_until, premium_forever_purchased_at, subscription_type, subscription_status")
+      .select("premium_until, trial_until")
       .eq("id", user_id)
       .single();
 
     const now = new Date();
-    
-    // Проверяем Premium Forever (lifetime)
-    const hasPremiumForever = 
-      !!profile?.premium_forever_purchased_at &&
-      profile.subscription_type === 'lifetime' &&
-      profile.subscription_status === 'pro';
-    
-    // Проверяем обычный Premium (по подписке или trial)
-    const hasPremiumSubscription =
+    const isPremium =
       (profile?.premium_until && new Date(profile.premium_until) > now) ||
       (profile?.trial_until && new Date(profile.trial_until) > now);
-    
-    const isPremium = hasPremiumForever || hasPremiumSubscription;
 
     // Проверяем, есть ли Premium Pass для сезона
     const { data: seasonProgress } = await supabase

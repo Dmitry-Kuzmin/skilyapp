@@ -325,5 +325,3 @@ export function DuelJoinModal({ open, onClose, onDuelJoined }: DuelJoinModalProp
     </>
   );
 }
-
-export default DuelJoinModal;

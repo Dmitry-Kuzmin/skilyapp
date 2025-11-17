@@ -9,18 +9,14 @@ import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
-import { useDuelTimers } from '@/hooks/useDuelTimers';
-import { useOpponentScoreSync } from '@/hooks/useOpponentScoreSync';
-import { useDuelTransitions } from '@/hooks/useDuelTransitions';
-import { loadDuelQuestions } from '@/utils/duelQuestions';
-import { checkDuelStatus } from '@/utils/duelStatus';
-import { DUEL_TIMINGS, DUEL_CONFIG } from '@/constants/duel';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { NotificationToast } from '@/components/NotificationToast';
+import { DuelWaitingReplay } from './DuelWaitingReplay';
+import { DuelWidget } from './DuelWidget';
 import Layout from '@/components/Layout';
 import { getImageUrl } from '@/utils/imageUtils';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
@@ -57,7 +53,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
   const [duelCode, setDuelCode] = useState<string | null>(null);
-  const { setTimeout, setInterval, clearTimeout, clearInterval } = useDuelTimers();
   
   // Initialize notifications for this duel
   useNotifications({ showToasts: true, playSounds: true });
@@ -67,13 +62,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(DUEL_CONFIG.QUESTION_TIME_MS);
+  const [timeLeft, setTimeLeft] = useState(60000);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [myScore, setMyScore] = useState(0);
-  const [initialOpponentScore, setInitialOpponentScore] = useState<number | undefined>(undefined);
-  // Используем хук для синхронизации счета соперника
-  const opponentScore = useOpponentScoreSync(duelId, myPlayerId, state.duelStarted, initialOpponentScore);
+  const [opponentScore, setOpponentScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [boosts, setBoosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +82,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
   const [hasFinishedMyQuestions, setHasFinishedMyQuestions] = useState(false);
   const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
+  const isVerifyingRef = useRef(false);
+  const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
   const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
@@ -238,7 +233,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     loadBetInfo();
   }, [duelId, profileId]);
 
-  // Heartbeat каждые 5 секунд для отслеживания активности
+  // ОПТИМИЗАЦИЯ: Heartbeat увеличен до 15 секунд (было 5) для экономии Edge Function вызовов
+  // Realtime подписка уже отслеживает активность, heartbeat нужен только как fallback
   useEffect(() => {
     if (!duelId || !profileId || !state.duelStarted) return;
     
@@ -261,10 +257,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       } catch (error) {
         console.error('[DuelBattleFullscreen] Heartbeat exception:', error);
       }
-    }, 5000);
+    }, 15000); // Увеличено с 5 до 15 секунд для экономии запросов
     
     return () => clearInterval(heartbeatInterval);
-  }, [duelId, profileId, state.duelStarted, setInterval, clearInterval]);
+  }, [duelId, profileId, state.duelStarted]);
 
   // Синхронизация статуса активности из Realtime
   useEffect(() => {
@@ -429,16 +425,205 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       const isCorrect = state.opponentAnswerData.is_correct;
       const points = state.opponentAnswerData.points_awarded || 0;
       
+      // Обновляем счет сразу после ответа соперника
+      // Realtime должен обновить счет автоматически, но на всякий случай обновляем напрямую
+      if (state.opponentScore !== opponentScore) {
+        setOpponentScore(state.opponentScore);
+      }
+      
       // NOTE: Уведомления показываются через useNotifications hook
       // Не нужно дублировать toast-уведомления здесь, чтобы избежать дублирования
       // Звук также играется в useNotifications
-      // Счет соперника обновляется автоматически через useOpponentScoreSync хук
     }
-  }, [state.opponentAnswered, state.opponentAnswerData, opponentName]);
+  }, [state.opponentAnswered, state.opponentAnswerData, state.opponentScore, opponentScore, opponentName]);
 
-  // Используем хук для управления переходами (заменяет все useEffect для переходов к результатам)
-  // Вызывается после определения isWaitingForOpponent и hasFinishedMyQuestions
-  useDuelTransitions(duelId, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished);
+  // Handle duel completion - CRITICAL: Verify opponent actually finished before transitioning
+  useEffect(() => {
+    if (state.duelFinished && isWaitingForOpponent && !isVerifyingRef.current) {
+      // Realtime hook detected finished status - VERIFY opponent actually completed before transitioning
+      console.log('[DuelBattleFullscreen] Realtime detected finished status - verifying opponent completed');
+      
+      // Prevent multiple simultaneous verifications
+      isVerifyingRef.current = true;
+      
+      const verifyAndTransition = async () => {
+        try {
+          // Get opponent's player ID
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('id, user_id')
+            .eq('duel_id', duelId);
+
+          if (!players || players.length < 2) {
+            console.log('[DuelBattleFullscreen] Not enough players, ignoring');
+            return;
+          }
+
+          const opponent = players.find((p: any) => p.user_id !== profileId);
+          if (!opponent) {
+            console.log('[DuelBattleFullscreen] Opponent not found, ignoring');
+            return;
+          }
+
+          // Get required number of questions
+          const { data: duelInfo } = await supabase
+            .from('duels')
+            .select('num_questions')
+            .eq('id', duelId)
+            .single();
+
+          const requiredAnswers = duelInfo?.num_questions || 10;
+
+          // Count opponent's actual answers
+          const { count: opponentAnswers } = await supabase
+            .from('duel_answers')
+            .select('*', { count: 'exact', head: true })
+            .eq('player_id', opponent.id)
+            .eq('duel_id', duelId);
+
+          console.log('[DuelBattleFullscreen] Verification:', {
+            opponentAnswers: opponentAnswers || 0,
+            required: requiredAnswers,
+            canTransition: (opponentAnswers || 0) >= requiredAnswers
+          });
+
+          // Only transition if opponent really finished
+          if ((opponentAnswers || 0) >= requiredAnswers) {
+            console.log('[DuelBattleFullscreen] ✅ Opponent finished all questions, transitioning to results');
+            isVerifyingRef.current = false; // Reset before transition
+            sounds.victory();
+            toast.success('🏁 Соперник закончил! Смотрите результаты', { duration: 3000 });
+            setTimeout(() => {
+              onDuelFinished();
+            }, 1000);
+          } else {
+            console.log('[DuelBattleFullscreen] ⚠️ Status is finished but opponent hasn\'t completed - staying on waiting screen');
+            // Don't transition - stay on waiting screen
+            isVerifyingRef.current = false; // Reset for next check
+          }
+        } catch (error) {
+          console.error('[DuelBattleFullscreen] Error verifying opponent completion:', error);
+          // On error, don't transition - better to wait than transition prematurely
+          isVerifyingRef.current = false; // Reset on error
+        }
+      };
+
+      verifyAndTransition();
+    }
+    
+    // CRITICAL BACKUP: If we're waiting for opponent and duel is finished, force transition
+    // This ensures transition even if DuelWaitingReplay doesn't detect it
+    if (state.duelFinished && isWaitingForOpponent && hasFinishedMyQuestions) {
+      console.log('[DuelBattleFullscreen] 🔥 BACKUP: Duel finished while waiting - forcing transition after delay');
+      // Give DuelWaitingReplay time to handle it, but force transition if it doesn't
+      const backupTimer = setTimeout(() => {
+        console.log('[DuelBattleFullscreen] 🚀 BACKUP: Forcing transition to results');
+        onDuelFinished();
+      }, 2000); // 2 second delay - if DuelWaitingReplay didn't transition, we force it
+      
+      return () => clearTimeout(backupTimer);
+    }
+  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished, duelId, profileId]);
+
+  // КРИТИЧНО: Переход к результатам через Realtime подписку (state.duelFinished)
+  // useDuelRealtime уже подписывается на изменения статуса дуэли через Realtime
+  // Это намного эффективнее чем периодические проверки
+  useEffect(() => {
+    if (!isWaitingForOpponent || !hasFinishedMyQuestions) {
+      return;
+    }
+
+    // Используем state.duelFinished из useDuelRealtime (Realtime подписка)
+    if (state.duelFinished && !hasTransitionedRef.current) {
+      console.log('[DuelBattleFullscreen] ✅✅✅ REALTIME: Duel finished! Transitioning to results');
+      hasTransitionedRef.current = true;
+      
+      try {
+        if (sounds?.victory) {
+          sounds.victory();
+        }
+      } catch (soundError) {
+        console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
+      }
+      
+      toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+      onDuelFinished();
+    }
+  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished]);
+
+  // Sync opponent score from realtime - основной способ обновления счета
+  useEffect(() => {
+    if (typeof state.opponentScore === 'number' && state.opponentScore >= 0 && state.opponentScore !== opponentScore) {
+      console.log('[DuelBattleFullscreen] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
+      setOpponentScore(state.opponentScore);
+      
+      // FALLBACK: Если мы ждем соперника и счет обновился, проверяем статус дуэли
+      // (на случай если Realtime подписка на статус не сработала)
+      if (isWaitingForOpponent && hasFinishedMyQuestions && !hasTransitionedRef.current) {
+        console.log('[DuelBattleFullscreen] 🔄 Opponent score updated while waiting - checking duel status as fallback');
+        setTimeout(async () => {
+          try {
+            const { data: duel } = await supabase
+              .from('duels')
+              .select('status, num_questions')
+              .eq('id', duelId)
+              .single();
+            
+            if (duel?.status === 'finished' && !hasTransitionedRef.current) {
+              console.log('[DuelBattleFullscreen] ✅✅✅ FALLBACK: Duel status is finished! Transitioning to results');
+              hasTransitionedRef.current = true;
+              
+              try {
+                if (sounds?.victory) {
+                  sounds.victory();
+                }
+              } catch (soundError) {
+                console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
+              }
+              
+              toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+              onDuelFinished();
+            }
+          } catch (error) {
+            console.error('[DuelBattleFullscreen] Error in fallback status check:', error);
+          }
+        }, 500);
+      }
+    }
+  }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, onDuelFinished]);
+  
+  // FALLBACK для Telegram WebApp: периодическая проверка счета соперника
+  // Если Realtime не работает, обновляем счет каждые 2 секунды
+  useEffect(() => {
+    if (!duelId || !myPlayerId || !state.duelStarted) return;
+    
+    // Проверяем счет каждые 2 секунды как fallback
+    const scoreCheckInterval = setInterval(async () => {
+      try {
+        const { data: players, error } = await supabase
+          .from('duel_players')
+          .select('id, score, user_id')
+          .eq('duel_id', duelId);
+        
+        if (error) {
+          console.error('[DuelBattleFullscreen] Error checking opponent score (fallback):', error);
+          return;
+        }
+        
+        if (players && players.length >= 2) {
+          const opponent = players.find((p: any) => p.id !== myPlayerId);
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
+            console.log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
+            setOpponentScore(opponent.score);
+      }
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Exception in score check fallback:', error);
+      }
+    }, 2000); // Каждые 2 секунды
+    
+    return () => clearInterval(scoreCheckInterval);
+  }, [duelId, myPlayerId, state.duelStarted, opponentScore]);
   
   // Sync my score from realtime
   useEffect(() => {
@@ -493,31 +678,47 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId, profileId]);
 
-  // Сохраняем состояние активной дуэли при изменениях
+  // ОПТИМИЗАЦИЯ: Сохраняем состояние активной дуэли с debounce (раз в 2 секунды)
+  // Это уменьшает количество операций записи в localStorage и ререндеров
+  const saveActiveDuelRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     if (!duelId || !profileId || !questions.length || !duelCode) return;
 
     // Сохраняем состояние только если дуэль активна
     if (state.duelStarted && !state.duelFinished) {
-      const stateToSave = {
-        duelId,
-        duelCode,
-        mode: isWaitingForOpponent ? 'waiting' : 'battle',
-        currentIndex: isWaitingForOpponent ? undefined : currentIndex, // Не сохраняем currentIndex в режиме ожидания
-        myScore,
-        opponentScore,
-        totalQuestions: questions.length,
-        myName,
-        opponentName,
-      };
-
-      // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
-      if (activeDuel) {
-        updateActiveDuel(stateToSave);
-      } else {
-        saveActiveDuel(stateToSave);
+      // Очищаем предыдущий таймер
+      if (saveActiveDuelRef.current) {
+        clearTimeout(saveActiveDuelRef.current);
       }
+
+      // Устанавливаем новый таймер с debounce 2 секунды
+      saveActiveDuelRef.current = setTimeout(() => {
+        const stateToSave = {
+          duelId,
+          duelCode,
+          mode: isWaitingForOpponent ? 'waiting' : 'battle',
+          currentIndex: isWaitingForOpponent ? undefined : currentIndex, // Не сохраняем currentIndex в режиме ожидания
+          myScore,
+          opponentScore,
+          totalQuestions: questions.length,
+          myName,
+          opponentName,
+        };
+
+        // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
+        if (activeDuel) {
+          updateActiveDuel(stateToSave);
+        } else {
+          saveActiveDuel(stateToSave);
+        }
+      }, 2000); // Debounce 2 секунды
     }
+
+    return () => {
+      if (saveActiveDuelRef.current) {
+        clearTimeout(saveActiveDuelRef.current);
+      }
+    };
   }, [duelId, duelCode, currentIndex, myScore, opponentScore, questions.length, myName, opponentName, isWaitingForOpponent, state.duelStarted, state.duelFinished, profileId, activeDuel, saveActiveDuel, updateActiveDuel]);
 
   // Перезагружаем когда дуэль началась (игроки должны быть точно созданы)
@@ -578,7 +779,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setTranslationLanguage(null);
   }, [currentIndex]);
 
-  // Загрузка вопросов через общую утилиту
   const loadQuestions = async () => {
     if (!duelId || !profileId) {
       console.warn('[DuelBattleFullscreen] ⚠️ Cannot load questions: missing duelId or profileId', { duelId, profileId });
@@ -589,37 +789,170 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       setLoading(true);
       console.log('[DuelBattleFullscreen] 🔄 Loading questions for duel:', duelId, 'profile:', profileId);
       
-      const questions = await loadDuelQuestions(duelId, profileId);
-      setQuestions(questions);
+      // Retry логика с экспоненциальной задержкой
+      const maxRetries = 3;
+      let lastError: any = null;
       
-      // Восстанавливаем currentIndex из сохраненного состояния
-      const savedState = localStorage.getItem('active_duel_state');
-      if (savedState) {
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-          const state = JSON.parse(savedState);
-          // Не восстанавливаем если пользователь уже закончил все вопросы
-          if (state.duelId === duelId && 
-              state.currentIndex !== undefined && 
-              state.currentIndex < questions.length &&
-              state.currentIndex < questions.length - 1) {
-            console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
-            setCurrentIndex(state.currentIndex);
-          } else if (state.duelId === duelId && state.mode === 'waiting') {
-            // Если режим 'waiting', значит пользователь уже закончил все вопросы
-            console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
-            setCurrentIndex(questions.length - 1);
-            setHasFinishedMyQuestions(true);
-            setIsWaitingForOpponent(true);
+          // Увеличиваем таймаут для каждого запроса (30 секунд)
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 30 секунд')), 30000);
+          });
+
+          const invokePromise = supabase.functions.invoke('duel-manager', {
+        body: { action: 'get_questions', duel_id: duelId, profile_id: profileId },
+      });
+
+          const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
+
+          console.log(`[DuelBattleFullscreen] Questions response (attempt ${attempt + 1}):`, { 
+            hasData: !!data, 
+            hasError: !!error,
+            questionsCount: data?.questions?.length,
+            error: error?.message 
+          });
+
+          if (error) {
+            lastError = error;
+            // Если это не последняя попытка, ждем перед повтором
+            if (attempt < maxRetries - 1) {
+              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
+              console.log(`[DuelBattleFullscreen] ⏳ Retrying in ${delay}ms...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw error;
           }
-        } catch (e) {
-          console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
+          
+          if (data?.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+            console.log('[DuelBattleFullscreen] ✅ Loaded questions:', data.questions.length);
+            console.log('[DuelBattleFullscreen] First question sample:', {
+              id: data.questions[0]?.id,
+              hasSnapshot: !!data.questions[0]?.question_snapshot,
+              position: data.questions[0]?.position
+            });
+        setQuestions(data.questions);
+        
+        // Восстанавливаем currentIndex из сохраненного состояния (только если не закончили все вопросы)
+        const savedState = localStorage.getItem('active_duel_state');
+        if (savedState) {
+          try {
+            const state = JSON.parse(savedState);
+            // Не восстанавливаем если пользователь уже закончил все вопросы (currentIndex >= totalQuestions - 1)
+            if (state.duelId === duelId && 
+                state.currentIndex !== undefined && 
+                state.currentIndex < data.questions.length &&
+                state.currentIndex < data.questions.length - 1) { // Не восстанавливаем если на последнем вопросе
+              console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
+              setCurrentIndex(state.currentIndex);
+            } else if (state.duelId === duelId && state.mode === 'waiting') {
+              // Если режим 'waiting', значит пользователь уже закончил все вопросы
+              console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
+              setCurrentIndex(data.questions.length - 1); // Устанавливаем на последний вопрос
+              setHasFinishedMyQuestions(true);
+              setIsWaitingForOpponent(true); // Показываем экран ожидания
+            }
+          } catch (e) {
+            console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
+          }
+        }
+        
+            return; // Успешно загружено
+      } else {
+            console.error('[DuelBattleFullscreen] ❌ Invalid questions data:', {
+              hasData: !!data,
+              questionsType: typeof data?.questions,
+              questionsIsArray: Array.isArray(data?.questions),
+              questionsLength: data?.questions?.length,
+              fullData: data
+            });
+            // Пробуем fallback
+            break;
+          }
+        } catch (attemptError: any) {
+          lastError = attemptError;
+          console.warn(`[DuelBattleFullscreen] ⚠️ Attempt ${attempt + 1} failed:`, attemptError?.message);
+          
+          // Если это не последняя попытка, ждем перед повтором
+          if (attempt < maxRetries - 1) {
+            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
+            console.log(`[DuelBattleFullscreen] ⏳ Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
         }
       }
+
+      // Если все попытки не удались, пробуем fallback
+      console.log('[DuelBattleFullscreen] 🔄 All retries failed, trying direct database query...');
+      await loadQuestionsDirect();
+      
     } catch (error: any) {
       console.error('[DuelBattleFullscreen] ❌ Exception loading questions:', error);
-      toast.error(`Ошибка загрузки вопросов: ${error?.message || 'Неизвестная ошибка'}`);
+      console.error('[DuelBattleFullscreen] Error details:', JSON.stringify(error, null, 2));
+      
+      // Последняя попытка - прямой запрос
+      try {
+        await loadQuestionsDirect();
+      } catch (fallbackError) {
+        console.error('[DuelBattleFullscreen] ❌ Fallback also failed:', fallbackError);
+        toast.error(`Ошибка загрузки вопросов: ${error?.message || 'Неизвестная ошибка'}`);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fallback функция для прямого запроса к базе
+  const loadQuestionsDirect = async () => {
+    try {
+      console.log('[DuelBattleFullscreen] 🔄 Loading questions directly from database...');
+      
+      const { data, error } = await supabase
+        .from('duel_questions')
+        .select('*')
+        .eq('duel_id', duelId)
+        .order('position');
+
+      if (error) {
+        console.error('[DuelBattleFullscreen] ❌ Error loading questions directly:', error);
+        throw error;
+      }
+
+      if (data && Array.isArray(data) && data.length > 0) {
+        console.log('[DuelBattleFullscreen] ✅ Loaded questions directly:', data.length);
+        setQuestions(data);
+        
+            // Восстанавливаем currentIndex из сохраненного состояния (только если не закончили все вопросы)
+            const savedState = localStorage.getItem('active_duel_state');
+            if (savedState) {
+              try {
+                const state = JSON.parse(savedState);
+                // Не восстанавливаем если пользователь уже закончил все вопросы
+                if (state.duelId === duelId && 
+                    state.currentIndex !== undefined && 
+                    state.currentIndex < data.length &&
+                    state.currentIndex < data.length - 1) { // Не восстанавливаем если на последнем вопросе
+                  console.log('[DuelBattleFullscreen] 🔄 Restoring currentIndex from saved state:', state.currentIndex);
+                  setCurrentIndex(state.currentIndex);
+                } else if (state.duelId === duelId && state.mode === 'waiting') {
+                  // Если режим 'waiting', значит пользователь уже закончил все вопросы
+                  console.log('[DuelBattleFullscreen] ⏳ User finished all questions, restoring to waiting screen');
+                  setCurrentIndex(data.length - 1); // Устанавливаем на последний вопрос
+                  setHasFinishedMyQuestions(true);
+                  setIsWaitingForOpponent(true); // Показываем экран ожидания
+                }
+              } catch (e) {
+                console.error('[DuelBattleFullscreen] Error parsing saved state:', e);
+              }
+            }
+      } else {
+        console.error('[DuelBattleFullscreen] ❌ No questions found in database');
+        toast.error('Вопросы не найдены. Попробуйте перезагрузить страницу.');
+      }
+    } catch (error) {
+      console.error('[DuelBattleFullscreen] ❌ Exception in loadQuestionsDirect:', error);
+      throw error;
     }
   };
 
@@ -696,10 +1029,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           setMyScore(0);
         }
         
-        // Устанавливаем начальный счет соперника для хука синхронизации
         if (typeof opponent?.score === 'number') {
-          console.log('[DuelBattleFullscreen] ✅ Setting initial opponent score:', opponent.score);
-          setInitialOpponentScore(opponent.score);
+          console.log('[DuelBattleFullscreen] ✅ Setting opponent score:', opponent.score);
+          setOpponentScore(opponent.score);
+            } else {
+          setOpponentScore(0);
         }
         
         // Устанавливаем имена игроков (проверяем что имя валидно и не пустое)
@@ -776,10 +1110,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         setMyScore(myPlayer?.score || 0);
       }
       
-      // Устанавливаем начальный счет соперника для хука синхронизации
-      if (opponent && typeof opponent.score === 'number') {
-        console.log('[DuelBattleFullscreen] ✅ Setting initial opponent score from direct query:', opponent.score);
-        setInitialOpponentScore(opponent.score);
+      if (opponent) {
+        setOpponentScore(opponent.score || 0);
       }
 
       // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
@@ -1349,12 +1681,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Mark that I finished (but don't show waiting screen yet)
     setHasFinishedMyQuestions(true);
     
-    // CRITICAL: Увеличена задержка до 3 секунд чтобы гарантировать что последний ответ полностью сохранен в БД
-    // Это предотвращает race condition когда второй игрок вызывает finish_duel
-    // до того как его последний ответ закоммичен в базу данных
-    // 3 секунды должно быть достаточно даже при медленном соединении
-    console.log('[DuelBattleFullscreen] ⏳ Waiting 3 seconds to ensure last answer is saved in DB...');
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // CRITICAL: Increased delay to ensure last answer is fully saved in DB
+    // This prevents race condition where second player's finish_duel is called
+    // before their last answer is committed to database
+    await new Promise(resolve => setTimeout(resolve, 1200));
 
     try {
       // Mark that I finished
@@ -1406,103 +1736,69 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   };
 
-  // Сохраняем состояние при показе экрана ожидания (вне условного блока для соблюдения правил хуков)
-  useEffect(() => {
-    if (isWaitingForOpponent && duelId && duelCode && profileId && questions.length > 0) {
-      const stateToSave = {
-        duelId,
-        duelCode,
-        mode: 'waiting' as const,
-        currentIndex: undefined,
-        myScore,
-        opponentScore,
-        totalQuestions: questions.length,
-        myName,
-        opponentName,
-      };
-      
-      if (activeDuel) {
-        updateActiveDuel(stateToSave);
-      } else {
-        saveActiveDuel(stateToSave);
-      }
-    }
-  }, [isWaitingForOpponent, duelId, duelCode, profileId, questions.length, myScore, opponentScore, myName, opponentName, activeDuel, saveActiveDuel, updateActiveDuel]);
-
   // ============================================================================
-  // CRITICAL: WAITING FOR OPPONENT - SIMPLE WAITING SCREEN
+  // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
   // ============================================================================
-  // Show simple waiting screen when I finish first
-  // No widget - state is saved via useActiveDuel hook
+  // Show live replay screen when I finish first
+  // Display opponent's progress in real-time
+  // If hidden, DuelWaitingReplay will show widget via portal and return null
   // ============================================================================
   if (isWaitingForOpponent) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 z-50 flex items-center justify-center">
-        <div className="max-w-md w-full mx-4 text-center space-y-6">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="space-y-4"
-          >
-            <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-              <Clock className="w-10 h-10 text-primary animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Ожидание соперника</h2>
-              <p className="text-muted-foreground">
-                Ты закончил первым! Ждём, пока соперник завершит дуэль...
-              </p>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-center gap-4">
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground mb-1">{myName}</p>
-                  <p className="text-3xl font-black text-primary">{myScore}</p>
-                </div>
-                <div className="text-xl font-bold text-muted-foreground">VS</div>
-                <div className="text-center">
-                  <p className="text-xs text-muted-foreground mb-1">{opponentName}</p>
-                  <p className="text-3xl font-black text-secondary">{opponentScore}</p>
-                </div>
-              </div>
-            </div>
-            <OpponentActivityIndicator status={opponentActivityStatus} />
-            <Button
-              onClick={() => {
-                // Сохраняем состояние перед сворачиванием
-                if (duelId && duelCode && profileId && questions.length > 0) {
-                  const stateToSave = {
-                    duelId,
-                    duelCode,
-                    mode: 'waiting' as const,
-                    currentIndex: undefined,
-                    myScore,
-                    opponentScore,
-                    totalQuestions: questions.length,
-                    myName,
-                    opponentName,
-                  };
-                  
-                  if (activeDuel) {
-                    updateActiveDuel(stateToSave);
-                  } else {
-                    saveActiveDuel(stateToSave);
-                  }
-                }
-                // Notify parent to show menu
-                if (onHide) {
-                  onHide();
-                }
-              }}
-              variant="outline"
-              className="w-full"
-            >
-              Свернуть игру
-            </Button>
-          </motion.div>
-        </div>
-      </div>
+      <DuelWaitingReplay
+        duelId={duelId}
+        myScore={myScore}
+        totalQuestions={questions.length}
+        onDuelFinished={onDuelFinished}
+        onExpand={() => {
+          // When widget expands, restore battle view
+          setIsWaitingHidden(false);
+          // Notify parent to restore battle mode
+          if (onWidgetExpand) {
+            onWidgetExpand();
+          }
+        }}
+        onHide={(hidden) => {
+          setIsWaitingHidden(hidden);
+          if (hidden) {
+            // Сохраняем состояние при сворачивании на экране ожидания
+            if (duelId && duelCode && profileId && questions.length > 0) {
+              const stateToSave = {
+                duelId,
+                duelCode,
+                mode: 'waiting' as const,
+                currentIndex: undefined, // Не сохраняем currentIndex в режиме ожидания
+                myScore,
+                opponentScore,
+                totalQuestions: questions.length,
+                myName,
+                opponentName,
+              };
+              
+              // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
+              if (activeDuel) {
+                updateActiveDuel(stateToSave);
+              } else {
+                saveActiveDuel(stateToSave);
+              }
+            }
+            // Notify parent that game is hidden - parent will show menu
+            if (onHide) {
+              onHide();
+            }
+          } else {
+            // Game is expanded again - reset state
+            setIsWaitingHidden(false);
+          }
+        }}
+      />
     );
+  }
+
+  // If waiting is hidden but we're not waiting for opponent (shouldn't happen)
+  // Return null so parent can show menu
+  if (isWaitingHidden) {
+    return null;
   }
 
   if (loading || questions.length === 0) {
@@ -2083,5 +2379,3 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     </div>
   );
 }
-
-export default DuelBattleFullscreen;

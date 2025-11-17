@@ -110,18 +110,18 @@ const Layout = ({ children }: LayoutProps) => {
       : { name: t("games"), href: "/games", icon: Gamepad2 },
   ];
 
-  // Debug: логируем активную дуэль для отладки
-  useEffect(() => {
-    if (activeDuel) {
-      console.log('[Layout] ✅ Active duel detected, showing "Дуэль" button:', {
-        duelId: activeDuel.duelId,
-        mode: activeDuel.mode,
-        currentIndex: activeDuel.currentIndex
-      });
-    } else {
-      console.log('[Layout] No active duel, showing "Игры" button');
-    }
-  }, [activeDuel]);
+  // ОПТИМИЗАЦИЯ: Убрано логирование для уменьшения нагрузки (можно включить для отладки)
+  // useEffect(() => {
+  //   if (activeDuel) {
+  //     console.log('[Layout] ✅ Active duel detected, showing "Дуэль" button:', {
+  //       duelId: activeDuel.duelId,
+  //       mode: activeDuel.mode,
+  //       currentIndex: activeDuel.currentIndex
+  //     });
+  //   } else {
+  //     console.log('[Layout] No active duel, showing "Игры" button');
+  //   }
+  // }, [activeDuel]);
 
   // Определяем fullscreen режимы (тесты и игры) - navbar должен быть скрыт
   const isFullscreenMode = 

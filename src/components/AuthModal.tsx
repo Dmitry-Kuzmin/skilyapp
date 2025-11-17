@@ -320,5 +320,3 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     </Dialog>
   );
 }
-
-export default AuthModal;

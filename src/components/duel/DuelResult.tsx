@@ -111,9 +111,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
-      setLoading(true);
-      console.log('[DuelResult] Loading results for duel:', duelId);
-      
       // Load players, duel info, answers, and bet data
       const [playersResponse, duelResponse, answersResponse, betResponse, betHistoryResponse] = await Promise.all([
         supabase
@@ -142,26 +139,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
           .maybeSingle()
       ]);
 
-      // Проверяем ошибки
-      if (playersResponse.error) {
-        console.error('[DuelResult] Error loading players:', playersResponse.error);
-        throw new Error('Ошибка загрузки данных игроков');
-      }
-      if (duelResponse.error) {
-        console.error('[DuelResult] Error loading duel:', duelResponse.error);
-        throw new Error('Ошибка загрузки данных дуэли');
-      }
-
       const players = playersResponse.data;
       const duel = duelResponse.data;
       const allAnswers = answersResponse.data;
       const bet = betResponse.data;
       const betHistory = betHistoryResponse.data;
 
-      if (!players || players.length === 0) {
-        console.error('[DuelResult] No players found for duel:', duelId);
-        throw new Error('Игроки не найдены');
-      }
+      if (!players) return;
 
       const myPlayer = players.find(p => p.user_id === profileId);
       const opponent = players.find(p => p.user_id !== profileId);
@@ -257,32 +241,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         hadInsurance,
       });
       
-      console.log('[DuelResult] ✅ Loaded results successfully:', {
+      console.log('[DuelResult] Loaded results:', {
         myScore: myPlayer?.score,
         opponentScore: opponent?.score,
         betAmount,
         winnings,
         isDraw,
-        rewards: { sp: expectedSP, xp: expectedXP, bonusCoins, insuranceRefund }
+        rewards: { sp: actualSP, xp: actualXP, bonusCoins, insuranceRefund }
       });
-    } catch (error: any) {
-      console.error('[DuelResult] ❌ Error loading results:', error);
-      toast.error(error?.message || 'Ошибка загрузки результатов дуэли');
-      // Устанавливаем минимальные данные чтобы не было белого экрана
-      setResults({
-        myScore: 0,
-        myCorrect: 0,
-        opponentScore: 0,
-        opponentCorrect: 0,
-        opponentName: 'Соперник',
-        myName: 'Вы',
-        isWinner: false,
-        isDraw: false,
-        betAmount: 0,
-        winnings: 0,
-        rematchPot: 0,
-        hadInsurance: false,
-      });
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -300,19 +268,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   };
 
   if (loading || !results) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center z-50">
-        <div className="text-center space-y-4 p-8">
-          <div className="w-16 h-16 mx-auto border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-lg font-medium">Загрузка результатов...</p>
-          <p className="text-sm text-muted-foreground">Пожалуйста, подождите</p>
-        </div>
-      </div>
-    );
+    return <div className="text-center p-8">Загрузка результатов...</div>;
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto z-50">
+    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto pt-16">
       <div className="min-h-screen w-full max-w-2xl mx-auto px-3 py-4 pb-20 space-y-3 animate-fade-in">
       {results.isWinner && typeof window !== 'undefined' && (
         <Confetti
@@ -777,5 +737,3 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
     </div>
   );
 }
-
-export default DuelResult;

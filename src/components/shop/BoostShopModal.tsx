@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check, Star } from 'lucide-react';
+import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from '@/hooks/use-toast';
@@ -18,10 +17,8 @@ import { motion } from 'framer-motion';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
 import { ModalSkeleton } from '@/components/ui/modal-skeleton';
-import { getDialogContentClasses, getSheetContentClasses, shouldUseSheet } from '@/lib/modal-config';
+import { getDialogContentClasses } from '@/lib/modal-config';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { isTelegramMiniApp } from '@/lib/telegram';
-import { cn } from '@/lib/utils';
 
 interface BoostShopModalProps {
   open: boolean;
@@ -55,50 +52,9 @@ interface Transaction {
 }
 
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
-  const { profileId, platform } = useUserContext();
+  const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
-  // Определяем Telegram СТРОГО - только если действительно в Telegram Web App
-  // В браузере (не Telegram) isTelegramMiniApp() должен вернуть false
-  // Используем ТОЛЬКО isTelegramMiniApp() для надежности, игнорируем platform из контекста
-  const isTelegram = isTelegramMiniApp();
-  
-  // Дополнительная проверка: если нет window.Telegram?.WebApp, то точно не Telegram
-  const hasTelegramWebApp = typeof window !== 'undefined' && !!window.Telegram?.WebApp;
-  
-  // Финальная строгая проверка: должны быть И isTelegram И hasTelegramWebApp
-  // Также проверяем, что есть реальные данные пользователя (не мок)
-  const hasTelegramUser = typeof window !== 'undefined' && 
-                          !!window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const hasTelegramInitData = typeof window !== 'undefined' && 
-                              !!window.Telegram?.WebApp?.initData &&
-                              window.Telegram.WebApp.initData !== '';
-  
-  // isTelegramStrict = true только если ВСЕ условия выполнены
-  const isTelegramStrict = isTelegram && 
-                          hasTelegramWebApp && 
-                          (hasTelegramUser || hasTelegramInitData);
-  
-  // Sheet используется ТОЛЬКО в Telegram Web App (со свайпом снизу)
-  // В браузере (включая мобильный) всегда используем Dialog по центру
-  const useSheet = shouldUseSheet(isMobile, isTelegramStrict);
-  
-  // Логирование для отладки (только при первом рендере, чтобы не спамить)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && open) {
-      console.log('[BoostShop] Platform detection:', {
-        platform,
-        isMobile,
-        isTelegram,
-        isTelegramStrict,
-        useSheet,
-        hasTelegramWebApp,
-        telegramPlatform: typeof window !== 'undefined' && window.Telegram?.WebApp?.platform,
-        telegramInitData: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initData,
-        telegramUser: typeof window !== 'undefined' && !!window.Telegram?.WebApp?.initDataUnsafe?.user
-      });
-    }
-  }, [open]); // Только при открытии модалки
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -114,15 +70,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   useEffect(() => {
     if (open) {
-      // Всегда перезагружаем данные при открытии модалки
-      // Это гарантирует актуальность инвентаря и баланса
       loadData();
-      // Также загружаем историю транзакций при открытии
-      if (profileId && transactions.length === 0) {
-        loadTransactionHistory();
-      }
     }
-  }, [open, profileId]); // Добавляем profileId в зависимости для перезагрузки при смене пользователя
+  }, [open]);
 
   const loadData = async () => {
     if (!profileId) {
@@ -165,33 +115,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         setCoins(profile.coins || 0);
       }
 
-      // Загрузка инвентаря через RPC функцию (обходит RLS для Telegram пользователей)
-      const { data: inventoryData, error: inventoryError } = await supabase.rpc('get_user_boost_inventory', {
-        p_user_id: profileId
-      });
+      // Загрузка инвентаря
+      const { data: inventoryData, error: inventoryError } = await supabase
+        .from('boost_inventory')
+        .select('boost_type, quantity')
+        .eq('user_id', profileId);
 
       if (inventoryError) {
-        console.error('[BoostShop] Ошибка загрузки инвентаря через RPC:', inventoryError);
-        // Fallback: пытаемся загрузить напрямую (может не работать для Telegram)
-        const { data: fallbackInventory } = await supabase
-          .from('boost_inventory')
-          .select('boost_type, quantity')
-          .eq('user_id', profileId)
-          .order('boost_type', { ascending: true });
-        
-        if (fallbackInventory) {
-          console.log('[BoostShop] Инвентарь загружен через fallback:', fallbackInventory);
-          setInventory(fallbackInventory);
-        } else {
-          console.log('[BoostShop] Инвентарь пуст для пользователя:', profileId);
-          setInventory([]);
-        }
+        console.error('[BoostShop] Ошибка загрузки инвентаря:', inventoryError);
       } else if (inventoryData) {
-        console.log('[BoostShop] Инвентарь загружен через RPC:', inventoryData);
         setInventory(inventoryData);
-      } else {
-        console.log('[BoostShop] Инвентарь пуст для пользователя:', profileId);
-        setInventory([]);
       }
     } catch (error) {
       console.error('[BoostShop] Ошибка загрузки данных магазина:', error);
@@ -212,7 +145,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       'coins_earned_daily': { icon: Calendar, desc: 'Ежедневный бонус', cat: 'earn' },
       'coins_earned_premium_bonus': { icon: Gift, desc: 'Premium бонус', cat: 'earn' },
       // Spending
-      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_name || metadata?.boost_type || 'Буст'}`, cat: 'spend' },
+      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_type || ''}`, cat: 'spend' },
       'coins_spent_skin': { icon: Gift, desc: 'Покупка скина', cat: 'spend' },
       'coins_spent_duel_entry': { icon: Zap, desc: 'Вход в дуэль', cat: 'spend' },
       // Purchases
@@ -259,40 +192,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     try {
       const allTransactions: Transaction[] = [];
       
-      // 1. Load new transactions table (monetization system) using RPC function
-      // Используем RPC функцию для обхода RLS политики (работает для Telegram пользователей)
-      const { data: newTransactions, error: transactionsError } = await supabase.rpc('get_user_transactions', {
-        p_user_id: profileId,
-        p_limit: 100
-      });
+      // 1. Load new transactions table (monetization system)
+      const { data: newTransactions } = await supabase
+        .from('transactions')
+        .select('id, amount, transaction_type, metadata, created_at')
+        .eq('user_id', profileId)
+        .order('created_at', { ascending: false })
+        .limit(100);
       
-      if (transactionsError) {
-        console.error('[BoostShop] Ошибка загрузки транзакций через RPC:', transactionsError);
-        // Fallback: пытаемся загрузить напрямую (может не работать для Telegram)
-        const { data: fallbackTransactions } = await supabase
-          .from('transactions')
-          .select('id, amount, transaction_type, metadata, created_at')
-          .eq('user_id', profileId)
-          .order('created_at', { ascending: false })
-          .limit(100);
-        
-        if (fallbackTransactions) {
-          fallbackTransactions.forEach(tx => {
-            const info = getTransactionInfo(tx.transaction_type, tx.metadata);
-            allTransactions.push({
-              id: tx.id,
-              amount: tx.amount,
-              type: tx.transaction_type,
-              description: info.description,
-              created_at: tx.created_at,
-              category: info.category,
-              icon: info.icon,
-              metadata: tx.metadata
-            });
-          });
-        }
-      } else if (newTransactions) {
-        console.log('[BoostShop] Загружено транзакций через RPC:', newTransactions.length);
+      if (newTransactions) {
         newTransactions.forEach(tx => {
           const info = getTransactionInfo(tx.transaction_type, tx.metadata);
           allTransactions.push({
@@ -421,143 +329,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
   };
 
-  const handleCoinPurchaseStars = async (catalogKey: string, coinsAmount: number) => {
-    if (!profileId || !isTelegram) {
-      toast({
-        title: '❌ Ошибка',
-        description: 'Telegram Stars доступны только в Telegram Web App',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const webApp = window.Telegram?.WebApp;
-    if (!webApp) {
-      toast({
-        title: '❌ Ошибка',
-        description: 'Telegram WebApp не найден',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      // Маппинг catalog_key на package_key для Telegram Stars
-      const packageKeyMap: Record<string, string> = {
-        'coins_pack_100': 'coins_100',
-        'coins_pack_500': 'coins_500',
-        'coins_pack_1200': 'coins_1200',
-        'coins_pack_3000': 'coins_3000',
-      };
-
-      const packageKey = packageKeyMap[catalogKey];
-      if (!packageKey) {
-        toast({
-          title: '❌ Ошибка',
-          description: 'Неизвестный пакет монет',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const telegramUserId = webApp.initDataUnsafe?.user?.id;
-      if (!telegramUserId) {
-        console.error("[BoostShop] Telegram user ID not found:", {
-          hasWebApp: !!webApp,
-          hasInitDataUnsafe: !!webApp.initDataUnsafe,
-          initDataUnsafe: webApp.initDataUnsafe,
-          user: webApp.initDataUnsafe?.user
-        });
-        
-        toast({
-          title: '❌ Ошибка',
-          description: 'Не удалось получить ID пользователя Telegram. Попробуйте оплатить через Stripe или обновите страницу.',
-          variant: 'destructive',
-          duration: 6000,
-        });
-        return;
-      }
-
-      console.log("[BoostShop] Creating Telegram Stars invoice:", { profileId, packageKey, telegramUserId });
-
-      const { data, error } = await supabase.functions.invoke("telegram-stars-payment", {
-        body: {
-          action: 'create_invoice',
-          user_id: profileId,
-          package_key: packageKey,
-          telegram_user_id: telegramUserId,
-        },
-      });
-
-      if (error) {
-        console.error("[BoostShop] Stars payment error:", error);
-        toast({
-          title: '❌ Ошибка',
-          description: error.message || 'Не удалось создать invoice',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (data?.error) {
-        console.error("[BoostShop] Error in Stars response:", data);
-        toast({
-          title: '❌ Ошибка',
-          description: data.error || 'Ошибка создания invoice',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      if (!data?.invoice_link) {
-        console.error("[BoostShop] No invoice_link in response:", data);
-        toast({
-          title: '❌ Ошибка',
-          description: 'Не удалось получить ссылку на оплату',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Открываем invoice через Telegram WebApp
-      webApp.openInvoice(data.invoice_link, (status: string) => {
-        console.log("[BoostShop] Invoice status:", status);
-        if (status === 'paid') {
-          // Обновляем данные после успешной оплаты
-          setTimeout(async () => {
-            await loadData();
-            toast({
-              title: '✅ Покупка успешна!',
-              description: `Вы получили ${coinsAmount} монет`,
-              duration: 5000,
-            });
-            setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 3000);
-          }, 2000);
-        } else if (status === 'cancelled') {
-          toast({
-            title: 'ℹ️ Оплата отменена',
-            description: 'Вы можете попробовать снова в любое время',
-          });
-        } else if (status === 'failed') {
-          toast({
-            title: '❌ Ошибка оплаты',
-            description: 'Попробуйте позже или используйте другой способ оплаты',
-            variant: 'destructive',
-          });
-        }
-      });
-    } catch (err: any) {
-      console.error("[BoostShop] Stars purchase error:", err);
-      toast({
-        title: '❌ Ошибка',
-        description: err?.message || 'Произошла ошибка при создании покупки',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleCoinPurchase = async (catalogKey: string, paymentMethod: 'stripe' | 'stars' = 'stripe') => {
+  const handleCoinPurchase = async (catalogKey: string) => {
     if (!profileId) {
       toast({
         title: '❌ Ошибка',
@@ -567,84 +339,28 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
-    // Если выбрана оплата через Stars (только в Telegram)
-    if (paymentMethod === 'stars' && isTelegram) {
-      const coinsMap: Record<string, number> = {
-        'coins_pack_100': 100,
-        'coins_pack_500': 550,
-        'coins_pack_1200': 1400,
-        'coins_pack_3000': 3500,
-      };
-      const coinsAmount = coinsMap[catalogKey] || 0;
-      await handleCoinPurchaseStars(catalogKey, coinsAmount);
-      return;
-    }
-
-    // По умолчанию используем Stripe (работает и в браузере, и в Telegram)
-
-    console.log("[BoostShop] Starting coin purchase:", { profileId, catalogKey });
-
     try {
       // Создаем Stripe Checkout сессию
-      const requestBody = { user_id: profileId, catalog_key: catalogKey };
-      console.log("[BoostShop] Invoking purchase-create with body:", requestBody);
-      
       const { data, error } = await supabase.functions.invoke("purchase-create", {
-        body: requestBody,
+        body: { user_id: profileId, catalog_key: catalogKey },
       });
-      
-      console.log("[BoostShop] purchase-create response:", { data, error });
 
       if (error) {
         console.error("[BoostShop] Purchase error:", error);
-        
-        // Пытаемся получить детали ошибки из response
-        let errorMessage = error.message || 'Не удалось создать сессию оплаты';
-        let errorDetails = '';
-        
-        if (error.context) {
-          try {
-            const errorBody = await error.context.json?.();
-            if (errorBody?.error) {
-              errorMessage = errorBody.error;
-              if (errorBody.details) {
-                errorDetails = `\nДетали: ${errorBody.details}`;
-              }
-              if (errorBody.available_keys) {
-                errorDetails += `\nДоступные ключи: ${errorBody.available_keys.join(', ')}`;
-              }
-            }
-          } catch (e) {
-            console.warn("[BoostShop] Cannot parse error context:", e);
-          }
-        }
-        
         toast({
           title: '❌ Ошибка',
-          description: `${errorMessage}${errorDetails}`,
+          description: error.message || 'Не удалось создать сессию оплаты',
           variant: 'destructive',
-          duration: 6000,
         });
         return;
       }
 
       if (data?.error) {
-        console.error("[BoostShop] Error in response:", data);
-        const errorMessage = typeof data.error === 'string' 
-          ? data.error 
-          : JSON.stringify(data.error);
-        const errorDetails = data.details 
-          ? `\nДетали: ${data.details}` 
-          : '';
-        const availableKeys = data.available_keys 
-          ? `\nДоступные ключи: ${data.available_keys.join(', ')}` 
-          : '';
-        
+        console.error("[BoostShop] Error in response:", data.error);
         toast({
           title: '❌ Ошибка',
-          description: `${errorMessage}${errorDetails}${availableKeys}`,
+          description: data.error,
           variant: 'destructive',
-          duration: 6000,
         });
         return;
       }
@@ -659,21 +375,123 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return;
       }
 
-      // Используем redirect вместо popup для избежания блокировки браузера
-      // В Telegram Web App используем window.open для нативного опыта
-      if (isTelegram && window.Telegram?.WebApp) {
-        // В Telegram пробуем открыть в новой вкладке
-        const popup = window.open(data.url, '_blank');
-        if (!popup) {
-          // Если popup заблокирован, используем redirect
-          window.location.href = data.url;
-        }
-      } else {
-        // В браузере всегда используем redirect
-        window.location.href = data.url;
+      // Открываем Stripe Checkout в попапе
+      const width = 600;
+      const height = 700;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+
+      const popup = window.open(
+        data.url,
+        'Stripe Checkout',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+
+      if (!popup) {
+        toast({
+          title: '⚠️ Внимание',
+          description: 'Пожалуйста, разрешите открытие всплывающих окон для этого сайта',
+          variant: 'destructive',
+        });
+        return;
       }
-      
-      return; // Прерываем выполнение, так как происходит redirect
+
+      // Слушаем сообщения от попапа
+      const handleMessage = async (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) return;
+        
+        if (event.data?.type === 'STRIPE_SUCCESS') {
+          // Покупка успешна, проверяем статус
+          setTimeout(async () => {
+            await checkPurchaseStatus();
+          }, 2000);
+        } else if (event.data?.type === 'STRIPE_CANCEL') {
+          // Покупка отменена
+          toast({
+            title: 'ℹ️ Оплата отменена',
+            description: 'Вы можете попробовать снова в любое время',
+          });
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+
+      // Отслеживаем закрытие попапа и проверяем статус покупки
+      const checkPurchaseStatus = async () => {
+        try {
+          // Проверяем последнюю покупку пользователя
+          const { data: purchases } = await supabase
+            .from('purchases')
+            .select('id, status, metadata, stripe_session_id, created_at')
+            .eq('user_id', profileId)
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+          if (purchases && purchases.length > 0) {
+            // Ищем покупку со статусом completed, созданную недавно (последние 2 минуты)
+            const recentCompleted = purchases.find(p => 
+              p.status === 'completed' && 
+              new Date(p.created_at).getTime() > Date.now() - 2 * 60 * 1000
+            );
+
+            if (recentCompleted) {
+              const coinsAmount = recentCompleted.metadata?.coins || 0;
+              if (coinsAmount > 0) {
+                await loadData(); // Обновляем баланс
+                toast({
+                  title: '✅ Покупка успешна!',
+                  description: `Вы получили ${coinsAmount} монет`,
+                  duration: 5000,
+                });
+                setShowConfetti(true);
+                setTimeout(() => setShowConfetti(false), 3000);
+                return true; // Покупка найдена
+              }
+            }
+          }
+          return false;
+        } catch (error) {
+          console.error("[BoostShop] Error checking purchase status:", error);
+          return false;
+        }
+      };
+
+      // Проверяем статус покупки каждую секунду после закрытия попапа
+      const checkInterval = setInterval(async () => {
+        try {
+          // Проверяем, закрыт ли попап
+          if (popup.closed) {
+            clearInterval(checkInterval);
+            
+            // Даем время webhook обработаться (2 секунды)
+            setTimeout(async () => {
+              let attempts = 0;
+              const maxAttempts = 10; // Проверяем до 10 раз (10 секунд)
+              
+              const statusCheckInterval = setInterval(async () => {
+                attempts++;
+                const found = await checkPurchaseStatus();
+                
+                if (found || attempts >= maxAttempts) {
+                  clearInterval(statusCheckInterval);
+                  if (!found && attempts >= maxAttempts) {
+                    // Если покупка не найдена, просто обновляем данные
+                    await loadData();
+                  }
+                }
+              }, 1000);
+            }, 2000);
+          }
+        } catch (error) {
+          console.error("[BoostShop] Error checking popup:", error);
+        }
+      }, 500);
+
+      // Очищаем интервал через 5 минут (на случай если попап не закрылся)
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        window.removeEventListener('message', handleMessage);
+      }, 5 * 60 * 1000);
 
     } catch (err: any) {
       console.error("[BoostShop] Purchase error:", err);
@@ -706,47 +524,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
-    // Сохраняем оригинальные значения для возможного отката
-    const originalCoins = coins;
-    const originalInventory = [...inventory];
-
-    // Оптимистичное обновление UI - сразу обновляем состояние для мгновенной реакции
-    const newCoins = coins - boost.cost_coins;
-    const newInventory = [...inventory];
-    const existingBoostIndex = newInventory.findIndex(i => i.boost_type === boost.type);
-    
-    if (existingBoostIndex >= 0) {
-      // Увеличиваем количество существующего буста
-      newInventory[existingBoostIndex] = {
-        ...newInventory[existingBoostIndex],
-        quantity: newInventory[existingBoostIndex].quantity + 1
-      };
-    } else {
-      // Добавляем новый буст в инвентарь
-      newInventory.push({
-        boost_type: boost.type,
-        quantity: 1
-      });
-    }
-
-    // Применяем оптимистичные обновления
-    setCoins(newCoins);
-    setInventory(newInventory);
-    setIsRefreshing(true);
-
-    // Анимации и звуки сразу для лучшего UX
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
-    sounds.correctAnswer();
-    haptics.boostActivated();
-
-    // Показываем успешное сообщение сразу
-    toast({
-      title: '✅ Покупка успешна!',
-      description: `${boost.name_ru} добавлен в инвентарь`,
-    });
-
     try {
+      // Проверяем, что profileId действительно существует в базе
+      if (!profileId) {
+        throw new Error('profileId не установлен. Пожалуйста, обновите страницу и войдите снова.');
+      }
+
       console.log('[BoostShop] Начало покупки:', { 
         profileId, 
         boostType: boost.type, 
@@ -754,167 +537,123 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         currentCoins: coins 
       });
 
-      // Выполняем операции параллельно для скорости
-      // Критичные операции: списание монет и добавление буста
-      // Транзакция - не критична, выполняем отдельно
-      const [coinsResult, inventoryResult] = await Promise.allSettled([
-        // Списание монет
-        supabase.rpc('increment_profile_value', {
-          p_profile_id: profileId,
-          p_column: 'coins',
-          p_amount: -boost.cost_coins
-        }),
-        // Добавление буста в инвентарь
-        supabase.rpc('modify_boost_inventory', {
-          p_user_id: profileId,
-          p_boost_type: boost.type,
-          p_change: 1
-        })
-      ]);
+      // Проверяем существование профиля перед покупкой
+      const { data: profileCheck, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('id, coins')
+        .eq('id', profileId)
+        .single();
 
-      // Создание транзакции выполняем отдельно (не критично)
-      // Не блокируем основной поток, если транзакция не создалась
-      supabase.rpc('create_transaction', {
-        p_user_id: profileId,
-        p_transaction_type: 'coins_spent_boost',
-        p_amount: -boost.cost_coins,
-        p_metadata: {
-          boost_type: boost.type,
-          boost_name: boost.name_ru,
-        }
-      }).then(result => {
-        if (result.error) {
-          console.warn('[BoostShop] Транзакция не создана (не критично):', result.error);
-        } else {
-          console.log('[BoostShop] ✅ Транзакция создана успешно через RPC, ID:', result.data);
-        }
-      }).catch(err => {
-        console.warn('[BoostShop] Транзакция не создана (не критично):', err);
-      });
-
-      // Проверяем результаты
-      if (coinsResult.status === 'rejected' || (coinsResult.status === 'fulfilled' && coinsResult.value.error)) {
-        const error = coinsResult.status === 'rejected' ? coinsResult.reason : coinsResult.value.error;
-        console.error('[BoostShop] Ошибка списания монет:', error);
-        // Откатываем оптимистичное обновление к оригинальным значениям
-        setCoins(originalCoins);
-        setInventory(originalInventory);
-        setIsRefreshing(false);
-        throw new Error(`Не удалось списать монеты: ${error?.message || 'Неизвестная ошибка'}`);
+      if (profileCheckError || !profileCheck) {
+        console.error('[BoostShop] Профиль не найден:', profileCheckError);
+        throw new Error(`Профиль не найден: ${profileCheckError?.message || 'Неизвестная ошибка'}. Пожалуйста, обновите страницу и войдите снова.`);
       }
 
-      if (inventoryResult.status === 'rejected' || (inventoryResult.status === 'fulfilled' && inventoryResult.value.error)) {
-        const error = inventoryResult.status === 'rejected' ? inventoryResult.reason : inventoryResult.value.error;
-        console.error('[BoostShop] Ошибка добавления буста в инвентарь:', error);
+      console.log('[BoostShop] Профиль найден, текущий баланс:', profileCheck.coins);
+
+      // Используем функцию increment_profile_value для списания монет
+      // Она использует SECURITY DEFINER и обходит RLS проблемы
+      const { data: coinsData, error: coinsError } = await supabase.rpc('increment_profile_value', {
+        p_profile_id: profileId,
+        p_column: 'coins',
+        p_amount: -boost.cost_coins
+      });
+
+      if (coinsError) {
+        console.error('[BoostShop] Ошибка списания монет:', coinsError);
+        console.error('[BoostShop] Детали ошибки списания:', {
+          code: coinsError.code,
+          message: coinsError.message,
+          details: coinsError.details,
+          hint: coinsError.hint
+        });
+        throw new Error(`Не удалось списать монеты: ${coinsError.message || coinsError.code || 'Неизвестная ошибка'}`);
+      }
+
+      console.log('[BoostShop] Монеты списаны успешно, результат:', coinsData);
+
+      // Добавляем буст в инвентарь используя функцию modify_boost_inventory
+      // Это более надежный способ, который обходит RLS проблемы
+      const { data: inventoryData, error: inventoryError } = await supabase.rpc('modify_boost_inventory', {
+        p_user_id: profileId,
+        p_boost_type: boost.type,
+        p_change: 1
+      });
+
+      if (inventoryError) {
+        console.error('[BoostShop] Ошибка добавления буста в инвентарь:', inventoryError);
+        console.error('[BoostShop] Детали ошибки инвентаря:', {
+          code: inventoryError.code,
+          message: inventoryError.message,
+          details: inventoryError.details,
+          hint: inventoryError.hint
+        });
         
-        // Откатываем монеты
-        await supabase.rpc('increment_profile_value', {
+        // Откатываем списание монет при ошибке
+        const { error: rollbackError } = await supabase.rpc('increment_profile_value', {
           p_profile_id: profileId,
           p_column: 'coins',
           p_amount: boost.cost_coins
-        }).catch(rollbackErr => {
-          console.error('[BoostShop] Ошибка отката монет:', rollbackErr);
         });
         
-        // Откатываем оптимистичное обновление к оригинальным значениям
-        setCoins(originalCoins);
-        setInventory(originalInventory);
-        setIsRefreshing(false);
-        throw new Error(`Не удалось добавить буст в инвентарь: ${error?.message || 'Неизвестная ошибка'}`);
+        if (rollbackError) {
+          console.error('[BoostShop] Ошибка отката монет:', rollbackError);
+        }
+        
+        throw new Error(`Не удалось добавить буст в инвентарь: ${inventoryError.message || inventoryError.code || 'Неизвестная ошибка'}`);
       }
 
-      console.log('[BoostShop] ✅ Покупка завершена успешно');
+      console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
 
-      // Обновляем данные в фоне (не блокируем UI)
-      // Используем небольшую задержку для гарантии консистентности БД
-      setTimeout(async () => {
-        try {
-          // Параллельно загружаем актуальные данные
-          const [profileResult, inventoryResult] = await Promise.allSettled([
-            supabase
-              .from('profiles')
-              .select('coins')
-              .eq('id', profileId)
-              .single(),
-            // Пытаемся загрузить через RPC, если не работает - fallback
-            (async () => {
-              try {
-                const result = await supabase.rpc('get_user_boost_inventory', {
-                  p_user_id: profileId
-                });
-                if (result.error) {
-                  throw result.error;
-                }
-                return result;
-              } catch (err) {
-                // Fallback на прямой запрос если RPC не работает (404 или другая ошибка)
-                console.warn('[BoostShop] RPC для инвентаря не работает, используем fallback:', err);
-                return await supabase
-                  .from('boost_inventory')
-                  .select('boost_type, quantity')
-                  .eq('user_id', profileId);
-              }
-            })()
-          ]);
+      // Анимации и звуки
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      sounds.correctAnswer();
+      haptics.boostActivated();
 
-          // Обрабатываем результаты
-          const profileData = profileResult.status === 'fulfilled' ? profileResult.value : null;
-          const inventoryData = inventoryResult.status === 'fulfilled' ? inventoryResult.value : null;
+      // Обновляем данные без скрытия контента
+      setIsRefreshing(true);
+      try {
+        // Обновляем баланс монет
+        const { data: updatedProfile } = await supabase
+          .from('profiles')
+          .select('coins')
+          .eq('id', profileId)
+          .single();
 
-          // Обновляем состояние только если данные изменились
-          if (profileData.data) {
-            const actualCoins = profileData.data.coins || 0;
-            if (actualCoins !== newCoins) {
-              console.log('[BoostShop] Синхронизация баланса:', actualCoins, '(было оптимистично:', newCoins, ')');
-              setCoins(actualCoins);
-            } else {
-              console.log('[BoostShop] Баланс совпадает с оптимистичным обновлением:', actualCoins);
-            }
-          }
-
-          if (inventoryData && inventoryData.data) {
-            // Всегда синхронизируем инвентарь с БД для гарантии точности
-            const dbInventory = inventoryData.data;
-            console.log('[BoostShop] Синхронизация инвентаря из БД:', dbInventory);
-            
-            // Проверяем, что купленный буст действительно есть в инвентаре
-            const purchasedBoost = dbInventory.find(i => i.boost_type === boost.type);
-            if (purchasedBoost) {
-              console.log('[BoostShop] ✅ Буст подтвержден в БД:', purchasedBoost.boost_type, 'количество:', purchasedBoost.quantity);
-            } else {
-              console.warn('[BoostShop] ⚠️ Буст не найден в БД после синхронизации:', boost.type);
-              // Если буста нет в БД, но он был в оптимистичном обновлении - это проблема
-              // Но мы все равно используем данные из БД как источник истины
-            }
-            
-            // Обновляем инвентарь данными из БД (источник истины)
-            setInventory(dbInventory);
-          } else if (inventoryData && inventoryData.error) {
-            console.error('[BoostShop] Ошибка загрузки инвентаря при синхронизации:', inventoryData.error);
-            // Не обновляем инвентарь, оставляем оптимистичное обновление
-          }
-
-          // Обновляем историю транзакций в фоне
-          loadTransactionHistory().catch(err => {
-            console.warn('[BoostShop] Ошибка обновления истории (не критично):', err);
-          });
-        } catch (syncError) {
-          console.warn('[BoostShop] Ошибка синхронизации данных (не критично):', syncError);
-          // Не показываем ошибку пользователю - покупка уже успешна
-        } finally {
-          setIsRefreshing(false);
+        if (updatedProfile) {
+          setCoins(updatedProfile.coins || 0);
         }
-      }, 300); // Уменьшена задержка с 500ms до 300ms
 
+        // Обновляем инвентарь
+        const { data: updatedInventory } = await supabase
+          .from('boost_inventory')
+          .select('boost_type, quantity')
+          .eq('user_id', profileId);
+
+        if (updatedInventory) {
+          setInventory(updatedInventory);
+        }
+      } catch (error) {
+        console.error('[BoostShop] Ошибка обновления данных:', error);
+        // При ошибке обновления все равно перезагружаем полностью
+        await loadData();
+      } finally {
+        setIsRefreshing(false);
+      }
+
+      toast({
+        title: '✅ Покупка успешна!',
+        description: `${boost.name_ru} добавлен в инвентарь`,
+      });
     } catch (error: any) {
       console.error('[BoostShop] Ошибка покупки:', error);
       
-      // Откатываем оптимистичные обновления к оригинальным значениям
-      setCoins(originalCoins);
-      setInventory(originalInventory);
-      setIsRefreshing(false);
-      
       const errorMessage = error?.message || error?.error?.message || 'Неизвестная ошибка';
+      console.error('[BoostShop] Детали ошибки:', {
+        message: errorMessage,
+        fullError: error
+      });
       
       toast({
         title: '❌ Ошибка покупки',
@@ -937,7 +676,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
     
     return (
-      <div className="w-full max-w-full overflow-x-hidden">
+      <>
         {showConfetti && (
           <Confetti
             width={600}
@@ -949,14 +688,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом */}
-        {useSheet ? (
-          <SheetHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-                <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-                <SheetTitle className="text-base md:text-lg font-semibold truncate">Магазин</SheetTitle>
-              </div>
-              <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+        <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+              <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
+              <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
+            </div>
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <Popover open={showHistory} onOpenChange={setShowHistory}>
                 <PopoverTrigger asChild>
                   <button 
@@ -1166,230 +904,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               >
                 <X className="w-4 h-4" />
               </Button>
-              </div>
             </div>
-          </SheetHeader>
-        ) : (
-          <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-                <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-                <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
-              </div>
-              <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <Popover open={showHistory} onOpenChange={setShowHistory}>
-                <PopoverTrigger asChild>
-                  <button 
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                    onClick={async () => {
-                      setShowHistory(true);
-                      if (transactions.length === 0) {
-                        await loadTransactionHistory();
-                      }
-                    }}
-                  >
-                <Coins className="w-4 h-4 text-gold" />
-                <span className="text-sm font-semibold">{coins}</span>
-                    <History className="w-3 h-3 text-muted-foreground ml-0.5" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 p-0" align="end">
-                  <div className="p-4 border-b space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-bold flex items-center gap-2">
-                        <History className="h-4 w-4" />
-                        История монет
-                      </h4>
-                      <span className="text-xs text-muted-foreground">
-                        {transactions.length} операций
-                      </span>
-                    </div>
-                    
-                    {/* Filters */}
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <Button
-                        variant={filterCategory === 'all' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('all')}
-                      >
-                        Все
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'earn' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('earn')}
-                      >
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        Доходы
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'spend' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('spend')}
-                      >
-                        <TrendingDown className="h-3 w-3 mr-1" />
-                        Расходы
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'purchase' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('purchase')}
-                      >
-                        <CreditCard className="h-3 w-3 mr-1" />
-                        Покупки
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'reward' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('reward')}
-                      >
-                        <Gift className="h-3 w-3 mr-1" />
-                        Награды
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="max-h-[500px] overflow-y-auto p-2">
-                    {loadingHistory ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
-                      </div>
-                    ) : (() => {
-                      const filtered = filterCategory === 'all' 
-                        ? transactions 
-                        : transactions.filter(tx => tx.category === filterCategory);
-                      
-                        if (filtered.length === 0) {
-                          return (
-                            <div className="text-center py-12 text-muted-foreground">
-                              <div className="space-y-3">
-                                {filterCategory === 'all' ? (
-                                  <>
-                                    <Coins className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Здесь появятся твои транзакции</p>
-                                      <p className="text-xs">Начни зарабатывать монеты, проходя тесты и дуэли!</p>
-                                    </div>
-                                    {!isPremium && (
-                                      <div className="pt-2">
-                                        <Badge variant="secondary" className="text-xs">
-                                          💡 Premium удваивает награды
-                                        </Badge>
-                                      </div>
-                                    )}
-                                  </>
-                                ) : filterCategory === 'earn' ? (
-                                  <>
-                                    <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет доходов</p>
-                                      <p className="text-xs">Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!</p>
-                                    </div>
-                                  </>
-                                ) : filterCategory === 'spend' ? (
-                                  <>
-                                    <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет расходов</p>
-                                      <p className="text-xs">Покупай бусты и используй их для улучшения результатов!</p>
-                                    </div>
-                                  </>
-                                ) : filterCategory === 'purchase' ? (
-                                  <>
-                                    <CreditCard className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет покупок</p>
-                                      <p className="text-xs">Пополни баланс монет или получи Premium для больше возможностей!</p>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Gift className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет наград</p>
-                                      <p className="text-xs">Получай награды за Duel Pass, рефералов и достижения!</p>
-                                    </div>
-                                  </>
-                                )}
-                                {filterCategory !== 'all' && (
-                                  <p className="text-xs mt-2 pt-2 border-t border-border/50">Попробуйте другой фильтр</p>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        }
-                      
-                      return (
-                        <div className="space-y-1">
-                          {filtered.map((tx, idx) => {
-                            const IconComponent = tx.icon || (tx.amount > 0 ? TrendingUp : TrendingDown);
-                            return (
-                              <motion.div
-                                key={tx.id || idx}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: idx * 0.02 }}
-                                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
-                              >
-                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  <div className={`p-2 rounded-lg flex-shrink-0 ${
-                                    tx.amount > 0 
-                                      ? 'bg-green-500/10 text-green-600' 
-                                      : 'bg-red-500/10 text-red-600'
-                                  }`}>
-                                    <IconComponent className="h-4 w-4" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{tx.description}</p>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                      <p className="text-xs text-muted-foreground">
-                                        {new Date(tx.created_at).toLocaleDateString('ru', { 
-                                          day: 'numeric',
-                                          month: 'short',
-                                          hour: '2-digit',
-                                          minute: '2-digit' 
-                                        })}
-                                      </p>
-                                      {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
-                                        <Badge variant="secondary" className="text-xs h-4 px-1.5">
-                                          {tx.category === 'purchase' ? 'Покупка' : tx.category === 'reward' ? 'Награда' : ''}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
-                                  tx.amount > 0 ? 'text-green-600' : 'text-red-600'
-                                }`}>
-                                  {tx.amount > 0 ? '+' : ''}{tx.amount}
-                                </span>
-                              </motion.div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </PopoverContent>
-              </Popover>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onOpenChange(false)}
-                className="h-8 w-8"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-              </div>
-            </div>
-          </DialogHeader>
-        )}
+          </div>
+        </DialogHeader>
 
         <div className="relative">
           {isRefreshing && (
@@ -1398,8 +915,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full px-4">
-            <TabsList className="grid w-full grid-cols-3 mt-4">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
               <TabsTrigger value="boosts" className="text-xs">
                 <Zap className="w-3 h-3 mr-1" />
                 Бусты
@@ -1415,10 +932,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsList>
 
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="px-0 py-3 md:py-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               <>
                   {regularBoosts.length > 0 && (
-                    <div className="space-y-2 px-4">
+                    <div className="space-y-2">
                       <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
                       <div className="space-y-2">
                         {regularBoosts.map((boost) => (
@@ -1435,7 +952,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   )}
 
                   {premiumBoosts.length > 0 && (
-                    <div className="space-y-2 mt-4 px-4">
+                    <div className="space-y-2 mt-4">
                       <div className="flex items-center gap-2 px-1">
                         <h3 className="text-sm font-semibold text-muted-foreground">Премиум бусты</h3>
                         <Badge className="gradient-gold border-none text-xs px-1.5 py-0">Premium</Badge>
@@ -1499,41 +1016,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         </div>
                         <div className="text-right">
                           <p className="font-bold">{pack.price}</p>
-                          {isTelegramStrict ? (
-                            // В Telegram Web App показываем обе опции оплаты
-                            <div className="flex flex-col gap-1.5 mt-1">
-                              <Button 
-                                size="sm" 
-                                onClick={() => handleCoinPurchase(pack.catalogKey, 'stripe')}
-                                className="w-full"
-                                disabled={!profileId}
-                                variant="default"
-                              >
-                                <CreditCard className="w-3 h-3 mr-1" />
-                                Stripe
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                onClick={() => handleCoinPurchase(pack.catalogKey, 'stars')}
-                                className="w-full"
-                                disabled={!profileId}
-                                variant="outline"
-                              >
-                                <Star className="w-3 h-3 mr-1" />
-                                Stars
-                              </Button>
-                            </div>
-                          ) : (
-                            // В браузере только Stripe (кнопка Stars не показывается)
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleCoinPurchase(pack.catalogKey, 'stripe')}
-                              className="mt-1"
-                              disabled={!profileId}
-                            >
-                              Купить
-                            </Button>
-                          )}
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleCoinPurchase(pack.catalogKey)}
+                            className="mt-1"
+                            disabled={!profileId}
+                          >
+                            Купить
+                          </Button>
                         </div>
                       </div>
                     </Card>
@@ -1639,39 +1129,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    );
-  };
-
-  // Используем Sheet для мобильных/Telegram, Dialog для десктопа
-  if (useSheet) {
-    return (
-      <>
-        <Sheet open={open} onOpenChange={onOpenChange}>
-          <SheetContent 
-            side="bottom" 
-            hideCloseButton
-            className={cn(
-              getSheetContentClasses('shop', isMobile),
-              // Убираем пустое пространство снизу для Telegram Web App
-              'pb-0 rounded-t-2xl'
-            )}
-          >
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <ModalContent />
-            </div>
-          </SheetContent>
-        </Sheet>
-        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       </>
     );
-  }
+  };
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={getDialogContentClasses('shop', isMobile)} hideCloseButton>
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <div className="flex-1 overflow-y-auto">
             <ModalContent />
           </div>
         </DialogContent>
