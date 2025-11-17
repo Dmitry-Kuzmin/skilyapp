@@ -1349,10 +1349,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     // Mark that I finished (but don't show waiting screen yet)
     setHasFinishedMyQuestions(true);
     
-    // CRITICAL: Increased delay to ensure last answer is fully saved in DB
-    // This prevents race condition where second player's finish_duel is called
-    // before their last answer is committed to database
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    // CRITICAL: Увеличена задержка до 3 секунд чтобы гарантировать что последний ответ полностью сохранен в БД
+    // Это предотвращает race condition когда второй игрок вызывает finish_duel
+    // до того как его последний ответ закоммичен в базу данных
+    // 3 секунды должно быть достаточно даже при медленном соединении
+    console.log('[DuelBattleFullscreen] ⏳ Waiting 3 seconds to ensure last answer is saved in DB...');
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     try {
       // Mark that I finished
