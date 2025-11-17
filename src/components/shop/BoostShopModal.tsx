@@ -20,7 +20,7 @@ import { ModalSkeleton } from '@/components/ui/modal-skeleton';
 import { getDialogContentClasses } from '@/lib/modal-config';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
-import { getTelegramWebApp } from '@/lib/telegram';
+import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 
 interface BoostShopModalProps {
   open: boolean;
@@ -57,8 +57,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
-  const webApp = getTelegramWebApp();
-  const showStarsPayment = platform === 'telegram' && !!webApp;
+  // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
+  const showStarsPayment = isTelegramMiniApp();
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -1004,13 +1004,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     { amount: 3000, price: '€39.99', bonus: 500, catalogKey: 'coins_pack_3000', packageKey: 'coins_3000', priceCoins: 3500 },
                   ].map((pack, idx) => (
                     <Card key={idx} className="p-4 hover:border-primary/50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
                             <Coins className="w-6 h-6 text-yellow-500" />
                           </div>
-                          <div>
-                            <p className="font-semibold">{pack.amount} монет</p>
+                          <div className="min-w-0">
+                            <p className="font-semibold truncate">{pack.amount} монет</p>
                             {pack.bonus > 0 && (
                               <Badge variant="secondary" className="text-xs mt-0.5">
                                 +{pack.bonus} бонус
@@ -1018,13 +1018,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             )}
                           </div>
                         </div>
-                        <div className="text-right flex flex-col items-end gap-2">
-                          <p className="font-bold">{pack.price}</p>
-                          <div className="flex gap-2">
+                        <div className="w-full sm:w-auto flex flex-col sm:items-end gap-2">
+                          <p className="font-bold text-right">{pack.price}</p>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <Button 
                               size="sm" 
                               onClick={() => handleCoinPurchase(pack.catalogKey)}
-                              className="mt-1"
+                              className="w-full sm:w-auto"
                               disabled={!profileId}
                               variant="default"
                             >
@@ -1046,6 +1046,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 }}
                                 variant="outline"
                                 size="sm"
+                                className="w-full sm:w-auto"
                               />
                             )}
                           </div>

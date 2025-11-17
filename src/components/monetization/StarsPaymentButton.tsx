@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2, Star } from 'lucide-react';
-import { getTelegramWebApp } from '@/lib/telegram';
+import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -39,11 +39,12 @@ export function StarsPaymentButton({
   const [loading, setLoading] = useState(false);
   
   // Показывать только в Telegram Mini App
+  // Используем isTelegramMiniApp() для более надежного определения (работает на мобильных и десктопе)
   const webApp = getTelegramWebApp();
-  const isTelegram = platform === 'telegram' && !!webApp;
+  const isTelegram = isTelegramMiniApp();
 
   // Не показывать вне Telegram
-  if (!isTelegram) {
+  if (!isTelegram || !webApp) {
     return null;
   }
 
