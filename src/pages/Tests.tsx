@@ -405,6 +405,104 @@ const Tests = () => {
             </div>
         </div>
 
+        {/* Topics Section - Practice Tests by Topic */}
+        {topics.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Тесты по темам</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {topics.map((topic) => (
+                <Card
+                  key={topic.id}
+                  className="group relative overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 border-transparent hover:border-primary/30"
+                  onClick={() => handleStartPath(`/tests/${topic.id}`)}
+                >
+                  {/* Cover Image */}
+                  {topic.cover_image ? (
+                    <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-muted to-muted/50">
+                      <img
+                        src={topic.cover_image}
+                        alt={topic.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => {
+                          // Fallback to gradient if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                      {/* Gradient Overlay */}
+                      <div
+                        className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
+                        style={{
+                          background: topic.gradient_from && topic.gradient_to
+                            ? `linear-gradient(to top, ${topic.gradient_from}80 0%, ${topic.gradient_to}40 50%, transparent 100%)`
+                            : 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)'
+                        }}
+                      />
+                      {/* Premium Badge */}
+                      {topic.is_premium && (
+                        <div className="absolute top-2 right-2">
+                          <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            Premium
+                          </div>
+                        </div>
+                      )}
+                      {/* Question Count */}
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded">
+                          {topic.questions} вопросов
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Fallback gradient if no cover image
+                    <div
+                      className="h-32 w-full relative overflow-hidden"
+                      style={{
+                        background: topic.gradient_from && topic.gradient_to
+                          ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
+                          : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
+                      }}
+                    >
+                      {/* Topic Number */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="text-white text-4xl font-bold opacity-30">
+                          {topic.number}
+                        </div>
+                      </div>
+                      {/* Premium Badge */}
+                      {topic.is_premium && (
+                        <div className="absolute top-2 right-2">
+                          <div className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                            <Star className="w-3 h-3" />
+                            Premium
+                          </div>
+                        </div>
+                      )}
+                      {/* Question Count */}
+                      <div className="absolute bottom-2 left-2 right-2">
+                        <div className="bg-black/50 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded">
+                          {topic.questions} вопросов
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Card Content */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-1 line-clamp-2 group-hover:text-primary transition-colors">
+                      {topic.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Тема {topic.number}
+                    </p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Exam Mode Section */}
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-4">{t('examMode')}</h2>
