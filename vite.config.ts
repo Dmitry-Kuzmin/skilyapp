@@ -116,17 +116,22 @@ export default defineConfig(({ mode }) => {
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) {
               return 'utils-libs';
             }
-            // Остальные vendor библиотеки (разделяем на мелкие группы)
-            // Если библиотека большая (>50KB), выделяем отдельно
+            // Остальные vendor библиотеки - создаем отдельные chunks для каждой
+            // Это предотвращает попадание React-зависимых библиотек в общий vendor chunk
             const match = id.match(/node_modules\/([^/]+)/);
             if (match) {
               const pkgName = match[1];
-              // Большие библиотеки выделяем отдельно
+              // Для scoped packages (@scope/package) создаем отдельный chunk
               if (pkgName.startsWith('@')) {
                 return `vendor-${pkgName.replace('@', '').replace('/', '-')}`;
               }
+              // Для обычных packages тоже создаем отдельный chunk
+              // Это гарантирует, что ничего не попадет в общий vendor
+              return `vendor-${pkgName}`;
             }
-            return 'vendor';
+            // Если не удалось определить пакет - добавляем в react-vendor на всякий случай
+            // Это безопаснее, чем создавать общий vendor chunk
+            return 'react-vendor';
           }
         },
       },
