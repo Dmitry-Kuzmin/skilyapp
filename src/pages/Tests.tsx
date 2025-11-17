@@ -1,10 +1,13 @@
 import { useState, useEffect, Fragment } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers, ArrowRight } from "lucide-react";
+import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers, ArrowRight, Lock, Unlock, Play, Eye, Zap, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,6 +18,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
 import { useCoins } from "@/hooks/useCoins";
+import { cn } from "@/lib/utils";
 
 const ACCENT_GRADIENTS = [
   { from: "#111827", via: "#4338CA", to: "#C084FC", glow: "#C084FC55" },
@@ -42,6 +46,29 @@ const getQuestionLabel = (count: number) => {
   if (count === 1) return "вопрос";
   if (count >= 2 && count <= 4) return "вопроса";
   return "вопросов";
+};
+
+type Test = {
+  id: string;
+  test_number: number;
+  title_ru: string;
+  title_es: string;
+  title_en: string;
+  description_ru: string | null;
+  description_es: string | null;
+  description_en: string | null;
+  questions_count: number;
+  min_pass_percent: number;
+  order_index: number;
+  topic_id: string;
+  progress: {
+    status: 'locked' | 'unlocked' | 'in_progress' | 'completed' | 'passed' | 'failed';
+    score: number | null;
+    best_score: number | null;
+    attempts_count: number;
+    correct_answers: number | null;
+    total_questions: number | null;
+  } | null;
 };
 
 const Tests = () => {
@@ -88,14 +115,175 @@ const Tests = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [challengeBankCount, setChallengeBankCount] = useState(0);
   const [randomQuestionCount, setRandomQuestionCount] = useState(10);
+  
+  // States for topic tests modal
+  const [selectedTopicForModal, setSelectedTopicForModal] = useState<{ id: string; name: string; number: number } | null>(null);
+  const [topicTests, setTopicTests] = useState<Test[]>([]);
+  const [loadingTopicTests, setLoadingTopicTests] = useState(false);
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
 
   useEffect(() => {
     loadTopics();
     if (isAuthenticated && profileId) {
       loadStats();
       loadChallengeBankCount();
+      initializeUserProgress();
     }
   }, [isAuthenticated, profileId]);
+
+  const initializeUserProgress = async () => {
+    if (!profileId) return;
+    
+    try {
+      const { error } = await supabase.rpc('initialize_user_test_progress', {
+        p_user_id: profileId
+      });
+      
+      if (error) {
+        console.error('Error initializing user progress:', error);
+      }
+    } catch (error) {
+      console.error('Error initializing user progress:', error);
+    }
+  };
+
+  const handleTopicCardClick = async (topic: { id: string; name: string; number: number }) => {
+    console.log('[Tests] Opening modal for topic:', topic);
+    setSelectedTopicForModal(topic);
+    setIsTopicModalOpen(true);
+    await loadTopicTests(topic.id);
+  };
+
+  const loadTopicTests = async (topicId: string) => {
+    try {
+      setLoadingTopicTests(true);
+      console.log('[Tests] Loading tests for topic:', topicId);
+      
+      // Загружаем тесты для выбранной темы
+      const { data: testsData, error: testsError } = await supabase
+        .from("tests")
+        .select("*")
+        .eq("topic_id", topicId)
+        .order("order_index");
+
+      if (testsError) throw testsError;
+      console.log('[Tests] Loaded tests:', testsData?.length || 0, testsData);
+
+      // Загружаем прогресс пользователя, если авторизован
+      let progressMap = new Map<string, Test['progress']>();
+      
+      if (isAuthenticated && profileId) {
+        const { data: progressData, error: progressError } = await supabase
+          .from("user_test_progress")
+          .select("*")
+          .eq("user_id", profileId)
+          .in("test_id", (testsData || []).map(t => t.id));
+
+        if (!progressError && progressData) {
+          progressData.forEach(p => {
+            progressMap.set(p.test_id, {
+              status: p.status,
+              score: p.score,
+              best_score: p.best_score,
+              attempts_count: p.attempts_count,
+              correct_answers: p.correct_answers,
+              total_questions: p.total_questions,
+            });
+          });
+        }
+      }
+
+      // Объединяем тесты с прогрессом
+      const testsWithProgress = (testsData || []).map(test => ({
+        ...test,
+        progress: progressMap.get(test.id) || null,
+      }));
+
+      console.log('[Tests] Tests with progress:', testsWithProgress.length, testsWithProgress);
+      setTopicTests(testsWithProgress);
+    } catch (error) {
+      console.error("Error loading topic tests:", error);
+      toast.error("Ошибка загрузки тестов");
+    } finally {
+      setLoadingTopicTests(false);
+    }
+  };
+
+  const handleStartTest = (test: Test) => {
+    if (test.progress?.status === 'locked') {
+      toast.error("Этот тест заблокирован. Пройдите предыдущие тесты.");
+      return;
+    }
+    setIsTopicModalOpen(false);
+    navigate(`/test/sequential/${test.id}`);
+  };
+
+  const getStatusIcon = (test: Test) => {
+    if (!test.progress || test.progress.status === 'locked') {
+      return <Lock className="h-4 w-4 text-muted-foreground" />;
+    }
+    if (test.progress.status === 'passed') {
+      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+    }
+    if (test.progress.status === 'failed') {
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    }
+    if (test.progress.status === 'unlocked') {
+      return <Unlock className="h-4 w-4 text-blue-500" />;
+    }
+    return <Clock className="h-4 w-4 text-yellow-500" />;
+  };
+
+  const getStatusBadge = (test: Test) => {
+    if (!test.progress || test.progress.status === 'locked') {
+      return (
+        <Badge variant="secondary" className="flex items-center gap-1">
+          <Lock className="h-3 w-3" />
+          Заблокирован
+        </Badge>
+      );
+    }
+    if (test.progress.status === 'passed') {
+      return (
+        <Badge variant="default" className="bg-green-500 flex items-center gap-1">
+          <CheckCircle2 className="h-3 w-3" />
+          Пройден
+        </Badge>
+      );
+    }
+    if (test.progress.status === 'failed') {
+      return (
+        <Badge variant="destructive" className="flex items-center gap-1">
+          <XCircle className="h-3 w-3" />
+          Не пройден
+        </Badge>
+      );
+    }
+    if (test.progress.status === 'unlocked') {
+      return (
+        <Badge variant="outline" className="border-blue-500 text-blue-500 flex items-center gap-1">
+          <Sparkles className="h-3 w-3" />
+          Доступен
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="flex items-center gap-1">
+        <Clock className="h-3 w-3" />
+        В процессе
+      </Badge>
+    );
+  };
+
+  const getProgressPercentage = (test: Test) => {
+    if (!test.progress || test.progress.status === 'locked') {
+      return 0;
+    }
+    if (test.progress.total_questions && test.progress.total_questions > 0) {
+      return Math.round((test.progress.correct_answers || 0) / test.progress.total_questions * 100);
+    }
+    return 0;
+  };
 
   // Если пришли с карты обучения с параметром ?topic=ID, выбираем эту тему по умолчанию
   useEffect(() => {
@@ -453,22 +641,22 @@ const Tests = () => {
 
         {/* Topics Section - Updated Design v2 */}
         {topics.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Тесты по темам</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="mb-10">
+            <h2 className="text-xl font-bold mb-4 sm:mb-5">Тесты по темам</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-4 lg:gap-5">
               {topics.map((topic) => (
-              <Card
-                key={topic.id}
-                className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-4 border-red-500 bg-red-100"
-                onClick={() => handleStartPath(`/tests/${topic.id}`)}
-              >
-                  {/* Image/Gradient Container */}
-                  <div className="relative w-full h-36 overflow-hidden bg-muted">
+                <Card
+                  key={topic.id}
+                  className="group cursor-pointer overflow-hidden rounded-2xl sm:rounded-3xl border border-border/40 bg-white/90 dark:bg-slate-950/50 backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98]"
+                  onClick={() => handleTopicCardClick({ id: topic.id, name: topic.name, number: topic.number })}
+                >
+                  {/* Visual */}
+                  <div className="relative h-40 sm:h-36 lg:h-40 w-full overflow-hidden bg-slate-900/5">
                     {topic.cover_image ? (
                       <img
                         src={topic.cover_image}
                         alt={topic.name}
-                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                        className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
                         loading="lazy"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -477,48 +665,45 @@ const Tests = () => {
                       />
                     ) : (
                       <div
-                        className="w-full h-full flex items-center justify-center relative"
+                        className="flex h-full w-full items-center justify-center text-4xl sm:text-5xl font-black text-white/25"
                         style={{
                           background: topic.gradient_from && topic.gradient_to
                             ? `linear-gradient(135deg, ${topic.gradient_from} 0%, ${topic.gradient_to} 100%)`
                             : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
                         }}
                       >
-                        <div className="text-white/15 text-6xl font-black">
-                          {topic.number}
-                        </div>
+                        {topic.number}
                       </div>
                     )}
-                    
-                    {/* Overlay for better text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    
-                    {/* Premium Badge */}
-                    {topic.is_premium && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge className="bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 gap-1 shadow-lg">
-                          <Star className="w-3 h-3 fill-white" />
-                          Premium
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    {/* Question Count Badge */}
-                    <div className="absolute bottom-2 left-2 z-10">
-                      <Badge variant="secondary" className="bg-black/60 text-white text-[10px] backdrop-blur-sm border-0">
-                        {topic.questions} вопросов
-                      </Badge>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/20 to-transparent" />
+
+                    <div className="absolute top-2 left-2 right-2 sm:top-3 sm:left-3 sm:right-3 flex items-start justify-end">
+                      <span className="rounded-full bg-black/30 px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-white/90 backdrop-blur-sm">
+                        Тема {topic.number}
+                      </span>
                     </div>
+
+                    {topic.is_premium && (
+                      <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+                        <span className="inline-flex items-center gap-0.5 sm:gap-1 rounded-full bg-amber-100/90 px-2 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[10px] font-semibold text-amber-800 shadow-lg">
+                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                          Premium
+                        </span>
+                      </div>
+                    )}
+
                   </div>
 
                   {/* Content */}
-                  <div className="p-3">
-                    <div className="text-[11px] font-medium text-muted-foreground mb-1">
-                      Тема {topic.number}
-                    </div>
-                    <h3 className="font-bold text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                      {topic.name}
-                    </h3>
+                  <div className="flex items-center justify-between border-t border-border/40 px-3 py-2 sm:px-4 sm:py-2.5 lg:py-3">
+                    <span className="inline-flex items-center gap-1 text-foreground font-medium line-clamp-1 pr-2 text-[11px] sm:text-[12px] flex-1 min-w-0">
+                      <ListOrdered className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/70 flex-shrink-0" />
+                      <span className="truncate">{topic.number}. {topic.name}</span>
+                    </span>
+                    <span className="font-semibold text-muted-foreground text-[10px] sm:text-[11px] lg:text-[12px] flex-shrink-0 ml-2">
+                      {topic.questions} {getQuestionLabel(topic.questions)}
+                    </span>
                   </div>
                 </Card>
               ))}
@@ -653,6 +838,182 @@ const Tests = () => {
       </div>
     </Layout>
       <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      
+      {/* Topic Tests Modal */}
+      <Dialog 
+        open={isTopicModalOpen} 
+        onOpenChange={(open) => {
+          console.log('[Tests] Modal open change:', open);
+          setIsTopicModalOpen(open);
+          if (!open) {
+            // Сбрасываем состояние при закрытии
+            setSelectedTopicForModal(null);
+            setTopicTests([]);
+          }
+        }}
+      >
+        <DialogContent className="max-w-4xl max-h-[85vh]">
+          <DialogHeader className="pb-4 border-b">
+            <DialogTitle className="text-2xl flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              {selectedTopicForModal && `Тема ${selectedTopicForModal.number}: ${selectedTopicForModal.name}`}
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Выберите тест для прохождения
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[60vh] pr-4">
+            {loadingTopicTests ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <div className="text-muted-foreground">Загрузка тестов...</div>
+              </div>
+            ) : topicTests.length === 0 ? (
+              <div className="text-center py-12">
+                <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                <p className="text-lg font-semibold mb-2">Тесты пока не добавлены</p>
+                <p className="text-muted-foreground">
+                  Тесты появятся здесь после синхронизации с базой данных
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {topicTests.map((test) => (
+                  <Card
+                    key={test.id}
+                    className={cn(
+                      "p-4 transition-all duration-300 cursor-pointer",
+                      "border-2 hover:border-primary/50",
+                      test.progress?.status === 'locked' 
+                        ? "opacity-60 bg-muted/30 border-dashed" 
+                        : "hover:shadow-lg",
+                      test.progress?.status === 'passed' && "border-green-500/30 bg-green-500/5",
+                      test.progress?.status === 'unlocked' && "border-blue-500/30 bg-blue-500/5",
+                      test.progress?.status === 'in_progress' && "border-yellow-500/30 bg-yellow-500/5"
+                    )}
+                    onClick={() => handleStartTest(test)}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className={cn(
+                          "flex items-center justify-center w-10 h-10 rounded-lg font-bold text-lg flex-shrink-0",
+                          test.progress?.status === 'locked' && "bg-muted border-2 border-dashed",
+                          test.progress?.status === 'passed' && "bg-green-500 text-white",
+                          test.progress?.status === 'unlocked' && "bg-blue-500 text-white",
+                          test.progress?.status === 'failed' && "bg-red-500 text-white",
+                          !test.progress && "bg-primary text-primary-foreground"
+                        )}>
+                          {test.test_number}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-base mb-1 line-clamp-2">{test.title_ru}</h3>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {getStatusIcon(test)}
+                            {getStatusBadge(test)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="p-2 rounded-lg bg-background/50 border border-border/50">
+                        <div className="flex items-center gap-1 mb-1">
+                          <Target className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Вопросов</span>
+                        </div>
+                        <span className="text-base font-bold">{test.questions_count}</span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-background/50 border border-border/50">
+                        <div className="flex items-center gap-1 mb-1">
+                          <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">Минимум</span>
+                        </div>
+                        <span className="text-base font-bold">{test.min_pass_percent}%</span>
+                      </div>
+                    </div>
+                    
+                    {test.progress && test.progress.status !== 'locked' && (
+                      <div className="space-y-2 pt-2 border-t border-border/50">
+                        {test.progress.best_score !== null && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Star className="h-3 w-3" />
+                              Лучший результат
+                            </span>
+                            <span className={cn(
+                              "font-bold text-xs",
+                              test.progress.best_score >= test.min_pass_percent
+                                ? "text-green-500"
+                                : "text-orange-500"
+                            )}>
+                              {test.progress.best_score}%
+                            </span>
+                          </div>
+                        )}
+                        {test.progress.attempts_count > 0 && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Zap className="h-3 w-3" />
+                              Попыток
+                            </span>
+                            <span className="font-bold text-xs">{test.progress.attempts_count}</span>
+                          </div>
+                        )}
+                        {test.progress.total_questions && test.progress.total_questions > 0 && (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Прогресс</span>
+                              <span className="text-xs font-bold">{getProgressPercentage(test)}%</span>
+                            </div>
+                            <Progress 
+                              value={getProgressPercentage(test)} 
+                              className="h-1.5"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <Button
+                      size="sm"
+                      className={cn(
+                        "w-full mt-3",
+                        test.progress?.status === 'unlocked' && "bg-blue-500 hover:bg-blue-600",
+                        test.progress?.status === 'passed' && "bg-green-500 hover:bg-green-600",
+                        test.progress?.status === 'failed' && "bg-orange-500 hover:bg-orange-600"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartTest(test);
+                      }}
+                      disabled={test.progress?.status === 'locked'}
+                    >
+                      {test.progress?.status === 'passed' ? (
+                        <>
+                          <Trophy className="h-4 w-4 mr-2" />
+                          Повторить
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4 mr-2" />
+                          Начать
+                        </>
+                      )}
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+
+          <DialogFooter className="border-t pt-4">
+            <Button variant="outline" onClick={() => setIsTopicModalOpen(false)}>
+              Закрыть
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Fragment>
   );
 };
