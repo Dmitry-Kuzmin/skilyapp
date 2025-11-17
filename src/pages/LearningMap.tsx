@@ -36,6 +36,7 @@ const LearningMap = () => {
   const [userProfile, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
 
   useEffect(() => {
+    console.log('[LearningMap] Loading map, language:', language);
     setLoading(true);
     loadLearningMap();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,6 +93,7 @@ const LearningMap = () => {
 
   const loadLearningMap = async () => {
     try {
+      console.log('[LearningMap] Starting to load topics from Supabase...');
       setError(null);
       setLoading(true);
       const { data: topicsData, error: topicsError } = await supabase
@@ -99,6 +101,8 @@ const LearningMap = () => {
         .select("*, subtopics(*)")
         .order("order_index", { ascending: true })
         .limit(50);
+
+      console.log('[LearningMap] Topics loaded:', topicsData?.length || 0, 'Error:', topicsError);
 
       if (topicsError) throw topicsError;
 
@@ -128,12 +132,15 @@ const LearningMap = () => {
         ),
       })) as TopicWithSubtopics[];
 
+      console.log('[LearningMap] Topics processed:', topicsList.length);
       setTopics(topicsList);
       setLoading(false);
+      console.log('[LearningMap] Loading complete, loading state:', false);
     } catch (error: any) {
-      console.error("Error loading learning map:", error);
+      console.error("[LearningMap] Error loading learning map:", error);
       setError(error.message || "Не удалось загрузить карту обучения. Попробуйте обновить страницу.");
       setLoading(false);
+      console.log('[LearningMap] Error state set, loading:', false);
     }
   };
 
