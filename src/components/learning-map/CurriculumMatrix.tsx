@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Lock, Play, Sparkles } from "lucide-react";
 import { CurriculumBlueprintTopic, CurriculumSection } from "@/data/curriculumBlueprint";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type ItemStatus = "completed" | "active" | "locked" | "placeholder";
 
@@ -57,35 +58,37 @@ const palettes = [
   },
 ];
 
-const statusConfig: Record<
-  ItemStatus,
-  { label: string; className: string; icon: React.ComponentType<{ className?: string }> }
-> = {
-  completed: {
-    label: "Изучено",
-    className: "bg-emerald-50 text-emerald-800 border border-emerald-100",
-    icon: CheckCircle2,
-  },
-  active: {
-    label: "В процессе",
-    className: "bg-sky-50 text-sky-800 border border-sky-100",
-    icon: Play,
-  },
-  locked: {
-    label: "Закрыто",
-    className: "bg-slate-50 text-slate-400 border border-slate-100",
-    icon: Lock,
-  },
-  placeholder: {
-    label: "Скоро",
-    className: "bg-slate-50 text-slate-400 border border-dashed border-slate-200",
-    icon: Sparkles,
-  },
-};
-
 export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: CurriculumMatrixProps) => {
+  const { t } = useLanguage();
+
+  const statusConfig: Record<
+    ItemStatus,
+    { label: string; className: string; icon: React.ComponentType<{ className?: string }> }
+  > = {
+    completed: {
+      label: t("completed"),
+      className: "bg-emerald-500/15 text-emerald-100 border border-emerald-500/30",
+      icon: CheckCircle2,
+    },
+    active: {
+      label: t("in_progress"),
+      className: "bg-sky-500/20 text-sky-100 border border-sky-500/40",
+      icon: Play,
+    },
+    locked: {
+      label: t("locked"),
+      className: "bg-slate-900/40 text-slate-500 border border-slate-800",
+      icon: Lock,
+    },
+    placeholder: {
+      label: t("coming_soon"),
+      className: "bg-slate-900/30 text-slate-500 border border-slate-800 border-dashed",
+      icon: Sparkles,
+    },
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {topics.map((topic, index) => {
         const palette = palettes[index % palettes.length];
 
@@ -97,34 +100,45 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
               "px-4 py-4 sm:px-6 sm:py-5"
             )}
           >
-            <div className="space-y-4">
+            <div className="absolute inset-0 opacity-60 pointer-events-none">
+              <div
+                className={cn(
+                  "absolute -top-32 -right-20 w-72 h-72 blur-[120px] rounded-full",
+                  palette.badgeBg
+                )}
+              />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_45%)]" />
+            </div>
+
+            <div className="relative space-y-4">
               <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-semibold border",
-                        palette.badgeBg,
-                        palette.badgeText,
-                        palette.badgeBorder
+                        "h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold",
+                        topic.isCompleted ? "bg-emerald-500 text-white" : palette.badgeBg,
+                        !topic.topicId && "bg-slate-200 text-slate-500"
                       )}
                     >
                       {topic.number}
                     </div>
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Модуль</p>
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                        {t("module")}
+                      </p>
                       <h2 className="text-base sm:text-lg font-semibold tracking-tight text-slate-900">
                         {topic.title}
                       </h2>
                     </div>
                   </div>
                   {topic.description && (
-                    <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-2xl">{topic.description}</p>
+                    <p className="text-slate-600 text-sm max-w-2xl">{topic.description}</p>
                   )}
                 </div>
 
-                <div className="flex flex-wrap gap-3 md:justify-end">
-                  <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
                     <div className="relative">
                       <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
                         <path
@@ -132,41 +146,39 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
                           strokeWidth="3.5"
                           stroke="currentColor"
                           fill="none"
-                          d="M18 2.0845
-                            a 15.9155 15.9155 0 0 1 0 31.831
-                            a 15.9155 15.9155 0 0 1 0 -31.831"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path
-                          className={palette.progressColor}
+                          className="text-sky-500"
                           strokeWidth="3.5"
                           strokeLinecap="round"
                           stroke="currentColor"
                           fill="none"
                           strokeDasharray={`${Math.min(topic.progressPercent, 100)}, 100`}
-                          d="M18 2.0845
-                            a 15.9155 15.9155 0 0 1 0 31.831
-                            a 15.9155 15.9155 0 0 1 0 -31.831"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                       </svg>
                       <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-800">
-                        {Math.min(100, Math.round(topic.progressPercent))}%
+                        {Math.round(topic.progressPercent)}%
                       </span>
                     </div>
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Прогресс</p>
-                      <p className="text-sm font-medium text-slate-800">
-                        {topic.isCompleted ? "Завершено" : "В пути"}
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                        {t("progress")}
+                      </p>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {topic.isCompleted ? t("completed") : t("in_progress")}
                       </p>
                     </div>
                   </div>
 
                   {topic.topicId && onTopicClick && (
                     <Button
-                      variant="outline"
-                      className="rounded-xl border-slate-200 text-slate-900 hover:bg-slate-50 text-xs sm:text-sm px-3 py-2"
+                      variant="secondary"
+                      className="rounded-xl bg-white text-slate-900 hover:bg-slate-100 font-semibold px-4 py-3"
                       onClick={() => onTopicClick(topic.topicId!)}
                     >
-                      Продолжить тему
+                      {t("continue_topic")}
                     </Button>
                   )}
                 </div>
@@ -180,7 +192,9 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
                   >
                     <div className="flex items-center justify-between flex-wrap gap-3">
                       <div>
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">Блок</p>
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                          {t("block")}
+                        </p>
                         <h3 className="text-sm font-semibold text-slate-900">{section.title}</h3>
                       </div>
                       <span className="text-[11px] text-slate-400">
@@ -197,10 +211,14 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
                           <button
                             key={`${section.title}-${item.code}-${item.title}`}
                             onClick={() => item.subtopicId && onSubtopicClick(item.subtopicId)}
-                            disabled={!item.subtopicId || item.status === "locked" || item.status === "placeholder"}
+                            disabled={
+                              !item.subtopicId ||
+                              item.status === "locked" ||
+                              item.status === "placeholder"
+                            }
                             className={cn(
                               "group relative rounded-xl px-3 py-2 min-w-[180px] text-left transition-all duration-150",
-                              "flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-200",
+                              "flex flex-col gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
                               config.className,
                               !item.subtopicId && "cursor-default"
                             )}
@@ -208,7 +226,7 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-slate-400">
                                 {item.code && <span>{item.code}</span>}
-                                <div className="h-1 w-1 rounded-full bg-slate-300" />
+                                <div className="h-1 w-1 rounded-full bg-white/30" />
                                 <span>{config.label}</span>
                               </div>
                               <Icon className="w-3 h-3" />
@@ -230,5 +248,3 @@ export const CurriculumMatrix = ({ topics, onSubtopicClick, onTopicClick }: Curr
     </div>
   );
 };
-
-

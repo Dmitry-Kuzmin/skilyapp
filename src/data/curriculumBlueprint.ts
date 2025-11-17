@@ -1,17 +1,25 @@
 export interface CurriculumItem {
   code?: string;
   title: string;
+  title_es?: string;
+  title_en?: string;
 }
 
 export interface CurriculumSection {
   title: string;
+  title_es?: string;
+  title_en?: string;
   items: CurriculumItem[];
 }
 
 export interface CurriculumBlueprintTopic {
   number: number;
   title: string;
+  title_es?: string;
+  title_en?: string;
   description?: string;
+  description_es?: string;
+  description_en?: string;
   sections: CurriculumSection[];
 }
 
