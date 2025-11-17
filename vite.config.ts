@@ -53,8 +53,8 @@ export default defineConfig(({ mode }) => {
         manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
-            // КРИТИЧНО: React, React DOM и все React-зависимые библиотеки в ОДНОМ chunk
-            // Это гарантирует правильный порядок загрузки на Vercel и предотвращает ошибку forwardRef
+            // КРИТИЧНО: ВСЕ React-зависимые библиотеки в ОДНОМ chunk
+            // Это гарантирует правильный порядок загрузки на Vercel и предотвращает ошибки forwardRef/useLayoutEffect
             if (
               id.includes('react/') || 
               id.includes('react-dom') ||
@@ -62,7 +62,19 @@ export default defineConfig(({ mode }) => {
               id.includes('@radix-ui') ||
               id.includes('@tanstack/react-query') ||
               id.includes('react-hook-form') ||
-              id.includes('@hookform')
+              id.includes('@hookform') ||
+              id.includes('embla-carousel-react') ||
+              id.includes('react-confetti') ||
+              id.includes('react-day-picker') ||
+              id.includes('react-markdown') ||
+              id.includes('react-resizable-panels') ||
+              id.includes('@tiptap/react') ||
+              id.includes('@uidotdev/usehooks') ||
+              id.includes('cmdk') ||
+              id.includes('vaul') ||
+              id.includes('next-themes') ||
+              id.includes('framer-motion') ||
+              id.includes('recharts')
             ) {
               return 'react-vendor';
             }
@@ -70,17 +82,9 @@ export default defineConfig(({ mode }) => {
             if (id.includes('@supabase')) {
               return 'supabase';
             }
-            // TipTap редактор
-            if (id.includes('@tiptap')) {
+            // TipTap (только extensions, без react - @tiptap/react уже в react-vendor)
+            if (id.includes('@tiptap') && !id.includes('@tiptap/react')) {
               return 'tiptap';
-            }
-            // Framer Motion (большая библиотека анимаций)
-            if (id.includes('framer-motion')) {
-              return 'framer-motion';
-            }
-            // Recharts (графики)
-            if (id.includes('recharts')) {
-              return 'recharts';
             }
             // XLSX (Excel файлы) - используется только в админке
             if (id.includes('xlsx')) {
@@ -102,25 +106,13 @@ export default defineConfig(({ mode }) => {
             if (id.includes('zod')) {
               return 'validation-libs';
             }
-            // Markdown библиотеки
-            if (id.includes('react-markdown') || id.includes('remark')) {
+            // Markdown библиотеки (remark только, react-markdown уже в react-vendor)
+            if (id.includes('remark') && !id.includes('react-markdown')) {
               return 'markdown-libs';
-            }
-            // Carousel библиотеки
-            if (id.includes('embla-carousel')) {
-              return 'carousel-libs';
-            }
-            // Resizable panels
-            if (id.includes('react-resizable-panels')) {
-              return 'resizable-libs';
             }
             // Utils библиотеки (классы, утилиты)
             if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) {
               return 'utils-libs';
-            }
-            // Theme библиотеки
-            if (id.includes('next-themes')) {
-              return 'theme-libs';
             }
             // Остальные vendor библиотеки (разделяем на мелкие группы)
             // Если библиотека большая (>50KB), выделяем отдельно
