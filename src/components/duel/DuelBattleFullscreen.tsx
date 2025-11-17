@@ -1467,10 +1467,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
   const PROGRESS_BAR_HEIGHT = 60;
   
+  // Для мобильной версии Telegram: поднимаем прогресс-бар выше на 15px
+  const progressBarTop = isTelegramMobile 
+    ? totalTopPadding - 15 
+    : totalTopPadding;
+  
   // Вычисляем отступ для контента: для мобильной версии Telegram делаем минимальный зазор
   const contentTopPadding =
     isTelegramMobile
-      ? totalTopPadding + PROGRESS_BAR_HEIGHT - 2 // Минимальный зазор (2px) между прогресс-баром и контентом
+      ? progressBarTop + PROGRESS_BAR_HEIGHT - 2 // Минимальный зазор (2px) между прогресс-баром и контентом
       : totalTopPadding + PROGRESS_BAR_HEIGHT;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
@@ -1490,7 +1495,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="fixed z-50 space-y-2 max-w-sm"
         style={{
-          top: `${totalTopPadding + (isTelegramMobile ? 16 : isTelegramDesktop ? 8 : 16)}px`,
+          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : isTelegramDesktop ? 8 : 16)}px`,
           right: `${totalRightPadding + 16}px`
         }}
       >
@@ -1509,7 +1514,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="absolute left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/30"
         style={{
-          top: `${totalTopPadding}px`,
+          top: `${progressBarTop}px`,
           paddingLeft: `${totalLeftPadding}px`,
           paddingRight: `${totalRightPadding}px`,
           paddingTop: isTelegramMobile || isTelegramDesktop ? '4px' : '8px',
@@ -1878,7 +1883,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="flex-1 flex flex-col min-h-0"
+          className={`flex-1 flex flex-col min-h-0 ${isTelegramMobile ? '-mt-8' : ''}`}
         >
           <div className="bg-card/95 backdrop-blur-sm border border-border rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl flex-1 flex flex-col overflow-y-auto overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
             {/* Question Image */}
