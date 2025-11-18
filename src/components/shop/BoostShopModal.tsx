@@ -789,7 +789,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       <p className="text-sm">Бусты скоро появятся</p>
                     </div>
                   )}
-              </>
+                </>
+              </div>
             </TabsContent>
 
             {/* Coins Tab */}
