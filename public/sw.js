@@ -5,8 +5,8 @@
 
 // Обновляем версию кэша при каждом деплое, чтобы очистить старые файлы
 const CACHE_VERSION = 'v2-' + Date.now();
-const CACHE_NAME = `sdadim-dgt-prep-${CACHE_VERSION}`;
-const STATIC_CACHE_NAME = `sdadim-static-${CACHE_VERSION}`;
+const CACHE_NAME = `skilyapp-${CACHE_VERSION}`;
+const STATIC_CACHE_NAME = `skilyapp-static-${CACHE_VERSION}`;
 
 // Ресурсы для кэширования при установке
 const STATIC_ASSETS = [
