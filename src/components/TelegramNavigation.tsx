@@ -18,9 +18,12 @@ export const TelegramNavigation = () => {
         setTelegramReady(true);
         window.clearInterval(interval);
       } else if (attempts > 40) {
-        // Через ~10 секунд прекращаем попытки, логируем для отладки
+        // Через ~10 секунд прекращаем попытки
+        // Не логируем как предупреждение, если это не Telegram окружение (это нормально)
         window.clearInterval(interval);
-        console.warn("[TelegramNavigation] WebApp not detected within timeout");
+        if (import.meta.env.DEV) {
+          console.log("[TelegramNavigation] WebApp not detected - running in web mode");
+        }
       }
     }, 250);
 
