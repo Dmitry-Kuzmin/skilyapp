@@ -106,24 +106,30 @@ export const CurriculumMatrix = ({
 
   const toggleTopic = (key: string) => {
     if (typeof window === "undefined") {
-      setExpandedTopics((prev) => ({ ...prev, [key]: !prev[key] }));
+      setExpandedTopics((prev) => {
+        const current = prev[key] ?? true;
+        return { ...prev, [key]: !current };
+      });
       return;
     }
 
     const cardElement = cardRefs.current[key];
     const previousTop = cardElement?.getBoundingClientRect().top ?? null;
 
-    setExpandedTopics((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setExpandedTopics((prev) => {
+      const current = prev[key] ?? true;
+      return {
+        ...prev,
+        [key]: !current,
+      };
+    });
 
     if (cardElement && previousTop !== null) {
       requestAnimationFrame(() => {
         const nextElement = cardRefs.current[key];
         if (!nextElement) return;
         const newTop = nextElement.getBoundingClientRect().top;
-        const diff = newTop - previousTop;
+        const diff = previousTop - newTop;
         if (Math.abs(diff) > 2) {
           window.scrollBy({ top: diff, behavior: "auto" });
         }
