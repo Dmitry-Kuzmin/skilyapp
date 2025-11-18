@@ -10,8 +10,9 @@ Disallow: /*.json$
 Disallow: /test-session
 Disallow: /test-results
 
-# Sitemap
+# Sitemaps
 Sitemap: https://skilyapp.com/sitemap.xml
+Sitemap: https://skilyapp.com/news-sitemap.xml
 
 # Crawl-delay для уважения к серверу
 Crawl-delay: 1

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  
+  <!-- Статья: Как сдать экзамен DGT с первого раза -->
+  <url>
+    <loc>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Skilyapp Blog</news:name>
+        <news:language>ru</news:language>
+      </news:publication>
+      <news:publication_date>2024-12-19T12:00:00+01:00</news:publication_date>
+      <news:title>Как сдать экзамен DGT с первого раза</news:title>
+      <news:keywords>DGT, экзамен, Испания, подготовка, водительские права, теория</news:keywords>
+    </news:news>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Статья: Топ-10 ошибок на экзамене DGT -->
+  <url>
+    <loc>https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Skilyapp Blog</news:name>
+        <news:language>ru</news:language>
+      </news:publication>
+      <news:publication_date>2024-12-19T12:00:00+01:00</news:publication_date>
+      <news:title>Топ-10 ошибок на экзамене DGT</news:title>
+      <news:keywords>DGT, экзамен, ошибки, подготовка, советы, Испания</news:keywords>
+    </news:news>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+</urlset>
+

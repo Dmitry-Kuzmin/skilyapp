@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -63,6 +63,20 @@ const Blog = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
+
+  // Добавляем RSS feed в head
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "alternate";
+    link.type = "application/rss+xml";
+    link.title = "Skilyapp Blog RSS";
+    link.href = "https://skilyapp.com/rss.xml";
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   const filteredArticles = articles.filter(article => {
     const matchesSearch = 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Skilyapp Blog - Подготовка к экзамену DGT</title>
+    <link>https://skilyapp.com/blog</link>
+    <description>Полезные статьи о подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.</description>
+    <language>ru-RU</language>
+    <lastBuildDate>Wed, 19 Dec 2024 12:00:00 +0100</lastBuildDate>
+    <atom:link href="https://skilyapp.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>https://skilyapp.com/og-image.png</url>
+      <title>Skilyapp Blog</title>
+      <link>https://skilyapp.com/blog</link>
+    </image>
+    
+    <!-- Статья: Как сдать экзамен DGT с первого раза -->
+    <item>
+      <title>Как сдать экзамен DGT с первого раза</title>
+      <link>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</link>
+      <guid isPermaLink="true">https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</guid>
+      <description>Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.</description>
+      <pubDate>Thu, 19 Dec 2024 12:00:00 +0100</pubDate>
+      <category>Подготовка</category>
+      <author>Команда Skilyapp</author>
+    </item>
+    
+    <!-- Статья: Топ-10 ошибок на экзамене DGT -->
+    <item>
+      <title>Топ-10 ошибок на экзамене DGT</title>
+      <link>https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</link>
+      <guid isPermaLink="true">https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</guid>
+      <description>Самые распространенные ошибки при подготовке и сдаче экзамена DGT. Узнайте, как их избежать и увеличить свои шансы на успех.</description>
+      <pubDate>Thu, 19 Dec 2024 12:00:00 +0100</pubDate>
+      <category>Советы</category>
+      <author>Команда Skilyapp</author>
+    </item>
+  </channel>
+</rss>
+
