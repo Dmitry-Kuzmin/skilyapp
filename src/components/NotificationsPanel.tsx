@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { NotificationIcon } from './NotificationIcon';
 import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
+import { isTelegramMiniApp } from '@/lib/telegram';
 
 type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
 
@@ -145,8 +146,8 @@ export function NotificationsPanel() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-        <SheetHeader className="p-6 pb-4 border-b">
+      <SheetContent side="right" className={cn("w-full sm:max-w-md flex flex-col", isTelegramMiniApp() ? "!p-0 !pt-0" : "p-0")}>
+        <SheetHeader className={cn("border-b", isTelegramMiniApp() ? "pt-4 px-4 pb-4" : "p-6 pb-4")}>
           <div className="flex items-center justify-between mb-4">
             <SheetTitle className="text-2xl font-bold flex items-center gap-2">
               <Bell className="h-6 w-6" />
