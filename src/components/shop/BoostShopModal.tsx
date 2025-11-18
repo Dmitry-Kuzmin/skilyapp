@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -64,12 +63,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
-  const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium'>('boosts');
+  const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>('boosts');
   const [paywallOpen, setPaywallOpen] = useState(false);
 
   useEffect(() => {
@@ -670,206 +668,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <Popover open={showHistory} onOpenChange={setShowHistory}>
-                <PopoverTrigger asChild>
-                  <button 
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-                    onClick={async () => {
-                      setShowHistory(true);
-                      if (transactions.length === 0) {
-                        await loadTransactionHistory();
-                      }
-                    }}
-                  >
+              <button 
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+                onClick={async () => {
+                  setActiveTab('history');
+                  if (transactions.length === 0) {
+                    await loadTransactionHistory();
+                  }
+                }}
+              >
                 <Coins className="w-4 h-4 text-gold" />
                 <span className="text-sm font-semibold">{coins}</span>
-                    <History className="w-3 h-3 text-muted-foreground ml-0.5" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 max-w-96 p-0" align="end">
-                  <div className="p-4 border-b space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-bold flex items-center gap-2">
-                        <History className="h-4 w-4" />
-                        История монет
-                      </h4>
-                      <span className="text-xs text-muted-foreground">
-                        {transactions.length} операций
-                      </span>
-                    </div>
-                    
-                    {/* Filters */}
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <Button
-                        variant={filterCategory === 'all' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('all')}
-                      >
-                        Все
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'earn' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('earn')}
-                      >
-                        <TrendingUp className="h-3 w-3 mr-1" />
-                        Доходы
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'spend' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('spend')}
-                      >
-                        <TrendingDown className="h-3 w-3 mr-1" />
-                        Расходы
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'purchase' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('purchase')}
-                      >
-                        <CreditCard className="h-3 w-3 mr-1" />
-                        Покупки
-                      </Button>
-                      <Button
-                        variant={filterCategory === 'reward' ? 'default' : 'outline'}
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => setFilterCategory('reward')}
-                      >
-                        <Gift className="h-3 w-3 mr-1" />
-                        Награды
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="max-h-[500px] overflow-y-auto p-2">
-                    {loadingHistory ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
-                      </div>
-                    ) : (() => {
-                      const filtered = filterCategory === 'all' 
-                        ? transactions 
-                        : transactions.filter(tx => tx.category === filterCategory);
-                      
-                        if (filtered.length === 0) {
-                          return (
-                            <div className="text-center py-12 text-muted-foreground">
-                              <div className="space-y-3">
-                                {filterCategory === 'all' ? (
-                                  <>
-                                    <Coins className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Здесь появятся твои транзакции</p>
-                                      <p className="text-xs">Начни зарабатывать монеты, проходя тесты и дуэли!</p>
-                                    </div>
-                                    {!isPremium && (
-                                      <div className="pt-2">
-                                        <Badge variant="secondary" className="text-xs">
-                                          💡 Premium удваивает награды
-                                        </Badge>
-                                      </div>
-                                    )}
-                                  </>
-                                ) : filterCategory === 'earn' ? (
-                                  <>
-                                    <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет доходов</p>
-                                      <p className="text-xs">Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!</p>
-                                    </div>
-                                  </>
-                                ) : filterCategory === 'spend' ? (
-                                  <>
-                                    <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет расходов</p>
-                                      <p className="text-xs">Покупай бусты и используй их для улучшения результатов!</p>
-                                    </div>
-                                  </>
-                                ) : filterCategory === 'purchase' ? (
-                                  <>
-                                    <CreditCard className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет покупок</p>
-                                      <p className="text-xs">Пополни баланс монет или получи Premium для больше возможностей!</p>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Gift className="h-12 w-12 mx-auto opacity-30" />
-                                    <div>
-                                      <p className="text-sm font-medium mb-1">Нет наград</p>
-                                      <p className="text-xs">Получай награды за Duel Pass, рефералов и достижения!</p>
-                                    </div>
-                                  </>
-                                )}
-                                {filterCategory !== 'all' && (
-                                  <p className="text-xs mt-2 pt-2 border-t border-border/50">Попробуйте другой фильтр</p>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        }
-                      
-                      return (
-                        <div className="space-y-1">
-                          {filtered.map((tx, idx) => {
-                            const IconComponent = tx.icon || (tx.amount > 0 ? TrendingUp : TrendingDown);
-                            return (
-                              <motion.div
-                                key={tx.id || idx}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: idx * 0.02 }}
-                                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
-                              >
-                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  <div className={`p-2 rounded-lg flex-shrink-0 ${
-                                    tx.amount > 0 
-                                      ? 'bg-green-500/10 text-green-600' 
-                                      : 'bg-red-500/10 text-red-600'
-                                  }`}>
-                                    <IconComponent className="h-4 w-4" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{tx.description}</p>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                      <p className="text-xs text-muted-foreground">
-                                        {new Date(tx.created_at).toLocaleDateString('ru', { 
-                                          day: 'numeric',
-                                          month: 'short',
-                                          hour: '2-digit',
-                                          minute: '2-digit' 
-                                        })}
-                                      </p>
-                                      {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
-                                        <Badge variant="secondary" className="text-xs h-4 px-1.5">
-                                          {tx.category === 'purchase' ? 'Покупка' : tx.category === 'reward' ? 'Награда' : ''}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
-                                  tx.amount > 0 ? 'text-green-600' : 'text-red-600'
-                                }`}>
-                                  {tx.amount > 0 ? '+' : ''}{tx.amount}
-                                </span>
-                              </motion.div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </PopoverContent>
-              </Popover>
+                <History className="w-3 h-3 text-muted-foreground ml-0.5" />
+              </button>
               
               <Button
                 variant="ghost"
@@ -883,16 +694,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="relative">
+        <div className="relative flex-1 flex flex-col overflow-hidden">
           {isRefreshing && (
             <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
               <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full overflow-hidden">
-            <div className="px-4 pt-4 pb-0">
-              <TabsList className="grid w-full grid-cols-3">
+          <Tabs value={activeTab} onValueChange={(v) => {
+            setActiveTab(v as typeof activeTab);
+            if (v === 'history' && transactions.length === 0) {
+              loadTransactionHistory();
+            }
+          }} className="w-full flex flex-col flex-1 overflow-hidden min-h-0">
+            <div className="px-4 pt-4 pb-0 shrink-0">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="boosts" className="text-xs truncate">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">Бусты</span>
@@ -905,11 +721,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   <Crown className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">Premium</span>
                 </TabsTrigger>
+                <TabsTrigger value="history" className="text-xs truncate">
+                  <History className="w-3 h-3 mr-1 flex-shrink-0" />
+                  <span className="truncate">История</span>
+                </TabsTrigger>
               </TabsList>
             </div>
 
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto flex-1">
               <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
@@ -959,7 +779,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto flex-1">
               <div className="space-y-3">
                 <div className="text-center py-4">
                   <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
@@ -1036,7 +856,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Premium & Duel Pass Tab */}
-            <TabsContent value="premium" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent value="premium" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto flex-1">
               <div className="space-y-4">
                 {/* Premium Subscription */}
                 <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
@@ -1126,6 +946,193 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </Card>
               </div>
             </TabsContent>
+
+            {/* History Tab */}
+            <TabsContent value="history" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto flex-1">
+              <div className="space-y-3">
+                <div className="p-4 border-b space-y-3 shrink-0">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      История монет
+                    </h4>
+                    <span className="text-xs text-muted-foreground">
+                      {transactions.length} операций
+                    </span>
+                  </div>
+                  
+                  {/* Filters */}
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <Button
+                      variant={filterCategory === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setFilterCategory('all')}
+                    >
+                      Все
+                    </Button>
+                    <Button
+                      variant={filterCategory === 'earn' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setFilterCategory('earn')}
+                    >
+                      <TrendingUp className="h-3 w-3 mr-1" />
+                      Доходы
+                    </Button>
+                    <Button
+                      variant={filterCategory === 'spend' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setFilterCategory('spend')}
+                    >
+                      <TrendingDown className="h-3 w-3 mr-1" />
+                      Расходы
+                    </Button>
+                    <Button
+                      variant={filterCategory === 'purchase' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setFilterCategory('purchase')}
+                    >
+                      <CreditCard className="h-3 w-3 mr-1" />
+                      Покупки
+                    </Button>
+                    <Button
+                      variant={filterCategory === 'reward' ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setFilterCategory('reward')}
+                    >
+                      <Gift className="h-3 w-3 mr-1" />
+                      Награды
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  {loadingHistory ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+                    </div>
+                  ) : (() => {
+                    const filtered = filterCategory === 'all' 
+                      ? transactions 
+                      : transactions.filter(tx => tx.category === filterCategory);
+                    
+                    if (filtered.length === 0) {
+                      return (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <div className="space-y-3">
+                            {filterCategory === 'all' ? (
+                              <>
+                                <Coins className="h-12 w-12 mx-auto opacity-30" />
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Здесь появятся твои транзакции</p>
+                                  <p className="text-xs">Начни зарабатывать монеты, проходя тесты и дуэли!</p>
+                                </div>
+                                {!isPremium && (
+                                  <div className="pt-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                      💡 Premium удваивает награды
+                                    </Badge>
+                                  </div>
+                                )}
+                              </>
+                            ) : filterCategory === 'earn' ? (
+                              <>
+                                <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Нет доходов</p>
+                                  <p className="text-xs">Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!</p>
+                                </div>
+                              </>
+                            ) : filterCategory === 'spend' ? (
+                              <>
+                                <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Нет расходов</p>
+                                  <p className="text-xs">Покупай бусты и используй их для улучшения результатов!</p>
+                                </div>
+                              </>
+                            ) : filterCategory === 'purchase' ? (
+                              <>
+                                <CreditCard className="h-12 w-12 mx-auto opacity-30" />
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Нет покупок</p>
+                                  <p className="text-xs">Пополни баланс монет или получи Premium для больше возможностей!</p>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <Gift className="h-12 w-12 mx-auto opacity-30" />
+                                <div>
+                                  <p className="text-sm font-medium mb-1">Нет наград</p>
+                                  <p className="text-xs">Получай награды за Duel Pass, рефералов и достижения!</p>
+                                </div>
+                              </>
+                            )}
+                            {filterCategory !== 'all' && (
+                              <p className="text-xs mt-2 pt-2 border-t border-border/50">Попробуйте другой фильтр</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="space-y-1 pb-4">
+                        {filtered.map((tx, idx) => {
+                          const IconComponent = tx.icon || (tx.amount > 0 ? TrendingUp : TrendingDown);
+                          return (
+                            <motion.div
+                              key={tx.id || idx}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: idx * 0.02 }}
+                              className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
+                            >
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div className={`p-2 rounded-lg flex-shrink-0 ${
+                                  tx.amount > 0 
+                                    ? 'bg-green-500/10 text-green-600' 
+                                    : 'bg-red-500/10 text-red-600'
+                                }`}>
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">{tx.description}</p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <p className="text-xs text-muted-foreground">
+                                      {new Date(tx.created_at).toLocaleDateString('ru', { 
+                                        day: 'numeric',
+                                        month: 'short',
+                                        hour: '2-digit',
+                                        minute: '2-digit' 
+                                      })}
+                                    </p>
+                                    {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
+                                      <Badge variant="secondary" className="text-xs h-4 px-1.5">
+                                        {tx.category === 'purchase' ? 'Покупка' : tx.category === 'reward' ? 'Награда' : ''}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
+                                tx.amount > 0 ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {tx.amount > 0 ? '+' : ''}{tx.amount}
+                              </span>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </>
@@ -1135,8 +1142,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0 overflow-x-hidden">
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0 overflow-x-hidden max-h-[95vh]">
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
             <ModalContent />
           </div>
         </DialogContent>
