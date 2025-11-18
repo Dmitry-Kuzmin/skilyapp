@@ -6,7 +6,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Crown } from "lucide-react";
 import { StarsPaymentButton } from "./StarsPaymentButton";
-import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
+import { getTelegramWebApp } from "@/lib/telegram";
 
 interface PaywallModalProps {
   open: boolean;
@@ -131,36 +131,28 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         }
         
         // Проверяем, находимся ли в Telegram Web App
-        const isTelegram = isTelegramMiniApp();
+        const webApp = getTelegramWebApp();
+        const isTelegram = platform === 'telegram' && !!webApp;
         
-        if (isTelegram) {
-          // В Telegram используем openLink для открытия в браузере Telegram
-          console.log("[PaywallModal] Telegram Web App detected, opening Stripe via openLink");
-          console.log("[PaywallModal] Stripe URL:", data.url);
-          
-          // Используем прямой доступ к window.Telegram.WebApp.openLink
-          const tg = window.Telegram?.WebApp;
-          
-          if (tg && typeof tg.openLink === 'function') {
-            console.log("[PaywallModal] Using window.Telegram.WebApp.openLink()");
-            try {
-              tg.openLink(data.url);
-              console.log("[PaywallModal] openLink called successfully");
-              return; // Важно: не продолжаем выполнение после openLink
-            } catch (error) {
-              console.error("[PaywallModal] Error calling openLink:", error);
-              console.log("[PaywallModal] Falling back to window.location.href");
-            }
+        if (isTelegram && webApp) {
+          // В Telegram открываем страницу checkout внутри Web App (не редирект в браузер!)
+          console.log("[PaywallModal] Opening Stripe checkout page in Telegram Web App");
+          // Используем navigate для перехода на страницу checkout внутри Telegram
+          if (data?.sessionId) {
+            window.location.href = `/checkout?session_id=${data.sessionId}`;
           } else {
-            console.warn("[PaywallModal] openLink method not available on Telegram.WebApp");
-            console.log("[PaywallModal] Available methods:", Object.keys(tg || {}));
-            console.log("[PaywallModal] Falling back to window.location.href");
+            // Fallback: открываем Stripe URL через openLink (но это переведет в браузер)
+            if ((webApp as any).openLink) {
+              (webApp as any).openLink(data.url);
+            } else {
+              window.location.href = data.url;
+            }
           }
+        } else {
+          // В обычном браузере используем прямой редирект на Stripe
+          console.log("[PaywallModal] Redirecting to Stripe:", data.url);
+          window.location.href = data.url;
         }
-        
-        // Fallback для всех случаев (обычный браузер или если openLink недоступен)
-        console.log("[PaywallModal] Redirecting to Stripe (fallback):", data.url);
-        window.location.href = data.url;
       } else {
         console.error("[PaywallModal] No URL in response", data);
         alert("Не удалось получить ссылку на оплату. Проверьте настройки Stripe в Supabase Dashboard.");
