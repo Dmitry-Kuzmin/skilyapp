@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { isTelegramMiniApp } from "@/lib/telegram";
 
 const Sheet = SheetPrimitive.Root;
 
@@ -142,12 +143,18 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       setIsDragging(false);
     };
 
+    const isTelegram = isTelegramMiniApp();
+    
     return (
       <SheetPortal>
         <SheetOverlay />
         <SheetPrimitive.Content 
           ref={contentRef}
-          className={cn(sheetVariants({ side }), className)} 
+          className={cn(
+            sheetVariants({ side }), 
+            isTelegram && side === "right" && "!p-0",
+            className
+          )} 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
