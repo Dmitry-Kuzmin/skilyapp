@@ -719,7 +719,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             if (v === 'history' && transactions.length === 0) {
               loadTransactionHistory();
             }
-          }} className="w-full h-full flex flex-col overflow-hidden">
+          }} className="w-full h-full flex flex-col overflow-hidden flex-1 min-h-0">
             <div className="px-4 pt-4 pb-0 shrink-0">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="boosts" className="text-xs truncate">
@@ -741,10 +741,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               </TabsList>
             </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+            <div className="flex-1 flex flex-col overflow-hidden min-h-0 h-full">
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-3 md:px-4 py-3 md:py-4 space-y-3">
+            <TabsContent value="boosts" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-3 md:py-4 space-y-3">
               <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
@@ -795,8 +795,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent value="coins" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-3 md:px-4 py-3 md:py-4 space-y-3">
+            <TabsContent value="coins" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-3 md:py-4 space-y-3">
                 <div className="text-center py-4">
                   <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
                   <div className="flex items-center justify-center gap-2">
@@ -872,8 +872,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Premium & Duel Pass Tab */}
-            <TabsContent value="premium" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-3 md:px-4 py-3 md:py-4 space-y-4">
+            <TabsContent value="premium" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-3 md:py-4 space-y-4">
                 {/* Premium Subscription */}
                 <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
                   <div className="space-y-4">
@@ -964,7 +964,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* History Tab */}
-            <TabsContent value="history" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex">
+            <TabsContent value="history" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
               <div className="px-3 md:px-4 pt-3 md:pt-4 pb-3 border-b border-border/50 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold flex items-center gap-2">
@@ -1025,7 +1025,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-3 md:px-4 py-2">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-2">
                 {loadingHistory ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
@@ -1157,7 +1157,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent modalType="shop" hideCloseButton className="flex flex-col p-0 overflow-hidden">
+        <DialogContent 
+          modalType="shop" 
+          hideCloseButton 
+          className={`${getDialogContentClasses('shop', isMobile)} flex flex-col p-0 overflow-hidden`}
+        >
           <ModalContent />
         </DialogContent>
       </Dialog>

@@ -16,11 +16,13 @@ import {
   Rocket,
   Flame,
   Calendar,
-  Shield,
   Star,
-  CheckCircle2
+  CheckCircle2,
+  Award,
+  BarChart3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DuelPassOnboardingProps {
   open: boolean;
@@ -54,14 +56,14 @@ const getOnboardingScreens = (activeSeason?: { days_remaining?: number; name_ru?
     description: "Твой месячный челлендж к экзамену DGT\n\n30 уровней наград за регулярные занятия.\nЭто не просто игра — это твой путь к сдаче экзамена.",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
-    showCards: false,
+    showCards: "welcome",
   },
   {
     id: 2,
     icon: TrendingUp,
     title: "Прокачивай навыки — получай Season Points",
     subtitle: "За каждое действие ты получаешь SP",
-    description: "100 SP = 1 уровень = новая награда",
+    description: "🎯 100 SP = 1 уровень = новая награда\n\nЧем больше ты занимаешься, тем выше твой уровень и больше наград!",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
     showCards: "sp",
@@ -71,7 +73,7 @@ const getOnboardingScreens = (activeSeason?: { days_remaining?: number; name_ru?
     icon: Gift,
     title: "Выигрывай, обучаясь",
     subtitle: "Что ты получишь в этом сезоне",
-    description: "💎 Premium: эксклюзивные награды на каждом уровне",
+    description: "💎 Premium: эксклюзивные награды на каждом уровне\n\nPremium пользователи получают удвоенные награды!",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
     showCards: "rewards",
@@ -91,10 +93,10 @@ const getOnboardingScreens = (activeSeason?: { days_remaining?: number; name_ru?
     icon: Trophy,
     title: "Готов начать челлендж?",
     subtitle: "Твой сезон уже начался!",
-    description: "Включи Duel Pass и пройди его до конца.\nТы увидишь, как быстро растут твои результаты.",
+    description: "🚀 Включи Duel Pass и пройди его до конца.\n\nТы увидишь, как быстро растут твои результаты.\nКаждый уровень приближает тебя к успеху!",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
-    showCards: false,
+    showCards: "final",
   },
 ];
 
@@ -105,6 +107,7 @@ export function DuelPassOnboarding({
   activeSeason 
 }: DuelPassOnboardingProps) {
   const [currentScreen, setCurrentScreen] = useState(0);
+  const isMobile = useIsMobile();
   const onboardingScreens = getOnboardingScreens(activeSeason);
 
   const handleNext = () => {
@@ -136,10 +139,21 @@ export function DuelPassOnboarding({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-2xl p-0 overflow-hidden border-0 bg-transparent shadow-none"
+        className={cn(
+          "p-0 overflow-hidden border-0 bg-transparent shadow-none",
+          isMobile 
+            ? "max-w-full w-full max-h-[90vh] h-auto" 
+            : "max-w-2xl max-h-[85vh] h-auto"
+        )}
         hideCloseButton
+        modalType="duelPass"
       >
-        <div className="relative overflow-hidden rounded-3xl border px-5 py-6 text-white bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 border-cyan-500/30 shadow-[0_0_40px_rgba(34,211,238,0.35)]">
+        <div className={cn(
+          "relative overflow-hidden text-white bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 border-cyan-500/30 shadow-[0_0_40px_rgba(34,211,238,0.35)]",
+          isMobile 
+            ? "rounded-t-3xl border-t border-x px-4 py-5" 
+            : "rounded-3xl border px-6 py-6"
+        )}>
           {/* Декоративные элементы */}
           <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
           <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
@@ -147,12 +161,18 @@ export function DuelPassOnboarding({
           {/* Кнопка закрытия */}
           <button
             onClick={handleComplete}
-            className="absolute top-4 right-4 z-20 w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center"
+            className={cn(
+              "absolute z-20 w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 transition-colors flex items-center justify-center",
+              isMobile ? "top-3 right-3" : "top-4 right-4"
+            )}
           >
             <X className="w-4 h-4 text-white" />
           </button>
 
-          <div className="relative z-10 space-y-6">
+          <div className={cn(
+            "relative z-10 flex flex-col",
+            isMobile ? "space-y-4 min-h-0" : "space-y-6"
+          )}>
             {/* Индикатор прогресса */}
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -186,177 +206,290 @@ export function DuelPassOnboarding({
             </div>
 
             {/* Контент экрана */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentScreen}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
-                    <Icon className="w-8 h-8 text-cyan-400" />
+            <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentScreen}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className={cn("space-y-4", isMobile ? "pb-2" : "space-y-6 pb-2")}
+                >
+                  <div className={cn("flex items-center gap-3", isMobile && "gap-3")}>
+                    <div className={cn(
+                      "rounded-2xl bg-white/10 flex items-center justify-center shrink-0",
+                      isMobile ? "w-12 h-12 rounded-xl" : "w-16 h-16"
+                    )}>
+                      <Icon className={cn("text-cyan-400", isMobile ? "w-6 h-6" : "w-8 h-8")} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className={cn(
+                        "font-black tracking-tight mb-1",
+                        isMobile ? "text-xl" : "text-2xl md:text-3xl"
+                      )}>
+                        {current.title}
+                      </h2>
+                      {current.subtitle && (
+                        <p className={cn(
+                          "text-white/80",
+                          isMobile ? "text-xs" : "text-sm"
+                        )}>
+                          {current.subtitle}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">
-                      {current.title}
-                    </h2>
-                    {current.subtitle && (
-                      <p className="text-sm text-white/80">
-                        {current.subtitle}
-                      </p>
-                    )}
-                  </div>
-                </div>
 
-                <div className="space-y-3">
-                  {current.description.split('\n').map((line, index) => {
-                    // Проверяем, содержит ли строка эмодзи и текст
-                    const emojiMatch = line.match(/^([^\s]+)\s(.+)$/);
-                    if (emojiMatch) {
-                      const [, emoji, text] = emojiMatch;
+                  <div className={cn("space-y-2", isMobile ? "space-y-2" : "space-y-3")}>
+                    {current.description.split('\n').map((line, index) => {
+                      // Проверяем, содержит ли строка эмодзи и текст
+                      const emojiMatch = line.match(/^([^\s]+)\s(.+)$/);
+                      if (emojiMatch) {
+                        const [, emoji, text] = emojiMatch;
+                        return (
+                          <div key={index} className="flex items-start gap-2">
+                            <span className={cn("shrink-0", isMobile ? "text-lg" : "text-xl")}>{emoji}</span>
+                            <p className={cn(
+                              "text-white/90 leading-relaxed",
+                              isMobile ? "text-sm" : "text-base"
+                            )}>{text}</p>
+                          </div>
+                        );
+                      }
                       return (
-                        <div key={index} className="flex items-start gap-3">
-                          <span className="text-xl shrink-0">{emoji}</span>
-                          <p className="text-base text-white/90 leading-relaxed">{text}</p>
-                        </div>
+                        <p key={index} className={cn(
+                          "text-white/90 leading-relaxed",
+                          isMobile ? "text-sm" : "text-base"
+                        )}>
+                          {line}
+                        </p>
                       );
-                    }
-                    return (
-                      <p key={index} className="text-base text-white/90 leading-relaxed">
-                        {line}
-                      </p>
-                    );
-                  })}
-                </div>
-
-                {/* Дополнительные визуальные элементы для разных экранов */}
-                {current.showCards === "sp" && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
-                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                      <BookOpen className="w-7 h-7 text-cyan-400" />
-                      <span className="text-xs text-white/80 font-medium">Тест</span>
-                      <span className="text-base font-bold text-cyan-400">10-30 SP</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                      <Zap className="w-7 h-7 text-cyan-400" />
-                      <span className="text-xs text-white/80 font-medium">Дуэль</span>
-                      <span className="text-base font-bold text-cyan-400">15-60 SP</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                      <Sparkles className="w-7 h-7 text-cyan-400" />
-                      <span className="text-xs text-white/80 font-medium">Челлендж</span>
-                      <span className="text-base font-bold text-cyan-400">100-1500 SP</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                      <Calendar className="w-7 h-7 text-cyan-400" />
-                      <span className="text-xs text-white/80 font-medium">Ежедневный вход</span>
-                      <span className="text-base font-bold text-cyan-400">15 SP</span>
-                    </div>
+                    })}
                   </div>
-                )}
 
-                {current.showCards === "rewards" && (
-                  <div className="space-y-3 pt-2">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <span className="text-3xl">💰</span>
-                        <span className="text-xs text-white/80 text-center font-medium">Монеты</span>
-                        <span className="text-xs text-white/60 text-center">для бустов</span>
+                    {/* Дополнительные визуальные элементы для разных экранов */}
+                  {current.showCards === "welcome" && (
+                    <div className={cn("space-y-3 pt-2", isMobile && "pt-1")}>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10">
+                          <div className="text-2xl">📚</div>
+                          <span className={cn("text-white/90 font-medium text-center", isMobile ? "text-xs" : "text-sm")}>30 уровней</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10">
+                          <div className="text-2xl">🎯</div>
+                          <span className={cn("text-white/90 font-medium text-center", isMobile ? "text-xs" : "text-sm")}>Месячный план</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <span className="text-3xl">🎨</span>
-                        <span className="text-xs text-white/80 text-center font-medium">Скины</span>
-                        <span className="text-xs text-white/60 text-center">профиля</span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <span className="text-3xl">🏅</span>
-                        <span className="text-xs text-white/80 text-center font-medium">Бейджи</span>
-                        <span className="text-xs text-white/60 text-center">достижения</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <span className="text-3xl">⚡</span>
-                        <span className="text-xs text-white/80 text-center font-medium">Бусты</span>
-                        <span className="text-xs text-white/60 text-center">помощь в играх</span>
+                      <div className="p-3 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Target className={cn("text-cyan-400", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+                          <span className={cn("font-bold text-cyan-300", isMobile ? "text-xs" : "text-sm")}>Цель сезона</span>
+                        </div>
+                        <p className={cn("text-white/80", isMobile ? "text-xs" : "text-sm")}>
+                          Пройди все 30 уровней и получи максимум наград!
+                        </p>
                       </div>
                     </div>
-                    <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Crown className="w-5 h-5 text-yellow-400" />
-                        <span className="text-sm font-bold text-yellow-300">Premium награды</span>
-                      </div>
-                      <p className="text-xs text-white/80">Эксклюзивные награды на каждом уровне</p>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {current.showCards === "missions" && (
-                  <div className="space-y-3 pt-2">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
-                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  {current.showCards === "sp" && (
+                    <div className={cn(
+                      "grid gap-2 pt-2",
+                      isMobile ? "grid-cols-2 gap-2" : "grid-cols-2 md:grid-cols-4 gap-3"
+                    )}>
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <BookOpen className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-7 h-7")} />
+                        <span className={cn("text-white/80 font-medium", isMobile ? "text-xs" : "text-xs")}>Тест</span>
+                        <span className={cn("font-bold text-cyan-400", isMobile ? "text-sm" : "text-base")}>10-30 SP</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <Zap className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-7 h-7")} />
+                        <span className={cn("text-white/80 font-medium", isMobile ? "text-xs" : "text-xs")}>Дуэль</span>
+                        <span className={cn("font-bold text-cyan-400", isMobile ? "text-sm" : "text-base")}>15-60 SP</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <Sparkles className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-7 h-7")} />
+                        <span className={cn("text-white/80 font-medium", isMobile ? "text-xs" : "text-xs")}>Челлендж</span>
+                        <span className={cn("font-bold text-cyan-400", isMobile ? "text-sm" : "text-base")}>100-1500 SP</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <Calendar className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-7 h-7")} />
+                        <span className={cn("text-white/80 font-medium text-center", isMobile ? "text-xs" : "text-xs")}>Ежедневный</span>
+                        <span className={cn("font-bold text-cyan-400", isMobile ? "text-sm" : "text-base")}>15 SP</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {current.showCards === "rewards" && (
+                    <div className={cn("space-y-2 pt-2", isMobile ? "space-y-2" : "space-y-3")}>
+                      <div className={cn("grid grid-cols-2 gap-2", isMobile ? "gap-2" : "gap-3")}>
+                        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                          <span className={cn(isMobile ? "text-2xl" : "text-3xl")}>💰</span>
+                          <span className={cn("text-white/80 text-center font-medium", isMobile ? "text-xs" : "text-xs")}>Монеты</span>
+                          <span className={cn("text-white/60 text-center", isMobile ? "text-[10px]" : "text-xs")}>для бустов</span>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Flame className="w-4 h-4 text-orange-400" />
-                            <span className="text-sm font-bold text-white">Ежедневные</span>
-                          </div>
-                          <p className="text-xs text-white/70">Простые задания каждый день</p>
+                        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                          <span className={cn(isMobile ? "text-2xl" : "text-3xl")}>🎨</span>
+                          <span className={cn("text-white/80 text-center font-medium", isMobile ? "text-xs" : "text-xs")}>Скины</span>
+                          <span className={cn("text-white/60 text-center", isMobile ? "text-[10px]" : "text-xs")}>профиля</span>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
-                          <Calendar className="w-5 h-5 text-blue-400" />
+                      <div className={cn("grid grid-cols-2 gap-2", isMobile ? "gap-2" : "gap-3")}>
+                        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                          <span className={cn(isMobile ? "text-2xl" : "text-3xl")}>🏅</span>
+                          <span className={cn("text-white/80 text-center font-medium", isMobile ? "text-xs" : "text-xs")}>Бейджи</span>
+                          <span className={cn("text-white/60 text-center", isMobile ? "text-[10px]" : "text-xs")}>достижения</span>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Star className="w-4 h-4 text-blue-400" />
-                            <span className="text-sm font-bold text-white">Недельные</span>
-                          </div>
-                          <p className="text-xs text-white/70">Более сложные цели на неделю</p>
+                        <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                          <span className={cn(isMobile ? "text-2xl" : "text-3xl")}>⚡</span>
+                          <span className={cn("text-white/80 text-center font-medium", isMobile ? "text-xs" : "text-xs")}>Бусты</span>
+                          <span className={cn("text-white/60 text-center", isMobile ? "text-[10px]" : "text-xs")}>помощь в играх</span>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
-                          <Target className="w-5 h-5 text-purple-400" />
+                      <div className={cn(
+                        "rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30",
+                        isMobile ? "mt-2 p-3" : "mt-4 p-4"
+                      )}>
+                        <div className={cn("flex items-center gap-2 mb-1", isMobile && "mb-1.5")}>
+                          <Crown className={cn("text-yellow-400", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+                          <span className={cn("font-bold text-yellow-300", isMobile ? "text-xs" : "text-sm")}>Premium награды</span>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Trophy className="w-4 h-4 text-purple-400" />
-                            <span className="text-sm font-bold text-white">Сезонные</span>
+                        <p className={cn("text-white/80", isMobile ? "text-xs" : "text-xs")}>
+                          Эксклюзивные награды на каждом уровне. Удвоенный прогресс!
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {current.showCards === "missions" && (
+                    <div className={cn("space-y-2 pt-2", isMobile ? "space-y-2" : "space-y-3")}>
+                      <div className="flex flex-col gap-2">
+                        <div className={cn(
+                          "flex items-start gap-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors",
+                          isMobile ? "p-3 gap-2" : "p-4 gap-3"
+                        )}>
+                          <div className={cn(
+                            "rounded-lg bg-green-500/20 flex items-center justify-center shrink-0",
+                            isMobile ? "w-8 h-8" : "w-10 h-10"
+                          )}>
+                            <CheckCircle2 className={cn("text-green-400", isMobile ? "w-4 h-4" : "w-5 h-5")} />
                           </div>
-                          <p className="text-xs text-white/70">Большие достижения за месяц</p>
+                          <div className="flex-1 min-w-0">
+                            <div className={cn("flex items-center gap-1.5 mb-0.5", isMobile && "mb-1")}>
+                              <Flame className={cn("text-orange-400", isMobile ? "w-3.5 h-3.5" : "w-4 h-4")} />
+                              <span className={cn("font-bold text-white", isMobile ? "text-xs" : "text-sm")}>Ежедневные</span>
+                            </div>
+                            <p className={cn("text-white/70", isMobile ? "text-[10px]" : "text-xs")}>
+                              Простые задания каждый день. +50 SP за выполнение
+                            </p>
+                          </div>
+                        </div>
+                        <div className={cn(
+                          "flex items-start gap-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors",
+                          isMobile ? "p-3 gap-2" : "p-4 gap-3"
+                        )}>
+                          <div className={cn(
+                            "rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0",
+                            isMobile ? "w-8 h-8" : "w-10 h-10"
+                          )}>
+                            <Calendar className={cn("text-blue-400", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className={cn("flex items-center gap-1.5 mb-0.5", isMobile && "mb-1")}>
+                              <Star className={cn("text-blue-400", isMobile ? "w-3.5 h-3.5" : "w-4 h-4")} />
+                              <span className={cn("font-bold text-white", isMobile ? "text-xs" : "text-sm")}>Недельные</span>
+                            </div>
+                            <p className={cn("text-white/70", isMobile ? "text-[10px]" : "text-xs")}>
+                              Более сложные цели на неделю. +200 SP за выполнение
+                            </p>
+                          </div>
+                        </div>
+                        <div className={cn(
+                          "flex items-start gap-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors",
+                          isMobile ? "p-3 gap-2" : "p-4 gap-3"
+                        )}>
+                          <div className={cn(
+                            "rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0",
+                            isMobile ? "w-8 h-8" : "w-10 h-10"
+                          )}>
+                            <Target className={cn("text-purple-400", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className={cn("flex items-center gap-1.5 mb-0.5", isMobile && "mb-1")}>
+                              <Trophy className={cn("text-purple-400", isMobile ? "w-3.5 h-3.5" : "w-4 h-4")} />
+                              <span className={cn("font-bold text-white", isMobile ? "text-xs" : "text-sm")}>Сезонные</span>
+                            </div>
+                            <p className={cn("text-white/70", isMobile ? "text-[10px]" : "text-xs")}>
+                              Большие достижения за месяц. +500 SP за выполнение
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+                  )}
+
+                  {current.showCards === "final" && (
+                    <div className={cn("space-y-3 pt-2", isMobile && "pt-1 space-y-2")}>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-white/5 border border-white/10">
+                          <BarChart3 className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-6 h-6")} />
+                          <span className={cn("text-white/90 font-medium text-center", isMobile ? "text-[10px]" : "text-xs")}>Прогресс</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-white/5 border border-white/10">
+                          <Award className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-6 h-6")} />
+                          <span className={cn("text-white/90 font-medium text-center", isMobile ? "text-[10px]" : "text-xs")}>Награды</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-white/5 border border-white/10">
+                          <TrendingUp className={cn("text-cyan-400", isMobile ? "w-5 h-5" : "w-6 h-6")} />
+                          <span className={cn("text-white/90 font-medium text-center", isMobile ? "text-[10px]" : "text-xs")}>Рост</span>
+                        </div>
+                      </div>
+                      <div className={cn(
+                        "rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30",
+                        isMobile ? "p-3" : "p-4"
+                      )}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Rocket className={cn("text-cyan-400", isMobile ? "w-4 h-4" : "w-5 h-5")} />
+                          <span className={cn("font-bold text-cyan-300", isMobile ? "text-xs" : "text-sm")}>Начни прямо сейчас!</span>
+                        </div>
+                        <p className={cn("text-white/80", isMobile ? "text-xs" : "text-sm")}>
+                          Каждый день занятий приближает тебя к успеху на экзамене DGT
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
             {/* Навигационные кнопки */}
-            <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/10">
+            <div className={cn(
+              "flex items-center justify-between gap-3 border-t border-white/10 shrink-0",
+              isMobile ? "pt-3 mt-2" : "pt-4"
+            )}>
               <Button
                 variant="ghost"
                 onClick={handlePrevious}
                 disabled={isFirstScreen}
-                className="text-white/80 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                className={cn(
+                  "text-white/80 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed",
+                  isMobile ? "h-9 px-3 text-sm" : "h-10 px-4"
+                )}
               >
                 Назад
               </Button>
 
               <Button
                 onClick={handleNext}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-6 gap-2"
+                className={cn(
+                  "bg-cyan-500 hover:bg-cyan-600 text-white font-semibold gap-2",
+                  isMobile ? "h-9 px-4 text-sm" : "h-10 px-6"
+                )}
               >
                 {isLastScreen ? (
                   <>
-                    Начать челлендж
+                    {isMobile ? "Начать" : "Начать челлендж"}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 ) : (
