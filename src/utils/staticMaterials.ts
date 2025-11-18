@@ -36,17 +36,52 @@ export async function loadStaticMaterial(
     // Загружаем JSON файл
     const response = await fetch(materialPath);
     
+    // Проверяем статус ответа
     if (!response.ok) {
-      console.log(`[StaticMaterials] Material not found: ${materialPath}`);
+      // Файл не найден - это нормально, не логируем как ошибку
       return null;
     }
     
-    const material: StaticMaterial = await response.json();
-    console.log(`[StaticMaterials] Loaded material: ${materialPath}`, material);
+    // Проверяем Content-Type перед парсингом
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      // Ответ не является JSON - возможно HTML страница 404
+      return null;
+    }
     
-    return material;
+    // Парсим JSON с проверкой на пустой ответ
+    const text = await response.text();
+    if (!text || text.trim().length === 0) {
+      return null;
+    }
+    
+    try {
+      const material: StaticMaterial = JSON.parse(text);
+      
+      // Валидация базовой структуры
+      if (!material || typeof material !== 'object' || !material.id) {
+        console.warn(`[StaticMaterials] Invalid material structure: ${materialPath}`);
+        return null;
+      }
+      
+      console.log(`[StaticMaterials] Loaded material: ${materialPath}`);
+      return material;
+    } catch (parseError) {
+      // Ошибка парсинга JSON - файл поврежден или не является JSON
+      console.warn(`[StaticMaterials] Invalid JSON in ${materialPath}:`, parseError);
+      return null;
+    }
   } catch (error) {
-    console.error(`[StaticMaterials] Error loading material for topic ${topicNumber}, subtopic ${subtopicCode}:`, error);
+    // Сетевые ошибки или другие проблемы
+    // Не логируем как ошибку, если это просто отсутствующий файл
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      // Сетевая ошибка - файл не найден
+      return null;
+    }
+    // Другие ошибки логируем только в dev режиме
+    if (import.meta.env.DEV) {
+      console.warn(`[StaticMaterials] Error loading material for topic ${topicNumber}, subtopic ${subtopicCode}:`, error);
+    }
     return null;
   }
 }
@@ -116,13 +151,30 @@ export async function loadStaticMaterialByStaticId(
 }
 
 /**
- * Проверяет наличие статического материала
+ * Проверяет наличие статического материала (легкая проверка без загрузки)
  */
 export async function hasStaticMaterial(
   topicNumber: number,
   subtopicCode: string
 ): Promise<boolean> {
-  const material = await loadStaticMaterial(topicNumber, subtopicCode);
-  return material !== null;
+  try {
+    // Формируем путь к JSON файлу
+    const codeNormalized = subtopicCode.replace('.', '-');
+    const materialPath = `/data/materials/topic-${topicNumber}/subtopic-${codeNormalized}.json`;
+    
+    // Используем HEAD запрос для проверки наличия файла без загрузки содержимого
+    const response = await fetch(materialPath, { method: 'HEAD' });
+    
+    // Проверяем статус и Content-Type
+    if (!response.ok) {
+      return false;
+    }
+    
+    const contentType = response.headers.get('content-type');
+    return contentType !== null && contentType.includes('application/json');
+  } catch (error) {
+    // При любой ошибке считаем, что файла нет
+    return false;
+  }
 }
 
