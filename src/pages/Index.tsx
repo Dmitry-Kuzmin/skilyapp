@@ -911,6 +911,7 @@ const Index = () => {
         activeSeason={activeSeason}
       />
     </Layout>
+    </>
   );
 };
 
