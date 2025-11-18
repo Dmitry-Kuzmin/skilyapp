@@ -119,6 +119,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       }
       
       if (data?.url) {
+        // Сохраняем session_id в localStorage перед редиректом (fallback если Stripe не передаст в URL)
+        if (data?.sessionId) {
+          console.log("[PaywallModal] Saving session_id to localStorage:", data.sessionId);
+          localStorage.setItem('stripe_checkout_session_id', data.sessionId);
+        }
+        
         console.log("[PaywallModal] Redirecting to:", data.url);
         window.location.href = data.url;
       } else {

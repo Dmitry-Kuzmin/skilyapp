@@ -379,6 +379,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return;
       }
 
+      // Сохраняем session_id в localStorage перед редиректом (fallback если Stripe не передаст в URL)
+      if (data?.sessionId) {
+        console.log("[BoostShop] Saving session_id to localStorage:", data.sessionId);
+        localStorage.setItem('stripe_checkout_session_id', data.sessionId);
+      }
+
       // Открываем Stripe Checkout в попапе
       const width = 600;
       const height = 700;

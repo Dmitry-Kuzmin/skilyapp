@@ -203,8 +203,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [fetchPlayers, profileId]);
 
-  const [questionsError, setQuestionsError] = useState<Error | null>(null);
-
   const syncQuestions = useCallback(async () => {
     // ОПТИМИЗАЦИЯ: Предотвращаем повторные вызовы если уже идет загрузка
     if (isLoadingRef.current) {
@@ -214,17 +212,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     try {
       isLoadingRef.current = true;
       setLoading(true);
-      setQuestionsError(null);
       const questionList = await fetchQuestions();
-      if (!questionList || questionList.length === 0) {
-        throw new Error('Вопросы не найдены');
-      }
       hydrateQuestions(questionList);
     } catch (error) {
       console.error('[DuelBattleFullscreen] Failed to load questions:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
-      setQuestionsError(error instanceof Error ? error : new Error(errorMessage));
-      toast.error(`Ошибка загрузки вопросов: ${errorMessage}`);
+      toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
@@ -473,36 +465,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const interval = setInterval(checkReconnection, 1000);
     return () => clearInterval(interval);
   }, [opponentLastSeen, opponentActivityStatus]);
-
-  // Обработка длительного отключения соперника (более 30 секунд)
-  useEffect(() => {
-    if (!opponentLastSeen || opponentActivityStatus !== 'offline' || !state.duelStarted || state.duelFinished) return;
-    
-    const checkOpponentDisconnect = () => {
-      if (!opponentLastSeen) return;
-      
-      const now = Date.now();
-      const lastSeen = opponentLastSeen.getTime();
-      const timeSinceLastSeen = now - lastSeen;
-      
-      // Если соперник офлайн более 30 секунд - показываем предупреждение
-      if (timeSinceLastSeen > 30000) {
-        toast.error('Соперник отключился. Игра будет завершена.', {
-          duration: 5000,
-        });
-        
-        // Через 5 секунд после предупреждения завершаем дуэль
-        setTimeout(() => {
-          if (onDuelFinished) {
-            onDuelFinished();
-          }
-        }, 5000);
-      }
-    };
-    
-    const interval = setInterval(checkOpponentDisconnect, 5000);
-    return () => clearInterval(interval);
-  }, [opponentLastSeen, opponentActivityStatus, state.duelStarted, state.duelFinished, onDuelFinished]);
 
   // Обработка disconnect при закрытии приложения/вкладки
   useEffect(() => {
@@ -1450,42 +1412,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       questionsCount: questions.length,
       duelId,
       profileId,
-      duelStarted: state.duelStarted,
-      hasError: !!questionsError
+      duelStarted: state.duelStarted
     });
-    
-    // Если произошла ошибка загрузки вопросов - показываем экран ошибки с кнопкой выхода
-    if (questionsError && !loading) {
-      return (
-        <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-          <div className="text-center space-y-4 p-6 max-w-md mx-auto">
-            <div className="text-destructive text-4xl mb-4">⚠️</div>
-            <h2 className="text-xl font-bold text-foreground">Ошибка загрузки вопросов</h2>
-            <p className="text-muted-foreground">{questionsError.message}</p>
-            <p className="text-sm text-muted-foreground/70">
-              Возможно, произошло отключение или дуэль была завершена.
-            </p>
-            <div className="flex gap-3 justify-center mt-6">
-              <Button
-                onClick={() => {
-                  setQuestionsError(null);
-                  syncQuestions();
-                }}
-                variant="outline"
-              >
-                Попробовать снова
-              </Button>
-              <Button
-                onClick={onExit}
-                variant="destructive"
-              >
-                Выйти из дуэли
-              </Button>
-            </div>
-          </div>
-        </div>
-      );
-    }
     
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
@@ -1596,7 +1524,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       <div 
         className="fixed z-50 space-y-2 max-w-sm"
         style={{
-          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 8 : isTelegramDesktop ? 8 : 16)}px`, // Компактный отступ для мобильной версии
+          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 40 : isTelegramDesktop ? 8 : 16)}px`, // Отступ 40px от верха прогресс-бара для мобильной версии Telegram
           right: `${totalRightPadding + 16}px`
         }}
       >

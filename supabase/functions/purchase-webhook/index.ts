@@ -118,11 +118,52 @@ serve(async (req) => {
         if (coins > 0) {
           console.log(`[purchase-webhook] Adding ${coins} coins to user ${userId}`);
           
-          await supabase.rpc("increment_profile_value", {
+          // Проверяем текущий баланс перед начислением
+          const { data: profileBefore } = await supabase
+            .from("profiles")
+            .select("coins")
+            .eq("id", userId)
+            .single();
+          
+          const coinsBefore = profileBefore?.coins || 0;
+          console.log(`[purchase-webhook] User ${userId} coins before: ${coinsBefore}`);
+
+          const { error: incrementError } = await supabase.rpc("increment_profile_value", {
             p_profile_id: userId,
             p_column: "coins",
             p_amount: coins,
           });
+
+          if (incrementError) {
+            console.error(`[purchase-webhook] ❌ Error incrementing coins:`, incrementError);
+            throw new Error(`Failed to add coins: ${incrementError.message}`);
+          }
+
+          // Проверяем баланс после начисления
+          const { data: profileAfter } = await supabase
+            .from("profiles")
+            .select("coins")
+            .eq("id", userId)
+            .single();
+          
+          const coinsAfter = profileAfter?.coins || 0;
+          console.log(`[purchase-webhook] User ${userId} coins after: ${coinsAfter} (expected: ${coinsBefore + coins})`);
+
+          if (coinsAfter < coinsBefore + coins) {
+            console.error(`[purchase-webhook] ⚠️ Coins not added correctly! Before: ${coinsBefore}, After: ${coinsAfter}, Expected: ${coinsBefore + coins}`);
+            // Пытаемся начислить вручную через UPDATE
+            const { error: updateError } = await supabase
+              .from("profiles")
+              .update({ coins: coinsBefore + coins })
+              .eq("id", userId);
+            
+            if (updateError) {
+              console.error(`[purchase-webhook] ❌ Failed to fix coins manually:`, updateError);
+              throw new Error(`Failed to add coins: RPC and manual update both failed`);
+            }
+            
+            console.log(`[purchase-webhook] ✅ Fixed coins manually: ${coinsBefore} → ${coinsBefore + coins}`);
+          }
 
           await supabase.from("transactions").insert({
             user_id: userId,

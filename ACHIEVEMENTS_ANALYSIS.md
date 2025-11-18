@@ -244,3 +244,4 @@ ALTER TABLE achievements_def ADD COLUMN IF NOT EXISTS trigger_config JSONB;
 
 
 
+

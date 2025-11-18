@@ -216,9 +216,14 @@ serve(async (req) => {
       };
     }
 
+    // Добавляем session_id в success_url для проверки покупки на странице успеха
+    const successUrlWithSession = successUrl.includes('?') 
+      ? `${successUrl}&session_id={CHECKOUT_SESSION_ID}`
+      : `${successUrl}?session_id={CHECKOUT_SESSION_ID}`;
+
     const session = await stripe.checkout.sessions.create({
       mode: entry.dbType === "premium" ? "subscription" : "payment",
-      success_url: successUrl,
+      success_url: successUrlWithSession,
       cancel_url: cancelUrl,
       client_reference_id: user_id,
       metadata: {
