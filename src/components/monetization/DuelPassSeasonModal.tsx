@@ -1138,7 +1138,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-xl font-bold">Duel Pass</SheetTitle>
+              <SheetTitle className="text-xl font-bold -ml-0.5">Duel Pass</SheetTitle>
               <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>
@@ -1157,7 +1157,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-bold">Duel Pass</DialogTitle>
+              <DialogTitle className="text-xl font-bold -ml-0.5">Duel Pass</DialogTitle>
               <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>

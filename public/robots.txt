@@ -10,6 +10,25 @@ Disallow: /*.json$
 Disallow: /test-session
 Disallow: /test-results
 
+# AI Crawlers (ChatGPT, Claude, Perplexity, etc.)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
 # Sitemaps
 Sitemap: https://skilyapp.com/sitemap.xml
 Sitemap: https://skilyapp.com/news-sitemap.xml
