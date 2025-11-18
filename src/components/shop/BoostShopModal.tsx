@@ -119,14 +119,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         setCoins(profile.coins || 0);
       }
 
-      // Загрузка инвентаря
-      const { data: inventoryData, error: inventoryError } = await supabase
-        .from('boost_inventory')
-        .select('boost_type, quantity')
-        .eq('user_id', profileId);
+      // Загрузка инвентаря через RPC (обходит RLS для Telegram)
+      const { data: inventoryData, error: inventoryError } = await supabase.rpc('get_user_boost_inventory', {
+        p_user_id: profileId
+      });
 
       if (inventoryError) {
         console.error('[BoostShop] Ошибка загрузки инвентаря:', inventoryError);
+        // Fallback к прямому запросу
+        const { data: fallbackData } = await supabase
+          .from('boost_inventory')
+          .select('boost_type, quantity')
+          .eq('user_id', profileId);
+        if (fallbackData) {
+          setInventory(fallbackData);
+        }
       } else if (inventoryData) {
         setInventory(inventoryData);
       }
@@ -196,15 +203,37 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     try {
       const allTransactions: Transaction[] = [];
       
-      // 1. Load new transactions table (monetization system)
-      const { data: newTransactions } = await supabase
-        .from('transactions')
-        .select('id, amount, transaction_type, metadata, created_at')
-        .eq('user_id', profileId)
-        .order('created_at', { ascending: false })
-        .limit(100);
+      // 1. Load new transactions table через RPC (обходит RLS для Telegram)
+      const { data: newTransactions, error: transactionsError } = await supabase.rpc('get_user_transactions', {
+        p_user_id: profileId,
+        p_limit: 100
+      });
       
-      if (newTransactions) {
+      if (transactionsError) {
+        console.error('[BoostShop] Ошибка загрузки транзакций через RPC:', transactionsError);
+        // Fallback к прямому запросу
+        const { data: fallbackTx } = await supabase
+          .from('transactions')
+          .select('id, amount, transaction_type, metadata, created_at')
+          .eq('user_id', profileId)
+          .order('created_at', { ascending: false })
+          .limit(100);
+        if (fallbackTx) {
+          fallbackTx.forEach(tx => {
+            const info = getTransactionInfo(tx.transaction_type, tx.metadata);
+            allTransactions.push({
+              id: tx.id,
+              amount: tx.amount,
+              type: tx.transaction_type,
+              description: info.description,
+              created_at: tx.created_at,
+              category: info.category,
+              icon: info.icon,
+              metadata: tx.metadata
+            });
+          });
+        }
+      } else if (newTransactions) {
         newTransactions.forEach(tx => {
           const info = getTransactionInfo(tx.transaction_type, tx.metadata);
           allTransactions.push({
@@ -525,6 +554,24 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       console.log('[BoostShop] Буст добавлен в инвентарь успешно, результат:', inventoryData);
 
+      // Создаем транзакцию о покупке буста через RPC (обходит RLS для Telegram)
+      try {
+        const { error: transactionError } = await supabase.rpc('create_transaction', {
+          p_user_id: profileId,
+          p_transaction_type: 'coins_spent_boost',
+          p_amount: -boost.cost_coins,
+          p_metadata: { boost_type: boost.type, boost_name: boost.name_ru }
+        });
+        
+        if (transactionError) {
+          console.warn('[BoostShop] Ошибка создания транзакции (не критично):', transactionError);
+        } else {
+          console.log('[BoostShop] Транзакция о покупке буста создана успешно');
+        }
+      } catch (txError) {
+        console.warn('[BoostShop] Исключение при создании транзакции (не критично):', txError);
+      }
+
       // Анимации и звуки
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
@@ -545,13 +592,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           setCoins(updatedProfile.coins || 0);
         }
 
-        // Обновляем инвентарь
-        const { data: updatedInventory } = await supabase
-          .from('boost_inventory')
-          .select('boost_type, quantity')
-          .eq('user_id', profileId);
+        // Обновляем инвентарь через RPC (обходит RLS для Telegram)
+        const { data: updatedInventory, error: invError } = await supabase.rpc('get_user_boost_inventory', {
+          p_user_id: profileId
+        });
 
-        if (updatedInventory) {
+        if (invError) {
+          console.warn('[BoostShop] Ошибка обновления инвентаря через RPC, пробуем прямой запрос:', invError);
+          const { data: fallbackInventory } = await supabase
+            .from('boost_inventory')
+            .select('boost_type, quantity')
+            .eq('user_id', profileId);
+          if (fallbackInventory) {
+            setInventory(fallbackInventory);
+          }
+        } else if (updatedInventory) {
           setInventory(updatedInventory);
         }
       } catch (error) {
