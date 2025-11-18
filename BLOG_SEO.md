@@ -189,25 +189,32 @@ node scripts/ping-search-engines.js
 
 ### 📋 Как использовать автоматизацию
 
-#### При добавлении новой статьи:
+#### При добавлении новой статьи (через AI):
 
-1. **Добавить статью в код** (Article.tsx и Blog.tsx)
+**Автоматически!** Когда я (AI) добавляю статью, я автоматически:
+1. ✅ Добавляю статью в код (Article.tsx и Blog.tsx)
+2. ✅ Запускаю `npm run publish-article` - это автоматически:
+   - Генерирует RSS и News Sitemap
+   - Отправляет ping в поисковики
+3. ✅ Готовлю файлы для коммита
 
-2. **Сгенерировать RSS и News Sitemap:**
+**Вам остается только:**
 ```bash
-npm run generate-sitemaps
-```
-
-3. **Отправить ping в поисковики:**
-```bash
-npm run ping-search-engines
-```
-
-4. **Закоммитить изменения:**
-```bash
-git add public/rss.xml public/news-sitemap.xml
+git add .
 git commit -m "feat: add new article [название]"
 git push
+```
+
+#### Ручной запуск (если нужно):
+
+Если нужно запустить вручную:
+```bash
+# Полная автоматизация (рекомендуется)
+npm run publish-article
+
+# Или по отдельности:
+npm run generate-sitemaps    # Только генерация sitemap
+npm run ping-search-engines  # Только ping поисковиков
 ```
 
 ### 🤖 Оптимизация для ИИ (ChatGPT, Perplexity, Claude)

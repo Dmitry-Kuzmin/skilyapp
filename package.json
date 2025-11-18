@@ -25,9 +25,7 @@
     "tunnel:start:lt": "./scripts/start-localtunnel.sh",
     "tunnel:start:save": "./scripts/start-tunnel-with-persistent-url.sh",
     "tunnel:url": "./scripts/get-tunnel-url.sh",
-    "tunnel:set-url": "node scripts/set-telegram-webapp-url.js",
-    "generate-sitemaps": "node scripts/generate-sitemaps.js",
-    "ping-search-engines": "node scripts/ping-search-engines.js"
+    "tunnel:set-url": "node scripts/set-telegram-webapp-url.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

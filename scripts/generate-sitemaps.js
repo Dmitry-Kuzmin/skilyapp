@@ -5,27 +5,38 @@
 
 const fs = require('fs');
 const path = require('path');
+const { extractArticlesFromTSX } = require('./read-articles');
 
-// Импортируем статьи из Article.tsx (нужно будет адаптировать)
-// Пока используем статический список
-const articles = {
-  "kak-sdat-ekzamen-dgt-s-pervogo-raza": {
-    slug: "kak-sdat-ekzamen-dgt-s-pervogo-raza",
-    title: "Как сдать экзамен DGT с первого раза",
-    description: "Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.",
-    category: "Подготовка",
-    author: "Команда Skilyapp",
-    publishedAt: "2024-12-19",
-  },
-  "top-10-oshibok-na-ekzamene-dgt": {
-    slug: "top-10-oshibok-na-ekzamene-dgt",
-    title: "Топ-10 ошибок на экзамене DGT",
-    description: "Самые распространенные ошибки при подготовке и сдаче экзамена DGT. Узнайте, как их избежать и увеличить свои шансы на успех.",
-    category: "Советы",
-    author: "Команда Skilyapp",
-    publishedAt: "2024-12-19",
-  },
-};
+// Автоматически извлекаем статьи из Article.tsx
+let articles;
+try {
+  articles = extractArticlesFromTSX();
+  if (Object.keys(articles).length === 0) {
+    console.warn('⚠️  Не удалось извлечь статьи, используем fallback');
+    // Fallback на статический список
+    articles = {
+      "kak-sdat-ekzamen-dgt-s-pervogo-raza": {
+        slug: "kak-sdat-ekzamen-dgt-s-pervogo-raza",
+        title: "Как сдать экзамен DGT с первого раза",
+        description: "Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.",
+        category: "Подготовка",
+        author: "Команда Skilyapp",
+        publishedAt: "2024-12-19",
+      },
+      "top-10-oshibok-na-ekzamene-dgt": {
+        slug: "top-10-oshibok-na-ekzamene-dgt",
+        title: "Топ-10 ошибок на экзамене DGT",
+        description: "Самые распространенные ошибки при подготовке и сдаче экзамена DGT. Узнайте, как их избежать и увеличить свои шансы на успех.",
+        category: "Советы",
+        author: "Команда Skilyapp",
+        publishedAt: "2024-12-19",
+      },
+    };
+  }
+} catch (error) {
+  console.error('❌ Ошибка при чтении статей:', error.message);
+  process.exit(1);
+}
 
 // Форматирование даты для RSS (RFC 822)
 function formatRSSDate(dateString) {
