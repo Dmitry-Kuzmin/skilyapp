@@ -742,9 +742,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
 
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="flex-1 flex flex-col overflow-hidden mt-3 md:mt-4 p-0">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 md:px-4 py-3 md:py-4 space-y-3 min-h-0">
-                <>
+            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+              <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
@@ -789,13 +788,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       <p className="text-sm">Бусты скоро появятся</p>
                     </div>
                   )}
-                </>
-              </div>
+              </>
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent value="coins" className="flex-1 flex flex-col overflow-hidden mt-3 md:mt-4 p-0">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 md:px-4 py-3 md:py-4 space-y-3 min-h-0">
+            <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+              <div className="space-y-3">
                 <div className="text-center py-4">
                   <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
                   <div className="flex items-center justify-center gap-2">
@@ -871,8 +869,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Premium & Duel Pass Tab */}
-            <TabsContent value="premium" className="flex-1 flex flex-col overflow-hidden mt-3 md:mt-4 p-0">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 md:px-4 py-3 md:py-4 space-y-4 min-h-0">
+            <TabsContent value="premium" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+              <div className="space-y-4">
                 {/* Premium Subscription */}
                 <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
                   <div className="space-y-4">
