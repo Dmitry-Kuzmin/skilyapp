@@ -84,6 +84,30 @@
     <priority>0.7</priority>
   </url>
   
+  <!-- Блог -->
+  <url>
+    <loc>https://skilyapp.com/blog</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Статья: Как сдать экзамен DGT с первого раза -->
+  <url>
+    <loc>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Статья: Топ-10 ошибок на экзамене DGT -->
+  <url>
+    <loc>https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
 </urlset>
 
 

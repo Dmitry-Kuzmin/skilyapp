@@ -108,6 +108,7 @@ const Layout = ({ children }: LayoutProps) => {
           isActiveDuel: true 
         }
       : { name: t("games"), href: "/games", icon: Gamepad2 },
+    { name: "Блог", href: "/blog", icon: Newspaper },
   ];
 
   // ОПТИМИЗАЦИЯ: Убрано логирование для уменьшения нагрузки (можно включить для отладки)
