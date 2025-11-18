@@ -148,6 +148,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   };
   
   const getTransactionInfo = (type: string, metadata?: any): { description: string; icon: any; category: 'earn' | 'spend' | 'purchase' | 'reward' } => {
+    // Функция для получения названия буста
+    const getBoostName = (boostType?: string, boostMetadata?: any): string => {
+      if (!boostType) return '';
+      // Сначала проверяем metadata (новые транзакции имеют boost_name)
+      if (boostMetadata?.boost_name) {
+        return boostMetadata.boost_name;
+      }
+      // Fallback: ищем название в массиве boosts
+      const boost = boosts.find(b => b.type === boostType);
+      return boost?.name_ru || boostType;
+    };
+
     const iconMap: Record<string, any> = {
       // Earnings
       'coins_earned_test': { icon: TestTube, desc: 'Награда за тест', cat: 'earn' },
@@ -155,7 +167,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       'coins_earned_daily': { icon: Calendar, desc: 'Ежедневный бонус', cat: 'earn' },
       'coins_earned_premium_bonus': { icon: Gift, desc: 'Premium бонус', cat: 'earn' },
       // Spending
-      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_type || ''}`, cat: 'spend' },
+      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${getBoostName(metadata?.boost_type, metadata)}`, cat: 'spend' },
       'coins_spent_skin': { icon: Gift, desc: 'Покупка скина', cat: 'spend' },
       'coins_spent_duel_entry': { icon: Zap, desc: 'Вход в дуэль', cat: 'spend' },
       // Purchases
