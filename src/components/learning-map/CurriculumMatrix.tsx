@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -84,6 +84,7 @@ export const CurriculumMatrix = ({
 }: CurriculumMatrixProps) => {
   const { t } = useLanguage();
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const getTopicKey = (topic: StructuredCurriculumTopic) =>
     topic.topicId ?? `topic-${topic.number}`;
@@ -104,10 +105,30 @@ export const CurriculumMatrix = ({
   }, [topics]);
 
   const toggleTopic = (key: string) => {
+    if (typeof window === "undefined") {
+      setExpandedTopics((prev) => ({ ...prev, [key]: !prev[key] }));
+      return;
+    }
+
+    const cardElement = cardRefs.current[key];
+    const previousTop = cardElement?.getBoundingClientRect().top ?? null;
+
     setExpandedTopics((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
+
+    if (cardElement && previousTop !== null) {
+      requestAnimationFrame(() => {
+        const nextElement = cardRefs.current[key];
+        if (!nextElement) return;
+        const newTop = nextElement.getBoundingClientRect().top;
+        const diff = newTop - previousTop;
+        if (Math.abs(diff) > 2) {
+          window.scrollBy({ top: diff, behavior: "auto" });
+        }
+      });
+    }
   };
 
   const statusConfig: Record<
@@ -151,6 +172,9 @@ export const CurriculumMatrix = ({
               "bg-card/80 dark:bg-card/90 backdrop-blur-sm",
               "px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
             )}
+            ref={(el) => {
+              cardRefs.current[topicKey] = el;
+            }}
           >
             <div className="relative space-y-3 sm:space-y-4">
               <header
@@ -350,8 +374,8 @@ export const CurriculumMatrix = ({
 
                           const disabled =
                             item.status === "locked" ||
-                            item.status === "placeholder" ||
-                            (!item.subtopicId && !isTestItem);
+                            (item.status === "placeholder" && !item.code) ||
+                            (!item.subtopicId && !isTestItem && item.status !== "active");
 
                           return (
                             <button
@@ -367,6 +391,10 @@ export const CurriculumMatrix = ({
                                 }
                                 if (item.subtopicId) {
                                   onSubtopicClick(item.subtopicId);
+                                } else if (item.status === "active" && item.code && topic.number) {
+                                  // Статический материал - создаем static ID
+                                  const staticId = `static-topic-${topic.number}-subtopic-${item.code.replace('.', '-')}`;
+                                  onSubtopicClick(staticId);
                                 }
                               }}
                               disabled={disabled}
