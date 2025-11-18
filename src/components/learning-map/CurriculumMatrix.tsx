@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Lock, Play, Sparkles } from "lucide-react";
+import { CheckCircle2, ChevronDown, Lock, Play, Sparkles } from "lucide-react";
 import { CurriculumBlueprintTopic, CurriculumSection } from "@/data/curriculumBlueprint";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -82,6 +83,32 @@ export const CurriculumMatrix = ({
   onFinalTestClick,
 }: CurriculumMatrixProps) => {
   const { t } = useLanguage();
+  const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
+
+  const getTopicKey = (topic: StructuredCurriculumTopic) =>
+    topic.topicId ?? `topic-${topic.number}`;
+
+  useEffect(() => {
+    setExpandedTopics((prev) => {
+      const next = { ...prev };
+      topics.forEach((topic, index) => {
+        const key = getTopicKey(topic);
+        if (next[key] === undefined) {
+          const hasActiveProgress =
+            topic.progressPercent > 0 && topic.progressPercent < 100;
+          next[key] = index === 0 || hasActiveProgress;
+        }
+      });
+      return next;
+    });
+  }, [topics]);
+
+  const toggleTopic = (key: string) => {
+    setExpandedTopics((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const statusConfig: Record<
     ItemStatus,
@@ -113,6 +140,8 @@ export const CurriculumMatrix = ({
     <div className="space-y-10">
       {topics.map((topic, index) => {
         const palette = palettes[index % palettes.length];
+        const topicKey = getTopicKey(topic);
+        const isExpanded = expandedTopics[topicKey] ?? true;
 
         return (
           <Card
@@ -272,81 +301,101 @@ export const CurriculumMatrix = ({
                       {t("continue_topic")}
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "rounded-full border border-border/50 bg-background/70 dark:bg-background/40 backdrop-blur-sm",
+                      "w-9 h-9 sm:w-10 sm:h-10"
+                    )}
+                    aria-expanded={isExpanded}
+                    onClick={() => toggleTopic(topicKey)}
+                  >
+                    <ChevronDown
+                      className={cn(
+                        "w-4 h-4 transition-transform duration-200",
+                        !isExpanded && "-rotate-90",
+                        isExpanded && "rotate-0"
+                      )}
+                    />
+                  </Button>
                 </div>
               </header>
 
-              <div className="space-y-2 sm:space-y-3">
-                {topic.sections.map((section) => (
-                  <section
-                    key={section.title}
-                    className="rounded-lg sm:rounded-xl border border-border bg-muted/30 p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3"
-                  >
-                    <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                          {t("block")}
-                        </p>
-                        <h3 className="text-xs sm:text-sm font-semibold text-foreground break-words">{section.title}</h3>
+              {isExpanded && (
+                <div className="space-y-2 sm:space-y-3">
+                  {topic.sections.map((section) => (
+                    <section
+                      key={section.title}
+                      className="rounded-lg sm:rounded-xl border border-border bg-muted/30 p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3"
+                    >
+                      <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                            {t("block")}
+                          </p>
+                          <h3 className="text-xs sm:text-sm font-semibold text-foreground break-words">{section.title}</h3>
+                        </div>
+                        <span className="text-[10px] sm:text-[11px] text-muted-foreground flex-shrink-0">
+                          {section.items.length}
+                        </span>
                       </div>
-                      <span className="text-[10px] sm:text-[11px] text-muted-foreground flex-shrink-0">
-                        {section.items.length}
-                      </span>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {section.items.map((item) => {
-                        const config = statusConfig[item.status];
-                        const Icon = config.icon;
-                        const isTestItem =
-                          item.kind === "training_test" || item.kind === "final_test";
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {section.items.map((item) => {
+                          const config = statusConfig[item.status];
+                          const Icon = config.icon;
+                          const isTestItem =
+                            item.kind === "training_test" || item.kind === "final_test";
 
-                        const disabled =
-                          item.status === "locked" ||
-                          item.status === "placeholder" ||
-                          (!item.subtopicId && !isTestItem);
+                          const disabled =
+                            item.status === "locked" ||
+                            item.status === "placeholder" ||
+                            (!item.subtopicId && !isTestItem);
 
-                        return (
-                          <button
-                            key={`${section.title}-${item.code}-${item.title}`}
-                            onClick={() => {
-                              if (item.kind === "training_test" && topic.topicId && onTrainingTestClick) {
-                                onTrainingTestClick(topic.topicId);
-                                return;
-                              }
-                              if (item.kind === "final_test" && topic.topicId && onFinalTestClick) {
-                                onFinalTestClick(topic.topicId);
-                                return;
-                              }
-                              if (item.subtopicId) {
-                                onSubtopicClick(item.subtopicId);
-                              }
-                            }}
-                            disabled={disabled}
-                            className={cn(
-                              "group relative rounded-lg sm:rounded-xl px-2.5 py-2 sm:px-3 sm:py-2 text-left transition-all duration-150",
-                              "flex flex-col gap-1.5 sm:gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                              config.className,
-                              !item.subtopicId && "cursor-default"
-                            )}
-                          >
-                            <div className="flex items-center justify-between gap-2 sm:gap-3">
-                              <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground flex-1 min-w-0">
-                                {item.code && <span className="truncate">{item.code}</span>}
-                                {item.code && <div className="h-1 w-1 rounded-full bg-muted-foreground/30 flex-shrink-0" />}
-                                <span className="truncate">{config.label}</span>
+                          return (
+                            <button
+                              key={`${section.title}-${item.code}-${item.title}`}
+                              onClick={() => {
+                                if (item.kind === "training_test" && topic.topicId && onTrainingTestClick) {
+                                  onTrainingTestClick(topic.topicId);
+                                  return;
+                                }
+                                if (item.kind === "final_test" && topic.topicId && onFinalTestClick) {
+                                  onFinalTestClick(topic.topicId);
+                                  return;
+                                }
+                                if (item.subtopicId) {
+                                  onSubtopicClick(item.subtopicId);
+                                }
+                              }}
+                              disabled={disabled}
+                              className={cn(
+                                "group relative rounded-lg sm:rounded-xl px-2.5 py-2 sm:px-3 sm:py-2 text-left transition-all duration-150",
+                                "flex flex-col gap-1.5 sm:gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                config.className,
+                                !item.subtopicId && "cursor-default"
+                              )}
+                            >
+                              <div className="flex items-center justify-between gap-2 sm:gap-3">
+                                <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground flex-1 min-w-0">
+                                  {item.code && <span className="truncate">{item.code}</span>}
+                                  {item.code && <div className="h-1 w-1 rounded-full bg-muted-foreground/30 flex-shrink-0" />}
+                                  <span className="truncate">{config.label}</span>
+                                </div>
+                                <Icon className="w-3 h-3 flex-shrink-0" />
                               </div>
-                              <Icon className="w-3 h-3 flex-shrink-0" />
-                            </div>
-                            <p className="text-xs sm:text-sm font-medium leading-snug text-foreground break-words">
-                              {item.title}
-                            </p>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </section>
-                ))}
-              </div>
+                              <p className="text-xs sm:text-sm font-medium leading-snug text-foreground break-words">
+                                {item.title}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              )}
             </div>
           </Card>
         );

@@ -18,6 +18,7 @@ import {
 } from "@/data/curriculumBlueprint";
 import { calculateTopicProgress } from "@/utils/learningMap";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { hasStaticMaterial } from "@/utils/staticMaterials";
 
 interface TopicWithSubtopics extends Topic {
   subtopics: Subtopic[];
@@ -395,9 +396,10 @@ const LearningMap = () => {
     <Layout>
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8">
-          <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1">
+          <section className="flex flex-col gap-6 lg:gap-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="space-y-3 md:max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-xs font-medium text-muted-foreground">
                   {isEs
@@ -407,54 +409,60 @@ const LearningMap = () => {
                     : "Структурированная карта курса ПДД"}
                 </span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-                {isEs ? "Mapa de aprendizaje" : isEn ? "Learning map" : "Карта обучения"}
-              </h1>
-              <p className="text-sm text-muted-foreground max-w-xl">
-                {isEs
-                  ? "Todos los temas y subtemas en un solo lugar. Comience con el primer subtema incompleto o seleccione cualquier módulo."
-                  : isEn
-                  ? "All topics and subtopics in one place. Start with the first incomplete subtopic or select any module."
-                  : "Все темы и подтемы в одном месте. Начните с первой незавершённой подтемы или выберите любой модуль."}
-              </p>
             </div>
-
-            <div className="flex flex-wrap gap-3 md:justify-end">
-              {heroStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-xl bg-card border border-border px-3 py-2 min-w-[120px]"
-                >
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                    {stat.label}
-                  </p>
-                  <p className="text-sm font-semibold mt-1 text-foreground">{stat.value}</p>
-                </div>
-              ))}
-              <Button
-                size="sm"
-                className="rounded-xl"
-                onClick={() => {
-                  if (nextAction) {
-                    handleSubtopicClick(nextAction.subtopicId);
-                  } else if (structuredCurriculum[0]?.topicId) {
-                    handleTopicClick(structuredCurriculum[0].topicId!);
-                  }
-                }}
-              >
-                {nextAction
-                  ? isEs
-                    ? `Continuar: ${nextAction.subtopicTitle}`
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                  {isEs ? "Mapa de aprendizaje" : isEn ? "Learning map" : "Карта обучения"}
+                </h1>
+                <p className="text-base text-muted-foreground">
+                  {isEs
+                    ? "Todos los temas y subtemas en un solo lugar. Comience con el primer subtema incompleto o seleccione cualquier módulo."
                     : isEn
-                    ? `Continue: ${nextAction.subtopicTitle}`
-                    : `Продолжить: ${nextAction.subtopicTitle}`
-                  : isEs
-                  ? "Empezar el aprendizaje"
-                  : isEn
-                  ? "Start learning"
-                  : "Начать обучение"}
-                <ArrowRight className="w-4 h-4 ml-1.5" />
-              </Button>
+                    ? "All topics and subtopics in one place. Start with the first incomplete subtopic or select any module."
+                    : "Все темы и подтемы в одном месте. Начните с первой незавершённой подтемы или выберите любой модуль."}
+                </p>
+              </div>
+
+              <div className="w-full md:max-w-md lg:max-w-lg space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-3 gap-3">
+                  {heroStats.map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="rounded-2xl bg-card border border-border px-4 py-3 flex flex-col gap-1"
+                    >
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                        {stat.label}
+                      </p>
+                      <p className="text-lg font-semibold text-foreground">{stat.value}</p>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  size="lg"
+                  className="w-full rounded-2xl justify-between"
+                  onClick={() => {
+                    if (nextAction) {
+                      handleSubtopicClick(nextAction.subtopicId);
+                    } else if (structuredCurriculum[0]?.topicId) {
+                      handleTopicClick(structuredCurriculum[0].topicId!);
+                    }
+                  }}
+                >
+                  <span className="text-left">
+                    {nextAction
+                      ? isEs
+                        ? `Continuar: ${nextAction.subtopicTitle}`
+                        : isEn
+                        ? `Continue: ${nextAction.subtopicTitle}`
+                        : `Продолжить: ${nextAction.subtopicTitle}`
+                      : isEs
+                      ? "Empezar el aprendizaje"
+                      : isEn
+                      ? "Start learning"
+                      : "Начать обучение"}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </section>
 
