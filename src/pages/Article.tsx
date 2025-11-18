@@ -516,9 +516,11 @@ const Article = () => {
           currentList = [];
           listType = null;
         }
+        const headingText = trimmedLine.replace(/^#+\s*/, "");
+        const headingId = headingText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
         elements.push(
-          <h2 key={`h2-${index}`} className="text-3xl font-bold mt-8 mb-4 text-gray-900 dark:text-gray-100">
-            {trimmedLine.replace(/^#+\s*/, "")}
+          <h2 key={`h2-${index}`} id={headingId} className="text-3xl font-bold mt-8 mb-4 text-gray-900 dark:text-gray-100 scroll-mt-20">
+            {headingText}
           </h2>
         );
       } else if (trimmedLine.startsWith("## ")) {
@@ -541,9 +543,11 @@ const Article = () => {
           currentList = [];
           listType = null;
         }
+        const headingText = trimmedLine.replace(/^##+\s*/, "");
+        const headingId = headingText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
         elements.push(
-          <h3 key={`h3-${index}`} className="text-2xl font-semibold mt-6 mb-3 text-gray-900 dark:text-gray-100">
-            {trimmedLine.replace(/^##+\s*/, "")}
+          <h3 key={`h3-${index}`} id={headingId} className="text-2xl font-semibold mt-6 mb-3 text-gray-900 dark:text-gray-100 scroll-mt-20">
+            {headingText}
           </h3>
         );
       } else if (trimmedLine.startsWith("### ")) {
@@ -566,9 +570,11 @@ const Article = () => {
           currentList = [];
           listType = null;
         }
+        const headingText = trimmedLine.replace(/^###+\s*/, "");
+        const headingId = headingText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
         elements.push(
-          <h4 key={`h4-${index}`} className="text-xl font-semibold mt-4 mb-2 text-gray-900 dark:text-gray-100">
-            {trimmedLine.replace(/^###+\s*/, "")}
+          <h4 key={`h4-${index}`} id={headingId} className="text-xl font-semibold mt-4 mb-2 text-gray-900 dark:text-gray-100 scroll-mt-20">
+            {headingText}
           </h4>
         );
       }
@@ -733,7 +739,7 @@ const Article = () => {
     
     lines.forEach((line) => {
       const trimmed = line.trim();
-      if (trimmed.startsWith("## ")) {
+      if (trimmed.startsWith("## ") && !trimmed.startsWith("### ")) {
         const text = trimmed.replace(/^##+\s*/, "");
         const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
         headings.push({ text, level: 2, id });
