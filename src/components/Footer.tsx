@@ -32,11 +32,17 @@ export function Footer() {
             <div className="flex items-center justify-center w-8 h-8 rounded-lg gradient-primary">
               <span className="text-primary-foreground font-bold text-sm">S</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">Sdadim</span>
+            <span className="text-sm font-semibold text-foreground">Skilyapp</span>
           </div>
 
           {/* Legal Links */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <Link 
+              to="/blog" 
+              className="hover:text-foreground transition-colors"
+            >
+              Блог
+            </Link>
             <Link 
               to="/help" 
               className="hover:text-foreground transition-colors"
@@ -65,7 +71,7 @@ export function Footer() {
 
           {/* Copyright */}
           <p className="text-sm text-muted-foreground">
-            ©2025 Sdadim
+            ©2025 Skilyapp
           </p>
         </div>
       </div>
