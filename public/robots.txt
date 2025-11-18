@@ -1,14 +1,17 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Robots.txt для Skilyapp - Подготовка к экзамену DGT в Испании
+# https://skilyapp.com
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /*.json$
+Disallow: /test-session
+Disallow: /test-results
+
+# Sitemap
+Sitemap: https://skilyapp.com/sitemap.xml
+
+# Crawl-delay для уважения к серверу
+Crawl-delay: 1
