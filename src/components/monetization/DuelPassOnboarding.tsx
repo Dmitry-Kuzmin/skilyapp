@@ -12,7 +12,13 @@ import {
   Zap,
   Sparkles,
   ArrowRight,
-  X
+  X,
+  Rocket,
+  Flame,
+  Calendar,
+  Shield,
+  Star,
+  CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,44 +43,58 @@ const seasonTheme = {
   decorativeSecondary: "bg-[radial-gradient(circle_at_80%_100%,rgba(251,191,36,0.25),transparent_55%)]",
 };
 
-const getOnboardingScreens = (activeSeason?: { days_remaining?: number } | null) => [
+const getOnboardingScreens = (activeSeason?: { days_remaining?: number; name_ru?: string; season_number?: number } | null) => [
   {
     id: 1,
-    icon: Target,
-    title: "Месячный челлендж к экзамену",
+    icon: Rocket,
+    title: "Добро пожаловать в сезон!",
     subtitle: activeSeason?.days_remaining
       ? `${activeSeason.days_remaining} дней до финала сезона`
       : "30 дней до финала сезона",
-    description: "30 уровней наград за регулярные занятия.\nЭто не просто игра — это твой путь к цели.",
+    description: "Твой месячный челлендж к экзамену DGT\n\n30 уровней наград за регулярные занятия.\nЭто не просто игра — это твой путь к сдаче экзамена.",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
+    showCards: false,
   },
   {
     id: 2,
     icon: TrendingUp,
-    title: "Получай Season Points за любой прогресс",
-    subtitle: "Занимайся и зарабатывай SP",
-    description: "📝 Тест → 10-30 SP\n⚔️ Дуэль → 15-60 SP\n🔥 Челлендж → 100-1500 SP\n\n100 SP = 1 уровень = новая награда",
+    title: "Прокачивай навыки — получай Season Points",
+    subtitle: "За каждое действие ты получаешь SP",
+    description: "100 SP = 1 уровень = новая награда",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
+    showCards: "sp",
   },
   {
     id: 3,
     icon: Gift,
-    title: "Открывай уровни — получай награды",
-    subtitle: "Что ты получишь",
-    description: "💰 Монеты (для бустов)\n🎨 Скины и бейджи\n⚡ Бусты (50/50, +30 сек, перевод)\n\n💎 Premium награды ещё круче!",
+    title: "Выигрывай, обучаясь",
+    subtitle: "Что ты получишь в этом сезоне",
+    description: "💎 Premium: эксклюзивные награды на каждом уровне",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
+    showCards: "rewards",
   },
   {
     id: 4,
+    icon: Flame,
+    title: "Миссии ускоряют прогресс",
+    subtitle: "Система подбирает миссии под твои пробелы",
+    description: "Выполняй миссии → получай бонусные SP → быстрее растёшь\n\nКаждый сезон — новые миссии и награды.",
+    gradient: "from-slate-950 via-slate-900 to-slate-800",
+    border: "border-cyan-500/30",
+    showCards: "missions",
+  },
+  {
+    id: 5,
     icon: Trophy,
-    title: "Готов к челленджу?",
+    title: "Готов начать челлендж?",
     subtitle: "Твой сезон уже начался!",
     description: "Включи Duel Pass и пройди его до конца.\nТы увидишь, как быстро растут твои результаты.",
     gradient: "from-slate-950 via-slate-900 to-slate-800",
     border: "border-cyan-500/30",
+    showCards: false,
   },
 ];
 
@@ -213,39 +233,106 @@ export function DuelPassOnboarding({
                 </div>
 
                 {/* Дополнительные визуальные элементы для разных экранов */}
-                {currentScreen === 1 && (
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <BookOpen className="w-6 h-6 text-cyan-400" />
-                      <span className="text-xs text-white/70">Тест</span>
-                      <span className="text-sm font-bold text-cyan-400">10-30 SP</span>
+                {current.showCards === "sp" && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <BookOpen className="w-7 h-7 text-cyan-400" />
+                      <span className="text-xs text-white/80 font-medium">Тест</span>
+                      <span className="text-base font-bold text-cyan-400">10-30 SP</span>
                     </div>
-                    <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <Zap className="w-6 h-6 text-cyan-400" />
-                      <span className="text-xs text-white/70">Дуэль</span>
-                      <span className="text-sm font-bold text-cyan-400">15-60 SP</span>
+                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <Zap className="w-7 h-7 text-cyan-400" />
+                      <span className="text-xs text-white/80 font-medium">Дуэль</span>
+                      <span className="text-base font-bold text-cyan-400">15-60 SP</span>
                     </div>
-                    <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <Sparkles className="w-6 h-6 text-cyan-400" />
-                      <span className="text-xs text-white/70">Челлендж</span>
-                      <span className="text-sm font-bold text-cyan-400">100-1500 SP</span>
+                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <Sparkles className="w-7 h-7 text-cyan-400" />
+                      <span className="text-xs text-white/80 font-medium">Челлендж</span>
+                      <span className="text-base font-bold text-cyan-400">100-1500 SP</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <Calendar className="w-7 h-7 text-cyan-400" />
+                      <span className="text-xs text-white/80 font-medium">Ежедневный вход</span>
+                      <span className="text-base font-bold text-cyan-400">15 SP</span>
                     </div>
                   </div>
                 )}
 
-                {currentScreen === 2 && (
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <span className="text-2xl">💰</span>
-                      <span className="text-xs text-white/70 text-center">Монеты</span>
+                {current.showCards === "rewards" && (
+                  <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <span className="text-3xl">💰</span>
+                        <span className="text-xs text-white/80 text-center font-medium">Монеты</span>
+                        <span className="text-xs text-white/60 text-center">для бустов</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <span className="text-3xl">🎨</span>
+                        <span className="text-xs text-white/80 text-center font-medium">Скины</span>
+                        <span className="text-xs text-white/60 text-center">профиля</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <span className="text-2xl">🎨</span>
-                      <span className="text-xs text-white/70 text-center">Скины</span>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <span className="text-3xl">🏅</span>
+                        <span className="text-xs text-white/80 text-center font-medium">Бейджи</span>
+                        <span className="text-xs text-white/60 text-center">достижения</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <span className="text-3xl">⚡</span>
+                        <span className="text-xs text-white/80 text-center font-medium">Бусты</span>
+                        <span className="text-xs text-white/60 text-center">помощь в играх</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/10">
-                      <span className="text-2xl">⚡</span>
-                      <span className="text-xs text-white/70 text-center">Бусты</span>
+                    <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Crown className="w-5 h-5 text-yellow-400" />
+                        <span className="text-sm font-bold text-yellow-300">Premium награды</span>
+                      </div>
+                      <p className="text-xs text-white/80">Эксклюзивные награды на каждом уровне</p>
+                    </div>
+                  </div>
+                )}
+
+                {current.showCards === "missions" && (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Flame className="w-4 h-4 text-orange-400" />
+                            <span className="text-sm font-bold text-white">Ежедневные</span>
+                          </div>
+                          <p className="text-xs text-white/70">Простые задания каждый день</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+                          <Calendar className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Star className="w-4 h-4 text-blue-400" />
+                            <span className="text-sm font-bold text-white">Недельные</span>
+                          </div>
+                          <p className="text-xs text-white/70">Более сложные цели на неделю</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
+                          <Target className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Trophy className="w-4 h-4 text-purple-400" />
+                            <span className="text-sm font-bold text-white">Сезонные</span>
+                          </div>
+                          <p className="text-xs text-white/70">Большие достижения за месяц</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
