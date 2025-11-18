@@ -961,7 +961,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   </div>
                 </Card>
               </div>
-              </div>
             </TabsContent>
 
             {/* History Tab */}
