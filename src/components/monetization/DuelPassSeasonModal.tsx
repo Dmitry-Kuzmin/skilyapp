@@ -289,10 +289,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       // Проверяем, видел ли пользователь онбординг (fallback если не видел на главной)
       const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
       if (!hasSeenOnboarding) {
-        // Показываем онбординг после загрузки данных (fallback)
+        // Сначала закрываем основную модалку, потом показываем онбординг
+        onOpenChange(false);
         setTimeout(() => {
           setShowOnboarding(true);
-        }, 500);
+        }, 300);
       }
     }
   }, [open, profileId]);
@@ -1773,6 +1774,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           }}
           onComplete={() => {
             setShowOnboarding(false);
+            // Показываем основную модалку после завершения онбординга
+            setTimeout(() => {
+              onOpenChange(true);
+            }, 300);
           }}
           activeSeason={{
             name_ru: activeSeason.name_ru,
