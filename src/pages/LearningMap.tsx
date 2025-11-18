@@ -9,6 +9,7 @@ import { Topic, TopicProgress } from "@/components/learning-map/TopicCard";
 import {
   CurriculumMatrix,
   StructuredCurriculumTopic,
+  StructuredCurriculumItem,
   ItemStatus,
 } from "@/components/learning-map/CurriculumMatrix";
 import { Subtopic } from "@/utils/materialApi";
@@ -89,11 +90,13 @@ const LearningMap = () => {
         return;
       }
 
-      setUserProfile({
-        rank: profile?.rank || undefined,
-        xp: profile?.xp || 0,
-        streak: profile?.streak_days || 0,
-      });
+      if (profile) {
+        setUserProfile({
+          rank: (profile as any).rank || undefined,
+          xp: (profile as any).xp || 0,
+          streak: (profile as any).streak_days || 0,
+        });
+      }
     } catch (error) {
       console.error('[LearningMap] Error loading user profile:', error);
     }
@@ -176,13 +179,13 @@ const LearningMap = () => {
       }
 
       const topicIds = topics.map(t => t.id);
-      const { data: progressData, error: progressError } = await supabase.rpc(
+      const { data: progressData, error: progressError } = await (supabase.rpc(
         'get_user_topics_progress_batch',
         {
           p_user_id: profileId,
           p_topic_ids: topicIds
         }
-      );
+      ) as any) as { data: any[] | null; error: any };
 
       if (progressError) {
         console.error("[LearningMap] Error loading progress batch:", progressError);
@@ -272,9 +275,22 @@ const LearningMap = () => {
     navigate(`/subtopic/${subtopicId}`);
   };
 
-  const structuredCurriculum = useMemo<StructuredCurriculumTopic[]>(() => {
-    if (topics.length === 0) return [];
-    return buildStructuredCurriculum(curriculumBlueprint, topics, topicsProgress, language);
+  const [structuredCurriculum, setStructuredCurriculum] = useState<StructuredCurriculumTopic[]>([]);
+
+  useEffect(() => {
+    if (topics.length === 0) {
+      setStructuredCurriculum([]);
+      return;
+    }
+    
+    // Асинхронно строим структуру с проверкой статических материалов
+    buildStructuredCurriculumAsync(curriculumBlueprint, topics, topicsProgress, language)
+      .then(setStructuredCurriculum)
+      .catch((error) => {
+        console.error("[LearningMap] Error building structured curriculum:", error);
+        // Fallback на синхронную версию
+        setStructuredCurriculum(buildStructuredCurriculum(curriculumBlueprint, topics, topicsProgress, language));
+      });
   }, [topics, topicsProgress, language]);
 
   const globalProgress = useMemo(() => {
@@ -400,16 +416,15 @@ const LearningMap = () => {
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="space-y-3 md:max-w-2xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  {isEs
-                    ? "Mapa estructurada del curso de tráfico"
-                    : isEn
-                    ? "Structured traffic course map"
-                    : "Структурированная карта курса ПДД"}
-                </span>
-              </div>
-            </div>
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {isEs
+                      ? "Mapa estructurada del curso de tráfico"
+                      : isEn
+                      ? "Structured traffic course map"
+                      : "Структурированная карта курса ПДД"}
+                  </span>
+                </div>
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
                   {isEs ? "Mapa de aprendizaje" : isEn ? "Learning map" : "Карта обучения"}
                 </h1>
@@ -423,7 +438,7 @@ const LearningMap = () => {
               </div>
 
               <div className="w-full md:max-w-md lg:max-w-lg space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {heroStats.map((stat) => (
                     <div
                       key={stat.label}
@@ -542,6 +557,173 @@ function findMatchingSubtopic(
   return looseMatch;
 }
 
+async function buildStructuredCurriculumAsync(
+  blueprint: CurriculumBlueprintTopic[],
+  topics: TopicWithSubtopics[],
+  progressMap: Map<string, TopicProgress>,
+  language: string
+): Promise<StructuredCurriculumTopic[]> {
+  const topicByNumber = new Map<number, TopicWithSubtopics>();
+  topics.forEach((topic) => topicByNumber.set(topic.number, topic));
+
+  return Promise.all(blueprint.map(async (topicBlueprint) => {
+    const dbTopic = topicByNumber.get(topicBlueprint.number);
+    const progress = dbTopic ? progressMap.get(dbTopic.id) : undefined;
+    const topicSubtopics = dbTopic?.subtopics ?? [];
+
+    const normalizedMap = new Map<string, Subtopic>();
+    topicSubtopics.forEach((subtopic) =>
+      normalizedMap.set(normalizeTitle(subtopic.title_ru), subtopic)
+    );
+
+    const statusById = new Map<string, ItemStatus>();
+    const completedCount = progress?.completedSubtopicCount ?? 0;
+
+    topicSubtopics.forEach((subtopic, index) => {
+      let status: ItemStatus = "locked";
+      if (progress?.completed) {
+        status = "completed";
+      } else if (index < completedCount) {
+        status = "completed";
+      } else if (index === completedCount) {
+        status = "active";
+      }
+      statusById.set(subtopic.id, status);
+    });
+
+    const matchedIds = new Set<string>();
+
+    const sections = await Promise.all(topicBlueprint.sections.map(async (section) => ({
+      title:
+        language === "es"
+          ? section.title_es || section.title
+          : language === "en"
+          ? section.title_en || section.title
+          : section.title,
+      items: await Promise.all(section.items.map(async (item) => {
+        const matched = findMatchingSubtopic(
+          item.title,
+          item.code,
+          topicSubtopics,
+          normalizedMap
+        );
+        if (matched) {
+          matchedIds.add(matched.id);
+        }
+        
+        // Проверяем наличие статического материала, если подтема не найдена в БД
+        let status: ItemStatus = matched ? statusById.get(matched.id) ?? "locked" : "placeholder";
+        
+        if (!matched && item.code && topicBlueprint.number) {
+          const hasStatic = await hasStaticMaterial(topicBlueprint.number, item.code);
+          if (hasStatic) {
+            status = "active"; // Статический материал доступен
+          }
+        }
+
+        const localizedTitle =
+          matched && language === "es"
+            ? matched.title_es || matched.title_ru || item.title
+            : matched && language === "en"
+            ? matched.title_en || matched.title_ru || item.title
+            : matched?.title_ru || item.title;
+
+        return {
+          ...item,
+          title: localizedTitle,
+          subtopicId: matched?.id,
+          status,
+          kind: "subtopic" as const,
+        };
+      })),
+    })));
+
+    const leftoverSubtopics = topicSubtopics.filter((subtopic) => !matchedIds.has(subtopic.id));
+    if (leftoverSubtopics.length > 0) {
+      sections.push({
+        title:
+          language === "es"
+            ? "Material adicional"
+            : language === "en"
+            ? "Additional material"
+            : "Дополнительные материалы",
+        items: leftoverSubtopics.map((subtopic) => {
+          const localizedTitle =
+            language === "es"
+              ? subtopic.title_es || subtopic.title_ru
+              : language === "en"
+              ? subtopic.title_en || subtopic.title_ru
+              : subtopic.title_ru;
+          return {
+            code: subtopic.order_index ? subtopic.order_index.toString() : undefined,
+            title: localizedTitle,
+            subtopicId: subtopic.id,
+            status: statusById.get(subtopic.id) ?? "locked",
+            kind: "subtopic" as const,
+          };
+        }),
+      });
+    }
+
+    // Добавляем секцию с тестами по модулю, если тема существует в базе
+    if (dbTopic) {
+      const canAccessTests = (progressMap.get(dbTopic.id)?.isUnlocked ?? true) || !progress;
+
+      const testsSectionTitle =
+        language === "es"
+          ? "Pruebas del módulo"
+          : language === "en"
+          ? "Module tests"
+          : "Тесты по модулю";
+
+      const trainingTestTitle =
+        language === "es"
+          ? "Test de entrenamiento por tema"
+          : language === "en"
+          ? "Training test by topic"
+          : "Тренировочный тест по теме";
+
+      const finalTestTitle =
+        language === "es"
+          ? "Test final del módulo"
+          : language === "en"
+          ? "Final module test"
+          : "Итоговый тест по модулю";
+
+      sections.push({
+        title: testsSectionTitle,
+        items: [
+          {
+            code: "T1",
+            title: trainingTestTitle,
+            subtopicId: undefined,
+            status: (canAccessTests ? "active" : "locked") as ItemStatus,
+            kind: "training_test" as const,
+          },
+          {
+            code: "T2",
+            title: finalTestTitle,
+            subtopicId: undefined,
+            status: (progress?.completed ? "completed" : canAccessTests ? "active" : "locked") as ItemStatus,
+            kind: "final_test" as const,
+          },
+        ] as StructuredCurriculumItem[],
+      });
+    }
+
+    return {
+      ...topicBlueprint,
+      topicId: dbTopic?.id,
+      progressPercent: progress?.progressPercent ?? 0,
+      isCompleted: progress?.completed ?? false,
+      cover_image: dbTopic?.cover_image,
+      gradient_from: dbTopic?.gradient_from,
+      gradient_to: dbTopic?.gradient_to,
+      sections,
+    };
+  }));
+}
+
 function buildStructuredCurriculum(
   blueprint: CurriculumBlueprintTopic[],
   topics: TopicWithSubtopics[],
@@ -609,37 +791,10 @@ function buildStructuredCurriculum(
           title: localizedTitle,
           subtopicId: matched?.id,
           status,
-          kind: "subtopic",
+          kind: "subtopic" as const,
         };
       }),
     }));
-
-    const leftoverSubtopics = topicSubtopics.filter((subtopic) => !matchedIds.has(subtopic.id));
-    if (leftoverSubtopics.length > 0) {
-      sections.push({
-        title:
-          language === "es"
-            ? "Material adicional"
-            : language === "en"
-            ? "Additional material"
-            : "Дополнительные материалы",
-        items: leftoverSubtopics.map((subtopic) => {
-          const localizedTitle =
-            language === "es"
-              ? subtopic.title_es || subtopic.title_ru
-              : language === "en"
-              ? subtopic.title_en || subtopic.title_ru
-              : subtopic.title_ru;
-          return {
-            code: subtopic.order_index ? subtopic.order_index.toString() : undefined,
-            title: localizedTitle,
-            subtopicId: subtopic.id,
-            status: statusById.get(subtopic.id) ?? "locked",
-            kind: "subtopic",
-          };
-        }),
-      });
-    }
 
     // Добавляем секцию с тестами по модулю, если тема существует в базе
     if (dbTopic) {
@@ -672,16 +827,18 @@ function buildStructuredCurriculum(
           {
             code: "T1",
             title: trainingTestTitle,
-            status: canAccessTests ? "active" : "locked",
-            kind: "training_test",
+            subtopicId: undefined,
+            status: (canAccessTests ? "active" : "locked") as ItemStatus,
+            kind: "training_test" as const,
           },
           {
             code: "T2",
             title: finalTestTitle,
-            status: progress?.completed ? "completed" : canAccessTests ? "active" : "locked",
-            kind: "final_test",
+            subtopicId: undefined,
+            status: (progress?.completed ? "completed" : canAccessTests ? "active" : "locked") as ItemStatus,
+            kind: "final_test" as const,
           },
-        ],
+        ] as StructuredCurriculumItem[],
       });
     }
 

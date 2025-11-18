@@ -34,12 +34,15 @@ export default function PaymentSuccess() {
         if (!sessionId) {
           console.warn('[PaymentSuccess] ⚠️ No session_id in URL, trying alternatives...');
           
-          // Способ 1: Проверяем localStorage (если был сохранен перед редиректом)
-          const storedSessionId = localStorage.getItem('stripe_checkout_session_id');
+          // Способ 1: Проверяем sessionStorage (приоритет для Telegram) и localStorage (fallback)
+          const storedSessionId = sessionStorage.getItem('stripe_checkout_session_id') 
+            || localStorage.getItem('stripe_checkout_session_id');
           if (storedSessionId) {
-            console.log('[PaymentSuccess] Found session_id in localStorage:', storedSessionId);
+            console.log('[PaymentSuccess] Found session_id in storage:', storedSessionId);
             sessionId = storedSessionId;
-            localStorage.removeItem('stripe_checkout_session_id'); // Удаляем после использования
+            // Удаляем после использования
+            sessionStorage.removeItem('stripe_checkout_session_id');
+            localStorage.removeItem('stripe_checkout_session_id');
           }
           
           // Способ 2: Если есть profileId, ищем последнюю pending покупку за последние 10 минут

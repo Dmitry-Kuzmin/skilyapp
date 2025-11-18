@@ -119,14 +119,37 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       }
       
       if (data?.url) {
-        // Сохраняем session_id в localStorage перед редиректом (fallback если Stripe не передаст в URL)
+        // Сохраняем session_id перед редиректом (для восстановления после возврата с Stripe)
         if (data?.sessionId) {
-          console.log("[PaywallModal] Saving session_id to localStorage:", data.sessionId);
-          localStorage.setItem('stripe_checkout_session_id', data.sessionId);
+          console.log("[PaywallModal] Saving session_id:", data.sessionId);
+          // Используем sessionStorage для Telegram (более надежно при переходах между доменами)
+          sessionStorage.setItem('stripe_checkout_session_id', data.sessionId);
+          localStorage.setItem('stripe_checkout_session_id', data.sessionId); // Fallback
+          if (profileId) {
+            sessionStorage.setItem('stripe_user_id', profileId);
+          }
         }
         
-        console.log("[PaywallModal] Redirecting to:", data.url);
-        window.location.href = data.url;
+        // Проверяем, находимся ли в Telegram Web App
+        const webApp = getTelegramWebApp();
+        const isTelegram = platform === 'telegram' && !!webApp;
+        
+        if (isTelegram && webApp) {
+          // В Telegram используем webApp.openLink для открытия в браузере Telegram
+          console.log("[PaywallModal] Opening Stripe in Telegram Web App");
+          if ((webApp as any).openLink) {
+            (webApp as any).openLink(data.url);
+          } else if ((webApp as any).openTelegramLink) {
+            (webApp as any).openTelegramLink(data.url);
+          } else {
+            // Fallback: прямой редирект
+            window.location.href = data.url;
+          }
+        } else {
+          // В обычном браузере используем прямой редирект
+          console.log("[PaywallModal] Redirecting to:", data.url);
+          window.location.href = data.url;
+        }
       } else {
         console.error("[PaywallModal] No URL in response", data);
         alert("Не удалось получить ссылку на оплату. Проверьте настройки Stripe в Supabase Dashboard.");

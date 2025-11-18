@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { loadStaticMaterialBySubtopicId, loadStaticMaterialByStaticId } from "@/utils/staticMaterials";
 
 const SubtopicDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,71 +35,146 @@ const SubtopicDetail = () => {
     try {
       setLoading(true);
 
-      // Загружаем подтему
+      // Проверяем, является ли это статическим ID (формат: static-topic-{number}-subtopic-{code})
+      const staticMatch = id?.match(/^static-topic-(\d+)-subtopic-([\d-]+)$/);
+      
+      if (staticMatch) {
+        // Это статический материал - загружаем напрямую
+        const topicNumber = parseInt(staticMatch[1]);
+        const subtopicCode = staticMatch[2].replace('-', '.');
+        
+        console.log("[SubtopicDetail] Loading static material:", { topicNumber, subtopicCode });
+        
+        const staticMaterial = await loadStaticMaterialByStaticId(id!);
+        
+        if (staticMaterial) {
+          // Создаем виртуальную подтему для отображения
+          const virtualSubtopic = {
+            id: id,
+            code: subtopicCode,
+            title_ru: staticMaterial.title_ru,
+            title_es: staticMaterial.title_es,
+            title_en: staticMaterial.title_en,
+            type: "material" as const,
+            topic_id: `topic-${topicNumber}`,
+            order_index: staticMaterial.order,
+          };
+          
+          setSubtopic(virtualSubtopic);
+          
+          // Загружаем материал
+          setMaterial({
+            id: staticMaterial.id,
+            subtopic_id: id,
+            title_ru: staticMaterial.title_ru,
+            title_es: staticMaterial.title_es,
+            title_en: staticMaterial.title_en,
+            content_ru: staticMaterial.content_ru,
+            content_es: staticMaterial.content_es,
+            content_en: staticMaterial.content_en,
+            source_pdf: staticMaterial.source_pdf,
+            images: staticMaterial.images.map(img => img.url),
+          });
+          
+          // Для статических материалов навигация по подтемам не нужна
+          setAllSubtopics([virtualSubtopic]);
+          setCurrentIndex(0);
+          
+          setLoading(false);
+          return;
+        } else {
+          throw new Error("Статический материал не найден");
+        }
+      }
+
+      // Загружаем подтему из Supabase
       const { data: subtopicData, error: subtopicError } = await supabase
         .from("subtopics")
         .select("*, topics(*)")
         .eq("id", id)
         .single();
 
-      if (subtopicError) throw subtopicError;
-      setSubtopic(subtopicData);
+      if (subtopicError || !subtopicData) throw subtopicError || new Error("Subtopic not found");
+      const subtopic = subtopicData as any;
+      setSubtopic(subtopic);
 
       // Загружаем все подтемы темы для навигации
-      if (subtopicData.topic_id) {
+      if (subtopic?.topic_id) {
         const { data: allSubtopicsData } = await supabase
           .from("subtopics")
           .select("*")
-          .eq("topic_id", subtopicData.topic_id)
+          .eq("topic_id", subtopic.topic_id)
           .order("order_index", { ascending: true });
 
         if (allSubtopicsData) {
           setAllSubtopics(allSubtopicsData);
-          const currentIdx = allSubtopicsData.findIndex((s) => s.id === id);
+          const currentIdx = allSubtopicsData.findIndex((s: any) => s.id === id);
           setCurrentIndex(currentIdx >= 0 ? currentIdx : 0);
         }
       }
 
       // Загружаем контент в зависимости от типа подтемы
-      if (subtopicData.type === "material") {
-        // Загружаем материал - проверяем связь через content_id или subtopic_id
-        let materialData = null;
-        let materialError = null;
+      if (subtopic?.type === "material") {
+        // СНАЧАЛА пробуем загрузить статический материал
+        console.log("[SubtopicDetail] Trying to load static material for subtopic:", id);
+        const staticMaterial = await loadStaticMaterialBySubtopicId(id!, subtopic.topics?.number);
+        
+        if (staticMaterial) {
+          console.log("[SubtopicDetail] Static material found:", staticMaterial.id);
+          setMaterial({
+            id: staticMaterial.id,
+            subtopic_id: id,
+            title_ru: staticMaterial.title_ru,
+            title_es: staticMaterial.title_es,
+            title_en: staticMaterial.title_en,
+            content_ru: staticMaterial.content_ru,
+            content_es: staticMaterial.content_es,
+            content_en: staticMaterial.content_en,
+            source_pdf: staticMaterial.source_pdf,
+            images: staticMaterial.images.map(img => img.url),
+          });
+        } else {
+          // Если статический материал не найден, загружаем из Supabase
+          console.log("[SubtopicDetail] Static material not found, loading from Supabase");
+          
+          // Загружаем материал - проверяем связь через content_id или subtopic_id
+          let materialData = null;
+          let materialError = null;
 
-        // Сначала пробуем загрузить по content_id (если указан в подтеме)
-        if (subtopicData.content_id) {
-          const { data, error } = await supabase
-            .from("materials")
-            .select("*")
-            .eq("id", subtopicData.content_id)
-            .single();
-          
-          materialData = data;
-          materialError = error;
-        }
-
-        // Если не нашли по content_id, пробуем по subtopic_id
-        if (!materialData && !materialError) {
-          console.log("[SubtopicDetail] Trying to load material by subtopic_id:", id);
-          const { data, error } = await supabase
-            .from("materials")
-            .select("*")
-            .eq("subtopic_id", id)
-            .single();
-          
-          materialData = data;
-          materialError = error;
-          
-          if (error) {
-            console.warn("[SubtopicDetail] Error loading material by subtopic_id:", error);
-          } else if (materialData) {
-            console.log("[SubtopicDetail] Material loaded by subtopic_id:", materialData.id);
+          // Сначала пробуем загрузить по content_id (если указан в подтеме)
+          if (subtopic?.content_id) {
+            const { data, error } = await supabase
+              .from("materials")
+              .select("*")
+              .eq("id", subtopic.content_id)
+              .single();
+            
+            materialData = data;
+            materialError = error;
           }
-        } else if (materialError) {
-          console.warn("[SubtopicDetail] Error loading material by content_id:", materialError);
-        }
 
-        if (!materialError && materialData) {
+          // Если не нашли по content_id, пробуем по subtopic_id
+          if (!materialData && !materialError) {
+            console.log("[SubtopicDetail] Trying to load material by subtopic_id:", id);
+            const { data, error } = await supabase
+              .from("materials")
+              .select("*")
+              .eq("subtopic_id", id)
+              .single();
+            
+            materialData = data;
+            materialError = error;
+            
+            if (error) {
+              console.warn("[SubtopicDetail] Error loading material by subtopic_id:", error);
+            } else if (materialData) {
+              console.log("[SubtopicDetail] Material loaded by subtopic_id:", materialData.id);
+            }
+          } else if (materialError) {
+            console.warn("[SubtopicDetail] Error loading material by content_id:", materialError);
+          }
+
+          if (!materialError && materialData) {
           console.log("[SubtopicDetail] Material loaded:", {
             id: materialData.id,
             hasHtmlPreview: !!materialData.html_preview,
@@ -153,24 +229,25 @@ const SubtopicDetail = () => {
             source_pdf: materialData.source_pdf,
             images: (materialData.images as any) || [],
           });
+          }
         }
-      } else if (subtopicData.type === "terms") {
+      } else if (subtopic?.type === "terms") {
         // Загружаем термины темы
         const { data: termsData, error: termsError } = await supabase
           .from("language_terms")
           .select("*")
-          .eq("topic_id", subtopicData.topic_id)
+          .eq("topic_id", subtopic.topic_id)
           .order("term_es");
 
         if (!termsError && termsData) {
           setTerms(termsData);
         }
-      } else if (subtopicData.type === "test") {
+      } else if (subtopic?.type === "test") {
         // Загружаем тест
         const { data: testData, error: testError } = await supabase
           .from("topic_tests")
           .select("*")
-          .eq("subtopic_id", id)
+          .eq("subtopic_id", id!)
           .single();
 
         if (!testError && testData) {
@@ -179,7 +256,7 @@ const SubtopicDetail = () => {
       }
 
       // Проверяем, завершена ли подтема
-      if (profileId) {
+      if (profileId && id) {
         const { data: progressData } = await supabase
           .from("user_topic_progress")
           .select("completed")
@@ -187,7 +264,7 @@ const SubtopicDetail = () => {
           .eq("subtopic_id", id)
           .single();
 
-        setIsCompleted(progressData?.completed ?? false);
+        setIsCompleted((progressData as any)?.completed ?? false);
       }
     } catch (error) {
       console.error("Error loading subtopic data:", error);
@@ -202,14 +279,14 @@ const SubtopicDetail = () => {
 
     try {
       // Сохраняем прогресс
-      const { error } = await supabase.from("user_topic_progress").upsert({
+      const { error } = await (supabase.from("user_topic_progress").upsert({
         user_id: profileId,
-        topic_id: subtopic.topic_id,
-        subtopic_id: subtopic.id,
+        topic_id: (subtopic as any).topic_id,
+        subtopic_id: (subtopic as any).id,
         completed: true,
         score: 100, // Для материалов и терминов - 100%
         last_activity: new Date().toISOString(),
-      });
+      }) as any);
 
       if (error) throw error;
 

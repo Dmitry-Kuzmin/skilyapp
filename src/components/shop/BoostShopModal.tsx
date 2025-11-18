@@ -379,129 +379,39 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         return;
       }
 
-      // Сохраняем session_id в localStorage перед редиректом (fallback если Stripe не передаст в URL)
+      // Сохраняем session_id перед редиректом (для восстановления после возврата с Stripe)
       if (data?.sessionId) {
-        console.log("[BoostShop] Saving session_id to localStorage:", data.sessionId);
-        localStorage.setItem('stripe_checkout_session_id', data.sessionId);
+        console.log("[BoostShop] Saving session_id:", data.sessionId);
+        // Используем sessionStorage для Telegram (более надежно при переходах между доменами)
+        sessionStorage.setItem('stripe_checkout_session_id', data.sessionId);
+        localStorage.setItem('stripe_checkout_session_id', data.sessionId); // Fallback
+        // Также сохраняем в URL параметрах для передачи через Stripe
+        sessionStorage.setItem('stripe_user_id', profileId);
       }
 
-      // Открываем Stripe Checkout в попапе
-      const width = 600;
-      const height = 700;
-      const left = (window.screen.width - width) / 2;
-      const top = (window.screen.height - height) / 2;
+      const isTelegram = isTelegramMiniApp();
+      const webApp = getTelegramWebApp();
 
-      const popup = window.open(
-        data.url,
-        'Stripe Checkout',
-        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
-      );
-
-      if (!popup) {
-        toast({
-          title: '⚠️ Внимание',
-          description: 'Пожалуйста, разрешите открытие всплывающих окон для этого сайта',
-          variant: 'destructive',
-        });
-        return;
+      // В Telegram Web App используем прямой редирект или webApp.openLink
+      // Это необходимо, так как window.open (попап) плохо работает в Telegram
+      if (isTelegram && webApp) {
+        console.log("[BoostShop] Opening Stripe in Telegram Web App (same window)");
+        // Используем webApp.openLink для открытия в браузере Telegram
+        // Это сохранит контекст и вернет пользователя обратно после оплаты
+        if ((webApp as any).openLink) {
+          (webApp as any).openLink(data.url);
+        } else if ((webApp as any).openTelegramLink) {
+          (webApp as any).openTelegramLink(data.url);
+        } else {
+          // Fallback: прямой редирект
+          window.location.href = data.url;
+        }
+      } else {
+        // В обычном браузере используем прямой редирект (не попап!)
+        // Это гарантирует что session_id будет передан в success_url
+        console.log("[BoostShop] Redirecting to Stripe (same window)");
+        window.location.href = data.url;
       }
-
-      // Слушаем сообщения от попапа
-      const handleMessage = async (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) return;
-        
-        if (event.data?.type === 'STRIPE_SUCCESS') {
-          // Покупка успешна, проверяем статус
-          setTimeout(async () => {
-            await checkPurchaseStatus();
-          }, 2000);
-        } else if (event.data?.type === 'STRIPE_CANCEL') {
-          // Покупка отменена
-          toast({
-            title: 'ℹ️ Оплата отменена',
-            description: 'Вы можете попробовать снова в любое время',
-          });
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-
-      // Отслеживаем закрытие попапа и проверяем статус покупки
-      const checkPurchaseStatus = async () => {
-        try {
-          // Проверяем последнюю покупку пользователя
-          const { data: purchases } = await supabase
-            .from('purchases')
-            .select('id, status, metadata, stripe_session_id, created_at')
-            .eq('user_id', profileId)
-            .order('created_at', { ascending: false })
-            .limit(5);
-
-          if (purchases && purchases.length > 0) {
-            // Ищем покупку со статусом completed, созданную недавно (последние 2 минуты)
-            const recentCompleted = purchases.find(p => 
-              p.status === 'completed' && 
-              new Date(p.created_at).getTime() > Date.now() - 2 * 60 * 1000
-            );
-
-            if (recentCompleted) {
-              const coinsAmount = recentCompleted.metadata?.coins || 0;
-              if (coinsAmount > 0) {
-                await loadData(); // Обновляем баланс
-                toast({
-                  title: '✅ Покупка успешна!',
-                  description: `Вы получили ${coinsAmount} монет`,
-                  duration: 5000,
-                });
-                setShowConfetti(true);
-                setTimeout(() => setShowConfetti(false), 3000);
-                return true; // Покупка найдена
-              }
-            }
-          }
-          return false;
-        } catch (error) {
-          console.error("[BoostShop] Error checking purchase status:", error);
-          return false;
-        }
-      };
-
-      // Проверяем статус покупки каждую секунду после закрытия попапа
-      const checkInterval = setInterval(async () => {
-        try {
-          // Проверяем, закрыт ли попап
-          if (popup.closed) {
-            clearInterval(checkInterval);
-            
-            // Даем время webhook обработаться (2 секунды)
-            setTimeout(async () => {
-              let attempts = 0;
-              const maxAttempts = 10; // Проверяем до 10 раз (10 секунд)
-              
-              const statusCheckInterval = setInterval(async () => {
-                attempts++;
-                const found = await checkPurchaseStatus();
-                
-                if (found || attempts >= maxAttempts) {
-                  clearInterval(statusCheckInterval);
-                  if (!found && attempts >= maxAttempts) {
-                    // Если покупка не найдена, просто обновляем данные
-                    await loadData();
-                  }
-                }
-              }, 1000);
-            }, 2000);
-          }
-        } catch (error) {
-          console.error("[BoostShop] Error checking popup:", error);
-        }
-      }, 500);
-
-      // Очищаем интервал через 5 минут (на случай если попап не закрылся)
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        window.removeEventListener('message', handleMessage);
-      }, 5 * 60 * 1000);
 
     } catch (err: any) {
       console.error("[BoostShop] Purchase error:", err);

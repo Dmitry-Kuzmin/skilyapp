@@ -107,8 +107,8 @@ const Landing = () => {
   const features = [
     {
       icon: Brain,
-      title: "AI помощник",
-      description: "Задавайте вопросы и получайте мгновенные ответы на русском и испанском языках",
+      title: "Помощник Skily",
+      description: "Задавайте вопросы Помощнику Skily и получайте мгновенные ответы на русском и испанском языках",
       gradient: "from-blue-500 to-pink-500",
       bgGradient: "from-blue-500/10 via-pink-500/5 to-blue-500/10"
     },
@@ -156,7 +156,7 @@ const Landing = () => {
     "Отслеживание прогресса и статистики",
     "Ежедневные задания и бонусы",
     "Доступно в Telegram и веб-версии",
-    "AI помощник для объяснения сложных тем",
+    "Помощник Skily для объяснения сложных тем",
     "Дуэли с друзьями для мотивации"
   ];
 
@@ -172,9 +172,9 @@ const Landing = () => {
     {
       name: "Алексей К.",
       location: "Барселона",
-      text: "AI помощник объяснил все сложные моменты на русском языке. Очень удобно для тех, кто только начинает изучать испанский.",
+      text: "Помощник Skily объяснил все сложные моменты на русском языке. Очень удобно для тех, кто только начинает изучать испанский.",
       rating: 5,
-      highlight: "AI помощник",
+      highlight: "Помощник Skily",
       avatar: "👨‍💼"
     },
     {
@@ -209,13 +209,13 @@ const Landing = () => {
     {
       number: "03",
       title: "Реально выучите материал",
-      description: "Все разработано с учетом когнитивной науки и понимания того, как люди действительно учатся. AI помощник объясняет сложные моменты."
+      description: "Все разработано с учетом когнитивной науки и понимания того, как люди действительно учатся. Помощник Skily объясняет сложные моменты."
     }
   ];
 
   const comparisonData = [
     { feature: "Вопросы из реальных экзаменов", sdadim: true, others: false },
-    { feature: "AI помощник на русском", sdadim: true, others: false },
+    { feature: "Помощник Skily на русском", sdadim: true, others: false },
     { feature: "Интерактивные игры", sdadim: true, others: false },
     { feature: "Дуэли с друзьями", sdadim: true, others: false },
     { feature: "Отслеживание прогресса", sdadim: true, others: true },
@@ -225,7 +225,7 @@ const Landing = () => {
   const faqData = [
     {
       question: "Сколько стоит использование платформы?",
-      answer: "Базовый доступ полностью бесплатный! Вы можете проходить тесты, использовать AI помощника и играть в игры без ограничений. Premium подписка открывает дополнительные функции."
+      answer: "Базовый доступ полностью бесплатный! Вы можете проходить тесты, использовать Помощника Skily и играть в игры без ограничений. Premium подписка открывает дополнительные функции."
     },
     {
       question: "Действительно ли вопросы из реальных экзаменов DGT?",
@@ -236,8 +236,8 @@ const Landing = () => {
       answer: "Конечно! Платформа полностью адаптирована для мобильных устройств и доступна как веб-версия, так и через Telegram Mini App."
     },
     {
-      question: "Как работает AI помощник?",
-      answer: "AI помощник использует передовые технологии для объяснения сложных тем на русском и испанском языках. Вы можете задавать вопросы в любой момент во время обучения."
+      question: "Как работает Помощник Skily?",
+      answer: "Помощник Skily использует передовые технологии для объяснения сложных тем на русском и испанском языках. Вы можете задавать вопросы в любой момент во время обучения."
     },
     {
       question: "Нужна ли регистрация?",
@@ -483,7 +483,7 @@ const Landing = () => {
             data-animate
           >
             <h2 className="text-display gradient-text">
-              Почему выбирают Sdadim
+              Почему выбирают Skilyapp
             </h2>
             <p className="text-headline text-muted-foreground font-light">
               Сравните с другими платформами
@@ -497,7 +497,7 @@ const Landing = () => {
                   <thead>
                     <tr className="border-b border-border/50 bg-muted/30">
                       <th className="text-left p-6 font-bold text-lg">Функция</th>
-                      <th className="text-center p-6 font-bold text-lg gradient-text">Sdadim</th>
+                      <th className="text-center p-6 font-bold text-lg gradient-text">Skilyapp</th>
                       <th className="text-center p-6 font-semibold text-muted-foreground">Другие платформы</th>
                     </tr>
                   </thead>
@@ -562,7 +562,7 @@ const Landing = () => {
               Мы вас не виним!
             </p>
             <p>
-              В Sdadim мы делаем обучение вождению менее похожим на подготовку к экзамену и более 
+              В Skilyapp мы делаем обучение вождению менее похожим на подготовку к экзамену и более 
               похожим на игру. Никаких плотных справочников. Никаких абстрактных концепций. 
               Только увлекательные практические тесты, интуитивное обучение и легкая для понимания 
               программа, разработанная специально для вас. <strong className="text-foreground font-semibold">Черт, 
@@ -580,7 +580,7 @@ const Landing = () => {
             data-animate
           >
             <h2 className="text-display gradient-text">
-              Почему тысячи студентов доверяют Sdadim
+              Почему тысячи студентов доверяют Skilyapp
             </h2>
             <p className="text-headline text-muted-foreground font-light">
               Станьте умнее для DGT как можно скорее

@@ -102,9 +102,9 @@ const AIAssistant = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold mb-2">AI Помощник по ПДД</h1>
+          <h1 className="text-4xl font-bold mb-2">Помощник Skily</h1>
           <p className="text-muted-foreground">
-            Задай вопрос о правилах дорожного движения Испании
+            Задай вопрос Помощнику Skily о правилах дорожного движения Испании
           </p>
         </div>
 
@@ -113,7 +113,7 @@ const AIAssistant = () => {
             {messages.length === 0 && (
               <div className="text-center text-muted-foreground py-12">
                 <Bot className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>Начни разговор с AI помощником</p>
+                <p>Начни разговор с Помощником Skily</p>
                 <p className="text-sm mt-2">Например: "Какая максимальная скорость в городе?"</p>
               </div>
             )}
