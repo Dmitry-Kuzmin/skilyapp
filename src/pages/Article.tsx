@@ -3,8 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Clock, Calendar, Share2, BookOpen, Search, Crown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Clock, Share2, Twitter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -727,33 +726,41 @@ const Article = () => {
     return elements;
   };
 
+  // Extract headings for table of contents
+  const extractHeadings = (content: string) => {
+    const headings: { text: string; level: number; id: string }[] = [];
+    const lines = content.split("\n");
+    
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("## ")) {
+        const text = trimmed.replace(/^##+\s*/, "");
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+        headings.push({ text, level: 2, id });
+      } else if (trimmed.startsWith("### ")) {
+        const text = trimmed.replace(/^###+\s*/, "");
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+        headings.push({ text, level: 3, id });
+      }
+    });
+    
+    return headings;
+  };
+
+  const headings = extractHeadings(article.content);
+  const otherArticles = Object.values(articles).filter(a => a.slug !== article.slug).slice(0, 2);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
+      {/* Minimal Header */}
+      <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-300 group-hover:scale-105">
-                <Crown className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Skilyapp</span>
+          <div className="flex items-center justify-between h-14">
+            <Link to="/blog" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+              ← Все статьи
             </Link>
-
-            {/* Search */}
-            <div className="flex-1 max-w-xl mx-4 md:mx-8">
-              <Link to="/blog">
-                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Все статьи
-                </Button>
-              </Link>
-            </div>
-
-            {/* Right Links */}
-            <div className="flex items-center gap-3">
-              <Link to="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors font-medium">
+            <div className="flex items-center gap-4">
+              <Link to="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors">
                 Главная
               </Link>
               <ThemeToggle />
@@ -762,84 +769,189 @@ const Article = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
-          {/* Left Sidebar - Table of Contents */}
-          <aside className="lg:col-span-1">
-            <div className="sticky top-24">
-              {/* Meta Info */}
-              <div className="mb-6 p-4 bg-white dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          {/* Main Content */}
+          <main className="lg:col-span-8">
+            <article>
+              {/* Article Header */}
+              <div className="mb-8">
+                <div className="mb-4">
+                  <Badge variant="secondary" className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 mb-4">
                     {article.category}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {article.readTime} мин
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(article.publishedAt).toLocaleDateString("ru-RU", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="w-full"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Поделиться
-                </Button>
-              </div>
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className="lg:col-span-3 xl:col-span-4">
-            <article>
-              {/* Article Header */}
-              <div className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-tight tracking-tight">
                   {article.title}
                 </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
                   {article.description}
                 </p>
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <span>Опубликовано {new Date(article.publishedAt).toLocaleDateString("ru-RU", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}</span>
+                  <span>в {article.category.toLowerCase()}</span>
+                </div>
               </div>
 
               {/* Article Content */}
-              <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold">
+              <div className="prose prose-lg dark:prose-invert max-w-none 
+                prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 
+                prose-headings:mt-12 prose-headings:mb-4 prose-headings:scroll-mt-20
+                prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6
+                prose-h3:text-2xl prose-h3:font-semibold prose-h3:mt-8 prose-h3:mb-4
+                prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-6
+                prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
+                prose-ul:my-6 prose-ul:space-y-2 prose-li:text-gray-700 dark:prose-li:text-gray-300
+                prose-ol:my-6 prose-ol:space-y-2">
                 {renderContent(article.content)}
               </div>
 
+              {/* Share Section */}
+              <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Поделиться</p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(shareUrl)}`;
+                      window.open(url, '_blank');
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Twitter className="w-4 h-4" />
+                    Twitter
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleShare}
+                    className="flex items-center gap-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Поделиться
+                  </Button>
+                </div>
+              </div>
+
+              {/* Related Articles */}
+              {otherArticles.length > 0 && (
+                <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Связанные статьи</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {otherArticles.map((relatedArticle) => (
+                      <Card
+                        key={relatedArticle.slug}
+                        className="group cursor-pointer hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
+                        onClick={() => navigate(`/blog/${relatedArticle.slug}`)}
+                      >
+                        <div className="p-6">
+                          <Badge variant="secondary" className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 mb-3">
+                            {relatedArticle.category}
+                          </Badge>
+                          <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                            {relatedArticle.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                            {relatedArticle.description}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <Clock className="w-3 h-3" />
+                            {relatedArticle.readTime} мин
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* CTA Section */}
-              <Card className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800/40">
+              <Card className="mt-16 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
                 <div className="p-8 text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    Готовы начать подготовку?
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                    Идея в приложение за секунды
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
-                    Присоединяйтесь к тысячам студентов, которые уже готовятся к экзамену DGT с помощью Skilyapp
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
+                    Создавайте приложения, общаясь с ИИ.
                   </p>
                   <Button
                     size="lg"
                     onClick={() => navigate("/tests")}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/50"
+                    className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
                   >
-                    Начать обучение
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                    Начать бесплатно
                   </Button>
                 </div>
               </Card>
             </article>
           </main>
+
+          {/* Right Sidebar */}
+          <aside className="lg:col-span-4">
+            <div className="sticky top-20 space-y-6">
+              {/* Meta Info Card */}
+              <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Clock className="w-4 h-4" />
+                    <span>{article.readTime} мин чтения</span>
+                  </div>
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Поделиться</p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(shareUrl)}`;
+                          window.open(url, '_blank');
+                        }}
+                        className="h-9 w-9 p-0"
+                      >
+                        <Twitter className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleShare}
+                        className="h-9 w-9 p-0"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table of Contents */}
+              {headings.length > 0 && (
+                <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    {article.title}
+                  </p>
+                  <nav className="space-y-2">
+                    {headings.map((heading, index) => (
+                      <a
+                        key={index}
+                        href={`#${heading.id}`}
+                        className={cn(
+                          "block text-sm transition-colors hover:text-gray-900 dark:hover:text-gray-100",
+                          heading.level === 3 ? "ml-4 text-gray-600 dark:text-gray-400" : "text-gray-700 dark:text-gray-300 font-medium"
+                        )}
+                      >
+                        {heading.text}
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
     </div>
