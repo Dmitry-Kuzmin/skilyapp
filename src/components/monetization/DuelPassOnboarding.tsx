@@ -37,12 +37,12 @@ const seasonTheme = {
   decorativeSecondary: "bg-[radial-gradient(circle_at_80%_100%,rgba(251,191,36,0.25),transparent_55%)]",
 };
 
-const onboardingScreens = [
+const getOnboardingScreens = (activeSeason?: { days_remaining?: number } | null) => [
   {
     id: 1,
     icon: Target,
     title: "Месячный челлендж к экзамену",
-    subtitle: activeSeason 
+    subtitle: activeSeason?.days_remaining
       ? `${activeSeason.days_remaining} дней до финала сезона`
       : "30 дней до финала сезона",
     description: "30 уровней наград за регулярные занятия.\nЭто не просто игра — это твой путь к цели.",
