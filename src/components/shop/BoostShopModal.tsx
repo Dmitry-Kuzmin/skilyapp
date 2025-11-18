@@ -417,28 +417,35 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       }
 
       const isTelegram = isTelegramMiniApp();
-      const webApp = getTelegramWebApp();
 
-      // В Telegram Web App используем прямой редирект или webApp.openLink
-      // Это необходимо, так как window.open (попап) плохо работает в Telegram
-      if (isTelegram && webApp) {
-        console.log("[BoostShop] Opening Stripe in Telegram Web App (same window)");
-        // Используем webApp.openLink для открытия в браузере Telegram
-        // Это сохранит контекст и вернет пользователя обратно после оплаты
-        if ((webApp as any).openLink) {
-          (webApp as any).openLink(data.url);
-        } else if ((webApp as any).openTelegramLink) {
-          (webApp as any).openTelegramLink(data.url);
+      // В Telegram Web App используем openLink для открытия в приложении
+      if (isTelegram) {
+        console.log("[BoostShop] Telegram Web App detected, opening Stripe via openLink");
+        console.log("[BoostShop] Stripe URL:", data.url);
+        
+        // Используем прямой доступ к window.Telegram.WebApp.openLink
+        const tg = window.Telegram?.WebApp;
+        
+        if (tg && typeof tg.openLink === 'function') {
+          console.log("[BoostShop] Using window.Telegram.WebApp.openLink()");
+          try {
+            tg.openLink(data.url);
+            console.log("[BoostShop] openLink called successfully");
+            return; // Важно: не продолжаем выполнение после openLink
+          } catch (error) {
+            console.error("[BoostShop] Error calling openLink:", error);
+            console.log("[BoostShop] Falling back to window.location.href");
+          }
         } else {
-          // Fallback: прямой редирект
-          window.location.href = data.url;
+          console.warn("[BoostShop] openLink method not available on Telegram.WebApp");
+          console.log("[BoostShop] Available methods:", Object.keys(tg || {}));
+          console.log("[BoostShop] Falling back to window.location.href");
         }
-      } else {
-        // В обычном браузере используем прямой редирект (не попап!)
-        // Это гарантирует что session_id будет передан в success_url
-        console.log("[BoostShop] Redirecting to Stripe (same window)");
-        window.location.href = data.url;
       }
+      
+      // Fallback для всех случаев (обычный браузер или если openLink недоступен)
+      console.log("[BoostShop] Redirecting to Stripe (fallback):", data.url);
+      window.location.href = data.url;
 
     } catch (err: any) {
       console.error("[BoostShop] Purchase error:", err);

@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Layout from "@/components/Layout";
-import { ArrowLeft, Clock, Calendar, Share2, BookOpen } from "lucide-react";
-import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Clock, Calendar, Share2, BookOpen, Search, Crown, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface ArticleData {
   slug: string;
@@ -15,6 +16,7 @@ interface ArticleData {
   publishedAt: string;
   readTime: number;
   category: string;
+  categorySlug: string;
   author: string;
   image?: string;
 }
@@ -25,6 +27,7 @@ const articles: Record<string, ArticleData> = {
     title: "Как сдать экзамен DGT с первого раза",
     description: "Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.",
     category: "Подготовка",
+    categorySlug: "preparation",
     author: "Команда Skilyapp",
     publishedAt: "2024-12-19",
     readTime: 12,
@@ -188,6 +191,7 @@ const articles: Record<string, ArticleData> = {
     title: "Топ-10 ошибок на экзамене DGT",
     description: "Самые распространенные ошибки при подготовке и сдаче экзамена DGT. Узнайте, как их избежать и увеличить свои шансы на успех.",
     category: "Советы",
+    categorySlug: "tips",
     author: "Команда Skilyapp",
     publishedAt: "2024-12-19",
     readTime: 8,
@@ -408,14 +412,12 @@ const Article = () => {
 
   useEffect(() => {
     if (article) {
-      // Обновляем метатеги для SEO
       document.title = `${article.title} | Skilyapp Blog`;
       const metaDescription = document.querySelector('meta[name="description"]');
       if (metaDescription) {
         metaDescription.setAttribute("content", article.description);
       }
 
-      // Добавляем структурированные данные Article
       const structuredData = {
         "@context": "https://schema.org",
         "@type": "Article",
@@ -443,13 +445,11 @@ const Article = () => {
         },
       };
 
-      // Удаляем старые структурированные данные статьи, если есть
       const existingScript = document.querySelector('#article-structured-data');
       if (existingScript) {
         existingScript.remove();
       }
 
-      // Добавляем новые структурированные данные
       const script = document.createElement("script");
       script.id = "article-structured-data";
       script.type = "application/ld+json";
@@ -457,7 +457,6 @@ const Article = () => {
       document.head.appendChild(script);
 
       return () => {
-        // Очистка при размонтировании
         const scriptToRemove = document.querySelector('#article-structured-data');
         if (scriptToRemove) {
           scriptToRemove.remove();
@@ -484,13 +483,11 @@ const Article = () => {
         console.log("Error sharing:", err);
       }
     } else {
-      // Fallback: копируем в буфер обмена
       navigator.clipboard.writeText(shareUrl);
       alert("Ссылка скопирована в буфер обмена!");
     }
   };
 
-  // Конвертируем Markdown в JSX (простая версия)
   const renderContent = (content: string) => {
     const lines = content.split("\n");
     const elements: JSX.Element[] = [];
@@ -500,20 +497,19 @@ const Article = () => {
     lines.forEach((line, index) => {
       const trimmedLine = line.trim();
 
-      // Заголовки
       if (trimmedLine.startsWith("# ")) {
         if (currentList.length > 0) {
           elements.push(
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
                 ))}
               </ul>
             )
@@ -522,7 +518,7 @@ const Article = () => {
           listType = null;
         }
         elements.push(
-          <h2 key={`h2-${index}`} className="text-3xl font-bold mt-8 mb-4 text-foreground">
+          <h2 key={`h2-${index}`} className="text-3xl font-bold mt-8 mb-4 text-gray-900 dark:text-gray-100">
             {trimmedLine.replace(/^#+\s*/, "")}
           </h2>
         );
@@ -532,13 +528,13 @@ const Article = () => {
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
                 ))}
               </ul>
             )
@@ -547,7 +543,7 @@ const Article = () => {
           listType = null;
         }
         elements.push(
-          <h3 key={`h3-${index}`} className="text-2xl font-bold mt-6 mb-3 text-foreground">
+          <h3 key={`h3-${index}`} className="text-2xl font-semibold mt-6 mb-3 text-gray-900 dark:text-gray-100">
             {trimmedLine.replace(/^##+\s*/, "")}
           </h3>
         );
@@ -557,13 +553,13 @@ const Article = () => {
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
                 ))}
               </ul>
             )
@@ -572,32 +568,30 @@ const Article = () => {
           listType = null;
         }
         elements.push(
-          <h4 key={`h4-${index}`} className="text-xl font-semibold mt-4 mb-2 text-foreground">
+          <h4 key={`h4-${index}`} className="text-xl font-semibold mt-4 mb-2 text-gray-900 dark:text-gray-100">
             {trimmedLine.replace(/^###+\s*/, "")}
           </h4>
         );
       }
-      // Списки
       else if (/^\d+\.\s/.test(trimmedLine) || /^[-*]\s/.test(trimmedLine)) {
         if (listType === null) {
           listType = /^\d+\.\s/.test(trimmedLine) ? "ol" : "ul";
         }
         currentList.push(trimmedLine);
       }
-      // Жирный текст
       else if (trimmedLine.startsWith("**") && trimmedLine.endsWith("**")) {
         if (currentList.length > 0) {
           elements.push(
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
                 ))}
               </ul>
             )
@@ -608,24 +602,23 @@ const Article = () => {
         const text = trimmedLine.replace(/\*\*/g, "");
         elements.push(
           <p key={`bold-${index}`} className="mb-4">
-            <strong className="font-semibold text-foreground">{text}</strong>
+            <strong className="font-semibold text-gray-900 dark:text-gray-100">{text}</strong>
           </p>
         );
       }
-      // Чек-листы
       else if (trimmedLine.startsWith("- [ ]")) {
         if (currentList.length > 0) {
           elements.push(
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
                 ))}
               </ul>
             )
@@ -637,24 +630,23 @@ const Article = () => {
         elements.push(
           <div key={`check-${index}`} className="flex items-start gap-2 mb-2">
             <input type="checkbox" disabled className="mt-1" />
-            <span className="text-muted-foreground">{text}</span>
+            <span className="text-gray-700 dark:text-gray-300">{text}</span>
           </div>
         );
       }
-      // Обычный текст
       else if (trimmedLine.length > 0) {
         if (currentList.length > 0) {
           elements.push(
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
                 ))}
               </ul>
             )
@@ -663,19 +655,17 @@ const Article = () => {
           listType = null;
         }
         
-        // Обработка форматирования внутри текста
         let processedText = trimmedLine;
         const parts: (string | JSX.Element)[] = [];
         let lastIndex = 0;
 
-        // Обработка **жирного текста**
         const boldRegex = /\*\*([^*]+)\*\*/g;
         let match;
         while ((match = boldRegex.exec(trimmedLine)) !== null) {
           if (match.index > lastIndex) {
             parts.push(trimmedLine.slice(lastIndex, match.index));
           }
-          parts.push(<strong key={`bold-${match.index}`} className="font-semibold">{match[1]}</strong>);
+          parts.push(<strong key={`bold-${match.index}`} className="font-semibold text-gray-900 dark:text-gray-100">{match[1]}</strong>);
           lastIndex = match.index + match[0].length;
         }
         if (lastIndex < trimmedLine.length) {
@@ -684,13 +674,13 @@ const Article = () => {
 
         if (parts.length > 0) {
           elements.push(
-            <p key={`p-${index}`} className="mb-4 text-muted-foreground leading-relaxed">
+            <p key={`p-${index}`} className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">
               {parts}
             </p>
           );
         } else {
           elements.push(
-            <p key={`p-${index}`} className="mb-4 text-muted-foreground leading-relaxed">
+            <p key={`p-${index}`} className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">
               {trimmedLine}
             </p>
           );
@@ -700,13 +690,13 @@ const Article = () => {
           listType === "ol" ? (
             <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
               {currentList.map((item, i) => (
-                <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+                <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
               ))}
             </ol>
           ) : (
             <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
               {currentList.map((item, i) => (
-                <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+                <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
               ))}
             </ul>
           )
@@ -716,19 +706,18 @@ const Article = () => {
       }
     });
 
-    // Добавляем оставшийся список
     if (currentList.length > 0) {
       elements.push(
         listType === "ol" ? (
           <ol key="list-final" className="list-decimal list-inside mb-4 space-y-2 ml-4">
             {currentList.map((item, i) => (
-              <li key={i} className="text-muted-foreground">{item.replace(/^\d+\.\s*/, "")}</li>
+              <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
             ))}
           </ol>
         ) : (
           <ul key="list-final" className="list-disc list-inside mb-4 space-y-2 ml-4">
             {currentList.map((item, i) => (
-              <li key={i} className="text-muted-foreground">{item.replace(/^[-*]\s*/, "")}</li>
+              <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
             ))}
           </ul>
         )
@@ -739,37 +728,57 @@ const Article = () => {
   };
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Back Button */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/blog")}
-            className="mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад к блогу
-          </Button>
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-300 group-hover:scale-105">
+                <Crown className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">Skilyapp</span>
+            </Link>
 
-        {/* Article Header */}
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="mb-8 border-2">
-            <CardContent className="p-6 md:p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <Badge variant="secondary" className="text-sm">
-                  {article.category}
-                </Badge>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            {/* Search */}
+            <div className="flex-1 max-w-xl mx-4 md:mx-8">
+              <Link to="/blog">
+                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Все статьи
+                </Button>
+              </Link>
+            </div>
+
+            {/* Right Links */}
+            <div className="flex items-center gap-3">
+              <Link to="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors font-medium">
+                Главная
+              </Link>
+              <ThemeToggle />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
+          {/* Left Sidebar - Table of Contents */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-24">
+              {/* Meta Info */}
+              <div className="mb-6 p-4 bg-white dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+                    {article.category}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {article.readTime} мин
+                  </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     {new Date(article.publishedAt).toLocaleDateString("ru-RU", {
@@ -778,70 +787,63 @@ const Article = () => {
                       day: "numeric",
                     })}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {article.readTime} мин чтения
-                  </div>
-                </div>
-              </div>
-
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {article.title}
-              </h1>
-
-              <p className="text-lg text-muted-foreground mb-6">
-                {article.description}
-              </p>
-
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <BookOpen className="w-4 h-4" />
-                  <span>{article.author}</span>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleShare}
+                  className="w-full"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
                   Поделиться
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </aside>
 
-          {/* Article Content */}
-          <Card className="border-2">
-            <CardContent className="p-6 md:p-8">
-              <div className="prose prose-lg max-w-none">
+          {/* Main Content */}
+          <main className="lg:col-span-3 xl:col-span-4">
+            <article>
+              {/* Article Header */}
+              <div className="mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight">
+                  {article.title}
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {article.description}
+                </p>
+              </div>
+
+              {/* Article Content */}
+              <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold">
                 {renderContent(article.content)}
               </div>
-            </CardContent>
-          </Card>
 
-          {/* CTA Section */}
-          <Card className="mt-8 bg-gradient-to-br from-primary/10 via-card to-secondary/10 border-2 border-primary/20">
-            <CardContent className="p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4">
-                Готовы начать подготовку?
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Присоединяйтесь к тысячам студентов, которые уже готовятся к экзамену DGT с помощью Skilyapp
-              </p>
-              <Button
-                size="lg"
-                onClick={() => navigate("/tests")}
-                className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-              >
-                Начать обучение
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.article>
+              {/* CTA Section */}
+              <Card className="mt-12 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800/40">
+                <div className="p-8 text-center">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                    Готовы начать подготовку?
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                    Присоединяйтесь к тысячам студентов, которые уже готовятся к экзамену DGT с помощью Skilyapp
+                  </p>
+                  <Button
+                    size="lg"
+                    onClick={() => navigate("/tests")}
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/50"
+                  >
+                    Начать обучение
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </Card>
+            </article>
+          </main>
+        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 
 export default Article;
-
