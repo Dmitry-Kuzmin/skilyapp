@@ -11,8 +11,15 @@ const PROGRESS_URL = `${MINI_APP_URL}/progress`;
 const LEARNING_URL = `${MINI_APP_URL}/learning-map`;
 const SUPPORT_URL = Deno.env.get('SUPPORT_URL') || `${MINI_APP_URL}/support`;
 const LANGUAGE_URL = `${MINI_APP_URL}/settings/language`;
-const QUIET_HOURS_URL = `${MINI_APP_URL}/settings/quiet-hours`;
 const NOTIFICATIONS_URL = `${MINI_APP_URL}/settings/notifications`;
+
+export type NotificationKeyboardState = {
+  enabled: boolean;
+  onlyImportant: boolean;
+  categories: Record<'duel' | 'progress' | 'motivation' | 'educational', boolean>;
+  quietModeActive: boolean;
+  quietModeLabel?: string;
+};
 
 // =====================================================
 // Главное меню
@@ -102,7 +109,7 @@ export function getSettingsKeyboard(): InlineKeyboardMarkup {
         { text: '🌍 На сайте', web_app: { url: LANGUAGE_URL } }
       ],
       [
-        { text: '🌙 Тихие часы', callback_data: 'settings_quiet_hours' },
+        { text: '🌙 Тихий режим', callback_data: 'quiet_mode_menu' },
         { text: '🆘 Поддержка', web_app: { url: SUPPORT_URL } }
       ],
       [
@@ -115,22 +122,41 @@ export function getSettingsKeyboard(): InlineKeyboardMarkup {
 // =====================================================
 // Настройки уведомлений
 // =====================================================
-export function getNotificationSettingsKeyboard(enabled: boolean): InlineKeyboardMarkup {
+export function getNotificationSettingsKeyboard(state: NotificationKeyboardState): InlineKeyboardMarkup {
+  const categoryButton = (key: keyof NotificationKeyboardState['categories'], label: string) => ({
+    text: `${state.categories[key] ? '✅' : '⬜'} ${label}`,
+    callback_data: `toggle_category_${key}`
+  });
+
   return {
     inline_keyboard: [
       [
         { 
-          text: enabled ? '🔔 Уведомления: ВКЛ' : '🔕 Уведомления: ВЫКЛ', 
+          text: state.enabled ? '🔔 Уведомления: ВКЛ' : '🔕 Уведомления: ВЫКЛ', 
           callback_data: 'toggle_notifications' 
         }
       ],
       [
-        { text: '⚔️ Дуэли', callback_data: 'toggle_category_duel' },
-        { text: '📈 Прогресс', callback_data: 'toggle_category_progress' }
+        {
+          text: state.onlyImportant ? '⭐ Только важное: ВКЛ' : '⭐ Только важное: ВЫКЛ',
+          callback_data: 'toggle_only_important'
+        }
       ],
       [
-        { text: '💪 Мотивация', callback_data: 'toggle_category_motivation' },
-        { text: '📚 Обучение', callback_data: 'toggle_category_educational' }
+        categoryButton('duel', 'Дуэли'),
+        categoryButton('progress', 'Прогресс')
+      ],
+      [
+        categoryButton('motivation', 'Мотивация'),
+        categoryButton('educational', 'Подсказки тем')
+      ],
+      [
+        {
+          text: state.quietModeActive
+            ? `🌙 Тихий режим: ${state.quietModeLabel || 'активен'}`
+            : '🌙 Включить тихий режим',
+          callback_data: 'quiet_mode_menu'
+        }
       ],
       [
         { text: '« Назад', callback_data: 'settings' }
@@ -202,6 +228,30 @@ export function getBackToMenuKeyboard(): InlineKeyboardMarkup {
     inline_keyboard: [
       [
         { text: '« Главное меню', callback_data: 'main_menu' }
+      ]
+    ]
+  };
+}
+
+// =====================================================
+// Меню тихого режима
+// =====================================================
+export function getQuietModeKeyboard(statusLabel?: string | null): InlineKeyboardMarkup {
+  const label = statusLabel ? `Активен до ${statusLabel}` : 'Сейчас выключен';
+
+  return {
+    inline_keyboard: [
+      [{ text: `🌙 Тихий режим — ${label}`, callback_data: 'quiet_mode_menu' }],
+      [
+        { text: '📵 12 часов', callback_data: 'quiet_mode_12h' },
+        { text: '🛌 7 дней', callback_data: 'quiet_mode_7d' }
+      ],
+      [
+        { text: '✅ Выключить', callback_data: 'quiet_mode_off' },
+        { text: '⚙️ Настроить в приложении', web_app: { url: `${MINI_APP_URL}/settings/quiet-hours` } }
+      ],
+      [
+        { text: '« Назад', callback_data: 'settings_notifications' }
       ]
     ]
   };

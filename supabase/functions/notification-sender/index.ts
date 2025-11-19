@@ -11,6 +11,7 @@ const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const IMPORTANT_CATEGORIES = new Set(['duel', 'progress', 'system', 'monetization', 'premium']);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -111,11 +112,26 @@ serve(async (req) => {
       .eq('user_id', profile.id)
       .maybeSingle();
 
+    const now = new Date();
+
     // Проверяем, включены ли уведомления
     if (!body.force && settings && !settings.enabled) {
       console.log('[Notification Sender] Notifications disabled for user:', profile.id);
       return new Response(
         JSON.stringify({ skipped: true, reason: 'notifications_disabled' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Проверяем тихий режим
+    if (
+      !body.force &&
+      settings?.quiet_mode_until &&
+      new Date(settings.quiet_mode_until).getTime() > now.getTime()
+    ) {
+      console.log('[Notification Sender] Quiet mode active until', settings.quiet_mode_until);
+      return new Response(
+        JSON.stringify({ skipped: true, reason: 'quiet_mode' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -157,6 +173,20 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+    }
+
+    // Проверяем режим "Только важное"
+    if (
+      !body.force &&
+      settings?.only_important &&
+      template?.category &&
+      !IMPORTANT_CATEGORIES.has(template.category)
+    ) {
+      console.log('[Notification Sender] Only important mode skips category:', template.category);
+      return new Response(
+        JSON.stringify({ skipped: true, reason: 'only_important' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Проверяем cooldown

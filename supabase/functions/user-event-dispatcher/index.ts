@@ -15,6 +15,7 @@ const corsHeaders = {
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const NOTIFICATION_SENDER_URL = `${SUPABASE_URL}/functions/v1/notification-sender`;
+const IMPORTANT_CATEGORIES = new Set(['duel', 'progress', 'system', 'monetization', 'premium']);
 
 type EventPayload = Record<string, any>;
 
@@ -56,9 +57,21 @@ serve(async (req) => {
       .eq('user_id', user_id)
       .maybeSingle();
 
+    const now = new Date();
+
     if (settings && settings.enabled === false) {
       return new Response(
         JSON.stringify({ success: true, skipped: true, reason: 'notifications_disabled' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (
+      settings?.quiet_mode_until &&
+      new Date(settings.quiet_mode_until).getTime() > now.getTime()
+    ) {
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: 'quiet_mode' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -215,6 +228,10 @@ function matchesFilters(
 function categoryAllowed(settings: any, category: string): boolean {
   if (!settings || settings.enabled === null) return true;
   if (settings.enabled === false) return false;
+
+  if (settings.only_important && category && !IMPORTANT_CATEGORIES.has(category)) {
+    return false;
+  }
 
   let categories = settings.categories_enabled;
   if (typeof categories === 'string') {

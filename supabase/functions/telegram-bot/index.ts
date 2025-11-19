@@ -14,12 +14,12 @@ import {
 } from './types.ts';
 import * as commands from './commands.ts';
 import * as keyboards from './keyboards.ts';
+import type { NotificationKeyboardState } from './keyboards.ts';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const QUIET_HOURS_URL = Deno.env.get('QUIET_HOURS_URL') || 'https://skilyapp.com/settings/quiet-hours';
 
 console.log('[Telegram Bot] Starting webhook handler...');
 
@@ -228,11 +228,22 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
     else if (data === 'settings_language') {
       await showLanguageSettings(message.chat.id, message.message_id, user.id, supabase);
     }
-    else if (data === 'settings_quiet_hours') {
-      await showQuietHoursInfo(message.chat.id, message.message_id);
+    else if (data === 'settings_quiet_hours' || data === 'quiet_mode_menu') {
+      await showQuietModeMenu(message.chat.id, message.message_id, user.id, supabase);
     }
     else if (data === 'toggle_notifications') {
       await toggleNotifications(message.chat.id, message.message_id, user.id, supabase);
+    }
+    else if (data === 'toggle_only_important') {
+      await toggleOnlyImportant(message.chat.id, message.message_id, user.id, supabase);
+    }
+    else if (data.startsWith('toggle_category_')) {
+      const category = data.replace('toggle_category_', '');
+      await toggleCategoryPreference(message.chat.id, message.message_id, user.id, category, supabase);
+    }
+    else if (data.startsWith('quiet_mode_')) {
+      const action = data.replace('quiet_mode_', '');
+      await handleQuietModeAction(message.chat.id, message.message_id, user.id, action, supabase);
     }
     else if (data.startsWith('set_language_')) {
       const lang = data.replace('set_language_', '');
@@ -401,27 +412,18 @@ async function showNotificationSettings(
   telegramId: number, 
   supabase: any
 ): Promise<void> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-
+  const { profile, settings } = await loadNotificationSettings(telegramId, supabase);
   if (!profile) return;
 
-  const { data: settings } = await supabase
-    .from('user_notification_settings')
-    .select('enabled')
-    .eq('user_id', profile.id)
-    .maybeSingle();
-
-  const enabled = settings?.enabled ?? true;
+  const state = buildNotificationKeyboardState(settings);
+  const text = buildNotificationSettingsText(state);
 
   await editMessage({
     chat_id: chatId,
     message_id: messageId,
-    text: `🔔 Настройки уведомлений\n\nСтатус: ${enabled ? '✅ Включены' : '❌ Выключены'}`,
-    reply_markup: keyboards.getNotificationSettingsKeyboard(enabled)
+    text,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getNotificationSettingsKeyboard(state)
   });
 }
 
@@ -455,40 +457,13 @@ async function toggleNotifications(
   telegramId: number,
   supabase: any
 ): Promise<void> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('telegram_id', telegramId)
-    .maybeSingle();
-
+  const { profile, settings } = await loadNotificationSettings(telegramId, supabase);
   if (!profile) return;
 
-  // Получаем текущие настройки
-  const { data: currentSettings } = await supabase
-    .from('user_notification_settings')
-    .select('enabled')
-    .eq('user_id', profile.id)
-    .maybeSingle();
+  const newEnabled = !(settings?.enabled ?? true);
 
-  const newEnabled = !(currentSettings?.enabled ?? true);
-
-  // Обновляем
-  await supabase
-    .from('user_notification_settings')
-    .upsert({
-      user_id: profile.id,
-      enabled: newEnabled,
-      updated_at: new Date().toISOString()
-    }, {
-      onConflict: 'user_id'
-    });
-
-  await editMessage({
-    chat_id: chatId,
-    message_id: messageId,
-    text: `🔔 Уведомления ${newEnabled ? 'включены ✅' : 'выключены ❌'}`,
-    reply_markup: keyboards.getNotificationSettingsKeyboard(newEnabled)
-  });
+  await upsertNotificationSettings(profile.id, { enabled: newEnabled }, supabase);
+  await showNotificationSettings(chatId, messageId, telegramId, supabase);
 }
 
 // Установить язык
@@ -536,22 +511,229 @@ async function setLanguage(
   });
 }
 
-async function showQuietHoursInfo(chatId: number, messageId: number): Promise<void> {
+async function toggleOnlyImportant(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  supabase: any
+): Promise<void> {
+  const { profile, settings } = await loadNotificationSettings(telegramId, supabase);
+  if (!profile) return;
+
+  const newValue = !(settings?.only_important ?? false);
+  await upsertNotificationSettings(profile.id, { only_important: newValue }, supabase);
+  await showNotificationSettings(chatId, messageId, telegramId, supabase);
+}
+
+async function toggleCategoryPreference(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  category: string,
+  supabase: any
+): Promise<void> {
+  if (!['duel', 'progress', 'motivation', 'educational'].includes(category)) {
+    return;
+  }
+
+  const { profile, settings } = await loadNotificationSettings(telegramId, supabase);
+  if (!profile) return;
+
+  const categories = parseCategories(settings?.categories_enabled);
+  const mutable = categories ? [...categories] : [...ALL_CATEGORIES];
+  const index = mutable.indexOf(category);
+
+  if (categories === null || categories.length === 0) {
+    // все включены по умолчанию, значит отключаем выбранную
+    const next = [...ALL_CATEGORIES].filter((c) => c !== category);
+    await upsertNotificationSettings(profile.id, { categories_enabled: next }, supabase);
+  } else if (index >= 0) {
+    mutable.splice(index, 1);
+    await upsertNotificationSettings(profile.id, { categories_enabled: mutable }, supabase);
+  } else {
+    mutable.push(category);
+    await upsertNotificationSettings(profile.id, { categories_enabled: mutable }, supabase);
+  }
+
+  await showNotificationSettings(chatId, messageId, telegramId, supabase);
+}
+
+async function showQuietModeMenu(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  supabase: any
+): Promise<void> {
+  const { settings } = await loadNotificationSettings(telegramId, supabase);
+  const { label } = getQuietModeState(settings);
+
   await editMessage({
     chat_id: chatId,
     message_id: messageId,
-    text: '🌙 Тихие часы можно настроить в приложении. Мы уже открыли раздел «Настройки → Тихие часы».',
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: 'Открыть настройки', web_app: { url: QUIET_HOURS_URL } }
-        ],
-        [
-          { text: '« Назад', callback_data: 'settings' }
-        ]
-      ]
-    }
+    text: '🌙 <b>Тихий режим</b>\n\nОтключи уведомления на время, если нужен фокус. Важные события (например, покупки) всё равно можно посмотреть в истории.',
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getQuietModeKeyboard(label)
   });
+}
+
+async function handleQuietModeAction(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  action: string,
+  supabase: any
+): Promise<void> {
+  const { profile } = await loadNotificationSettings(telegramId, supabase);
+  if (!profile) return;
+
+  let quietUntil: string | null = null;
+  const now = new Date();
+
+  if (action === '12h') {
+    quietUntil = new Date(now.getTime() + 12 * 60 * 60 * 1000).toISOString();
+  } else if (action === '7d') {
+    quietUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  } else if (action === 'off') {
+    quietUntil = null;
+  }
+
+  await upsertNotificationSettings(
+    profile.id,
+    { quiet_mode_until: quietUntil },
+    supabase
+  );
+
+  await showQuietModeMenu(chatId, messageId, telegramId, supabase);
+}
+
+const CATEGORY_KEYS = ['duel', 'progress', 'motivation', 'educational'] as const;
+const CATEGORY_LABELS: Record<typeof CATEGORY_KEYS[number], string> = {
+  duel: 'Дуэли',
+  progress: 'Прогресс',
+  motivation: 'Мотивация',
+  educational: 'Подсказки тем'
+};
+const ALL_CATEGORIES = ['duel', 'progress', 'motivation', 'educational', 'system', 'monetization', 'premium', 'daily'];
+
+async function loadNotificationSettings(telegramId: number, supabase: any) {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('telegram_id', telegramId)
+    .maybeSingle();
+
+  if (!profile) {
+    return { profile: null, settings: null };
+  }
+
+  const { data: settings } = await supabase
+    .from('user_notification_settings')
+    .select('*')
+    .eq('user_id', profile.id)
+    .maybeSingle();
+
+  return { profile, settings };
+}
+
+function parseCategories(raw: any): string[] | null {
+  if (!raw) return null;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function buildNotificationKeyboardState(settings: any): NotificationKeyboardState {
+  const categories = parseCategories(settings?.categories_enabled);
+  const quietState = getQuietModeState(settings);
+
+  const state: NotificationKeyboardState = {
+    enabled: settings?.enabled ?? true,
+    onlyImportant: settings?.only_important ?? false,
+    categories: {
+      duel: isCategoryEnabled('duel', categories),
+      progress: isCategoryEnabled('progress', categories),
+      motivation: isCategoryEnabled('motivation', categories),
+      educational: isCategoryEnabled('educational', categories)
+    },
+    quietModeActive: quietState.active,
+    quietModeLabel: quietState.label
+  };
+
+  return state;
+}
+
+function buildNotificationSettingsText(state: NotificationKeyboardState): string {
+  const status = state.enabled ? '✅ Включены' : '❌ Выключены';
+  const important = state.onlyImportant
+    ? '⭐ Режим "Только важное": включён'
+    : '⭐ Режим "Только важное": выключен';
+  const quiet = state.quietModeActive
+    ? `🌙 Тихий режим активен до ${state.quietModeLabel}`
+    : '🌙 Тихий режим выключен';
+
+  const categoriesLines = CATEGORY_KEYS
+    .map((key) => `${state.categories[key] ? '✅' : '⬜'} ${CATEGORY_LABELS[key]}`)
+    .join('\n');
+
+  return `🔔 <b>Настройки уведомлений</b>
+
+Статус: ${status}
+${important}
+${quiet}
+
+Категории:
+${categoriesLines}`.trim();
+}
+
+function isCategoryEnabled(category: typeof CATEGORY_KEYS[number], categories: string[] | null): boolean {
+  if (!categories || categories.length === 0) return true;
+  return categories.includes(category);
+}
+
+function getQuietModeState(settings: any): { active: boolean; label?: string } {
+  if (!settings?.quiet_mode_until) {
+    return { active: false };
+  }
+
+  const until = new Date(settings.quiet_mode_until);
+  if (Number.isNaN(until.getTime()) || until.getTime() <= Date.now()) {
+    return { active: false };
+  }
+
+  const formatter = new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return {
+    active: true,
+    label: formatter.format(until)
+  };
+}
+
+async function upsertNotificationSettings(
+  profileId: string,
+  patch: Record<string, any>,
+  supabase: any
+) {
+  await supabase
+    .from('user_notification_settings')
+    .upsert({
+      user_id: profileId,
+      ...patch,
+      updated_at: new Date().toISOString()
+    }, {
+      onConflict: 'user_id'
+    });
 }
 
 // =====================================================
