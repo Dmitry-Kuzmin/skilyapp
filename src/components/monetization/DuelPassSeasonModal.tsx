@@ -18,7 +18,7 @@ import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DuelPassOnboarding } from "./DuelPassOnboarding";
+import { OnboardingContent } from "./DuelPassOnboardingContent";
 
 const supabaseClient = supabase as any;
 const localeMap: Record<Language, string> = {
@@ -1196,6 +1196,22 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     // Показываем skeleton во время загрузки
     if (loading) {
       return <SkeletonContent />;
+    }
+
+    // Показываем onboarding если нужно
+    if (showOnboarding) {
+      return (
+        <OnboardingContent
+          onComplete={() => {
+            setShowOnboarding(false);
+          }}
+          seasonData={activeSeason ? {
+            name_ru: activeSeason.name_ru,
+            days_remaining: activeSeason.days_remaining,
+            end_date: activeSeason.end_date
+          } : undefined}
+        />
+      );
     }
 
     const seasonHighlights = [
