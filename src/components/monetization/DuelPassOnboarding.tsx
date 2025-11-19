@@ -707,8 +707,10 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "!z-[2147483646]",
           // Переопределяем анимацию fade-in чтобы opacity был 1 сразу
           "!opacity-100",
-          // Отключаем fade-in анимацию - используем !important через CSS переменную
-          "[&[data-state=open]]:!opacity-100"
+          // Отключаем fade-in анимацию полностью
+          "[&[data-state=open]]:!opacity-100",
+          // Убираем fade-in анимацию
+          "[&[data-state=open]]:animate-none"
         )}
         style={{ 
           opacity: 1, 
