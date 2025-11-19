@@ -924,7 +924,8 @@ const Article = () => {
             listType = null;
           }
           elements.push(tableElement);
-          continue;
+        }
+        continue;
       }
 
       if (trimmedLine.startsWith("# ")) {
@@ -1132,7 +1133,7 @@ const Article = () => {
         currentList = [];
         listType = null;
       }
-    });
+    }
 
     if (currentList.length > 0) {
       elements.push(
