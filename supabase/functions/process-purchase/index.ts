@@ -62,6 +62,35 @@ serve(async (req) => {
 
     console.log(`[process-purchase] Processing for user: ${userId}, type: ${dbType}, item: ${dbItemId}`);
 
+    const userEventDispatcherUrl = `${supabaseUrl}/functions/v1/user-event-dispatcher`;
+    const emitUserEvent = async (
+      eventType: string,
+      payload: Record<string, any>
+    ) => {
+      if (!userId) return;
+      try {
+        const response = await fetch(userEventDispatcherUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            event_type: eventType,
+            payload,
+          }),
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          console.warn("[process-purchase] user-event-dispatcher error:", text);
+        }
+      } catch (eventError) {
+        console.warn("[process-purchase] Failed to emit event:", eventError);
+      }
+    };
+
     // Проверяем, не обработана ли уже покупка
     const { data: existingPurchase } = await supabase
       .from("purchases")
@@ -121,6 +150,13 @@ serve(async (req) => {
         metadata: { session_id: session.id },
       });
 
+      await emitUserEvent("purchase_completed", {
+        product_name: dbItemId.includes("monthly")
+          ? "Skily Premium (Monthly)"
+          : "Skily Premium (Annual)",
+        product_value: dbItemId.includes("monthly") ? "30 days" : "365 days",
+      });
+
       return new Response(
         JSON.stringify({ success: true, message: "Premium subscription activated" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -136,6 +172,11 @@ serve(async (req) => {
         transaction_type: "duel_pass_purchase",
         amount: 0,
         metadata: { session_id: session.id },
+      });
+
+      await emitUserEvent("purchase_completed", {
+        product_name: "Duel Pass",
+        product_value: "season",
       });
 
       return new Response(
@@ -225,6 +266,14 @@ serve(async (req) => {
         
         const finalCoins = finalProfile?.coins || 0;
         
+        await emitUserEvent("purchase_completed", {
+          product_name: metadata.catalog_key || "Coins Pack",
+          product_value: coins,
+          coins_added: coins,
+          new_balance: finalCoins,
+          catalog_key: metadata.catalog_key || null,
+        });
+
         return new Response(
           JSON.stringify({ 
             success: true, 

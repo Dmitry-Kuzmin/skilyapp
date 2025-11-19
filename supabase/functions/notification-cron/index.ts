@@ -9,6 +9,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const USER_EVENT_DISPATCHER_URL = `${SUPABASE_URL}/functions/v1/user-event-dispatcher`;
 
 console.log('[Notification CRON] Service started');
 
@@ -29,18 +30,18 @@ serve(async (req) => {
       skipped: 0,
       errors: 0,
       breakdown: {
-        comeback_3days: 0,
-        comeback_7days: 0,
+        inactive_3d: 0,
+        inactive_7d: 0,
         streak_reminder: 0,
         almost_ready: 0
       }
     };
 
     // 1. Напоминания неактивным пользователям (3 дня)
-    await sendInactivityReminders(supabase, 3, 'comeback_3days', results);
+    await sendInactivityReminders(supabase, 3, 'inactive_3d', results);
 
     // 2. Напоминания неактивным пользователям (7 дней)
-    await sendInactivityReminders(supabase, 7, 'comeback_7days', results);
+    await sendInactivityReminders(supabase, 7, 'inactive_7d', results);
 
     // 3. Напоминания о поддержании streak
     await sendStreakReminders(supabase, results);
@@ -71,7 +72,7 @@ serve(async (req) => {
 async function sendInactivityReminders(
   supabase: any,
   daysInactive: number,
-  templateType: string,
+  eventType: 'inactive_3d' | 'inactive_7d',
   results: any
 ): Promise<void> {
   try {
@@ -113,19 +114,19 @@ async function sendInactivityReminders(
       try {
         const progressPercent = Math.round(user.readiness_level || 0);
         
-        const sendResult = await sendNotification(supabase, {
-          user_id: user.user_id,
-          template_type: templateType,
-          variables: {
+        const sendResult = await dispatchEvent({
+          userId: user.user_id,
+          eventType,
+          payload: {
             progress_percent: progressPercent,
             streak_was: user.streak_days || 0,
             days_inactive: daysInactive
           }
         });
 
-        if (sendResult.success) {
-          results.sent++;
-          results.breakdown[templateType]++;
+        if (sendResult.sent > 0) {
+          results.sent += sendResult.sent;
+          results.breakdown[eventType] += sendResult.sent;
         } else if (sendResult.skipped) {
           results.skipped++;
         } else {
@@ -148,7 +149,6 @@ async function sendInactivityReminders(
 
 async function sendStreakReminders(supabase: any, results: any): Promise<void> {
   try {
-    const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -183,17 +183,17 @@ async function sendStreakReminders(supabase: any, results: any): Promise<void> {
     // Отправляем напоминания
     for (const user of streakUsers) {
       try {
-        const sendResult = await sendNotification(supabase, {
-          user_id: user.user_id,
-          template_type: 'daily_practice',
-          variables: {
+        const sendResult = await dispatchEvent({
+          userId: user.user_id,
+          eventType: 'streak_reminder',
+          payload: {
             streak_days: user.streak_days
           }
         });
 
-        if (sendResult.success) {
-          results.sent++;
-          results.breakdown.streak_reminder++;
+        if (sendResult.sent > 0) {
+          results.sent += sendResult.sent;
+          results.breakdown.streak_reminder += sendResult.sent;
         } else if (sendResult.skipped) {
           results.skipped++;
         } else {
@@ -250,17 +250,17 @@ async function sendAlmostReadyReminders(supabase: any, results: any): Promise<vo
     // Отправляем мотивационные уведомления
     for (const user of almostReadyUsers) {
       try {
-        const sendResult = await sendNotification(supabase, {
-          user_id: user.user_id,
-          template_type: 'almost_ready',
-          variables: {
+        const sendResult = await dispatchEvent({
+          userId: user.user_id,
+          eventType: 'almost_ready',
+          payload: {
             readiness_level: Math.round(user.readiness_level)
           }
         });
 
-        if (sendResult.success) {
-          results.sent++;
-          results.breakdown.almost_ready++;
+        if (sendResult.sent > 0) {
+          results.sent += sendResult.sent;
+          results.breakdown.almost_ready += sendResult.sent;
         } else if (sendResult.skipped) {
           results.skipped++;
         } else {
@@ -278,49 +278,43 @@ async function sendAlmostReadyReminders(supabase: any, results: any): Promise<vo
 }
 
 // =====================================================
-// Отправка уведомления через notification-sender
+// Отправка события в user-event-dispatcher
 // =====================================================
 
-async function sendNotification(
-  supabase: any,
-  params: {
-    user_id: string;
-    template_type: string;
-    variables: Record<string, any>;
-  }
-): Promise<{ success: boolean; skipped?: boolean; error?: string }> {
+async function dispatchEvent(params: {
+  userId: string;
+  eventType: string;
+  payload: Record<string, any>;
+}): Promise<{ sent: number; skipped?: boolean; error?: string }> {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/notification-sender`, {
+    const response = await fetch(USER_EVENT_DISPATCHER_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
       },
       body: JSON.stringify({
-        user_id: params.user_id,
-        template_type: params.template_type,
-        variables: params.variables,
-        force: false // Учитываем тихие часы и cooldown
+        user_id: params.userId,
+        event_type: params.eventType,
+        payload: params.payload
       })
     });
 
+    const result = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const error = await response.json();
-      console.error('[Notification CRON] Send error:', error);
-      return { success: false, error: error.error };
+      console.error('[Notification CRON] dispatch error:', result);
+      return { sent: 0, error: result?.error || 'dispatch_failed' };
     }
 
-    const result = await response.json();
-    
-    if (result.skipped) {
-      return { success: false, skipped: true };
-    }
-
-    return { success: true };
-
+    const sentCount = typeof result.sent === 'number' ? result.sent : result.success ? 1 : 0;
+    return {
+      sent: sentCount,
+      skipped: result.skipped || sentCount === 0
+    };
   } catch (error) {
-    console.error('[Notification CRON] Send notification error:', error);
-    return { success: false, error: error.message };
+    console.error('[Notification CRON] dispatch exception:', error);
+    return { sent: 0, error: error instanceof Error ? error.message : String(error) };
   }
 }
 

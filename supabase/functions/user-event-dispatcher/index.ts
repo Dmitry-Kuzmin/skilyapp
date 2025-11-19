@@ -1,0 +1,415 @@
+// =====================================================
+// User Event Dispatcher
+// =====================================================
+// Получает события из приложения, проверяет правила и
+// отправляет релевантные уведомления через notification-sender.
+
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const NOTIFICATION_SENDER_URL = `${SUPABASE_URL}/functions/v1/notification-sender`;
+
+type EventPayload = Record<string, any>;
+
+interface EventRequest {
+  user_id: string;
+  event_type: string;
+  payload?: EventPayload;
+  override_template_type?: string;
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    if (req.method !== 'POST') {
+      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const body: EventRequest = await req.json();
+    const { user_id, event_type, payload = {}, override_template_type } = body;
+
+    if (!user_id || !event_type) {
+      return new Response(JSON.stringify({ error: 'user_id and event_type are required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { data: settings } = await supabase
+      .from('user_notification_settings')
+      .select('*')
+      .eq('user_id', user_id)
+      .maybeSingle();
+
+    if (settings && settings.enabled === false) {
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: 'notifications_disabled' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: metrics } = await supabase
+      .from('user_metrics')
+      .select('last_login_at, streak_days, total_tests_completed, total_duels_played, readiness_level')
+      .eq('user_id', user_id)
+      .maybeSingle();
+
+    const userState = determineUserState(metrics);
+
+    const templateCache = new Map<string, any>();
+
+    // Manual override path (используется для ручных отправок)
+    if (override_template_type) {
+      const template = await loadTemplate(supabase, override_template_type, templateCache);
+      if (!template) {
+        return new Response(JSON.stringify({ error: 'Template not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const variables = buildVariables(event_type, payload, metrics, template);
+      await sendViaNotificationSender({
+        templateType: override_template_type,
+        userId: user_id,
+        variables,
+      });
+
+      return new Response(JSON.stringify({ success: true, sent: 1, manual: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { data: rules, error: rulesError } = await supabase
+      .from('notification_rules')
+      .select('*')
+      .eq('event_type', event_type)
+      .eq('enabled', true)
+      .order('priority', { ascending: false });
+
+    if (rulesError) {
+      console.error('[EventDispatcher] Rules query error:', rulesError);
+      return new Response(JSON.stringify({ error: 'Failed to load rules' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const filteredRules = (rules || []).filter((rule) =>
+      matchesFilters(rule.user_state_filter, userState, settings, payload, metrics)
+    );
+
+    let sentCount = 0;
+
+    for (const rule of filteredRules) {
+      if (!categoryAllowed(settings, rule.category)) {
+        continue;
+      }
+
+      const canSend = await checkCooldown(
+        supabase,
+        user_id,
+        override_template_type || rule.template_type,
+        rule.cooldown_hours,
+        rule.max_per_day
+      );
+
+      if (!canSend) {
+        continue;
+      }
+
+      const template = await loadTemplate(supabase, rule.template_type, templateCache);
+
+      if (!template) {
+        console.warn('[EventDispatcher] Template not found:', rule.template_type);
+        continue;
+      }
+
+      const variables = buildVariables(rule.event_type, payload, metrics, template);
+
+      const sent = await sendViaNotificationSender({
+        templateType: rule.template_type,
+        userId: user_id,
+        variables,
+      });
+
+      if (!sent) continue;
+
+      sentCount += 1;
+    }
+
+    return new Response(JSON.stringify({ success: true, sent: sentCount }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('[EventDispatcher] Unexpected error:', error);
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
+
+// =====================================================
+// Helpers
+// =====================================================
+
+function determineUserState(metrics: any): 'new' | 'active' | 'passive' | 'at_risk' {
+  if (!metrics) return 'new';
+
+  const now = Date.now();
+  const lastLogin = metrics.last_login_at ? Date.parse(metrics.last_login_at) : null;
+  const daysSince = lastLogin ? (now - lastLogin) / (1000 * 60 * 60 * 24) : Infinity;
+  const streak = metrics.streak_days ?? 0;
+
+  if (daysSince <= 3 && streak >= 3) return 'active';
+  if (daysSince > 7) return 'passive';
+  if (streak === 0) return 'at_risk';
+
+  return 'active';
+}
+
+function matchesFilters(
+  filter: any,
+  userState: string,
+  settings: any,
+  payload: EventPayload,
+  metrics: any
+): boolean {
+  if (!filter || Object.keys(filter).length === 0) return true;
+
+  if (filter.state && Array.isArray(filter.state)) {
+    if (!filter.state.includes(userState)) {
+      return false;
+    }
+  }
+
+  if (typeof filter.coins_lt === 'number') {
+    if (!payload || typeof payload.coins_left !== 'number') return false;
+    if (payload.coins_left >= filter.coins_lt) return false;
+  }
+
+  if (typeof filter.season_progress_gt === 'number') {
+    if (typeof payload.season_progress !== 'number') return false;
+    if (payload.season_progress <= filter.season_progress_gt) return false;
+  }
+
+  return true;
+}
+
+function categoryAllowed(settings: any, category: string): boolean {
+  if (!settings || settings.enabled === null) return true;
+  if (settings.enabled === false) return false;
+
+  let categories = settings.categories_enabled;
+  if (typeof categories === 'string') {
+    try {
+      categories = JSON.parse(categories);
+    } catch {
+      categories = null;
+    }
+  }
+
+  if (!categories || categories.length === 0) return true;
+  if (Array.isArray(categories) && categories.includes(category)) return true;
+
+  return false;
+}
+
+async function checkCooldown(
+  supabase: any,
+  userId: string,
+  templateType: string,
+  cooldownHours: number,
+  maxPerDay: number
+): Promise<boolean> {
+  if (!cooldownHours && !maxPerDay) return true;
+
+  const now = new Date();
+  const cooldownDate = cooldownHours
+    ? new Date(now.getTime() - cooldownHours * 60 * 60 * 1000)
+    : null;
+  const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  let query = supabase
+    .from('notification_logs')
+    .select('id, sent_at')
+    .eq('user_id', userId)
+    .eq('type', templateType)
+    .order('sent_at', { ascending: false });
+
+  if (cooldownDate) {
+    query = query.gte('sent_at', cooldownDate.toISOString());
+  } else if (maxPerDay) {
+    query = query.gte('sent_at', dayAgo.toISOString());
+  }
+
+  const { data, error } = await query.limit(50);
+
+  if (error) {
+    console.error('[EventDispatcher] Cooldown query error:', error);
+    return false;
+  }
+
+  if (!data || data.length === 0) {
+    return true;
+  }
+
+  if (cooldownDate) {
+    const latest = new Date(data[0].sent_at);
+    if (latest >= cooldownDate) {
+      return false;
+    }
+  }
+
+  if (maxPerDay) {
+    const countPerDay = data.filter(
+      (item: any) => new Date(item.sent_at) >= dayAgo
+    ).length;
+    if (countPerDay >= maxPerDay) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function loadTemplate(supabase: any, templateType: string, cache: Map<string, any>) {
+  if (cache.has(templateType)) {
+    return cache.get(templateType);
+  }
+
+  const { data, error } = await supabase
+    .from('notification_templates')
+    .select('*')
+    .eq('type', templateType)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[EventDispatcher] Template query error:', error);
+    return null;
+  }
+
+  cache.set(templateType, data);
+  return data;
+}
+
+function buildVariables(
+  eventType: string,
+  payload: EventPayload,
+  metrics: any,
+  template: any
+): Record<string, any> {
+  const base: Record<string, any> = { ...payload };
+
+  switch (eventType) {
+    case 'duel_invite_created':
+      base.opponent_name = payload.opponent_name || 'Соперник';
+      base.num_questions = payload.num_questions || payload.question_count || 10;
+      base.bet_amount = payload.bet_amount || 0;
+      break;
+    case 'duel_finished_win':
+    case 'duel_finished_lose':
+      base.your_score = payload.your_score ?? 0;
+      base.opponent_score = payload.opponent_score ?? 0;
+      base.personalized_comment = payload.personalized_comment || '';
+      break;
+    case 'reminder_daily':
+      base.task_description = payload.task_description || '10 минут — 1 тест';
+      break;
+    case 'low_balance':
+      base.coins_left = payload.coins_left ?? 0;
+      break;
+    case 'season_near_reward':
+      base.reward_name = payload.reward_name || 'награда';
+      base.season_progress = payload.season_progress;
+      break;
+    case 'user_passive_7d':
+      base.challenge_name = payload.challenge_name || '3×1 тест';
+      break;
+    case 'ai_usage_high':
+      base.questions_used = payload.questions_used || 0;
+      break;
+    case 'challenge_bank_pending':
+      base.pending_questions = payload.pending_questions ?? 0;
+      break;
+    case 'inactive_3d':
+    case 'inactive_7d':
+      base.progress_percent = payload.progress_percent ?? metrics?.readiness_level ?? null;
+      base.streak_was = payload.streak_was ?? metrics?.streak_days ?? 0;
+      base.days_inactive = payload.days_inactive ?? (eventType === 'inactive_3d' ? 3 : 7);
+      break;
+    case 'streak_reminder':
+      base.streak_days = payload.streak_days ?? metrics?.streak_days ?? null;
+      break;
+    case 'almost_ready':
+      base.readiness_level = payload.readiness_level ?? metrics?.readiness_level ?? null;
+      break;
+    case 'purchase_completed':
+      base.product_name = payload.product_name || 'Покупка';
+      base.product_value = payload.product_value ?? null;
+      base.new_balance = payload.new_balance ?? null;
+      base.coins_added = payload.coins_added ?? null;
+      base.catalog_key = payload.catalog_key ?? null;
+      break;
+    case 'boost_purchase':
+      base.boost_name = payload.boost_name || 'Boost';
+      base.boost_type = payload.boost_type || null;
+      base.cost_coins = payload.cost_coins ?? null;
+      break;
+    default:
+      break;
+  }
+
+  if (metrics) {
+    base.streak_days = metrics.streak_days ?? null;
+    base.readiness_level = metrics.readiness_level ?? null;
+  }
+
+  return base;
+}
+
+async function sendViaNotificationSender(params: {
+  userId: string;
+  templateType: string;
+  variables: Record<string, any>;
+}): Promise<boolean> {
+  const response = await fetch(NOTIFICATION_SENDER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    },
+    body: JSON.stringify({
+      user_id: params.userId,
+      template_type: params.templateType,
+      variables: params.variables,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    console.error('[EventDispatcher] notification-sender error:', err);
+    return false;
+  }
+
+  return true;
+}
+
+

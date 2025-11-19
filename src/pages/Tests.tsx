@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Target, BookOpen, TrendingUp, CheckCircle2, XCircle, Award, ListOrdered, AlertTriangle, Shuffle, Star, Clock, Flag, Trophy, Layers, ArrowRight, Lock, Unlock, Play, Eye, Zap, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TestUpsellBanner } from "@/components/monetization/TestUpsellBanner";
 import { useCoins } from "@/hooks/useCoins";
 import { cn } from "@/lib/utils";
+import { dispatchUserEvent } from "@/lib/notification-events";
 
 const ACCENT_GRADIENTS = [
   { from: "#111827", via: "#2563EB", to: "#3B82F6", glow: "#3B82F655" },
@@ -27,6 +28,10 @@ const ACCENT_GRADIENTS = [
   { from: "#020617", via: "#14B8A6", to: "#86EFAC", glow: "#14B8A655" },
   { from: "#111827", via: "#FACC15", to: "#F97316", glow: "#FACC1555" },
 ];
+
+const CHALLENGE_BANK_THRESHOLD = 5;
+const CHALLENGE_BANK_EVENT_KEY = 'challenge-bank-reminder-last';
+const CHALLENGE_BANK_EVENT_INTERVAL_HOURS = 12;
 
 const getTopicGradient = (topicIndex: number, topic?: { gradient_from?: string; gradient_to?: string }) => {
   if (topic?.gradient_from && topic?.gradient_to) {
@@ -115,6 +120,7 @@ const Tests = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [challengeBankCount, setChallengeBankCount] = useState(0);
   const [randomQuestionCount, setRandomQuestionCount] = useState(10);
+  const challengeEventSentRef = useRef(false);
   
   // States for topic tests modal
   const [selectedTopicForModal, setSelectedTopicForModal] = useState<{ id: string; name: string; number: number } | null>(null);
@@ -305,7 +311,37 @@ const Tests = () => {
         .eq('mastered', false);
 
       if (error) throw error;
-      setChallengeBankCount(count || 0);
+      const pending = count || 0;
+      setChallengeBankCount(pending);
+
+      if (pending < CHALLENGE_BANK_THRESHOLD) {
+        challengeEventSentRef.current = false;
+        return;
+      }
+
+      const now = Date.now();
+      const intervalMs = CHALLENGE_BANK_EVENT_INTERVAL_HOURS * 60 * 60 * 1000;
+      let lastSent = 0;
+
+      if (typeof window !== 'undefined') {
+        const stored = window.localStorage.getItem(CHALLENGE_BANK_EVENT_KEY);
+        if (stored) {
+          const parsed = parseInt(stored, 10);
+          lastSent = Number.isFinite(parsed) ? parsed : 0;
+        }
+      }
+
+      const intervalPassed = now - lastSent >= intervalMs;
+
+      if ((intervalPassed || !challengeEventSentRef.current) && profileId) {
+        await dispatchUserEvent(profileId, 'challenge_bank_pending', {
+          pending_questions: pending,
+        });
+        challengeEventSentRef.current = true;
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(CHALLENGE_BANK_EVENT_KEY, now.toString());
+        }
+      }
     } catch (error) {
       console.error('Error loading Challenge Bank count:', error);
     }

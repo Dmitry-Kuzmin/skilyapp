@@ -22,6 +22,7 @@ import { getDialogContentClasses } from '@/lib/modal-config';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
+import { dispatchUserEvent } from '@/lib/notification-events';
 
 const supabaseClient = supabase as any;
 
@@ -781,6 +782,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       }
 
       const localizedName = translateBoostField(boost.type, 'name', boost.name_ru);
+      await dispatchUserEvent(profileId, 'boost_purchase', {
+        boost_type: boost.type,
+        boost_name: localizedName,
+        cost_coins: boost.cost_coins,
+      });
       toast({
         title: t('boostShop.toasts.purchaseSuccessTitle'),
         description: t('boostShop.toasts.purchaseSuccessDescription', { name: localizedName }),
