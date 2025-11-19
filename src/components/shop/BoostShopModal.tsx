@@ -875,66 +875,38 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Premium & Duel Pass Tab */}
             <TabsContent value="premium" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               <div className="space-y-4">
-                {/* Premium Subscription */}
+                {/* Premium Forever Info */}
                 <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
                   <div className="space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Crown className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
-                        <h3 className="text-base md:text-lg font-bold">Premium подписка</h3>
+                        <h3 className="text-base md:text-lg font-bold">Premium Forever</h3>
                       </div>
-                      {isPremium && (
-                        <Badge className="bg-green-500">Активна</Badge>
-                      )}
+                      <Badge className="bg-green-500">Активен для всех</Badge>
                     </div>
                     
+                    <p className="text-sm text-muted-foreground">
+                      Premium теперь открыт навсегда — подписка больше не нужна. Каждый пользователь получает все бонусы автоматически.
+                    </p>
+
                     <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Безлимитный доступ ко всем тестам</span>
+                        <span>Безлимитный доступ ко всем тестам и материалам</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>+50% монет за обучение</span>
+                        <span>+50% монет за обучение и ежедневные активности</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Duel Pass Premium награды</span>
+                        <span>Premium награды Duel Pass доступны сразу</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Без рекламы и мгновенные подсказки</span>
+                        <span>Без рекламы, ускоренные подсказки и персональная поддержка</span>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                      <Card className="p-3 border-primary/30">
-                        <p className="text-xs text-muted-foreground mb-1">Месяц</p>
-                        <p className="text-base md:text-lg font-bold">€9.99</p>
-                        <Button 
-                          size="sm" 
-                          className="w-full mt-2"
-                          onClick={() => setPaywallOpen(true)}
-                          disabled={isPremium}
-                        >
-                          {isPremium ? 'Активна' : 'Выбрать'}
-                        </Button>
-                      </Card>
-                      <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs text-muted-foreground">Год</p>
-                          <Badge className="text-xs bg-yellow-500">-50%</Badge>
-                        </div>
-                        <p className="text-base md:text-lg font-bold">€59.99</p>
-                        <Button 
-                          size="sm" 
-                          className="w-full mt-2 bg-gradient-to-r from-yellow-500 to-orange-500"
-                          onClick={() => setPaywallOpen(true)}
-                          disabled={isPremium}
-                        >
-                          {isPremium ? 'Активна' : 'Выбрать'}
-                        </Button>
-                      </Card>
                     </div>
                   </div>
                 </Card>
