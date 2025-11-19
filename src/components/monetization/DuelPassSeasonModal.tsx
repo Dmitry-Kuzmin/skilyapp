@@ -1917,11 +1917,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </Sheet>
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0">
+          <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] p-0 !grid !grid-rows-[1fr] overflow-hidden">
             <DialogTitle className="sr-only">Duel Pass Season</DialogTitle>
             <DialogDescription className="sr-only">Duel Pass Season information and rewards</DialogDescription>
-            <div className="flex-1 overflow-y-auto min-h-0">
-              <ModalContent />
+            <div className="flex flex-col h-full min-h-0 overflow-hidden">
+              <div className="flex-1 overflow-y-auto min-h-0">
+                <ModalContent />
+              </div>
             </div>
           </DialogContent>
         </Dialog>
