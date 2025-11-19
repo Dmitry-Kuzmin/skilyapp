@@ -666,7 +666,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   };
 
   const content = (
-    <div className="relative flex flex-col h-full">
+    <div className="relative flex flex-col" style={{ height: '100%', minHeight: '100%' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 md:p-6 pb-3 border-b border-white/10">
         <div className="flex items-center gap-3">
