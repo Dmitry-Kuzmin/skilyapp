@@ -189,13 +189,6 @@ export const CurriculumMatrix = ({
         const topicKey = getTopicKey(topic);
         const isExpanded = expandedTopics[topicKey] ?? true;
         const hasCover = Boolean(topic.cover_image);
-        const cardBackgroundStyles = hasCover
-          ? {
-              backgroundImage: `linear-gradient(135deg, rgba(5,10,25,0.92) 0%, rgba(6,11,18,0.78) 55%, rgba(10,14,25,0.88) 100%), url(${topic.cover_image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }
-          : undefined;
 
         return (
           <Card
@@ -203,8 +196,7 @@ export const CurriculumMatrix = ({
             className={cn(
               "relative overflow-hidden rounded-2xl border border-border cursor-pointer",
               "bg-card/80 dark:bg-card/90 backdrop-blur-sm transition-shadow hover:shadow-lg/60",
-              "px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5",
-              hasCover && "text-white border-transparent shadow-[0_25px_60px_rgba(6,11,25,0.35)]"
+              "px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
             )}
             ref={(el) => {
               cardRefs.current[topicKey] = el;
@@ -213,7 +205,6 @@ export const CurriculumMatrix = ({
             onKeyDown={(event) => handleCardKeyDown(event, topicKey)}
             role="button"
             tabIndex={0}
-            style={cardBackgroundStyles}
           >
             <div className="relative space-y-3 sm:space-y-4">
               <header
@@ -223,6 +214,15 @@ export const CurriculumMatrix = ({
                   "flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between",
                   hasCover && "min-h-[120px] sm:min-h-[140px] md:min-h-[160px]"
                 )}
+                style={
+                  hasCover
+                    ? {
+                        backgroundImage: `linear-gradient(135deg, rgba(5,10,25,0.92) 0%, rgba(6,11,18,0.78) 55%, rgba(10,14,25,0.88) 100%), url(${topic.cover_image})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }
+                    : undefined
+                }
               >
                 {/* Декоративная подложка без обложки */}
                 {!hasCover && (
