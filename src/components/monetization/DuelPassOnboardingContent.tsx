@@ -81,7 +81,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
 
   // Экран 1: Welcome
   const Slide1 = () => (
-    <div className="flex flex-col items-center justify-center text-center space-y-6 py-8 md:py-12 px-4 min-h-0">
+    <div className="flex flex-col items-center justify-center text-center space-y-6 py-8 md:py-12 px-4 w-full h-full">
       <motion.div
         initial={{ scale: 0.5, opacity: 0, rotate: -180 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
@@ -130,7 +130,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
 
   // Экран 2: Что такое SP?
   const Slide2 = () => (
-    <div className="space-y-6 py-6 md:py-8 px-4 min-h-0 flex flex-col justify-center">
+    <div className="space-y-6 py-6 md:py-8 px-4 w-full h-full flex flex-col justify-center">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -216,7 +216,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
 
   // Экран 3: Награды
   const Slide3 = () => (
-    <div className="space-y-6 md:space-y-8 py-6 md:py-8 px-4 min-h-0 flex flex-col justify-center">
+    <div className="space-y-6 md:space-y-8 py-6 md:py-8 px-4 w-full h-full flex flex-col justify-center">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -300,7 +300,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
 
   // Экран 4: Premium Pass
   const Slide4 = () => (
-    <div className="space-y-6 md:space-y-8 py-6 md:py-8 px-4 min-h-0 flex flex-col justify-center">
+    <div className="space-y-6 md:space-y-8 py-6 md:py-8 px-4 w-full h-full flex flex-col justify-center">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -408,7 +408,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
     const daysLeft = seasonData?.days_remaining || 28;
     
     return (
-      <div className="space-y-6 md:space-y-8 py-6 md:py-8 px-4 min-h-0 flex flex-col justify-center">
+      <div className="space-y-6 md:space-y-8 py-6 md:py-8 px-4 w-full h-full flex flex-col justify-center">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -571,7 +571,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
       </div>
 
       {/* Slide content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0" style={{ flex: '1 1 0%', minHeight: 0 }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentSlide}
@@ -581,9 +581,12 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
             animate="center"
             exit="exit"
             transition={slideTransition}
-            className="absolute inset-0"
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ minHeight: '100%' }}
           >
-            <CurrentSlide />
+            <div className="w-full h-full flex items-center justify-center">
+              <CurrentSlide />
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>
