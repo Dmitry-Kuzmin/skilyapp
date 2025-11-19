@@ -32,7 +32,6 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   useEffect(() => {
     // Only load widget when modal is open
     if (!open) {
-      console.log('[AuthModal] Modal not open, skipping widget');
       return;
     }
 
