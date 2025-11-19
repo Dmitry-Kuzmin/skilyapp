@@ -45,24 +45,37 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   useEffect(() => {
     if (open) {
       console.log('[DuelPassOnboarding] ✅ OPENED', { isMobile, currentSlide });
-      // Помогаем найти элемент в DOM и принудительно устанавливаем opacity
-      setTimeout(() => {
-        const dialogElement = document.querySelector('[data-duel-pass-onboarding="true"]') as HTMLElement;
-        if (dialogElement) {
-          console.log('[DuelPassOnboarding] ✅ Dialog element found in DOM:', dialogElement);
-          // Принудительно устанавливаем opacity: 1
-          dialogElement.style.setProperty('opacity', '1', 'important');
-          dialogElement.style.setProperty('visibility', 'visible', 'important');
-          console.log('[DuelPassOnboarding] Computed styles after fix:', {
-            zIndex: window.getComputedStyle(dialogElement).zIndex,
-            opacity: window.getComputedStyle(dialogElement).opacity,
-            visibility: window.getComputedStyle(dialogElement).visibility,
-            display: window.getComputedStyle(dialogElement).display,
-          });
-        } else {
-          console.error('[DuelPassOnboarding] ❌ Dialog element NOT found in DOM!');
-        }
-      }, 100);
+          // Помогаем найти элемент в DOM и принудительно устанавливаем opacity
+          setTimeout(() => {
+            const dialogElement = document.querySelector('[data-duel-pass-onboarding="true"]') as HTMLElement;
+            if (dialogElement) {
+              console.log('[DuelPassOnboarding] ✅ Dialog element found in DOM:', dialogElement);
+              // Принудительно устанавливаем opacity: 1
+              dialogElement.style.setProperty('opacity', '1', 'important');
+              dialogElement.style.setProperty('visibility', 'visible', 'important');
+              
+              // Проверяем контент внутри
+              const contentElement = dialogElement.querySelector('.relative.z-10') as HTMLElement;
+              if (contentElement) {
+                console.log('[DuelPassOnboarding] ✅ Content element found:', contentElement);
+                contentElement.style.setProperty('opacity', '1', 'important');
+                contentElement.style.setProperty('visibility', 'visible', 'important');
+              } else {
+                console.error('[DuelPassOnboarding] ❌ Content element NOT found!');
+              }
+              
+              console.log('[DuelPassOnboarding] Computed styles after fix:', {
+                zIndex: window.getComputedStyle(dialogElement).zIndex,
+                opacity: window.getComputedStyle(dialogElement).opacity,
+                visibility: window.getComputedStyle(dialogElement).visibility,
+                display: window.getComputedStyle(dialogElement).display,
+                width: window.getComputedStyle(dialogElement).width,
+                height: window.getComputedStyle(dialogElement).height,
+              });
+            } else {
+              console.error('[DuelPassOnboarding] ❌ Dialog element NOT found in DOM!');
+            }
+          }, 100);
     }
   }, [open, isMobile, currentSlide]);
 
@@ -729,8 +742,21 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
         <DialogDescription className="sr-only">{t("duelPass.onboarding.dialogDescription")}</DialogDescription>
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
-        <div className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px] pointer-events-auto" style={{ opacity: 1, visibility: 'visible' }}>
-          {content}
+        <div 
+          className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px] pointer-events-auto" 
+          style={{ 
+            opacity: 1, 
+            visibility: 'visible',
+            // Временная отладка - яркий фон для контента
+            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+            minHeight: '500px'
+          }}
+        >
+          {content ? (
+            content
+          ) : (
+            <div className="text-white p-4">Content is null or undefined!</div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
