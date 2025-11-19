@@ -70,7 +70,12 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               
               const computed = window.getComputedStyle(dialogElement);
               const rect = dialogElement.getBoundingClientRect();
-              console.log('[DuelPassOnboarding] Computed styles after fix:', {
+              const viewportHeight = window.innerHeight;
+              const viewportWidth = window.innerWidth;
+              const isVisible = rect.top >= 0 && rect.top < viewportHeight && rect.left >= 0 && rect.left < viewportWidth;
+              
+              console.log('[DuelPassOnboarding] ===== POSITIONING DEBUG =====');
+              console.log('[DuelPassOnboarding] Computed styles:', {
                 zIndex: computed.zIndex,
                 opacity: computed.opacity,
                 visibility: computed.visibility,
@@ -83,20 +88,29 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 position: computed.position,
               });
               console.log('[DuelPassOnboarding] Bounding rect:', {
-                x: rect.x,
-                y: rect.y,
-                width: rect.width,
-                height: rect.height,
-                top: rect.top,
-                left: rect.left,
-                right: rect.right,
-                bottom: rect.bottom,
-                visible: rect.width > 0 && rect.height > 0,
+                x: Math.round(rect.x),
+                y: Math.round(rect.y),
+                width: Math.round(rect.width),
+                height: Math.round(rect.height),
+                top: Math.round(rect.top),
+                left: Math.round(rect.left),
+                right: Math.round(rect.right),
+                bottom: Math.round(rect.bottom),
               });
               console.log('[DuelPassOnboarding] Viewport:', {
-                innerWidth: window.innerWidth,
-                innerHeight: window.innerHeight,
+                width: viewportWidth,
+                height: viewportHeight,
               });
+              console.log('[DuelPassOnboarding] Is visible in viewport:', isVisible);
+              console.log('[DuelPassOnboarding] Expected center:', {
+                centerX: Math.round(viewportWidth / 2),
+                centerY: Math.round(viewportHeight / 2),
+                actualX: Math.round(rect.left + rect.width / 2),
+                actualY: Math.round(rect.top + rect.height / 2),
+                offsetX: Math.round((rect.left + rect.width / 2) - viewportWidth / 2),
+                offsetY: Math.round((rect.top + rect.height / 2) - viewportHeight / 2),
+              });
+              console.log('[DuelPassOnboarding] ===============================');
             } else {
               console.error('[DuelPassOnboarding] ❌ Dialog element NOT found in DOM!');
             }
