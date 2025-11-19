@@ -93,10 +93,14 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 // Header и footer занимают примерно 100-120px вместе, используем адаптивный расчет
                 const headerFooterHeight = Math.min(120, maxHeight * 0.35); // Максимум 35% от высоты диалога или 120px
                 const contentMaxHeight = Math.max(250, maxHeight - headerFooterHeight - 20); // Минимум 250px для контента, -20px для отступов
-                contentWrapper.style.setProperty('min-height', '0', 'important'); // Убираем фиксированный min-height
+                // Устанавливаем высоту контента - используем всю доступную высоту диалога
+                const actualDialogHeight = dialogElement.getBoundingClientRect().height;
+                const actualContentHeight = Math.max(250, actualDialogHeight - headerFooterHeight - 20);
+                contentWrapper.style.setProperty('min-height', `${actualContentHeight}px`, 'important'); // Минимальная высота для контента
                 contentWrapper.style.setProperty('max-height', `${contentMaxHeight}px`, 'important');
+                contentWrapper.style.setProperty('height', 'auto', 'important'); // Автоматическая высота
                 contentWrapper.style.setProperty('overflow-y', 'auto', 'important');
-                contentWrapper.style.setProperty('flex', '1 1 auto', 'important'); // Позволяем flex сжиматься
+                contentWrapper.style.setProperty('flex', '1 1 auto', 'important'); // Позволяем flex расширяться
                 console.log('[DuelPassOnboarding] Content height set:', {
                   maxHeight: `${contentMaxHeight}px`,
                   dialogMaxHeight: `${maxHeight}px`,
@@ -850,10 +854,11 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
         <div 
-          className="relative z-10 w-full h-full flex flex-col overflow-hidden pointer-events-auto" 
+          className="relative z-10 w-full h-full flex flex-col pointer-events-auto" 
           style={{ 
             opacity: 1, 
-            visibility: 'visible'
+            visibility: 'visible',
+            minHeight: '100%'
           }}
         >
           {content ? (
