@@ -60,6 +60,8 @@ const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
+const Blog = lazy(() => import("./pages/Blog"));
+const Article = lazy(() => import("./pages/Article"));
 
 const queryClient = new QueryClient();
 
@@ -175,6 +177,8 @@ const App = () => {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/subscription-terms" element={<SubscriptionTerms />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<Article />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/success" element={<PaymentSuccess />} />
