@@ -133,7 +133,6 @@ const LearningMap = () => {
             title_ru,
             title_es,
             title_en,
-            code,
             order_index,
             type,
             content_id
@@ -836,12 +835,7 @@ async function buildStructuredCurriculumAsync(
     const leftoverSubtopics = topicSubtopics.filter((subtopic) => !matchedIds.has(subtopic.id));
     if (leftoverSubtopics.length > 0) {
       const additionalSection: StructuredCurriculumSection = {
-        title:
-          language === "es"
-            ? "Material adicional"
-            : language === "en"
-            ? "Additional material"
-            : "Дополнительные материалы",
+        title: t("learningMap.additionalMaterials"),
         items: leftoverSubtopics.map((subtopic) => {
           const localizedTitle =
             language === "es"
@@ -980,26 +974,9 @@ function buildStructuredCurriculum(
     if (dbTopic) {
       const canAccessTests = (progressMap.get(dbTopic.id)?.isUnlocked ?? true) || !progress;
 
-      const testsSectionTitle =
-        language === "es"
-          ? "Pruebas del módulo"
-          : language === "en"
-          ? "Module tests"
-          : "Тесты по модулю";
-
-      const trainingTestTitle =
-        language === "es"
-          ? "Test de entrenamiento por tema"
-          : language === "en"
-          ? "Training test by topic"
-          : "Тренировочный тест по теме";
-
-      const finalTestTitle =
-        language === "es"
-          ? "Test final del módulo"
-          : language === "en"
-          ? "Final module test"
-          : "Итоговый тест по модулю";
+      const testsSectionTitle = t("learningMap.tests.sectionTitle");
+      const trainingTestTitle = t("learningMap.tests.trainingTest");
+      const finalTestTitle = t("learningMap.tests.finalTest");
 
       const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
