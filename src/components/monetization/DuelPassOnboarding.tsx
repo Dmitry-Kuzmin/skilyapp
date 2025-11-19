@@ -86,10 +86,15 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               // Принудительно устанавливаем позицию относительно видимого окна
               const centerY = viewportHeight / 2;
               const centerX = viewportWidth / 2;
-              dialogElement.style.setProperty('top', `${centerY}px`, 'important');
-              dialogElement.style.setProperty('left', `${centerX}px`, 'important');
+              // Используем scrollY для учета прокрутки страницы
+              const scrollY = window.scrollY || window.pageYOffset || 0;
+              const scrollX = window.scrollX || window.pageXOffset || 0;
+              dialogElement.style.setProperty('top', `${centerY + scrollY}px`, 'important');
+              dialogElement.style.setProperty('left', `${centerX + scrollX}px`, 'important');
               dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
               dialogElement.style.setProperty('position', 'fixed', 'important');
+              // Убеждаемся, что элемент не скрыт
+              dialogElement.style.setProperty('pointer-events', 'auto', 'important');
               
               console.log('[DuelPassOnboarding] ===== POSITIONING DEBUG =====');
               console.log('[DuelPassOnboarding] Computed styles:', {
