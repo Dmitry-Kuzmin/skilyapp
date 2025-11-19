@@ -10,6 +10,7 @@ import {
   CurriculumMatrix,
   StructuredCurriculumTopic,
   StructuredCurriculumItem,
+  StructuredCurriculumSection,
   ItemStatus,
 } from "@/components/learning-map/CurriculumMatrix";
 import { Subtopic } from "@/utils/materialApi";
@@ -44,13 +45,30 @@ const LearningMap = () => {
   const [topics, setTopics] = useState<TopicWithSubtopics[]>([]);
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
   const [userProfile, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
+  const topicsCacheKey = useMemo(() => `learning_map_topics_${language}`, [language]);
 
   useEffect(() => {
     logLearningMap("[LearningMap] Loading map, language:", language);
-    setLoading(true);
-    loadLearningMap();
+    let usedCache = false;
+    if (typeof window !== "undefined") {
+      const cached = window.localStorage.getItem(topicsCacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached) as TopicWithSubtopics[];
+          if (parsed.length) {
+            setTopics(parsed);
+            setLoading(false);
+            usedCache = true;
+            logLearningMap("[LearningMap] Applied cached topics:", parsed.length);
+          }
+        } catch (error) {
+          console.warn("[LearningMap] Failed to parse cached topics:", error);
+        }
+      }
+    }
+    loadLearningMap({ silent: usedCache });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
+  }, [language, topicsCacheKey]);
 
   useEffect(() => {
     logLearningMap("[LearningMap] Topics effect triggered:", {
@@ -114,11 +132,14 @@ const LearningMap = () => {
     }
   };
 
-  const loadLearningMap = async () => {
+  const loadLearningMap = async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
     try {
       logLearningMap("[LearningMap] Starting to load topics from Supabase...");
       setError(null);
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       const { data: topicsData, error: topicsError } = await supabase
         .from("topics")
         .select("*, subtopics(*)")
@@ -134,7 +155,7 @@ const LearningMap = () => {
 
       if (topicsError) throw topicsError;
 
-      const topicsList: Topic[] = (topicsData || []).map((t: any) => ({
+      const topicsList: TopicWithSubtopics[] = (topicsData || []).map((t: any) => ({
         id: t.id,
         number: t.number,
         order_index: t.order_index || t.number,
@@ -158,10 +179,17 @@ const LearningMap = () => {
         subtopics: (t.subtopics || []).sort(
           (a: Subtopic, b: Subtopic) => (a.order_index || 0) - (b.order_index || 0)
         ),
-      })) as TopicWithSubtopics[];
+      }));
 
       logLearningMap("[LearningMap] Topics processed:", topicsList.length);
       setTopics(topicsList);
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage.setItem(topicsCacheKey, JSON.stringify(topicsList));
+        } catch (error) {
+          console.warn("[LearningMap] Failed to cache topics:", error);
+        }
+      }
       setLoading(false);
       logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
@@ -195,14 +223,12 @@ const LearningMap = () => {
         return;
       }
 
-      const topicIds = topics.map(t => t.id);
-      const { data: progressData, error: progressError } = await (supabase.rpc(
-        'get_user_topics_progress_batch',
-        {
+      const topicIds = topics.map((t) => t.id);
+      const { data: progressData, error: progressError } = await (supabase as any)
+        .rpc("get_user_topics_progress_batch", {
           p_user_id: profileId,
-          p_topic_ids: topicIds
-        }
-      ) as any) as { data: any[] | null; error: any };
+          p_topic_ids: topicIds,
+        });
 
       if (progressError) {
         console.error("[LearningMap] Error loading progress batch:", progressError);
@@ -240,9 +266,19 @@ const LearningMap = () => {
         return;
       }
 
+      const typedProgressData =
+        (progressData as {
+          topic_id: string;
+          completed: boolean;
+          progress_percent: number;
+          completed_subtopic_count: number;
+          total_subtopic_count: number;
+          is_unlocked: boolean;
+        }[] | null) ?? null;
+
       const progressMap = new Map<string, TopicProgress>();
-      if (progressData && progressData.length > 0) {
-        progressData.forEach((row: any) => {
+      if (typedProgressData && typedProgressData.length > 0) {
+        typedProgressData.forEach((row) => {
           progressMap.set(row.topic_id, {
             completed: row.completed || false,
             progressPercent: Number(row.progress_percent) || 0,
@@ -341,6 +377,15 @@ const LearningMap = () => {
     return { total, completed };
   }, [topics, topicsProgress]);
 
+  const globalProgressPercent = Math.round(globalProgress);
+  const clampedGlobalPercent = Math.min(Math.max(globalProgressPercent, 0), 100);
+  const topicsCompletionPercent =
+    topics.length > 0 ? Math.min((completedTopicsCount / topics.length) * 100, 100) : 0;
+  const subtopicsPercent =
+    totalSubtopics.total > 0 ? Math.min((totalSubtopics.completed / totalSubtopics.total) * 100, 100) : 0;
+  const subtopicsSummary =
+    totalSubtopics.total > 0 ? `${totalSubtopics.completed}/${totalSubtopics.total}` : "0/0";
+
   const nextAction = useMemo(() => {
     for (const topic of structuredCurriculum) {
       for (const section of topic.sections) {
@@ -381,24 +426,6 @@ const LearningMap = () => {
       ? "Choose any available module"
       : "Перейдите к первому доступному модулю";
   }, [nextAction, structuredCurriculum, isEs, isEn]);
-
-  const heroStats = [
-    {
-      label: isEs ? "Progreso total" : isEn ? "Overall progress" : "Общий прогресс",
-      value: `${Math.round(globalProgress)}%`,
-    },
-    {
-      label: isEs ? "Temas completados" : isEn ? "Completed topics" : "Тем завершено",
-      value: `${completedTopicsCount}/${topics.length}`,
-    },
-    {
-      label: isEs ? "Subtemas" : isEn ? "Subtopics" : "Подтемы",
-      value:
-        totalSubtopics.total > 0
-          ? `${totalSubtopics.completed}/${totalSubtopics.total}`
-          : "0/0",
-    },
-  ];
 
   logLearningMap("[LearningMap] Render state:", {
     loading,
@@ -485,20 +512,71 @@ const LearningMap = () => {
                 </p>
               </div>
 
-              <div className="w-full md:max-w-md lg:max-w-lg space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {heroStats.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="rounded-2xl bg-card border border-border px-4 py-3 flex flex-col gap-1"
-                    >
-                      <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="text-lg font-semibold text-foreground">{stat.value}</p>
+              <div className="w-full md:max-w-2xl space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-border bg-card px-4 py-5 flex items-center gap-4 shadow-sm">
+                    <div className="relative w-20 h-20">
+                      <div
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: `conic-gradient(#38bdf8 ${clampedGlobalPercent}%, rgba(148,163,184,0.2) ${clampedGlobalPercent}% 100%)`,
+                        }}
+                      />
+                      <div className="absolute inset-[6px] rounded-full bg-background border border-white/30 dark:border-white/10" />
+                      <div className="relative z-10 flex items-center justify-center h-full text-2xl font-semibold text-foreground">
+                        {globalProgressPercent}%
+                      </div>
                     </div>
-                  ))}
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                        {isEs ? "Progreso total" : isEn ? "Overall progress" : "Общий прогресс"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {isEs
+                          ? `Promedio por ${topics.length || 0} temas`
+                          : isEn
+                          ? `Average across ${topics.length || 0} topics`
+                          : `Среднее по ${topics.length || 0} темам`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                          {isEs ? "Temas completados" : isEn ? "Completed topics" : "Тем завершено"}
+                        </p>
+                        <p className="text-lg font-semibold text-foreground">
+                          {Math.round(topicsCompletionPercent)}%
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
+                        {completedTopicsCount}
+                        <span className="text-muted-foreground">/ {topics.length || 0}</span>
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-all"
+                        style={{ width: `${topicsCompletionPercent}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                      <span>{isEs ? "Subtemas" : isEn ? "Subtopics" : "Подтемы"}</span>
+                      <span className="text-muted-foreground tracking-normal font-semibold">
+                        {subtopicsSummary}
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-secondary transition-all"
+                        style={{ width: `${subtopicsPercent}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
+
                 <Button
                   size="lg"
                   className="w-full rounded-2xl justify-between gap-4 py-4"
@@ -638,54 +716,58 @@ async function buildStructuredCurriculumAsync(
 
     const matchedIds = new Set<string>();
 
-    const sections = await Promise.all(topicBlueprint.sections.map(async (section) => ({
-      title:
-        language === "es"
-          ? section.title_es || section.title
-          : language === "en"
-          ? section.title_en || section.title
-          : section.title,
-      items: await Promise.all(section.items.map(async (item) => {
-        const matched = findMatchingSubtopic(
-          item.title,
-          item.code,
-          topicSubtopics,
-          normalizedMap
-        );
-        if (matched) {
-          matchedIds.add(matched.id);
-        }
-        
-        // Проверяем наличие статического материала, если подтема не найдена в БД
-        let status: ItemStatus = matched ? statusById.get(matched.id) ?? "locked" : "placeholder";
-        
-        if (!matched && item.code && topicBlueprint.number) {
-          const hasStatic = await hasStaticMaterial(topicBlueprint.number, item.code);
-          if (hasStatic) {
-            status = "active"; // Статический материал доступен
-          }
-        }
+    const sections: StructuredCurriculumSection[] = await Promise.all(
+      topicBlueprint.sections.map(async (section) => ({
+        title:
+          language === "es"
+            ? section.title_es || section.title
+            : language === "en"
+            ? section.title_en || section.title
+            : section.title,
+        items: await Promise.all(
+          section.items.map(async (item) => {
+            const matched = findMatchingSubtopic(
+              item.title,
+              item.code,
+              topicSubtopics,
+              normalizedMap
+            );
+            if (matched) {
+              matchedIds.add(matched.id);
+            }
 
-        const localizedTitle =
-          matched && language === "es"
-            ? matched.title_es || matched.title_ru || item.title
-            : matched && language === "en"
-            ? matched.title_en || matched.title_ru || item.title
-            : matched?.title_ru || item.title;
+            // Проверяем наличие статического материала, если подтема не найдена в БД
+            let status: ItemStatus = matched ? statusById.get(matched.id) ?? "locked" : "placeholder";
 
-        return {
-          ...item,
-          title: localizedTitle,
-          subtopicId: matched?.id,
-          status,
-          kind: "subtopic" as const,
-        };
-      })),
-    })));
+            if (!matched && item.code && topicBlueprint.number) {
+              const hasStatic = await hasStaticMaterial(topicBlueprint.number, item.code);
+              if (hasStatic) {
+                status = "active"; // Статический материал доступен
+              }
+            }
+
+            const localizedTitle =
+              matched && language === "es"
+                ? matched.title_es || matched.title_ru || item.title
+                : matched && language === "en"
+                ? matched.title_en || matched.title_ru || item.title
+                : matched?.title_ru || item.title;
+
+            return {
+              ...item,
+              title: localizedTitle,
+              subtopicId: matched?.id,
+              status,
+              kind: "subtopic" as const,
+            };
+          })
+        ),
+      }))
+    );
 
     const leftoverSubtopics = topicSubtopics.filter((subtopic) => !matchedIds.has(subtopic.id));
     if (leftoverSubtopics.length > 0) {
-      sections.push({
+      const additionalSection: StructuredCurriculumSection = {
         title:
           language === "es"
             ? "Material adicional"
@@ -707,7 +789,8 @@ async function buildStructuredCurriculumAsync(
             kind: "subtopic" as const,
           };
         }),
-      });
+      };
+      sections.push(additionalSection);
     }
 
     // Добавляем секцию с тестами по модулю, если тема существует в базе
@@ -735,7 +818,7 @@ async function buildStructuredCurriculumAsync(
           ? "Final module test"
           : "Итоговый тест по модулю";
 
-      sections.push({
+      const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
         items: [
           {
@@ -753,7 +836,8 @@ async function buildStructuredCurriculumAsync(
             kind: "final_test" as const,
           },
         ] as StructuredCurriculumItem[],
-      });
+      };
+      sections.push(testsSection);
     }
 
     return {
@@ -805,7 +889,7 @@ function buildStructuredCurriculum(
 
     const matchedIds = new Set<string>();
 
-    const sections = topicBlueprint.sections.map((section) => ({
+    const sections: StructuredCurriculumSection[] = topicBlueprint.sections.map((section) => ({
       title:
         language === "es"
           ? section.title_es || section.title
@@ -866,7 +950,7 @@ function buildStructuredCurriculum(
           ? "Final module test"
           : "Итоговый тест по модулю";
 
-      sections.push({
+      const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
         items: [
           {
@@ -884,7 +968,8 @@ function buildStructuredCurriculum(
             kind: "final_test" as const,
           },
         ] as StructuredCurriculumItem[],
-      });
+      };
+      sections.push(testsSection);
     }
 
     const localizedTopicTitle =
