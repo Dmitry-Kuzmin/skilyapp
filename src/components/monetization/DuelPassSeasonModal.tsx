@@ -981,11 +981,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <SheetContent 
                 side="bottom" 
                 className="max-h-[90vh] overflow-hidden flex flex-col p-0"
+                hideCloseButton
               >
+                <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
+                <SheetDescription className="sr-only">Loading Duel Pass Season information</SheetDescription>
                 <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
                   <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
                 </div>
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 min-h-0 overflow-y-auto">
                   <SkeletonContent />
                 </div>
               </SheetContent>
@@ -1907,12 +1910,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           <SheetContent 
             side="bottom" 
             className="max-h-[90vh] overflow-hidden flex flex-col p-0"
+            hideCloseButton
           >
+            <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
+            <SheetDescription className="sr-only">Duel Pass Season information and rewards</SheetDescription>
             {/* Handle для свайпа */}
             <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
               <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               <ModalContent />
             </div>
           </SheetContent>
