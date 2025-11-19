@@ -64,13 +64,34 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 console.error('[DuelPassOnboarding] ❌ Content element NOT found!');
               }
               
+              const computed = window.getComputedStyle(dialogElement);
+              const rect = dialogElement.getBoundingClientRect();
               console.log('[DuelPassOnboarding] Computed styles after fix:', {
-                zIndex: window.getComputedStyle(dialogElement).zIndex,
-                opacity: window.getComputedStyle(dialogElement).opacity,
-                visibility: window.getComputedStyle(dialogElement).visibility,
-                display: window.getComputedStyle(dialogElement).display,
-                width: window.getComputedStyle(dialogElement).width,
-                height: window.getComputedStyle(dialogElement).height,
+                zIndex: computed.zIndex,
+                opacity: computed.opacity,
+                visibility: computed.visibility,
+                display: computed.display,
+                width: computed.width,
+                height: computed.height,
+                left: computed.left,
+                top: computed.top,
+                transform: computed.transform,
+                position: computed.position,
+              });
+              console.log('[DuelPassOnboarding] Bounding rect:', {
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height,
+                top: rect.top,
+                left: rect.left,
+                right: rect.right,
+                bottom: rect.bottom,
+                visible: rect.width > 0 && rect.height > 0,
+              });
+              console.log('[DuelPassOnboarding] Viewport:', {
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight,
               });
             } else {
               console.error('[DuelPassOnboarding] ❌ Dialog element NOT found in DOM!');
