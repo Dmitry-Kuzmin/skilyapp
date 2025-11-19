@@ -980,7 +980,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <Sheet open={open} onOpenChange={onOpenChange}>
               <SheetContent 
                 side="bottom" 
-                className="max-h-[90vh] overflow-hidden flex flex-col p-0"
+                className="h-[80vh] max-h-[80vh] overflow-hidden flex flex-col p-0"
                 hideCloseButton
               >
                 <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
@@ -1909,7 +1909,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent 
             side="bottom" 
-            className="max-h-[90vh] overflow-hidden flex flex-col p-0"
+            className="h-[80vh] max-h-[80vh] overflow-hidden flex flex-col p-0"
             hideCloseButton
           >
             <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
