@@ -69,12 +69,15 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               // Для fixed позиции используем видимую область экрана
               const centerY = viewportHeight / 2;
               const centerX = viewportWidth / 2;
-              dialogElement.style.setProperty('top', `${centerY}px`, 'important');
-              dialogElement.style.setProperty('left', `${centerX}px`, 'important');
-              dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-              dialogElement.style.setProperty('position', 'fixed', 'important');
-              // Убеждаемся, что элемент не скрыт
-              dialogElement.style.setProperty('pointer-events', 'auto', 'important');
+              // Используем requestAnimationFrame для гарантированного применения стилей
+              requestAnimationFrame(() => {
+                dialogElement.style.setProperty('top', `${centerY}px`, 'important');
+                dialogElement.style.setProperty('left', `${centerX}px`, 'important');
+                dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+                dialogElement.style.setProperty('position', 'fixed', 'important');
+                // Убеждаемся, что элемент не скрыт
+                dialogElement.style.setProperty('pointer-events', 'auto', 'important');
+              });
               
               // Устанавливаем адаптивную высоту модалки
               const maxHeight = Math.min(viewportHeight * 0.9, viewportHeight - 32); // 90vh или viewport - 2rem
