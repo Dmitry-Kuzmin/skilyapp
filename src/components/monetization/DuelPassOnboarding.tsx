@@ -86,6 +86,20 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               // Убеждаемся, что элемент не скрыт
               dialogElement.style.setProperty('pointer-events', 'auto', 'important');
               
+              // Устанавливаем адаптивную высоту модалки
+              const maxHeight = Math.min(viewportHeight * 0.9, viewportHeight - 32); // 90vh или viewport - 2rem
+              dialogElement.style.setProperty('max-height', `${maxHeight}px`, 'important');
+              dialogElement.style.setProperty('height', 'auto', 'important');
+              
+              // Устанавливаем адаптивную высоту для контента
+              const contentElement = dialogElement.querySelector('.relative.z-10') as HTMLElement;
+              if (contentElement) {
+                const contentMaxHeight = Math.min(500, viewportHeight - 64); // min(500px, viewport - 4rem)
+                contentElement.style.setProperty('min-height', `${contentMaxHeight}px`, 'important');
+                contentElement.style.setProperty('max-height', `${viewportHeight - 64}px`, 'important');
+                contentElement.style.setProperty('overflow-y', 'auto', 'important');
+              }
+              
               // Проверяем overlay - он не должен перекрывать диалог
               const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
               if (overlay) {
