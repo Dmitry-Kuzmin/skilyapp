@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, BookOpen, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
@@ -42,7 +43,6 @@ const LearningMap = () => {
   const [error, setError] = useState<string | null>(null);
   const [topics, setTopics] = useState<TopicWithSubtopics[]>([]);
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
-  const [, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
   const topicsCacheKey = useMemo(() => `learning_map_topics_${language}`, [language]);
 
   useEffect(() => {
@@ -80,9 +80,9 @@ const LearningMap = () => {
     }
 
     if (isAuthenticated && profileId) {
-      logLearningMap("[LearningMap] Loading user profile and progress...");
-      Promise.all([loadUserProfile(), loadProgress()]).catch((error) => {
-        console.error("[LearningMap] Error loading data:", error);
+      logLearningMap("[LearningMap] Loading progress for authenticated user...");
+      loadProgress().catch((error) => {
+        console.error("[LearningMap] Error loading progress:", error);
       });
     } else {
       logLearningMap("[LearningMap] Not authenticated, setting default progress");
@@ -103,33 +103,6 @@ const LearningMap = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topics.length, isAuthenticated, profileId]);
 
-  const loadUserProfile = async () => {
-    if (!profileId) return;
-
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('rank, xp, streak_days')
-        .eq('id', profileId)
-        .single();
-
-      if (error) {
-        console.error('[LearningMap] Error loading user profile:', error);
-        return;
-      }
-
-      if (profile) {
-        setUserProfile({
-          rank: (profile as any).rank || undefined,
-          xp: (profile as any).xp || 0,
-          streak: (profile as any).streak_days || 0,
-        });
-      }
-    } catch (error) {
-      console.error('[LearningMap] Error loading user profile:', error);
-    }
-  };
-
   const loadLearningMap = async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
     try {
@@ -140,7 +113,32 @@ const LearningMap = () => {
       }
       const { data: topicsData, error: topicsError } = await supabase
         .from("topics")
-        .select("*, subtopics(*)")
+        .select(`
+          id,
+          number,
+          order_index,
+          title_ru,
+          title_es,
+          title_en,
+          description_ru,
+          description_es,
+          description_en,
+          cover_image,
+          is_premium,
+          gradient_from,
+          gradient_to,
+          unlock_condition,
+          subtopics (
+            id,
+            title_ru,
+            title_es,
+            title_en,
+            code,
+            order_index,
+            type,
+            content_id
+          )
+        `)
         .order("order_index", { ascending: true })
         .limit(50);
 
@@ -429,19 +427,8 @@ const LearningMap = () => {
   });
 
   if (loading) {
-    logLearningMap("[LearningMap] Rendering loading state");
-    return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-            <p className="text-muted-foreground">
-              {t("learningMap.loading")}
-            </p>
-          </div>
-        </div>
-      </Layout>
-    );
+    logLearningMap("[LearningMap] Rendering skeleton state");
+    return <LearningMapSkeleton />;
   }
 
   if (error) {
@@ -611,6 +598,117 @@ const LearningMap = () => {
 
 export default LearningMap;
 
+const LearningMapSkeleton = () => {
+  const modulePlaceholders = Array.from({ length: 3 });
+  return (
+    <Layout>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8">
+          <section className="flex flex-col gap-6 lg:gap-8">
+            <div className="space-y-3 md:max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
+                <Skeleton className="h-4 w-40 rounded-full" />
+              </div>
+              <Skeleton className="h-10 w-56 rounded-lg" />
+              <Skeleton className="h-4 w-full md:w-4/5 rounded-full" />
+            </div>
+
+            <div className="w-full md:max-w-2xl space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-border bg-card px-4 py-5 flex items-center gap-4 shadow-sm">
+                  <Skeleton className="h-20 w-20 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32 rounded-full" />
+                    <Skeleton className="h-3 w-40 rounded-full" />
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <Skeleton className="h-4 w-28 rounded-full" />
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+                  <Skeleton className="h-2 w-full rounded-full" />
+                  <div className="flex items-center justify-between gap-3">
+                    <Skeleton className="h-4 w-32 rounded-full" />
+                    <Skeleton className="h-4 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-2 w-full rounded-full" />
+                </div>
+              </div>
+
+              <Skeleton className="h-14 w-full rounded-2xl" />
+            </div>
+          </section>
+
+          <div className="space-y-4">
+            {modulePlaceholders.map((_, index) => (
+              <ModuleCardSkeleton key={index} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+const ModuleCardSkeleton = () => {
+  const sections = Array.from({ length: 2 });
+  return (
+    <div className="rounded-2xl border border-border bg-card/70 px-3 py-4 sm:px-5 sm:py-5 space-y-4 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex-1 space-y-3">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-10 rounded-xl" />
+            <div className="space-y-2 flex-1">
+              <Skeleton className="h-3 w-20 rounded-full" />
+              <Skeleton className="h-4 w-48 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-full rounded-full" />
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/60 px-3 py-2 w-full sm:w-auto">
+            <Skeleton className="h-9 w-9 rounded-full" />
+            <div className="space-y-2 flex-1 min-w-[100px]">
+              <Skeleton className="h-3 w-16 rounded-full" />
+              <Skeleton className="h-4 w-20 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-full sm:w-32 rounded-xl" />
+          <Skeleton className="h-10 w-10 rounded-full sm:h-10 sm:w-10" />
+        </div>
+      </div>
+      <div className="space-y-3">
+        {sections.map((_, sectionIndex) => (
+          <div
+            key={sectionIndex}
+            className="rounded-xl border border-border bg-muted/40 p-3 space-y-3"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-3 w-24 rounded-full" />
+                <Skeleton className="h-4 w-40 rounded-full" />
+              </div>
+              <Skeleton className="h-4 w-8 rounded-full" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {Array.from({ length: 3 }).map((__, itemIndex) => (
+                <div
+                  key={itemIndex}
+                  className="rounded-lg border border-border bg-background/70 p-3 space-y-2"
+                >
+                  <Skeleton className="h-3 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-full rounded-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 function normalizeTitle(title: string): string {
   return title
     .toLowerCase()
@@ -767,26 +865,9 @@ async function buildStructuredCurriculumAsync(
     if (dbTopic) {
       const canAccessTests = (progressMap.get(dbTopic.id)?.isUnlocked ?? true) || !progress;
 
-      const testsSectionTitle =
-        language === "es"
-          ? "Pruebas del módulo"
-          : language === "en"
-          ? "Module tests"
-          : "Тесты по модулю";
-
-      const trainingTestTitle =
-        language === "es"
-          ? "Test de entrenamiento por tema"
-          : language === "en"
-          ? "Training test by topic"
-          : "Тренировочный тест по теме";
-
-      const finalTestTitle =
-        language === "es"
-          ? "Test final del módulo"
-          : language === "en"
-          ? "Final module test"
-          : "Итоговый тест по модулю";
+    const testsSectionTitle = t("learningMap.tests.sectionTitle");
+    const trainingTestTitle = t("learningMap.tests.trainingTest");
+    const finalTestTitle = t("learningMap.tests.finalTest");
 
       const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
