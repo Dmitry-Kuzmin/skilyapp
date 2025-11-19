@@ -258,6 +258,37 @@ export function getQuietModeKeyboard(statusLabel?: string | null): InlineKeyboar
 }
 
 // =====================================================
+// Экспресс-тесты
+// =====================================================
+export function getExpressOptionsKeyboard(
+  sessionCode: string,
+  options: Array<{ label: string; index: number }>
+): InlineKeyboardMarkup {
+  return {
+    inline_keyboard: options.map((opt) => ([
+      {
+        text: `${opt.label}`,
+        callback_data: `express_answer_${sessionCode}_${opt.index}`
+      }
+    ]))
+  };
+}
+
+export function getExpressSummaryKeyboard(sessionCode: string): InlineKeyboardMarkup {
+  return {
+    inline_keyboard: [
+      [
+        { text: '🔁 Пройти ещё', callback_data: `express_restart_${sessionCode}` },
+        { text: '🚀 Открыть Skilyapp', web_app: { url: MINI_APP_URL } }
+      ],
+      [
+        { text: '« Главное меню', callback_data: 'main_menu' }
+      ]
+    ]
+  };
+}
+
+// =====================================================
 // Темы для советов
 // =====================================================
 type TipTopic = {

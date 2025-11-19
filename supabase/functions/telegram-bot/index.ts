@@ -20,6 +20,9 @@ const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const EXPRESS_QUESTION_LIMIT = 3;
+const EXPRESS_DAILY_LIMIT = 3;
+const EXPRESS_OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 
 console.log('[Telegram Bot] Starting webhook handler...');
 
@@ -105,6 +108,9 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
         break;
       case 'streak':
         await commands.handleStreak(message, supabase);
+        break;
+      case 'express':
+        await startExpressTestFlow(message.chat.id, user.id, supabase);
         break;
       case 'help':
         await commands.handleHelp(message);
@@ -264,6 +270,16 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
       if (topicSlug && tipId) {
         await showNextTip(message.chat.id, message.message_id, user.id, topicSlug, tipId, supabase);
       }
+    }
+    else if (data.startsWith('express_answer_')) {
+      const parts = data.split('_');
+      const sessionCode = parts[2];
+      const optionIndex = Number(parts[3]);
+      await handleExpressAnswer(query, sessionCode, optionIndex, supabase);
+    }
+    else if (data.startsWith('express_restart_')) {
+      const sessionCode = data.split('_')[2];
+      await startExpressTestFlow(message.chat.id, user.id, supabase, { restartFrom: sessionCode });
     }
     else {
       await answerCallbackQuery({
@@ -734,6 +750,495 @@ async function upsertNotificationSettings(
     }, {
       onConflict: 'user_id'
     });
+}
+
+// =====================================================
+// Экспресс-тесты
+// =====================================================
+
+type ExpressQuestionSnapshot = {
+  index: number;
+  question_id: string;
+  text: string;
+  topic?: string | null;
+  explanation?: string | null;
+  options: Array<{
+    index: number;
+    label: string;
+    text: string;
+    is_correct: boolean;
+  }>;
+};
+
+type ExpressSession = {
+  id: string;
+  session_code: string;
+  user_id: string;
+  telegram_id: number;
+  status: string;
+  question_snapshots: ExpressQuestionSnapshot[];
+  answers: any[];
+  current_index: number;
+  total_questions: number;
+  correct_count: number;
+  language_code?: string;
+};
+
+async function startExpressTestFlow(
+  chatId: number,
+  telegramId: number,
+  supabase: any,
+  options: { restartFrom?: string } = {}
+): Promise<void> {
+  const profile = await getProfileByTelegramId(telegramId, supabase);
+
+  if (!profile) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: '⚠️ Чтобы пройти экспресс-тест, сначала привяжи аккаунт в приложении (профиль → Telegram).'
+    });
+    return;
+  }
+
+  const dailyCount = await getExpressDailyCount(profile.id, supabase);
+  if (dailyCount >= EXPRESS_DAILY_LIMIT) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: `⚡️ Ты уже прошёл ${EXPRESS_DAILY_LIMIT} экспресс-тест(а) сегодня. Завтра подготовлю новые вопросы!`,
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  const session = await createExpressSession(profile, supabase);
+
+  if (!session) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: 'Не нашёл подходящих вопросов для мини-теста. Попробуй позже — я обновлю подборку.',
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  const intro = options.restartFrom
+    ? '🔁 Новый экспресс-тест готов!'
+    : '⚡️ Экспресс-тест: 3 ключевых вопроса. Отвечай прямо здесь.';
+
+  await commands.sendMessage({
+    chat_id: chatId,
+    text: intro
+  });
+
+  await sendExpressQuestion(chatId, session, 0);
+}
+
+async function handleExpressAnswer(
+  query: TelegramCallbackQuery,
+  sessionCode: string,
+  optionIndex: number,
+  supabase: any
+): Promise<void> {
+  const message = query.message;
+  if (!message) return;
+
+  const chatId = message.chat.id;
+  const messageId = message.message_id;
+  const user = query.from;
+
+  const session = await loadExpressSession(sessionCode, supabase);
+
+  if (!session || session.telegram_id !== user.id) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text: 'Сессия недоступна или устарела. Запусти новый экспресс-тест командой /express.',
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  if (session.status !== 'active') {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text: 'Эта часть теста уже завершена. Нажми «Пройти ещё», чтобы запустить новый сет вопросов.',
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  if (typeof optionIndex !== 'number' || Number.isNaN(optionIndex)) {
+    return;
+  }
+
+  const question = session.question_snapshots[session.current_index];
+  if (!question) {
+    return;
+  }
+
+  const selectedOption = question.options.find((opt) => opt.index === optionIndex);
+  if (!selectedOption) {
+    return;
+  }
+
+  const correctOption = question.options.find((opt) => opt.is_correct);
+  const isCorrect = selectedOption.is_correct;
+  const nextIndex = session.current_index + 1;
+  const isFinished = nextIndex >= session.total_questions;
+
+  const updatedAnswers = [
+    ...(session.answers || []),
+    {
+      question_index: session.current_index,
+      selected_index: optionIndex,
+      is_correct: isCorrect,
+      answered_at: new Date().toISOString()
+    }
+  ];
+
+  await supabase
+    .from('bot_express_sessions')
+    .update({
+      answers: updatedAnswers,
+      correct_count: session.correct_count + (isCorrect ? 1 : 0),
+      current_index: nextIndex,
+      status: isFinished ? 'completed' : 'active',
+      completed_at: isFinished ? new Date().toISOString() : null
+    })
+    .eq('id', session.id);
+
+  const reviewText = formatExpressAnswerText(
+    question,
+    selectedOption,
+    correctOption,
+    isCorrect,
+    session.current_index + 1,
+    session.total_questions
+  );
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: reviewText,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getBackToMenuKeyboard()
+  });
+
+  const updatedSession: ExpressSession = {
+    ...session,
+    current_index: nextIndex,
+    correct_count: session.correct_count + (isCorrect ? 1 : 0),
+    answers: updatedAnswers,
+    status: isFinished ? 'completed' : 'active'
+  };
+
+  if (isFinished) {
+    await sendExpressSummary(chatId, updatedSession);
+  } else {
+    await sendExpressQuestion(chatId, updatedSession, nextIndex);
+  }
+}
+
+async function sendExpressQuestion(
+  chatId: number,
+  session: ExpressSession,
+  questionIndex: number
+): Promise<void> {
+  const question = session.question_snapshots[questionIndex];
+  if (!question) return;
+
+  const text = formatExpressQuestionText(question, questionIndex + 1, session.total_questions);
+  const keyboard = keyboards.getExpressOptionsKeyboard(
+    session.session_code,
+    question.options.map((opt) => ({
+      label: `${opt.label}`,
+      index: opt.index
+    }))
+  );
+
+  await commands.sendMessage({
+    chat_id: chatId,
+    text,
+    parse_mode: 'HTML',
+    reply_markup: keyboard
+  });
+}
+
+async function sendExpressSummary(chatId: number, session: ExpressSession): Promise<void> {
+  const accuracy = Math.round((session.correct_count / session.total_questions) * 100);
+  const summaryText = `
+⚡️ <b>Экспресс-тест завершён</b>
+
+Правильных ответов: <b>${session.correct_count}/${session.total_questions}</b>
+Точность: <b>${accuracy}%</b>
+
+Разбор вопросов уже лежит в Challenge Bank™. Хочешь ещё раунд — жми «Пройти ещё».
+`.trim();
+
+  await commands.sendMessage({
+    chat_id: chatId,
+    text: summaryText,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getExpressSummaryKeyboard(session.session_code)
+  });
+}
+
+function formatExpressQuestionText(
+  question: ExpressQuestionSnapshot,
+  index: number,
+  total: number
+): string {
+  const header = `⚡️ Вопрос ${index}/${total}`;
+  const topicLine = question.topic ? `\n<b>${escapeHtml(question.topic)}</b>` : '';
+  const body = `\n\n${escapeHtml(question.text)}`;
+  const optionsText = question.options
+    .map((opt) => `<b>${opt.label}.</b> ${escapeHtml(opt.text)}`)
+    .join('\n');
+
+  return `${header}${topicLine}${body}\n\n${optionsText}`;
+}
+
+function formatExpressAnswerText(
+  question: ExpressQuestionSnapshot,
+  selected: { label: string; text: string; is_correct: boolean },
+  correct: { label: string; text: string } | undefined,
+  isCorrect: boolean,
+  index: number,
+  total: number
+): string {
+  const icon = isCorrect ? '✅' : '❌';
+  const status = isCorrect ? 'Верно!' : 'Неверно';
+  const correctLine = correct
+    ? `<b>Правильный ответ:</b> ${escapeHtml(correct.label)}. ${escapeHtml(correct.text)}`
+    : '';
+
+  const yourAnswer = `<b>Твой ответ:</b> ${escapeHtml(selected.label)}. ${escapeHtml(selected.text)}`;
+
+  return `${icon} <b>${status}</b> (${index}/${total})\n\n${escapeHtml(question.text)}\n\n${yourAnswer}\n${correctLine}`;
+}
+
+async function createExpressSession(profile: any, supabase: any): Promise<ExpressSession | null> {
+  const language = profile?.language_code || 'ru';
+  const snapshots = await pickExpressQuestionSnapshots(profile.id, language, supabase);
+
+  if (snapshots.length === 0) {
+    return null;
+  }
+
+  const sessionCode = await generateSessionCode(supabase);
+
+  const { data, error } = await supabase
+    .from('bot_express_sessions')
+    .insert({
+      session_code: sessionCode,
+      user_id: profile.id,
+      telegram_id: profile.telegram_id,
+      language_code: language,
+      question_snapshots: snapshots,
+      total_questions: snapshots.length
+    })
+    .select('*')
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error('[Express Test] Failed to create session:', error);
+    return null;
+  }
+
+  return data as ExpressSession;
+}
+
+async function pickExpressQuestionSnapshots(
+  userId: string,
+  language: string,
+  supabase: any
+): Promise<ExpressQuestionSnapshot[]> {
+  const snapshots: ExpressQuestionSnapshot[] = [];
+
+  const { data: challengeData } = await supabase
+    .from('user_challenge_questions')
+    .select(`
+      question_id,
+      questions_new!inner (
+        id,
+        question_ru,
+        question_es,
+        question_en,
+        explanation_ru,
+        explanation_es,
+        explanation_en,
+        image_url,
+        topics (title_ru, title_es),
+        answer_options (*)
+      )
+    `)
+    .eq('user_id', userId)
+    .eq('mastered', false)
+    .order('last_wrong_at', { ascending: false })
+    .limit(EXPRESS_QUESTION_LIMIT * 3);
+
+  const challengeQuestions = (challengeData || [])
+    .map((row: any) => row.questions_new)
+    .filter(Boolean)
+    .map((question: any) => buildQuestionSnapshot(question, language))
+    .filter((snap): snap is ExpressQuestionSnapshot => !!snap);
+
+  snapshots.push(...challengeQuestions.slice(0, EXPRESS_QUESTION_LIMIT));
+
+  if (snapshots.length < EXPRESS_QUESTION_LIMIT) {
+    const { data: fallbackData } = await supabase
+      .from('questions_new')
+      .select(`
+        id,
+        question_ru,
+        question_es,
+        question_en,
+        explanation_ru,
+        explanation_es,
+        explanation_en,
+        image_url,
+        topics (title_ru, title_es),
+        answer_options (*)
+      `)
+      .limit(50);
+
+    const fallback = shuffle(fallbackData || [])
+      .map((question: any) => buildQuestionSnapshot(question, language))
+      .filter((snap): snap is ExpressQuestionSnapshot => !!snap);
+
+    for (const snap of fallback) {
+      if (!snapshots.find((item) => item.question_id === snap.question_id)) {
+        snapshots.push(snap);
+      }
+      if (snapshots.length >= EXPRESS_QUESTION_LIMIT) break;
+    }
+  }
+
+  return snapshots
+    .slice(0, EXPRESS_QUESTION_LIMIT)
+    .map((snap, idx) => ({ ...snap, index: idx }));
+}
+
+function buildQuestionSnapshot(question: any, language: string): ExpressQuestionSnapshot | null {
+  if (!question?.answer_options || question.answer_options.length === 0) {
+    return null;
+  }
+
+  const localizedQuestion =
+    question[`question_${language}`] ||
+    question.question_ru ||
+    question.question_es ||
+    question.question_en ||
+    'Вопрос';
+
+  const topicTitle =
+    question.topics?.[`title_${language}`] ||
+    question.topics?.title_ru ||
+    question.topics?.title_es ||
+    null;
+
+  const options = question.answer_options
+    .slice()
+    .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
+    .map((option: any, idx: number) => ({
+      index: idx,
+      label: EXPRESS_OPTION_LABELS[idx] || `#${idx + 1}`,
+      text:
+        option[`text_${language}`] ||
+        option.text_ru ||
+        option.text_es ||
+        option.text_en ||
+        '—',
+      is_correct: !!option.is_correct
+    }));
+
+  return {
+    index: 0,
+    question_id: question.id,
+    text: localizedQuestion,
+    topic: topicTitle,
+    explanation:
+      question[`explanation_${language}`] ||
+      question.explanation_ru ||
+      question.explanation_es ||
+      question.explanation_en ||
+      null,
+    options
+  };
+}
+
+async function loadExpressSession(sessionCode: string, supabase: any): Promise<ExpressSession | null> {
+  const { data } = await supabase
+    .from('bot_express_sessions')
+    .select('*')
+    .eq('session_code', sessionCode)
+    .maybeSingle();
+
+  return (data as ExpressSession) || null;
+}
+
+async function getExpressDailyCount(userId: string, supabase: any): Promise<number> {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const { count } = await supabase
+    .from('bot_express_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('created_at', start.toISOString());
+
+  return count || 0;
+}
+
+async function generateSessionCode(supabase: any, attempt = 0): Promise<string> {
+  const code = createRandomCode(6);
+
+  const { data } = await supabase
+    .from('bot_express_sessions')
+    .select('id')
+    .eq('session_code', code)
+    .maybeSingle();
+
+  if (data && attempt < 5) {
+    return generateSessionCode(supabase, attempt + 1);
+  }
+
+  return code;
+}
+
+function createRandomCode(length: number): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function shuffle<T>(array: T[]): T[] {
+  return array
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
+
+function escapeHtml(text?: string | null): string {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function getProfileByTelegramId(telegramId: number, supabase: any) {
+  const { data } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('telegram_id', telegramId)
+    .maybeSingle();
+
+  return data;
 }
 
 // =====================================================
