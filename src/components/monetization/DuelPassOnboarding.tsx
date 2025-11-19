@@ -706,12 +706,14 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "!grid !grid-rows-1",
           "!z-[2147483646]",
           // Переопределяем анимацию fade-in чтобы opacity был 1 сразу
-          "!opacity-100"
+          "!opacity-100",
+          // Отключаем fade-in анимацию - используем !important через CSS переменную
+          "[&[data-state=open]]:!opacity-100"
         )}
         style={{ 
-          opacity: '1 !important' as any, 
-          visibility: 'visible !important' as any, 
-          display: 'grid !important' as any,
+          opacity: 1, 
+          visibility: 'visible', 
+          display: 'grid',
           // Временный яркий стиль для отладки
           outline: '4px solid red',
           outlineOffset: '4px'
