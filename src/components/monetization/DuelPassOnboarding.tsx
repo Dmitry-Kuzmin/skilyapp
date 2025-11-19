@@ -223,7 +223,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
 
   // Экран 1: Welcome
   const Slide1 = () => (
-    <div className="flex flex-col items-center justify-center text-center space-y-6 py-8 md:py-12 px-4 min-h-[400px] md:min-h-[500px]">
+    <div className="flex flex-col items-center justify-center text-center space-y-6 py-8 md:py-12 px-4 min-h-0">
       <motion.div
         initial={{ scale: 0.5, opacity: 0, rotate: -180 }}
         animate={{ scale: 1, opacity: 1, rotate: 0 }}
@@ -272,7 +272,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
 
   // Экран 2: Что такое SP?
   const Slide2 = () => (
-    <div className="space-y-6 py-6 md:py-8 px-4 min-h-[400px] md:min-h-[500px] flex flex-col justify-center">
+    <div className="space-y-6 py-6 md:py-8 px-4 min-h-0 flex flex-col justify-center">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -713,7 +713,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
       </div>
 
       {/* Slide content */}
-      <div className="flex-1 overflow-hidden relative">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentSlide}
