@@ -95,13 +95,17 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               dialogElement.style.setProperty('pointer-events', 'auto', 'important');
               
               // Проверяем overlay - он не должен перекрывать диалог
-              const overlay = document.querySelector('[role="dialog"] ~ [data-radix-dialog-overlay]') as HTMLElement;
+              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
               if (overlay) {
                 const overlayZIndex = window.getComputedStyle(overlay).zIndex;
-                console.log('[DuelPassOnboarding] Overlay z-index:', overlayZIndex);
+                console.log('[DuelPassOnboarding] Overlay found, z-index:', overlayZIndex);
+                // Overlay должен быть ниже диалога
                 if (parseInt(overlayZIndex) >= parseInt(computed.zIndex)) {
                   overlay.style.setProperty('z-index', '2147483645', 'important');
+                  console.log('[DuelPassOnboarding] Overlay z-index fixed to 2147483645');
                 }
+              } else {
+                console.log('[DuelPassOnboarding] Overlay not found');
               }
               
               // Прокручиваем страницу к диалогу, если он не в видимой области
@@ -824,10 +828,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           // Исправляем позиционирование - центрируем через top вместо translate-y
           top: '50%',
           left: '50%',
-          transform: 'translate(-50%, -50%)',
-          // Временный яркий стиль для отладки
-          outline: '4px solid red',
-          outlineOffset: '4px'
+          transform: 'translate(-50%, -50%)'
         }}
         hideCloseButton
       >
@@ -840,8 +841,6 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           style={{ 
             opacity: 1, 
             visibility: 'visible',
-            // Временная отладка - яркий фон для контента
-            backgroundColor: 'rgba(255, 0, 0, 0.1)',
             minHeight: '500px'
           }}
         >
