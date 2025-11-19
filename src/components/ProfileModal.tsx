@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUserContext } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/AuthModal";
@@ -35,6 +36,7 @@ interface UserSettings {
 export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const { user, logout, profileId, supabaseUser } = useUserContext();
   const { setTheme, theme: currentTheme } = useTheme();
+  const { t } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -213,10 +215,10 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       if (error) throw error;
 
       setSettings(validatedSettings);
-      toast.success('Настройки сохранены');
+      toast.success(t('profileMenu.toasts.settingsSaved'));
     } catch (error) {
       console.error('Failed to update settings:', error);
-      toast.error('Не удалось сохранить настройки');
+      toast.error(t('profileMenu.toasts.settingsFailed'));
     } finally {
       setLoading(false);
     }
@@ -229,7 +231,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const handleLogout = () => {
     logout();
     onOpenChange(false);
-    toast.success('Вы вышли из аккаунта');
+    toast.success(t('loggedOut'));
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -237,12 +239,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     if (!file || !profileId || !supabaseUser) return;
     
     if (file.size > 3 * 1024 * 1024) {
-      toast.error('Файл слишком большой (макс. 3MB)');
+      toast.error(t('fileTooLarge'));
       return;
     }
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Только изображения');
+      toast.error(t('onlyImages'));
       return;
     }
 
@@ -275,11 +277,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
       if (updateError) throw updateError;
 
-      toast.success('Аватар загружен');
+      toast.success(t('avatarUploaded'));
       loadUserProfile();
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
-      toast.error(error.message || 'Не удалось загрузить аватар');
+      toast.error(error.message || t('profileMenu.toasts.avatarUploadError'));
       setAvatarPreview(null);
     } finally {
       setUploading(false);
@@ -304,12 +306,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
       if (error) throw error;
 
-      toast.success('Имя изменено');
+      toast.success(t('nameSaved'));
       setIsEditingName(false);
       loadUserProfile();
     } catch (error: any) {
       console.error('Error updating name:', error);
-      toast.error(error.message || 'Не удалось изменить имя');
+      toast.error(error.message || t('profileMenu.toasts.nameChangeError'));
     } finally {
       setLoading(false);
     }
@@ -329,10 +331,10 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       });
 
       if (error) throw error;
-      toast.success('Перенаправление на Google...');
+      toast.success(t('profileMenu.toasts.googleRedirect'));
     } catch (error: any) {
       console.error('Error linking Google:', error);
-      toast.error(error.message || 'Не удалось связать аккаунт Google');
+      toast.error(error.message || t('profileMenu.toasts.googleLinkError'));
     }
   };
 
@@ -361,11 +363,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   const profileContent = loading ? (
     <div className="flex items-center justify-center p-8">
-      <p className="text-muted-foreground">Загрузка профиля...</p>
+      <p className="text-muted-foreground">{t('profileMenu.loading')}</p>
     </div>
   ) : !profile ? (
     <div className="flex items-center justify-center p-8">
-      <p className="text-muted-foreground">Профиль не найден</p>
+      <p className="text-muted-foreground">{t('profileMenu.notFound')}</p>
     </div>
   ) : (
     <div className="space-y-4 pb-4">
@@ -449,7 +451,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               onClick={() => fileInputRef.current?.click()}
             >
               <Camera className="h-3 w-3 mr-1" />
-              Change avatar
+              {t('changeAvatar')}
             </Button>
           </div>
         </div>
@@ -465,13 +467,13 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
       {/* XP Progress */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">XP</span>
+          <span className="text-sm font-semibold">{t('profileMenu.xpLabel')}</span>
           <span className="text-sm text-muted-foreground">{xp.toLocaleString()} / {nextLevelXp.toLocaleString()}</span>
         </div>
         <Progress value={xpProgress} className="h-1.5" />
         <p className="text-xs text-muted-foreground flex items-center gap-1">
           <Zap className="h-3 w-3 text-primary" />
-          Experience points
+          {t('profileMenu.xpDescription')}
         </p>
       </div>
 
@@ -482,11 +484,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           className="h-10"
           onClick={() => {
             // Можно открыть настройки или другой модал
-            toast.info('Настройки');
+            toast.info(t('settings'));
           }}
         >
           <Settings className="h-4 w-4 mr-2" />
-          Settings
+          {t('settings')}
         </Button>
         <Button
           variant="outline"
@@ -497,7 +499,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
           }}
         >
           <Gift className="h-4 w-4 mr-2" />
-          Invite
+          {t('profileMenu.invite')}
             </Button>
           </div>
 
@@ -505,11 +507,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
           {/* Settings Section */}
           <div className="space-y-3">
-        <h3 className="text-sm font-semibold">Настройки</h3>
+        <h3 className="text-sm font-semibold">{t('settings')}</h3>
         
         {/* Language */}
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Язык</Label>
+          <Label className="text-xs text-muted-foreground">{t('language')}</Label>
           <RadioGroup
             value={settings.language}
             onValueChange={(value) => handleLanguageChange(value)}
@@ -542,7 +544,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
         {/* Theme */}
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Тема</Label>
+          <Label className="text-xs text-muted-foreground">{t('theme')}</Label>
           <RadioGroup
             value={currentTheme || 'light'}
             onValueChange={(value) => {
@@ -556,14 +558,14 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <RadioGroupItem value="light" id="theme-light" />
               <Label htmlFor="theme-light" className="flex items-center gap-2 cursor-pointer text-sm">
                 <Sun className="h-4 w-4" />
-                <span>Светлая</span>
+                <span>{t('light')}</span>
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="dark" id="theme-dark" />
               <Label htmlFor="theme-dark" className="flex items-center gap-2 cursor-pointer text-sm">
                 <Moon className="h-4 w-4" />
-                <span>Тёмная</span>
+                <span>{t('dark')}</span>
               </Label>
             </div>
           </RadioGroup>
@@ -574,7 +576,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
       {/* Connected Accounts */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold">Connected Accounts</h3>
+        <h3 className="text-sm font-semibold">{t('profileMenu.connectedAccounts')}</h3>
         <div className="space-y-2">
           {/* Telegram */}
           <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
@@ -587,9 +589,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <div>
                 <div className="text-sm font-medium">Telegram</div>
                 {hasTelegram ? (
-                  <div className="text-xs text-muted-foreground">Connected</div>
+                  <div className="text-xs text-muted-foreground">{t('profileMenu.connected')}</div>
                 ) : (
-                  <div className="text-xs text-muted-foreground">Not connected</div>
+                  <div className="text-xs text-muted-foreground">{t('profileMenu.notConnected')}</div>
                 )}
               </div>
             </div>
@@ -603,7 +605,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 onClick={handleLinkTelegram}
                   >
                 <LinkIcon className="h-4 w-4 mr-1" />
-                Connect
+                {t('profileMenu.connect')}
                   </Button>
             )}
           </div>
@@ -619,7 +621,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 {hasEmail ? (
                   <div className="text-xs text-muted-foreground truncate max-w-[150px]">{supabaseUser?.email}</div>
                 ) : (
-                  <div className="text-xs text-muted-foreground">Not connected</div>
+                  <div className="text-xs text-muted-foreground">{t('profileMenu.notConnected')}</div>
                 )}
               </div>
             </div>
@@ -633,7 +635,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 onClick={handleLinkEmail}
                   >
                 <LinkIcon className="h-4 w-4 mr-1" />
-                Connect
+                {t('profileMenu.connect')}
                   </Button>
             )}
           </div>
@@ -652,9 +654,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               <div>
                 <div className="text-sm font-medium">Google</div>
                 {hasGoogle ? (
-                  <div className="text-xs text-muted-foreground">Connected</div>
+                  <div className="text-xs text-muted-foreground">{t('profileMenu.connected')}</div>
                 ) : (
-                  <div className="text-xs text-muted-foreground">Not connected</div>
+                  <div className="text-xs text-muted-foreground">{t('profileMenu.notConnected')}</div>
                 )}
               </div>
             </div>
@@ -668,7 +670,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
                 onClick={handleLinkGoogle}
               >
                 <LinkIcon className="h-4 w-4 mr-1" />
-                Connect
+                {t('profileMenu.connect')}
               </Button>
             )}
               </div>
@@ -684,7 +686,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         >
           <div className="flex items-center gap-2">
             <HelpCircle className="h-4 w-4 text-muted-foreground" />
-            <span>Help Center</span>
+            <span>{t('profileMenu.helpCenter')}</span>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -703,7 +705,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             }}
           >
             <Shield className="h-4 w-4 mr-2" />
-            Админ-панель
+            {t('profileMenu.adminPanel')}
           </Button>
         </>
       )}
@@ -717,7 +719,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         onClick={handleLogout}
       >
         <LogOut className="h-4 w-4 mr-2" />
-        Sign out
+        {t('logout')}
       </Button>
     </div>
   );
@@ -729,10 +731,10 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent
             side="bottom"
-            className="max-h-[90vh] h-[90vh] rounded-t-2xl overflow-y-auto flex flex-col"
+            className="max-h-[90vh] rounded-t-2xl overflow-y-auto flex flex-col"
           >
             <SheetHeader>
-              <SheetTitle className="sr-only">Профиль</SheetTitle>
+              <SheetTitle className="sr-only">{t('profileMenu.title')}</SheetTitle>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto px-1">
               {profileContent}
@@ -745,7 +747,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Профиль
+                {t('profileMenu.title')}
               </DialogTitle>
             </DialogHeader>
             {profileContent}

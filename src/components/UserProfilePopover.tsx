@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -15,9 +16,11 @@ import { ReferralModal } from "@/components/ReferralModal";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
+import { usePremium } from "@/hooks/usePremium";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { cn } from "@/lib/utils";
 import { 
   Settings, 
   Gift, 
@@ -33,6 +36,8 @@ import {
   Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
+
+const supabaseClient = supabase as any;
 
 const generateAvatarColor = (userId: string) => {
   const colors = [
@@ -63,18 +68,22 @@ export function UserProfilePopover() {
   const { user, profileId, logout, supabaseUser, platform } = useUserContext();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const { isPremium } = usePremium();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(true);
   const isMiniApp = isTelegramMiniApp();
 
   // Загружаем профиль сразу при монтировании для загрузки аватара в header
   useEffect(() => {
     if (profileId) {
       loadProfile();
+    } else {
+      setShowSkeleton(false);
     }
   }, [profileId]);
 
@@ -83,9 +92,16 @@ export function UserProfilePopover() {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      setShowSkeleton(true);
+      
+      // Задержка перед показом skeleton для предотвращения мигания
+      const skeletonTimeout = setTimeout(() => {
+        setShowSkeleton(true);
+      }, 100);
+
+      const { data, error } = await supabaseClient
         .from('profiles')
-        .select('*')
+        .select('photo_url, first_name, last_name, username')
         .eq('id', profileId)
         .single();
 
@@ -94,10 +110,14 @@ export function UserProfilePopover() {
       if (data) {
         setProfile(data);
       }
+      
+      clearTimeout(skeletonTimeout);
     } catch (error) {
       console.error('[UserProfilePopover] Failed to load profile:', error);
     } finally {
       setLoading(false);
+      // Скрываем skeleton после загрузки с небольшой задержкой
+      setTimeout(() => setShowSkeleton(false), 50);
     }
   };
 
@@ -121,7 +141,7 @@ export function UserProfilePopover() {
     setLanguage(lang);
     
     if (profileId) {
-      await supabase
+      await supabaseClient
         .from('profiles')
         .update({
           settings: {
@@ -130,7 +150,7 @@ export function UserProfilePopover() {
           }
         })
         .eq('id', profileId);
-      toast.success(lang === 'ru' ? 'Язык изменен' : lang === 'en' ? 'Language changed' : 'Idioma cambiado');
+      toast.success(t('languageChanged'));
     }
   };
 
@@ -143,33 +163,70 @@ export function UserProfilePopover() {
             className="relative group z-10"
             style={{ pointerEvents: 'auto' }}
           >
-             <Avatar className="h-10 w-10 ring-2 ring-border hover:ring-primary transition-all cursor-pointer">
-               {(() => {
-                 const photoUrl = profile?.photo_url || user?.photo_url;
-                 // Показываем изображение только если есть URL
-                 if (photoUrl) {
-                   return (
-                     <AvatarImage 
-                       src={photoUrl} 
-                       alt={profile?.first_name || user?.first_name || 'User'}
-                       onError={(e) => {
-                         // При ошибке загрузки скрываем изображение, показывается fallback
-                         console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
-                         e.currentTarget.style.display = 'none';
-                       }}
-                     />
-                   );
-                 }
-                 return null;
-               })()}
-               <AvatarFallback 
-                 className="text-white font-bold text-sm"
-                 style={{ backgroundColor: avatarColor }}
-               >
-                 {initials}
-               </AvatarFallback>
-             </Avatar>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+             {showSkeleton && loading ? (
+               <Skeleton className="h-10 w-10 rounded-full" />
+             ) : (
+               <div className="relative">
+                 {/* Premium animated border - вращающийся градиент */}
+                 {isPremium && (
+                   <div 
+                     className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
+                     style={{
+                       background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)',
+                       backgroundSize: '200% 200%',
+                     }}
+                   >
+                     <div className="absolute inset-0.5 rounded-full bg-background" />
+                   </div>
+                 )}
+                 <Avatar className={cn(
+                   "h-10 w-10 transition-all cursor-pointer relative z-10",
+                   isPremium 
+                     ? "ring-0 animate-premium-glow" 
+                     : "ring-2 ring-border hover:ring-primary"
+                 )}>
+                   {(() => {
+                     const photoUrl = profile?.photo_url || user?.photo_url;
+                     // Показываем изображение только если есть URL
+                     if (photoUrl) {
+                       return (
+                         <AvatarImage 
+                           src={photoUrl} 
+                           alt={profile?.first_name || user?.first_name || 'User'}
+                           className={cn(isPremium && "relative z-10")}
+                           onError={(e) => {
+                             // При ошибке загрузки скрываем изображение, показывается fallback
+                             console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
+                             e.currentTarget.style.display = 'none';
+                           }}
+                         />
+                       );
+                     }
+                     return null;
+                   })()}
+                   <AvatarFallback 
+                     className={cn(
+                       "text-white font-bold text-sm relative z-10",
+                       isPremium && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
+                     )}
+                     style={!isPremium ? { backgroundColor: avatarColor } : undefined}
+                   >
+                     {initials}
+                   </AvatarFallback>
+                 </Avatar>
+                 {/* Premium Crown Icon - только если не skeleton */}
+                 {!showSkeleton && isPremium && (
+                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
+                     <Crown className="w-2.5 h-2.5 text-white fill-white drop-shadow-md" />
+                     {/* Анимированное свечение вокруг короны */}
+                     <div className="absolute inset-0 rounded-full bg-yellow-400/40 animate-ping" style={{ animationDuration: '2s' }} />
+                   </div>
+                 )}
+               </div>
+             )}
+            {!showSkeleton && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
+            )}
           </button>
         </PopoverTrigger>
         <PopoverContent 
@@ -186,30 +243,59 @@ export function UserProfilePopover() {
               }}
               className="w-full flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
             >
-              <Avatar className="h-10 w-10">
-                {(() => {
-                  const photoUrl = profile?.photo_url || user?.photo_url;
-                  if (photoUrl) {
-                    return (
-                      <AvatarImage 
-                        src={photoUrl}
-                        alt={profile?.first_name || user?.first_name || 'User'}
-                        onError={(e) => {
-                          console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    );
-                  }
-                  return null;
-                })()}
-                <AvatarFallback 
-                  className="text-white font-bold text-sm"
-                  style={{ backgroundColor: avatarColor }}
-                >
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                {/* Premium animated border - вращающийся градиент */}
+                {isPremium && (
+                  <div 
+                    className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)',
+                      backgroundSize: '200% 200%',
+                    }}
+                  >
+                    <div className="absolute inset-0.5 rounded-full bg-background" />
+                  </div>
+                )}
+                <Avatar className={cn(
+                  "h-10 w-10 relative z-10",
+                  isPremium ? "ring-0 animate-premium-glow" : ""
+                )}>
+                  {(() => {
+                    const photoUrl = profile?.photo_url || user?.photo_url;
+                    if (photoUrl) {
+                      return (
+                        <AvatarImage 
+                          src={photoUrl}
+                          alt={profile?.first_name || user?.first_name || 'User'}
+                          className={isPremium ? "relative z-10" : ""}
+                          onError={(e) => {
+                            console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      );
+                    }
+                    return null;
+                  })()}
+                  <AvatarFallback 
+                    className={cn(
+                      "text-white font-bold text-sm relative z-10",
+                      isPremium && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
+                    )}
+                    style={!isPremium ? { backgroundColor: avatarColor } : undefined}
+                  >
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                {/* Premium Crown Icon в попапе */}
+                {isPremium && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
+                    <Crown className="w-2.5 h-2.5 text-white fill-white relative z-10 drop-shadow-md" />
+                    {/* Анимированное свечение вокруг короны */}
+                    <div className="absolute inset-0 rounded-full bg-yellow-400/40 animate-ping" style={{ animationDuration: '2s' }} />
+                  </div>
+                )}
+              </div>
               <div className="flex-1 min-w-0 text-left">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-sm truncate">
@@ -228,13 +314,13 @@ export function UserProfilePopover() {
             {/* XP Progress */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold">XP</span>
+                <span className="text-sm font-semibold">{t('profileMenu.xpLabel')}</span>
                 <span className="text-sm text-muted-foreground">{xp.toLocaleString()} / {nextLevelXp.toLocaleString()}</span>
               </div>
               <Progress value={xpProgress} className="h-1.5" />
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Zap className="h-3 w-3 text-primary" />
-                Experience points
+                {t('profileMenu.xpDescription')}
               </p>
             </div>
 
@@ -249,7 +335,7 @@ export function UserProfilePopover() {
                 }}
               >
                 <Settings className="h-4 w-4 mr-1" />
-                Settings
+                {t('settings')}
               </Button>
               <Button
                 variant="outline"
@@ -260,7 +346,7 @@ export function UserProfilePopover() {
                 }}
               >
                 <Sparkles className="h-4 w-4 mr-1" />
-                Inventory
+                {t('profileMenu.inventory')}
               </Button>
               <Button
                 variant="outline"
@@ -271,7 +357,7 @@ export function UserProfilePopover() {
                 }}
               >
                 <Gift className="h-4 w-4 mr-1" />
-                Invite
+                {t('profileMenu.invite')}
               </Button>
             </div>
 
@@ -279,7 +365,7 @@ export function UserProfilePopover() {
             {subscription === 'pro' && (
               <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10">
                 <Crown className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">PRO</span>
+                <span className="text-sm font-medium">{t('profileMenu.proBadge')}</span>
               </div>
             )}
 
@@ -295,7 +381,7 @@ export function UserProfilePopover() {
             >
               <div className="flex items-center gap-2">
                 <Pencil className="h-4 w-4 text-muted-foreground" />
-                <span>Edit Profile</span>
+                <span>{t('editProfile')}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
@@ -308,7 +394,7 @@ export function UserProfilePopover() {
               >
                 <div className="flex items-center gap-2">
                   <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                  <span>Help Center</span>
+                  <span>{t('profileMenu.helpCenter')}</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -319,7 +405,7 @@ export function UserProfilePopover() {
                   <button className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm">
                     <div className="flex items-center gap-2">
                       <Languages className="h-4 w-4 text-muted-foreground" />
-                      <span>Language</span>
+                      <span>{t('language')}</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -365,7 +451,7 @@ export function UserProfilePopover() {
                       ) : (
                         <Sun className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span>Appearance</span>
+                      <span>{t('profileMenu.appearance')}</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -375,7 +461,7 @@ export function UserProfilePopover() {
                     onClick={() => {
                       setTheme('light');
                       if (profileId) {
-                        supabase
+                        supabaseClient
                           .from('profiles')
                           .update({
                             settings: {
@@ -385,18 +471,18 @@ export function UserProfilePopover() {
                           })
                           .eq('id', profileId);
                       }
-                      toast.success('Тема изменена');
+                      toast.success(t('themeChanged'));
                     }}
                     className={theme === 'light' ? 'bg-accent' : ''}
                   >
                     <Sun className="h-4 w-4 mr-2" />
-                    Light
+                    {t('light')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       setTheme('dark');
                       if (profileId) {
-                        supabase
+                        supabaseClient
                           .from('profiles')
                           .update({
                             settings: {
@@ -406,18 +492,18 @@ export function UserProfilePopover() {
                           })
                           .eq('id', profileId);
                       }
-                      toast.success('Тема изменена');
+                      toast.success(t('themeChanged'));
                     }}
                     className={theme === 'dark' ? 'bg-accent' : ''}
                   >
                     <Moon className="h-4 w-4 mr-2" />
-                    Dark
+                    {t('dark')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       setTheme('system');
                       if (profileId) {
-                        supabase
+                        supabaseClient
                           .from('profiles')
                           .update({
                             settings: {
@@ -427,12 +513,12 @@ export function UserProfilePopover() {
                           })
                           .eq('id', profileId);
                       }
-                      toast.success('Тема изменена');
+                      toast.success(t('themeChanged'));
                     }}
                     className={theme === 'system' ? 'bg-accent' : ''}
                   >
                     <Settings className="h-4 w-4 mr-2" />
-                    System
+                    {t('system')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
