@@ -993,6 +993,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           ) : (
             <Dialog open={open} onOpenChange={onOpenChange}>
               <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0">
+                <DialogTitle className="sr-only">Duel Pass Season</DialogTitle>
+                <DialogDescription className="sr-only">Loading Duel Pass Season information</DialogDescription>
                 <div className="flex-1 overflow-y-auto">
                   <SkeletonContent />
                 </div>
