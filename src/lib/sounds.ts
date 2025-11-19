@@ -13,12 +13,12 @@ const audioLog = (...args: any[]) => {
 };
 const audioWarn = (...args: any[]) => {
   if (shouldLogAudio) {
-    audioWarn(...args);
+    console.warn(...args);
   }
 };
 const audioError = (...args: any[]) => {
   if (shouldLogAudio) {
-    audioError(...args);
+    console.error(...args);
   }
 };
 
