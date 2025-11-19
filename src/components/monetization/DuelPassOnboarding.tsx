@@ -793,7 +793,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
       <DialogContent 
         data-duel-pass-onboarding="true"
         className={cn(
-          "w-[95vw] max-w-3xl max-h-[90vh] p-0 border-0 rounded-3xl",
+          "w-[95vw] max-w-3xl p-0 border-0 rounded-3xl",
           seasonTheme.gradient,
           seasonTheme.border,
           seasonTheme.glow,
@@ -802,6 +802,9 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "bg-slate-950",
           "!grid !grid-rows-1",
           "!z-[2147483646]",
+          // Адаптивная высота - используем min() для ограничения высоты
+          "max-h-[min(90vh,calc(100vh-2rem))]",
+          "h-auto",
           // Переопределяем анимацию fade-in чтобы opacity был 1 сразу
           "!opacity-100",
           // Отключаем fade-in анимацию полностью
@@ -829,11 +832,14 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
         <div 
-          className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px] pointer-events-auto" 
+          className="relative z-10 w-full h-full flex flex-col overflow-hidden pointer-events-auto" 
           style={{ 
             opacity: 1, 
             visibility: 'visible',
-            minHeight: '500px'
+            // Адаптивная минимальная высота - зависит от viewport
+            minHeight: 'min(500px, calc(100vh - 4rem))',
+            maxHeight: 'calc(100vh - 4rem)',
+            overflowY: 'auto'
           }}
         >
           {content ? (
