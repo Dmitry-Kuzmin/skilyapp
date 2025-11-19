@@ -45,13 +45,13 @@ const detectPreferredLanguage = (): Language => {
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 // Translations object
-const translations: Record<Language, Record<string, string>> = {
+const translations: Record<Language, Record<string, any>> = {
   es: {
     // Navigation
     home: "Inicio",
@@ -186,6 +186,163 @@ const translations: Record<Language, Record<string, string>> = {
       supportEmail: "support@sdadim.com",
       copyright: "© 2025 Sdadim. Todos los derechos reservados.",
       rightsReserved: "Todos los derechos reservados",
+      blog: "Blog",
+      help: "Ayuda",
+    },
+    boostShop: {
+      title: "Tienda",
+      tabs: {
+        boosts: "Impulsos",
+        coins: "Monedas",
+        premium: "Premium",
+        history: "Historial",
+      },
+      sections: {
+        popular: "Impulsos populares",
+        premium: "Impulsos premium",
+        premiumBadge: "Premium",
+        empty: "Los impulsos llegarán pronto",
+      },
+      boostNames: {
+        fifty_fifty: {
+          name: "50/50",
+          description: "Elimina dos respuestas incorrectas",
+        },
+        time_extend: {
+          name: "+30 segundos",
+          description: "Añade tiempo extra para preguntas difíciles",
+        },
+        hint: {
+          name: "Pista",
+          description: "Muestra una explicación al instante",
+        },
+        skip: {
+          name: "Saltar",
+          description: "Pasa la pregunta sin perder la racha",
+        },
+        translate: {
+          name: "Traducción",
+          description: "Traduce la pregunta y las respuestas",
+        },
+      },
+      coins: {
+        topUpTitle: "Recarga tu saldo de monedas",
+        packLabel: "{{amount}} monedas",
+        bonusLabel: "+{{bonus}} bonus",
+        buyButton: "Comprar",
+        premiumHint: "💡 Consigue más monedas con Premium",
+        successTitle: "✅ Pago exitoso!",
+        successDescription: "Recibiste {{amount}} monedas",
+      },
+      premium: {
+        title: "Suscripción Premium",
+        activeBadge: "Activa",
+        benefits: {
+          unlimitedTests: "Acceso ilimitado a todos los tests",
+          bonusCoins: "+50% de monedas al estudiar",
+          duelPassRewards: "Recompensas Premium de Duel Pass",
+          instantHints: "Sin anuncios y pistas instantáneas",
+        },
+        monthlyLabel: "Mes",
+        lifetimeLabel: "Para siempre",
+        bestBadge: "Mejor",
+        chooseButton: "Elegir",
+        activeButton: "Activa",
+      },
+      duelPass: {
+        title: "Duel Pass",
+        description: "Obtén recompensas exclusivas por cada nivel. Premium duplica todas las recompensas.",
+        button: "Abrir Duel Pass",
+        toastTitle: "Duel Pass",
+        toastDescription: "Abre Duel Pass en la página principal",
+      },
+      history: {
+        title: "Historial de monedas",
+        operationsCount: "{{count}} operaciones",
+        filters: {
+          all: "Todo",
+          earn: "Ingresos",
+          spend: "Gastos",
+          purchase: "Compras",
+          reward: "Recompensas",
+        },
+        empty: {
+          all: {
+            title: "Aquí aparecerán tus transacciones",
+            description: "Empieza a ganar monedas haciendo tests y duelos.",
+            premiumHint: "💡 Premium duplica las recompensas",
+          },
+          earn: {
+            title: "Sin ingresos",
+            description: "Haz tests, gana duelos y reclama bonos diarios.",
+          },
+          spend: {
+            title: "Sin gastos",
+            description: "Compra impulsos y mejora tus resultados.",
+          },
+          purchase: {
+            title: "Sin compras",
+            description: "Recarga monedas o consigue Premium para más opciones.",
+          },
+          reward: {
+            title: "Sin recompensas",
+            description: "Consigue recompensas por Duel Pass, referidos y logros.",
+          },
+        },
+        tryOtherFilter: "Prueba otro filtro",
+        badges: {
+          purchase: "Compra",
+          reward: "Recompensa",
+        },
+      },
+      buttons: {
+        buy: "Comprar",
+        select: "Elegir",
+        active: "Activa",
+        insufficient: "No alcanza",
+        premium: "Premium",
+      },
+      toasts: {
+        errorTitle: "❌ Error",
+        needLogin: "Debes iniciar sesión",
+        sessionError: "No se pudo obtener el enlace de pago",
+        historyError: "Error al cargar el historial",
+        paymentSuccessTitle: "✅ Pago exitoso!",
+        paymentSuccessDescription: "Recibiste {{amount}} monedas",
+        purchaseSuccessTitle: "✅ Compra exitosa!",
+        purchaseSuccessDescription: "{{name}} se agregó al inventario",
+        purchaseErrorTitle: "❌ Error de compra",
+        purchaseErrorDescription: "No se pudo completar la compra. Inténtalo de nuevo.",
+        rlsError: "Error de acceso. Actualiza la página e inicia sesión.",
+        insufficientCoins: "Necesitas {{amount}} monedas más",
+      },
+      transactions: {
+        coinsPurchaseStripe: "Compra de monedas: {{amount}}",
+        premiumPurchase: "Suscripción Premium ({{type}})",
+        premiumType: {
+          monthly: "mes",
+          yearly: "año",
+          forever: "para siempre",
+        },
+        duelPassPurchase: "Compra de Duel Pass",
+        duelPassReward: "Recompensa de Duel Pass{{level}}{{premium}}",
+        duelPassRewardLevelSuffix: " (nivel {{level}})",
+        duelPassRewardPremiumSuffix: " [Premium]",
+        referralReward: "Recompensa de referidos: {{name}}",
+        referralJoined: "Bono por registro con referido",
+        referralFallbackName: "amigo",
+        coinsEarnedTest: "Recompensa por test",
+        coinsEarnedDuel: "Recompensa por duelo",
+        coinsEarnedDaily: "Bono diario",
+        coinsEarnedPremiumBonus: "Bono Premium",
+        coinsSpentBoost: "Compra de impulso: {{name}}",
+        coinsSpentSkin: "Compra de skin",
+        coinsSpentDuelEntry: "Entrada a duelo",
+        bet: "Apuesta en duelo",
+        win: "Victoria en duelo",
+        refund: "Devolución de apuesta",
+        commission: "Comisión del sistema",
+      },
     },
   },
   en: {
@@ -322,6 +479,163 @@ const translations: Record<Language, Record<string, string>> = {
       supportEmail: "support@sdadim.com",
       copyright: "© 2025 Sdadim. All rights reserved.",
       rightsReserved: "All rights reserved",
+      blog: "Blog",
+      help: "Help",
+    },
+    boostShop: {
+      title: "Shop",
+      tabs: {
+        boosts: "Boosts",
+        coins: "Coins",
+        premium: "Premium",
+        history: "History",
+      },
+      sections: {
+        popular: "Popular boosts",
+        premium: "Premium boosts",
+        premiumBadge: "Premium",
+        empty: "Boosts are coming soon",
+      },
+      boostNames: {
+        fifty_fifty: {
+          name: "50/50",
+          description: "Removes two incorrect answers",
+        },
+        time_extend: {
+          name: "+30 seconds",
+          description: "Adds extra time for tough questions",
+        },
+        hint: {
+          name: "Hint",
+          description: "Shows an instant explanation",
+        },
+        skip: {
+          name: "Skip",
+          description: "Skip a question without losing your streak",
+        },
+        translate: {
+          name: "Translation",
+          description: "Translates the question and answers",
+        },
+      },
+      coins: {
+        topUpTitle: "Top up your coin balance",
+        packLabel: "{{amount}} coins",
+        bonusLabel: "+{{bonus}} bonus",
+        buyButton: "Buy",
+        premiumHint: "💡 Get more coins with Premium",
+        successTitle: "✅ Payment successful!",
+        successDescription: "You received {{amount}} coins",
+      },
+      premium: {
+        title: "Premium subscription",
+        activeBadge: "Active",
+        benefits: {
+          unlimitedTests: "Unlimited access to every test",
+          bonusCoins: "+50% coins for studying",
+          duelPassRewards: "Premium Duel Pass rewards",
+          instantHints: "No ads and instant hints",
+        },
+        monthlyLabel: "Month",
+        lifetimeLabel: "Lifetime",
+        bestBadge: "Best value",
+        chooseButton: "Choose",
+        activeButton: "Active",
+      },
+      duelPass: {
+        title: "Duel Pass",
+        description: "Earn exclusive rewards for every level! Premium doubles all rewards.",
+        button: "Open Duel Pass",
+        toastTitle: "Duel Pass",
+        toastDescription: "Open Duel Pass on the home page",
+      },
+      history: {
+        title: "Coin history",
+        operationsCount: "{{count}} operations",
+        filters: {
+          all: "All",
+          earn: "Income",
+          spend: "Spending",
+          purchase: "Purchases",
+          reward: "Rewards",
+        },
+        empty: {
+          all: {
+            title: "Your transactions will appear here",
+            description: "Start earning coins by taking tests and duels!",
+            premiumHint: "💡 Premium doubles rewards",
+          },
+          earn: {
+            title: "No income",
+            description: "Take tests, win duels and claim daily bonuses.",
+          },
+          spend: {
+            title: "No spending",
+            description: "Buy boosts and use them to improve your results.",
+          },
+          purchase: {
+            title: "No purchases",
+            description: "Top up coins or get Premium for more options.",
+          },
+          reward: {
+            title: "No rewards",
+            description: "Earn rewards from Duel Pass, referrals and achievements.",
+          },
+        },
+        tryOtherFilter: "Try another filter",
+        badges: {
+          purchase: "Purchase",
+          reward: "Reward",
+        },
+      },
+      buttons: {
+        buy: "Buy",
+        select: "Choose",
+        active: "Active",
+        insufficient: "Not enough",
+        premium: "Premium",
+      },
+      toasts: {
+        errorTitle: "❌ Error",
+        needLogin: "Please log in",
+        sessionError: "Couldn't get a payment link",
+        historyError: "Failed to load history",
+        paymentSuccessTitle: "✅ Payment successful!",
+        paymentSuccessDescription: "You received {{amount}} coins",
+        purchaseSuccessTitle: "✅ Purchase successful!",
+        purchaseSuccessDescription: "{{name}} added to inventory",
+        purchaseErrorTitle: "❌ Purchase error",
+        purchaseErrorDescription: "Couldn't complete the purchase. Try again.",
+        rlsError: "Access error. Refresh the page and log in again.",
+        insufficientCoins: "You need {{amount}} more coins",
+      },
+      transactions: {
+        coinsPurchaseStripe: "Coin top-up: {{amount}}",
+        premiumPurchase: "Premium subscription ({{type}})",
+        premiumType: {
+          monthly: "month",
+          yearly: "year",
+          forever: "forever",
+        },
+        duelPassPurchase: "Duel Pass purchase",
+        duelPassReward: "Duel Pass reward{{level}}{{premium}}",
+        duelPassRewardLevelSuffix: " (level {{level}})",
+        duelPassRewardPremiumSuffix: " [Premium]",
+        referralReward: "Referral reward: {{name}}",
+        referralJoined: "Referral signup bonus",
+        referralFallbackName: "friend",
+        coinsEarnedTest: "Test reward",
+        coinsEarnedDuel: "Duel reward",
+        coinsEarnedDaily: "Daily bonus",
+        coinsEarnedPremiumBonus: "Premium bonus",
+        coinsSpentBoost: "Boost purchase: {{name}}",
+        coinsSpentSkin: "Skin purchase",
+        coinsSpentDuelEntry: "Duel entry",
+        bet: "Duel bet",
+        win: "Duel win",
+        refund: "Bet refund",
+        commission: "System fee",
+      },
     },
   },
   ru: {
@@ -458,6 +772,163 @@ const translations: Record<Language, Record<string, string>> = {
       supportEmail: "support@sdadim.com",
       copyright: "© 2025 Sdadim. Все права защищены.",
       rightsReserved: "Все права защищены",
+      blog: "Блог",
+      help: "Помощь",
+    },
+    boostShop: {
+      title: "Магазин",
+      tabs: {
+        boosts: "Бусты",
+        coins: "Монеты",
+        premium: "Premium",
+        history: "История",
+      },
+      sections: {
+        popular: "Популярные бусты",
+        premium: "Премиум бусты",
+        premiumBadge: "Premium",
+        empty: "Бусты скоро появятся",
+      },
+      boostNames: {
+        fifty_fifty: {
+          name: "50/50",
+          description: "Убирает два неправильных ответа",
+        },
+        time_extend: {
+          name: "+30 секунд",
+          description: "Добавляет время на сложные вопросы",
+        },
+        hint: {
+          name: "Подсказка",
+          description: "Моментально показывает объяснение",
+        },
+        skip: {
+          name: "Пропустить",
+          description: "Пропускает вопрос без потери серии",
+        },
+        translate: {
+          name: "Перевод",
+          description: "Переводит вопрос и ответы",
+        },
+      },
+      coins: {
+        topUpTitle: "Пополните баланс монет",
+        packLabel: "{{amount}} монет",
+        bonusLabel: "+{{bonus}} бонус",
+        buyButton: "Купить",
+        premiumHint: "💡 Получайте больше монет с Premium",
+        successTitle: "✅ Оплата успешна!",
+        successDescription: "Вы получили {{amount}} монет",
+      },
+      premium: {
+        title: "Premium подписка",
+        activeBadge: "Активна",
+        benefits: {
+          unlimitedTests: "Безлимитный доступ ко всем тестам",
+          bonusCoins: "+50% монет за обучение",
+          duelPassRewards: "Duel Pass Premium награды",
+          instantHints: "Без рекламы и мгновенные подсказки",
+        },
+        monthlyLabel: "Месяц",
+        lifetimeLabel: "Навсегда",
+        bestBadge: "Лучшее",
+        chooseButton: "Выбрать",
+        activeButton: "Активна",
+      },
+      duelPass: {
+        title: "Duel Pass",
+        description: "Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.",
+        button: "Открыть Duel Pass",
+        toastTitle: "Duel Pass",
+        toastDescription: "Откройте Duel Pass на главной странице",
+      },
+      history: {
+        title: "История монет",
+        operationsCount: "{{count}} операций",
+        filters: {
+          all: "Все",
+          earn: "Доходы",
+          spend: "Расходы",
+          purchase: "Покупки",
+          reward: "Награды",
+        },
+        empty: {
+          all: {
+            title: "Здесь появятся твои транзакции",
+            description: "Начни зарабатывать монеты, проходя тесты и дуэли!",
+            premiumHint: "💡 Premium удваивает награды",
+          },
+          earn: {
+            title: "Нет доходов",
+            description: "Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!",
+          },
+          spend: {
+            title: "Нет расходов",
+            description: "Покупай бусты и используй их для улучшения результатов!",
+          },
+          purchase: {
+            title: "Нет покупок",
+            description: "Пополни баланс монет или получи Premium для больше возможностей!",
+          },
+          reward: {
+            title: "Нет наград",
+            description: "Получай награды за Duel Pass, рефералов и достижения!",
+          },
+        },
+        tryOtherFilter: "Попробуйте другой фильтр",
+        badges: {
+          purchase: "Покупка",
+          reward: "Награда",
+        },
+      },
+      buttons: {
+        buy: "Купить",
+        select: "Выбрать",
+        active: "Активна",
+        insufficient: "Недостаточно",
+        premium: "Premium",
+      },
+      toasts: {
+        errorTitle: "❌ Ошибка",
+        needLogin: "Необходимо войти в систему",
+        sessionError: "Не удалось получить ссылку на оплату",
+        historyError: "Ошибка загрузки истории",
+        paymentSuccessTitle: "✅ Оплата успешна!",
+        paymentSuccessDescription: "Вы получили {{amount}} монет",
+        purchaseSuccessTitle: "✅ Покупка успешна!",
+        purchaseSuccessDescription: "{{name}} добавлен в инвентарь",
+        purchaseErrorTitle: "❌ Ошибка покупки",
+        purchaseErrorDescription: "Не удалось совершить покупку. Попробуйте ещё раз.",
+        rlsError: "Ошибка доступа. Попробуйте обновить страницу и войти снова.",
+        insufficientCoins: "Вам нужно ещё {{amount}} монет",
+      },
+      transactions: {
+        coinsPurchaseStripe: "Покупка монет: {{amount}}",
+        premiumPurchase: "Premium подписка ({{type}})",
+        premiumType: {
+          monthly: "месяц",
+          yearly: "год",
+          forever: "навсегда",
+        },
+        duelPassPurchase: "Покупка Duel Pass",
+        duelPassReward: "Награда Duel Pass{{level}}{{premium}}",
+        duelPassRewardLevelSuffix: " (уровень {{level}})",
+        duelPassRewardPremiumSuffix: " [Premium]",
+        referralReward: "Реферальная награда: {{name}}",
+        referralJoined: "Бонус за регистрацию по реферальной ссылке",
+        referralFallbackName: "друг",
+        coinsEarnedTest: "Награда за тест",
+        coinsEarnedDuel: "Награда за дуэль",
+        coinsEarnedDaily: "Ежедневный бонус",
+        coinsEarnedPremiumBonus: "Premium бонус",
+        coinsSpentBoost: "Покупка буста: {{name}}",
+        coinsSpentSkin: "Покупка скина",
+        coinsSpentDuelEntry: "Вход в дуэль",
+        bet: "Ставка в дуэли",
+        win: "Выигрыш в дуэли",
+        refund: "Возврат ставки",
+        commission: "Комиссия системы",
+      },
     },
   },
 };
@@ -524,10 +995,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     // First try helpCenter translations (flat structure)
     if (helpCenterTranslations[language] && key in helpCenterTranslations[language]) {
-      return helpCenterTranslations[language][key];
+      const value = helpCenterTranslations[language][key];
+      return typeof value === 'string' ? applyParams(value, params) : key;
     }
     
     // Then try main translations (nested structure)
@@ -542,7 +1014,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    return typeof value === 'string' ? value : key;
+    return typeof value === 'string' ? applyParams(value, params) : key;
+  };
+
+  const applyParams = (text: string, params?: Record<string, string | number>): string => {
+    if (!params) return text;
+    return Object.entries(params).reduce((acc, [paramKey, paramValue]) => {
+      const regex = new RegExp(`{{\\s*${paramKey}\\s*}}`, 'g');
+      return acc.replace(regex, String(paramValue));
+    }, text);
   };
 
   return (

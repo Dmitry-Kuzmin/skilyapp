@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, Lock, Zap, Timer, Lightbulb, SkipForward, Globe } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Boost {
   type: string;
@@ -39,6 +40,16 @@ export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium 
   const canAfford = coins >= boost.cost_coins;
   const Icon = boostIcons[boost.type as keyof typeof boostIcons] || Zap;
   const colorClass = boostColors[boost.type as keyof typeof boostColors] || 'bg-primary/10 text-primary border-primary/20';
+  const { t } = useLanguage();
+
+  const getTranslatedValue = (field: 'name' | 'description', fallback: string) => {
+    const key = `boostShop.boostNames.${boost.type}.${field}`;
+    const value = t(key);
+    return value === key ? fallback : value;
+  };
+
+  const displayName = getTranslatedValue('name', boost.name_ru);
+  const displayDescription = getTranslatedValue('description', boost.description_ru);
 
   return (
     <div className={`
@@ -57,7 +68,7 @@ export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <h4 className="font-semibold text-sm truncate">{boost.name_ru}</h4>
+          <h4 className="font-semibold text-sm truncate">{displayName}</h4>
           {/* Индикатор количества - всегда показываем, даже если 0, для консистентности */}
           <Badge 
             variant="outline" 
@@ -71,11 +82,11 @@ export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium 
           </Badge>
           {isPremium && (
             <Badge className="gradient-gold border-none text-xs px-1.5 py-0">
-              Premium
+              {t('boostShop.sections.premiumBadge')}
             </Badge>
           )}
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-1">{boost.description_ru}</p>
+        <p className="text-xs text-muted-foreground line-clamp-1">{displayDescription}</p>
       </div>
 
       {/* Price & Buy Button */}
@@ -101,12 +112,12 @@ export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium 
           {isPremium ? (
             <>
               <Lock className="w-3 h-3 mr-1" />
-              Premium
+              {t('boostShop.buttons.premium')}
             </>
           ) : !canAfford ? (
-            'Недостаточно'
+            t('boostShop.buttons.insufficient')
           ) : (
-            'Купить'
+            t('boostShop.buttons.buy')
           )}
         </Button>
       </div>

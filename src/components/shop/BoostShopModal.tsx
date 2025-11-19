@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Coins, X, ShoppingBag, TrendingUp, TrendingDown, History, Gift, Trophy, TestTube, Zap, Calendar, CreditCard, Users, Filter, Crown, Sparkles, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
+import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
@@ -21,6 +22,14 @@ import { getDialogContentClasses } from '@/lib/modal-config';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
+
+const supabaseClient = supabase as any;
+
+const localeMap: Record<Language, string> = {
+  en: 'en-US',
+  es: 'es-ES',
+  ru: 'ru-RU',
+};
 
 interface BoostShopModalProps {
   open: boolean;
@@ -57,6 +66,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
   const isMobile = useIsMobile();
+  const { t, language } = useLanguage();
+  const dateLocale = localeMap[language] || 'en-US';
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const showStarsPayment = isTelegramMiniApp();
   const [boosts, setBoosts] = useState<Boost[]>([]);
@@ -71,6 +82,38 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>('boosts');
   const [paywallOpen, setPaywallOpen] = useState(false);
+
+  const translateBoostField = (boostType: string | undefined, field: 'name' | 'description', fallback?: string) => {
+    if (!boostType) {
+      return fallback || '';
+    }
+    const translationKey = `boostShop.boostNames.${boostType}.${field}`;
+    const translated = t(translationKey);
+    if (translated === translationKey) {
+      return fallback ?? boostType;
+    }
+    return translated;
+  };
+
+  const formatTransactionDate = (date: string) => {
+    return new Date(date).toLocaleDateString(dateLocale, {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getPremiumTypeLabel = (subType: string) => {
+    const key = `boostShop.transactions.premiumType.${subType}`;
+    const label = t(key);
+    return label === key ? subType : label;
+  };
+
+  const getPremiumPurchaseDescription = (subType: string, price?: number) => {
+    const description = t('boostShop.transactions.premiumPurchase', { type: getPremiumTypeLabel(subType) });
+    return price ? `${description} - €${price}` : description;
+  };
 
   useEffect(() => {
     if (open) {
@@ -96,7 +139,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       setLoading(true);
 
       // Загрузка бустов
-      const { data: boostsData, error: boostsError } = await supabase
+      const { data: boostsData, error: boostsError } = await supabaseClient
         .from('boost_definitions')
         .select('*')
         .order('cost_coins', { ascending: true });
@@ -108,7 +151,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       }
 
       // Загрузка профиля
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await supabaseClient
         .from('profiles')
         .select('id, coins')
         .eq('id', profileId)
@@ -127,14 +170,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       }
 
       // Загрузка инвентаря через RPC (обходит RLS для Telegram)
-      const { data: inventoryData, error: inventoryError } = await supabase.rpc('get_user_boost_inventory', {
+      const { data: inventoryData, error: inventoryError } = await supabaseClient.rpc('get_user_boost_inventory', {
         p_user_id: profileId
       });
 
       if (inventoryError) {
         console.error('[BoostShop] Ошибка загрузки инвентаря:', inventoryError);
         // Fallback к прямому запросу
-        const { data: fallbackData } = await supabase
+        const { data: fallbackData } = await supabaseClient
           .from('boost_inventory')
           .select('boost_type, quantity')
           .eq('user_id', profileId);
@@ -156,64 +199,94 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   };
   
   // Функция для получения читаемого названия буста
-  const getBoostDisplayName = (boostType?: string): string => {
-    if (!boostType) return '';
-    const boostNames: Record<string, string> = {
-      'fifty_fifty': '50/50',
-      'time_extend': '+30 секунд',
-      'hint': 'Подсказка',
-      'skip': 'Пропустить',
-      'translate': 'Перевод',
-    };
-    return boostNames[boostType] || boostType;
+  const getBoostDisplayName = (boostType?: string, fallback?: string): string => {
+    return translateBoostField(boostType, 'name', fallback);
   };
 
-  const getTransactionInfo = (type: string, metadata?: any): { description: string; icon: any; category: 'earn' | 'spend' | 'purchase' | 'reward' } => {
-    const iconMap: Record<string, any> = {
-      // Earnings
-      'coins_earned_test': { icon: TestTube, desc: 'Награда за тест', cat: 'earn' },
-      'coins_earned_duel': { icon: Zap, desc: 'Награда за дуэль', cat: 'earn' },
-      'coins_earned_daily': { icon: Calendar, desc: 'Ежедневный бонус', cat: 'earn' },
-      'coins_earned_premium_bonus': { icon: Gift, desc: 'Premium бонус', cat: 'earn' },
-      // Spending
-      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_name || getBoostDisplayName(metadata?.boost_type) || metadata?.boost_type || ''}`, cat: 'spend' },
-      'coins_spent_skin': { icon: Gift, desc: 'Покупка скина', cat: 'spend' },
-      'coins_spent_duel_entry': { icon: Zap, desc: 'Вход в дуэль', cat: 'spend' },
-      // Purchases
-      'coins_purchase_stripe': { icon: CreditCard, desc: `Покупка монет: ${metadata?.amount || ''}`, cat: 'purchase' },
-      'premium_purchase_monthly': { icon: CreditCard, desc: 'Premium подписка (месяц)', cat: 'purchase' },
-      'premium_purchase_yearly': { icon: CreditCard, desc: 'Premium подписка (год)', cat: 'purchase' },
-      'duel_pass_purchase': { icon: Trophy, desc: 'Покупка Duel Pass', cat: 'purchase' },
-      // Duel transactions
-      'bet': { icon: Zap, desc: 'Ставка в дуэли', cat: 'spend' },
-      'win': { icon: Trophy, desc: 'Выигрыш в дуэли', cat: 'earn' },
-      'refund': { icon: Gift, desc: 'Возврат ставки', cat: 'earn' },
-      'commission': { icon: Coins, desc: 'Комиссия системы', cat: 'spend' },
-      // Referrals
-      'referral_earned': { icon: Users, desc: `Реферальная награда: ${metadata?.name || 'друг'}`, cat: 'reward' },
-      'referral_joined': { icon: Gift, desc: 'Бонус за регистрацию', cat: 'reward' },
-      // Duel Pass rewards
-      'duel_pass_reward': { icon: Trophy, desc: `Награда Duel Pass (уровень ${metadata?.level || ''})`, cat: 'reward' },
+  const getTransactionInfo = (
+    type: string,
+    metadata?: any
+  ): { description: string; icon: any; category: 'earn' | 'spend' | 'purchase' | 'reward' } => {
+    const duelPassRewardDescription = (meta?: any) => {
+      const levelSuffix = meta?.level
+        ? t('boostShop.transactions.duelPassRewardLevelSuffix', { level: meta.level })
+        : '';
+      const premiumSuffix = meta?.is_premium
+        ? t('boostShop.transactions.duelPassRewardPremiumSuffix')
+        : '';
+      return t('boostShop.transactions.duelPassReward', {
+        level: levelSuffix,
+        premium: premiumSuffix,
+      });
     };
 
-    const info = iconMap[type] || { icon: Coins, desc: type, cat: 'earn' };
-    
-      // Дополнительная обработка для Duel Pass наград
-      if (metadata?.source === 'duel_pass_reward' || type === 'coins_earned_daily' && metadata?.source === 'duel_pass_reward') {
-        const levelText = metadata?.level ? ` (уровень ${metadata.level})` : '';
-        const premiumText = metadata?.is_premium ? ' [Premium]' : '';
+    switch (type) {
+      case 'coins_earned_test':
+        return { icon: TestTube, description: t('boostShop.transactions.coinsEarnedTest'), category: 'earn' };
+      case 'coins_earned_duel':
+        return { icon: Zap, description: t('boostShop.transactions.coinsEarnedDuel'), category: 'earn' };
+      case 'coins_earned_daily':
+        if (metadata?.source === 'duel_pass_reward') {
+          return { icon: Trophy, description: duelPassRewardDescription(metadata), category: 'reward' };
+        }
+        return { icon: Calendar, description: t('boostShop.transactions.coinsEarnedDaily'), category: 'earn' };
+      case 'coins_earned_premium_bonus':
+        return { icon: Gift, description: t('boostShop.transactions.coinsEarnedPremiumBonus'), category: 'earn' };
+      case 'coins_spent_boost':
         return {
-          icon: Trophy,
-          description: `Награда Duel Pass${levelText}${premiumText}`,
-          category: 'reward'
+          icon: Zap,
+          description: t('boostShop.transactions.coinsSpentBoost', {
+            name: metadata?.boost_name || getBoostDisplayName(metadata?.boost_type, metadata?.boost_type || ''),
+          }),
+          category: 'spend',
+        };
+      case 'coins_spent_skin':
+        return { icon: Gift, description: t('boostShop.transactions.coinsSpentSkin'), category: 'spend' };
+      case 'coins_spent_duel_entry':
+        return { icon: Zap, description: t('boostShop.transactions.coinsSpentDuelEntry'), category: 'spend' };
+      case 'coins_purchase_stripe':
+        return {
+          icon: CreditCard,
+          description: t('boostShop.transactions.coinsPurchaseStripe', { amount: metadata?.amount || '' }),
+          category: 'purchase',
+        };
+      case 'premium_purchase_monthly':
+      case 'premium_purchase_yearly':
+      case 'premium_purchase_forever': {
+        const subType =
+          metadata?.subscription_type ||
+          (type.includes('yearly') ? 'yearly' : type.includes('forever') ? 'forever' : 'monthly');
+        return {
+          icon: CreditCard,
+          description: getPremiumPurchaseDescription(subType, metadata?.price),
+          category: 'purchase',
         };
       }
-
+      case 'duel_pass_purchase':
+        return { icon: Trophy, description: t('boostShop.transactions.duelPassPurchase'), category: 'purchase' };
+      case 'bet':
+        return { icon: Zap, description: t('boostShop.transactions.bet'), category: 'spend' };
+      case 'win':
+        return { icon: Trophy, description: t('boostShop.transactions.win'), category: 'earn' };
+      case 'refund':
+        return { icon: Gift, description: t('boostShop.transactions.refund'), category: 'earn' };
+      case 'commission':
+        return { icon: Coins, description: t('boostShop.transactions.commission'), category: 'spend' };
+      case 'referral_earned':
     return {
-      icon: info.icon,
-      description: info.desc,
-      category: info.cat as 'earn' | 'spend' | 'purchase' | 'reward'
-    };
+          icon: Users,
+          description: t('boostShop.transactions.referralReward', {
+            name: metadata?.name || t('boostShop.transactions.referralFallbackName'),
+          }),
+          category: 'reward',
+        };
+      case 'referral_joined':
+        return { icon: Gift, description: t('boostShop.transactions.referralJoined'), category: 'reward' };
+      case 'duel_pass_reward':
+        return { icon: Trophy, description: duelPassRewardDescription(metadata), category: 'reward' };
+      default:
+        return { icon: Coins, description: type, category: 'earn' };
+    }
   };
 
   const loadTransactionHistory = async () => {
@@ -223,8 +296,25 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     try {
       const allTransactions: Transaction[] = [];
       
+      // Load purchases to enrich Premium transaction metadata with prices
+      const { data: purchasesForEnrichment } = await supabaseClient
+        .from('purchases')
+        .select('id, item_type, price, currency, metadata, completed_at, created_at')
+        .eq('user_id', profileId)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false });
+      
+      // Create a map of session_id -> purchase data for quick lookup
+      const purchaseMap = new Map<string, any>();
+      if (purchasesForEnrichment) {
+        purchasesForEnrichment.forEach(p => {
+          const sessionId = p.metadata?.session_id || p.id;
+          purchaseMap.set(sessionId, p);
+        });
+      }
+      
       // 1. Load new transactions table через RPC (обходит RLS для Telegram)
-      const { data: newTransactions, error: transactionsError } = await supabase.rpc('get_user_transactions', {
+      const { data: newTransactions, error: transactionsError } = await supabaseClient.rpc('get_user_transactions', {
         p_user_id: profileId,
         p_limit: 100
       });
@@ -232,7 +322,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       if (transactionsError) {
         console.error('[BoostShop] Ошибка загрузки транзакций через RPC:', transactionsError);
         // Fallback к прямому запросу
-        const { data: fallbackTx } = await supabase
+        const { data: fallbackTx } = await supabaseClient
           .from('transactions')
           .select('id, amount, transaction_type, metadata, created_at')
           .eq('user_id', profileId)
@@ -240,7 +330,23 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           .limit(100);
         if (fallbackTx) {
           fallbackTx.forEach(tx => {
-            const info = getTransactionInfo(tx.transaction_type, tx.metadata);
+            // Enrich Premium transactions with price from purchases
+            let enrichedMetadata = { ...tx.metadata };
+            if (tx.transaction_type?.startsWith('premium_purchase_') && tx.metadata?.session_id) {
+              const purchase = purchaseMap.get(tx.metadata.session_id);
+              if (purchase && purchase.price) {
+                enrichedMetadata = {
+                  ...enrichedMetadata,
+                  price: purchase.price,
+                  currency: purchase.currency || 'EUR',
+                  subscription_type: purchase.metadata?.subscription_type || 
+                    (tx.transaction_type.includes('yearly') ? 'yearly' : 
+                     tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
+                };
+              }
+            }
+            
+            const info = getTransactionInfo(tx.transaction_type, enrichedMetadata);
             allTransactions.push({
               id: tx.id,
               amount: tx.amount,
@@ -249,13 +355,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               created_at: tx.created_at,
               category: info.category,
               icon: info.icon,
-              metadata: tx.metadata
+              metadata: enrichedMetadata
             });
           });
         }
       } else if (newTransactions) {
         newTransactions.forEach(tx => {
-          const info = getTransactionInfo(tx.transaction_type, tx.metadata);
+          // Enrich Premium transactions with price from purchases
+          let enrichedMetadata = { ...tx.metadata };
+          if (tx.transaction_type?.startsWith('premium_purchase_') && tx.metadata?.session_id) {
+            const purchase = purchaseMap.get(tx.metadata.session_id);
+            if (purchase && purchase.price) {
+              enrichedMetadata = {
+                ...enrichedMetadata,
+                price: purchase.price,
+                currency: purchase.currency || 'EUR',
+                subscription_type: purchase.metadata?.subscription_type || 
+                  (tx.transaction_type.includes('yearly') ? 'yearly' : 
+                   tx.transaction_type.includes('forever') ? 'forever' : 'monthly')
+              };
+            }
+          }
+          
+          const info = getTransactionInfo(tx.transaction_type, enrichedMetadata);
           allTransactions.push({
             id: tx.id,
             amount: tx.amount,
@@ -264,13 +386,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             created_at: tx.created_at,
             category: info.category,
             icon: info.icon,
-            metadata: tx.metadata
+            metadata: enrichedMetadata
           });
         });
       }
       
       // 2. Load duel transactions (bets and winnings)
-      const { data: duelTx } = await supabase
+      const { data: duelTx } = await supabaseClient
         .from('duel_transactions')
         .select('id, amount, transaction_type, created_at')
         .eq('user_id', profileId)
@@ -293,7 +415,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       }
       
       // 3. Load purchases (Stripe)
-      const { data: purchases } = await supabase
+      const { data: purchases } = await supabaseClient
         .from('purchases')
         .select('id, item_type, price, currency, status, metadata, created_at, completed_at')
         .eq('user_id', profileId)
@@ -308,13 +430,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           
           if (purchase.item_type === 'coins_pack') {
             const coinsAmount = purchase.metadata?.coins_amount || 0;
-            description = `Покупка монет: ${coinsAmount}`;
+            description = t('boostShop.transactions.coinsPurchaseStripe', { amount: coinsAmount });
             amount = coinsAmount;
           } else if (purchase.item_type === 'premium') {
-            description = 'Premium подписка';
+            const price = purchase.price || purchase.metadata?.price || 0;
+            const subscriptionType = purchase.metadata?.subscription_type || 'monthly';
+            description = getPremiumPurchaseDescription(subscriptionType, price);
             amount = 0; // Premium не дает монет напрямую
+            
+            // Добавляем Premium покупку в историю с ценой в евро
+            allTransactions.push({
+              id: purchase.id,
+              amount: 0, // amount остается 0, но цена будет в описании и metadata
+              type: subscriptionType === 'forever' ? 'premium_purchase_forever' : 
+                    subscriptionType === 'yearly' ? 'premium_purchase_yearly' : 
+                    'premium_purchase_monthly',
+              description,
+              created_at: purchase.completed_at || purchase.created_at,
+              category: 'purchase',
+              icon: CreditCard,
+              metadata: { ...purchase.metadata, price, subscription_type: subscriptionType, currency: purchase.currency || 'EUR' }
+            });
           } else if (purchase.item_type === 'duel_pass') {
-            description = 'Покупка Duel Pass';
+            description = t('boostShop.transactions.duelPassPurchase');
             amount = 0;
           }
           
@@ -334,7 +472,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       }
       
       // 4. Load referral transactions
-      const { data: referrals } = await supabase
+      const { data: referrals } = await supabaseClient
         .from('referrals')
         .select('referred_bonus, referral_bonus, reward_given, created_at, reward_given_at, referred:referred_id(first_name)')
         .or(`referrer_id.eq.${profileId},referred_id.eq.${profileId}`)
@@ -344,23 +482,24 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       if (referrals) {
         referrals.forEach(ref => {
           const isReferrer = ref.reward_given;
+          const referralName = (ref.referred as any)?.first_name || t('boostShop.transactions.referralFallbackName');
           if (isReferrer) {
             allTransactions.push({
               id: `ref_earned_${ref.created_at}`,
               amount: ref.referral_bonus || 100,
               type: 'referral_earned',
-              description: `Реферальная награда: ${(ref.referred as any)?.first_name || 'друг'}`,
+              description: t('boostShop.transactions.referralReward', { name: referralName }),
               created_at: ref.reward_given_at || ref.created_at,
               category: 'reward',
               icon: Users,
-              metadata: { name: (ref.referred as any)?.first_name }
+              metadata: { name: referralName }
             });
           }
           allTransactions.push({
             id: `ref_joined_${ref.created_at}`,
             amount: ref.referred_bonus || 50,
             type: 'referral_joined',
-            description: 'Бонус за регистрацию по реферальной ссылке',
+            description: t('boostShop.transactions.referralJoined'),
             created_at: ref.created_at,
             category: 'reward',
             icon: Gift
@@ -376,7 +515,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       setTransactions(allTransactions);
     } catch (error) {
       console.error('[BoostShop] Error loading transaction history:', error);
-      toast({ title: 'Ошибка загрузки истории', variant: 'destructive' });
+      toast({
+        title: t('boostShop.toasts.errorTitle'),
+        description: t('boostShop.toasts.historyError'),
+        variant: 'destructive',
+      });
     } finally {
       setLoadingHistory(false);
     }
@@ -385,8 +528,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const handleCoinPurchase = async (catalogKey: string) => {
     if (!profileId) {
       toast({
-        title: '❌ Ошибка',
-        description: 'Необходимо войти в систему',
+        title: t('boostShop.toasts.errorTitle'),
+        description: t('boostShop.toasts.needLogin'),
         variant: 'destructive',
       });
       return;
@@ -394,15 +537,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
     try {
       // Создаем Stripe Checkout сессию
-      const { data, error } = await supabase.functions.invoke("purchase-create", {
+      const { data, error } = await supabaseClient.functions.invoke("purchase-create", {
         body: { user_id: profileId, catalog_key: catalogKey },
       });
 
       if (error) {
         console.error("[BoostShop] Purchase error:", error);
         toast({
-          title: '❌ Ошибка',
-          description: error.message || 'Не удалось создать сессию оплаты',
+          title: t('boostShop.toasts.errorTitle'),
+          description: error.message || t('boostShop.toasts.purchaseErrorDescription'),
           variant: 'destructive',
         });
         return;
@@ -411,8 +554,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       if (data?.error) {
         console.error("[BoostShop] Error in response:", data.error);
         toast({
-          title: '❌ Ошибка',
-          description: data.error,
+          title: t('boostShop.toasts.errorTitle'),
+          description: data.error || t('boostShop.toasts.purchaseErrorDescription'),
           variant: 'destructive',
         });
         return;
@@ -421,8 +564,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       if (!data?.url) {
         console.error("[BoostShop] No URL in response:", data);
         toast({
-          title: '❌ Ошибка',
-          description: 'Не удалось получить ссылку на оплату',
+          title: t('boostShop.toasts.errorTitle'),
+          description: t('boostShop.toasts.sessionError'),
           variant: 'destructive',
         });
         return;
@@ -465,8 +608,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     } catch (err: any) {
       console.error("[BoostShop] Purchase error:", err);
       toast({
-        title: '❌ Ошибка',
-        description: err?.message || 'Произошла ошибка при создании покупки',
+        title: t('boostShop.toasts.errorTitle'),
+        description: err?.message || t('boostShop.toasts.purchaseErrorDescription'),
         variant: 'destructive',
       });
     }
@@ -475,8 +618,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const handlePurchase = async (boost: Boost) => {
     if (!profileId) {
       toast({
-        title: '❌ Ошибка',
-        description: 'Необходимо войти в систему',
+        title: t('boostShop.toasts.errorTitle'),
+        description: t('boostShop.toasts.needLogin'),
         variant: 'destructive',
       });
       return;
@@ -484,8 +627,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
     if (coins < boost.cost_coins) {
       toast({
-        title: '❌ Недостаточно монет',
-        description: `Вам нужно ещё ${boost.cost_coins - coins} монет`,
+        title: t('boostShop.toasts.errorTitle'),
+        description: t('boostShop.toasts.insufficientCoins', { amount: boost.cost_coins - coins }),
         variant: 'destructive',
       });
       haptics.wrongAnswer();
@@ -507,7 +650,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       });
 
       // Проверяем существование профиля перед покупкой
-      const { data: profileCheck, error: profileCheckError } = await supabase
+      const { data: profileCheck, error: profileCheckError } = await supabaseClient
         .from('profiles')
         .select('id, coins')
         .eq('id', profileId)
@@ -522,7 +665,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // Используем функцию increment_profile_value для списания монет
       // Она использует SECURITY DEFINER и обходит RLS проблемы
-      const { data: coinsData, error: coinsError } = await supabase.rpc('increment_profile_value', {
+      const { data: coinsData, error: coinsError } = await supabaseClient.rpc('increment_profile_value', {
         p_profile_id: profileId,
         p_column: 'coins',
         p_amount: -boost.cost_coins
@@ -543,7 +686,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // Добавляем буст в инвентарь используя функцию modify_boost_inventory
       // Это более надежный способ, который обходит RLS проблемы
-      const { data: inventoryData, error: inventoryError } = await supabase.rpc('modify_boost_inventory', {
+      const { data: inventoryData, error: inventoryError } = await supabaseClient.rpc('modify_boost_inventory', {
         p_user_id: profileId,
         p_boost_type: boost.type,
         p_change: 1
@@ -559,7 +702,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         });
         
         // Откатываем списание монет при ошибке
-        const { error: rollbackError } = await supabase.rpc('increment_profile_value', {
+        const { error: rollbackError } = await supabaseClient.rpc('increment_profile_value', {
           p_profile_id: profileId,
           p_column: 'coins',
           p_amount: boost.cost_coins
@@ -576,7 +719,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
       // Создаем транзакцию о покупке буста через RPC (обходит RLS для Telegram)
       try {
-        const { error: transactionError } = await supabase.rpc('create_transaction', {
+        const { error: transactionError } = await supabaseClient.rpc('create_transaction', {
           p_user_id: profileId,
           p_transaction_type: 'coins_spent_boost',
           p_amount: -boost.cost_coins,
@@ -602,7 +745,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       setIsRefreshing(true);
       try {
         // Обновляем баланс монет
-        const { data: updatedProfile } = await supabase
+        const { data: updatedProfile } = await supabaseClient
           .from('profiles')
           .select('coins')
           .eq('id', profileId)
@@ -613,13 +756,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         }
 
         // Обновляем инвентарь через RPC (обходит RLS для Telegram)
-        const { data: updatedInventory, error: invError } = await supabase.rpc('get_user_boost_inventory', {
+        const { data: updatedInventory, error: invError } = await supabaseClient.rpc('get_user_boost_inventory', {
           p_user_id: profileId
         });
 
         if (invError) {
           console.warn('[BoostShop] Ошибка обновления инвентаря через RPC, пробуем прямой запрос:', invError);
-          const { data: fallbackInventory } = await supabase
+          const { data: fallbackInventory } = await supabaseClient
             .from('boost_inventory')
             .select('boost_type, quantity')
             .eq('user_id', profileId);
@@ -637,9 +780,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         setIsRefreshing(false);
       }
 
+      const localizedName = translateBoostField(boost.type, 'name', boost.name_ru);
       toast({
-        title: '✅ Покупка успешна!',
-        description: `${boost.name_ru} добавлен в инвентарь`,
+        title: t('boostShop.toasts.purchaseSuccessTitle'),
+        description: t('boostShop.toasts.purchaseSuccessDescription', { name: localizedName }),
       });
     } catch (error: any) {
       console.error('[BoostShop] Ошибка покупки:', error);
@@ -651,10 +795,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       });
       
       toast({
-        title: '❌ Ошибка покупки',
-        description: errorMessage.includes('RLS') 
-          ? 'Ошибка доступа. Попробуйте обновить страницу и войти снова.'
-          : errorMessage || 'Не удалось совершить покупку. Попробуйте еще раз.',
+        title: t('boostShop.toasts.purchaseErrorTitle'),
+        description: errorMessage.includes('RLS')
+          ? t('boostShop.toasts.rlsError')
+          : errorMessage || t('boostShop.toasts.purchaseErrorDescription'),
         variant: 'destructive',
       });
       haptics.wrongAnswer();
@@ -687,7 +831,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-              <DialogTitle className="text-base md:text-lg font-semibold truncate">Магазин</DialogTitle>
+              <DialogTitle className="text-base md:text-lg font-semibold truncate">
+                {t('boostShop.title')}
+              </DialogTitle>
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <button 
@@ -728,19 +874,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="boosts" className="text-xs truncate">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">Бусты</span>
+                  <span className="truncate">{t('boostShop.tabs.boosts')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="coins" className="text-xs truncate">
                   <Coins className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">Монеты</span>
+                  <span className="truncate">{t('boostShop.tabs.coins')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="premium" className="text-xs truncate">
                   <Crown className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">Premium</span>
+                  <span className="truncate">{t('boostShop.tabs.premium')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="history" className="text-xs truncate">
                   <History className="w-3 h-3 mr-1 flex-shrink-0" />
-                  <span className="truncate">История</span>
+                  <span className="truncate">{t('boostShop.tabs.history')}</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -750,7 +896,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-semibold text-muted-foreground px-1">Популярные бусты</h3>
+                      <h3 className="text-sm font-semibold text-muted-foreground px-1">
+                        {t('boostShop.sections.popular')}
+                      </h3>
                       <div className="space-y-2">
                         {regularBoosts.map((boost) => (
                           <BoostCard
@@ -768,8 +916,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   {premiumBoosts.length > 0 && (
                     <div className="space-y-2 mt-4">
                       <div className="flex items-center gap-2 px-1">
-                        <h3 className="text-sm font-semibold text-muted-foreground">Премиум бусты</h3>
-                        <Badge className="gradient-gold border-none text-xs px-1.5 py-0">Premium</Badge>
+                        <h3 className="text-sm font-semibold text-muted-foreground">
+                          {t('boostShop.sections.premium')}
+                        </h3>
+                        <Badge className="gradient-gold border-none text-xs px-1.5 py-0">
+                          {t('boostShop.sections.premiumBadge')}
+                        </Badge>
                       </div>
                       <div className="space-y-2">
                         {premiumBoosts.map((boost) => (
@@ -789,7 +941,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   {boosts.length === 0 && (
                     <div className="text-center py-12 text-muted-foreground">
                       <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                      <p className="text-sm">Бусты скоро появятся</p>
+                      <p className="text-sm">{t('boostShop.sections.empty')}</p>
                     </div>
                   )}
               </>
@@ -799,7 +951,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               <div className="space-y-3">
                 <div className="text-center py-4">
-                  <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {t('boostShop.coins.topUpTitle')}
+                  </p>
                   <div className="flex items-center justify-center gap-2">
                     <Coins className="w-6 h-6 text-yellow-500" />
                     <span className="text-2xl font-bold">{coins}</span>
@@ -820,10 +974,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             <Coins className="w-6 h-6 text-yellow-500" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-semibold truncate">{pack.amount} монет</p>
+                            <p className="font-semibold truncate">
+                              {t('boostShop.coins.packLabel', { amount: pack.amount })}
+                            </p>
                             {pack.bonus > 0 && (
                               <Badge variant="secondary" className="text-xs mt-0.5">
-                                +{pack.bonus} бонус
+                                {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                               </Badge>
                             )}
                           </div>
@@ -838,7 +994,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               disabled={!profileId}
                               variant="default"
                             >
-                              Купить
+                              {t('boostShop.buttons.buy')}
                             </Button>
                             {showStarsPayment && (
                               <StarsPaymentButton
@@ -847,8 +1003,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 onSuccess={() => {
                                   loadData(); // Обновить баланс после успешной оплаты
                                   toast({
-                                    title: '✅ Оплата успешна!',
-                                    description: `Вы получили ${pack.amount} монет`,
+                                    title: t('boostShop.coins.successTitle'),
+                                    description: t('boostShop.coins.successDescription', { amount: pack.amount }),
                                     duration: 5000,
                                   });
                                   setShowConfetti(true);
@@ -867,7 +1023,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
 
                 <div className="text-center text-xs text-muted-foreground pt-2">
-                  <p>💡 Получайте больше монет с Premium</p>
+                  <p>{t('boostShop.coins.premiumHint')}</p>
                 </div>
               </div>
             </TabsContent>
@@ -881,35 +1037,37 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Crown className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
-                        <h3 className="text-base md:text-lg font-bold">Premium подписка</h3>
+                        <h3 className="text-base md:text-lg font-bold">{t('boostShop.premium.title')}</h3>
                       </div>
                       {isPremium && (
-                        <Badge className="bg-green-500">Активна</Badge>
+                        <Badge className="bg-green-500">{t('boostShop.premium.activeBadge')}</Badge>
                       )}
                     </div>
                     
                     <div className="space-y-2 text-xs md:text-sm">
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Безлимитный доступ ко всем тестам</span>
+                        <span>{t('boostShop.premium.benefits.unlimitedTests')}</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>+50% монет за обучение</span>
+                        <span>{t('boostShop.premium.benefits.bonusCoins')}</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Duel Pass Premium награды</span>
+                        <span>{t('boostShop.premium.benefits.duelPassRewards')}</span>
                       </div>
                       <div className="flex items-start gap-2">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Без рекламы и мгновенные подсказки</span>
+                        <span>{t('boostShop.premium.benefits.instantHints')}</span>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                       <Card className="p-3 border-primary/30">
-                        <p className="text-xs text-muted-foreground mb-1">Месяц</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          {t('boostShop.premium.monthlyLabel')}
+                        </p>
                         <p className="text-base md:text-lg font-bold">€9.99</p>
                         <Button 
                           size="sm" 
@@ -917,13 +1075,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           onClick={() => setPaywallOpen(true)}
                           disabled={isPremium}
                         >
-                          {isPremium ? 'Активна' : 'Выбрать'}
+                          {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
                         </Button>
                       </Card>
                       <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs text-muted-foreground">Навсегда</p>
-                          <Badge className="text-xs bg-yellow-500">Лучшее</Badge>
+                          <p className="text-xs text-muted-foreground">
+                            {t('boostShop.premium.lifetimeLabel')}
+                          </p>
+                          <Badge className="text-xs bg-yellow-500">
+                            {t('boostShop.premium.bestBadge')}
+                          </Badge>
                         </div>
                         <p className="text-base md:text-lg font-bold">€59.99</p>
                         <Button 
@@ -932,7 +1094,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           onClick={() => setPaywallOpen(true)}
                           disabled={isPremium}
                         >
-                          {isPremium ? 'Активна' : 'Выбрать'}
+                          {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
                         </Button>
                       </Card>
                     </div>
@@ -944,20 +1106,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Trophy className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
-                      <h3 className="text-base md:text-lg font-bold">Duel Pass</h3>
+                      <h3 className="text-base md:text-lg font-bold">{t('boostShop.duelPass.title')}</h3>
                     </div>
                     <p className="text-xs md:text-sm text-muted-foreground">
-                      Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.
+                      {t('boostShop.duelPass.description')}
                     </p>
                     <Button 
                       className="w-full"
                       onClick={() => {
-                        // TODO: Navigate to Duel Pass or show Duel Pass modal
-                        toast({ title: 'Duel Pass', description: 'Откройте Duel Pass на главной странице' });
+                        toast({
+                          title: t('boostShop.duelPass.toastTitle'),
+                          description: t('boostShop.duelPass.toastDescription'),
+                        });
                       }}
                     >
                       <Trophy className="w-4 h-4 mr-2" />
-                      Открыть Duel Pass
+                      {t('boostShop.duelPass.button')}
                     </Button>
                   </div>
                 </Card>
@@ -970,10 +1134,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold flex items-center gap-2">
                     <History className="h-4 w-4" />
-                    История монет
+                    {t('boostShop.history.title')}
                   </h4>
                   <span className="text-xs text-muted-foreground">
-                    {transactions.length} операций
+                    {t('boostShop.history.operationsCount', { count: transactions.length })}
                   </span>
                 </div>
                 
@@ -985,7 +1149,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     className="h-7 text-xs"
                     onClick={() => setFilterCategory('all')}
                   >
-                    Все
+                    {t('boostShop.history.filters.all')}
                   </Button>
                   <Button
                     variant={filterCategory === 'earn' ? 'default' : 'outline'}
@@ -994,7 +1158,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     onClick={() => setFilterCategory('earn')}
                   >
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    Доходы
+                    {t('boostShop.history.filters.earn')}
                   </Button>
                   <Button
                     variant={filterCategory === 'spend' ? 'default' : 'outline'}
@@ -1003,7 +1167,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     onClick={() => setFilterCategory('spend')}
                   >
                     <TrendingDown className="h-3 w-3 mr-1" />
-                    Расходы
+                    {t('boostShop.history.filters.spend')}
                   </Button>
                   <Button
                     variant={filterCategory === 'purchase' ? 'default' : 'outline'}
@@ -1012,7 +1176,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     onClick={() => setFilterCategory('purchase')}
                   >
                     <CreditCard className="h-3 w-3 mr-1" />
-                    Покупки
+                    {t('boostShop.history.filters.purchase')}
                   </Button>
                   <Button
                     variant={filterCategory === 'reward' ? 'default' : 'outline'}
@@ -1021,7 +1185,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     onClick={() => setFilterCategory('reward')}
                   >
                     <Gift className="h-3 w-3 mr-1" />
-                    Награды
+                    {t('boostShop.history.filters.reward')}
                   </Button>
                 </div>
               </div>
@@ -1044,13 +1208,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             <>
                               <Coins className="h-12 w-12 mx-auto opacity-30" />
                               <div>
-                                <p className="text-sm font-medium mb-1">Здесь появятся твои транзакции</p>
-                                <p className="text-xs">Начни зарабатывать монеты, проходя тесты и дуэли!</p>
+                                <p className="text-sm font-medium mb-1">
+                                  {t('boostShop.history.empty.all.title')}
+                                </p>
+                                <p className="text-xs">
+                                  {t('boostShop.history.empty.all.description')}
+                                </p>
                               </div>
                               {!isPremium && (
                                 <div className="pt-2">
                                   <Badge variant="secondary" className="text-xs">
-                                    💡 Premium удваивает награды
+                                    {t('boostShop.history.empty.all.premiumHint')}
                                   </Badge>
                                 </div>
                               )}
@@ -1059,37 +1227,55 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             <>
                               <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
                               <div>
-                                <p className="text-sm font-medium mb-1">Нет доходов</p>
-                                <p className="text-xs">Проходи тесты, выигрывай дуэли и получай ежедневные бонусы!</p>
+                                <p className="text-sm font-medium mb-1">
+                                  {t('boostShop.history.empty.earn.title')}
+                                </p>
+                                <p className="text-xs">
+                                  {t('boostShop.history.empty.earn.description')}
+                                </p>
                               </div>
                             </>
                           ) : filterCategory === 'spend' ? (
                             <>
                               <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
                               <div>
-                                <p className="text-sm font-medium mb-1">Нет расходов</p>
-                                <p className="text-xs">Покупай бусты и используй их для улучшения результатов!</p>
+                                <p className="text-sm font-medium mb-1">
+                                  {t('boostShop.history.empty.spend.title')}
+                                </p>
+                                <p className="text-xs">
+                                  {t('boostShop.history.empty.spend.description')}
+                                </p>
                               </div>
                             </>
                           ) : filterCategory === 'purchase' ? (
                             <>
                               <CreditCard className="h-12 w-12 mx-auto opacity-30" />
                               <div>
-                                <p className="text-sm font-medium mb-1">Нет покупок</p>
-                                <p className="text-xs">Пополни баланс монет или получи Premium для больше возможностей!</p>
+                                <p className="text-sm font-medium mb-1">
+                                  {t('boostShop.history.empty.purchase.title')}
+                                </p>
+                                <p className="text-xs">
+                                  {t('boostShop.history.empty.purchase.description')}
+                                </p>
                               </div>
                             </>
                           ) : (
                             <>
                               <Gift className="h-12 w-12 mx-auto opacity-30" />
                               <div>
-                                <p className="text-sm font-medium mb-1">Нет наград</p>
-                                <p className="text-xs">Получай награды за Duel Pass, рефералов и достижения!</p>
+                                <p className="text-sm font-medium mb-1">
+                                  {t('boostShop.history.empty.reward.title')}
+                                </p>
+                                <p className="text-xs">
+                                  {t('boostShop.history.empty.reward.description')}
+                                </p>
                               </div>
                             </>
                           )}
                           {filterCategory !== 'all' && (
-                            <p className="text-xs mt-2 pt-2 border-t border-border/50">Попробуйте другой фильтр</p>
+                            <p className="text-xs mt-2 pt-2 border-t border-border/50">
+                              {t('boostShop.history.tryOtherFilter')}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -1120,25 +1306,28 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 <p className="text-sm font-medium truncate">{tx.description}</p>
                                 <div className="flex items-center gap-2 mt-0.5">
                                   <p className="text-xs text-muted-foreground">
-                                    {new Date(tx.created_at).toLocaleDateString('ru', { 
-                                      day: 'numeric',
-                                      month: 'short',
-                                      hour: '2-digit',
-                                      minute: '2-digit' 
-                                    })}
+                                    {formatTransactionDate(tx.created_at)}
                                   </p>
                                   {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
                                     <Badge variant="secondary" className="text-xs h-4 px-1.5">
-                                      {tx.category === 'purchase' ? 'Покупка' : tx.category === 'reward' ? 'Награда' : ''}
+                                      {tx.category === 'purchase'
+                                        ? t('boostShop.history.badges.purchase')
+                                        : tx.category === 'reward'
+                                          ? t('boostShop.history.badges.reward')
+                                          : ''}
                                     </Badge>
                                   )}
                                 </div>
                               </div>
                             </div>
                             <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
-                              tx.amount > 0 ? 'text-green-600' : 'text-red-600'
+                              tx.amount > 0 ? 'text-green-600' : tx.metadata?.price ? 'text-blue-600' : 'text-red-600'
                             }`}>
-                              {tx.amount > 0 ? '+' : ''}{tx.amount}
+                              {tx.metadata?.price && tx.amount === 0 ? (
+                                <span className="text-blue-600">€{tx.metadata.price}</span>
+                              ) : (
+                                <span>{tx.amount > 0 ? '+' : ''}{tx.amount}</span>
+                              )}
                             </span>
                           </motion.div>
                         );

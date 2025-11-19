@@ -41,13 +41,13 @@ export function Footer() {
               to="/blog" 
               className="hover:text-foreground transition-colors"
             >
-              Блог
+              {t('footer.blog')}
             </Link>
             <Link 
               to="/help" 
               className="hover:text-foreground transition-colors"
             >
-              Помощь
+              {t('footer.help')}
             </Link>
             <Link 
               to="/terms" 
