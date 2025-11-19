@@ -688,7 +688,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "[&>button]:hidden",
           "bg-slate-950",
           "!grid !grid-rows-1",
-          "!z-[9999]"
+          "!z-[2147483646]"
         )}
         style={{ opacity: 1, visibility: 'visible', display: 'grid' }}
         hideCloseButton
