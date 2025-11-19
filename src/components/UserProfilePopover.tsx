@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -39,6 +39,18 @@ import { toast } from "sonner";
 
 const supabaseClient = supabase as any;
 
+// Глобальный кэш для данных профиля (не очищается при навигации)
+const profileCache: Record<string, { 
+  data: any; 
+  timestamp: number;
+}> = {};
+const PROFILE_CACHE_DURATION = 300000; // 5 минут
+
+// Функция для инвалидации кэша профиля (для использования в других компонентах)
+export function invalidateProfileCache(profileId: string) {
+  delete profileCache[profileId];
+}
+
 const generateAvatarColor = (userId: string) => {
   const colors = [
     'hsl(270, 70%, 65%)',
@@ -77,6 +89,7 @@ export function UserProfilePopover() {
   const [loading, setLoading] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const isMiniApp = isTelegramMiniApp();
+  const hasInitializedRef = useRef(false);
 
   // Загружаем профиль сразу при монтировании для загрузки аватара в header
   useEffect(() => {
@@ -87,16 +100,31 @@ export function UserProfilePopover() {
     }
   }, [profileId]);
 
-  const loadProfile = async () => {
+  const loadProfile = async (force = false) => {
     if (!profileId) return;
+
+    // Проверяем кэш перед загрузкой
+    const cached = profileCache[profileId];
+    const now = Date.now();
+    if (!force && cached && (now - cached.timestamp) < PROFILE_CACHE_DURATION) {
+      setProfile(cached.data);
+      setLoading(false);
+      setShowSkeleton(false);
+      hasInitializedRef.current = true;
+      return;
+    }
 
     try {
       setLoading(true);
-      setShowSkeleton(true);
+      if (!hasInitializedRef.current) {
+        setShowSkeleton(true);
+      }
       
       // Задержка перед показом skeleton для предотвращения мигания
       const skeletonTimeout = setTimeout(() => {
-        setShowSkeleton(true);
+        if (!hasInitializedRef.current) {
+          setShowSkeleton(true);
+        }
       }, 100);
 
       const { data, error } = await supabaseClient
@@ -109,9 +137,12 @@ export function UserProfilePopover() {
 
       if (data) {
         setProfile(data);
+        // Сохраняем в кэш
+        profileCache[profileId] = { data, timestamp: now };
       }
       
       clearTimeout(skeletonTimeout);
+      hasInitializedRef.current = true;
     } catch (error) {
       console.error('[UserProfilePopover] Failed to load profile:', error);
     } finally {

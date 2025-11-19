@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Coins, Trophy } from 'lucide-react';
@@ -16,6 +16,14 @@ interface WalletWidgetProps {
   className?: string;
 }
 
+// Глобальный кэш для данных сезона (не очищается при навигации)
+const duelPassCache: Record<string, { 
+  data: { level: number; xp: number; progress: number; spToNextLevel: number } | null;
+  seasonData: { name_ru?: string; days_remaining?: number; end_date?: string } | null;
+  timestamp: number;
+}> = {};
+const DUEL_PASS_CACHE_DURATION = 30000; // 30 секунд
+
 export function WalletWidget({ className }: WalletWidgetProps) {
   const { profileId } = useUserContext();
   const { balance, loading: coinsLoading } = useCoins();
@@ -27,6 +35,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const [seasonData, setSeasonData] = useState<{ name_ru?: string; days_remaining?: number; end_date?: string } | null>(null);
   const [duelPassLoading, setDuelPassLoading] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     if (!profileId) {
@@ -34,11 +43,28 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       return;
     }
 
+    // Проверяем кэш перед загрузкой
+    const cached = duelPassCache[profileId];
+    const now = Date.now();
+    let skeletonTimeout: NodeJS.Timeout | null = null;
+    
+    if (cached && (now - cached.timestamp) < DUEL_PASS_CACHE_DURATION) {
+      setDuelPassData(cached.data);
+      setSeasonData(cached.seasonData);
+      setDuelPassLoading(false);
+      setShowSkeleton(false);
+      hasInitializedRef.current = true;
+      // Не загружаем заново, если кэш свежий
+      return;
+    }
+
     // Задержка перед показом skeleton для предотвращения мигания
-    setShowSkeleton(true);
-    const skeletonTimeout = setTimeout(() => {
+    if (!hasInitializedRef.current) {
       setShowSkeleton(true);
-    }, 100);
+      skeletonTimeout = setTimeout(() => {
+        setShowSkeleton(true);
+      }, 100);
+    }
 
     const loadDuelPass = async () => {
       try {
@@ -108,25 +134,48 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             ? Math.min(((spForCurrentLevel - spToNextLevel) / spForCurrentLevel) * 100, 100)
             : 0;
 
-          setDuelPassData({
+          const duelPassDataValue = {
             level: currentLevel,
             xp: currentSP,
             progress: Math.max(0, progressPercent),
             spToNextLevel: spToNextLevel
-          });
+          };
+          setDuelPassData(duelPassDataValue);
+          // Сохраняем в кэш
+          duelPassCache[profileId] = {
+            data: duelPassDataValue,
+            seasonData: {
+              name_ru: activeSeason.name_ru,
+              days_remaining: activeSeason.days_remaining,
+              end_date: activeSeason.end_date,
+            },
+            timestamp: Date.now()
+          };
         } else {
           // Fallback если нет наград
-          setDuelPassData({
+          const duelPassDataValue = {
             level: currentLevel,
             xp: currentSP,
             progress: 0,
             spToNextLevel: 0
-          });
+          };
+          setDuelPassData(duelPassDataValue);
+          // Сохраняем в кэш
+          duelPassCache[profileId] = {
+            data: duelPassDataValue,
+            seasonData: {
+              name_ru: activeSeason.name_ru,
+              days_remaining: activeSeason.days_remaining,
+              end_date: activeSeason.end_date,
+            },
+            timestamp: Date.now()
+          };
         }
       } catch (error) {
         console.error('[WalletWidget] Error loading Duel Pass data:', error);
       } finally {
         setDuelPassLoading(false);
+        hasInitializedRef.current = true;
       }
     };
 
@@ -136,7 +185,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
     const interval = setInterval(loadDuelPass, 30000);
     
     return () => {
-      clearTimeout(skeletonTimeout);
+      if (skeletonTimeout) clearTimeout(skeletonTimeout);
       clearInterval(interval);
     };
   }, [profileId, coinsLoading]);
@@ -178,12 +227,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         ) : duelPassData ? (
           <button
             onClick={() => {
-              const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-              if (!hasSeenOnboarding) {
-                setOnboardingOpen(true);
-              } else {
-                setDuelPassModalOpen(true);
-              }
+              // Всегда показываем onboarding при клике
+              setOnboardingOpen(true);
             }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}
@@ -215,12 +260,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         {!isLoading && duelPassData && (
           <button
             onClick={() => {
-              const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-              if (!hasSeenOnboarding) {
-                setOnboardingOpen(true);
-              } else {
-                setDuelPassModalOpen(true);
-              }
+              // Всегда показываем onboarding при клике
+              setOnboardingOpen(true);
             }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}

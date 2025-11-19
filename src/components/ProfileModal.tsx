@@ -13,6 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/AuthModal";
+import { invalidateProfileCache } from "@/components/UserProfilePopover";
 import { 
   User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon, 
   Gift, ChevronRight, Shield, Bell, Mail, Link as LinkIcon, Check, ExternalLink
@@ -279,6 +280,11 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         .eq('id', profileId);
 
       if (updateError) throw updateError;
+
+      // Очищаем кэш профиля, чтобы обновить аватар
+      if (profileId) {
+        invalidateProfileCache(profileId);
+      }
 
       toast.success(t('avatarUploaded'));
       loadUserProfile();

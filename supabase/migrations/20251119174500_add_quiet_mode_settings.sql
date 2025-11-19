@@ -21,3 +21,4 @@ WHERE categories_enabled::text = '["duel", "daily", "motivation", "educational"]
 
 
 
+

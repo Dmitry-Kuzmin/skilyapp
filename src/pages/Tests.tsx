@@ -82,7 +82,7 @@ const Tests = () => {
   const { isAuthenticated, profileId } = useUserContext();
   const { t } = useLanguage(); // Используем существующий LanguageContext!
   const { isPremium } = usePremium();
-  const { balance } = useCoins();
+  const { balance, loading: coinsLoading } = useCoins();
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [testAttempts, setTestAttempts] = useState(0);
   const [failedTestsCount, setFailedTestsCount] = useState(0);
@@ -468,7 +468,7 @@ const Tests = () => {
         {/* Inline Upsell Banners - только при триггерах */}
         {!isPremium && (
           <>
-            {balance < 50 && (
+            {!coinsLoading && balance < 50 && (
               <TestUpsellBanner trigger="low_coins" coins={balance} />
             )}
             {failedTestsCount >= 2 && (

@@ -375,14 +375,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     if (open && profileId) {
       loadSeasonData();
       
-      // Проверяем, видел ли пользователь онбординг
-      const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-      if (!hasSeenOnboarding) {
-        // Показываем онбординг после загрузки данных
-        setTimeout(() => {
-          setShowOnboarding(true);
-        }, 500);
-      }
+      // Всегда показываем онбординг при открытии модалки
+      setTimeout(() => {
+        setShowOnboarding(true);
+      }, 500);
     }
   }, [open, profileId]);
 
