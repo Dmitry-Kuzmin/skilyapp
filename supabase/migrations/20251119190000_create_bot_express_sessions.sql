@@ -44,6 +44,7 @@ CREATE TRIGGER trg_update_bot_express_sessions
 
 ALTER TABLE public.bot_express_sessions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Profiles manage their bot express sessions" ON public.bot_express_sessions;
 CREATE POLICY "Profiles manage their bot express sessions"
   ON public.bot_express_sessions
   FOR ALL
