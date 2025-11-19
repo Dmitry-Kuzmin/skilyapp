@@ -41,10 +41,12 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const totalSlides = 5;
 
-  // Логирование для отладки
+  // Логирование для отладки - только при изменении open
   useEffect(() => {
-    console.log('[DuelPassOnboarding] State changed', { open, isMobile, currentSlide, hasContent: !!content });
-  }, [open, isMobile, currentSlide, content]);
+    if (open) {
+      console.log('[DuelPassOnboarding] ✅ OPENED', { isMobile, currentSlide });
+    }
+  }, [open, isMobile, currentSlide]);
 
   const handleNext = () => {
     if (currentSlide < totalSlides - 1) {
@@ -683,7 +685,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "relative backdrop-blur-xl",
           "[&>button]:hidden",
           "bg-slate-950",
-          "grid grid-rows-1"
+          "!grid !grid-rows-1"
         )}
         hideCloseButton
       >
