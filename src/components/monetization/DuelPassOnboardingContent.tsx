@@ -509,7 +509,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
   };
 
   return (
-    <div className={cn("relative flex flex-col min-h-full", seasonTheme.gradient)} style={{ minHeight: '100%' }}>
+    <div className={cn("relative flex flex-col h-full", seasonTheme.gradient)} style={{ height: '100%', minHeight: '100%' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 md:p-6 pb-3 border-b border-white/10">
         <div className="flex items-center gap-3">
