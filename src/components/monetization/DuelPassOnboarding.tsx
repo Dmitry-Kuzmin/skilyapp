@@ -90,9 +90,9 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 contentWrapper.style.setProperty('opacity', '1', 'important');
                 contentWrapper.style.setProperty('visibility', 'visible', 'important');
                 // Устанавливаем адаптивную высоту для контента - используем высоту диалога минус отступы
-                // Header и footer занимают примерно 120-140px вместе, оставляем запас
-                const headerFooterHeight = 140; // Header + Footer + отступы
-                const contentMaxHeight = Math.max(200, maxHeight - headerFooterHeight); // Минимум 200px для контента
+                // Header и footer занимают примерно 100-120px вместе, используем адаптивный расчет
+                const headerFooterHeight = Math.min(120, maxHeight * 0.35); // Максимум 35% от высоты диалога или 120px
+                const contentMaxHeight = Math.max(250, maxHeight - headerFooterHeight - 20); // Минимум 250px для контента, -20px для отступов
                 contentWrapper.style.setProperty('min-height', '0', 'important'); // Убираем фиксированный min-height
                 contentWrapper.style.setProperty('max-height', `${contentMaxHeight}px`, 'important');
                 contentWrapper.style.setProperty('overflow-y', 'auto', 'important');
