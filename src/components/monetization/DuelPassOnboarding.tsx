@@ -94,11 +94,27 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               // Убеждаемся, что элемент не скрыт
               dialogElement.style.setProperty('pointer-events', 'auto', 'important');
               
+              // Проверяем overlay - он не должен перекрывать диалог
+              const overlay = document.querySelector('[role="dialog"] ~ [data-radix-dialog-overlay]') as HTMLElement;
+              if (overlay) {
+                const overlayZIndex = window.getComputedStyle(overlay).zIndex;
+                console.log('[DuelPassOnboarding] Overlay z-index:', overlayZIndex);
+                if (parseInt(overlayZIndex) >= parseInt(computed.zIndex)) {
+                  overlay.style.setProperty('z-index', '2147483645', 'important');
+                }
+              }
+              
               // Прокручиваем страницу к диалогу, если он не в видимой области
               setTimeout(() => {
                 const newRect = dialogElement.getBoundingClientRect();
                 const isInViewport = newRect.top >= 0 && newRect.top < viewportHeight && 
                                    newRect.left >= 0 && newRect.left < viewportWidth;
+                console.log('[DuelPassOnboarding] After positioning - isInViewport:', isInViewport, 'rect:', {
+                  top: Math.round(newRect.top),
+                  left: Math.round(newRect.left),
+                  width: Math.round(newRect.width),
+                  height: Math.round(newRect.height),
+                });
                 if (!isInViewport) {
                   dialogElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
