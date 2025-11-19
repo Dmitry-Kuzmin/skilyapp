@@ -88,6 +88,16 @@ const articles: Article[] = [
     categorySlug: "tips",
   },
   {
+    slug: "tehnologii-skilyapp",
+    title: "7 технологий Skilyapp, которые тихо работают на ваш результат",
+    description: "Разбираем AI-компаньона Lumi, Edge Functions, офлайн-микротренировки и Duel Economy — всё, что под капотом вашего обучения.",
+    excerpt: "AI-подсказки, адаптивная аналитика, честные дуэли и синхронизация с Telegram — показываем, какие технологии уже работают на ваш результат.",
+    publishedAt: "2025-03-08",
+    readTime: 12,
+    category: "Актуально",
+    categorySlug: "news",
+  },
+  {
     slug: "kak-gotovitsya-dgt-pri-plotnom-grafike",
     title: "Как готовиться к экзамену DGT, если времени почти нет",
     description: "Пошаговая стратегия для тех, у кого обучение совмещается с работой и семьёй. Микросессии, умные напоминания и фокус только на том, что приносит результат.",
