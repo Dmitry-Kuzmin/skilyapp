@@ -70,21 +70,13 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               
               const computed = window.getComputedStyle(dialogElement);
               const rect = dialogElement.getBoundingClientRect();
-              // Используем правильный viewport - берем максимальное значение из разных источников
-              const viewportHeight = Math.max(
-                window.innerHeight,
-                document.documentElement.clientHeight,
-                document.documentElement.offsetHeight
-              );
-              const viewportWidth = Math.max(
-                window.innerWidth,
-                document.documentElement.clientWidth,
-                document.documentElement.offsetWidth
-              );
+              // Используем видимую область экрана (window.innerHeight), а не общую высоту страницы
+              const viewportHeight = window.innerHeight;
+              const viewportWidth = window.innerWidth;
               const isVisible = rect.top >= 0 && rect.top < viewportHeight && rect.left >= 0 && rect.left < viewportWidth;
               
               // Принудительно устанавливаем позицию относительно видимого окна
-              // Для fixed позиции используем viewport без учета прокрутки
+              // Для fixed позиции используем видимую область экрана
               const centerY = viewportHeight / 2;
               const centerX = viewportWidth / 2;
               dialogElement.style.setProperty('top', `${centerY}px`, 'important');
