@@ -1925,19 +1925,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </Dialog>
       )}
 
-    <DuelPassOnboarding
-      open={showOnboarding}
-      onOpenChange={setShowOnboarding}
-      onComplete={() => {
-        setShowOnboarding(false);
-      }}
-      seasonData={activeSeason ? {
-        name_ru: activeSeason.name_ru,
-        days_remaining: activeSeason.days_remaining,
-        end_date: activeSeason.end_date
-      } : undefined}
-    />
-
     <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     
     {/* Premium Reward Upsell Modal */}
