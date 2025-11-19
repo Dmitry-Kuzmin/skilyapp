@@ -45,6 +45,21 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   useEffect(() => {
     if (open) {
       console.log('[DuelPassOnboarding] ✅ OPENED', { isMobile, currentSlide });
+      // Помогаем найти элемент в DOM
+      setTimeout(() => {
+        const dialogElement = document.querySelector('[data-duel-pass-onboarding="true"]');
+        if (dialogElement) {
+          console.log('[DuelPassOnboarding] ✅ Dialog element found in DOM:', dialogElement);
+          console.log('[DuelPassOnboarding] Computed styles:', {
+            zIndex: window.getComputedStyle(dialogElement).zIndex,
+            opacity: window.getComputedStyle(dialogElement).opacity,
+            visibility: window.getComputedStyle(dialogElement).visibility,
+            display: window.getComputedStyle(dialogElement).display,
+          });
+        } else {
+          console.error('[DuelPassOnboarding] ❌ Dialog element NOT found in DOM!');
+        }
+      }, 100);
     }
   }, [open, isMobile, currentSlide]);
 
@@ -679,6 +694,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
+        data-duel-pass-onboarding="true"
         className={cn(
           "w-[95vw] max-w-3xl max-h-[90vh] p-0 border-0 rounded-3xl",
           seasonTheme.gradient,
@@ -690,7 +706,14 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "!grid !grid-rows-1",
           "!z-[2147483646]"
         )}
-        style={{ opacity: 1, visibility: 'visible', display: 'grid' }}
+        style={{ 
+          opacity: 1, 
+          visibility: 'visible', 
+          display: 'grid',
+          // Временный яркий стиль для отладки
+          outline: '4px solid red',
+          outlineOffset: '4px'
+        }}
         hideCloseButton
       >
         <DialogTitle className="sr-only">Duel Pass Onboarding</DialogTitle>
