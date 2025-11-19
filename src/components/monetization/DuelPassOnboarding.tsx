@@ -84,17 +84,25 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               const isVisible = rect.top >= 0 && rect.top < viewportHeight && rect.left >= 0 && rect.left < viewportWidth;
               
               // Принудительно устанавливаем позицию относительно видимого окна
+              // Для fixed позиции используем viewport без учета прокрутки
               const centerY = viewportHeight / 2;
               const centerX = viewportWidth / 2;
-              // Используем scrollY для учета прокрутки страницы
-              const scrollY = window.scrollY || window.pageYOffset || 0;
-              const scrollX = window.scrollX || window.pageXOffset || 0;
-              dialogElement.style.setProperty('top', `${centerY + scrollY}px`, 'important');
-              dialogElement.style.setProperty('left', `${centerX + scrollX}px`, 'important');
+              dialogElement.style.setProperty('top', `${centerY}px`, 'important');
+              dialogElement.style.setProperty('left', `${centerX}px`, 'important');
               dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
               dialogElement.style.setProperty('position', 'fixed', 'important');
               // Убеждаемся, что элемент не скрыт
               dialogElement.style.setProperty('pointer-events', 'auto', 'important');
+              
+              // Прокручиваем страницу к диалогу, если он не в видимой области
+              setTimeout(() => {
+                const newRect = dialogElement.getBoundingClientRect();
+                const isInViewport = newRect.top >= 0 && newRect.top < viewportHeight && 
+                                   newRect.left >= 0 && newRect.left < viewportWidth;
+                if (!isInViewport) {
+                  dialogElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 50);
               
               console.log('[DuelPassOnboarding] ===== POSITIONING DEBUG =====');
               console.log('[DuelPassOnboarding] Computed styles:', {
