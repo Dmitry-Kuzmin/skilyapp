@@ -747,12 +747,18 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           // Отключаем fade-in анимацию полностью
           "[&[data-state=open]]:!opacity-100",
           // Убираем fade-in анимацию
-          "[&[data-state=open]]:animate-none"
+          "[&[data-state=open]]:animate-none",
+          // Исправляем позиционирование - убираем translate-y который сдвигает диалог вниз
+          "!translate-y-0"
         )}
         style={{ 
           opacity: 1, 
           visibility: 'visible', 
           display: 'grid',
+          // Исправляем позиционирование - центрируем через top вместо translate-y
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           // Временный яркий стиль для отладки
           outline: '4px solid red',
           outlineOffset: '4px'
