@@ -21,6 +21,14 @@ import { calculateTopicProgress } from "@/utils/learningMap";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { hasStaticMaterial } from "@/utils/staticMaterials";
 
+const isLearningMapDebug =
+  import.meta.env.DEV && import.meta.env.VITE_DEBUG_LEARNING_MAP === "true";
+const logLearningMap = (...args: any[]) => {
+  if (isLearningMapDebug) {
+    console.debug(...args);
+  }
+};
+
 interface TopicWithSubtopics extends Topic {
   subtopics: Subtopic[];
 }
@@ -38,26 +46,30 @@ const LearningMap = () => {
   const [userProfile, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
 
   useEffect(() => {
-    console.log('[LearningMap] Loading map, language:', language);
+    logLearningMap("[LearningMap] Loading map, language:", language);
     setLoading(true);
     loadLearningMap();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
   useEffect(() => {
-    console.log('[LearningMap] Topics effect triggered:', { topicsLength: topics.length, isAuthenticated, profileId });
+    logLearningMap("[LearningMap] Topics effect triggered:", {
+      topicsLength: topics.length,
+      isAuthenticated,
+      profileId,
+    });
     if (topics.length === 0) {
-      console.log('[LearningMap] No topics yet, waiting...');
+      logLearningMap("[LearningMap] No topics yet, waiting...");
       return;
     }
 
     if (isAuthenticated && profileId) {
-      console.log('[LearningMap] Loading user profile and progress...');
+      logLearningMap("[LearningMap] Loading user profile and progress...");
       Promise.all([loadUserProfile(), loadProgress()]).catch((error) => {
         console.error("[LearningMap] Error loading data:", error);
       });
     } else {
-      console.log('[LearningMap] Not authenticated, setting default progress');
+      logLearningMap("[LearningMap] Not authenticated, setting default progress");
       const defaultProgress = new Map<string, TopicProgress>();
       topics.forEach((topic, index) => {
         defaultProgress.set(topic.id, {
@@ -70,7 +82,7 @@ const LearningMap = () => {
       });
       setTopicsProgress(defaultProgress);
       setLoading(false);
-      console.log('[LearningMap] Default progress set, loading:', false);
+      logLearningMap("[LearningMap] Default progress set, loading:", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topics.length, isAuthenticated, profileId]);
@@ -104,7 +116,7 @@ const LearningMap = () => {
 
   const loadLearningMap = async () => {
     try {
-      console.log('[LearningMap] Starting to load topics from Supabase...');
+      logLearningMap("[LearningMap] Starting to load topics from Supabase...");
       setError(null);
       setLoading(true);
       const { data: topicsData, error: topicsError } = await supabase
@@ -113,7 +125,12 @@ const LearningMap = () => {
         .order("order_index", { ascending: true })
         .limit(50);
 
-      console.log('[LearningMap] Topics loaded:', topicsData?.length || 0, 'Error:', topicsError);
+      logLearningMap(
+        "[LearningMap] Topics loaded:",
+        topicsData?.length || 0,
+        "Error:",
+        topicsError
+      );
 
       if (topicsError) throw topicsError;
 
@@ -143,15 +160,15 @@ const LearningMap = () => {
         ),
       })) as TopicWithSubtopics[];
 
-      console.log('[LearningMap] Topics processed:', topicsList.length);
+      logLearningMap("[LearningMap] Topics processed:", topicsList.length);
       setTopics(topicsList);
       setLoading(false);
-      console.log('[LearningMap] Loading complete, loading state:', false);
+      logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
       console.error("[LearningMap] Error loading learning map:", error);
       setError(error.message || "Не удалось загрузить карту обучения. Попробуйте обновить страницу.");
       setLoading(false);
-      console.log('[LearningMap] Error state set, loading:', false);
+      logLearningMap("[LearningMap] Error state set, loading:", false);
     }
   };
 
@@ -341,6 +358,30 @@ const LearningMap = () => {
     return null;
   }, [structuredCurriculum]);
 
+  const nextActionLabel = useMemo(() => {
+    if (nextAction) {
+      return isEs ? "Continuar" : isEn ? "Continue" : "Продолжить";
+    }
+    return isEs ? "Empezar aprendizaje" : isEn ? "Start learning" : "Начать обучение";
+  }, [nextAction, isEs, isEn]);
+
+  const nextActionDescription = useMemo(() => {
+    if (nextAction) {
+      return nextAction.subtopicTitle;
+    }
+    const firstItemTitle =
+      structuredCurriculum[0]?.sections?.[0]?.items?.[0]?.title ??
+      structuredCurriculum[0]?.sections?.[0]?.items?.find(Boolean)?.title;
+    if (firstItemTitle) {
+      return firstItemTitle;
+    }
+    return isEs
+      ? "Selecciona cualquier módulo disponible"
+      : isEn
+      ? "Choose any available module"
+      : "Перейдите к первому доступному модулю";
+  }, [nextAction, structuredCurriculum, isEs, isEn]);
+
   const heroStats = [
     {
       label: isEs ? "Progreso total" : isEn ? "Overall progress" : "Общий прогресс",
@@ -359,10 +400,15 @@ const LearningMap = () => {
     },
   ];
 
-  console.log('[LearningMap] Render state:', { loading, error, topicsLength: topics.length, topicsProgressSize: topicsProgress.size });
+  logLearningMap("[LearningMap] Render state:", {
+    loading,
+    error,
+    topicsLength: topics.length,
+    topicsProgressSize: topicsProgress.size,
+  });
 
   if (loading) {
-    console.log('[LearningMap] Rendering loading state');
+    logLearningMap("[LearningMap] Rendering loading state");
     return (
       <Layout>
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -382,7 +428,7 @@ const LearningMap = () => {
   }
 
   if (error) {
-    console.log('[LearningMap] Rendering error state:', error);
+    logLearningMap("[LearningMap] Rendering error state:", error);
     return (
       <Layout>
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -394,12 +440,14 @@ const LearningMap = () => {
               {isEs ? "Error de carga" : isEn ? "Loading error" : "Ошибка загрузки"}
             </h2>
             <p className="text-muted-foreground">{error}</p>
-            <Button onClick={() => {
-              console.log('[LearningMap] Retry button clicked');
-              setError(null);
-              setLoading(true);
-              loadLearningMap();
-            }}>
+            <Button
+              onClick={() => {
+                logLearningMap("[LearningMap] Retry button clicked");
+                setError(null);
+                setLoading(true);
+                loadLearningMap();
+              }}
+            >
               {isEs ? "Intentar de nuevo" : isEn ? "Try again" : "Попробовать снова"}
             </Button>
           </div>
@@ -453,7 +501,7 @@ const LearningMap = () => {
                 </div>
                 <Button
                   size="lg"
-                  className="w-full rounded-2xl justify-between"
+                  className="w-full rounded-2xl justify-between gap-4 py-4"
                   onClick={() => {
                     if (nextAction) {
                       handleSubtopicClick(nextAction.subtopicId);
@@ -462,20 +510,17 @@ const LearningMap = () => {
                     }
                   }}
                 >
-                  <span className="text-left">
-                    {nextAction
-                      ? isEs
-                        ? `Continuar: ${nextAction.subtopicTitle}`
-                        : isEn
-                        ? `Continue: ${nextAction.subtopicTitle}`
-                        : `Продолжить: ${nextAction.subtopicTitle}`
-                      : isEs
-                      ? "Empezar el aprendizaje"
-                      : isEn
-                      ? "Start learning"
-                      : "Начать обучение"}
-                  </span>
-                  <ArrowRight className="w-4 h-4" />
+                  <div className="flex flex-col min-w-0 text-left">
+                    <span className="text-sm font-semibold text-primary-foreground/80">
+                      {nextActionLabel}
+                    </span>
+                    <span className="text-base font-semibold text-primary-foreground leading-snug line-clamp-2 break-words whitespace-normal">
+                      {nextActionDescription}
+                    </span>
+                  </div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-primary-foreground shrink-0">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </Button>
               </div>
             </div>

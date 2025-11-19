@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2025-11-19T09:37:17.420Z",
+  "total": 6,
+  "items": [
+    {
+      "staticId": "static-topic-2-subtopic-2-1",
+      "topicNumber": 2,
+      "topicId": "topic-2",
+      "subtopicCode": "2.1",
+      "order": 1,
+      "title": {
+        "ru": "Lista de las distintas maniobras – pasos a seguir para realizar una maniobra (observar, señalizar y realizar) Espejos retrovisores",
+        "es": "Lista de las distintas maniobras – pasos a seguir para realizar una maniobra (observar, señalizar y realizar) Espejos retrovisores",
+        "en": "Lista de las distintas maniobras – pasos a seguir para realizar una maniobra (observar, señalizar y realizar) Espejos retrovisores"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://drive.google.com/file/d/18bU1gIocXTInDUbvl8d0NedKqYPq1Tev/view",
+      "file": "materials/topic-2/subtopic-2-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-2-subtopic-2-2",
+      "topicNumber": 2,
+      "topicId": "topic-2",
+      "subtopicCode": "2.2",
+      "order": 2,
+      "title": {
+        "ru": "Utilización de las señales acústicas y señales luminosas dentro y fuera de poblado",
+        "es": "Utilización de las señales acústicas y señales luminosas dentro y fuera de poblado",
+        "en": "Use of acoustic and luminous signals inside and outside populated areas"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://drive.google.com/file/d/18bU1gIocXTInDUbvl8d0NedKqYPq1Tev/view",
+      "file": "materials/topic-2/subtopic-2-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-3-subtopic-3-1",
+      "topicNumber": 3,
+      "topicId": "topic-3",
+      "subtopicCode": "3.1",
+      "order": 1,
+      "title": {
+        "ru": "Сигналы и их миссия",
+        "es": "Señales y su misión",
+        "en": "Signals and their purpose"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/educacion-vial/recursos/teoria/",
+      "file": "materials/topic-3/subtopic-3-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-3-subtopic-3-8-1",
+      "topicNumber": 3,
+      "topicId": "topic-3",
+      "subtopicCode": "3.8.1",
+      "order": 2,
+      "title": {
+        "ru": "Светофоры для пешеходов",
+        "es": "Semáforos para peatones",
+        "en": "Pedestrian traffic lights"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-3/subtopic-3-8-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-4-subtopic-4-1",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.1",
+      "order": 1,
+      "title": {
+        "ru": "Схема огней транспортного средства",
+        "es": "Esquema de luces del vehículo",
+        "en": "Vehicle lighting layout"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/iluminacion/",
+      "file": "materials/topic-4/subtopic-4-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-4-subtopic-4-3",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.3",
+      "order": 2,
+      "title": {
+        "ru": "Режимы ближнего и дальнего света",
+        "es": "Uso de luces de cruce y carretera",
+        "en": "Using dipped and high beams"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/behaviour/luces/",
+      "file": "materials/topic-4/subtopic-4-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    }
+  ]
+}

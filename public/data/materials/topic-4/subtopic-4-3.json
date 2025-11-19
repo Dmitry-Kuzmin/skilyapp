@@ -1,0 +1,14 @@
+{
+  "id": "subtopic-4-2",
+  "code": "4.3",
+  "topic_id": "topic-4",
+  "title_ru": "Режимы ближнего и дальнего света",
+  "title_es": "Uso de luces de cruce y carretera",
+  "title_en": "Using dipped and high beams",
+  "content_ru": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Когда включать ближний и дальний свет</h1>\n  <p class=\"material-paragraph\">Ближний свет обязателен ночью, в туннелях, при осадках и когда видимость менее 150 м. Дальний свет используется вне населённых пунктов при отсутствии встречных или попутных ТС. Его нужно переключить на ближний при первых признаках ослепления другого водителя.</p>\n  <div class=\"section-header\">\n    <h2 class=\"section-title\">Типичные ошибки</h2>\n  </div>\n  <ul class=\"material-list\">\n    <li>Дальний свет в городе — штраф до 200€.</li>\n    <li>Несвоевременное переключение — опасность для велосипедистов и пешеходов.</li>\n    <li>Неправильный угол фар после загрузки авто.</li>\n  </ul>\n  <div class=\"tip-box\">\n    <p>Отрегулируйте корректор фар при перевозке пассажиров сзади — иначе свет будет выше допустимого.</p>\n  </div>\n</div>",
+  "content_es": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Uso correcto de luces</h1>\n  <p class=\"material-paragraph\">La luz de cruce es obligatoria de noche, en túneles y con visibilidad inferior a 150 m. La luz de carretera sólo se usa fuera de poblado sin deslumbrar a otros usuarios.</p>\n</div>",
+  "content_en": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Dipped vs high beam</h1>\n  <p class=\"material-paragraph\">Use dipped beam whenever visibility drops. Switch to high beam on unlit roads but dim it when another user may be dazzled.</p>\n</div>",
+  "images": [],
+  "order": 2,
+  "source_pdf": "https://www.dgt.es/behaviour/luces/"
+}

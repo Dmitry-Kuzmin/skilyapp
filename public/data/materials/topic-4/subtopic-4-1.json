@@ -1,0 +1,14 @@
+{
+  "id": "subtopic-4-1",
+  "code": "4.1",
+  "topic_id": "topic-4",
+  "title_ru": "Схема огней транспортного средства",
+  "title_es": "Esquema de luces del vehículo",
+  "title_en": "Vehicle lighting layout",
+  "content_ru": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Базовая схема световых приборов</h1>\n  <p class=\"material-paragraph\">Любой автомобиль в Испании должен иметь комплект освещения, соответствующий UNECE. Минимальный набор: габаритные, ближний, дальний свет, стоп-сигналы, указатели поворота, задний ход и освещение номерного знака.</p>\n  <div class=\"section-header\">\n    <h2 class=\"section-title\">Требования к установке</h2>\n  </div>\n  <ul class=\"material-list\">\n    <li>Симметричное размещение относительно продольной оси.</li>\n    <li>Рабочее состояние проверяется на ITV; перегоревшая лампа = дефект.</li>\n    <li>Дополнительные LED-полосы допускаются, если сертифицированы и не ослепляют.</li>\n  </ul>\n  <div class=\"info-box\">\n    <p><strong>Памятка:</strong> Дневные ходовые огни DRL не заменяют ближний свет в условиях плохой видимости.</p>\n  </div>\n</div>",
+  "content_es": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Esquema básico de alumbrado</h1>\n  <p class=\"material-paragraph\">Un turismo homologado incorpora luces de posición, cruce, carretera, freno, intermitentes, marcha atrás y matrícula.</p>\n</div>",
+  "content_en": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Lighting layout</h1>\n  <p class=\"material-paragraph\">Every vehicle must keep its lighting kit operational: side lights, dipped beams, high beams, brake lights, indicators, reverse lamps and plate light.</p>\n</div>",
+  "images": [],
+  "order": 1,
+  "source_pdf": "https://www.dgt.es/muevete-con-seguridad/iluminacion/"
+}

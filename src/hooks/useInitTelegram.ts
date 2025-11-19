@@ -7,23 +7,35 @@ import { useEffect } from "react";
 export function useInitTelegram() {
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp;
+    const debugOverride = import.meta.env.VITE_DEBUG_TELEGRAM === "true";
+    const shouldLog = !!tg || debugOverride;
+    const log = (...args: any[]) => {
+      if (shouldLog) {
+        console.debug(...args);
+      }
+    };
+    const warn = (...args: any[]) => {
+      if (shouldLog) {
+        console.warn(...args);
+      }
+    };
 
     if (!tg) {
-      console.warn("[useInitTelegram] ❌ Telegram WebApp не найден");
+      warn("[useInitTelegram] ❌ Telegram WebApp не найден");
       return;
     }
 
-    console.log("[useInitTelegram] 🚀 Инициализация Telegram WebApp");
+    log("[useInitTelegram] 🚀 Инициализация Telegram WebApp");
 
     // КРИТИЧЕСКИ ВАЖНО: вызываем ready() и expand() сразу
     tg.ready();
     tg.expand();
 
-    console.log("[useInitTelegram] ✅ WebApp ready:", tg.isExpanded);
+    log("[useInitTelegram] ✅ WebApp ready:", tg.isExpanded);
     
     // Функция для логирования всех safe area свойств
     const logSafeAreaProperties = (eventName?: string) => {
-      console.log(`[useInitTelegram] 🧭 SafeArea${eventName ? ` (${eventName})` : ''}:`, {
+      log(`[useInitTelegram] 🧭 SafeArea${eventName ? ` (${eventName})` : ''}:`, {
         // Прямые свойства viewport safe area
         viewportSafeAreaInsetTop: (tg as any).viewportSafeAreaInsetTop,
         viewportSafeAreaInsetBottom: (tg as any).viewportSafeAreaInsetBottom,
@@ -46,7 +58,7 @@ export function useInitTelegram() {
 
     // Проверим наличие переменных в CSS
     const computed = getComputedStyle(document.documentElement);
-    console.log("[useInitTelegram] 🎨 CSS safe-area переменные:", {
+    log("[useInitTelegram] 🎨 CSS safe-area переменные:", {
       '--tg-safe-area-inset-top': computed.getPropertyValue("--tg-safe-area-inset-top"),
       '--tg-safe-area-inset-bottom': computed.getPropertyValue("--tg-safe-area-inset-bottom"),
       '--app-safe-top': computed.getPropertyValue("--app-safe-top"),
@@ -65,7 +77,7 @@ export function useInitTelegram() {
       const contentTop = tg.contentSafeAreaInset?.top ?? 0;
       const contentBottom = tg.contentSafeAreaInset?.bottom ?? 0;
 
-      console.log(`[useInitTelegram] 📏 Обновление safe areas${eventName ? ` (${eventName})` : ''}:`, {
+      log(`[useInitTelegram] 📏 Обновление safe areas${eventName ? ` (${eventName})` : ''}:`, {
         topInset,
         bottomInset,
         leftInset,
@@ -93,23 +105,23 @@ export function useInitTelegram() {
     if (tg.onEvent) {
       // Слушаем viewport_changed - это событие вызывается, когда Telegram рассчитал все метрики
       tg.onEvent('viewport_changed', () => {
-        console.log('[useInitTelegram] 📐 viewport_changed событие получено!');
+        log("[useInitTelegram] 📐 viewport_changed событие получено!");
         updateSafeAreas('viewport_changed');
       });
 
       // Также слушаем другие события для обновления
       tg.onEvent('viewportChanged', () => {
-        console.log('[useInitTelegram] 📐 viewportChanged событие получено!');
+        log("[useInitTelegram] 📐 viewportChanged событие получено!");
         updateSafeAreas('viewportChanged');
       });
 
       tg.onEvent('safeAreaChanged', () => {
-        console.log('[useInitTelegram] 📐 safeAreaChanged событие получено!');
+        log("[useInitTelegram] 📐 safeAreaChanged событие получено!");
         updateSafeAreas('safeAreaChanged');
       });
 
       tg.onEvent('contentSafeAreaChanged', () => {
-        console.log('[useInitTelegram] 📐 contentSafeAreaChanged событие получено!');
+        log("[useInitTelegram] 📐 contentSafeAreaChanged событие получено!");
         updateSafeAreas('contentSafeAreaChanged');
       });
     }

@@ -1,0 +1,14 @@
+{
+  "id": "subtopic-3-2",
+  "code": "3.8.1",
+  "topic_id": "topic-3",
+  "title_ru": "Светофоры для пешеходов",
+  "title_es": "Semáforos para peatones",
+  "title_en": "Pedestrian traffic lights",
+  "content_ru": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Светофоры для пешеходов</h1>\n  <p class=\"material-paragraph\">Пешеходные светофоры в Испании используют символы в виде человечка. Красный мигающий сигнал равнозначен запрету на вход, но допускает завершение перехода тем, кто уже находится на зебре.</p>\n  <div class=\"section-header\">\n    <h2 class=\"section-title\">Комбинации сигналов</h2>\n  </div>\n  <ul class=\"material-list\">\n    <li><strong>Красный постоянный</strong> — запрещено начинать движение.</li>\n    <li><strong>Красный мигающий</strong> — завершите переход, новым пешеходам ждать.</li>\n    <li><strong>Зелёный</strong> — разрешён проход, но водитель всё равно обязан пропускать тех, кто заканчивает.</li>\n  </ul>\n  <div class=\"warning-box\">\n    <p>Пересечение на красный приравнивается к серьёзному нарушению с возможностью штрафа до 200€.</p>\n  </div>\n</div>",
+  "content_es": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Semáforos específicos para peatones</h1>\n  <p class=\"material-paragraph\">Los peatones cuentan con símbolos en forma de silueta humana. La luz roja intermitente permite terminar de cruzar pero impide iniciar el paso.</p>\n  <ul class=\"material-list\">\n    <li>Rojo fijo: espera obligatoria.</li>\n    <li>Rojo intermitente: finaliza cuanto antes.</li>\n    <li>Verde: puedes cruzar, mantén atención a giros autorizados.</li>\n  </ul>\n</div>",
+  "content_en": "<div class=\"material-content-wrapper\">\n  <h1 class=\"material-title\">Pedestrian lights</h1>\n  <p class=\"material-paragraph\">Pedestrian traffic lights use walking man icons. A flashing red equals \"do not start\" but lets pedestrians in the crosswalk finish.</p>\n</div>",
+  "images": [],
+  "order": 2,
+  "source_pdf": "https://www.dgt.es/muevete-con-seguridad/"
+}
