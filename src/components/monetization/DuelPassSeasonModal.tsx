@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, type LucideIcon } from "lucide-react";
@@ -17,6 +18,13 @@ import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const supabaseClient = supabase as any;
+const localeMap: Record<Language, string> = {
+  en: "en-US",
+  es: "es-ES",
+  ru: "ru-RU",
+};
 
 type TimeLeft = {
   total: number;
@@ -42,11 +50,11 @@ type RewardVisualConfig = {
   defaultSubtitle: string;
 };
 
-const rarityLabelsMap: Record<string, string> = {
-  common: "Обычный",
-  rare: "Редкий",
-  epic: "Эпик",
-  legendary: "Легенда",
+const rarityLabelKeys: Record<string, string> = {
+  common: "duelPass.rarity.common",
+  rare: "duelPass.rarity.rare",
+  epic: "duelPass.rarity.epic",
+  legendary: "duelPass.rarity.legendary",
 };
 
 const rarityColorsMap: Record<string, string> = {
@@ -56,36 +64,49 @@ const rarityColorsMap: Record<string, string> = {
   legendary: "text-amber-500",
 };
 
-const rewardTypeVisuals: Record<string, RewardVisualConfig> = {
+const rewardTypeVisuals: Record<
+  string,
+  RewardVisualConfig & { labelKey: string; subtitleKey: string }
+> = {
   coins: {
-    label: "Монеты",
+    label: "",
+    labelKey: "duelPass.rewardTypes.coins.label",
     icon: Coins,
     color: "#fbbf24",
-    defaultSubtitle: "Моментально на баланс",
+    defaultSubtitle: "",
+    subtitleKey: "duelPass.rewardTypes.coins.subtitle",
   },
   skin: {
-    label: "Скин",
+    label: "",
+    labelKey: "duelPass.rewardTypes.skin.label",
     icon: Sparkles,
     color: "#a855f7",
-    defaultSubtitle: "Новый образ профиля",
+    defaultSubtitle: "",
+    subtitleKey: "duelPass.rewardTypes.skin.subtitle",
   },
   badge: {
-    label: "Бейдж",
+    label: "",
+    labelKey: "duelPass.rewardTypes.badge.label",
     icon: Shield,
     color: "#0ea5e9",
-    defaultSubtitle: "Коллекция достижений",
+    defaultSubtitle: "",
+    subtitleKey: "duelPass.rewardTypes.badge.subtitle",
   },
   boost: {
-    label: "Буст",
+    label: "",
+    labelKey: "duelPass.rewardTypes.boost.label",
     icon: Zap,
     color: "#f97316",
-    defaultSubtitle: "Ускорение прогресса",
+    defaultSubtitle: "",
+    subtitleKey: "duelPass.rewardTypes.boost.subtitle",
   },
   sticker: {
-    label: "Стикер",
+    label: "",
+    labelKey: "duelPass.rewardTypes.sticker.label",
     icon: Sticker,
     color: "#ec4899",
-    defaultSubtitle: "Эмоция в дуэлях",
+    defaultSubtitle: "",
+    subtitleKey: "duelPass.rewardTypes.sticker.subtitle",
   },
 };
 
@@ -158,17 +179,12 @@ const withAlpha = (hex?: string, alphaHex: string = "33") => {
   return `${normalized}${alphaHex}`;
 };
 
-const formatTechnicalName = (value?: string) => {
-  if (!value) return "Награда";
+const formatTechnicalName = (value?: string, fallback: string = "") => {
+  if (!value) return fallback;
   return value
     .split("_")
     .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
     .join(" ");
-};
-
-const formatSeasonDate = (date: Date | null) => {
-  if (!date) return "—";
-  return date.toLocaleDateString("ru-RU", { day: "2-digit", month: "long" });
 };
 
 const calculateTimeLeft = (endDate?: string | null): TimeLeft | null => {
@@ -182,7 +198,13 @@ const calculateTimeLeft = (endDate?: string | null): TimeLeft | null => {
   return { total, days, hours, minutes, seconds };
 };
 
-const CountdownTicker = memo(({ endDate }: { endDate?: string | null }) => {
+interface CountdownLabels {
+  dateTbc: string;
+  units: { days: string; hours: string; minutes: string; seconds: string };
+  urgent: string;
+}
+
+const CountdownTicker = memo(({ endDate, labels }: { endDate?: string | null; labels: CountdownLabels }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(() => calculateTimeLeft(endDate));
 
   useEffect(() => {
@@ -200,14 +222,14 @@ const CountdownTicker = memo(({ endDate }: { endDate?: string | null }) => {
   }, [endDate]);
 
   if (!timeLeft) {
-    return <span className="text-white/70 text-sm">Даты уточняются</span>;
+    return <span className="text-white/70 text-sm">{labels.dateTbc}</span>;
   }
 
   const units = [
-    { label: "дни", value: String(Math.max(timeLeft.days, 0)).padStart(2, "0") },
-    { label: "часы", value: String(Math.max(timeLeft.hours, 0)).padStart(2, "0") },
-    { label: "мин", value: String(Math.max(timeLeft.minutes, 0)).padStart(2, "0") },
-    { label: "сек", value: String(Math.max(timeLeft.seconds, 0)).padStart(2, "0") },
+    { label: labels.units.days, value: String(Math.max(timeLeft.days, 0)).padStart(2, "0") },
+    { label: labels.units.hours, value: String(Math.max(timeLeft.hours, 0)).padStart(2, "0") },
+    { label: labels.units.minutes, value: String(Math.max(timeLeft.minutes, 0)).padStart(2, "0") },
+    { label: labels.units.seconds, value: String(Math.max(timeLeft.seconds, 0)).padStart(2, "0") },
   ];
 
   const isUrgent = timeLeft.total < 1000 * 60 * 60 * 72;
@@ -235,7 +257,7 @@ const CountdownTicker = memo(({ endDate }: { endDate?: string | null }) => {
       {isUrgent && (
         <div className="mt-2 flex items-center gap-1 text-xs text-rose-100">
           <Flame className="w-4 h-4" />
-          <span>Сезон скоро завершится — не откладывай награды!</span>
+          <span>{labels.urgent}</span>
         </div>
       )}
     </>
@@ -245,8 +267,18 @@ CountdownTicker.displayName = "CountdownTicker";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { profileId } = useUserContext();
+  const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
+  const dateLocale = localeMap[language] || "en-US";
+  const dp = useCallback(
+    (path: string, params?: Record<string, string | number>) => t(`duelPass.${path}`, params),
+    [t]
+  );
+  const walletText = useCallback(
+    (path: string, params?: Record<string, string | number>) => t(`wallet.${path}`, params),
+    [t]
+  );
   const [loading, setLoading] = useState(true);
   const [rewardFilter, setRewardFilter] = useState<'all' | 'available'>('all');
   const [activeSeason, setActiveSeason] = useState<any>(null);
@@ -263,6 +295,64 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
+
+  const formatSeasonDate = useCallback((date: Date | null) => {
+    if (!date) return "—";
+    return date.toLocaleDateString(dateLocale, { day: "2-digit", month: "long" });
+  }, [dateLocale]);
+
+  const getRarityLabel = useCallback(
+    (rarity?: string) => {
+      if (!rarity) return undefined;
+      const key = rarityLabelKeys[rarity];
+      return key ? t(key) : undefined;
+    },
+    [t]
+  );
+
+  const countdownLabels = useMemo(
+    () => ({
+      dateTbc: dp("countdown.dateTbc"),
+      urgent: dp("countdown.urgent"),
+      units: {
+        days: dp("countdown.units.days"),
+        hours: dp("countdown.units.hours"),
+        minutes: dp("countdown.units.minutes"),
+        seconds: dp("countdown.units.seconds"),
+      },
+    }),
+    [dp]
+  );
+
+  const premiumBannerTexts = useMemo(
+    () => ({
+      title: dp("premiumBanner.title"),
+      freeBadge: dp("premiumBanner.freeBadge"),
+      descriptionForever: dp("premiumBanner.descriptionForever"),
+      descriptionQuestion: dp("premiumBanner.descriptionQuestion"),
+      descriptionText: dp("premiumBanner.descriptionText"),
+      buyCta: dp("premiumBanner.buyCta"),
+      benefits: {
+        double: {
+          title: dp("premiumBanner.benefits.double.title"),
+          description: dp("premiumBanner.benefits.double.description"),
+        },
+        exclusive: {
+          title: dp("premiumBanner.benefits.exclusive.title"),
+          description: dp("premiumBanner.benefits.exclusive.description"),
+        },
+        fastStart: {
+          title: dp("premiumBanner.benefits.fastStart.title"),
+          description: dp("premiumBanner.benefits.fastStart.description"),
+        },
+        allSeasons: {
+          title: dp("premiumBanner.benefits.allSeasons.title"),
+          description: dp("premiumBanner.benefits.allSeasons.description"),
+        },
+      },
+    }),
+    [dp]
+  );
   
   // Итоговый Premium статус: либо из хука, либо Premium Forever, либо Premium Pass для сезона
   // ВАЖНО: Premium Forever дает доступ ко всем Premium наградам автоматически
@@ -491,7 +581,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           p_user_id: profileId,
           p_season_id: season.id,
         });
-      const premiumPromise = supabase.rpc("has_premium_forever", { p_user_id: profileId });
+      const premiumPromise = supabaseClient.rpc("has_premium_forever", { p_user_id: profileId });
       const rewardsPromise = supabase
         .from("duel_pass_season_rewards")
         .select("*")
@@ -689,7 +779,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     if (!profileId || !activeSeason) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke("duel-pass-claim", {
+      const { data, error } = await supabaseClient.functions.invoke("duel-pass-claim", {
         body: {
           user_id: profileId,
           level,
@@ -704,8 +794,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           console.log(`[DuelPassSeasonModal] Reward already claimed for level ${level}, is_premium: ${isPremiumReward}`);
           return;
         }
-        toast.error("Ошибка при получении награды", {
-          description: error.message || "Попробуйте позже",
+        toast.error(dp("toasts.rewardError"), {
+          description: error.message || dp("toasts.rewardErrorDescription"),
         });
         return;
       }
@@ -742,23 +832,23 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           let rewardText = "";
           
           if (reward.type === "coins" && reward.amount) {
-            rewardText = `+${reward.amount} монет`;
+            rewardText = `+${reward.amount} ${dp("rewardTypes.coins.label")}`;
           } else if (reward.type === "boost" && reward.id) {
-            rewardText = `Буст: ${reward.id}`;
+            rewardText = `${dp("rewardTypes.boost.label")}: ${formatTechnicalName(reward.id, dp("rewardTypes.boost.label"))}`;
           } else {
-            rewardText = "Награда получена!";
+            rewardText = dp("toasts.genericReward");
           }
 
           toast.success(
-            isPremium ? "🎉 Премиум награда получена!" : "🎉 Награда получена!",
+            isPremium ? dp("toasts.premiumReward") : dp("toasts.rewardClaimed"),
             {
-              description: `Уровень ${level}: ${rewardText}`,
+              description: dp("toasts.rewardDescription", { level, reward: rewardText }),
               duration: 4000,
             }
           );
         }
       } else {
-        toast.success("Награда получена!");
+        toast.success(dp("toasts.rewardClaimed"));
       }
 
       // Обновляем локальное состояние
@@ -774,7 +864,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       loadSeasonData(true); // Перезагружаем данные (тихое обновление)
     } catch (err: any) {
       console.error("[DuelPassSeasonModal] Claim error", err);
-      toast.error("Ошибка при получении награды");
+      toast.error(dp("toasts.rewardError"));
     }
   };
 
@@ -888,7 +978,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <Sheet open={open} onOpenChange={onOpenChange}>
               <SheetContent 
                 side="bottom" 
-                className="h-[90vh] max-h-[90vh] overflow-hidden flex flex-col p-0"
+                className="max-h-[90vh] overflow-hidden flex flex-col p-0"
               >
                 <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
                   <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
@@ -900,7 +990,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </Sheet>
           ) : (
             <Dialog open={open} onOpenChange={onOpenChange}>
-              <DialogContent className="w-[95vw] max-w-5xl h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+              <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0">
                 <div className="flex-1 overflow-y-auto">
                   <SkeletonContent />
                 </div>
@@ -915,20 +1005,23 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="w-[95vw] max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Duel Pass</DialogTitle>
-            <DialogDescription>Система сезонов Duel Pass</DialogDescription>
+            <DialogTitle>{dp("title")}</DialogTitle>
+            <DialogDescription>{dp("migration.description")}</DialogDescription>
           </DialogHeader>
           <div className="text-center py-12 space-y-4">
-            <p className="text-muted-foreground">Нет активного сезона</p>
+            <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
             <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-              <p className="font-semibold mb-2">⚠️ Миграция не применена</p>
+              <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
               <p className="text-xs mb-2">
-                Для работы системы сезонов нужно применить миграцию в Supabase:
+                {dp("migration.warningDescription")}
               </p>
               <ol className="text-xs list-decimal list-inside space-y-1 text-left">
-                <li>Откройте SQL Editor в Supabase Dashboard</li>
-                <li>Скопируйте содержимое файла <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code></li>
-                <li>Выполните SQL запрос</li>
+                <li>{dp("migration.steps.0")}</li>
+                <li>
+                  {dp("migration.steps.1")}{" "}
+                  <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
+                </li>
+                <li>{dp("migration.steps.2")}</li>
               </ol>
             </div>
           </div>
@@ -974,14 +1067,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     let title = definition?.name;
     if (!title) {
       if (type === "coins" && rewardData.amount) {
-        title = `+${rewardData.amount} монет`;
+        title = `+${rewardData.amount} ${dp("rewardTypes.coins.label")}`;
       } else {
-        title = formatTechnicalName(rewardData.id);
+        title = formatTechnicalName(rewardData.id, t("duelPass.fallbackRewardName"));
       }
     }
 
-    const subtitle = definition?.description || config.defaultSubtitle;
-    const tag = definition?.rarity ? rarityLabelsMap[definition.rarity] : config.label;
+    const subtitle = definition?.description || (config.subtitleKey ? t(config.subtitleKey) : config.defaultSubtitle);
+    const tag = definition?.rarity ? getRarityLabel(definition.rarity) : t(config.labelKey);
     const color = definition?.color || metadata?.color || config.color;
     const iconEmoji = definition?.icon || metadata?.emoji;
 
@@ -1011,6 +1104,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
 
     const Icon = meta.Icon;
+    const tierLabel = variant === "premium" ? dp("table.columns.premium") : dp("table.columns.free");
 
     return (
       <motion.div
@@ -1040,7 +1134,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
         </div>
         <div className="mt-1 flex items-center justify-between text-[11px] uppercase tracking-wide text-muted-foreground">
-          <span>{variant === "premium" ? "Premium" : "Free"}</span>
+          <span>{tierLabel}</span>
           <span className={cn("font-semibold", meta.rarityKey && rarityColorsMap[meta.rarityKey])}>
             {meta.tag}
           </span>
@@ -1105,26 +1199,29 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const seasonHighlights = [
       {
         icon: Gauge,
-        title: "Темп сезона",
-        value: `${currentLevel}/${maxLevel} уровень`,
+        title: dp("highlights.pace.title"),
+        value: dp("highlights.pace.value", { current: currentLevel, total: maxLevel }),
         description:
           currentLevel < maxLevel
-            ? `Еще ${spToNextLevel} SP до ${currentLevel + 1}-го уровня`
-            : "Ты на вершине! Продолжай фармить SP ради славы",
+            ? dp("highlights.pace.descriptionToNext", { sp: spToNextLevel, level: currentLevel + 1 })
+            : currentLevel >= maxLevel
+              ? dp("highlights.pace.descriptionMax")
+              : dp("highlights.pace.descriptionLoading"),
       },
       {
         icon: Flame,
-        title: "Коллекция Asphalt",
-        value: `${claimedRewards.size}/${rewards.length} наград`,
-        description: "Собери всю линию и разблокируй сезонный титул",
+        title: dp("highlights.collection.title"),
+        value: dp("highlights.collection.value", { claimed: claimedRewards.size, total: rewards.length }),
+        description: dp("highlights.collection.description"),
       },
       {
         icon: Hourglass,
-        title: "Ограничение",
-        value: seasonEndDate ? formatSeasonDate(seasonEndDate) : "Скоро",
-        description: seasonDaysRemaining !== null
-          ? `Осталось примерно ${seasonDaysRemaining} дней`
-          : "Проверь даты сезона в календаре",
+        title: dp("highlights.limit.title"),
+        value: seasonEndDate ? formatSeasonDate(seasonEndDate) : dp("highlights.limit.valueFallback"),
+        description:
+          seasonDaysRemaining !== null
+            ? dp("highlights.limit.descriptionDays", { days: seasonDaysRemaining })
+            : dp("highlights.limit.descriptionFallback"),
       },
     ];
     
@@ -1138,13 +1235,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-xl font-bold">Duel Pass</SheetTitle>
+              <SheetTitle className="text-xl font-bold">{dp("title")}</SheetTitle>
               <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {activeSeason.days_remaining} дней
+                  {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
                 </span>
               </SheetDescription>
             </div>
@@ -1157,13 +1254,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-bold">Duel Pass</DialogTitle>
+              <DialogTitle className="text-xl font-bold">{dp("title")}</DialogTitle>
               <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {activeSeason.days_remaining} дней
+                  {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
                 </span>
               </DialogDescription>
             </div>
@@ -1189,48 +1286,50 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className={cn("px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.3em]", seasonTheme.chip)}>
-                  СЕЗОН №{activeSeason.season_number}
+                  {dp("hero.seasonLabel", { number: activeSeason.season_number })}
                 </span>
                 <span className={cn("text-xs uppercase tracking-[0.4em]", seasonTheme.accent)}>
-                  {activeSeason.theme === "special" ? "Операция Асфальт" : activeSeason.name_en}
+                  {activeSeason.theme === "special" ? dp("hero.specialTheme") : activeSeason.name_en}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-sm text-white/80">
                 <Calendar className="w-4 h-4" />
-                <span>{formatSeasonDate(seasonStartDate)} — {formatSeasonDate(seasonEndDate)}</span>
+                <span>
+                  {formatSeasonDate(seasonStartDate)} — {formatSeasonDate(seasonEndDate)}
+                </span>
               </div>
             </div>
             <div className="space-y-2">
               <h2 className="text-3xl font-black tracking-tight">{activeSeason.name_ru}</h2>
               <p className="text-sm text-white/80 max-w-3xl">
-                {activeSeason.description_ru || "Собирай монеты, бусты и эксклюзивные косметики, пока сезон открыт."}
+                {activeSeason.description_ru || dp("hero.defaultDescription")}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-6">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">До финала сезона</p>
-                <CountdownTicker endDate={activeSeason.end_date} />
+                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                  {dp("hero.countdownLabel")}
+                </p>
+                <CountdownTicker endDate={activeSeason.end_date} labels={countdownLabels} />
               </div>
               <div className="flex flex-col gap-2 text-sm text-white/85">
                 <div className="flex items-center gap-2">
                   <Hourglass className="w-4 h-4" />
-                  <span>{activeSeason.days_remaining} дней до закрытия</span>
+                  <span>{dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Target className="w-4 h-4" />
-                  <span>Осталось {Math.max(maxLevel - currentLevel, 0)} уровней до полного пропуска</span>
+                  <span>{dp("hero.levelsRemaining", { count: Math.max(maxLevel - currentLevel, 0) })}</span>
                 </div>
               </div>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-3">Ключевые награды</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-3">{dp("hero.featuredTitle")}</p>
               <div className="flex flex-wrap gap-3">
                 {featuredRewards.length
                   ? featuredRewards.map((reward, index) => renderHeroRewardCard(reward, index))
                   : (
-                    <div className="text-sm text-white/80">
-                      Эксклюзивные награды появятся после обновления сезона
-                    </div>
+                    <div className="text-sm text-white/80">{dp("hero.featuredEmpty")}</div>
                   )}
               </div>
             </div>
@@ -1243,19 +1342,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">{currentLevel}</span>
-                <span className="text-sm text-muted-foreground">/ {maxLevel}</span>
+                <span className="text-sm text-muted-foreground">
+                  {dp("progress.levelOf", { total: maxLevel })}
+                </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 {currentLevel < maxLevel && spToNextLevel > 0 
-                  ? `${spToNextLevel} SP до уровня ${currentLevel + 1}` 
+                  ? dp("progress.toNext", { sp: spToNextLevel, level: currentLevel + 1 })
                   : currentLevel >= maxLevel 
-                  ? 'Максимальный уровень достигнут' 
-                  : 'Загрузка...'}
+                  ? dp("progress.max")
+                  : dp("progress.loading")}
               </p>
             </div>
             <div className="text-right">
               <p className="text-lg font-semibold">{currentSP}</p>
-              <p className="text-xs text-muted-foreground">Season Points</p>
+              <p className="text-xs text-muted-foreground">{dp("progress.seasonPoints")}</p>
             </div>
           </div>
           <div className="relative h-3 bg-muted rounded-full overflow-hidden">
@@ -1285,8 +1386,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             })}
           </div>
           <div className="flex items-center justify-between text-[11px] uppercase tracking-wide text-muted-foreground">
-            <span>Всего {totalSPNeeded} SP</span>
-            <span>След. уровень через {spToNextLevel} SP</span>
+            <span>{dp("progress.summary", { total: totalSPNeeded })}</span>
+            <span>{dp("progress.nextLevel", { sp: spToNextLevel })}</span>
           </div>
         </div>
 
@@ -1392,11 +1493,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       </motion.div>
                     </div>
                     <h4 className="font-bold text-lg md:text-xl bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 bg-clip-text text-transparent">
-                      Premium Duel Pass
+                      {premiumBannerTexts.title}
                     </h4>
                     {hasPremiumForever && (
                       <Badge className="bg-green-500/90 text-white text-xs px-2 py-0.5 shadow-lg">
-                        Бесплатно
+                        {premiumBannerTexts.freeBadge}
                       </Badge>
                     )}
                   </div>
@@ -1404,13 +1505,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   {/* Описание */}
                   <p className="text-sm md:text-base text-foreground/90 mb-3 font-medium">
                     {hasPremiumForever 
-                      ? 'У тебя Premium Forever - Duel Pass уже открыт!'
-                      : 'Что такое Duel Pass?'}
+                      ? premiumBannerTexts.descriptionForever
+                      : premiumBannerTexts.descriptionQuestion}
                   </p>
                   
                   {!hasPremiumForever && (
                     <p className="text-xs md:text-sm text-muted-foreground mb-4 leading-relaxed">
-                      Сезонная система наград, которая открывает эксклюзивные призы за прохождение дуэлей и выполнение заданий. Premium версия удваивает все награды!
+                      {premiumBannerTexts.descriptionText}
                     </p>
                   )}
                 </div>
@@ -1431,7 +1532,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       className="w-full md:w-auto bg-gradient-to-r from-blue-600 via-pink-600 to-orange-600 hover:from-blue-700 hover:via-pink-700 hover:to-orange-700 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 px-6 py-6 md:py-3"
                     >
                       <Sparkles className="w-5 h-5 md:w-4 md:h-4 mr-2" />
-                      <span className="text-base md:text-sm">Купить за 7.99€</span>
+                      <span className="text-base md:text-sm">{premiumBannerTexts.buyCta}</span>
                       <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </motion.div>
@@ -1446,8 +1547,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <Gift className="w-4 h-4 text-blue-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">2x награды</p>
-                      <p className="text-[10px] text-muted-foreground">Удвоенные монеты и XP</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {premiumBannerTexts.benefits.double.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {premiumBannerTexts.benefits.double.description}
+                      </p>
                     </div>
                   </div>
                   
@@ -1456,8 +1561,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <Star className="w-4 h-4 text-orange-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">Эксклюзивы</p>
-                      <p className="text-[10px] text-muted-foreground">Уникальные косметики</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {premiumBannerTexts.benefits.exclusive.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {premiumBannerTexts.benefits.exclusive.description}
+                      </p>
                     </div>
                   </div>
                   
@@ -1466,8 +1575,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <Zap className="w-4 h-4 text-pink-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">Быстрый старт</p>
-                      <p className="text-[10px] text-muted-foreground">+5 уровней сразу</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {premiumBannerTexts.benefits.fastStart.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {premiumBannerTexts.benefits.fastStart.description}
+                      </p>
                     </div>
                   </div>
                   
@@ -1476,8 +1589,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <Trophy className="w-4 h-4 text-yellow-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">Все сезоны</p>
-                      <p className="text-[10px] text-muted-foreground">Доступ ко всем наградам</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {premiumBannerTexts.benefits.allSeasons.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {premiumBannerTexts.benefits.allSeasons.description}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1492,8 +1609,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-green-600">Premium Forever активен</p>
-              <p className="text-xs text-muted-foreground">Duel Pass автоматически открыт для всех сезонов</p>
+              <p className="text-sm font-semibold text-green-600">{dp("premiumForever.title")}</p>
+              <p className="text-xs text-muted-foreground">{dp("premiumForever.description")}</p>
             </div>
           </div>
         )}
@@ -1503,11 +1620,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <h4 className="text-sm font-bold text-foreground">
-                Награды по уровням
+                {dp("table.title")}
               </h4>
               {seasonDaysRemaining !== null && (
                 <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                  До конца {seasonDaysRemaining}д
+                  {dp("table.remaining", { days: seasonDaysRemaining })}
                 </Badge>
               )}
             </div>
@@ -1522,7 +1639,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
-                Все
+                {dp("filters.all")}
               </button>
               <button
                 onClick={() => setRewardFilter('available')}
@@ -1533,7 +1650,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
-                Доступные
+                {dp("filters.available")}
               </button>
             </div>
           </div>
@@ -1544,21 +1661,27 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/50 border-b border-border">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Уровень</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
+                      {dp("table.columns.level")}
+                    </th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Coins className="w-4 h-4 text-yellow-500" />
-                        <span>Бесплатно</span>
+                        <span>{dp("table.columns.free")}</span>
                       </div>
                     </th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Crown className="w-4 h-4 text-yellow-600" />
-                        <span>Premium</span>
+                        <span>{dp("table.columns.premium")}</span>
                       </div>
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">SP</th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-muted-foreground">Статус</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
+                      {dp("table.columns.sp")}
+                    </th>
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-muted-foreground">
+                      {dp("table.columns.status")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1661,7 +1784,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                             </div>
                             {isCurrent && (
                               <Badge variant="secondary" className="text-xs">
-                                Текущий
+                                {dp("table.status.current")}
                               </Badge>
                             )}
                           </div>
@@ -1681,7 +1804,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         <td className="px-4 py-3">
                           {!unlocked ? (
                             <Badge variant="outline" className="text-xs">
-                              +{reward.sp_required - currentSP} SP
+                              {dp("table.spBadge", { sp: reward.sp_required - currentSP })}
                             </Badge>
                           ) : (
                             <span className="text-sm text-muted-foreground">—</span>
@@ -1693,7 +1816,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                           {allClaimed ? (
                             <div className="flex items-center justify-center gap-2">
                               <CheckCircle2 className="w-5 h-5 text-green-500" />
-                              <span className="text-xs font-medium text-green-600">Получено</span>
+                              <span className="text-xs font-medium text-green-600">
+                                {dp("table.status.claimed")}
+                              </span>
                             </div>
                           ) : unlocked ? (
                             <Button
@@ -1707,33 +1832,32 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                 // Если есть бесплатная награда и она не получена - обычная кнопка
                                 // Если бесплатная получена, но есть премиум - желтая кнопка
                                 // Если только премиум - желтая кнопка
-                                ((hasFreeCoins && freeClaimed) || !hasFreeCoins) && reward.premium_reward && !isPremium && !premiumClaimed && "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
+                                ((hasFreeCoins && freeClaimed) || !hasFreeCoins) &&
+                                  reward.premium_reward &&
+                                  !isPremium &&
+                                  !premiumClaimed &&
+                                  "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
                               )}
                             >
                               {hasFreeReward && !freeClaimed ? (
-                                // Есть бесплатная награда и она не получена
-                                "Получить"
+                                dp("table.buttons.claim")
                               ) : !hasFreeReward && reward.premium_reward && !isPremium ? (
-                                // Только Premium награда, но пользователь НЕ Premium - показываем что нужен Premium
                                 <>
                                   <Crown className="w-3.5 h-3.5 mr-1.5" />
-                                  Premium
+                                  {dp("table.buttons.premiumOnly")}
                                 </>
                               ) : (reward.premium_reward && isPremium && !premiumClaimed) || (hasFreeReward && freeClaimed && reward.premium_reward && isPremium && !premiumClaimed) ? (
-                                // Есть Premium награда, пользователь Premium, но Premium награда не получена
-                                // Для Premium пользователей используем более понятный текст
                                 <>
                                   <Crown className="w-3.5 h-3.5 mr-1.5" />
-                                  Забрать награду
+                                  {dp("table.buttons.claimPremium")}
                                 </>
                               ) : (
-                                // Все награды получены или нет доступных наград
-                                "Забрать"
+                                dp("table.buttons.default")
                               )}
                             </Button>
                           ) : (
                             <Badge variant="secondary" className="text-xs">
-                              Заблокировано
+                              {dp("table.status.locked")}
                             </Badge>
                           )}
                         </td>
@@ -1757,83 +1881,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   return (
     <>
-      {/* Онбординг модалка - минималистичный */}
-      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
-                <Trophy className="w-5 h-5 text-white" />
-              </div>
-              <DialogTitle className="text-xl font-bold">Добро пожаловать в Duel Pass!</DialogTitle>
-            </div>
-            <DialogDescription className="text-sm">
-              Система сезонов с наградами за вашу активность
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-4">
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-              <Trophy className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1 text-sm">Что такое Season Points (SP)?</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  SP — это очки сезона, которые вы получаете за активность. 
-                  Чем больше SP, тем выше ваш уровень и больше наград!
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-              <Sparkles className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1 text-sm">Как получить SP?</h4>
-                <ul className="text-xs text-muted-foreground space-y-1">
-                  <li className="flex items-center gap-2">
-                    <span>•</span>
-                    <span>Прохождение тестов: <strong className="text-foreground">25 SP</strong></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span>•</span>
-                    <span>Победа в дуэли: <strong className="text-foreground">30 SP</strong></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span>•</span>
-                    <span>Ежедневный вход: <strong className="text-foreground">15 SP</strong></span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span>•</span>
-                    <span>Premium: <strong className="text-foreground">+20% к SP</strong></span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-              <Crown className="w-5 h-5 text-yellow-600 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="font-semibold mb-1 text-sm">Premium награды</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  С Premium подпиской вы получаете дополнительные награды на каждом уровне и бонус +20% к SP!
-                </p>
-              </div>
-            </div>
-            <Button 
-              onClick={() => {
-                localStorage.setItem('duel-pass-onboarding-seen', 'true');
-                setShowOnboarding(false);
-              }}
-              className="w-full"
-            >
-              Понятно, начать!
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Модалка для десктопа, Sheet для мобилки */}
       {isMobile ? (
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent 
             side="bottom" 
-            className="h-[90vh] max-h-[90vh] overflow-hidden flex flex-col p-0"
+            className="max-h-[90vh] overflow-hidden flex flex-col p-0"
           >
             {/* Handle для свайпа */}
             <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
@@ -1846,13 +1899,72 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </Sheet>
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="w-[95vw] max-w-5xl h-[85vh] max-h-[85vh] overflow-hidden flex flex-col p-0">
+          <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0">
             <div className="flex-1 overflow-y-auto">
               <ModalContent />
             </div>
           </DialogContent>
         </Dialog>
       )}
+
+    <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <DialogTitle className="text-xl font-bold">{dp("onboarding.title")}</DialogTitle>
+          </div>
+          <DialogDescription className="text-sm">
+            {dp("onboarding.description")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-4">
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+            <Trophy className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
+            <div>
+              <h4 className="font-semibold mb-1 text-sm">{dp("onboarding.cards.sp.title")}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {dp("onboarding.cards.sp.text")}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+            <Sparkles className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+            <div>
+              <h4 className="font-semibold mb-1 text-sm">{dp("onboarding.cards.howTo.title")}</h4>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                {[0, 1, 2, 3].map((index) => (
+                  <li key={index} className="flex items-center gap-2">
+                    <span>•</span>
+                    <span>{dp(`onboarding.cards.howTo.list.${index}`)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+            <Crown className="w-5 h-5 text-yellow-600 mt-0.5 shrink-0" />
+            <div>
+              <h4 className="font-semibold mb-1 text-sm">{dp("onboarding.cards.premium.title")}</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {dp("onboarding.cards.premium.text")}
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={() => {
+              localStorage.setItem('duel-pass-onboarding-seen', 'true');
+              setShowOnboarding(false);
+            }}
+            className="w-full"
+          >
+            {dp("onboarding.button")}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
 
     <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     

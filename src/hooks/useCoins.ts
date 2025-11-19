@@ -16,18 +16,31 @@ type SpendType = "boost_50_50" | "boost_hint" | "boost_time" | "second_chance";
 export function useCoins() {
   const { profileId } = useUserContext();
   const [balance, setBalance] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const supabaseClient = supabase as any;
 
   const refreshBalance = useCallback(async () => {
-    if (!profileId) return;
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("coins")
-      .eq("id", profileId)
-      .single();
+    if (!profileId) {
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("coins")
+        .eq("id", profileId)
+        .single();
 
-    if (!error && typeof data?.coins === "number") {
-      setBalance(data.coins);
+      if (!error && typeof data?.coins === "number") {
+        setBalance(data.coins);
+      }
+    } catch (error) {
+      console.error("[useCoins] Error refreshing balance:", error);
+    } finally {
+      setLoading(false);
     }
   }, [profileId]);
 
@@ -40,7 +53,7 @@ export function useCoins() {
       if (!profileId) return;
       setLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke("coins-earn", {
+        const { data, error } = await supabaseClient.functions.invoke("coins-earn", {
           body: { user_id: profileId, reward_type: rewardType, metadata },
         });
         if (error) throw error;
@@ -63,7 +76,7 @@ export function useCoins() {
       if (!profileId) return;
       setLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke("coins-spend", {
+        const { data, error } = await supabaseClient.functions.invoke("coins-spend", {
           body: { user_id: profileId, spend_type: spendType, metadata },
         });
         if (error) throw error;

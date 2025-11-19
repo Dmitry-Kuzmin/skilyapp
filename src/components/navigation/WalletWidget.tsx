@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 const supabaseClient = supabase as any;
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
+import { DuelPassOnboarding } from '@/components/monetization/DuelPassOnboarding';
 import { cn } from '@/lib/utils';
 
 interface WalletWidgetProps {
@@ -21,7 +22,9 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { t } = useLanguage();
   const [shopOpen, setShopOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number; spToNextLevel: number } | null>(null);
+  const [seasonData, setSeasonData] = useState<{ name_ru?: string; days_remaining?: number; end_date?: string } | null>(null);
   const [duelPassLoading, setDuelPassLoading] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
 
@@ -58,6 +61,13 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         }
 
         const activeSeason = seasonResult.value.data[0];
+        
+        // Сохраняем данные сезона для onboarding
+        setSeasonData({
+          name_ru: activeSeason.name_ru,
+          days_remaining: activeSeason.days_remaining,
+          end_date: activeSeason.end_date,
+        });
         
         // Получаем прогресс после получения сезона
         const { data: progressData, error: progressError } = await supabaseClient
@@ -167,7 +177,14 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           </>
         ) : duelPassData ? (
           <button
-            onClick={() => setDuelPassModalOpen(true)}
+            onClick={() => {
+              const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
+              if (!hasSeenOnboarding) {
+                setOnboardingOpen(true);
+              } else {
+                setDuelPassModalOpen(true);
+              }
+            }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}
           >
@@ -197,7 +214,14 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         ) : null}
         {!isLoading && duelPassData && (
           <button
-            onClick={() => setDuelPassModalOpen(true)}
+            onClick={() => {
+              const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
+              if (!hasSeenOnboarding) {
+                setOnboardingOpen(true);
+              } else {
+                setDuelPassModalOpen(true);
+              }
+            }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}
           >
@@ -216,6 +240,15 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       </div>
 
       <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
+      <DuelPassOnboarding 
+        open={onboardingOpen} 
+        onOpenChange={setOnboardingOpen}
+        onComplete={() => {
+          setOnboardingOpen(false);
+          setDuelPassModalOpen(true);
+        }}
+        seasonData={seasonData || undefined}
+      />
       <DuelPassSeasonModal open={duelPassModalOpen} onOpenChange={setDuelPassModalOpen} />
     </>
   );
