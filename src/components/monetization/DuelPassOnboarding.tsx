@@ -688,7 +688,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "[&>button]:hidden",
           "bg-slate-950",
           "!grid !grid-rows-1",
-          "!z-[70]"
+          "!z-[9999]"
         )}
         hideCloseButton
       >
@@ -696,7 +696,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
         <DialogDescription className="sr-only">{t("duelPass.onboarding.dialogDescription")}</DialogDescription>
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
-        <div className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px]">
+        <div className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px] pointer-events-auto">
           {content}
         </div>
       </DialogContent>
