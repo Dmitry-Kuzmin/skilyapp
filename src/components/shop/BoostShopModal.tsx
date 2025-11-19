@@ -155,6 +155,19 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     return inventory.find(i => i.boost_type === boostType)?.quantity || 0;
   };
   
+  // Функция для получения читаемого названия буста
+  const getBoostDisplayName = (boostType?: string): string => {
+    if (!boostType) return '';
+    const boostNames: Record<string, string> = {
+      'fifty_fifty': '50/50',
+      'time_extend': '+30 секунд',
+      'hint': 'Подсказка',
+      'skip': 'Пропустить',
+      'translate': 'Перевод',
+    };
+    return boostNames[boostType] || boostType;
+  };
+
   const getTransactionInfo = (type: string, metadata?: any): { description: string; icon: any; category: 'earn' | 'spend' | 'purchase' | 'reward' } => {
     const iconMap: Record<string, any> = {
       // Earnings
@@ -163,7 +176,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       'coins_earned_daily': { icon: Calendar, desc: 'Ежедневный бонус', cat: 'earn' },
       'coins_earned_premium_bonus': { icon: Gift, desc: 'Premium бонус', cat: 'earn' },
       // Spending
-      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_type || ''}`, cat: 'spend' },
+      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_name || getBoostDisplayName(metadata?.boost_type) || metadata?.boost_type || ''}`, cat: 'spend' },
       'coins_spent_skin': { icon: Gift, desc: 'Покупка скина', cat: 'spend' },
       'coins_spent_duel_entry': { icon: Zap, desc: 'Вход в дуэль', cat: 'spend' },
       // Purchases
@@ -856,6 +869,98 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 <div className="text-center text-xs text-muted-foreground pt-2">
                   <p>💡 Получайте больше монет с Premium</p>
                 </div>
+              </div>
+            </TabsContent>
+
+            {/* Premium & Duel Pass Tab */}
+            <TabsContent value="premium" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+              <div className="space-y-4">
+                {/* Premium Subscription */}
+                <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Crown className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+                        <h3 className="text-base md:text-lg font-bold">Premium подписка</h3>
+                      </div>
+                      {isPremium && (
+                        <Badge className="bg-green-500">Активна</Badge>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2 text-xs md:text-sm">
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>Безлимитный доступ ко всем тестам</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>+50% монет за обучение</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>Duel Pass Premium награды</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span>Без рекламы и мгновенные подсказки</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                      <Card className="p-3 border-primary/30">
+                        <p className="text-xs text-muted-foreground mb-1">Месяц</p>
+                        <p className="text-base md:text-lg font-bold">€9.99</p>
+                        <Button 
+                          size="sm" 
+                          className="w-full mt-2"
+                          onClick={() => setPaywallOpen(true)}
+                          disabled={isPremium}
+                        >
+                          {isPremium ? 'Активна' : 'Выбрать'}
+                        </Button>
+                      </Card>
+                      <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-muted-foreground">Год</p>
+                          <Badge className="text-xs bg-yellow-500">-50%</Badge>
+                        </div>
+                        <p className="text-base md:text-lg font-bold">€59.99</p>
+                        <Button 
+                          size="sm" 
+                          className="w-full mt-2 bg-gradient-to-r from-yellow-500 to-orange-500"
+                          onClick={() => setPaywallOpen(true)}
+                          disabled={isPremium}
+                        >
+                          {isPremium ? 'Активна' : 'Выбрать'}
+                        </Button>
+                      </Card>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Duel Pass */}
+                <Card className="p-4 md:p-5 border-2 border-primary/20">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+                      <h3 className="text-base md:text-lg font-bold">Duel Pass</h3>
+                    </div>
+                    <p className="text-xs md:text-sm text-muted-foreground">
+                      Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.
+                    </p>
+                    <Button 
+                      className="w-full"
+                      onClick={() => {
+                        // TODO: Navigate to Duel Pass or show Duel Pass modal
+                        toast({ title: 'Duel Pass', description: 'Откройте Duel Pass на главной странице' });
+                      }}
+                    >
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Открыть Duel Pass
+                    </Button>
+                  </div>
+                </Card>
               </div>
             </TabsContent>
 
