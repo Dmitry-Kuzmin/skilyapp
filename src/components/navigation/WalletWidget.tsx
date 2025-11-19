@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 const supabaseClient = supabase as any;
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
-import { DuelPassOnboarding } from '@/components/monetization/DuelPassOnboarding';
 import { cn } from '@/lib/utils';
 
 interface WalletWidgetProps {
@@ -30,7 +29,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { t } = useLanguage();
   const [shopOpen, setShopOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
-  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number; spToNextLevel: number } | null>(null);
   const [seasonData, setSeasonData] = useState<{ name_ru?: string; days_remaining?: number; end_date?: string } | null>(null);
   const [duelPassLoading, setDuelPassLoading] = useState(true);
@@ -261,9 +259,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         {!isLoading && duelPassData && (
           <button
             onClick={() => {
-              // Всегда показываем onboarding при клике
-              console.log('[WalletWidget] Duel Pass button clicked, opening onboarding');
-              setOnboardingOpen(true);
+              console.log('[WalletWidget] Duel Pass button clicked, opening modal');
+              setDuelPassModalOpen(true);
             }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}
@@ -283,15 +280,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       </div>
 
       <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
-      <DuelPassOnboarding 
-        open={onboardingOpen} 
-        onOpenChange={setOnboardingOpen}
-        onComplete={() => {
-          setOnboardingOpen(false);
-          setDuelPassModalOpen(true);
-        }}
-        seasonData={seasonData || undefined}
-      />
       <DuelPassSeasonModal open={duelPassModalOpen} onOpenChange={setDuelPassModalOpen} />
     </>
   );
