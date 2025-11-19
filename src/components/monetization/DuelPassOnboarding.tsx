@@ -53,6 +53,10 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               // Принудительно устанавливаем opacity: 1
               dialogElement.style.setProperty('opacity', '1', 'important');
               dialogElement.style.setProperty('visibility', 'visible', 'important');
+              // Принудительно устанавливаем правильное позиционирование
+              dialogElement.style.setProperty('top', '50%', 'important');
+              dialogElement.style.setProperty('left', '50%', 'important');
+              dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
               
               // Проверяем контент внутри
               const contentElement = dialogElement.querySelector('.relative.z-10') as HTMLElement;
