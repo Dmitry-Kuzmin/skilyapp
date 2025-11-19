@@ -87,11 +87,21 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 console.log('[DuelPassOnboarding] ✅ Content element found:', contentElement);
                 contentElement.style.setProperty('opacity', '1', 'important');
                 contentElement.style.setProperty('visibility', 'visible', 'important');
-                // Устанавливаем адаптивную высоту для контента
-                const contentMaxHeight = Math.min(500, viewportHeight - 64); // min(500px, viewport - 4rem)
-                contentElement.style.setProperty('min-height', `${contentMaxHeight}px`, 'important');
-                contentElement.style.setProperty('max-height', `${viewportHeight - 64}px`, 'important');
+                // Устанавливаем адаптивную высоту для контента - используем viewport минус отступы для header и footer
+                const headerHeight = 80; // Примерная высота header
+                const footerHeight = 100; // Примерная высота footer
+                const availableHeight = viewportHeight - headerHeight - footerHeight - 32; // -2rem для отступов
+                const contentMaxHeight = Math.min(500, availableHeight);
+                contentElement.style.setProperty('min-height', '0', 'important'); // Убираем фиксированный min-height
+                contentElement.style.setProperty('max-height', `${availableHeight}px`, 'important');
                 contentElement.style.setProperty('overflow-y', 'auto', 'important');
+                contentElement.style.setProperty('flex', '1 1 auto', 'important'); // Позволяем flex сжиматься
+                console.log('[DuelPassOnboarding] Content height set:', {
+                  maxHeight: `${availableHeight}px`,
+                  viewportHeight,
+                  headerHeight,
+                  footerHeight
+                });
               } else {
                 console.error('[DuelPassOnboarding] ❌ Content element NOT found!');
               }
