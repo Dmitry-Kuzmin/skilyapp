@@ -690,13 +690,14 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "!grid !grid-rows-1",
           "!z-[9999]"
         )}
+        style={{ opacity: 1, visibility: 'visible', display: 'grid' }}
         hideCloseButton
       >
         <DialogTitle className="sr-only">Duel Pass Onboarding</DialogTitle>
         <DialogDescription className="sr-only">{t("duelPass.onboarding.dialogDescription")}</DialogDescription>
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
         <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
-        <div className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px] pointer-events-auto">
+        <div className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px] pointer-events-auto" style={{ opacity: 1, visibility: 'visible' }}>
           {content}
         </div>
       </DialogContent>
