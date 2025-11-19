@@ -643,6 +643,28 @@ const Article = () => {
     let currentList: string[] = [];
     let listType: "ul" | "ol" | null = null;
 
+    const renderInlineText = (text: string) => {
+      const parts: (string | JSX.Element)[] = [];
+      let lastIndex = 0;
+      const boldRegex = /\*\*([^*]+)\*\*/g;
+      let match;
+      while ((match = boldRegex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push(text.slice(lastIndex, match.index));
+        }
+        parts.push(
+          <strong key={`bold-${match.index}`} className="font-semibold text-gray-900 dark:text-gray-100">
+            {match[1]}
+          </strong>
+        );
+        lastIndex = match.index + match[0].length;
+      }
+      if (lastIndex < text.length) {
+        parts.push(text.slice(lastIndex));
+      }
+      return parts.length > 0 ? parts : [text];
+    };
+
     lines.forEach((line, index) => {
       const trimmedLine = line.trim();
 
@@ -652,13 +674,17 @@ const Article = () => {
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">
+                    {renderInlineText(item.replace(/^\d+\.\s*/, ""))}
+                  </li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">
+                    {renderInlineText(item.replace(/^[-*]\s*/, ""))}
+                  </li>
                 ))}
               </ul>
             )
@@ -679,13 +705,17 @@ const Article = () => {
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">
+                    {renderInlineText(item.replace(/^\d+\.\s*/, ""))}
+                  </li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">
+                    {renderInlineText(item.replace(/^[-*]\s*/, ""))}
+                  </li>
                 ))}
               </ul>
             )
@@ -795,13 +825,17 @@ const Article = () => {
             listType === "ol" ? (
               <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">
+                    {renderInlineText(item.replace(/^\d+\.\s*/, ""))}
+                  </li>
                 ))}
               </ol>
             ) : (
               <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
                 {currentList.map((item, i) => (
-                  <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
+                  <li key={i} className="text-gray-700 dark:text-gray-300">
+                    {renderInlineText(item.replace(/^[-*]\s*/, ""))}
+                  </li>
                 ))}
               </ul>
             )
@@ -810,48 +844,28 @@ const Article = () => {
           listType = null;
         }
         
-        let processedText = trimmedLine;
-        const parts: (string | JSX.Element)[] = [];
-        let lastIndex = 0;
-
-        const boldRegex = /\*\*([^*]+)\*\*/g;
-        let match;
-        while ((match = boldRegex.exec(trimmedLine)) !== null) {
-          if (match.index > lastIndex) {
-            parts.push(trimmedLine.slice(lastIndex, match.index));
-          }
-          parts.push(<strong key={`bold-${match.index}`} className="font-semibold text-gray-900 dark:text-gray-100">{match[1]}</strong>);
-          lastIndex = match.index + match[0].length;
-        }
-        if (lastIndex < trimmedLine.length) {
-          parts.push(trimmedLine.slice(lastIndex));
-        }
-
-        if (parts.length > 0) {
-          elements.push(
-            <p key={`p-${index}`} className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">
-              {parts}
-            </p>
-          );
-        } else {
-          elements.push(
-            <p key={`p-${index}`} className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">
-              {trimmedLine}
-            </p>
-          );
-        }
+        const inlineParts = renderInlineText(trimmedLine);
+        elements.push(
+          <p key={`p-${index}`} className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">
+            {inlineParts}
+          </p>
+        );
       } else if (trimmedLine.length === 0 && currentList.length > 0) {
         elements.push(
           listType === "ol" ? (
             <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
               {currentList.map((item, i) => (
-                <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
+                <li key={i} className="text-gray-700 dark:text-gray-300">
+                  {renderInlineText(item.replace(/^\d+\.\s*/, ""))}
+                </li>
               ))}
             </ol>
           ) : (
             <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
               {currentList.map((item, i) => (
-                <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
+                <li key={i} className="text-gray-700 dark:text-gray-300">
+                  {renderInlineText(item.replace(/^[-*]\s*/, ""))}
+                </li>
               ))}
             </ul>
           )
@@ -866,13 +880,17 @@ const Article = () => {
         listType === "ol" ? (
           <ol key="list-final" className="list-decimal list-inside mb-4 space-y-2 ml-4">
             {currentList.map((item, i) => (
-              <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^\d+\.\s*/, "")}</li>
+              <li key={i} className="text-gray-700 dark:text-gray-300">
+                {renderInlineText(item.replace(/^\d+\.\s*/, ""))}
+              </li>
             ))}
           </ol>
         ) : (
           <ul key="list-final" className="list-disc list-inside mb-4 space-y-2 ml-4">
             {currentList.map((item, i) => (
-              <li key={i} className="text-gray-700 dark:text-gray-300">{item.replace(/^[-*]\s*/, "")}</li>
+              <li key={i} className="text-gray-700 dark:text-gray-300">
+                {renderInlineText(item.replace(/^[-*]\s*/, ""))}
+              </li>
             ))}
           </ul>
         )
