@@ -831,8 +831,101 @@ const Article = () => {
       return parts.length > 0 ? parts : [text];
     };
 
-    lines.forEach((line, index) => {
+    const renderTable = (tableLines: string[], keyPrefix: string) => {
+      if (tableLines.length === 0) return null;
+      const splitRow = (row: string) =>
+        row
+          .split("|")
+          .slice(1, -1)
+          .map((cell) => cell.trim());
+      let header = splitRow(tableLines[0]);
+      let bodyLines = tableLines.slice(1);
+      const isSeparator = (line: string) => /^\|\s*-[-\s|]*\|$/.test(line);
+      if (bodyLines.length && isSeparator(bodyLines[0])) {
+        bodyLines = bodyLines.slice(1);
+      }
+      const body = bodyLines
+        .map(splitRow)
+        .filter((row) => row.length > 0);
+      if (header.length === 0) return null;
+      return (
+        <div key={keyPrefix} className="overflow-x-auto mb-6">
+          <table className="w-full border-collapse rounded-2xl overflow-hidden text-sm md:text-base shadow-sm">
+            <thead>
+              <tr className="bg-muted/30 text-foreground">
+                {header.map((cell, idx) => (
+                  <th
+                    key={`${keyPrefix}-h-${idx}`}
+                    className="text-left px-4 py-3 font-semibold border border-border/40"
+                  >
+                    {renderInlineText(cell)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {body.map((row, rowIdx) => (
+                <tr key={`${keyPrefix}-r-${rowIdx}`} className="border border-border/30 even:bg-muted/10">
+                  {row.map((cell, cellIdx) => (
+                    <td
+                      key={`${keyPrefix}-r-${rowIdx}-c-${cellIdx}`}
+                      className="px-4 py-3 text-gray-700 dark:text-gray-300 border border-border/30"
+                    >
+                      {renderInlineText(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    };
+
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
       const trimmedLine = line.trim();
+      const isTableRow = trimmedLine.startsWith("|") && trimmedLine.endsWith("|");
+      if (isTableRow) {
+        const tableLines: string[] = [];
+        while (index < lines.length) {
+          const potential = lines[index].trim();
+          if (potential.startsWith("|") && potential.endsWith("|")) {
+            tableLines.push(potential);
+            index++;
+          } else {
+            break;
+          }
+        }
+        index -= 1;
+        const tableElement = renderTable(tableLines, `table-${index}-${article.slug}`);
+        if (tableElement) {
+          if (currentList.length > 0) {
+            elements.push(
+              listType === "ol" ? (
+                <ol key={`list-${index}`} className="list-decimal list-inside mb-4 space-y-2 ml-4">
+                  {currentList.map((item, i) => (
+                    <li key={i} className="text-gray-700 dark:text-gray-300">
+                      {renderInlineText(item.replace(/^\d+\.\s*/, ""))}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <ul key={`list-${index}`} className="list-disc list-inside mb-4 space-y-2 ml-4">
+                  {currentList.map((item, i) => (
+                    <li key={i} className="text-gray-700 dark:text-gray-300">
+                      {renderInlineText(item.replace(/^[-*]\s*/, ""))}
+                    </li>
+                  ))}
+                </ul>
+              )
+            );
+            currentList = [];
+            listType = null;
+          }
+          elements.push(tableElement);
+          continue;
+      }
 
       if (trimmedLine.startsWith("# ")) {
         if (currentList.length > 0) {
