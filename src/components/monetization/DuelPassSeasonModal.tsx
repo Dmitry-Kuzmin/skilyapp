@@ -1919,10 +1919,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </Sheet>
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] p-0 flex flex-col overflow-hidden">
+          <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] p-0 !flex !flex-col !gap-0 overflow-hidden" style={{ height: '85vh', maxHeight: '85vh' }}>
             <DialogTitle className="sr-only">Duel Pass Season</DialogTitle>
             <DialogDescription className="sr-only">Duel Pass Season information and rewards</DialogDescription>
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto" style={{ flex: '1 1 0%', minHeight: 0 }}>
               <ModalContent />
             </div>
           </DialogContent>
