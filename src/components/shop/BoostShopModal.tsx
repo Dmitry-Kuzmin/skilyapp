@@ -78,6 +78,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     }
   }, [open]);
 
+  // Загружаем историю транзакций при переключении на вкладку "История"
+  useEffect(() => {
+    if (open && activeTab === 'history' && transactions.length === 0) {
+      loadTransactionHistory();
+    }
+  }, [open, activeTab]);
+
   const loadData = async () => {
     if (!profileId) {
       console.warn('[BoostShop] profileId не установлен');
