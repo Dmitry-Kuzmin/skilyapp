@@ -1,9 +1,46 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "./UserContext";
 import { helpCenterTranslations } from "@/translations/helpCenter";
 
 export type Language = 'es' | 'en' | 'ru';
+
+const SUPPORTED_LANGUAGES: Language[] = ['es', 'en', 'ru'];
+const DEFAULT_LANGUAGE: Language = 'en';
+
+const isBrowser = typeof window !== 'undefined';
+
+const normalizeLanguage = (lang?: string | null): Language | null => {
+  if (!lang) return null;
+  const short = lang.split('-')[0]?.toLowerCase();
+  return SUPPORTED_LANGUAGES.includes(short as Language) ? (short as Language) : null;
+};
+
+const getStoredLanguage = (): Language | null => {
+  if (!isBrowser) return null;
+  const saved = localStorage.getItem('app_language');
+  return normalizeLanguage(saved);
+};
+
+const detectNavigatorLanguage = (): Language | null => {
+  if (!isBrowser || typeof navigator === 'undefined') return null;
+  const candidates = navigator.languages?.length ? navigator.languages : [navigator.language];
+  for (const candidate of candidates) {
+    const normalized = normalizeLanguage(candidate);
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return null;
+};
+
+const detectPreferredLanguage = (): Language => {
+  return (
+    getStoredLanguage() ||
+    detectNavigatorLanguage() ||
+    DEFAULT_LANGUAGE
+  );
+};
 
 interface LanguageContextType {
   language: Language;
@@ -427,40 +464,43 @@ const translations: Record<Language, Record<string, string>> = {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const { user, profileId } = useUserContext();
-  const [language, setLanguageState] = useState<Language>('es');
+  const [language, setLanguageState] = useState<Language>(() => detectPreferredLanguage());
+
+  const applyLanguage = useCallback((lang: Language, persist: boolean = true) => {
+    setLanguageState(lang);
+    if (persist && isBrowser) {
+      localStorage.setItem('app_language', lang);
+    }
+  }, []);
 
   // Load language from profile on mount
   useEffect(() => {
     const loadLanguage = async () => {
-      if (profileId) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('settings')
-          .eq('id', profileId)
-          .single();
-
-        if (data?.settings) {
-          const settings = data.settings as any;
-          if (settings.language) {
-            const lang = settings.language as Language;
-            setLanguageState(lang);
-          }
-        }
-      } else {
-        // Fallback to localStorage
-        const saved = localStorage.getItem('app_language') as Language;
-        if (saved && ['es', 'en', 'ru'].includes(saved)) {
-          setLanguageState(saved);
-        }
+      if (!profileId) {
+        applyLanguage(detectPreferredLanguage());
+        return;
       }
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('settings')
+        .eq('id', profileId)
+        .single();
+
+      const lang = (data?.settings as Record<string, unknown> | null)?.language as Language | undefined;
+      if (lang && SUPPORTED_LANGUAGES.includes(lang)) {
+        applyLanguage(lang);
+        return;
+      }
+
+      applyLanguage(detectPreferredLanguage());
     };
 
     loadLanguage();
-  }, [profileId]);
+  }, [profileId, applyLanguage]);
 
   const setLanguage = async (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem('app_language', lang);
+    applyLanguage(lang);
 
     // Save to database if user is logged in
     if (profileId) {
