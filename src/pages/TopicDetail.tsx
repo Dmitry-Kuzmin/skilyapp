@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { calculateTopicProgress, calculateOverallProgress } from "@/utils/learningMap";
 import { cn } from "@/lib/utils";
+import { TopicDetailSkeleton } from "@/components/learning-map/TopicDetailSkeleton";
 
 const TopicDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,12 +114,7 @@ const TopicDetail = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-            <p className="text-muted-foreground">Загрузка темы...</p>
-          </div>
-        </div>
+        <TopicDetailSkeleton />
       </Layout>
     );
   }

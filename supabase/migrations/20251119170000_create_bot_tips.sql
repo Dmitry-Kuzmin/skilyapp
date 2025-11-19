@@ -93,3 +93,4 @@ INSERT INTO public.bot_tips (
 ON CONFLICT DO NOTHING;
 
 
+

@@ -88,7 +88,6 @@ const translations: Record<Language, Record<string, any>> = {
     // Links
     achievements: "Mis logros",
     duelHistory: "Historia de duelos",
-    boostShop: "Tienda de potenciadores",
     support: "Soporte",
     
     // Messages
@@ -489,28 +488,60 @@ const translations: Record<Language, Record<string, any>> = {
         genericReward: "¡Recompensa desbloqueada!",
       },
       onboarding: {
-        title: "¡Bienvenido a Duel Pass!",
-        description: "Sistema de temporadas con recompensas por tu actividad",
-        cards: {
-          sp: {
-            title: "¿Qué son los Season Points?",
-            text: "Recibes SP por cada acción. Más SP = más niveles y recompensas.",
+        slide1: {
+          title: "¡Bienvenido a<br />Duel Pass!",
+          description: "Sistema de temporadas con recompensas por tu actividad. Gana SP, sube de nivel y obtén recompensas exclusivas!",
+        },
+        slide2: {
+          title: "¿Qué son los SP?",
+          subtitle: "Season Points — tu moneda de temporada",
+          tests: "Tests",
+          duels: "Duelos",
+          daily: "Ingreso diario",
+          spPerAction: "SP por acción",
+          premiumBonus: "Premium: +20% SP",
+          premiumDescription: "Con Premium obtienes más SP por cada acción",
+        },
+        slide3: {
+          title: "30 niveles de recompensas únicas",
+          subtitle: "Más SP = nivel más alto = más recompensas!",
+          coins: "Monedas",
+          skins: "Skins",
+          badges: "Insignias",
+          boosts: "Boosts",
+          progressTitle: "Progreso por niveles",
+          progressDescription: "Cada nivel desbloquea nuevas recompensas exclusivas",
+        },
+        slide4: {
+          title: "Desbloquea la temporada completa",
+          subtitle: "Premium Pass abre lo mejor",
+          freePass: "Free Pass",
+          premiumPass: "Premium Pass",
+          freeFeatures: {
+            missions: "Acceso a misiones",
+            basicRewards: "Recompensas básicas",
+            levelProgress: "Progreso por niveles",
           },
-          howTo: {
-            title: "¿Cómo ganar SP?",
-            list: [
-              "Tests: +25 SP",
-              "Duelos: +30 SP",
-              "Ingreso diario: +15 SP",
-              "Premium: +20% SP",
-            ],
-          },
-          premium: {
-            title: "Recompensas Premium",
-            text: "Premium añade recompensas extras en cada nivel y +20% SP.",
+          premiumFeatures: {
+            doubleRewards: "Recompensas x2",
+            exclusive: "Cosméticos exclusivos",
+            instantLevels: "+5 niveles al instante",
+            allSeasons: "Todas las temporadas",
           },
         },
+        slide5: {
+          title: "¡La temporada es limitada!",
+          description: "Las recompensas desaparecerán en {{days}}",
+          day: "día",
+          days: "días",
+          daysFew: "días",
+        },
         button: "Entendido, ¡vamos!",
+        skip: "Saltar",
+        next: "Siguiente",
+        back: "Atrás",
+        dontShowAgain: "No mostrar de nuevo",
+        dialogDescription: "Bienvenido a Duel Pass - sistema de recompensas por actividad",
       },
       migration: {
         title: "Duel Pass",
@@ -627,7 +658,6 @@ const translations: Record<Language, Record<string, any>> = {
     // Links
     achievements: "My achievements",
     duelHistory: "Duel history",
-    boostShop: "Boost shop",
     support: "Support",
     
     // Messages
@@ -1028,28 +1058,60 @@ const translations: Record<Language, Record<string, any>> = {
         genericReward: "Reward unlocked!",
       },
       onboarding: {
-        title: "Welcome to Duel Pass!",
-        description: "Season system with rewards for your activity",
-        cards: {
-          sp: {
-            title: "What are Season Points?",
-            text: "Earn SP for every action. More SP equals more levels and rewards.",
+        slide1: {
+          title: "Welcome to<br />Duel Pass!",
+          description: "Season system with rewards for your activity. Farm SP, level up and get exclusive rewards!",
+        },
+        slide2: {
+          title: "What are SP?",
+          subtitle: "Season Points — your season currency",
+          tests: "Tests",
+          duels: "Duels",
+          daily: "Daily login",
+          spPerAction: "SP per action",
+          premiumBonus: "Premium: +20% SP",
+          premiumDescription: "With Premium subscription you get more SP for every action",
+        },
+        slide3: {
+          title: "30 levels of unique rewards",
+          subtitle: "More SP = higher level = more rewards!",
+          coins: "Coins",
+          skins: "Skins",
+          badges: "Badges",
+          boosts: "Boosts",
+          progressTitle: "Level progress",
+          progressDescription: "Each level unlocks new exclusive rewards",
+        },
+        slide4: {
+          title: "Unlock the full season",
+          subtitle: "Premium Pass opens the best",
+          freePass: "Free Pass",
+          premiumPass: "Premium Pass",
+          freeFeatures: {
+            missions: "Access to missions",
+            basicRewards: "Basic rewards",
+            levelProgress: "Level progress",
           },
-          howTo: {
-            title: "How to earn SP?",
-            list: [
-              "Tests: +25 SP",
-              "Duels: +30 SP",
-              "Daily login: +15 SP",
-              "Premium: +20% SP",
-            ],
-          },
-          premium: {
-            title: "Premium rewards",
-            text: "Premium grants extra rewards on every level and +20% SP.",
+          premiumFeatures: {
+            doubleRewards: "Rewards x2",
+            exclusive: "Exclusive cosmetics",
+            instantLevels: "+5 levels instantly",
+            allSeasons: "All seasons",
           },
         },
+        slide5: {
+          title: "Season is time-limited!",
+          description: "Rewards will disappear in {{days}}",
+          day: "day",
+          days: "days",
+          daysFew: "days",
+        },
         button: "Got it, let's start!",
+        skip: "Skip",
+        next: "Next",
+        back: "Back",
+        dontShowAgain: "Don't show again",
+        dialogDescription: "Welcome to Duel Pass - activity reward system",
       },
       migration: {
         title: "Duel Pass",
@@ -1166,7 +1228,6 @@ const translations: Record<Language, Record<string, any>> = {
     // Links
     achievements: "Мои достижения",
     duelHistory: "История дуэлей",
-    boostShop: "Магазин бустеров",
     support: "Поддержка",
     
     // Messages
@@ -1567,28 +1628,60 @@ const translations: Record<Language, Record<string, any>> = {
         genericReward: "Награда разблокирована!",
       },
       onboarding: {
-        title: "Добро пожаловать в Duel Pass!",
-        description: "Сезонная система с наградами за твою активность",
-        cards: {
-          sp: {
-            title: "Что такое Season Points?",
-            text: "Получай SP за каждое действие. Больше SP = больше уровней и наград.",
+        slide1: {
+          title: "Добро пожаловать в<br />Duel Pass!",
+          description: "Сезонная система наград за твою активность. Фарми SP, поднимай уровни и получай эксклюзивные награды!",
+        },
+        slide2: {
+          title: "Что такое SP?",
+          subtitle: "Season Points — твоя валюта сезона",
+          tests: "Тесты",
+          duels: "Дуэли",
+          daily: "Ежедневка",
+          spPerAction: "SP за действие",
+          premiumBonus: "Premium: +20% к SP",
+          premiumDescription: "С Premium подпиской получай больше SP за каждое действие",
+        },
+        slide3: {
+          title: "30 уровней уникальных наград",
+          subtitle: "Больше SP = выше уровень = больше наград!",
+          coins: "Монеты",
+          skins: "Скины",
+          badges: "Бейджи",
+          boosts: "Бусты",
+          progressTitle: "Прогресс по уровням",
+          progressDescription: "Каждый уровень открывает новые эксклюзивные награды",
+        },
+        slide4: {
+          title: "Раскрывай сезон полностью",
+          subtitle: "Premium Pass открывает лучшее",
+          freePass: "Free Pass",
+          premiumPass: "Premium Pass",
+          freeFeatures: {
+            missions: "Доступ к миссиям",
+            basicRewards: "Базовые награды",
+            levelProgress: "Прогресс по уровням",
           },
-          howTo: {
-            title: "Как зарабатывать SP?",
-            list: [
-              "Тесты: +25 SP",
-              "Дуэли: +30 SP",
-              "Ежедневный вход: +15 SP",
-              "Premium: +20% SP",
-            ],
-          },
-          premium: {
-            title: "Premium награды",
-            text: "Premium добавляет награды на каждом уровне и +20% SP.",
+          premiumFeatures: {
+            doubleRewards: "Награды x2",
+            exclusive: "Эксклюзивные косметики",
+            instantLevels: "+5 уровней сразу",
+            allSeasons: "Все сезоны",
           },
         },
+        slide5: {
+          title: "Сезон ограничен по времени!",
+          description: "Награды исчезнут через {{days}}",
+          day: "день",
+          days: "дней",
+          daysFew: "дня",
+        },
         button: "Понятно, начать!",
+        skip: "Пропустить",
+        next: "Далее",
+        back: "Назад",
+        dontShowAgain: "Не показывать снова",
+        dialogDescription: "Добро пожаловать в Duel Pass - систему наград за активность",
       },
       migration: {
         title: "Duel Pass",

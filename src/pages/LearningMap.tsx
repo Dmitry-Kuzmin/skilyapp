@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
+import { Loader2, BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,8 +21,9 @@ import {
   CurriculumBlueprintTopic,
 } from "@/data/curriculumBlueprint";
 import { calculateTopicProgress } from "@/utils/learningMap";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { hasStaticMaterial } from "@/utils/staticMaterials";
+import { LearningMapSkeleton } from "@/components/learning-map/LearningMapSkeleton";
 
 const isLearningMapDebug =
   import.meta.env.DEV && import.meta.env.VITE_DEBUG_LEARNING_MAP === "true";
@@ -43,6 +45,7 @@ const LearningMap = () => {
   const [error, setError] = useState<string | null>(null);
   const [topics, setTopics] = useState<TopicWithSubtopics[]>([]);
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
+  const [, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
   const topicsCacheKey = useMemo(() => `learning_map_topics_${language}`, [language]);
 
   useEffect(() => {
@@ -55,7 +58,10 @@ const LearningMap = () => {
           const parsed = JSON.parse(cached) as TopicWithSubtopics[];
           if (parsed.length) {
             setTopics(parsed);
-            setLoading(false);
+            // Не сбрасываем loading сразу - дадим skeleton показаться минимум 300ms для лучшего UX
+            setTimeout(() => {
+              setLoading(false);
+            }, 300);
             usedCache = true;
             logLearningMap("[LearningMap] Applied cached topics:", parsed.length);
           }
@@ -80,9 +86,9 @@ const LearningMap = () => {
     }
 
     if (isAuthenticated && profileId) {
-      logLearningMap("[LearningMap] Loading progress for authenticated user...");
-      loadProgress().catch((error) => {
-        console.error("[LearningMap] Error loading progress:", error);
+      logLearningMap("[LearningMap] Loading user profile and progress...");
+      Promise.all([loadUserProfile(), loadProgress()]).catch((error) => {
+        console.error("[LearningMap] Error loading data:", error);
       });
     } else {
       logLearningMap("[LearningMap] Not authenticated, setting default progress");
@@ -97,11 +103,41 @@ const LearningMap = () => {
         });
       });
       setTopicsProgress(defaultProgress);
-      setLoading(false);
+      // Даём skeleton показаться минимум 300ms
+      setTimeout(() => {
+        setLoading(false);
+      }, 300);
       logLearningMap("[LearningMap] Default progress set, loading:", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topics.length, isAuthenticated, profileId]);
+
+  const loadUserProfile = async () => {
+    if (!profileId) return;
+
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('rank, xp, streak_days')
+        .eq('id', profileId)
+        .single();
+
+      if (error) {
+        console.error('[LearningMap] Error loading user profile:', error);
+        return;
+      }
+
+      if (profile) {
+        setUserProfile({
+          rank: (profile as any).rank || undefined,
+          xp: (profile as any).xp || 0,
+          streak: (profile as any).streak_days || 0,
+        });
+      }
+    } catch (error) {
+      console.error('[LearningMap] Error loading user profile:', error);
+    }
+  };
 
   const loadLearningMap = async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
@@ -113,31 +149,7 @@ const LearningMap = () => {
       }
       const { data: topicsData, error: topicsError } = await supabase
         .from("topics")
-        .select(`
-          id,
-          number,
-          order_index,
-          title_ru,
-          title_es,
-          title_en,
-          description_ru,
-          description_es,
-          description_en,
-          cover_image,
-          is_premium,
-          gradient_from,
-          gradient_to,
-          unlock_condition,
-          subtopics (
-            id,
-            title_ru,
-            title_es,
-            title_en,
-            order_index,
-            type,
-            content_id
-          )
-        `)
+        .select("*, subtopics(*)")
         .order("order_index", { ascending: true })
         .limit(50);
 
@@ -185,7 +197,14 @@ const LearningMap = () => {
           console.warn("[LearningMap] Failed to cache topics:", error);
         }
       }
-      setLoading(false);
+      // Минимальная задержка для показа skeleton (если не silent режим)
+      if (!silent) {
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
+      } else {
+        setLoading(false);
+      }
       logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
       console.error("[LearningMap] Error loading learning map:", error);
@@ -324,20 +343,27 @@ const LearningMap = () => {
   };
 
   const [structuredCurriculum, setStructuredCurriculum] = useState<StructuredCurriculumTopic[]>([]);
+  const [isBuildingCurriculum, setIsBuildingCurriculum] = useState(false);
 
   useEffect(() => {
     if (topics.length === 0) {
       setStructuredCurriculum([]);
+      setIsBuildingCurriculum(false);
       return;
     }
     
+    setIsBuildingCurriculum(true);
     // Асинхронно строим структуру с проверкой статических материалов
     buildStructuredCurriculumAsync(curriculumBlueprint, topics, topicsProgress, language)
-      .then(setStructuredCurriculum)
+      .then((result) => {
+        setStructuredCurriculum(result);
+        setIsBuildingCurriculum(false);
+      })
       .catch((error) => {
         console.error("[LearningMap] Error building structured curriculum:", error);
         // Fallback на синхронную версию
         setStructuredCurriculum(buildStructuredCurriculum(curriculumBlueprint, topics, topicsProgress, language));
+        setIsBuildingCurriculum(false);
       });
   }, [topics, topicsProgress, language]);
 
@@ -426,8 +452,12 @@ const LearningMap = () => {
   });
 
   if (loading) {
-    logLearningMap("[LearningMap] Rendering skeleton state");
-    return <LearningMapSkeleton />;
+    logLearningMap("[LearningMap] Rendering loading state");
+    return (
+      <Layout>
+        <LearningMapSkeleton />
+      </Layout>
+    );
   }
 
   if (error) {
@@ -568,18 +598,48 @@ const LearningMap = () => {
             </div>
           </section>
 
-          {structuredCurriculum.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
-                <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+          {loading || isBuildingCurriculum || (topics.length > 0 && structuredCurriculum.length === 0) ? (
+            (loading || isBuildingCurriculum) ? (
+              <div className="space-y-10">
+                {[1, 2, 3].map((i) => (
+                  <Card
+                    key={i}
+                    className="relative overflow-hidden rounded-2xl border border-border bg-card/80 dark:bg-card/90 backdrop-blur-sm px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
+                  >
+                    <div className="relative space-y-3 sm:space-y-4">
+                      <div className="relative rounded-xl overflow-hidden p-2.5 sm:p-3 md:p-4 lg:p-5 flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+                            <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex-shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-3 w-20" />
+                              <Skeleton className="h-5 w-full max-w-xs" />
+                            </div>
+                          </div>
+                          <Skeleton className="h-4 w-full max-w-2xl" />
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
+                          <Skeleton className="h-16 sm:h-14 w-full sm:w-32 rounded-lg sm:rounded-xl" />
+                          <Skeleton className="h-10 w-full sm:w-24 rounded-lg sm:rounded-xl" />
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                {t("learningMap.empty.title")}
-              </h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                {t("learningMap.empty.description")}
-              </p>
-            </div>
+            ) : (
+              <div className="text-center py-20 text-muted-foreground">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
+                  <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  {t("learningMap.empty.title")}
+                </h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  {t("learningMap.empty.description")}
+                </p>
+              </div>
+            )
           ) : (
             <CurriculumMatrix
               topics={structuredCurriculum}
@@ -596,117 +656,6 @@ const LearningMap = () => {
 };
 
 export default LearningMap;
-
-const LearningMapSkeleton = () => {
-  const modulePlaceholders = Array.from({ length: 3 });
-  return (
-    <Layout>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8">
-          <section className="flex flex-col gap-6 lg:gap-8">
-            <div className="space-y-3 md:max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
-                <Skeleton className="h-4 w-40 rounded-full" />
-              </div>
-              <Skeleton className="h-10 w-56 rounded-lg" />
-              <Skeleton className="h-4 w-full md:w-4/5 rounded-full" />
-            </div>
-
-            <div className="w-full md:max-w-2xl space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-border bg-card px-4 py-5 flex items-center gap-4 shadow-sm">
-                  <Skeleton className="h-20 w-20 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-32 rounded-full" />
-                    <Skeleton className="h-3 w-40 rounded-full" />
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-3 shadow-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <Skeleton className="h-4 w-28 rounded-full" />
-                    <Skeleton className="h-6 w-16 rounded-full" />
-                  </div>
-                  <Skeleton className="h-2 w-full rounded-full" />
-                  <div className="flex items-center justify-between gap-3">
-                    <Skeleton className="h-4 w-32 rounded-full" />
-                    <Skeleton className="h-4 w-12 rounded-full" />
-                  </div>
-                  <Skeleton className="h-2 w-full rounded-full" />
-                </div>
-              </div>
-
-              <Skeleton className="h-14 w-full rounded-2xl" />
-            </div>
-          </section>
-
-          <div className="space-y-4">
-            {modulePlaceholders.map((_, index) => (
-              <ModuleCardSkeleton key={index} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </Layout>
-  );
-};
-
-const ModuleCardSkeleton = () => {
-  const sections = Array.from({ length: 2 });
-  return (
-    <div className="rounded-2xl border border-border bg-card/70 px-3 py-4 sm:px-5 sm:py-5 space-y-4 shadow-sm">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex-1 space-y-3">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-10 w-10 rounded-xl" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-3 w-20 rounded-full" />
-              <Skeleton className="h-4 w-48 rounded-full" />
-            </div>
-          </div>
-          <Skeleton className="h-4 w-full rounded-full" />
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-background/60 px-3 py-2 w-full sm:w-auto">
-            <Skeleton className="h-9 w-9 rounded-full" />
-            <div className="space-y-2 flex-1 min-w-[100px]">
-              <Skeleton className="h-3 w-16 rounded-full" />
-              <Skeleton className="h-4 w-20 rounded-full" />
-            </div>
-          </div>
-          <Skeleton className="h-10 w-full sm:w-32 rounded-xl" />
-          <Skeleton className="h-10 w-10 rounded-full sm:h-10 sm:w-10" />
-        </div>
-      </div>
-      <div className="space-y-3">
-        {sections.map((_, sectionIndex) => (
-          <div
-            key={sectionIndex}
-            className="rounded-xl border border-border bg-muted/40 p-3 space-y-3"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-2 flex-1">
-                <Skeleton className="h-3 w-24 rounded-full" />
-                <Skeleton className="h-4 w-40 rounded-full" />
-              </div>
-              <Skeleton className="h-4 w-8 rounded-full" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {Array.from({ length: 3 }).map((__, itemIndex) => (
-                <div
-                  key={itemIndex}
-                  className="rounded-lg border border-border bg-background/70 p-3 space-y-2"
-                >
-                  <Skeleton className="h-3 w-24 rounded-full" />
-                  <Skeleton className="h-4 w-full rounded-full" />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 function normalizeTitle(title: string): string {
   return title
@@ -835,7 +784,12 @@ async function buildStructuredCurriculumAsync(
     const leftoverSubtopics = topicSubtopics.filter((subtopic) => !matchedIds.has(subtopic.id));
     if (leftoverSubtopics.length > 0) {
       const additionalSection: StructuredCurriculumSection = {
-        title: t("learningMap.additionalMaterials"),
+        title:
+          language === "es"
+            ? "Material adicional"
+            : language === "en"
+            ? "Additional material"
+            : "Дополнительные материалы",
         items: leftoverSubtopics.map((subtopic) => {
           const localizedTitle =
             language === "es"
@@ -859,9 +813,26 @@ async function buildStructuredCurriculumAsync(
     if (dbTopic) {
       const canAccessTests = (progressMap.get(dbTopic.id)?.isUnlocked ?? true) || !progress;
 
-    const testsSectionTitle = t("learningMap.tests.sectionTitle");
-    const trainingTestTitle = t("learningMap.tests.trainingTest");
-    const finalTestTitle = t("learningMap.tests.finalTest");
+      const testsSectionTitle =
+        language === "es"
+          ? "Pruebas del módulo"
+          : language === "en"
+          ? "Module tests"
+          : "Тесты по модулю";
+
+      const trainingTestTitle =
+        language === "es"
+          ? "Test de entrenamiento por tema"
+          : language === "en"
+          ? "Training test by topic"
+          : "Тренировочный тест по теме";
+
+      const finalTestTitle =
+        language === "es"
+          ? "Test final del módulo"
+          : language === "en"
+          ? "Final module test"
+          : "Итоговый тест по модулю";
 
       const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
@@ -974,9 +945,26 @@ function buildStructuredCurriculum(
     if (dbTopic) {
       const canAccessTests = (progressMap.get(dbTopic.id)?.isUnlocked ?? true) || !progress;
 
-      const testsSectionTitle = t("learningMap.tests.sectionTitle");
-      const trainingTestTitle = t("learningMap.tests.trainingTest");
-      const finalTestTitle = t("learningMap.tests.finalTest");
+      const testsSectionTitle =
+        language === "es"
+          ? "Pruebas del módulo"
+          : language === "en"
+          ? "Module tests"
+          : "Тесты по модулю";
+
+      const trainingTestTitle =
+        language === "es"
+          ? "Test de entrenamiento por tema"
+          : language === "en"
+          ? "Training test by topic"
+          : "Тренировочный тест по теме";
+
+      const finalTestTitle =
+        language === "es"
+          ? "Test final del módulo"
+          : language === "en"
+          ? "Final module test"
+          : "Итоговый тест по модулю";
 
       const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,

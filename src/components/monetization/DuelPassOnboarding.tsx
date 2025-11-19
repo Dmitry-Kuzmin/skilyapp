@@ -38,10 +38,6 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   
-  // Отладка: проверяем, открыт ли компонент
-  useEffect(() => {
-    console.log('[DuelPassOnboarding] Render - open:', open, 'isMobile:', isMobile);
-  }, [open, isMobile]);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const totalSlides = 5;
 
@@ -133,11 +129,9 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
         transition={{ delay: 0.5, type: "spring" }}
         className="space-y-4"
       >
-        <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
-          Добро пожаловать в<br />Duel Pass!
-        </h2>
+        <h2 className="text-3xl md:text-5xl font-black text-white leading-tight" dangerouslySetInnerHTML={{ __html: t("duelPass.onboarding.slide1.title") }} />
         <p className="text-base md:text-lg text-white/80 max-w-lg mx-auto leading-relaxed px-4">
-          Сезонная система наград за твою активность. Фарми SP, поднимай уровни и получай эксклюзивные награды!
+          {t("duelPass.onboarding.slide1.description")}
         </p>
       </motion.div>
     </div>
@@ -152,18 +146,18 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
         className="text-center space-y-2 mb-6"
       >
         <h2 className="text-2xl md:text-4xl font-black text-white">
-          Что такое SP?
+          {t("duelPass.onboarding.slide2.title")}
         </h2>
         <p className="text-sm md:text-base text-white/70">
-          Season Points — твоя валюта сезона
+          {t("duelPass.onboarding.slide2.subtitle")}
         </p>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
         {[
-          { icon: BookOpen, label: "Тесты", sp: "+25", color: "text-blue-400", bg: "bg-blue-500/30", border: "border-blue-500/50" },
-          { icon: Swords, label: "Дуэли", sp: "+30", color: "text-purple-400", bg: "bg-purple-500/30", border: "border-purple-500/50" },
-          { icon: Calendar, label: "Ежедневка", sp: "+15", color: "text-green-400", bg: "bg-green-500/30", border: "border-green-500/50" },
+          { icon: BookOpen, label: t("duelPass.onboarding.slide2.tests"), sp: "+25", color: "text-blue-400", bg: "bg-blue-500/30", border: "border-blue-500/50" },
+          { icon: Swords, label: t("duelPass.onboarding.slide2.duels"), sp: "+30", color: "text-purple-400", bg: "bg-purple-500/30", border: "border-purple-500/50" },
+          { icon: Calendar, label: t("duelPass.onboarding.slide2.daily"), sp: "+15", color: "text-green-400", bg: "bg-green-500/30", border: "border-green-500/50" },
         ].map((item, index) => (
           <motion.div
             key={item.label}
@@ -197,7 +191,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 >
                   {item.sp}
                 </motion.p>
-                <p className="text-xs text-white/70 mt-1">SP за действие</p>
+                <p className="text-xs text-white/70 mt-1">{t("duelPass.onboarding.slide2.spPerAction")}</p>
               </div>
             </div>
           </motion.div>
@@ -662,17 +656,11 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           )}
           hideCloseButton
         >
-          <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
-          <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative z-10 h-full flex flex-col"
-          >
-            {content}
-          </motion.div>
+          <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
+          <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
+          <div className="relative z-10 h-full flex flex-col w-full">
+            {content ? content : <div className="text-white p-4">Content not loaded (mobile)</div>}
+          </div>
         </SheetContent>
       </Sheet>
     );
@@ -682,28 +670,25 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className={cn(
-          "max-w-3xl max-h-[90vh] overflow-hidden p-0 border-0 rounded-3xl",
+          "w-[95vw] max-w-3xl max-h-[90vh] p-0 border-0 rounded-3xl",
           seasonTheme.gradient,
           seasonTheme.border,
           seasonTheme.glow,
           "relative backdrop-blur-xl",
-          "[&>button]:hidden"
+          "[&>button]:hidden",
+          "!bg-slate-950",
+          "!grid !grid-rows-1",
+          "!opacity-100 !visible"
         )}
         hideCloseButton
       >
         <DialogTitle className="sr-only">Duel Pass Onboarding</DialogTitle>
-        <DialogDescription className="sr-only">Добро пожаловать в Duel Pass - систему наград за активность</DialogDescription>
-        <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
-        <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="relative z-10 h-full flex flex-col"
-        >
+        <DialogDescription className="sr-only">{t("duelPass.onboarding.dialogDescription")}</DialogDescription>
+        <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativePrimary)} />
+        <div className={cn("absolute inset-0 opacity-70 pointer-events-none z-0", seasonTheme.decorativeSecondary)} />
+        <div className="relative z-10 w-full h-full flex flex-col overflow-hidden min-h-[500px]">
           {content}
-        </motion.div>
+        </div>
       </DialogContent>
     </Dialog>
   );

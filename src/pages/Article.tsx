@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, Share2, Twitter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ArticleData {
   slug: string;
@@ -2558,6 +2559,7 @@ Skilyapp не ограничивается процентами:
 const Article = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
   const article = slug ? articles[slug] : null;
 
   useEffect(() => {
@@ -2681,7 +2683,7 @@ const Article = () => {
       }
     } else {
       navigator.clipboard.writeText(shareUrl);
-      alert("Ссылка скопирована в буфер обмена!");
+      alert(t("article.share.copied"));
     }
   };
 
@@ -3073,11 +3075,11 @@ const Article = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             <Link to="/blog" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
-              ← Все статьи
+              {t("article.nav.back")}
             </Link>
             <div className="flex items-center gap-4">
               <Link to="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors">
-                Главная
+                {t("article.nav.home")}
               </Link>
               <ThemeToggle />
             </div>
@@ -3104,12 +3106,14 @@ const Article = () => {
                   {article.description}
                 </p>
                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                  <span>Опубликовано {new Date(article.publishedAt).toLocaleDateString("ru-RU", {
+                  <span>{t("article.meta.publishedOn", {
+                    date: new Date(article.publishedAt).toLocaleDateString(language, {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
+                    }),
                   })}</span>
-                  <span>в {article.category.toLowerCase()}</span>
+                  <span>{t("article.meta.inCategory", { category: article.category.toLowerCase() })}</span>
                   </div>
                 </div>
 
@@ -3128,7 +3132,7 @@ const Article = () => {
 
               {/* Share Section */}
               <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Поделиться</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">{t("article.share.title")}</p>
                 <div className="flex items-center gap-3">
                   <Button
                     variant="outline"
@@ -3149,7 +3153,7 @@ const Article = () => {
                     className="flex items-center gap-2"
                 >
                     <Share2 className="w-4 h-4" />
-                  Поделиться
+                  {t("article.share.button")}
                 </Button>
               </div>
             </div>
@@ -3157,7 +3161,7 @@ const Article = () => {
               {/* Related Articles */}
               {otherArticles.length > 0 && (
                 <div className="mt-16 pt-12 border-t border-gray-200 dark:border-gray-800">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Связанные статьи</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">{t("article.relatedTitle")}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {otherArticles.map((relatedArticle) => (
                       <Card
@@ -3177,7 +3181,7 @@ const Article = () => {
                 </p>
                           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                             <Clock className="w-3 h-3" />
-                            {relatedArticle.readTime} мин
+                            {t("article.meta.readTime", { minutes: relatedArticle.readTime })}
               </div>
               </div>
                       </Card>
@@ -3190,17 +3194,17 @@ const Article = () => {
               <Card className="mt-16 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
                 <div className="p-8 text-center">
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                    Идея в приложение за секунды
+                    {t("article.cta.title")}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
-                    Создавайте приложения, общаясь с ИИ.
+                    {t("article.cta.description")}
                   </p>
                   <Button
                     size="lg"
                     onClick={() => navigate("/tests")}
                     className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
                   >
-                    Начать бесплатно
+                    {t("article.cta.button")}
                   </Button>
                 </div>
               </Card>
@@ -3215,10 +3219,10 @@ const Article = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Clock className="w-4 h-4" />
-                    <span>{article.readTime} мин чтения</span>
+                    <span>{t("article.meta.readTime", { minutes: article.readTime })}</span>
                   </div>
                   <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Поделиться</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t("article.share.title")}</p>
                     <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
@@ -3248,7 +3252,7 @@ const Article = () => {
               {headings.length > 0 && (
                 <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                    {article.title}
+                    {t("article.toc.title")}
                   </p>
                   <nav className="space-y-2">
                     {headings.map((heading, index) => (

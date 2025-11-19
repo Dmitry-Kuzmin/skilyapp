@@ -20,3 +20,4 @@ SET categories_enabled = '["duel","progress","motivation","educational","system"
 WHERE categories_enabled::text = '["duel", "daily", "motivation", "educational"]';
 
 
+
