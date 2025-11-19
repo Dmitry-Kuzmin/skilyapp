@@ -84,19 +84,19 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               dialogElement.style.setProperty('height', 'auto', 'important');
               
               // Проверяем и настраиваем контент внутри
-              const contentElement = dialogElement.querySelector('.relative.z-10') as HTMLElement;
-              if (contentElement) {
-                console.log('[DuelPassOnboarding] ✅ Content element found:', contentElement);
-                contentElement.style.setProperty('opacity', '1', 'important');
-                contentElement.style.setProperty('visibility', 'visible', 'important');
+              const contentWrapper = dialogElement.querySelector('.relative.z-10') as HTMLElement;
+              if (contentWrapper) {
+                console.log('[DuelPassOnboarding] ✅ Content element found:', contentWrapper);
+                contentWrapper.style.setProperty('opacity', '1', 'important');
+                contentWrapper.style.setProperty('visibility', 'visible', 'important');
                 // Устанавливаем адаптивную высоту для контента - используем высоту диалога минус отступы
                 // Header и footer занимают примерно 120-140px вместе, оставляем запас
                 const headerFooterHeight = 140; // Header + Footer + отступы
                 const contentMaxHeight = Math.max(200, maxHeight - headerFooterHeight); // Минимум 200px для контента
-                contentElement.style.setProperty('min-height', '0', 'important'); // Убираем фиксированный min-height
-                contentElement.style.setProperty('max-height', `${contentMaxHeight}px`, 'important');
-                contentElement.style.setProperty('overflow-y', 'auto', 'important');
-                contentElement.style.setProperty('flex', '1 1 auto', 'important'); // Позволяем flex сжиматься
+                contentWrapper.style.setProperty('min-height', '0', 'important'); // Убираем фиксированный min-height
+                contentWrapper.style.setProperty('max-height', `${contentMaxHeight}px`, 'important');
+                contentWrapper.style.setProperty('overflow-y', 'auto', 'important');
+                contentWrapper.style.setProperty('flex', '1 1 auto', 'important'); // Позволяем flex сжиматься
                 console.log('[DuelPassOnboarding] Content height set:', {
                   maxHeight: `${contentMaxHeight}px`,
                   dialogMaxHeight: `${maxHeight}px`,
