@@ -855,11 +855,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           className="relative z-10 w-full h-full flex flex-col overflow-hidden pointer-events-auto" 
           style={{ 
             opacity: 1, 
-            visibility: 'visible',
-            // Адаптивная минимальная высота - зависит от viewport
-            minHeight: 'min(500px, calc(100vh - 4rem))',
-            maxHeight: 'calc(100vh - 4rem)',
-            overflowY: 'auto'
+            visibility: 'visible'
           }}
         >
           {content ? (
