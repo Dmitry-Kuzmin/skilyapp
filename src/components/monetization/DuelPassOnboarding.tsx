@@ -58,26 +58,25 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               dialogElement.style.setProperty('left', '50%', 'important');
               dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
               
-              const computed = window.getComputedStyle(dialogElement);
-              const rect = dialogElement.getBoundingClientRect();
               // Используем видимую область экрана (window.innerHeight), а не общую высоту страницы
               const viewportHeight = window.innerHeight;
               const viewportWidth = window.innerWidth;
-              const isVisible = rect.top >= 0 && rect.top < viewportHeight && rect.left >= 0 && rect.left < viewportWidth;
               
               // Принудительно устанавливаем позицию относительно видимого окна
               // Для fixed позиции используем видимую область экрана
               const centerY = viewportHeight / 2;
               const centerX = viewportWidth / 2;
-              // Используем requestAnimationFrame для гарантированного применения стилей
-              requestAnimationFrame(() => {
-                dialogElement.style.setProperty('top', `${centerY}px`, 'important');
-                dialogElement.style.setProperty('left', `${centerX}px`, 'important');
-                dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
-                dialogElement.style.setProperty('position', 'fixed', 'important');
-                // Убеждаемся, что элемент не скрыт
-                dialogElement.style.setProperty('pointer-events', 'auto', 'important');
-              });
+              dialogElement.style.setProperty('top', `${centerY}px`, 'important');
+              dialogElement.style.setProperty('left', `${centerX}px`, 'important');
+              dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+              dialogElement.style.setProperty('position', 'fixed', 'important');
+              // Убеждаемся, что элемент не скрыт
+              dialogElement.style.setProperty('pointer-events', 'auto', 'important');
+              
+              // Получаем computed styles после применения позиционирования
+              const computed = window.getComputedStyle(dialogElement);
+              const rect = dialogElement.getBoundingClientRect();
+              const isVisible = rect.top >= 0 && rect.top < viewportHeight && rect.left >= 0 && rect.left < viewportWidth;
               
               // Устанавливаем адаптивную высоту модалки
               const maxHeight = Math.min(viewportHeight * 0.9, viewportHeight - 32); // 90vh или viewport - 2rem
