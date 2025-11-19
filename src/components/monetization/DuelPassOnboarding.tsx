@@ -45,12 +45,15 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   useEffect(() => {
     if (open) {
       console.log('[DuelPassOnboarding] ✅ OPENED', { isMobile, currentSlide });
-      // Помогаем найти элемент в DOM
+      // Помогаем найти элемент в DOM и принудительно устанавливаем opacity
       setTimeout(() => {
-        const dialogElement = document.querySelector('[data-duel-pass-onboarding="true"]');
+        const dialogElement = document.querySelector('[data-duel-pass-onboarding="true"]') as HTMLElement;
         if (dialogElement) {
           console.log('[DuelPassOnboarding] ✅ Dialog element found in DOM:', dialogElement);
-          console.log('[DuelPassOnboarding] Computed styles:', {
+          // Принудительно устанавливаем opacity: 1
+          dialogElement.style.setProperty('opacity', '1', 'important');
+          dialogElement.style.setProperty('visibility', 'visible', 'important');
+          console.log('[DuelPassOnboarding] Computed styles after fix:', {
             zIndex: window.getComputedStyle(dialogElement).zIndex,
             opacity: window.getComputedStyle(dialogElement).opacity,
             visibility: window.getComputedStyle(dialogElement).visibility,
