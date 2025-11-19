@@ -43,12 +43,8 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
 
   // Логирование для отладки
   useEffect(() => {
-    if (open) {
-      console.log('[DuelPassOnboarding] Component opened', { open, isMobile, currentSlide });
-    } else {
-      console.log('[DuelPassOnboarding] Component closed');
-    }
-  }, [open, isMobile, currentSlide]);
+    console.log('[DuelPassOnboarding] State changed', { open, isMobile, currentSlide, hasContent: !!content });
+  }, [open, isMobile, currentSlide, content]);
 
   const handleNext = () => {
     if (currentSlide < totalSlides - 1) {
@@ -651,8 +647,8 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
     </div>
   );
 
+  // Не логируем каждый рендер - только при изменении open
   if (isMobile) {
-    console.log('[DuelPassOnboarding] Rendering mobile Sheet', { open, hasContent: !!content });
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent 
@@ -676,7 +672,6 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
     );
   }
 
-  console.log('[DuelPassOnboarding] Rendering desktop Dialog', { open, hasContent: !!content });
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
@@ -687,9 +682,8 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           seasonTheme.glow,
           "relative backdrop-blur-xl",
           "[&>button]:hidden",
-          "!bg-slate-950",
-          "!grid !grid-rows-1",
-          "!opacity-100 !visible !z-50"
+          "bg-slate-950",
+          "grid grid-rows-1"
         )}
         hideCloseButton
       >
