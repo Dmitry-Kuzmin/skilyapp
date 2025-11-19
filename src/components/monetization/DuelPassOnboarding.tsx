@@ -674,6 +674,8 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
     );
   }
 
+  if (!open) return null;
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
@@ -685,7 +687,8 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "relative backdrop-blur-xl",
           "[&>button]:hidden",
           "bg-slate-950",
-          "!grid !grid-rows-1"
+          "!grid !grid-rows-1",
+          "!z-[70]"
         )}
         hideCloseButton
       >
