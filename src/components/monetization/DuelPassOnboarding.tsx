@@ -44,9 +44,11 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   // Логирование для отладки
   useEffect(() => {
     if (open) {
-      console.log('[DuelPassOnboarding] Component opened');
+      console.log('[DuelPassOnboarding] Component opened', { open, isMobile, currentSlide });
+    } else {
+      console.log('[DuelPassOnboarding] Component closed');
     }
-  }, [open]);
+  }, [open, isMobile, currentSlide]);
 
   const handleNext = () => {
     if (currentSlide < totalSlides - 1) {
@@ -650,6 +652,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   );
 
   if (isMobile) {
+    console.log('[DuelPassOnboarding] Rendering mobile Sheet', { open, hasContent: !!content });
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent 
@@ -673,6 +676,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
     );
   }
 
+  console.log('[DuelPassOnboarding] Rendering desktop Dialog', { open, hasContent: !!content });
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
@@ -685,7 +689,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
           "[&>button]:hidden",
           "!bg-slate-950",
           "!grid !grid-rows-1",
-          "!opacity-100 !visible"
+          "!opacity-100 !visible !z-50"
         )}
         hideCloseButton
       >
