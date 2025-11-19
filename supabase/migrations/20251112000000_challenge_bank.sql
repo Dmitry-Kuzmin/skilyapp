@@ -165,3 +165,4 @@ COMMENT ON COLUMN user_challenge_questions.mastered IS 'Вопрос освое�
 
 
 
+

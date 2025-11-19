@@ -135,22 +135,19 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         const isTelegram = platform === 'telegram' && !!webApp;
         
         if (isTelegram && webApp) {
-          // В Telegram открываем страницу checkout внутри Web App (не редирект в браузер!)
-          console.log("[PaywallModal] Opening Stripe checkout page in Telegram Web App");
-          // Используем navigate для перехода на страницу checkout внутри Telegram
-          if (data?.sessionId) {
-            window.location.href = `/checkout?session_id=${data.sessionId}`;
+          // В Telegram используем webApp.openLink для открытия в браузере Telegram
+          console.log("[PaywallModal] Opening Stripe in Telegram Web App");
+          if ((webApp as any).openLink) {
+            (webApp as any).openLink(data.url);
+          } else if ((webApp as any).openTelegramLink) {
+            (webApp as any).openTelegramLink(data.url);
           } else {
-            // Fallback: открываем Stripe URL через openLink (но это переведет в браузер)
-            if ((webApp as any).openLink) {
-              (webApp as any).openLink(data.url);
-            } else {
-              window.location.href = data.url;
-            }
+            // Fallback: прямой редирект
+            window.location.href = data.url;
           }
         } else {
-          // В обычном браузере используем прямой редирект на Stripe
-          console.log("[PaywallModal] Redirecting to Stripe:", data.url);
+          // В обычном браузере используем прямой редирект
+          console.log("[PaywallModal] Redirecting to:", data.url);
           window.location.href = data.url;
         }
       } else {

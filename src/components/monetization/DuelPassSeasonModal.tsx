@@ -16,7 +16,6 @@ import { PaywallModal } from "./PaywallModal";
 import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
-import { DuelPassOnboarding } from "./DuelPassOnboarding";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type TimeLeft = {
@@ -286,14 +285,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     if (open && profileId) {
       loadSeasonData();
       
-      // Проверяем, видел ли пользователь онбординг (fallback если не видел на главной)
+      // Проверяем, видел ли пользователь онбординг
       const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
       if (!hasSeenOnboarding) {
-        // Сначала закрываем основную модалку, потом показываем онбординг
-        onOpenChange(false);
+        // Показываем онбординг после загрузки данных
         setTimeout(() => {
           setShowOnboarding(true);
-        }, 300);
+        }, 500);
       }
     }
   }, [open, profileId]);
@@ -1759,33 +1757,76 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   return (
     <>
-      {/* Онбординг модалка - новый компонент в стиле сезона */}
-      {showOnboarding && activeSeason && (
-        <DuelPassOnboarding
-          open={showOnboarding}
-          onOpenChange={(open) => {
-            setShowOnboarding(open);
-            if (!open) {
-              // Показываем основную модалку после онбординга
-              setTimeout(() => {
-                onOpenChange(true);
-              }, 300);
-            }
-          }}
-          onComplete={() => {
-            setShowOnboarding(false);
-            // Показываем основную модалку после завершения онбординга
-            setTimeout(() => {
-              onOpenChange(true);
-            }, 300);
-          }}
-          activeSeason={{
-            name_ru: activeSeason.name_ru,
-            days_remaining: activeSeason.days_remaining,
-            season_number: activeSeason.season_number,
-          }}
-        />
-      )}
+      {/* Онбординг модалка - минималистичный */}
+      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+                <Trophy className="w-5 h-5 text-white" />
+              </div>
+              <DialogTitle className="text-xl font-bold">Добро пожаловать в Duel Pass!</DialogTitle>
+            </div>
+            <DialogDescription className="text-sm">
+              Система сезонов с наградами за вашу активность
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+              <Trophy className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">Что такое Season Points (SP)?</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  SP — это очки сезона, которые вы получаете за активность. 
+                  Чем больше SP, тем выше ваш уровень и больше наград!
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+              <Sparkles className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">Как получить SP?</h4>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span>•</span>
+                    <span>Прохождение тестов: <strong className="text-foreground">25 SP</strong></span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span>•</span>
+                    <span>Победа в дуэли: <strong className="text-foreground">30 SP</strong></span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span>•</span>
+                    <span>Ежедневный вход: <strong className="text-foreground">15 SP</strong></span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span>•</span>
+                    <span>Premium: <strong className="text-foreground">+20% к SP</strong></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+              <Crown className="w-5 h-5 text-yellow-600 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="font-semibold mb-1 text-sm">Premium награды</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  С Premium подпиской вы получаете дополнительные награды на каждом уровне и бонус +20% к SP!
+                </p>
+              </div>
+            </div>
+            <Button 
+              onClick={() => {
+                localStorage.setItem('duel-pass-onboarding-seen', 'true');
+                setShowOnboarding(false);
+              }}
+              className="w-full"
+            >
+              Понятно, начать!
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Модалка для десктопа, Sheet для мобилки */}
       {isMobile ? (

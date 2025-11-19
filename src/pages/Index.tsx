@@ -1,7 +1,6 @@
 import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check, Crown, Star, Users, Award, Infinity } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +19,6 @@ import { useCoins } from "@/hooks/useCoins";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { DuelPassProgress } from "@/components/monetization/DuelPassProgress";
 import { SeasonChallengesWidget } from "@/components/monetization/SeasonChallengesWidget";
-import { DuelPassOnboarding } from "@/components/monetization/DuelPassOnboarding";
 import { testimonials } from "@/data/testimonials";
 
 const Index = () => {
@@ -46,60 +44,16 @@ const Index = () => {
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [weeklyRewards, setWeeklyRewards] = useState<any[]>([]);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [showDuelPassOnboarding, setShowDuelPassOnboarding] = useState(false);
-  const [activeSeason, setActiveSeason] = useState<any>(null);
-  const [showDuelPassWidgets, setShowDuelPassWidgets] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && profileId) {
       console.log('[Index] Loading data for profile:', profileId);
       loadUserData();
-      checkDuelPassOnboarding();
     } else {
       console.log('[Index] Not loading data - authenticated:', isAuthenticated, 'profileId:', profileId);
       setLoading(false);
     }
   }, [isAuthenticated, profileId]);
-
-  const checkDuelPassOnboarding = async () => {
-    if (!profileId) return;
-
-    try {
-      // Проверяем наличие активного сезона
-      const { data: seasonData, error: seasonError } = await supabase
-        .rpc("get_active_season");
-
-      if (seasonError || !seasonData || seasonData.length === 0) {
-        // Нет активного сезона - показываем виджеты сразу
-        setShowDuelPassWidgets(true);
-        return;
-      }
-
-      const season = seasonData[0];
-      setActiveSeason({
-        name_ru: season.name_ru,
-        days_remaining: season.days_remaining,
-        season_number: season.season_number,
-      });
-
-      // Проверяем, видел ли пользователь онбординг
-      const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-      
-      if (!hasSeenOnboarding) {
-        // Показываем онбординг после небольшой задержки
-        setTimeout(() => {
-          setShowDuelPassOnboarding(true);
-        }, 800);
-      } else {
-        // Уже видел онбординг - показываем виджеты сразу
-        setShowDuelPassWidgets(true);
-      }
-    } catch (error) {
-      console.error('[Index] Error checking Duel Pass onboarding:', error);
-      // При ошибке показываем виджеты
-      setShowDuelPassWidgets(true);
-    }
-  };
 
   useEffect(() => {
     if (isTrial && daysRemaining <= 1) {
@@ -553,20 +507,11 @@ const Index = () => {
               Premium открывает все режимы тестов, ускоряет монеты и отключает рекламу.
             </p>
           </Card>
-          {showDuelPassWidgets && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-4"
-            >
-              <DuelPassProgress />
-              
-              {/* Season Challenges Widget */}
-              {isAuthenticated && (
-                <SeasonChallengesWidget />
-              )}
-            </motion.div>
+          <DuelPassProgress />
+          
+          {/* Season Challenges Widget */}
+          {isAuthenticated && (
+            <SeasonChallengesWidget />
           )}
         </div>
 
@@ -898,19 +843,8 @@ const Index = () => {
           </div>
         )}
       </div>
-      
-      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-      
-      {/* Duel Pass Onboarding */}
-      <DuelPassOnboarding
-        open={showDuelPassOnboarding}
-        onOpenChange={setShowDuelPassOnboarding}
-        onComplete={() => {
-          setShowDuelPassWidgets(true);
-        }}
-        activeSeason={activeSeason}
-      />
     </Layout>
+    <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
     </>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -148,18 +149,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   };
   
   const getTransactionInfo = (type: string, metadata?: any): { description: string; icon: any; category: 'earn' | 'spend' | 'purchase' | 'reward' } => {
-    // Функция для получения названия буста
-    const getBoostName = (boostType?: string, boostMetadata?: any): string => {
-      if (!boostType) return '';
-      // Сначала проверяем metadata (новые транзакции имеют boost_name)
-      if (boostMetadata?.boost_name) {
-        return boostMetadata.boost_name;
-      }
-      // Fallback: ищем название в массиве boosts
-      const boost = boosts.find(b => b.type === boostType);
-      return boost?.name_ru || boostType;
-    };
-
     const iconMap: Record<string, any> = {
       // Earnings
       'coins_earned_test': { icon: TestTube, desc: 'Награда за тест', cat: 'earn' },
@@ -167,7 +156,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       'coins_earned_daily': { icon: Calendar, desc: 'Ежедневный бонус', cat: 'earn' },
       'coins_earned_premium_bonus': { icon: Gift, desc: 'Premium бонус', cat: 'earn' },
       // Spending
-      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${getBoostName(metadata?.boost_type, metadata)}`, cat: 'spend' },
+      'coins_spent_boost': { icon: Zap, desc: `Покупка буста: ${metadata?.boost_type || ''}`, cat: 'spend' },
       'coins_spent_skin': { icon: Gift, desc: 'Покупка скина', cat: 'spend' },
       'coins_spent_duel_entry': { icon: Zap, desc: 'Вход в дуэль', cat: 'spend' },
       // Purchases
@@ -435,21 +424,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // В Telegram Web App используем прямой редирект или webApp.openLink
       // Это необходимо, так как window.open (попап) плохо работает в Telegram
       if (isTelegram && webApp) {
-        console.log("[BoostShop] Opening Stripe checkout page in Telegram Web App");
-        // В Telegram открываем страницу checkout внутри Web App (не редирект в браузер!)
-        if (data?.sessionId) {
-          window.location.href = `/checkout?session_id=${data.sessionId}`;
+        console.log("[BoostShop] Opening Stripe in Telegram Web App (same window)");
+        // Используем webApp.openLink для открытия в браузере Telegram
+        // Это сохранит контекст и вернет пользователя обратно после оплаты
+        if ((webApp as any).openLink) {
+          (webApp as any).openLink(data.url);
+        } else if ((webApp as any).openTelegramLink) {
+          (webApp as any).openTelegramLink(data.url);
         } else {
-          // Fallback: открываем Stripe URL через openLink (но это переведет в браузер)
-          if ((webApp as any).openLink) {
-            (webApp as any).openLink(data.url);
-          } else {
-            window.location.href = data.url;
-          }
+          // Fallback: прямой редирект
+          window.location.href = data.url;
         }
       } else {
-        // В обычном браузере используем прямой редирект на Stripe
-        console.log("[BoostShop] Redirecting to Stripe:", data.url);
+        // В обычном браузере используем прямой редирект (не попап!)
+        // Это гарантирует что session_id будет передан в success_url
+        console.log("[BoostShop] Redirecting to Stripe (same window)");
         window.location.href = data.url;
       }
 
@@ -707,20 +696,15 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           </div>
         </DialogHeader>
 
-        <div className="relative flex-1 flex flex-col overflow-hidden min-h-0">
+        <div className="relative">
           {isRefreshing && (
             <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
               <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={(v) => {
-            setActiveTab(v as typeof activeTab);
-            if (v === 'history' && transactions.length === 0) {
-              loadTransactionHistory();
-            }
-          }} className="w-full h-full flex flex-col overflow-hidden flex-1 min-h-0">
-            <div className="px-4 pt-4 pb-0 shrink-0">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full overflow-hidden">
+            <div className="px-4 pt-4 pb-0">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="boosts" className="text-xs truncate">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
@@ -741,10 +725,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               </TabsList>
             </div>
 
-            <div className="flex-1 flex flex-col overflow-hidden min-h-0 h-full">
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-3 md:py-4 space-y-3">
+            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
               <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
@@ -791,12 +773,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     </div>
                   )}
               </>
-              </div>
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent value="coins" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-3 md:py-4 space-y-3">
+            <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+              <div className="space-y-3">
                 <div className="text-center py-4">
                   <p className="text-sm text-muted-foreground mb-2">Пополните баланс монет</p>
                   <div className="flex items-center justify-center gap-2">
@@ -871,101 +852,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               </div>
             </TabsContent>
 
-            {/* Premium & Duel Pass Tab */}
-            <TabsContent value="premium" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-3 md:py-4 space-y-4">
-                {/* Premium Subscription */}
-                <Card className="p-4 md:p-5 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Crown className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
-                        <h3 className="text-base md:text-lg font-bold">Premium подписка</h3>
-                      </div>
-                      {isPremium && (
-                        <Badge className="bg-green-500">Активна</Badge>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2 text-xs md:text-sm">
-                      <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Безлимитный доступ ко всем тестам</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>+50% монет за обучение</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Duel Pass Premium награды</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>Без рекламы и мгновенные подсказки</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                      <Card className="p-3 border-primary/30">
-                        <p className="text-xs text-muted-foreground mb-1">Месяц</p>
-                        <p className="text-base md:text-lg font-bold">€9.99</p>
-                        <Button 
-                          size="sm" 
-                          className="w-full mt-2"
-                          onClick={() => setPaywallOpen(true)}
-                          disabled={isPremium}
-                        >
-                          {isPremium ? 'Активна' : 'Выбрать'}
-                        </Button>
-                      </Card>
-                      <Card className="p-3 border-yellow-500/50 bg-yellow-500/5">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs text-muted-foreground">Год</p>
-                          <Badge className="text-xs bg-yellow-500">-50%</Badge>
-                        </div>
-                        <p className="text-base md:text-lg font-bold">€59.99</p>
-                        <Button 
-                          size="sm" 
-                          className="w-full mt-2 bg-gradient-to-r from-yellow-500 to-orange-500"
-                          onClick={() => setPaywallOpen(true)}
-                          disabled={isPremium}
-                        >
-                          {isPremium ? 'Активна' : 'Выбрать'}
-                        </Button>
-                      </Card>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Duel Pass */}
-                <Card className="p-4 md:p-5 border-2 border-primary/20">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Trophy className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
-                      <h3 className="text-base md:text-lg font-bold">Duel Pass</h3>
-                    </div>
-                    <p className="text-xs md:text-sm text-muted-foreground">
-                      Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.
-                    </p>
-                    <Button 
-                      className="w-full"
-                      onClick={() => {
-                        // TODO: Navigate to Duel Pass or show Duel Pass modal
-                        toast({ title: 'Duel Pass', description: 'Откройте Duel Pass на главной странице' });
-                      }}
-                    >
-                      <Trophy className="w-4 h-4 mr-2" />
-                      Открыть Duel Pass
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            </TabsContent>
-
             {/* History Tab */}
-            <TabsContent value="history" className="flex-1 flex flex-col overflow-hidden mt-0 p-0 data-[state=active]:flex h-full">
-              <div className="px-3 md:px-4 pt-3 md:pt-4 pb-3 border-b border-border/50 shrink-0 space-y-3">
+            <TabsContent value="history" className="p-0 h-full flex flex-col overflow-hidden mt-3 md:mt-4">
+              <div className="px-3 md:px-4 pt-1 pb-3 border-b border-border/50 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold flex items-center gap-2">
                     <History className="h-4 w-4" />
@@ -1025,7 +914,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full px-3 md:px-4 py-2">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4">
                 {loadingHistory ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
@@ -1147,7 +1036,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 })()}
               </div>
             </TabsContent>
-            </div>
           </Tabs>
         </div>
       </>
@@ -1157,12 +1045,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent 
-          modalType="shop" 
-          hideCloseButton 
-          className={`${getDialogContentClasses('shop', isMobile)} flex flex-col p-0 overflow-hidden`}
-        >
-          <ModalContent />
+        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0 overflow-x-hidden">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <ModalContent />
+          </div>
         </DialogContent>
       </Dialog>
       <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
