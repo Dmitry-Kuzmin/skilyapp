@@ -1918,7 +1918,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       ) : (
         <Dialog open={open} onOpenChange={onOpenChange}>
           <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0">
-            <div className="flex-1 overflow-y-auto">
+            <DialogTitle className="sr-only">Duel Pass Season</DialogTitle>
+            <DialogDescription className="sr-only">Duel Pass Season information and rewards</DialogDescription>
+            <div className="flex-1 overflow-y-auto min-h-0">
               <ModalContent />
             </div>
           </DialogContent>

@@ -509,7 +509,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
   };
 
   return (
-    <div className={cn("relative flex flex-col h-full", seasonTheme.gradient)}>
+    <div className={cn("relative flex flex-col h-full min-h-0", seasonTheme.gradient)} style={{ height: '100%', minHeight: '100%' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 md:p-6 pb-3 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -571,7 +571,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
       </div>
 
       {/* Slide content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0" style={{ flex: '1 1 0%', minHeight: 0 }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentSlide}
