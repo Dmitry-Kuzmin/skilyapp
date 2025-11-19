@@ -96,11 +96,13 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
                 // Устанавливаем высоту контента - используем всю доступную высоту диалога
                 const actualDialogHeight = dialogElement.getBoundingClientRect().height;
                 const actualContentHeight = Math.max(250, actualDialogHeight - headerFooterHeight - 20);
-                contentWrapper.style.setProperty('min-height', `${actualContentHeight}px`, 'important'); // Минимальная высота для контента
-                contentWrapper.style.setProperty('max-height', `${contentMaxHeight}px`, 'important');
-                contentWrapper.style.setProperty('height', 'auto', 'important'); // Автоматическая высота
+                // Устанавливаем min-height для гарантии минимального размера, но не ограничиваем max-height жестко
+                contentWrapper.style.setProperty('min-height', `${actualContentHeight}px`, 'important');
+                // Убираем жесткое ограничение max-height, позволяем контенту расширяться
+                contentWrapper.style.setProperty('max-height', 'none', 'important');
+                contentWrapper.style.setProperty('height', 'auto', 'important');
                 contentWrapper.style.setProperty('overflow-y', 'auto', 'important');
-                contentWrapper.style.setProperty('flex', '1 1 auto', 'important'); // Позволяем flex расширяться
+                contentWrapper.style.setProperty('flex', '1 1 0%', 'important'); // flex-grow: 1, flex-shrink: 1, flex-basis: 0%
                 console.log('[DuelPassOnboarding] Content height set:', {
                   maxHeight: `${contentMaxHeight}px`,
                   dialogMaxHeight: `${maxHeight}px`,
