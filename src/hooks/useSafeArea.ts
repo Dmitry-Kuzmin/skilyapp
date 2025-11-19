@@ -72,20 +72,22 @@ export function useSafeArea() {
         contentBottom,
       });
 
-      console.log("[useSafeArea] ✅ Updated safe area:", {
-        platform,
-        isMobile,
-        top,
-        bottom,
-        left,
-        right,
-        contentTop: `${contentTop}px (уменьшено в 2 раза)`,
-        contentBottom: `${contentBottom}px (уменьшено в 2 раза)`,
-        totalTop: `${top + contentTop}px`,
-        safeAreaInset: webApp.safeAreaInset,
-        contentSafeAreaInset: webApp.contentSafeAreaInset,
-        webAppReady: webApp.isExpanded,
-      });
+      // Logging disabled to reduce console noise
+      // Logging disabled to reduce console noise
+      // console.log("[useSafeArea] ✅ Updated safe area:", {
+      //   platform,
+      //   isMobile,
+      //   top,
+      //   bottom,
+      //   left,
+      //   right,
+      //   contentTop: `${contentTop}px (уменьшено в 2 раза)`,
+      //   contentBottom: `${contentBottom}px (уменьшено в 2 раза)`,
+      //   totalTop: `${top + contentTop}px`,
+      //   safeAreaInset: webApp.safeAreaInset,
+      //   contentSafeAreaInset: webApp.contentSafeAreaInset,
+      //   webAppReady: webApp.isExpanded,
+      // });
     };
 
     // Инициализация
