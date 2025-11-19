@@ -248,6 +248,7 @@ export async function handleHelp(message: TelegramMessage): Promise<void> {
 /duel — Начать дуэль
 /streak — Серия дней
 /express — Экспресс-тест (3 вопроса)
+/guide — Гид по функциям
 /tips — Учебные советы
 /settings — Настройки
 /help — Эта справка

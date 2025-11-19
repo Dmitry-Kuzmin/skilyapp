@@ -43,6 +43,9 @@ export function getMainMenuKeyboard(): InlineKeyboardMarkup {
       ],
       [
         { text: '🧠 Учебные советы', callback_data: 'tips_menu' },
+        { text: 'ℹ️ Как всё устроено', callback_data: 'guide_menu' }
+      ],
+      [
         { text: '⚙️ Настройки', callback_data: 'settings' }
       ],
       [
@@ -286,6 +289,87 @@ export function getExpressSummaryKeyboard(sessionCode: string): InlineKeyboardMa
       ]
     ]
   };
+}
+
+// =====================================================
+// FAQ / Guide
+// =====================================================
+export type GuideCategory = {
+  category_slug: string;
+  category_title: string;
+  icon?: string | null;
+};
+
+export type GuideSection = {
+  section_slug: string;
+  section_title: string;
+  icon?: string | null;
+  cta_text?: string | null;
+  cta_deeplink?: string | null;
+};
+
+export function getGuideCategoriesKeyboard(categories: GuideCategory[]): InlineKeyboardMarkup {
+  const rows: { text: string; callback_data: string }[][] = [];
+
+  for (let i = 0; i < categories.length; i += 2) {
+    const row = [];
+    const first = categories[i];
+    if (first) {
+      row.push({
+        text: `${first.icon || 'ℹ️'} ${first.category_title}`,
+        callback_data: `guide_category_${first.category_slug}`
+      });
+    }
+    const second = categories[i + 1];
+    if (second) {
+      row.push({
+        text: `${second.icon || 'ℹ️'} ${second.category_title}`,
+        callback_data: `guide_category_${second.category_slug}`
+      });
+    }
+    rows.push(row);
+  }
+
+  rows.push([{ text: '« Главное меню', callback_data: 'main_menu' }]);
+  return { inline_keyboard: rows };
+}
+
+export function getGuideSectionsKeyboard(
+  categorySlug: string,
+  sections: GuideSection[]
+): InlineKeyboardMarkup {
+  const rows = sections.map((section) => ([
+    {
+      text: `${section.icon || '📘'} ${section.section_title}`,
+      callback_data: `guide_section_${categorySlug}_${section.section_slug}`
+    }
+  ]));
+
+  rows.push([
+    { text: '« Категории', callback_data: 'guide_menu' }
+  ]);
+
+  return { inline_keyboard: rows };
+}
+
+export function getGuideDetailKeyboard(section: GuideSection, categorySlug: string): InlineKeyboardMarkup {
+  const inline_keyboard: { text: string; callback_data?: string; web_app?: { url: string } }[][] = [];
+
+  if (section.cta_deeplink) {
+    const url = section.cta_deeplink.startsWith('http')
+      ? section.cta_deeplink
+      : `${MINI_APP_URL}${section.cta_deeplink.startsWith('/') ? '' : '/'}${section.cta_deeplink}`;
+    inline_keyboard.push([
+      { text: section.cta_text || '🚀 Открыть в приложении', web_app: { url } }
+    ]);
+  }
+
+  inline_keyboard.push(
+    [{ text: '« Назад', callback_data: `guide_category_${categorySlug}` }],
+    [{ text: '🏠 Главное меню', callback_data: 'main_menu' }]
+  );
+
+  return { inline_keyboard };
 }
 
 // =====================================================

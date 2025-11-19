@@ -112,6 +112,9 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
       case 'express':
         await startExpressTestFlow(message.chat.id, user.id, supabase);
         break;
+      case 'guide':
+        await sendGuideMenu(message.chat.id, user.id, supabase);
+        break;
       case 'help':
         await commands.handleHelp(message);
         break;
@@ -270,6 +273,19 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
       if (topicSlug && tipId) {
         await showNextTip(message.chat.id, message.message_id, user.id, topicSlug, tipId, supabase);
       }
+    }
+    else if (data === 'guide_menu') {
+      await showGuideMenu(message.chat.id, message.message_id, user.id, supabase);
+    }
+    else if (data.startsWith('guide_category_')) {
+      const categorySlug = data.replace('guide_category_', '');
+      await showGuideCategory(message.chat.id, message.message_id, user.id, categorySlug, supabase);
+    }
+    else if (data.startsWith('guide_section_')) {
+      const parts = data.split('_');
+      const categorySlug = parts[2];
+      const sectionSlug = parts.slice(3).join('_');
+      await showGuideSection(message.chat.id, message.message_id, user.id, categorySlug, sectionSlug, supabase);
     }
     else if (data.startsWith('express_answer_')) {
       const parts = data.split('_');
@@ -1239,6 +1255,190 @@ async function getProfileByTelegramId(telegramId: number, supabase: any) {
     .maybeSingle();
 
   return data;
+}
+
+// =====================================================
+// FAQ / Guide
+// =====================================================
+
+async function sendGuideMenu(
+  chatId: number,
+  telegramId: number,
+  supabase: any
+): Promise<void> {
+  const { categories } = await fetchGuideCategories(telegramId, supabase);
+
+  if (!categories.length) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: 'ℹ️ Гид пока пуст. Я обновлю раздел и сообщу, когда появятся подсказки.',
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  const intro = `
+ℹ️ <b>Гид по Skilyapp</b>
+
+Выбери тему: расскажу, как работает сезон, дуэли, Premium и экспресс-тесты.
+`.trim();
+
+  await commands.sendMessage({
+    chat_id: chatId,
+    text: intro,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getGuideCategoriesKeyboard(categories)
+  });
+}
+
+async function showGuideMenu(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  supabase: any
+): Promise<void> {
+  const { categories } = await fetchGuideCategories(telegramId, supabase);
+
+  if (!categories.length) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text: 'ℹ️ Пока раздел пуст. Я обновлю гид в ближайшее время.',
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: 'ℹ️ <b>Гид по Skilyapp</b>\n\nВыбери категорию:',
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getGuideCategoriesKeyboard(categories)
+  });
+}
+
+async function showGuideCategory(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  categorySlug: string,
+  supabase: any
+): Promise<void> {
+  const language = await getUserLanguage(telegramId, supabase);
+  const sections = await fetchGuideSections(categorySlug, language, supabase);
+
+  if (!sections.length) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text: 'Пока здесь нет материалов. Выбери другую категорию.',
+      reply_markup: keyboards.getGuideCategoriesKeyboard((await fetchGuideCategories(telegramId, supabase)).categories)
+    });
+    return;
+  }
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: `📘 <b>${escapeHtml(sections[0].category_title || 'Раздел')}</b>\n\nВыбери карточку:`,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getGuideSectionsKeyboard(categorySlug, sections)
+  });
+}
+
+async function showGuideSection(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  categorySlug: string,
+  sectionSlug: string,
+  supabase: any
+): Promise<void> {
+  const language = await getUserLanguage(telegramId, supabase);
+  const section = await fetchGuideSection(categorySlug, sectionSlug, language, supabase);
+
+  if (!section) {
+    await showGuideCategory(chatId, messageId, telegramId, categorySlug, supabase);
+    return;
+  }
+
+  const text = formatGuideSectionText(section);
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getGuideDetailKeyboard(section, categorySlug)
+  });
+}
+
+async function fetchGuideCategories(
+  telegramId: number,
+  supabase: any
+): Promise<{ language: string; categories: Array<{ category_slug: string; category_title: string; icon?: string | null }> }> {
+  const language = await getUserLanguage(telegramId, supabase);
+
+  const { data } = await supabase
+    .from('bot_guide_sections')
+    .select('category_slug, category_title, icon')
+    .eq('language', language)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  const categories: Array<{ category_slug: string; category_title: string; icon?: string | null }> = [];
+  const seen = new Set<string>();
+
+  (data || []).forEach((row: any) => {
+    if (!seen.has(row.category_slug)) {
+      seen.add(row.category_slug);
+      categories.push(row);
+    }
+  });
+
+  return { language, categories };
+}
+
+async function fetchGuideSections(
+  categorySlug: string,
+  language: string,
+  supabase: any
+): Promise<any[]> {
+  const { data } = await supabase
+    .from('bot_guide_sections')
+    .select('*')
+    .eq('language', language)
+    .eq('category_slug', categorySlug)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  return data || [];
+}
+
+async function fetchGuideSection(
+  categorySlug: string,
+  sectionSlug: string,
+  language: string,
+  supabase: any
+) {
+  const { data } = await supabase
+    .from('bot_guide_sections')
+    .select('*')
+    .eq('language', language)
+    .eq('category_slug', categorySlug)
+    .eq('section_slug', sectionSlug)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  return data;
+}
+
+function formatGuideSectionText(section: any): string {
+  const header = `${section.icon || 'ℹ️'} <b>${escapeHtml(section.section_title)}</b>`;
+  const summary = section.summary ? `\n\n${escapeHtml(section.summary)}` : '';
+  const body = `\n\n${escapeHtml(section.content)}`;
+  return `${header}${summary}${body}`;
 }
 
 // =====================================================
