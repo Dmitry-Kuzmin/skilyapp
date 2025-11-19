@@ -514,7 +514,10 @@ const LearningMap = () => {
 
               <div className="w-full md:max-w-2xl space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-border bg-card px-4 py-5 flex items-center gap-4 shadow-sm">
+                  <div className="rounded-2xl border border-border bg-card px-4 py-5 flex flex-col gap-4 shadow-sm">
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                      {isEs ? "Variante A · Progreso radial" : isEn ? "Variant A · Radial progress" : "Вариант A · Кольцевая диаграмма"}
+                    </p>
                     <div className="relative w-20 h-20">
                       <div
                         className="absolute inset-0 rounded-full"
@@ -541,38 +544,50 @@ const LearningMap = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-3 shadow-sm">
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-                          {isEs ? "Temas completados" : isEn ? "Completed topics" : "Тем завершено"}
-                        </p>
-                        <p className="text-lg font-semibold text-foreground">
-                          {Math.round(topicsCompletionPercent)}%
-                        </p>
+                  <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-4 shadow-sm">
+                    <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
+                      {isEs ? "Variante B · Cintas de progreso" : isEn ? "Variant B · Ribbon badges" : "Вариант B · Лентовые бейджи"}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-primary font-semibold">
+                        <span className="text-xs uppercase tracking-[0.2em] text-primary/70">
+                          {isEs ? "Temas" : isEn ? "Topics" : "Темы"}
+                        </span>
+                        <span className="text-base">{completedTopicsCount}</span>
+                        <span className="text-sm text-muted-foreground">/ {topics.length || 0}</span>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
-                        {completedTopicsCount}
-                        <span className="text-muted-foreground">/ {topics.length || 0}</span>
-                      </span>
+                      <div className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-4 py-2 text-secondary-foreground font-semibold">
+                        <span className="text-xs uppercase tracking-[0.2em] text-secondary-foreground/70">
+                          {isEs ? "Subtemas" : isEn ? "Subtopics" : "Подтемы"}
+                        </span>
+                        <span className="text-base">{subtopicsSummary}</span>
+                      </div>
                     </div>
-                    <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-all"
-                        style={{ width: `${topicsCompletionPercent}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                      <span>{isEs ? "Subtemas" : isEn ? "Subtopics" : "Подтемы"}</span>
-                      <span className="text-muted-foreground tracking-normal font-semibold">
-                        {subtopicsSummary}
-                      </span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-secondary transition-all"
-                        style={{ width: `${subtopicsPercent}%` }}
-                      />
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        <span>{isEs ? "Avance de temas" : isEn ? "Topic progress" : "Прогресс тем"}</span>
+                        <span className="font-semibold text-foreground">
+                          {Math.round(topicsCompletionPercent)}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all"
+                          style={{ width: `${topicsCompletionPercent}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        <span>{isEs ? "Avance de subtemas" : isEn ? "Subtopic progress" : "Прогресс подтем"}</span>
+                        <span className="font-semibold text-foreground">
+                          {Math.round(subtopicsPercent)}%
+                        </span>
+                      </div>
+                      <div className="h-1 rounded-full bg-muted/60 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-secondary transition-all"
+                          style={{ width: `${subtopicsPercent}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

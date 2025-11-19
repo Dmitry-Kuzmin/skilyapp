@@ -224,7 +224,6 @@ export const CurriculumMatrix = ({
                     : undefined
                 }
               >
-                {/* Декоративная подложка без обложки */}
                 {!hasCover && (
                   <div className="absolute inset-0 rounded-xl opacity-40 pointer-events-none">
                     <div
