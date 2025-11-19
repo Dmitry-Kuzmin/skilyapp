@@ -18,6 +18,7 @@ import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DuelPassOnboarding } from "./DuelPassOnboarding";
 
 const supabaseClient = supabase as any;
 const localeMap: Record<Language, string> = {
@@ -1908,64 +1909,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </Dialog>
       )}
 
-    <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
-              <Trophy className="w-5 h-5 text-white" />
-            </div>
-            <DialogTitle className="text-xl font-bold">{dp("onboarding.title")}</DialogTitle>
-          </div>
-          <DialogDescription className="text-sm">
-            {dp("onboarding.description")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3 py-4">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-            <Trophy className="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" />
-            <div>
-              <h4 className="font-semibold mb-1 text-sm">{dp("onboarding.cards.sp.title")}</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {dp("onboarding.cards.sp.text")}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-            <Sparkles className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
-            <div>
-              <h4 className="font-semibold mb-1 text-sm">{dp("onboarding.cards.howTo.title")}</h4>
-              <ul className="text-xs text-muted-foreground space-y-1">
-                {[0, 1, 2, 3].map((index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <span>•</span>
-                    <span>{dp(`onboarding.cards.howTo.list.${index}`)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-            <Crown className="w-5 h-5 text-yellow-600 mt-0.5 shrink-0" />
-            <div>
-              <h4 className="font-semibold mb-1 text-sm">{dp("onboarding.cards.premium.title")}</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {dp("onboarding.cards.premium.text")}
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={() => {
-              // Не сохраняем в localStorage - показываем при каждом открытии
-              setShowOnboarding(false);
-            }}
-            className="w-full"
-          >
-            {dp("onboarding.button")}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <DuelPassOnboarding
+      open={showOnboarding}
+      onOpenChange={setShowOnboarding}
+      onComplete={() => {
+        setShowOnboarding(false);
+      }}
+      seasonData={activeSeason ? {
+        name_ru: activeSeason.name_ru,
+        days_remaining: activeSeason.days_remaining,
+        end_date: activeSeason.end_date
+      } : undefined}
+    />
 
     <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     
