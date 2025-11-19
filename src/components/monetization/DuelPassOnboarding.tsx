@@ -58,16 +58,6 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               dialogElement.style.setProperty('left', '50%', 'important');
               dialogElement.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
               
-              // Проверяем контент внутри
-              const contentElement = dialogElement.querySelector('.relative.z-10') as HTMLElement;
-              if (contentElement) {
-                console.log('[DuelPassOnboarding] ✅ Content element found:', contentElement);
-                contentElement.style.setProperty('opacity', '1', 'important');
-                contentElement.style.setProperty('visibility', 'visible', 'important');
-              } else {
-                console.error('[DuelPassOnboarding] ❌ Content element NOT found!');
-              }
-              
               const computed = window.getComputedStyle(dialogElement);
               const rect = dialogElement.getBoundingClientRect();
               // Используем видимую область экрана (window.innerHeight), а не общую высоту страницы
@@ -91,13 +81,19 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
               dialogElement.style.setProperty('max-height', `${maxHeight}px`, 'important');
               dialogElement.style.setProperty('height', 'auto', 'important');
               
-              // Устанавливаем адаптивную высоту для контента
+              // Проверяем и настраиваем контент внутри
               const contentElement = dialogElement.querySelector('.relative.z-10') as HTMLElement;
               if (contentElement) {
+                console.log('[DuelPassOnboarding] ✅ Content element found:', contentElement);
+                contentElement.style.setProperty('opacity', '1', 'important');
+                contentElement.style.setProperty('visibility', 'visible', 'important');
+                // Устанавливаем адаптивную высоту для контента
                 const contentMaxHeight = Math.min(500, viewportHeight - 64); // min(500px, viewport - 4rem)
                 contentElement.style.setProperty('min-height', `${contentMaxHeight}px`, 'important');
                 contentElement.style.setProperty('max-height', `${viewportHeight - 64}px`, 'important');
                 contentElement.style.setProperty('overflow-y', 'auto', 'important');
+              } else {
+                console.error('[DuelPassOnboarding] ❌ Content element NOT found!');
               }
               
               // Проверяем overlay - он не должен перекрывать диалог
