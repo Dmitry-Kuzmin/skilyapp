@@ -112,6 +112,9 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
       case 'settings':
         await commands.handleSettings(message);
         break;
+      case 'tips':
+        await commands.handleTips(message, supabase);
+        break;
       default:
         await commands.sendMessage({
           chat_id: message.chat.id,
@@ -237,6 +240,19 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
     }
     else if (data === 'help') {
       await commands.handleHelp(message);
+    }
+    else if (data === 'tips_menu') {
+      await showTipsMenu(message.chat.id, message.message_id, user.id, supabase);
+    }
+    else if (data.startsWith('tips_topic_')) {
+      const topicSlug = data.replace('tips_topic_', '');
+      await showTipByTopic(message.chat.id, message.message_id, user.id, topicSlug, supabase);
+    }
+    else if (data.startsWith('tips_next_')) {
+      const [, topicSlug, tipId] = data.split('_').slice(1);
+      if (topicSlug && tipId) {
+        await showNextTip(message.chat.id, message.message_id, user.id, topicSlug, tipId, supabase);
+      }
     }
     else {
       await answerCallbackQuery({
@@ -536,6 +552,203 @@ async function showQuietHoursInfo(chatId: number, messageId: number): Promise<vo
       ]
     }
   });
+}
+
+// =====================================================
+// Учебные советы
+// =====================================================
+
+async function showTipsMenu(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  supabase: any
+): Promise<void> {
+  const { topics } = await fetchTipTopics(telegramId, supabase);
+
+  if (!topics.length) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text: '🧠 Советы появятся чуть позже. Я подготовлю новые подсказки и напомню.',
+      reply_markup: keyboards.getBackToMenuKeyboard()
+    });
+    return;
+  }
+
+  const intro = `
+🧠 <b>Учебные советы Skily</b>
+
+Выбери тему, чтобы получить короткий инсайт и быстрый переход в нужный раздел приложения.
+`.trim();
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: intro,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getTipsTopicsKeyboard(topics)
+  });
+}
+
+async function showTipByTopic(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  topicSlug: string,
+  supabase: any
+): Promise<void> {
+  const language = await getUserLanguage(telegramId, supabase);
+  const tip = await fetchTip(topicSlug, language, supabase);
+
+  if (!tip) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text: 'Пока нет советов по этой теме. Попробуй выбрать другую.',
+      reply_markup: keyboards.getTipsTopicsKeyboard([])
+    });
+    return;
+  }
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: formatTipText(tip),
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getTipActionsKeyboard(topicSlug, tip)
+  });
+}
+
+async function showNextTip(
+  chatId: number,
+  messageId: number,
+  telegramId: number,
+  topicSlug: string,
+  tipId: string,
+  supabase: any
+): Promise<void> {
+  const language = await getUserLanguage(telegramId, supabase);
+
+  const { data: current } = await supabase
+    .from('bot_tips')
+    .select('sort_order')
+    .eq('id', tipId)
+    .maybeSingle();
+
+  const nextTip = await fetchTip(
+    topicSlug,
+    language,
+    supabase,
+    typeof current?.sort_order === 'number' ? current.sort_order : undefined,
+    tipId
+  );
+
+  if (!nextTip) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: 'Пока это все советы по теме. Скоро добавлю новые материалы!',
+      reply_markup: keyboards.getTipsTopicsKeyboard([])
+    });
+    return;
+  }
+
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: formatTipText(nextTip),
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getTipActionsKeyboard(topicSlug, nextTip)
+  });
+}
+
+async function fetchTipTopics(
+  telegramId: number,
+  supabase: any
+): Promise<{ language: string; topics: Array<{ topic_slug: string; topic_title: string; topic_icon?: string | null }> }> {
+  const language = await getUserLanguage(telegramId, supabase);
+
+  const { data } = await supabase
+    .from('bot_tips')
+    .select('topic_slug, topic_title, topic_icon')
+    .eq('language', language)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  const uniqueTopics: Array<{ topic_slug: string; topic_title: string; topic_icon?: string | null }> = [];
+  const seen = new Set<string>();
+
+  (data || []).forEach((topic) => {
+    if (topic.topic_slug && !seen.has(topic.topic_slug)) {
+      seen.add(topic.topic_slug);
+      uniqueTopics.push(topic);
+    }
+  });
+
+  return { language, topics: uniqueTopics };
+}
+
+async function fetchTip(
+  topicSlug: string,
+  language: string,
+  supabase: any,
+  afterSortOrder?: number,
+  excludeId?: string
+): Promise<any | null> {
+  let query = supabase
+    .from('bot_tips')
+    .select('*')
+    .eq('topic_slug', topicSlug)
+    .eq('language', language)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .limit(1);
+
+  if (typeof afterSortOrder === 'number') {
+    query = query.gt('sort_order', afterSortOrder);
+  }
+
+  if (excludeId) {
+    query = query.neq('id', excludeId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('[Telegram Bot] fetchTip error:', error);
+    return null;
+  }
+
+  if (data && data.length > 0) {
+    return data[0];
+  }
+
+  if (typeof afterSortOrder === 'number') {
+    // цикл закончился — берём первый совет
+    return fetchTip(topicSlug, language, supabase, undefined, excludeId);
+  }
+
+  return null;
+}
+
+async function getUserLanguage(telegramId: number, supabase: any): Promise<string> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('language_code')
+    .eq('telegram_id', telegramId)
+    .maybeSingle();
+
+  return data?.language_code || 'ru';
+}
+
+function formatTipText(tip: any): string {
+  const header = `${tip.topic_icon || '🧠'} <b>${tip.title}</b>`;
+  const summary = tip.summary ? `\n\n💡 ${tip.summary}` : '';
+  const skill = tip.skill_level && tip.skill_level !== 'all'
+    ? `\n\n🎯 Уровень: ${tip.skill_level}`
+    : '';
+
+  return `${header}\n\n${tip.tip_body}${summary}${skill}`.trim();
 }
 
 // =====================================================

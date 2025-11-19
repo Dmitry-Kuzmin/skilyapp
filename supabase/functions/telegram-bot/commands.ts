@@ -286,6 +286,53 @@ export async function handleSettings(message: TelegramMessage): Promise<void> {
 }
 
 // =====================================================
+// /tips - Учебные советы
+// =====================================================
+export async function handleTips(message: TelegramMessage, supabase: any): Promise<void> {
+  const user = message.from;
+  if (!user) return;
+
+  const language = await getUserLanguageCode(user.id, supabase);
+
+  const { data: topicsData, error } = await supabase
+    .from('bot_tips')
+    .select('topic_slug, topic_title, topic_icon')
+    .eq('language', language)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error || !topicsData || topicsData.length === 0) {
+    await sendMessage({
+      chat_id: message.chat.id,
+      text: '🧠 Советы временно недоступны. Загляни позже — я пополню базу!'
+    });
+    return;
+  }
+
+  const uniqueTopics: { topic_slug: string; topic_title: string; topic_icon?: string | null }[] = [];
+  const seen = new Set<string>();
+  for (const topic of topicsData) {
+    if (topic.topic_slug && !seen.has(topic.topic_slug)) {
+      seen.add(topic.topic_slug);
+      uniqueTopics.push(topic);
+    }
+  }
+
+  const intro = `
+🧠 <b>Учебные советы Skily</b>
+
+Выбери тему, а я дам короткий инсайт, который помогает на тестах и в реальных сценариях. Никакой воды — только практика.
+`.trim();
+
+  await sendMessage({
+    chat_id: message.chat.id,
+    text: intro,
+    parse_mode: 'HTML',
+    reply_markup: keyboards.getTipsTopicsKeyboard(uniqueTopics)
+  });
+}
+
+// =====================================================
 // Утилиты
 // =====================================================
 
@@ -297,5 +344,15 @@ function getDaysWord(count: number): string {
       ? 2
       : cases[count % 10 < 5 ? count % 10 : 5]
   ];
+}
+
+async function getUserLanguageCode(telegramId: number, supabase: any): Promise<string> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('language_code')
+    .eq('telegram_id', telegramId)
+    .maybeSingle();
+
+  return profile?.language_code || 'ru';
 }
 

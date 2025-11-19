@@ -8,6 +8,7 @@ import { InlineKeyboardMarkup } from './types.ts';
 const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
 const DUELS_URL = `${MINI_APP_URL}/duels`;
 const PROGRESS_URL = `${MINI_APP_URL}/progress`;
+const LEARNING_URL = `${MINI_APP_URL}/learning-map`;
 const SUPPORT_URL = Deno.env.get('SUPPORT_URL') || `${MINI_APP_URL}/support`;
 const LANGUAGE_URL = `${MINI_APP_URL}/settings/language`;
 const QUIET_HOURS_URL = `${MINI_APP_URL}/settings/quiet-hours`;
@@ -34,7 +35,10 @@ export function getMainMenuKeyboard(): InlineKeyboardMarkup {
         { text: '📚 Прогресс', callback_data: 'progress' }
       ],
       [
-        { text: '⚙️ Настройки', callback_data: 'settings' },
+        { text: '🧠 Учебные советы', callback_data: 'tips_menu' },
+        { text: '⚙️ Настройки', callback_data: 'settings' }
+      ],
+      [
         { text: '❓ Помощь', callback_data: 'help' }
       ]
     ]
@@ -201,5 +205,77 @@ export function getBackToMenuKeyboard(): InlineKeyboardMarkup {
       ]
     ]
   };
+}
+
+// =====================================================
+// Темы для советов
+// =====================================================
+type TipTopic = {
+  topic_slug: string;
+  topic_title: string;
+  topic_icon?: string | null;
+};
+
+export function getTipsTopicsKeyboard(topics: TipTopic[]): InlineKeyboardMarkup {
+  const rows: { text: string; callback_data: string }[][] = [];
+
+  for (let i = 0; i < topics.length; i += 2) {
+    const row = [];
+    const first = topics[i];
+    if (first) {
+      row.push({
+        text: `${first.topic_icon || '🧠'} ${first.topic_title}`,
+        callback_data: `tips_topic_${first.topic_slug}`
+      });
+    }
+    const second = topics[i + 1];
+    if (second) {
+      row.push({
+        text: `${second.topic_icon || '🧠'} ${second.topic_title}`,
+        callback_data: `tips_topic_${second.topic_slug}`
+      });
+    }
+    rows.push(row);
+  }
+
+  rows.push([{ text: '« Главное меню', callback_data: 'main_menu' }]);
+
+  return { inline_keyboard: rows };
+}
+
+// =====================================================
+// Клавиатура для конкретного совета
+// =====================================================
+export function getTipActionsKeyboard(
+  topicSlug: string,
+  tip: { id: string; cta_text?: string | null; cta_deeplink?: string | null }
+): InlineKeyboardMarkup {
+  const deeplink = tip.cta_deeplink
+    ? (tip.cta_deeplink.startsWith('http')
+        ? tip.cta_deeplink
+        : `${MINI_APP_URL}${tip.cta_deeplink.startsWith('/') ? '' : '/'}${tip.cta_deeplink}`)
+    : LEARNING_URL;
+
+  const keyboard: InlineKeyboardMarkup = {
+    inline_keyboard: [
+      [
+        { text: '🧠 Ещё совет', callback_data: `tips_next_${topicSlug}_${tip.id}` }
+      ],
+      [
+        { text: '📚 Все темы', callback_data: 'tips_menu' }
+      ]
+    ]
+  };
+
+  if (deeplink) {
+    keyboard.inline_keyboard.push([
+      {
+        text: tip.cta_text || '🚀 Открыть в приложении',
+        web_app: { url: deeplink }
+      }
+    ]);
+  }
+
+  return keyboard;
 }
 
