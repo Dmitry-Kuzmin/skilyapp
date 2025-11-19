@@ -46,7 +46,7 @@ export const useLumiChat = () => {
       );
 
       if (!response.ok || !response.body) {
-        throw new Error("Не удалось получить ответ от Lumi");
+        throw new Error("Не удалось получить ответ от Skily");
       }
 
       const reader = response.body.getReader();
@@ -92,7 +92,7 @@ export const useLumiChat = () => {
         }
       }
     } catch (err) {
-      console.error("Error in Lumi chat:", err);
+      console.error("Error in Skily chat:", err);
       setError("Не удалось получить ответ. Попробуй еще раз!");
       
       // Удаляем пустое сообщение ассистента при ошибке
@@ -115,6 +115,7 @@ export const useLumiChat = () => {
     clearMessages,
   };
 };
+
 
 
 

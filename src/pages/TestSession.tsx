@@ -1942,7 +1942,7 @@ const TestSession = () => {
                     <button
                       onClick={() => setShowAIExplanation(true)}
                       className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
-                      aria-label="Спросить Lumi"
+                      aria-label="Спросить Skily"
                     >
                       {/* Пульсирующий эффект */}
                       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />
@@ -2090,7 +2090,7 @@ const TestSession = () => {
               <button
                 onClick={() => setShowAIExplanation(true)}
                 className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
-                aria-label="Спросить Lumi"
+                aria-label="Спросить Skily"
               >
                 {/* Пульсирующий эффект */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-60 animate-pulse" />

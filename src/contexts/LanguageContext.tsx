@@ -129,8 +129,8 @@ const translations: Record<Language, Record<string, any>> = {
     challengeBankAdded: "Hemos añadido esta pregunta a tu Banco de Preguntas™",
     challengeBankDesc: "Todas las preguntas que respondiste incorrectamente se guardan automáticamente para práctica adicional",
     dontShowAgain: "No mostrar",
-    // Lumi AI Assistant
-    lumiGreeting: "¡Hola! Soy Lumi 💡",
+    // Skily AI Assistant
+    lumiGreeting: "¡Hola! Soy Skily 💡",
     lumiWelcome: "¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!",
     lumiHintButton: "Dame una pista",
     lumiHelpButton: "Ayúdame a entender esto",
@@ -525,6 +525,71 @@ const translations: Record<Language, Record<string, any>> = {
         noSeason: "No hay una temporada activa",
       },
     },
+    learningMap: {
+      loading: "Cargando mapa de aprendizaje...",
+      errors: {
+        title: "Error de carga",
+        retry: "Intentar de nuevo",
+        generic: "No pudimos cargar el mapa. Actualiza la página e inténtalo nuevamente.",
+      },
+      hero: {
+        badge: "Mapa estructurada del curso de tráfico",
+        title: "Mapa de aprendizaje",
+        description: "Todos los temas y subtemas en un solo lugar. Empieza por el primer subtema pendiente o elige cualquier módulo.",
+      },
+      variants: {
+        radial: "Variante A · Progreso radial",
+        ribbons: "Variante B · Cintas de progreso",
+      },
+      stats: {
+        overallTitle: "Progreso total",
+        overallAverage: "Promedio entre {{count}} temas",
+        topicsLabel: "Temas",
+        subtopicsLabel: "Subtemas",
+        topicProgress: "Avance de temas",
+        subtopicProgress: "Avance de subtemas",
+      },
+      actions: {
+        continue: "Continuar",
+        start: "Empezar aprendizaje",
+        selectModule: "Selecciona cualquier módulo disponible",
+      },
+      empty: {
+        title: "Temas aún no añadidos",
+        description: "Estamos preparando el contenido. Vuelve más tarde para ver la ruta completa.",
+      },
+      additionalMaterials: "Material adicional",
+      tests: {
+        sectionTitle: "Pruebas del módulo",
+        trainingTest: "Test de entrenamiento por tema",
+        finalTest: "Test final del módulo",
+      },
+    },
+    article: {
+      nav: {
+        back: "← Todos los artículos",
+        home: "Inicio",
+      },
+      meta: {
+        publishedOn: "Publicado el {{date}}",
+        inCategory: "en {{category}}",
+        readTime: "{{minutes}} min de lectura",
+      },
+      share: {
+        title: "Compartir",
+        button: "Compartir",
+        copied: "Enlace copiado al portapapeles",
+      },
+      relatedTitle: "Artículos relacionados",
+      toc: {
+        title: "Contenido",
+      },
+      cta: {
+        title: "Prepárate para el examen DGT con Skilyapp",
+        description: "Activa entrenamientos, pruebas y duelos en una sola app.",
+        button: "Comenzar gratis",
+      },
+    },
   },
   en: {
     // Navigation
@@ -603,8 +668,8 @@ const translations: Record<Language, Record<string, any>> = {
     challengeBankAdded: "We've added this question to your Challenge Bank™",
     challengeBankDesc: "All questions you answered incorrectly are saved automatically for extra practice",
     dontShowAgain: "Don't show",
-    // Lumi AI Assistant
-    lumiGreeting: "Hello! I'm Lumi 💡",
+    // Skily AI Assistant
+    lumiGreeting: "Hello! I'm Skily 💡",
     lumiWelcome: "Need a hint or a quick explanation? Just press the button or ask your question, and I'll help on the spot. Ready when you are ready!",
     lumiHintButton: "Give me a hint",
     lumiHelpButton: "Help me understand this",
@@ -999,6 +1064,71 @@ const translations: Record<Language, Record<string, any>> = {
         noSeason: "No active season",
       },
     },
+    learningMap: {
+      loading: "Loading learning map...",
+      errors: {
+        title: "Loading error",
+        retry: "Try again",
+        generic: "We couldn't load the learning map. Please refresh and try again.",
+      },
+      hero: {
+        badge: "Structured traffic course map",
+        title: "Learning map",
+        description: "All topics and subtopics in one place. Start with the first incomplete subtopic or pick any module.",
+      },
+      variants: {
+        radial: "Variant A · Radial progress",
+        ribbons: "Variant B · Ribbon badges",
+      },
+      stats: {
+        overallTitle: "Overall progress",
+        overallAverage: "Average across {{count}} topics",
+        topicsLabel: "Topics",
+        subtopicsLabel: "Subtopics",
+        topicProgress: "Topic progress",
+        subtopicProgress: "Subtopic progress",
+      },
+      actions: {
+        continue: "Continue",
+        start: "Start learning",
+        selectModule: "Choose any available module",
+      },
+      empty: {
+        title: "Topics not added yet",
+        description: "We're preparing the content. Come back later to see the full path.",
+      },
+      additionalMaterials: "Additional material",
+      tests: {
+        sectionTitle: "Module tests",
+        trainingTest: "Training test by topic",
+        finalTest: "Final module test",
+      },
+    },
+    article: {
+      nav: {
+        back: "← All articles",
+        home: "Home",
+      },
+      meta: {
+        publishedOn: "Published on {{date}}",
+        inCategory: "in {{category}}",
+        readTime: "{{minutes}} min read",
+      },
+      share: {
+        title: "Share",
+        button: "Share",
+        copied: "Link copied to clipboard",
+      },
+      relatedTitle: "Related articles",
+      toc: {
+        title: "Table of contents",
+      },
+      cta: {
+        title: "Get ready for the DGT exam with Skilyapp",
+        description: "Launch adaptive tests, duels and analytics in one app.",
+        button: "Start for free",
+      },
+    },
   },
   ru: {
     // Navigation
@@ -1077,8 +1207,8 @@ const translations: Record<Language, Record<string, any>> = {
     challengeBankAdded: "Добавили этот вопрос в твой Банк Вопросов™",
     challengeBankDesc: "Все вопросы, на которые ты ответил неправильно, сохраняются автоматически для дополнительной практики",
     dontShowAgain: "Не показывать",
-    // Lumi AI Assistant
-    lumiGreeting: "Привет! Я Lumi 💡",
+    // Skily AI Assistant
+    lumiGreeting: "Привет! Я Skily 💡",
     lumiWelcome: "Нужна подсказка или быстрое объяснение? Просто нажми кнопку или задай свой вопрос, и я помогу на месте. Готов, когда ты готов!",
     lumiHintButton: "Дай мне подсказку",
     lumiHelpButton: "Помоги понять это",
@@ -1471,6 +1601,71 @@ const translations: Record<Language, Record<string, any>> = {
           "Выполните SQL запрос",
         ],
         noSeason: "Нет активного сезона",
+      },
+    },
+    learningMap: {
+      loading: "Загрузка карты обучения...",
+      errors: {
+        title: "Ошибка загрузки",
+        retry: "Попробовать снова",
+        generic: "Не удалось загрузить карту обучения. Попробуйте обновить страницу.",
+      },
+      hero: {
+        badge: "Структурированная карта курса ПДД",
+        title: "Карта обучения",
+        description: "Все темы и подтемы в одном месте. Начните с первой незавершённой подтемы или выберите любой модуль.",
+      },
+      variants: {
+        radial: "Вариант A · Кольцевая диаграмма",
+        ribbons: "Вариант B · Лентовые бейджи",
+      },
+      stats: {
+        overallTitle: "Общий прогресс",
+        overallAverage: "Среднее по {{count}} темам",
+        topicsLabel: "Темы",
+        subtopicsLabel: "Подтемы",
+        topicProgress: "Прогресс тем",
+        subtopicProgress: "Прогресс подтем",
+      },
+      actions: {
+        continue: "Продолжить",
+        start: "Начать обучение",
+        selectModule: "Перейдите к первому доступному модулю",
+      },
+      empty: {
+        title: "Темы пока не добавлены",
+        description: "Мы уже собираем контент. Зайдите позже, чтобы увидеть полный маршрут.",
+      },
+      additionalMaterials: "Дополнительные материалы",
+      tests: {
+        sectionTitle: "Тесты по модулю",
+        trainingTest: "Тренировочный тест по теме",
+        finalTest: "Итоговый тест по модулю",
+      },
+    },
+    article: {
+      nav: {
+        back: "← Все статьи",
+        home: "Главная",
+      },
+      meta: {
+        publishedOn: "Опубликовано {{date}}",
+        inCategory: "в {{category}}",
+        readTime: "{{minutes}} мин чтения",
+      },
+      share: {
+        title: "Поделиться",
+        button: "Поделиться",
+        copied: "Ссылка скопирована в буфер обмена",
+      },
+      relatedTitle: "Связанные статьи",
+      toc: {
+        title: "Содержание",
+      },
+      cta: {
+        title: "Подготовьтесь к экзамену DGT в Skilyapp",
+        description: "Откройте тренировки, тесты, дуэли и аналитику в одном приложении.",
+        button: "Начать бесплатно",
       },
     },
   },

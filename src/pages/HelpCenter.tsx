@@ -160,7 +160,7 @@ const HelpCenter = () => {
         {
           id: "app-ai",
           title: getTranslatedContent("help.content.appUsage.ai.title", "Искусственный интеллект"),
-          content: getTranslatedContent("help.content.appUsage.ai.content", `AI-помощник Lumi доступен в тестах и играх:
+          content: getTranslatedContent("help.content.appUsage.ai.content", `AI-помощник Skily доступен в тестах и играх:
 
 • Объясняет правильные и неправильные ответы
 • Помогает понять сложные правила

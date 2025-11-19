@@ -77,7 +77,7 @@ export const LumiSearchWidget = () => {
       <div className="absolute -top-20 -right-20 w-60 h-60 bg-yellow-400/10 rounded-full blur-3xl" />
 
       <div className="relative p-4 md:p-6">
-        {/* Header with Lumi */}
+        {/* Header with Skily */}
         <div className="flex items-start gap-4 mb-4">
           <div className="flex-shrink-0">
             <LumiCharacter size="lg" mood="happy" />
@@ -87,7 +87,7 @@ export const LumiSearchWidget = () => {
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-                  Спроси Lumi! 💡
+                  Спроси Skily! 💡
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   Твой личный эксперт по правилам DGT

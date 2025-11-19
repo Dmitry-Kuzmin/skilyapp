@@ -335,8 +335,8 @@ ${explanation ? `\nОфициальное объяснение: ${explanation}` 
           <div className="min-w-0">
             <h3 className="font-bold text-sm xl:text-base text-foreground truncate">
               {interfaceLanguage === 'ru' ? t('lumiGreeting') : 
-               interfaceLanguage === 'en' ? 'Hello! I\'m Lumi 💡' : 
-               '¡Hola! Soy Lumi 💡'}
+               interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" : 
+               "¡Hola! Soy Skily 💡"}
             </h3>
           </div>
         </div>

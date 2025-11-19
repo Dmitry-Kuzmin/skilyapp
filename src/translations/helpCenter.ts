@@ -316,7 +316,7 @@ XP: +15 XP
 
 Изучайте материалы в удобном для вас темпе и закрепляйте знания через тесты и игры.`,
     "help.content.appUsage.ai.title": "Искусственный интеллект",
-    "help.content.appUsage.ai.content": `AI-помощник Lumi доступен в тестах и играх:
+    "help.content.appUsage.ai.content": `AI-помощник Skily доступен в тестах и играх:
 
 • Объясняет правильные и неправильные ответы
 • Помогает понять сложные правила
@@ -1478,7 +1478,7 @@ Each game awards experience points and coins for correct answers. In duels, coin
 
 Study materials at your own pace and reinforce knowledge through tests and games.`,
     "help.content.appUsage.ai.title": "Artificial Intelligence",
-    "help.content.appUsage.ai.content": `AI assistant Lumi is available in tests and games:
+    "help.content.appUsage.ai.content": `AI assistant Skily is available in tests and games:
 
 • Explains correct and incorrect answers
 • Helps understand complex rules
@@ -2640,7 +2640,7 @@ Cada juego otorga puntos de experiencia y monedas por respuestas correctas. En d
 
 Estudia materiales a tu propio ritmo y refuerza conocimientos a través de pruebas y juegos.`,
     "help.content.appUsage.ai.title": "Inteligencia Artificial",
-    "help.content.appUsage.ai.content": `El asistente de IA Lumi está disponible en pruebas y juegos:
+    "help.content.appUsage.ai.content": `El asistente de IA Skily está disponible en pruebas y juegos:
 
 • Explica respuestas correctas e incorrectas
 • Ayuda a entender reglas complejas

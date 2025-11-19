@@ -91,14 +91,14 @@ export const LumiChatWidget = ({
         className
       )}
     >
-      {/* Header с Lumi - как Officer Frank */}
+      {/* Header со Skily - как Officer Frank */}
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-b border-yellow-200/50 dark:border-yellow-800/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-md">
             <LumiCharacter size="sm" mood="happy" animate className="scale-50" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-foreground">Привет! Я Lumi 💡</h3>
+            <h3 className="font-bold text-sm text-foreground">Привет! Я Skily 💡</h3>
             <p className="text-xs text-muted-foreground">Твой AI помощник по DGT</p>
           </div>
         </div>
@@ -149,7 +149,7 @@ export const LumiChatWidget = ({
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-foreground mb-1">
-                        Привет! Я Lumi 💡
+                        Привет! Я Skily 💡
                       </h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">
                         Нужна подсказка или объяснение? Просто нажми на кнопку или напиши свой вопрос, и я помогу тебе прямо сейчас. Готов, когда ты готов!
