@@ -32,6 +32,7 @@ interface Article {
 
 const categories = [
   { id: "all", name: "Все статьи", icon: Newspaper },
+  { id: "news", name: "Актуально", icon: BookOpen },
   { id: "preparation", name: "Подготовка", icon: GraduationCap },
   { id: "tips", name: "Советы", icon: Lightbulb },
 ];
@@ -168,7 +169,11 @@ const Blog = () => {
     };
   }, []);
 
-  const filteredArticles = articles.filter(article => {
+  const sortedArticles = [...articles].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+
+  const filteredArticles = sortedArticles.filter(article => {
     const matchesSearch = 
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
