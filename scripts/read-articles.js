@@ -3,11 +3,15 @@
  * Извлекает данные статей для использования в скриптах
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-function extractArticlesFromTSX() {
-  const articlePath = path.join(__dirname, '..', 'src', 'pages', 'Article.tsx');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export function extractArticlesFromTSX() {
+  const articlePath = path.join(__dirname, "..", "src", "pages", "Article.tsx");
   const content = fs.readFileSync(articlePath, 'utf8');
   
   // Ищем объект articles
@@ -51,11 +55,9 @@ function extractArticlesFromTSX() {
   return articles;
 }
 
-// Экспортируем функцию
-if (require.main === module) {
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+if (isDirectRun) {
   const articles = extractArticlesFromTSX();
   console.log(JSON.stringify(articles, null, 2));
-} else {
-  module.exports = { extractArticlesFromTSX };
 }
 

@@ -3,7 +3,11 @@
  * Запуск: node scripts/ping-search-engines.js
  */
 
-const https = require('https');
+import https from "https";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
 
 const SITE_URL = 'https://skilyapp.com';
 const SITEMAP_URL = `${SITE_URL}/sitemap.xml`;
@@ -59,5 +63,7 @@ async function main() {
   console.log(`\n✅ Успешно: ${successCount}/${results.length}`);
 }
 
-main();
-
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+if (isDirectRun) {
+  main();
+}

@@ -5,7 +5,7 @@
     <link>https://skilyapp.com/blog</link>
     <description>Полезные статьи о подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.</description>
     <language>ru-RU</language>
-    <lastBuildDate>Wed, 19 Dec 2024 12:00:00 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 19 Nov 2025 00:00:00 +0100</lastBuildDate>
     <atom:link href="https://skilyapp.com/rss.xml" rel="self" type="application/rss+xml"/>
     <image>
       <url>https://skilyapp.com/og-image.png</url>
@@ -13,27 +13,44 @@
       <link>https://skilyapp.com/blog</link>
     </image>
     
-    <!-- Статья: Как сдать экзамен DGT с первого раза -->
+    <item>
+      <title>Микротренировки на телефоне: путь к стабильному результату DGT</title>
+      <link>https://skilyapp.com/blog/mikrotreningi-dgt-na-telefone</link>
+      <guid isPermaLink="true">https://skilyapp.com/blog/mikrotreningi-dgt-na-telefone</guid>
+      <description>Как строить 5-минутные занятия в Skilyapp, чтобы прогресс не зависел от расписания автошколы.</description>
+      <pubDate>Thu, 20 Feb 2025 00:00:00 +0100</pubDate>
+      <category>Подготовка</category>
+      <author>Команда Skilyapp</author>
+    </item>
+
+    <item>
+      <title>Как тренировать восприятие риска перед экзаменом DGT</title>
+      <link>https://skilyapp.com/blog/kak-trenirovat-vospriyatie-riska-dgt</link>
+      <guid isPermaLink="true">https://skilyapp.com/blog/kak-trenirovat-vospriyatie-riska-dgt</guid>
+      <description>Методика для подготовки к новому формату вопросов DGT: сценарии, чек-листы и игровые режимы Skilyapp.</description>
+      <pubDate>Tue, 18 Feb 2025 00:00:00 +0100</pubDate>
+      <category>Советы</category>
+      <author>Команда Skilyapp</author>
+    </item>
+
+    <item>
+      <title>Как готовиться к экзамену DGT, если времени почти нет</title>
+      <link>https://skilyapp.com/blog/kak-gotovitsya-dgt-pri-plotnom-grafike</link>
+      <guid isPermaLink="true">https://skilyapp.com/blog/kak-gotovitsya-dgt-pri-plotnom-grafike</guid>
+      <description>Пошаговая стратегия для занятых кандидатов: короткие тренировки, адаптивный фокус на слабых темах и умные напоминания Skilyapp.</description>
+      <pubDate>Sat, 15 Feb 2025 00:00:00 +0100</pubDate>
+      <category>Подготовка</category>
+      <author>Команда Skilyapp</author>
+    </item>
+
     <item>
       <title>Как сдать экзамен DGT с первого раза</title>
       <link>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</link>
       <guid isPermaLink="true">https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</guid>
       <description>Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.</description>
-      <pubDate>Thu, 19 Dec 2024 12:00:00 +0100</pubDate>
+      <pubDate>Thu, 19 Dec 2024 00:00:00 +0100</pubDate>
       <category>Подготовка</category>
-      <author>Команда Skilyapp</author>
-    </item>
-    
-    <!-- Статья: Топ-10 ошибок на экзамене DGT -->
-    <item>
-      <title>Топ-10 ошибок на экзамене DGT</title>
-      <link>https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</guid>
-      <description>Самые распространенные ошибки при подготовке и сдаче экзамена DGT. Узнайте, как их избежать и увеличить свои шансы на успех.</description>
-      <pubDate>Thu, 19 Dec 2024 12:00:00 +0100</pubDate>
-      <category>Советы</category>
       <author>Команда Skilyapp</author>
     </item>
   </channel>
 </rss>
-

@@ -4,9 +4,7 @@
  * Использование: node scripts/publish-article.js [slug-статьи]
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from "child_process";
 
 const articleSlug = process.argv[2];
 

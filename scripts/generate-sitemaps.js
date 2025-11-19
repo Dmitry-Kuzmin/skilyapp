@@ -3,9 +3,13 @@
  * Запуск: node scripts/generate-sitemaps.js
  */
 
-const fs = require('fs');
-const path = require('path');
-const { extractArticlesFromTSX } = require('./read-articles');
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { extractArticlesFromTSX } from "./read-articles.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Автоматически извлекаем статьи из Article.tsx
 let articles;
@@ -185,5 +189,7 @@ function main() {
   }
 }
 
-main();
-
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+if (isDirectRun) {
+  main();
+}
