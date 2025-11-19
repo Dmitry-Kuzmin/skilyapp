@@ -376,9 +376,16 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       loadSeasonData();
       
       // Всегда показываем онбординг при открытии модалки
-      setTimeout(() => {
+      console.log('[DuelPassSeasonModal] Opening modal, will show onboarding in 500ms');
+      const timeout = setTimeout(() => {
+        console.log('[DuelPassSeasonModal] Showing onboarding');
         setShowOnboarding(true);
       }, 500);
+      
+      return () => clearTimeout(timeout);
+    } else {
+      // Сбрасываем onboarding при закрытии модалки
+      setShowOnboarding(false);
     }
   }, [open, profileId]);
 
@@ -1949,7 +1956,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
           <Button
             onClick={() => {
-              localStorage.setItem('duel-pass-onboarding-seen', 'true');
+              // Не сохраняем в localStorage - показываем при каждом открытии
               setShowOnboarding(false);
             }}
             className="w-full"

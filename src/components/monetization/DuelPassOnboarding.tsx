@@ -41,6 +41,13 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const totalSlides = 5;
 
+  // Логирование для отладки
+  useEffect(() => {
+    if (open) {
+      console.log('[DuelPassOnboarding] Component opened');
+    }
+  }, [open]);
+
   const handleNext = () => {
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);

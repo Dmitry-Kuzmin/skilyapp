@@ -228,6 +228,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <button
             onClick={() => {
               // Всегда показываем onboarding при клике
+              console.log('[WalletWidget] Mobile Duel Pass button clicked, opening onboarding');
               setOnboardingOpen(true);
             }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
@@ -261,6 +262,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <button
             onClick={() => {
               // Всегда показываем onboarding при клике
+              console.log('[WalletWidget] Duel Pass button clicked, opening onboarding');
               setOnboardingOpen(true);
             }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
