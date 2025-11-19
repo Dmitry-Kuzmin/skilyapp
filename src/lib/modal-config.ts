@@ -11,14 +11,12 @@ export const MODAL_CONFIG = {
   // Размеры для Desktop
   desktop: {
     maxWidth: 'max-w-4xl',
-    height: 'h-[85vh]',
-    maxHeight: 'max-h-[85vh]',
+    maxHeight: 'max-h-[90vh]',
   },
   
   // Размеры для Mobile/Telegram
   mobile: {
-    height: 'h-[85vh]',
-    maxHeight: 'max-h-[85vh]',
+    maxHeight: 'max-h-[92vh]',
   },
   
   // Общие настройки
@@ -37,20 +35,20 @@ export const MODAL_CONFIG = {
   // Настройки для разных типов модалок
   types: {
     shop: {
-      desktop: { maxWidth: 'max-w-lg', height: 'h-[80vh]' },
-      mobile: { height: 'h-[85vh]' },
+      desktop: { maxWidth: 'max-w-lg', maxHeight: 'max-h-[80vh]' },
+      mobile: { maxHeight: 'max-h-[85vh]' },
     },
     duelPass: {
-      desktop: { maxWidth: 'max-w-4xl', height: 'h-[85vh]' },
-      mobile: { height: 'h-[90vh]' },
+      desktop: { maxWidth: 'max-w-5xl', maxHeight: 'max-h-[88vh]' },
+      mobile: { maxHeight: 'max-h-[90vh]' },
     },
     profile: {
-      desktop: { maxWidth: 'max-w-2xl', height: 'h-[85vh]' },
-      mobile: { height: 'h-[90vh]' },
+      desktop: { maxWidth: 'max-w-2xl', maxHeight: 'max-h-[88vh]' },
+      mobile: { maxHeight: 'max-h-[90vh]' },
     },
     default: {
-      desktop: { maxWidth: 'max-w-lg', height: 'h-[85vh]' },
-      mobile: { height: 'h-[90vh]' },
+      desktop: { maxWidth: 'max-w-lg', maxHeight: 'max-h-[88vh]' },
+      mobile: { maxHeight: 'max-h-[90vh]' },
     },
   },
 } as const;
@@ -73,11 +71,12 @@ export function getModalConfig(type: ModalType = 'default') {
 export function getDialogContentClasses(type: keyof typeof MODAL_CONFIG.types = 'default', isMobile = false) {
   const config = getModalConfig(type);
   const sizeConfig = isMobile ? config.mobile : config.desktop;
+  const fallback = isMobile ? MODAL_CONFIG.mobile : MODAL_CONFIG.desktop;
+  const widthClass = isMobile ? undefined : (sizeConfig.maxWidth || MODAL_CONFIG.desktop.maxWidth);
   
   return [
-    sizeConfig.maxWidth || MODAL_CONFIG.desktop.maxWidth,
-    sizeConfig.height || MODAL_CONFIG.desktop.height,
-    sizeConfig.maxHeight || MODAL_CONFIG.desktop.maxHeight,
+    widthClass,
+    sizeConfig.maxHeight || fallback.maxHeight,
     'overflow-hidden flex flex-col p-0',
     'overflow-x-hidden', // Предотвращаем горизонтальный скролл
   ].filter(Boolean).join(' ');
@@ -90,10 +89,10 @@ export function getDialogContentClasses(type: keyof typeof MODAL_CONFIG.types = 
 export function getSheetContentClasses(type: keyof typeof MODAL_CONFIG.types = 'default', isMobile = false) {
   const config = getModalConfig(type);
   const sizeConfig = isMobile ? config.mobile : config.desktop;
+  const fallback = isMobile ? MODAL_CONFIG.mobile : MODAL_CONFIG.desktop;
   
   return [
-    sizeConfig.height || MODAL_CONFIG.mobile.height,
-    sizeConfig.maxHeight || MODAL_CONFIG.mobile.maxHeight,
+    sizeConfig.maxHeight || fallback.maxHeight,
     'overflow-hidden flex flex-col p-0',
     'overflow-x-hidden', // Предотвращаем горизонтальный скролл
     // Убираем пустое пространство снизу

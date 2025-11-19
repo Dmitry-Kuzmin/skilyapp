@@ -18,6 +18,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { Card } from '@/components/ui/card';
 import { isTelegramMiniApp } from '@/lib/telegram';
 import { supabase } from '@/integrations/supabase/client';
+import { dispatchUserEvent } from '@/lib/notification-events';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Users, Clock, Share2 } from 'lucide-react';
@@ -265,11 +266,15 @@ export default function Duel() {
       }
     };
 
-    if (userCoins > 0 && userCoins < 50 && !lowCoinsPromptedRef.current) {
+    if (userCoins > 0 && userCoins < 50 && !lowCoinsPromptedRef.current && profileId) {
       lowCoinsPromptedRef.current = true;
       suggestLowCoins();
+      dispatchUserEvent(profileId, 'low_balance', {
+        coins_left: userCoins,
+        page: 'duel_menu',
+      });
     }
-  }, [userCoins, dataLoaded]);
+  }, [userCoins, dataLoaded, profileId]);
   
   // Check if we're waiting for profile to load
   const isLoadingProfile = (user || supabaseUser) && !profileId;
@@ -616,6 +621,14 @@ export default function Duel() {
       setDuelCode(data.duel.code);
       setConnectionStatus('checking');
       setWaitTime(0);
+
+      dispatchUserEvent(profileId, 'duel_invite_created', {
+        duel_id: data.duel.id,
+        duel_code: data.duel.code,
+        bet_amount: betAmount,
+        num_questions: numQuestions,
+        opponent_name: 'соперник',
+      });
       
       setIsCreating(false);
     } catch (error: any) {

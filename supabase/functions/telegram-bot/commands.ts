@@ -7,6 +7,8 @@ import * as keyboards from './keyboards.ts';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+const PUBLIC_SITE_URL = Deno.env.get('PUBLIC_SITE_URL') || 'https://skilyapp.com';
+const SUPPORT_CONTACT = Deno.env.get('SUPPORT_CONTACT') || '@SkilySupport';
 
 // =====================================================
 // Утилита для отправки сообщений
@@ -51,15 +53,15 @@ export async function handleStart(message: TelegramMessage, supabase: any): Prom
   const welcomeText = `
 👋 Привет, ${userName}!
 
-Я — твой личный помощник для подготовки к экзамену DGT (ПДД Испании).
+Я — Skilyapp, твой персональный тренер для экзамена DGT и Smart-марафонов на ${PUBLIC_SITE_URL}.
 
-🎯 Что я умею:
-• Отслеживать твой прогресс
-• Напоминать о практике
-• Устраивать дуэли с друзьями
-• Давать советы по сложным темам
+🎯 Что я делаю:
+• Напоминаю о тренировках и серии
+• Считаю прогресс и даю советы
+• Запускаю дуэли и челленджи
+• Помогаю открыть приложение в один тап
 
-Выбери действие из меню ниже или открой приложение для полного функционала! 🚀
+Выбирай действие ниже или заходи сразу на skilyapp.com 🚀
 `.trim();
 
   await sendMessage({
@@ -140,17 +142,12 @@ ${metrics.last_test_at ? `\n🕐 Последний тест: ${new Date(metrics
 // =====================================================
 export async function handleDuel(message: TelegramMessage): Promise<void> {
   const duelText = `
-⚔️ <b>Дуэли</b>
+⚔️ <b>Дуэли на Skilyapp</b>
 
-Проверь свои знания в соревновании с другом!
+Создавай дуэль, кидай код другу и сражайся прямо в приложении.
+Все дуэли, рейтинги и реванши теперь на <a href="${PUBLIC_SITE_URL}/duels">skilyapp.com/duels</a>.
 
-🎯 Как это работает:
-1. Создай дуэль
-2. Отправь код другу
-3. Вместе отвечайте на вопросы
-4. Побеждает тот, кто ответит правильнее и быстрее!
-
-Выбери действие:
+Выбери действие ниже или жми “Создать дуэль”, чтобы открыть веб-приложение. 🚀
 `.trim();
 
   await sendMessage({
@@ -254,12 +251,12 @@ export async function handleHelp(message: TelegramMessage): Promise<void> {
 /help — Эта справка
 
 <b>О приложении:</b>
-Готовься к теоретическому экзамену DGT (Dirección General de Tráfico) в Испании. Изучай темы, проходи тесты, соревнуйся с друзьями!
+Skilyapp — это современная подготовка к экзамену DGT и тренировочный центр с дуэлями, челленджами и прогрессом на ${PUBLIC_SITE_URL}.
 
 <b>Поддержка:</b>
-Если возникли вопросы или проблемы, напиши @support (замените на реальный контакт)
+Если возникли вопросы, напиши ${SUPPORT_CONTACT} или заполни форму на ${PUBLIC_SITE_URL}/support
 
-🚀 Открой приложение для полного функционала!
+🚀 Открой приложение, чтобы увидеть все темы и задания!
 `.trim();
 
   await sendMessage({

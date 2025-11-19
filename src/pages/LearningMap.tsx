@@ -37,14 +37,12 @@ interface TopicWithSubtopics extends Topic {
 const LearningMap = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
-  const { language } = useLanguage();
-  const isEs = language === "es";
-  const isEn = language === "en";
+  const { language, t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [topics, setTopics] = useState<TopicWithSubtopics[]>([]);
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
-  const [userProfile, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
+  const [, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
   const topicsCacheKey = useMemo(() => `learning_map_topics_${language}`, [language]);
 
   useEffect(() => {
@@ -194,7 +192,7 @@ const LearningMap = () => {
       logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
       console.error("[LearningMap] Error loading learning map:", error);
-      setError(error.message || "Не удалось загрузить карту обучения. Попробуйте обновить страницу.");
+      setError(error.message || t("learningMap.errors.generic"));
       setLoading(false);
       logLearningMap("[LearningMap] Error state set, loading:", false);
     }
@@ -405,10 +403,10 @@ const LearningMap = () => {
 
   const nextActionLabel = useMemo(() => {
     if (nextAction) {
-      return isEs ? "Continuar" : isEn ? "Continue" : "Продолжить";
+      return t("learningMap.actions.continue");
     }
-    return isEs ? "Empezar aprendizaje" : isEn ? "Start learning" : "Начать обучение";
-  }, [nextAction, isEs, isEn]);
+    return t("learningMap.actions.start");
+  }, [nextAction, t]);
 
   const nextActionDescription = useMemo(() => {
     if (nextAction) {
@@ -420,12 +418,8 @@ const LearningMap = () => {
     if (firstItemTitle) {
       return firstItemTitle;
     }
-    return isEs
-      ? "Selecciona cualquier módulo disponible"
-      : isEn
-      ? "Choose any available module"
-      : "Перейдите к первому доступному модулю";
-  }, [nextAction, structuredCurriculum, isEs, isEn]);
+    return t("learningMap.actions.selectModule");
+  }, [nextAction, structuredCurriculum, t]);
 
   logLearningMap("[LearningMap] Render state:", {
     loading,
@@ -442,11 +436,7 @@ const LearningMap = () => {
           <div className="text-center space-y-4">
             <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
             <p className="text-muted-foreground">
-              {isEs
-                ? "Cargando mapa de aprendizaje..."
-                : isEn
-                ? "Loading learning map..."
-                : "Загрузка карты обучения..."}
+              {t("learningMap.loading")}
             </p>
           </div>
         </div>
@@ -464,7 +454,7 @@ const LearningMap = () => {
               <BookOpen className="w-8 h-8 text-destructive" />
             </div>
             <h2 className="text-2xl font-bold">
-              {isEs ? "Error de carga" : isEn ? "Loading error" : "Ошибка загрузки"}
+              {t("learningMap.errors.title")}
             </h2>
             <p className="text-muted-foreground">{error}</p>
             <Button
@@ -475,7 +465,7 @@ const LearningMap = () => {
                 loadLearningMap();
               }}
             >
-              {isEs ? "Intentar de nuevo" : isEn ? "Try again" : "Попробовать снова"}
+              {t("learningMap.errors.retry")}
             </Button>
           </div>
         </div>
@@ -493,31 +483,20 @@ const LearningMap = () => {
                 <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-xs font-medium text-muted-foreground">
-                    {isEs
-                      ? "Mapa estructurada del curso de tráfico"
-                      : isEn
-                      ? "Structured traffic course map"
-                      : "Структурированная карта курса ПДД"}
+                    {t("learningMap.hero.badge")}
                   </span>
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                  {isEs ? "Mapa de aprendizaje" : isEn ? "Learning map" : "Карта обучения"}
+                  {t("learningMap.hero.title")}
                 </h1>
                 <p className="text-base text-muted-foreground">
-                  {isEs
-                    ? "Todos los temas y subtemas en un solo lugar. Comience con el primer subtema incompleto o seleccione cualquier módulo."
-                    : isEn
-                    ? "All topics and subtopics in one place. Start with the first incomplete subtopic or select any module."
-                    : "Все темы и подтемы в одном месте. Начните с первой незавершённой подтемы или выберите любой модуль."}
+                  {t("learningMap.hero.description")}
                 </p>
               </div>
 
               <div className="w-full md:max-w-2xl space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-border bg-card px-4 py-5 flex flex-col gap-4 shadow-sm">
-                    <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-                      {isEs ? "Variante A · Progreso radial" : isEn ? "Variant A · Radial progress" : "Вариант A · Кольцевая диаграмма"}
-                    </p>
+                  <div className="rounded-2xl border border-border bg-card px-4 py-5 flex items-center gap-4 shadow-sm">
                     <div className="relative w-20 h-20">
                       <div
                         className="absolute inset-0 rounded-full"
@@ -532,62 +511,46 @@ const LearningMap = () => {
                     </div>
                     <div className="space-y-1">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-                        {isEs ? "Progreso total" : isEn ? "Overall progress" : "Общий прогресс"}
+                        {t("learningMap.stats.overallTitle")}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {isEs
-                          ? `Promedio por ${topics.length || 0} temas`
-                          : isEn
-                          ? `Average across ${topics.length || 0} topics`
-                          : `Среднее по ${topics.length || 0} темам`}
+                        {t("learningMap.stats.overallAverage", { count: topics.length || 0 })}
                       </p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-4 shadow-sm">
-                    <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground">
-                      {isEs ? "Variante B · Cintas de progreso" : isEn ? "Variant B · Ribbon badges" : "Вариант B · Лентовые бейджи"}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-primary font-semibold">
-                        <span className="text-xs uppercase tracking-[0.2em] text-primary/70">
-                          {isEs ? "Temas" : isEn ? "Topics" : "Темы"}
-                        </span>
-                        <span className="text-base">{completedTopicsCount}</span>
-                        <span className="text-sm text-muted-foreground">/ {topics.length || 0}</span>
-                      </div>
-                      <div className="inline-flex items-center gap-2 rounded-full bg-secondary/10 px-4 py-2 text-secondary-foreground font-semibold">
-                        <span className="text-xs uppercase tracking-[0.2em] text-secondary-foreground/70">
-                          {isEs ? "Subtemas" : isEn ? "Subtopics" : "Подтемы"}
-                        </span>
-                        <span className="text-base">{subtopicsSummary}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                        <span>{isEs ? "Avance de temas" : isEn ? "Topic progress" : "Прогресс тем"}</span>
-                        <span className="font-semibold text-foreground">
+                  <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                          {t("learningMap.stats.topicProgress")}
+                        </p>
+                        <p className="text-lg font-semibold text-foreground">
                           {Math.round(topicsCompletionPercent)}%
-                        </span>
+                        </p>
                       </div>
-                      <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all"
-                          style={{ width: `${topicsCompletionPercent}%` }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                        <span>{isEs ? "Avance de subtemas" : isEn ? "Subtopic progress" : "Прогресс подтем"}</span>
-                        <span className="font-semibold text-foreground">
-                          {Math.round(subtopicsPercent)}%
-                        </span>
-                      </div>
-                      <div className="h-1 rounded-full bg-muted/60 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-secondary transition-all"
-                          style={{ width: `${subtopicsPercent}%` }}
-                        />
-                      </div>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
+                        {completedTopicsCount}
+                        <span className="text-muted-foreground">/ {topics.length || 0}</span>
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-all"
+                        style={{ width: `${topicsCompletionPercent}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                      <span>{t("learningMap.stats.subtopicsLabel")}</span>
+                      <span className="text-muted-foreground tracking-normal font-semibold">
+                        {subtopicsSummary}
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-secondary transition-all"
+                        style={{ width: `${subtopicsPercent}%` }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -625,18 +588,10 @@ const LearningMap = () => {
                 <BookOpen className="w-8 h-8 text-muted-foreground/50" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                {isEs
-                  ? "Temas aún no añadidas"
-                  : isEn
-                  ? "Topics not added yet"
-                  : "Темы пока не добавлены"}
+                {t("learningMap.empty.title")}
               </h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                {isEs
-                  ? "Estamos recopilando contenido. Vuelve más tarde para ver la ruta completa."
-                  : isEn
-                  ? "We are collecting content. Check back later to see the full route."
-                  : "Мы уже собираем контент. Зайдите позже, чтобы увидеть полный маршрут."}
+                {t("learningMap.empty.description")}
               </p>
             </div>
           ) : (

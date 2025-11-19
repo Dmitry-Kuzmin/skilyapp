@@ -4,8 +4,14 @@
 
 import { InlineKeyboardMarkup } from './types.ts';
 
-// URL Mini App (нужно будет обновить на актуальный)
-const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://sdadim-dgt-prep.lovable.app';
+// URL Mini App / Web (обновлено на прод-домен)
+const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
+const DUELS_URL = `${MINI_APP_URL}/duels`;
+const PROGRESS_URL = `${MINI_APP_URL}/progress`;
+const SUPPORT_URL = Deno.env.get('SUPPORT_URL') || `${MINI_APP_URL}/support`;
+const LANGUAGE_URL = `${MINI_APP_URL}/settings/language`;
+const QUIET_HOURS_URL = `${MINI_APP_URL}/settings/quiet-hours`;
+const NOTIFICATIONS_URL = `${MINI_APP_URL}/settings/notifications`;
 
 // =====================================================
 // Главное меню
@@ -15,7 +21,7 @@ export function getMainMenuKeyboard(): InlineKeyboardMarkup {
     inline_keyboard: [
       [
         { 
-          text: '🚀 Открыть приложение', 
+          text: '🚀 Открыть Skilyapp', 
           web_app: { url: MINI_APP_URL } 
         }
       ],
@@ -42,11 +48,11 @@ export function getDuelMenuKeyboard(): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
-        { text: '⚔️ Создать дуэль', callback_data: 'duel_create_confirm' }
+        { text: '⚔️ Создать дуэль', web_app: { url: `${DUELS_URL}?mode=create` } }
       ],
       [
-        { text: '📜 Мои дуэли', callback_data: 'duel_my_duels' },
-        { text: '🏆 Рейтинг', callback_data: 'duel_leaderboard' }
+        { text: '📜 Мои дуэли', web_app: { url: `${DUELS_URL}?mode=list` } },
+        { text: '🏆 Рейтинг', web_app: { url: `${DUELS_URL}?mode=leaderboard` } }
       ],
       [
         { text: '« Назад', callback_data: 'main_menu' }
@@ -64,7 +70,7 @@ export function getDuelDeepLinkKeyboard(duelId: string): InlineKeyboardMarkup {
       [
         { 
           text: '⚔️ Открыть дуэль', 
-          web_app: { url: `${MINI_APP_URL}?startapp=duel_${duelId}` } 
+          web_app: { url: `${DUELS_URL}?code=${duelId}` } 
         }
       ],
       [
@@ -84,13 +90,16 @@ export function getSettingsKeyboard(): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
-        { text: '🔔 Уведомления', callback_data: 'settings_notifications' }
+        { text: '🔔 В боте', callback_data: 'settings_notifications' },
+        { text: '🌐 На сайте', web_app: { url: NOTIFICATIONS_URL } }
       ],
       [
-        { text: '🌍 Язык', callback_data: 'settings_language' }
+        { text: '🌍 В боте', callback_data: 'settings_language' },
+        { text: '🌍 На сайте', web_app: { url: LANGUAGE_URL } }
       ],
       [
-        { text: '🌙 Тихие часы', callback_data: 'settings_quiet_hours' }
+        { text: '🌙 Тихие часы', callback_data: 'settings_quiet_hours' },
+        { text: '🆘 Поддержка', web_app: { url: SUPPORT_URL } }
       ],
       [
         { text: '« Назад', callback_data: 'main_menu' }
@@ -167,7 +176,7 @@ export function getConfirmationKeyboard(actionData: string): InlineKeyboardMarku
 // Кнопка "Открыть в приложении"
 // =====================================================
 export function getOpenAppKeyboard(deeplink?: string): InlineKeyboardMarkup {
-  const url = deeplink ? `${MINI_APP_URL}?startapp=${deeplink}` : MINI_APP_URL;
+  const url = deeplink ? `${MINI_APP_URL}${deeplink.startsWith('/') ? '' : '/'}${deeplink}` : MINI_APP_URL;
   
   return {
     inline_keyboard: [

@@ -194,7 +194,7 @@ export const CurriculumMatrix = ({
           <Card
             key={`${topic.number}-${topic.title}`}
             className={cn(
-              "relative overflow-hidden rounded-2xl border border-border cursor-pointer",
+              "relative overflow-hidden rounded-2xl border border-border",
               "bg-card/80 dark:bg-card/90 backdrop-blur-sm transition-shadow hover:shadow-lg/60",
               "px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
             )}
@@ -214,16 +214,23 @@ export const CurriculumMatrix = ({
                   "flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between",
                   hasCover && "min-h-[120px] sm:min-h-[140px] md:min-h-[160px]"
                 )}
-                style={
-                  hasCover
-                    ? {
-                        backgroundImage: `linear-gradient(135deg, rgba(5,10,25,0.92) 0%, rgba(6,11,18,0.78) 55%, rgba(10,14,25,0.88) 100%), url(${topic.cover_image})`,
+              >
+                {hasCover && (
+                  <div className="absolute inset-0 rounded-xl overflow-hidden">
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundImage: `url(${topic.cover_image})`,
                         backgroundSize: "cover",
                         backgroundPosition: "center",
-                      }
-                    : undefined
-                }
-              >
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent dark:from-black/60 dark:via-black/30 dark:to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/50 to-white/20 dark:from-black/85 dark:via-black/60 dark:to-black/30" />
+                  </div>
+                )}
+
                 {!hasCover && (
                   <div className="absolute inset-0 rounded-xl opacity-40 pointer-events-none">
                     <div
@@ -245,7 +252,7 @@ export const CurriculumMatrix = ({
                           ? "bg-slate-600 dark:bg-slate-500 text-white ring-2 ring-slate-300 dark:ring-slate-700"
                           : `${palette.badgeBg} ${palette.badgeText}`,
                         !topic.topicId && "bg-muted text-muted-foreground",
-                        hasCover && "ring-2 ring-white/60 bg-white/90 text-slate-800"
+                        hasCover && "ring-2 ring-white/60 dark:ring-black/60 bg-white/90 dark:bg-black/90 backdrop-blur-sm"
                       )}
                     >
                       {topic.number}
@@ -255,7 +262,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-medium",
                           hasCover
-                            ? "text-slate-100/80 drop-shadow-[0_2px_4px_rgba(0,0,0,0.55)]"
+                            ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] md:drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
                             : "text-muted-foreground"
                         )}
                       >
@@ -265,7 +272,7 @@ export const CurriculumMatrix = ({
                         className={cn(
                           "text-sm sm:text-base md:text-lg font-bold tracking-tight break-words",
                           hasCover
-                            ? "text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.65)]"
+                            ? "text-slate-900 dark:text-slate-50 drop-shadow-[0_3px_6px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_3px_6px_rgba(0,0,0,0.95)] md:drop-shadow-[0_2px_4px_rgba(255,255,255,0.9)] dark:md:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
                             : "text-foreground"
                         )}
                       >
@@ -278,7 +285,7 @@ export const CurriculumMatrix = ({
                       className={cn(
                         "text-xs sm:text-sm max-w-2xl font-medium break-words",
                         hasCover
-                          ? "text-slate-100/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.65)]"
+                          ? "text-slate-800 dark:text-slate-200 drop-shadow-[0_2px_4px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] md:drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
                           : "text-muted-foreground"
                       )}
                     >
@@ -287,7 +294,7 @@ export const CurriculumMatrix = ({
                   )}
                 </div>
 
-                <div className="relative z-10 flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto pr-10">
+                <div className="relative z-10 flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
                   <div className={cn(
                     "flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl px-2 py-1.5 sm:px-2.5 sm:py-2 shadow-md transition-all w-full sm:w-auto",
                     hasCover
@@ -346,25 +353,25 @@ export const CurriculumMatrix = ({
                     </Button>
                   )}
                 </div>
-
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className={cn(
-                    "absolute bottom-3 right-3 z-20 flex items-center justify-center rounded-full shadow-lg backdrop-blur-sm transition-transform duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    hasCover
-                      ? "bg-black/55 text-white"
-                      : "bg-background/80 text-foreground border border-border/60",
-                    isExpanded ? "rotate-0" : "-rotate-90"
+                    "rounded-full border border-border/50 bg-background/70 dark:bg-background/40 backdrop-blur-sm",
+                    "w-9 h-9 sm:w-10 sm:h-10"
                   )}
-                  aria-expanded={isExpanded}
                   aria-label={isExpanded ? "Collapse module" : "Expand module"}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggleTopic(topicKey);
-                  }}
+                  aria-expanded={isExpanded}
+                  onClick={() => toggleTopic(topicKey)}
                 >
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                  <ChevronDown
+                    className={cn(
+                      "w-4 h-4 transition-transform duration-200",
+                      !isExpanded && "-rotate-90",
+                      isExpanded && "rotate-0"
+                    )}
+                  />
+                </Button>
               </header>
 
               {isExpanded && (
@@ -372,36 +379,18 @@ export const CurriculumMatrix = ({
                   {topic.sections.map((section) => (
                     <section
                       key={section.title}
-                      className={cn(
-                        "rounded-lg sm:rounded-xl border border-border bg-muted/30 p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3",
-                        hasCover && "bg-black/30 border-white/10 text-white/90"
-                      )}
+                      className="rounded-lg sm:rounded-xl border border-border bg-muted/30 p-2.5 sm:p-3 md:p-4 space-y-2 sm:space-y-3"
                     >
                       <div className="flex items-center justify-between flex-wrap gap-2 sm:gap-3">
                         <div className="flex-1 min-w-0">
-                          <p
-                            className={cn(
-                              "text-[10px] sm:text-[11px] uppercase tracking-[0.2em]",
-                              hasCover ? "text-white/60" : "text-muted-foreground"
-                            )}
-                          >
+                          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                             {t("block")}
                           </p>
-                          <h3
-                            className={cn(
-                              "text-xs sm:text-sm font-semibold break-words",
-                              hasCover ? "text-white" : "text-foreground"
-                            )}
-                          >
+                          <h3 className="text-xs sm:text-sm font-semibold text-foreground break-words">
                             {section.title}
                           </h3>
                         </div>
-                        <span
-                          className={cn(
-                            "text-[10px] sm:text-[11px] flex-shrink-0",
-                            hasCover ? "text-white/70" : "text-muted-foreground"
-                          )}
-                        >
+                        <span className="text-[10px] sm:text-[11px] text-muted-foreground flex-shrink-0">
                           {section.items.length}
                         </span>
                       </div>
@@ -450,7 +439,7 @@ export const CurriculumMatrix = ({
                                 <div
                                   className={cn(
                                     "flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] uppercase tracking-wide flex-1 min-w-0",
-                                    hasCover ? "text-white/70" : "text-muted-foreground"
+                                    "text-muted-foreground"
                                   )}
                                 >
                                   {item.code && <span className="truncate">{item.code}</span>}
@@ -459,12 +448,7 @@ export const CurriculumMatrix = ({
                                 </div>
                                 <Icon className="w-3 h-3 flex-shrink-0" />
                               </div>
-                              <p
-                                className={cn(
-                                  "text-xs sm:text-sm font-medium leading-snug break-words",
-                                  hasCover ? "text-white" : "text-foreground"
-                                )}
-                              >
+                              <p className="text-xs sm:text-sm font-medium leading-snug text-foreground break-words">
                                 {item.title}
                               </p>
                             </button>

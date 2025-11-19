@@ -51,8 +51,7 @@ export function UnifiedModal({
             "inset-x-0 bottom-0",
             // Скругление сверху
             "rounded-t-[20px] sm:rounded-t-[24px]",
-              // Высота и максимальная высота
-              sizeConfig.height || "h-[90vh]",
+              // Максимальная высота
               sizeConfig.maxHeight || "max-h-[90vh]",
               // Padding
               "p-4 sm:p-6",
@@ -103,9 +102,8 @@ export function UnifiedModal({
             "translate-x-[-50%] translate-y-[-50%]",
             // Максимальная ширина
             sizeConfig.maxWidth || "max-w-lg",
-            // Высота
-            sizeConfig.height || "h-[85vh]",
-            sizeConfig.maxHeight || "max-h-[85vh]",
+            // Максимальная высота
+            sizeConfig.maxHeight || "max-h-[88vh]",
             // Скругление
             "rounded-lg",
             // Анимации

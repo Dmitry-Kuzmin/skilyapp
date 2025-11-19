@@ -19,6 +19,7 @@ const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const QUIET_HOURS_URL = Deno.env.get('QUIET_HOURS_URL') || 'https://skilyapp.com/settings/quiet-hours';
 
 console.log('[Telegram Bot] Starting webhook handler...');
 
@@ -84,7 +85,13 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
 
   // Обработка команд
   if (text.startsWith('/')) {
-    const command = text.split(' ')[0].toLowerCase().replace(/^\//, '');
+    const [rawCommand, rawParam] = text.split(' ');
+    const command = rawCommand.toLowerCase().replace(/^\//, '');
+
+    if (command === 'start' && rawParam?.startsWith('link_')) {
+      await handleLinkToken(rawParam, user, message, supabase);
+      return;
+    }
     
     switch (command) {
       case 'start':
@@ -118,6 +125,43 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
       chat_id: message.chat.id,
       text: 'Используй команды или кнопки меню для навигации. Напиши /help для справки.',
       reply_markup: keyboards.getMainMenuKeyboard()
+    });
+  }
+}
+
+async function handleLinkToken(param: string, user: any, message: any, supabase: any) {
+  const tokenString = param.replace('link_', '').trim();
+  if (!tokenString) {
+    await commands.sendMessage({
+      chat_id: message.chat.id,
+      text: '⚠️ Неверный токен привязки. Попробуйте сгенерировать новый в приложении.',
+    });
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('link_telegram_user', {
+      p_token: tokenString,
+      p_telegram_id: user.id,
+      p_username: user.username || user.first_name || null,
+    });
+
+    if (error) {
+      console.error('[Telegram Bot] Link RPC error:', error);
+      throw error;
+    }
+
+    console.log('[Telegram Bot] Link result:', data);
+    await commands.sendMessage({
+      chat_id: message.chat.id,
+      text: '✅ Аккаунт успешно связан! Теперь я смогу помогать прямо здесь.',
+      reply_markup: keyboards.getMainMenuKeyboard(),
+    });
+  } catch (err) {
+    console.error('[Telegram Bot] Failed to link token:', err);
+    await commands.sendMessage({
+      chat_id: message.chat.id,
+      text: '❌ Не удалось привязать аккаунт. Попробуйте снова или сгенерируйте новый токен.',
     });
   }
 }
@@ -180,6 +224,9 @@ async function handleCallbackQuery(query: TelegramCallbackQuery, supabase: any):
     }
     else if (data === 'settings_language') {
       await showLanguageSettings(message.chat.id, message.message_id, user.id, supabase);
+    }
+    else if (data === 'settings_quiet_hours') {
+      await showQuietHoursInfo(message.chat.id, message.message_id);
     }
     else if (data === 'toggle_notifications') {
       await toggleNotifications(message.chat.id, message.message_id, user.id, supabase);
@@ -470,6 +517,24 @@ async function setLanguage(
     message_id: messageId,
     text: `✅ Язык изменён на ${langNames[lang] || lang}`,
     reply_markup: keyboards.getBackToMenuKeyboard()
+  });
+}
+
+async function showQuietHoursInfo(chatId: number, messageId: number): Promise<void> {
+  await editMessage({
+    chat_id: chatId,
+    message_id: messageId,
+    text: '🌙 Тихие часы можно настроить в приложении. Мы уже открыли раздел «Настройки → Тихие часы».',
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: 'Открыть настройки', web_app: { url: QUIET_HOURS_URL } }
+        ],
+        [
+          { text: '« Назад', callback_data: 'settings' }
+        ]
+      ]
+    }
   });
 }
 

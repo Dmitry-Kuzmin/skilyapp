@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Progress } from '@/components/ui/progress';
 import { AIWidget } from '@/components/AIWidget';
 import { toast } from 'sonner';
+import { dispatchUserEvent } from '@/lib/notification-events';
 
 interface DuelResultProps {
   duelId: string;
@@ -28,6 +29,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
   const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
   const rewardsAppliedRef = useRef(false); // Защита от двойного начисления
+  const notificationSentRef = useRef(false);
 
   useEffect(() => {
     loadResults();
@@ -97,6 +99,27 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       
       applyRewards();
     }
+  }, [results, profileId, duelId]);
+
+  useEffect(() => {
+    if (!results || !profileId || notificationSentRef.current) return;
+    if (results.isDraw) return; // пока не отправляем уведомления о ничьей
+
+    notificationSentRef.current = true;
+
+    const eventType = results.isWinner ? 'duel_finished_win' : 'duel_finished_lose';
+    const payload = {
+      duel_id: duelId,
+      your_score: results.myScore,
+      opponent_score: results.opponentScore,
+      opponent_name: results.opponentName,
+      bet_amount: results.betAmount || 0,
+      personalized_comment: results.isWinner
+        ? 'Продолжай в том же духе — серия побед ждёт!'
+        : 'Возьми реванш, я подготовлю нового соперника.',
+    };
+
+    dispatchUserEvent(profileId, eventType, payload);
   }, [results, profileId, duelId]);
 
   useEffect(() => {

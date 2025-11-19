@@ -56,8 +56,7 @@ const DialogContent = React.forwardRef<
             "inset-x-0 bottom-0",
             // Скругление сверху
             "rounded-t-[20px]",
-            // Высота и максимальная высота
-            sizeConfig.height || "h-[90vh]",
+            // Максимальная высота
             sizeConfig.maxHeight || "max-h-[90vh]",
             // Padding
             "p-4",
@@ -104,9 +103,8 @@ const DialogContent = React.forwardRef<
           "translate-x-[-50%] translate-y-[-50%]",
           // Максимальная ширина
           sizeConfig.maxWidth || "max-w-lg",
-          // Высота
-          sizeConfig.height || "h-[85vh]",
-          sizeConfig.maxHeight || "max-h-[85vh]",
+          // Максимальная высота
+          sizeConfig.maxHeight || "max-h-[88vh]",
           // Скругление
           "rounded-lg",
           // Анимации

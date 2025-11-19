@@ -87,11 +87,36 @@ export default {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        "premium-glow": {
+          "0%, 100%": { 
+            boxShadow: "0 0 20px rgba(234, 179, 8, 0.4), 0 0 40px rgba(249, 115, 22, 0.2), 0 0 0 3px rgba(234, 179, 8, 0.5)" 
+          },
+          "50%": { 
+            boxShadow: "0 0 30px rgba(234, 179, 8, 0.6), 0 0 60px rgba(249, 115, 22, 0.4), 0 0 0 4px rgba(234, 179, 8, 0.7)" 
+          },
+        },
+        "premium-rotate": {
+          "0%": { 
+            transform: "rotate(0deg)",
+            backgroundPosition: "0% 50%"
+          },
+          "100%": { 
+            transform: "rotate(360deg)",
+            backgroundPosition: "200% 50%"
+          },
+        },
+        "crown-bounce": {
+          "0%, 100%": { transform: "translateY(0) scale(1)" },
+          "50%": { transform: "translateY(-2px) scale(1.05)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         shimmer: "shimmer 2s infinite",
+        "premium-glow": "premium-glow 3s ease-in-out infinite",
+        "premium-rotate": "premium-rotate 8s linear infinite",
+        "crown-bounce": "crown-bounce 2s ease-in-out infinite",
       },
     },
   },

@@ -178,12 +178,16 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         ) : duelPassData ? (
           <button
             onClick={() => {
-              const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-              if (!hasSeenOnboarding) {
-                setOnboardingOpen(true);
-              } else {
-                setDuelPassModalOpen(true);
-              }
+              // ВРЕМЕННО: Всегда показываем onboarding для тестирования
+              console.log('[WalletWidget] Opening onboarding (mobile), current state:', onboardingOpen);
+              setOnboardingOpen(true);
+              console.log('[WalletWidget] Set onboardingOpen to true (mobile)');
+              // const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
+              // if (!hasSeenOnboarding) {
+              //   setOnboardingOpen(true);
+              // } else {
+              //   setDuelPassModalOpen(true);
+              // }
             }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}
@@ -215,12 +219,16 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         {!isLoading && duelPassData && (
           <button
             onClick={() => {
-              const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
-              if (!hasSeenOnboarding) {
-                setOnboardingOpen(true);
-              } else {
-                setDuelPassModalOpen(true);
-              }
+              // ВРЕМЕННО: Всегда показываем onboarding для тестирования
+              console.log('[WalletWidget] Opening onboarding (desktop), current state:', onboardingOpen);
+              setOnboardingOpen(true);
+              console.log('[WalletWidget] Set onboardingOpen to true (desktop)');
+              // const hasSeenOnboarding = localStorage.getItem('duel-pass-onboarding-seen');
+              // if (!hasSeenOnboarding) {
+              //   setOnboardingOpen(true);
+              // } else {
+              //   setDuelPassModalOpen(true);
+              // }
             }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}

@@ -79,12 +79,12 @@ export function MyModal({ open, onOpenChange }: MyModalProps) {
 // В modal-config.ts определены размеры для каждого типа:
 types: {
   shop: {
-    desktop: { maxWidth: 'max-w-lg', height: 'h-[85vh]' },
-    mobile: { height: 'h-[90vh]' },
+    desktop: { maxWidth: 'max-w-lg', maxHeight: 'max-h-[80vh]' },
+    mobile: { maxHeight: 'max-h-[85vh]' },
   },
   duelPass: {
-    desktop: { maxWidth: 'max-w-4xl', height: 'h-[85vh]' },
-    mobile: { height: 'h-[90vh]' },
+    desktop: { maxWidth: 'max-w-5xl', maxHeight: 'max-h-[88vh]' },
+    mobile: { maxHeight: 'max-h-[90vh]' },
   },
   // ... и т.д.
 }
@@ -174,7 +174,7 @@ const ModalContent = () => {
 ### ✅ ОБЯЗАТЕЛЬНО:
 
 1. **Всегда используйте `ModalContent` функцию** для условного рендеринга skeleton
-2. **Фиксированная высота**: используйте `getDialogContentClasses()` или `getSheetContentClasses()`
+2. **Адаптивная высота**: используйте `getDialogContentClasses()` или `getSheetContentClasses()` — они добавят `max-h` и позволят контенту занимать столько места, сколько нужно
 3. **Scrollable контейнер**: оборачивайте контент в `<div className="flex-1 overflow-y-auto">`
 4. **Header с shrink-0**: если есть header, добавьте `shrink-0` чтобы он не сжимался
 5. **Проверка loading**: skeleton показывается только при `loading === true`
@@ -182,7 +182,7 @@ const ModalContent = () => {
 ### ❌ НЕ ДЕЛАЙТЕ:
 
 1. ❌ Не используйте ранний `return` при loading - это изменит размер модалки
-2. ❌ Не используйте `max-h-[90vh] overflow-y-auto` на DialogContent - используйте фиксированную высоту
+2. ❌ Не задавайте `h-[...vh]` на DialogContent — только `max-h` с внутренним скроллом
 3. ❌ Не показывайте спиннер вместо skeleton - skeleton лучше для UX
 4. ❌ Не забывайте про `isMobile` для правильных размеров
 
@@ -196,8 +196,8 @@ const ModalContent = () => {
 ```typescript
 types: {
   myNewType: {
-    desktop: { maxWidth: 'max-w-2xl', height: 'h-[85vh]' },
-    mobile: { height: 'h-[90vh]' },
+    desktop: { maxWidth: 'max-w-2xl', maxHeight: 'max-h-[88vh]' },
+    mobile: { maxHeight: 'max-h-[90vh]' },
   },
 }
 ```
@@ -222,10 +222,10 @@ const variants = {
 
 ## 📱 Mobile и Telegram
 
-Система автоматически определяет мобильное устройство через `useIsMobile()` и применяет соответствующие размеры:
+Система автоматически определяет мобильное устройство через `useIsMobile()` и применяет соответствующие ограничения:
 
-- **Desktop**: `h-[85vh] max-h-[85vh]`
-- **Mobile/Telegram**: `h-[90vh] max-h-[90vh]`
+- **Desktop**: `max-h-[88-90vh]` (в зависимости от типа)
+- **Mobile/Telegram**: `max-h-[90-92vh]`
 
 ## 🎯 Примеры в коде
 

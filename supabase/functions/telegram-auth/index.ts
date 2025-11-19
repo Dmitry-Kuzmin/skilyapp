@@ -100,6 +100,30 @@ serve(async (req) => {
       hasReferralCode: !!profile.referral_code
     });
     
+    // Log link history once
+    try {
+      const { data: existingLink } = await supabase
+        .from('telegram_link_history')
+        .select('id')
+        .eq('profile_id', profile.id)
+        .eq('action', 'linked')
+        .limit(1);
+
+      if (!existingLink || existingLink.length === 0) {
+        await supabase.from('telegram_link_history').insert({
+          profile_id: profile.id,
+          telegram_id: user.id,
+          action: 'linked',
+          metadata: {
+            source: platform,
+            username: user.username || null,
+          },
+        });
+      }
+    } catch (historyError) {
+      console.warn('[Telegram Auth] Failed to record link history:', historyError);
+    }
+
     // Assign trial period if not set
     if (!profile.trial_until) {
       const trialEnds = new Date();

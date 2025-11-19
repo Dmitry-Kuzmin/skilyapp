@@ -63,6 +63,9 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const [editedName, setEditedName] = useState('');
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'telegram' | 'email' | null>(null);
+  const [telegramLinkToken, setTelegramLinkToken] = useState<string | null>(null);
+  const [generatingToken, setGeneratingToken] = useState(false);
+  const telegramBotUsername = 'sdadimtutbot';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const isMiniApp = isTelegramMiniApp();
@@ -288,6 +291,54 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     }
   };
 
+  const getTelegramDeepLink = (token?: string | null) => {
+    if (token) {
+      return `https://t.me/${telegramBotUsername}?start=link_${token}`;
+    }
+    return `https://t.me/${telegramBotUsername}`;
+  };
+
+  const generateTelegramLinkToken = async () => {
+    if (!supabaseUser) {
+      toast.error('Необходима авторизация');
+      return;
+    }
+
+    try {
+      setGeneratingToken(true);
+      const { data, error } = await supabase.rpc('create_telegram_link_token');
+
+      if (error) throw error;
+
+      if (data) {
+        setTelegramLinkToken(data);
+        toast.success('Открой Telegram — бот уже ждёт тебя');
+        window.open(getTelegramDeepLink(data), '_blank');
+      }
+    } catch (error: any) {
+      console.error('Failed to generate link token:', error);
+      toast.error(error.message || 'Не удалось создать токен');
+    } finally {
+      setGeneratingToken(false);
+    }
+  };
+
+  const openTelegramBot = () => {
+    window.open(getTelegramDeepLink(telegramLinkToken), '_blank');
+  };
+
+  const copyTelegramLink = () => {
+    if (!telegramLinkToken) return;
+    
+    const linkText = `/start link_${telegramLinkToken}`;
+    
+    navigator.clipboard.writeText(linkText).then(() => {
+      toast.success('Команда скопирована! Отправь её боту @sdadimtutbot');
+    }).catch(() => {
+      toast.error('Не удалось скопировать');
+    });
+  };
+
   const handleSaveName = async () => {
     if (!profileId || !editedName.trim()) {
       setIsEditingName(false);
@@ -338,20 +389,23 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     }
   };
 
-  const handleLinkTelegram = () => {
-    setAuthMode('telegram');
-    setAuthModalOpen(true);
+  // Check account connections
+  const hasTelegram = !!profile?.telegram_id || !!user; // Привязан через бота или Mini App
+  const hasEmail = !!supabaseUser?.email;
+  const hasGoogle = supabaseUser?.identities?.some((id: any) => id.provider === 'google') || false;
+
+  const handleLinkTelegram = async () => {
+    // Если уже привязан через Mini App, ничего не делаем
+    if (hasTelegram) return;
+    
+    // Генерируем токен для привязки через бота
+    await generateTelegramLinkToken();
   };
 
   const handleLinkEmail = () => {
     setAuthMode('email');
     setAuthModalOpen(true);
   };
-
-  // Check account connections
-  const hasTelegram = !!user;
-  const hasEmail = !!supabaseUser?.email;
-  const hasGoogle = supabaseUser?.identities?.some((id: any) => id.provider === 'google') || false;
 
   const calculateProgress = () => {
     if (nextLevelXp === 0) return 0;
@@ -423,10 +477,16 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg font-bold truncate">
                 {profile?.first_name || ''} {profile?.last_name || ''}
               </h2>
+              {subscription && subscription !== 'free' && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200 text-xs font-semibold px-2 py-0.5">
+                  <Crown className="w-3 h-3" />
+                  {t('profileMenu.proBadge')}
+                </span>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -579,34 +639,87 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         <h3 className="text-sm font-semibold">{t('profileMenu.connectedAccounts')}</h3>
         <div className="space-y-2">
           {/* Telegram */}
-          <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <svg className="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.169 1.858-.896 6.728-.896 6.728-.517 2.506-2.028 2.95-3.931 1.806l-1.09-.5-1.09-.5c-1.903 1.144-3.414.7-3.931-1.806 0 0-.727-4.87-.896-6.728-.169-1.858.896-2.95 2.028-2.95h7.868c1.132 0 2.197 1.092 2.028 2.95z"/>
-                </svg>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <svg className="h-5 w-5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.169 1.858-.896 6.728-.896 6.728-.517 2.506-2.028 2.95-3.931 1.806l-1.09-.5-1.09-.5c-1.903 1.144-3.414.7-3.931-1.806 0 0-.727-4.87-.896-6.728-.169-1.858.896-2.95 2.028-2.95h7.868c1.132 0 2.197 1.092 2.028 2.95z"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">Telegram</div>
+                  {hasTelegram ? (
+                    <div className="text-xs text-muted-foreground">
+                      {t('profileMenu.connected')} — если открываешь нас через Mini App, привязка происходит автоматически.
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground">
+                      {t('profileMenu.notConnected')}. Одним кликом отправим ссылку боту.
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <div className="text-sm font-medium">Telegram</div>
-                {hasTelegram ? (
-                  <div className="text-xs text-muted-foreground">{t('profileMenu.connected')}</div>
-                ) : (
-                  <div className="text-xs text-muted-foreground">{t('profileMenu.notConnected')}</div>
-                )}
-              </div>
+              {hasTelegram ? (
+                <Check className="h-5 w-5 text-green-500" />
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  onClick={handleLinkTelegram}
+                  disabled={generatingToken}
+                >
+                  <LinkIcon className="h-4 w-4 mr-1" />
+                  {generatingToken ? '...' : t('profileMenu.connect')}
+                </Button>
+              )}
             </div>
-            {hasTelegram ? (
-              <Check className="h-5 w-5 text-green-500" />
-            ) : (
-                  <Button
-                variant="outline"
-                    size="sm"
-                className="h-8"
-                onClick={handleLinkTelegram}
-                  >
-                <LinkIcon className="h-4 w-4 mr-1" />
-                {t('profileMenu.connect')}
-                  </Button>
+            
+            {/* Показываем токен, если он сгенерирован */}
+            {telegramLinkToken && !hasTelegram && (
+              <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
+                <div className="text-xs text-muted-foreground">
+                  Мы уже открыли Telegram в новой вкладке. Если не открылось — нажми «Открыть бота» или пришли команду вручную:
+                </div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 px-2 py-1.5 text-xs bg-background rounded border font-mono break-all">
+                      /start link_{telegramLinkToken}
+                    </code>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 shrink-0"
+                      onClick={copyTelegramLink}
+                    >
+                      <Check className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="h-8 flex-1"
+                      onClick={openTelegramBot}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Открыть бота
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => setTelegramLinkToken(null)}
+                    >
+                      Скрыть
+                    </Button>
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Токен действителен 10 минут. Если не успел — создавай новый.
+                </div>
+              </div>
             )}
           </div>
 

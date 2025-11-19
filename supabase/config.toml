@@ -24,6 +24,9 @@ verify_jwt = false
 [functions.notification-cron]
 verify_jwt = false
 
+[functions.user-event-dispatcher]
+verify_jwt = false
+
 [functions.telegram-stars-payment]
 verify_jwt = false
 

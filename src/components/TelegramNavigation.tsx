@@ -79,7 +79,7 @@ export const TelegramNavigation = () => {
 
     const isMainScreen = location.pathname === "/";
     const isDuelPage = location.pathname.includes('/duel') || location.pathname.includes('/games/duel');
-    
+
     // В дуэли BackButton всегда должен быть виден и работать
     if (isMainScreen) {
       webApp.BackButton.hide();

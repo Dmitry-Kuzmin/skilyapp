@@ -82,7 +82,7 @@ export const LumiMobileSheet = ({
           transition: isDragging ? 'none' : 'transform 0.3s ease-out'
         }}
       >
-        <div className="bg-background rounded-t-3xl shadow-2xl h-[80vh] flex flex-col">
+        <div className="bg-background rounded-t-3xl shadow-2xl max-h-[80vh] flex flex-col overflow-hidden">
           {/* Handle bar для swipe */}
           <div
             className="flex items-center justify-center py-3 cursor-grab active:cursor-grabbing"

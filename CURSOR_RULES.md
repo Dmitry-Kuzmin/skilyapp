@@ -272,10 +272,10 @@ export function MyModal({ open, onOpenChange }: MyModalProps) {
 
 3. **Правила**:
    - ✅ ВСЕГДА используйте `ModalContent` функцию для условного рендеринга skeleton
-   - ✅ ВСЕГДА используйте `getDialogContentClasses()` или `getSheetContentClasses()` для фиксированной высоты
+   - ✅ ВСЕГДА используйте `getDialogContentClasses()` или `getSheetContentClasses()` для адаптивной высоты (`max-h`)
    - ✅ ВСЕГДА оборачивайте контент в `<div className="flex-1 overflow-y-auto">`
    - ✅ НИКОГДА не используйте ранний `return` при loading - это изменит размер модалки
-   - ✅ НИКОГДА не используйте `max-h-[90vh] overflow-y-auto` на DialogContent - используйте фиксированную высоту
+   - ✅ НИКОГДА не задавайте `h-[...vh]` на DialogContent — только `max-h` и внутренний скролл
 
 4. **Варианты skeleton**:
    - `default` - базовый skeleton
