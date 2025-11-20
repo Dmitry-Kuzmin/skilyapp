@@ -495,168 +495,269 @@ const DuelPassLeaderboard = () => {
                     transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 12 }}
                     className="order-1 md:order-2 -mt-6 md:-mt-12 lg:-mt-16"
                   >
-                <Card className="p-4 sm:p-5 md:p-8 space-y-3 sm:space-y-4 md:space-y-5 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 shadow-2xl shadow-yellow-500/20 h-full">
-                  {/* Анимированный фон */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-amber-400/20 to-yellow-500/20"
-                    animate={{
-                      opacity: [0.3, 0.5, 0.3],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-yellow-400/20 to-transparent rounded-full -mr-24 -mt-24 blur-2xl" />
-                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full -ml-20 -mb-20 blur-2xl" />
-                  
-                  <div className="flex items-center justify-center relative z-10">
-                    <div className="relative">
+                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/90 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 border-2 border-yellow-400/60 dark:border-yellow-500/40 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
+                      {/* Золотой градиентный фон */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 via-amber-400/20 to-yellow-500/30" />
+                      
+                      {/* Анимированное свечение */}
                       <motion.div
-                        className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-20"
+                        className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 via-amber-400/30 to-yellow-500/40"
                         animate={{
-                          y: [0, -5, 0],
+                          opacity: [0.4, 0.6, 0.4],
                         }}
                         transition={{
-                          duration: 2,
+                          duration: 3,
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                      >
-                        <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500 fill-yellow-500 drop-shadow-lg" />
-                      </motion.div>
+                      />
+                      
+                      {/* Блестящий эффект */}
                       <motion.div
-                        className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center font-black text-base sm:text-lg shadow-xl z-20"
-                        whileHover={{ scale: 1.15, rotate: 15 }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
                         animate={{
-                          boxShadow: [
-                            "0 0 20px rgba(234, 179, 8, 0.5)",
-                            "0 0 30px rgba(234, 179, 8, 0.7)",
-                            "0 0 20px rgba(234, 179, 8, 0.5)",
-                          ],
+                          x: ["-100%", "200%"],
                         }}
                         transition={{
-                          duration: 2,
+                          duration: 2.5,
                           repeat: Infinity,
+                          repeatDelay: 1.5,
                           ease: "easeInOut",
                         }}
-                      >
-                        1
-                      </motion.div>
-                      <div className="relative">
-                        <RankFrame rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType} />
+                      />
+                      
+                      {/* Частицы золота */}
+                      <div className="absolute inset-0 overflow-hidden">
+                        {[...Array(6)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 bg-yellow-400 rounded-full"
+                            style={{
+                              left: `${20 + i * 15}%`,
+                              top: `${10 + i * 12}%`,
+                            }}
+                            animate={{
+                              y: [0, -20, 0],
+                              opacity: [0.3, 0.8, 0.3],
+                              scale: [1, 1.5, 1],
+                            }}
+                            transition={{
+                              duration: 2 + i * 0.3,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Корона */}
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
                         <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ type: "spring", stiffness: 300 }}
+                          animate={{
+                            y: [0, -8, 0],
+                            rotate: [0, 5, -5, 0],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
                         >
-                          <Avatar className="w-18 h-18 sm:w-20 sm:h-20 md:w-32 md:h-32 border-2 sm:border-4 border-yellow-400 shadow-2xl ring-2 sm:ring-4 ring-yellow-300/30">
-                            <AvatarImage
-                              src={filteredLeaders[0]?.profile?.photo_url || filteredLeaders[0]?.profile?.avatar_url}
-                              alt={filteredLeaders[0]?.profile?.first_name || "Игрок"}
-                            />
-                            <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-bold text-2xl md:text-3xl">
-                              {(filteredLeaders[0]?.profile?.first_name || "И")[0]}
-                            </AvatarFallback>
-                          </Avatar>
+                          <Crown className="w-12 h-12 md:w-16 md:h-16 text-yellow-500 fill-yellow-500 drop-shadow-2xl filter" />
                         </motion.div>
                       </div>
-                    </div>
-                  </div>
-                  <div className="text-center space-y-3 relative z-10">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <h3 className="font-black text-base sm:text-lg md:text-xl text-foreground truncate cursor-help px-2">
-                            {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
-                          </h3>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="font-semibold">{filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <div className="flex flex-col items-center gap-2">
-                      <RankBadge 
-                        rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType} 
-                        size="md" 
-                        variant="pill"
-                      />
-                      <div className="flex items-center gap-2 text-sm">
-                        <Crown className="w-4 h-4 text-yellow-600" />
-                        <span className="font-bold">Уровень {filteredLeaders[0]?.duel_pass_level || 1}</span>
+
+                      {/* Номер места */}
+                      <div className="absolute top-3 right-3 z-20">
+                        <motion.div
+                          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-xl"
+                          whileHover={{ scale: 1.15, rotate: 15 }}
+                          animate={{
+                            boxShadow: [
+                              "0 0 20px rgba(234, 179, 8, 0.6)",
+                              "0 0 40px rgba(234, 179, 8, 0.8)",
+                              "0 0 20px rgba(234, 179, 8, 0.6)",
+                            ],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        >
+                          1
+                        </motion.div>
                       </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground font-semibold">
-                      {filteredLeaders[0]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP
-                    </p>
-                  </div>
-                </Card>
+
+                      <CardContent className="p-5 md:p-7 pt-12 md:pt-16 relative z-10">
+                        {/* Аватар */}
+                        <div className="flex flex-col items-center space-y-4 md:space-y-5">
+                          <div className="relative">
+                            <RankFrame rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType} />
+                            <motion.div
+                              whileHover={{ scale: 1.08 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              <Avatar className="w-24 h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/40">
+                                <AvatarImage
+                                  src={filteredLeaders[0]?.profile?.photo_url || filteredLeaders[0]?.profile?.avatar_url}
+                                  alt={filteredLeaders[0]?.profile?.first_name || "Игрок"}
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-bold text-3xl md:text-4xl">
+                                  {(filteredLeaders[0]?.profile?.first_name || "И")[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                            </motion.div>
+                            {/* Золотая аура */}
+                            <motion.div
+                              className="absolute inset-0 rounded-full bg-yellow-400/30 blur-2xl -z-10"
+                              animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.3, 0.5, 0.3],
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                              }}
+                            />
+                          </div>
+
+                          {/* Имя */}
+                          <div className="text-center space-y-2.5 w-full">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <h3 className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent truncate cursor-help px-2">
+                                    {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
+                                  </h3>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="font-semibold">{filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                            {/* Ранг */}
+                            <RankBadge 
+                              rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType} 
+                              size="md" 
+                              variant="pill"
+                            />
+
+                            {/* Статистика */}
+                            <div className="flex flex-col items-center gap-2 text-sm md:text-base">
+                              <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
+                                <Crown className="w-5 h-5" />
+                                <span className="font-bold">Уровень {filteredLeaders[0]?.duel_pass_level || 1}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs md:text-sm text-muted-foreground font-semibold">
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>{filteredLeaders[0]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
               </motion.div>
 
-              {/* 3 место */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="flex-shrink-0 w-[160px] sm:w-[200px] md:w-auto md:flex-1"
-              >
-                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 bg-gradient-to-br from-orange-50/90 via-amber-50/90 to-orange-50/90 dark:from-orange-900/30 dark:via-amber-900/30 dark:to-orange-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 h-full shadow-lg">
-                  {/* Декоративные элементы */}
-                  <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-orange-300/20 to-transparent rounded-full -mr-18 -mt-18 blur-xl" />
-                  <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-amber-200/20 to-transparent rounded-full -ml-14 -mb-14 blur-xl" />
-                  
-                  <div className="flex items-center justify-center relative z-10">
-                    <div className="relative">
+                  {/* 3 место - Бронза */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: 0.3, type: "spring", stiffness: 150, damping: 15 }}
+                    className="order-3"
+                  >
+                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-orange-50 via-amber-50/80 to-orange-50 dark:from-orange-950/40 dark:via-amber-950/40 dark:to-orange-950/40 border-2 border-orange-400/50 dark:border-orange-500/40 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                      {/* Бронзовый градиентный фон */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-300/25 via-orange-200/15 to-transparent dark:from-orange-700/25 dark:via-orange-800/15" />
+                      
+                      {/* Блестящий эффект */}
                       <motion.div
-                        className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center font-black text-sm sm:text-base shadow-lg"
-                        whileHover={{ scale: 1.1, rotate: -10 }}
-                      >
-                        3
-                      </motion.div>
-                      <div className="relative">
-                        <RankFrame rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType} />
-                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border-2 sm:border-4 border-orange-400/60 shadow-xl">
-                          <AvatarImage
-                            src={filteredLeaders[2]?.profile?.photo_url || filteredLeaders[2]?.profile?.avatar_url}
-                            alt={filteredLeaders[2]?.profile?.first_name || "Игрок"}
-                          />
-                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-lg sm:text-xl md:text-2xl">
-                            {(filteredLeaders[2]?.profile?.first_name || "И")[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-center space-y-2 sm:space-y-3 relative z-10">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate cursor-help px-2">
-                            {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}
-                          </h3>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="font-semibold">{filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <div className="flex flex-col items-center gap-1.5 sm:gap-2">
-                      <RankBadge 
-                        rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType} 
-                        size="sm" 
-                        variant="pill"
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
+                        animate={{
+                          x: ["-100%", "200%"],
+                        }}
+                        transition={{
+                          duration: 3.5,
+                          repeat: Infinity,
+                          repeatDelay: 2.5,
+                          ease: "easeInOut",
+                        }}
                       />
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                        <Award className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                        <span className="font-semibold">Уровень {filteredLeaders[2]?.duel_pass_level || 1}</span>
+                      
+                      {/* Номер места */}
+                      <div className="absolute top-3 right-3 z-20">
+                        <motion.div
+                          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg"
+                          whileHover={{ scale: 1.1, rotate: -5 }}
+                        >
+                          3
+                        </motion.div>
                       </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground font-medium">
-                      {filteredLeaders[2]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP
-                    </p>
-                  </div>
-                </Card>
+
+                      <CardContent className="p-4 md:p-6 pt-8 md:pt-10 relative z-10">
+                        {/* Аватар */}
+                        <div className="flex flex-col items-center space-y-3 md:space-y-4">
+                          <div className="relative">
+                            <RankFrame rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType} />
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              <Avatar className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 border-4 border-orange-400/60 shadow-2xl ring-2 ring-orange-300/30">
+                                <AvatarImage
+                                  src={filteredLeaders[2]?.profile?.photo_url || filteredLeaders[2]?.profile?.avatar_url}
+                                  alt={filteredLeaders[2]?.profile?.first_name || "Игрок"}
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-2xl md:text-3xl">
+                                  {(filteredLeaders[2]?.profile?.first_name || "И")[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                            </motion.div>
+                            {/* Оранжевая аура */}
+                            <div className="absolute inset-0 rounded-full bg-orange-400/20 blur-xl -z-10" />
+                          </div>
+
+                          {/* Имя */}
+                          <div className="text-center space-y-2 w-full">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground truncate cursor-help px-2">
+                                    {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}
+                                  </h3>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="font-semibold">{filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                            {/* Ранг */}
+                            <RankBadge 
+                              rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType} 
+                              size="sm" 
+                              variant="pill"
+                            />
+
+                            {/* Статистика */}
+                            <div className="flex flex-col items-center gap-1.5 text-sm">
+                              <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
+                                <Award className="w-4 h-4" />
+                                <span className="font-semibold">Уровень {filteredLeaders[2]?.duel_pass_level || 1}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <TrendingUp className="w-3 h-3" />
+                                <span>{filteredLeaders[2]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
               </motion.div>
             </div>
           )}
