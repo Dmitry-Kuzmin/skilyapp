@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface ReferralModalProps {
   open: boolean;
@@ -185,14 +186,25 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               </span>
               <Button
                 onClick={handleCopyLink}
-                variant="default"
-                size="icon"
-                className="shrink-0 bg-background text-foreground hover:bg-muted border border-border h-8 w-8"
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 px-3 rounded-full border border-border/60 bg-background/90 text-sm font-medium transition-all",
+                  copied
+                    ? "text-emerald-600 border-emerald-400/80 bg-emerald-50 dark:bg-emerald-500/10"
+                    : "text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10"
+                )}
               >
                 {copied ? (
-                  <Check className="h-4 w-4 text-green-600" />
+                  <>
+                    <Check className="h-4 w-4" />
+                    <span className="text-xs font-semibold tracking-wide uppercase">Скопировано</span>
+                  </>
                 ) : (
-                  <Copy className="h-4 w-4" />
+                  <>
+                    <Copy className="h-4 w-4" />
+                    <span className="text-xs font-semibold tracking-wide uppercase">Скопировать</span>
+                  </>
                 )}
               </Button>
             </div>

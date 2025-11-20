@@ -200,10 +200,17 @@ const Layout = ({ children }: LayoutProps) => {
                     <AchievementsWidget />
                   </div>
                   <Button
+                    type="button"
                     variant="ghost"
                     size="icon"
+                    aria-pressed={referralModalOpen}
                     onClick={() => setReferralModalOpen(true)}
-                    className="relative hidden sm:flex flex-shrink-0 -mr-1"
+                    className={cn(
+                      "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-full transition-all",
+                      referralModalOpen
+                        ? "bg-primary/15 text-primary border border-primary/40 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
+                        : "text-muted-foreground hover:text-primary border border-border/60 hover:border-primary/40 hover:bg-primary/10"
+                    )}
                     title="Реферальная программа"
                   >
                     <svg
