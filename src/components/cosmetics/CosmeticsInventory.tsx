@@ -117,31 +117,53 @@ export function CosmeticsInventory() {
       if (skinsResult.status === 'fulfilled' && skinsResult.value.data) {
         // Преобразуем данные из RPC в формат компонента
         // skin_definitions приходит как JSONB объект, нужно его распарсить
-        const transformedSkins = skinsResult.value.data.map((item: any) => ({
-          id: item.id,
-          skin_id: item.skin_id,
-          is_active: item.is_active,
-          obtained_at: item.obtained_at,
-          skin_definitions: typeof item.skin_definitions === 'object' 
-            ? item.skin_definitions 
-            : (typeof item.skin_definitions === 'string' 
-                ? JSON.parse(item.skin_definitions) 
-                : item.skin_definitions)
-        }));
+        const transformedSkins = skinsResult.value.data
+          .filter((item: any) => item.skin_definitions) // Фильтруем скины без определений
+          .map((item: any) => ({
+            id: item.id,
+            skin_id: item.skin_id,
+            is_active: item.is_active,
+            obtained_at: item.obtained_at,
+            skin_definitions: typeof item.skin_definitions === 'object' 
+              ? item.skin_definitions 
+              : (typeof item.skin_definitions === 'string' 
+                  ? JSON.parse(item.skin_definitions) 
+                  : item.skin_definitions)
+          }));
         setSkins(transformedSkins);
         console.log('[CosmeticsInventory] ✅ Загружено скинов через RPC:', transformedSkins.length, transformedSkins);
+        
+        // Если есть скины без определений, логируем для отладки
+        const skinsWithoutDefinitions = skinsResult.value.data.filter((item: any) => !item.skin_definitions);
+        if (skinsWithoutDefinitions.length > 0) {
+          console.warn('[CosmeticsInventory] ⚠️ Найдены скины без определений:', skinsWithoutDefinitions.map((s: any) => s.skin_id));
+        }
       } else if (skinsResult.status === 'rejected' || (skinsResult.value && skinsResult.value.error)) {
         // Fallback на прямой запрос
         const error = skinsResult.status === 'rejected' ? skinsResult.reason : skinsResult.value.error;
         console.warn('[CosmeticsInventory] RPC для скинов не работает, используем fallback:', error);
-        const { data: fallbackSkins } = await supabase
+        const { data: fallbackSkins, error: fallbackError } = await supabase
           .from("user_skins")
           .select("*, skin_definitions(*)")
           .eq("user_id", profileId)
           .order("obtained_at", { ascending: false });
+        
+        if (fallbackError) {
+          console.error('[CosmeticsInventory] Ошибка fallback запроса:', fallbackError);
+        }
+        
         if (fallbackSkins) {
-          setSkins(fallbackSkins);
-          console.log('[CosmeticsInventory] Загружено скинов через fallback:', fallbackSkins.length);
+          // Фильтруем скины без определений
+          const validSkins = fallbackSkins.filter((skin: any) => skin.skin_definitions);
+          setSkins(validSkins);
+          console.log('[CosmeticsInventory] Загружено скинов через fallback:', validSkins.length);
+          
+          // Логируем скины без определений
+          const invalidSkins = fallbackSkins.filter((skin: any) => !skin.skin_definitions);
+          if (invalidSkins.length > 0) {
+            console.warn('[CosmeticsInventory] ⚠️ Скины без определений (возможно, не существуют в skin_definitions):', 
+              invalidSkins.map((s: any) => s.skin_id));
+          }
         }
       }
 
