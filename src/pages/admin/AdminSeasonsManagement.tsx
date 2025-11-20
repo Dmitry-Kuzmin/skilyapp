@@ -19,6 +19,16 @@ import {
   Plus,
   RefreshCw,
   ExternalLink,
+  Edit,
+  Trash2,
+  BarChart3,
+  Settings,
+  FileText,
+  Zap,
+  TrendingUp,
+  Activity,
+  Filter,
+  Search,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -46,6 +56,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Season {
   id: number;
@@ -72,6 +93,23 @@ interface LeaderboardReward {
   description_ru?: string;
 }
 
+interface SeasonStats {
+  total_players: number;
+  players_with_rewards: number;
+  total_rewards_distributed: number;
+  top_player_level: number;
+  top_player_xp: number;
+}
+
+interface CronLog {
+  id: string;
+  job_name: string;
+  status: string;
+  result_data: any;
+  error_message?: string;
+  created_at: string;
+}
+
 export function AdminSeasonsManagement() {
   const { toast } = useToast();
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -79,11 +117,21 @@ export function AdminSeasonsManagement() {
   const [rewards, setRewards] = useState<Record<number, LeaderboardReward[]>>({});
   const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [rewardsDialogOpen, setRewardsDialogOpen] = useState(false);
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [cronLogsDialogOpen, setCronLogsDialogOpen] = useState(false);
   const [distributeRewardsLoading, setDistributeRewardsLoading] = useState(false);
+  const [checkSeasonsLoading, setCheckSeasonsLoading] = useState(false);
+  const [seasonStats, setSeasonStats] = useState<Record<number, SeasonStats>>({});
+  const [cronLogs, setCronLogs] = useState<CronLog[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [seasonToDelete, setSeasonToDelete] = useState<Season | null>(null);
 
-  // Форма для создания сезона
-  const [newSeason, setNewSeason] = useState({
+  // Форма для создания/редактирования сезона
+  const [seasonForm, setSeasonForm] = useState({
     season_number: 1,
     name_ru: "",
     name_es: "",
@@ -98,6 +146,7 @@ export function AdminSeasonsManagement() {
 
   useEffect(() => {
     loadSeasons();
+    loadCronLogs();
   }, []);
 
   const loadSeasons = async () => {
@@ -131,6 +180,11 @@ export function AdminSeasonsManagement() {
           });
           setRewards(rewardsMap);
         }
+
+        // Загружаем статистику для каждого сезона
+        for (const season of data) {
+          await loadSeasonStats(season.id);
+        }
       }
     } catch (error: any) {
       console.error("[AdminSeasonsManagement] Error loading seasons:", error);
@@ -144,9 +198,80 @@ export function AdminSeasonsManagement() {
     }
   };
 
+  const loadSeasonStats = async (seasonId: number) => {
+    try {
+      // Подсчитываем игроков с призами
+      const { count: playersWithRewards } = await supabase
+        .from("user_leaderboard_rewards")
+        .select("*", { count: "exact", head: true })
+        .eq("season_id", seasonId);
+
+      // Подсчитываем общее количество призов
+      const { count: totalRewards } = await supabase
+        .from("user_leaderboard_rewards")
+        .select("*", { count: "exact", head: true })
+        .eq("season_id", seasonId);
+
+      // Находим топ игрока (можно улучшить, добавив запрос к profiles)
+      setSeasonStats((prev) => ({
+        ...prev,
+        [seasonId]: {
+          total_players: 0, // TODO: подсчитать из profiles
+          players_with_rewards: playersWithRewards || 0,
+          total_rewards_distributed: totalRewards || 0,
+          top_player_level: 0,
+          top_player_xp: 0,
+        },
+      }));
+    } catch (error) {
+      console.error("[AdminSeasonsManagement] Error loading stats:", error);
+    }
+  };
+
+  const loadCronLogs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("cron_job_logs")
+        .select("*")
+        .eq("job_name", "check_and_log_ended_seasons")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setCronLogs(data || []);
+    } catch (error) {
+      console.error("[AdminSeasonsManagement] Error loading cron logs:", error);
+    }
+  };
+
+  const checkEndedSeasons = async () => {
+    setCheckSeasonsLoading(true);
+    try {
+      const { data, error } = await supabase.rpc("manual_check_seasons");
+
+      if (error) throw error;
+
+      toast({
+        title: "Проверка завершена",
+        description: data?.message || `Найдено сезонов: ${data?.seasons_found || 0}`,
+      });
+
+      await loadCronLogs();
+      await loadSeasons();
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось проверить сезоны",
+        variant: "destructive",
+      });
+    } finally {
+      setCheckSeasonsLoading(false);
+    }
+  };
+
   const createSeason = async () => {
     try {
-      if (!newSeason.start_date || !newSeason.end_date) {
+      if (!seasonForm.start_date || !seasonForm.end_date) {
         toast({
           title: "Ошибка",
           description: "Укажите даты начала и окончания сезона",
@@ -158,16 +283,16 @@ export function AdminSeasonsManagement() {
       const { data, error } = await supabase
         .from("duel_pass_seasons")
         .insert({
-          season_number: newSeason.season_number,
-          name_ru: newSeason.name_ru,
-          name_es: newSeason.name_es,
-          name_en: newSeason.name_en,
-          theme: newSeason.theme,
-          start_date: newSeason.start_date,
-          end_date: newSeason.end_date,
-          description_ru: newSeason.description_ru || null,
-          description_es: newSeason.description_es || null,
-          description_en: newSeason.description_en || null,
+          season_number: seasonForm.season_number,
+          name_ru: seasonForm.name_ru,
+          name_es: seasonForm.name_es,
+          name_en: seasonForm.name_en,
+          theme: seasonForm.theme,
+          start_date: seasonForm.start_date,
+          end_date: seasonForm.end_date,
+          description_ru: seasonForm.description_ru || null,
+          description_es: seasonForm.description_es || null,
+          description_en: seasonForm.description_en || null,
           is_active: true,
         })
         .select()
@@ -177,23 +302,11 @@ export function AdminSeasonsManagement() {
 
       toast({
         title: "Успех",
-        description: `Сезон "${newSeason.name_ru}" создан`,
+        description: `Сезон "${seasonForm.name_ru}" создан`,
       });
 
       setCreateDialogOpen(false);
-      setNewSeason({
-        season_number: newSeason.season_number + 1,
-        name_ru: "",
-        name_es: "",
-        name_en: "",
-        theme: "special",
-        start_date: "",
-        end_date: "",
-        description_ru: "",
-        description_es: "",
-        description_en: "",
-      });
-
+      resetSeasonForm();
       await loadSeasons();
     } catch (error: any) {
       console.error("[AdminSeasonsManagement] Error creating season:", error);
@@ -203,6 +316,130 @@ export function AdminSeasonsManagement() {
         variant: "destructive",
       });
     }
+  };
+
+  const updateSeason = async () => {
+    if (!selectedSeason) return;
+
+    try {
+      const { error } = await supabase
+        .from("duel_pass_seasons")
+        .update({
+          season_number: seasonForm.season_number,
+          name_ru: seasonForm.name_ru,
+          name_es: seasonForm.name_es,
+          name_en: seasonForm.name_en,
+          theme: seasonForm.theme,
+          start_date: seasonForm.start_date,
+          end_date: seasonForm.end_date,
+          description_ru: seasonForm.description_ru || null,
+          description_es: seasonForm.description_es || null,
+          description_en: seasonForm.description_en || null,
+        })
+        .eq("id", selectedSeason.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Успех",
+        description: `Сезон "${seasonForm.name_ru}" обновлён`,
+      });
+
+      setEditDialogOpen(false);
+      await loadSeasons();
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось обновить сезон",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteSeason = async () => {
+    if (!seasonToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("duel_pass_seasons")
+        .delete()
+        .eq("id", seasonToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Успех",
+        description: `Сезон "${seasonToDelete.name_ru}" удалён`,
+      });
+
+      setDeleteDialogOpen(false);
+      setSeasonToDelete(null);
+      await loadSeasons();
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось удалить сезон",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const planNextSeason = () => {
+    const lastSeason = seasons[0]; // Самый новый сезон
+    const nextNumber = lastSeason ? lastSeason.season_number + 1 : 1;
+    const lastEndDate = lastSeason ? new Date(lastSeason.end_date) : new Date();
+    const nextStartDate = new Date(lastEndDate);
+    nextStartDate.setDate(nextStartDate.getDate() + 1); // Начинается на следующий день
+    const nextEndDate = new Date(nextStartDate);
+    nextEndDate.setDate(nextEndDate.getDate() + 30); // Длится 30 дней
+
+    setSeasonForm({
+      season_number: nextNumber,
+      name_ru: `Сезон ${nextNumber}`,
+      name_es: `Temporada ${nextNumber}`,
+      name_en: `Season ${nextNumber}`,
+      theme: "special",
+      start_date: nextStartDate.toISOString().slice(0, 16),
+      end_date: nextEndDate.toISOString().slice(0, 16),
+      description_ru: "",
+      description_es: "",
+      description_en: "",
+    });
+
+    setCreateDialogOpen(true);
+  };
+
+  const resetSeasonForm = () => {
+    const lastSeason = seasons[0];
+    setSeasonForm({
+      season_number: lastSeason ? lastSeason.season_number + 1 : 1,
+      name_ru: "",
+      name_es: "",
+      name_en: "",
+      theme: "special",
+      start_date: "",
+      end_date: "",
+      description_ru: "",
+      description_es: "",
+      description_en: "",
+    });
+  };
+
+  const openEditDialog = (season: Season) => {
+    setSelectedSeason(season);
+    setSeasonForm({
+      season_number: season.season_number,
+      name_ru: season.name_ru,
+      name_es: season.name_es,
+      name_en: season.name_en,
+      theme: season.theme,
+      start_date: season.start_date.slice(0, 16),
+      end_date: season.end_date.slice(0, 16),
+      description_ru: season.description_ru || "",
+      description_es: season.description_es || "",
+      description_en: season.description_en || "",
+    });
+    setEditDialogOpen(true);
   };
 
   const toggleSeasonActive = async (season: Season) => {
@@ -240,10 +477,11 @@ export function AdminSeasonsManagement() {
 
       toast({
         title: "Успех",
-        description: `Призы для сезона распределены. Обработано: ${data?.processed || 0} игроков`,
+        description: `Призы распределены. Обработано: ${data?.processed || 0} игроков, успешно: ${data?.successful || 0}, ошибок: ${data?.failed || 0}`,
       });
 
       await loadSeasons();
+      await loadSeasonStats(seasonId);
     } catch (error: any) {
       console.error("[AdminSeasonsManagement] Error distributing rewards:", error);
       toast({
@@ -293,426 +531,752 @@ export function AdminSeasonsManagement() {
     return diff;
   };
 
+  const filteredSeasons = seasons.filter((season) => {
+    const matchesSearch =
+      season.name_ru.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      season.season_number.toString().includes(searchQuery);
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && getSeasonStatus(season).label === "Активен") ||
+      (statusFilter === "ended" && getSeasonStatus(season).label === "Завершён") ||
+      (statusFilter === "upcoming" && getSeasonStatus(season).label === "Скоро");
+    return matchesSearch && matchesStatus;
+  });
+
+  const activeSeasons = seasons.filter((s) => getSeasonStatus(s).label === "Активен");
+  const endedSeasons = seasons.filter((s) => getSeasonStatus(s).label === "Завершён");
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Управление сезонами</h1>
           <p className="text-muted-foreground mt-2">
-            Создание сезонов, управление призами лидерборда и распределение наград
+            Полный контроль над сезонами, призами и распределением наград
           </p>
         </div>
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Создать сезон
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Создать новый сезон</DialogTitle>
-              <DialogDescription>
-                Сезон длится 30 дней. Призы лидерборда можно настроить после создания.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Номер сезона</Label>
-                  <Input
-                    type="number"
-                    value={newSeason.season_number}
-                    onChange={(e) =>
-                      setNewSeason({ ...newSeason, season_number: parseInt(e.target.value) || 1 })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Тема</Label>
-                  <Select
-                    value={newSeason.theme}
-                    onValueChange={(value) => setNewSeason({ ...newSeason, theme: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="winter">Зима</SelectItem>
-                      <SelectItem value="spring">Весна</SelectItem>
-                      <SelectItem value="summer">Лето</SelectItem>
-                      <SelectItem value="autumn">Осень</SelectItem>
-                      <SelectItem value="special">Специальный</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label>Название (RU)</Label>
-                <Input
-                  value={newSeason.name_ru}
-                  onChange={(e) => setNewSeason({ ...newSeason, name_ru: e.target.value })}
-                  placeholder="Операция Асфальт"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Название (ES)</Label>
-                  <Input
-                    value={newSeason.name_es}
-                    onChange={(e) => setNewSeason({ ...newSeason, name_es: e.target.value })}
-                    placeholder="Operación Asfalto"
-                  />
-                </div>
-                <div>
-                  <Label>Название (EN)</Label>
-                  <Input
-                    value={newSeason.name_en}
-                    onChange={(e) => setNewSeason({ ...newSeason, name_en: e.target.value })}
-                    placeholder="Operation Asphalt"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Дата начала</Label>
-                  <Input
-                    type="datetime-local"
-                    value={newSeason.start_date}
-                    onChange={(e) => setNewSeason({ ...newSeason, start_date: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Дата окончания (через 30 дней)</Label>
-                  <Input
-                    type="datetime-local"
-                    value={newSeason.end_date}
-                    onChange={(e) => setNewSeason({ ...newSeason, end_date: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Описание (RU)</Label>
-                <Textarea
-                  value={newSeason.description_ru}
-                  onChange={(e) => setNewSeason({ ...newSeason, description_ru: e.target.value })}
-                  placeholder="Первый сезон Duel Pass! Получайте награды за активность и обучение."
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
-                  Отмена
-                </Button>
-                <Button onClick={createSeason}>Создать сезон</Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={checkEndedSeasons} disabled={checkSeasonsLoading}>
+            <RefreshCw className={cn("w-4 h-4 mr-2", checkSeasonsLoading && "animate-spin")} />
+            Проверить сезоны
+          </Button>
+          <Button variant="outline" onClick={planNextSeason}>
+            <Calendar className="w-4 h-4 mr-2" />
+            Запланировать следующий
+          </Button>
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2" onClick={resetSeasonForm}>
+                <Plus className="w-4 h-4" />
+                Создать сезон
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Создать новый сезон</DialogTitle>
+                <DialogDescription>
+                  Сезон длится 30 дней. Призы лидерборда можно настроить после создания.
+                </DialogDescription>
+              </DialogHeader>
+              <SeasonForm
+                form={seasonForm}
+                setForm={setSeasonForm}
+                onSubmit={createSeason}
+                onCancel={() => setCreateDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Загрузка...</div>
-      ) : seasons.length === 0 ? (
+      {/* Статистика */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">Сезоны не найдены</p>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Всего сезонов</p>
+                <p className="text-2xl font-bold">{seasons.length}</p>
+              </div>
+              <Calendar className="w-8 h-8 text-muted-foreground" />
+            </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-6">
-          {seasons.map((season) => {
-            const status = getSeasonStatus(season);
-            const StatusIcon = status.icon;
-            const daysRemaining = getDaysRemaining(season.end_date);
-            const seasonRewards = rewards[season.id] || [];
-            const hasRewards = seasonRewards.length > 0;
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Активных</p>
+                <p className="text-2xl font-bold text-green-600">{activeSeasons.length}</p>
+              </div>
+              <Play className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Завершённых</p>
+                <p className="text-2xl font-bold text-orange-600">{endedSeasons.length}</p>
+              </div>
+              <CheckCircle2 className="w-8 h-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">С призами</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {Object.keys(rewards).length}
+                </p>
+              </div>
+              <Trophy className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-            return (
-              <motion.div
-                key={season.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <Card className={cn("overflow-hidden", season.is_active && "border-primary/50")}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                          <CardTitle className="text-2xl">
-                            Сезон {season.season_number}: {season.name_ru}
-                          </CardTitle>
-                          <Badge className={cn("gap-1.5", status.color)}>
-                            <StatusIcon className="w-3 h-3" />
-                            {status.label}
-                          </Badge>
-                        </div>
-                        <CardDescription className="text-base">
-                          {season.description_ru || "Без описания"}
-                        </CardDescription>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleSeasonActive(season)}
-                        >
-                          {season.is_active ? (
-                            <>
-                              <Pause className="w-4 h-4 mr-2" />
-                              Деактивировать
-                            </>
-                          ) : (
-                            <>
-                              <Play className="w-4 h-4 mr-2" />
-                              Активировать
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <Calendar className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Начало</p>
-                          <p className="font-semibold">{formatDate(season.start_date)}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <Clock className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Окончание</p>
-                          <p className="font-semibold">{formatDate(season.end_date)}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                        <Trophy className="w-5 h-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Осталось дней</p>
-                          <p className="font-semibold">
-                            {daysRemaining > 0 ? `${daysRemaining} дней` : "Завершён"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+      <Tabs defaultValue="seasons" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="seasons">Сезоны</TabsTrigger>
+          <TabsTrigger value="monitoring">Мониторинг</TabsTrigger>
+          <TabsTrigger value="logs">Логи Cron</TabsTrigger>
+        </TabsList>
 
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold flex items-center gap-2">
-                          <Award className="w-4 h-4" />
-                          Призы лидерборда
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          {hasRewards ? (
-                            <Badge variant="outline" className="gap-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              {seasonRewards.length} призов настроено
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="gap-1 text-orange-600">
-                              <AlertCircle className="w-3 h-3" />
-                              Призы не настроены
-                            </Badge>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedSeason(season);
-                              setRewardsDialogOpen(true);
-                            }}
-                          >
-                            <Award className="w-4 h-4 mr-2" />
-                            Управление призами
-                          </Button>
-                        </div>
-                      </div>
+        <TabsContent value="seasons" className="space-y-4">
+          {/* Фильтры */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Поиск по названию или номеру..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все статусы</SelectItem>
+                    <SelectItem value="active">Активные</SelectItem>
+                    <SelectItem value="ended">Завершённые</SelectItem>
+                    <SelectItem value="upcoming">Скоро</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
 
-                      {hasRewards && (
-                        <div className="mt-3">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Позиция</TableHead>
-                                <TableHead>Тип</TableHead>
-                                <TableHead>Описание</TableHead>
-                                <TableHead>Эксклюзив</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {seasonRewards
-                                .sort((a, b) => a.position - b.position)
-                                .slice(0, 5)
-                                .map((reward) => (
-                                  <TableRow key={reward.id}>
-                                    <TableCell className="font-bold">
-                                      #{reward.position}
-                                    </TableCell>
-                                    <TableCell>
-                                      <Badge variant="outline">{reward.reward_type}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-sm">
-                                      {reward.description_ru || "—"}
-                                    </TableCell>
-                                    <TableCell>
-                                      {reward.is_exclusive ? (
-                                        <Badge variant="outline" className="bg-yellow-500/20">
-                                          Да
-                                        </Badge>
-                                      ) : (
-                                        <span className="text-muted-foreground">Нет</span>
-                                      )}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                      )}
-                    </div>
+          {/* Список сезонов */}
+          {loading ? (
+            <div className="text-center py-12 text-muted-foreground">Загрузка...</div>
+          ) : filteredSeasons.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">Сезоны не найдены</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6">
+              {filteredSeasons.map((season) => {
+                const status = getSeasonStatus(season);
+                const StatusIcon = status.icon;
+                const daysRemaining = getDaysRemaining(season.end_date);
+                const seasonRewards = rewards[season.id] || [];
+                const hasRewards = seasonRewards.length > 0;
+                const stats = seasonStats[season.id];
 
-                    <div className="border-t pt-4 flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(season.end_date) <= new Date() && season.is_active && (
-                          <div className="flex items-center gap-2 text-orange-600">
-                            <AlertCircle className="w-4 h-4" />
-                            Сезон завершён. Распределите призы лидерборда.
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {new Date(season.end_date) <= new Date() && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => distributeRewards(season.id)}
-                            disabled={distributeRewardsLoading}
-                            className="gap-2"
-                          >
-                            {distributeRewardsLoading ? (
-                              <>
-                                <RefreshCw className="w-4 h-4 animate-spin" />
-                                Обработка...
-                              </>
-                            ) : (
-                              <>
-                                <Trophy className="w-4 h-4" />
-                                Распределить призы
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open(`/duel-pass-leaderboard`, "_blank")}
-                          className="gap-2"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Турнирная таблица
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
+                return (
+                  <SeasonCard
+                    key={season.id}
+                    season={season}
+                    status={status}
+                    StatusIcon={StatusIcon}
+                    daysRemaining={daysRemaining}
+                    seasonRewards={seasonRewards}
+                    hasRewards={hasRewards}
+                    stats={stats}
+                    onEdit={() => openEditDialog(season)}
+                    onDelete={() => {
+                      setSeasonToDelete(season);
+                      setDeleteDialogOpen(true);
+                    }}
+                    onToggleActive={() => toggleSeasonActive(season)}
+                    onDistributeRewards={() => distributeRewards(season.id)}
+                    distributeRewardsLoading={distributeRewardsLoading}
+                    onViewRewards={() => {
+                      setSelectedSeason(season);
+                      setRewardsDialogOpen(true);
+                    }}
+                    onViewStats={() => {
+                      setSelectedSeason(season);
+                      setStatsDialogOpen(true);
+                    }}
+                    formatDate={formatDate}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="monitoring" className="space-y-4">
+          <MonitoringTab
+            seasons={seasons}
+            rewards={rewards}
+            seasonStats={seasonStats}
+            getSeasonStatus={getSeasonStatus}
+            formatDate={formatDate}
+          />
+        </TabsContent>
+
+        <TabsContent value="logs" className="space-y-4">
+          <CronLogsTab logs={cronLogs} onRefresh={loadCronLogs} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Диалог редактирования */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Редактировать сезон</DialogTitle>
+            <DialogDescription>Измените параметры сезона</DialogDescription>
+          </DialogHeader>
+          <SeasonForm
+            form={seasonForm}
+            setForm={setSeasonForm}
+            onSubmit={updateSeason}
+            onCancel={() => setEditDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Диалог управления призами */}
       <Dialog open={rewardsDialogOpen} onOpenChange={setRewardsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              Призы лидерборда: Сезон {selectedSeason?.season_number}
-            </DialogTitle>
+            <DialogTitle>Призы лидерборда: Сезон {selectedSeason?.season_number}</DialogTitle>
             <DialogDescription>
               Настройка призов для топ-3 и топ-10. Призы начисляются автоматически в конце сезона.
             </DialogDescription>
           </DialogHeader>
           {selectedSeason && (
-            <div className="space-y-4">
-              <div className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
-                <p className="font-semibold mb-2">📋 Структура призов:</p>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>
-                    <strong>Топ-3:</strong> Эксклюзивный скин + бейдж + рамка + титул + аура + монеты
-                    (500/350/250)
-                  </li>
-                  <li>
-                    <strong>Топ-10 (4-10):</strong> Бейдж + рамка + титул + аура + 100 монет
-                  </li>
-                </ul>
-                <p className="mt-3 text-xs">
-                  💡 Призы настраиваются через SQL миграции. См.{" "}
-                  <code className="bg-background px-1 rounded">20251120190200_seed_leaderboard_rewards.sql</code>
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-semibold">Текущие призы:</h4>
-                {rewards[selectedSeason.id] && rewards[selectedSeason.id].length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Позиция</TableHead>
-                        <TableHead>Тип</TableHead>
-                        <TableHead>Описание</TableHead>
-                        <TableHead>Эксклюзив</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {rewards[selectedSeason.id]
-                        .sort((a, b) => a.position - b.position)
-                        .map((reward) => (
-                          <TableRow key={reward.id}>
-                            <TableCell className="font-bold">#{reward.position}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{reward.reward_type}</Badge>
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {reward.description_ru || "—"}
-                            </TableCell>
-                            <TableCell>
-                              {reward.is_exclusive ? (
-                                <Badge variant="outline" className="bg-yellow-500/20">
-                                  Да
-                                </Badge>
-                              ) : (
-                                <span className="text-muted-foreground">Нет</span>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <p className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
-                    Призы для этого сезона ещё не настроены. Используй SQL миграцию для создания
-                    призов.
-                  </p>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button variant="outline" onClick={() => setRewardsDialogOpen(false)}>
-                  Закрыть
-                </Button>
-              </div>
-            </div>
+            <RewardsDialogContent
+              season={selectedSeason}
+              rewards={rewards[selectedSeason.id] || []}
+            />
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Диалог статистики */}
+      <Dialog open={statsDialogOpen} onOpenChange={setStatsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Статистика сезона {selectedSeason?.season_number}</DialogTitle>
+          </DialogHeader>
+          {selectedSeason && (
+            <StatsDialogContent
+              season={selectedSeason}
+              stats={seasonStats[selectedSeason.id]}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Диалог удаления */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Удалить сезон?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Вы уверены, что хотите удалить сезон "{seasonToDelete?.name_ru}"? Это действие
+              нельзя отменить. Все связанные данные (призы, прогресс игроков) также будут удалены.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Отмена</AlertDialogCancel>
+            <AlertDialogAction onClick={deleteSeason} className="bg-destructive">
+              Удалить
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
+// Компонент формы сезона
+function SeasonForm({
+  form,
+  setForm,
+  onSubmit,
+  onCancel,
+}: {
+  form: any;
+  setForm: (form: any) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="space-y-4 py-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Номер сезона</Label>
+          <Input
+            type="number"
+            value={form.season_number}
+            onChange={(e) => setForm({ ...form, season_number: parseInt(e.target.value) || 1 })}
+          />
+        </div>
+        <div>
+          <Label>Тема</Label>
+          <Select value={form.theme} onValueChange={(value) => setForm({ ...form, theme: value })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="winter">Зима</SelectItem>
+              <SelectItem value="spring">Весна</SelectItem>
+              <SelectItem value="summer">Лето</SelectItem>
+              <SelectItem value="autumn">Осень</SelectItem>
+              <SelectItem value="special">Специальный</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label>Название (RU)</Label>
+        <Input
+          value={form.name_ru}
+          onChange={(e) => setForm({ ...form, name_ru: e.target.value })}
+          placeholder="Операция Асфальт"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Название (ES)</Label>
+          <Input
+            value={form.name_es}
+            onChange={(e) => setForm({ ...form, name_es: e.target.value })}
+            placeholder="Operación Asfalto"
+          />
+        </div>
+        <div>
+          <Label>Название (EN)</Label>
+          <Input
+            value={form.name_en}
+            onChange={(e) => setForm({ ...form, name_en: e.target.value })}
+            placeholder="Operation Asphalt"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Дата начала</Label>
+          <Input
+            type="datetime-local"
+            value={form.start_date}
+            onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label>Дата окончания (через 30 дней)</Label>
+          <Input
+            type="datetime-local"
+            value={form.end_date}
+            onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label>Описание (RU)</Label>
+        <Textarea
+          value={form.description_ru}
+          onChange={(e) => setForm({ ...form, description_ru: e.target.value })}
+          placeholder="Первый сезон Duel Pass! Получайте награды за активность и обучение."
+        />
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={onCancel}>
+          Отмена
+        </Button>
+        <Button onClick={onSubmit}>Сохранить</Button>
+      </div>
+    </div>
+  );
+}
+
+// Компонент карточки сезона
+function SeasonCard({
+  season,
+  status,
+  StatusIcon,
+  daysRemaining,
+  seasonRewards,
+  hasRewards,
+  stats,
+  onEdit,
+  onDelete,
+  onToggleActive,
+  onDistributeRewards,
+  distributeRewardsLoading,
+  onViewRewards,
+  onViewStats,
+  formatDate,
+}: any) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      <Card className={cn("overflow-hidden", season.is_active && "border-primary/50")}>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-2xl">
+                  Сезон {season.season_number}: {season.name_ru}
+                </CardTitle>
+                <Badge className={cn("gap-1.5", status.color)}>
+                  <StatusIcon className="w-3 h-3" />
+                  {status.label}
+                </Badge>
+              </div>
+              <CardDescription className="text-base">
+                {season.description_ru || "Без описания"}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={onEdit}>
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={onDelete}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={onToggleActive}>
+                {season.is_active ? (
+                  <>
+                    <Pause className="w-4 h-4 mr-2" />
+                    Деактивировать
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Активировать
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <Calendar className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm text-muted-foreground">Начало</p>
+                <p className="font-semibold">{formatDate(season.start_date)}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <Clock className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm text-muted-foreground">Окончание</p>
+                <p className="font-semibold">{formatDate(season.end_date)}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+              <Trophy className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm text-muted-foreground">Осталось дней</p>
+                <p className="font-semibold">
+                  {daysRemaining > 0 ? `${daysRemaining} дней` : "Завершён"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                Призы лидерборда
+              </h3>
+              <div className="flex items-center gap-2">
+                {hasRewards ? (
+                  <Badge variant="outline" className="gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    {seasonRewards.length} призов
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="gap-1 text-orange-600">
+                    <AlertCircle className="w-3 h-3" />
+                    Не настроены
+                  </Badge>
+                )}
+                <Button variant="outline" size="sm" onClick={onViewRewards}>
+                  <Award className="w-4 h-4 mr-2" />
+                  Управление
+                </Button>
+                <Button variant="outline" size="sm" onClick={onViewStats}>
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Статистика
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {new Date(season.end_date) <= new Date() && season.is_active && (
+                <div className="flex items-center gap-2 text-orange-600">
+                  <AlertCircle className="w-4 h-4" />
+                  Сезон завершён. Распределите призы.
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {new Date(season.end_date) <= new Date() && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={onDistributeRewards}
+                  disabled={distributeRewardsLoading}
+                  className="gap-2"
+                >
+                  {distributeRewardsLoading ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Обработка...
+                    </>
+                  ) : (
+                    <>
+                      <Trophy className="w-4 h-4" />
+                      Распределить призы
+                    </>
+                  )}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(`/duel-pass-leaderboard`, "_blank")}
+                className="gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Турнирная таблица
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+// Компонент диалога призов
+function RewardsDialogContent({ season, rewards }: { season: Season; rewards: LeaderboardReward[] }) {
+  return (
+    <div className="space-y-4">
+      <div className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
+        <p className="font-semibold mb-2">📋 Структура призов:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>
+            <strong>Топ-3:</strong> Эксклюзивный скин + бейдж + рамка + титул + аура + монеты
+            (500/350/250)
+          </li>
+          <li>
+            <strong>Топ-10 (4-10):</strong> Бейдж + рамка + титул + аура + 100 монет
+          </li>
+        </ul>
+        <p className="mt-3 text-xs">
+          💡 Призы настраиваются через SQL миграции. См.{" "}
+          <code className="bg-background px-1 rounded">20251120190200_seed_leaderboard_rewards.sql</code>
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <h4 className="font-semibold">Текущие призы:</h4>
+        {rewards.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Позиция</TableHead>
+                <TableHead>Тип</TableHead>
+                <TableHead>Описание</TableHead>
+                <TableHead>Эксклюзив</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rewards
+                .sort((a, b) => a.position - b.position)
+                .map((reward) => (
+                  <TableRow key={reward.id}>
+                    <TableCell className="font-bold">#{reward.position}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{reward.reward_type}</Badge>
+                    </TableCell>
+                    <TableCell className="text-sm">{reward.description_ru || "—"}</TableCell>
+                    <TableCell>
+                      {reward.is_exclusive ? (
+                        <Badge variant="outline" className="bg-yellow-500/20">
+                          Да
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">Нет</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
+            Призы для этого сезона ещё не настроены. Используй SQL миграцию для создания призов.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Компонент диалога статистики
+function StatsDialogContent({ season, stats }: { season: Season; stats?: SeasonStats }) {
+  return (
+    <div className="space-y-4">
+      {stats ? (
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Игроков с призами</p>
+              <p className="text-2xl font-bold">{stats.players_with_rewards}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">Призов распределено</p>
+              <p className="text-2xl font-bold">{stats.total_rewards_distributed}</p>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">Статистика загружается...</p>
+      )}
+    </div>
+  );
+}
+
+// Компонент вкладки мониторинга
+function MonitoringTab({ seasons, rewards, seasonStats, getSeasonStatus, formatDate }: any) {
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Обзор системы</CardTitle>
+          <CardDescription>Мониторинг сезонов и призов</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-sm text-muted-foreground">Всего сезонов</p>
+              <p className="text-2xl font-bold">{seasons.length}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-sm text-muted-foreground">С призами</p>
+              <p className="text-2xl font-bold">{Object.keys(rewards).length}</p>
+            </div>
+            <div className="p-4 rounded-lg bg-muted/50">
+              <p className="text-sm text-muted-foreground">Активных</p>
+              <p className="text-2xl font-bold">
+                {seasons.filter((s: Season) => getSeasonStatus(s).label === "Активен").length}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Компонент вкладки логов
+function CronLogsTab({ logs, onRefresh }: { logs: CronLog[]; onRefresh: () => void }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Логи Cron задач</h3>
+          <p className="text-sm text-muted-foreground">
+            История выполнения автоматических проверок сезонов
+          </p>
+        </div>
+        <Button variant="outline" onClick={onRefresh}>
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Обновить
+        </Button>
+      </div>
+
+      {logs.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">Логи не найдены</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Дата</TableHead>
+                  <TableHead>Статус</TableHead>
+                  <TableHead>Сезонов найдено</TableHead>
+                  <TableHead>Детали</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {logs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell>
+                      {new Date(log.created_at).toLocaleString("ru-RU")}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          log.status === "success"
+                            ? "default"
+                            : log.status === "error"
+                              ? "destructive"
+                              : "outline"
+                        }
+                      >
+                        {log.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {log.result_data?.seasons_found || 0}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {log.result_data?.message || log.error_message || "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
