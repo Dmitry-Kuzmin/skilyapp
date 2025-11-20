@@ -16,12 +16,15 @@ import {
   Crown,
   Target,
   Calendar,
-  Flame
+  Flame,
+  Eye,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { usePremium } from "@/hooks/usePremium";
+import { AvatarPreview } from "./AvatarPreview";
 
 interface SkinDefinition {
   id: string;
@@ -111,7 +114,7 @@ const rarityGradients = {
 };
 
 export function CosmeticsCatalog() {
-  const { profileId } = useUserContext();
+  const { profileId, user } = useUserContext();
   const { isPremium } = usePremium();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -121,13 +124,42 @@ export function CosmeticsCatalog() {
   const [ownedSkins, setOwnedSkins] = useState<Set<string>>(new Set());
   const [ownedBadges, setOwnedBadges] = useState<Set<string>>(new Set());
   const [ownedStickers, setOwnedStickers] = useState<Set<string>>(new Set());
+  
+  // Состояния для примерки
+  const [previewSkin, setPreviewSkin] = useState<SkinDefinition | null>(null);
+  const [previewBadges, setPreviewBadges] = useState<BadgeDefinition[]>([]);
+  const [previewSticker, setPreviewSticker] = useState<StickerDefinition | null>(null);
+  const [userName, setUserName] = useState<string>("Т");
 
   useEffect(() => {
     loadCatalog();
     if (profileId) {
       loadOwnedItems();
+      loadUserName();
+    } else if (user?.first_name) {
+      setUserName(user.first_name);
     }
-  }, [profileId]);
+  }, [profileId, user]);
+
+  const loadUserName = async () => {
+    if (!profileId) return;
+    
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('id', profileId)
+        .maybeSingle();
+      
+      if (profile?.first_name) {
+        setUserName(profile.first_name);
+      } else if (user?.first_name) {
+        setUserName(user.first_name);
+      }
+    } catch (error) {
+      console.error("Error loading user name:", error);
+    }
+  };
 
   const loadCatalog = async () => {
     try {
@@ -231,14 +263,89 @@ export function CosmeticsCatalog() {
     );
   }
 
+  const handleSkinPreview = (skin: SkinDefinition) => {
+    setPreviewSkin(skin);
+    // Сбрасываем другие превью при переключении вкладок
+    setPreviewBadges([]);
+    setPreviewSticker(null);
+  };
+
+  const handleBadgePreview = (badge: BadgeDefinition) => {
+    setPreviewBadges((prev) => {
+      // Если бейдж уже выбран, убираем его, иначе добавляем (максимум 3)
+      const isSelected = prev.some((b) => b.id === badge.id);
+      if (isSelected) {
+        return prev.filter((b) => b.id !== badge.id);
+      }
+      if (prev.length >= 3) {
+        // Убираем первый, добавляем новый
+        return [...prev.slice(1), badge];
+      }
+      return [...prev, badge];
+    });
+    // Сбрасываем другие превью
+    setPreviewSkin(null);
+    setPreviewSticker(null);
+  };
+
+  const handleStickerPreview = (sticker: StickerDefinition) => {
+    setPreviewSticker((prev) => (prev?.id === sticker.id ? null : sticker));
+    // Сбрасываем другие превью
+    setPreviewSkin(null);
+    setPreviewBadges([]);
+  };
+
+  const clearPreview = () => {
+    setPreviewSkin(null);
+    setPreviewBadges([]);
+    setPreviewSticker(null);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold mb-2">Каталог косметики</h2>
         <p className="text-sm text-muted-foreground">
-          Просмотрите все доступные скины, бейджи и стикеры. Получайте их через Duel Pass, достижения и Premium подписку!
+          Кликните на любой элемент, чтобы примерить его в реальном времени. Получайте косметику через Duel Pass, достижения и Premium подписку!
         </p>
       </div>
+
+      {/* Превью аватара - фиксированная панель */}
+      {(previewSkin || previewBadges.length > 0 || previewSticker) && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="sticky top-4 z-10 mb-6"
+        >
+          <Card className="p-6 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-xl border-2 border-primary/20 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Eye className="w-5 h-5 text-primary" />
+                <div>
+                  <h3 className="font-bold text-lg">Превью</h3>
+                  <p className="text-xs text-muted-foreground">Как будет выглядеть ваш аватар</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={clearPreview}
+                className="h-8 w-8"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex items-center justify-center py-4">
+              <AvatarPreview
+                previewSkin={previewSkin}
+                previewBadges={previewBadges}
+                previewSticker={previewSticker}
+                userName={userName}
+              />
+            </div>
+          </Card>
+        </motion.div>
+      )}
 
       <Tabs defaultValue="skins" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -394,23 +501,41 @@ export function CosmeticsCatalog() {
                           <span>{obtainMethod.text}</span>
                         </div>
 
-                        {!isOwned && (
+                        <div className="flex gap-2 mt-2">
+                          {!isOwned && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (skin.is_premium && !isPremium) {
+                                  navigate("/premium");
+                                } else {
+                                  navigate("/duel-pass");
+                                }
+                              }}
+                            >
+                              <Lock className="w-3 h-3 mr-2" />
+                              Как получить?
+                            </Button>
+                          )}
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="w-full mt-2"
-                            onClick={() => {
-                              if (skin.is_premium && !isPremium) {
-                                navigate("/premium");
-                              } else {
-                                navigate("/duel-pass");
-                              }
+                            variant={previewSkin?.id === skin.id ? "default" : "secondary"}
+                            className={cn(
+                              "flex-1",
+                              previewSkin?.id === skin.id && "bg-primary"
+                            )}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSkinPreview(skin);
                             }}
                           >
-                            <Lock className="w-3 h-3 mr-2" />
-                            Как получить?
+                            <Eye className="w-3 h-3 mr-2" />
+                            {previewSkin?.id === skin.id ? "Выбрано" : "Примерить"}
                           </Button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -583,25 +708,43 @@ export function CosmeticsCatalog() {
                           <span>{obtainMethod.text}</span>
                         </div>
 
-                        {!isOwned && (
+                        <div className="flex gap-2 mt-2">
+                          {!isOwned && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (badge.is_premium && !isPremium) {
+                                  navigate("/premium");
+                                } else if (badge.category === "seasonal") {
+                                  navigate("/duel-pass");
+                                } else {
+                                  navigate("/achievements");
+                                }
+                              }}
+                            >
+                              <Lock className="w-3 h-3 mr-2" />
+                              Как получить?
+                            </Button>
+                          )}
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="w-full mt-2"
-                            onClick={() => {
-                              if (badge.is_premium && !isPremium) {
-                                navigate("/premium");
-                              } else if (badge.category === "seasonal") {
-                                navigate("/duel-pass");
-                              } else {
-                                navigate("/achievements");
-                              }
+                            variant={previewBadges.some((b) => b.id === badge.id) ? "default" : "secondary"}
+                            className={cn(
+                              "flex-1",
+                              previewBadges.some((b) => b.id === badge.id) && "bg-primary"
+                            )}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBadgePreview(badge);
                             }}
                           >
-                            <Lock className="w-3 h-3 mr-2" />
-                            Как получить?
+                            <Eye className="w-3 h-3 mr-2" />
+                            {previewBadges.some((b) => b.id === badge.id) ? "Убрать" : "Примерить"}
                           </Button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -635,10 +778,12 @@ export function CosmeticsCatalog() {
                 >
                   <Card
                     className={cn(
-                      "p-4 transition-all hover:shadow-lg relative overflow-hidden group",
+                      "p-4 transition-all hover:shadow-lg relative overflow-hidden group cursor-pointer",
                       rarity.border,
-                      !isOwned && "opacity-75"
+                      !isOwned && "opacity-75",
+                      previewSticker?.id === sticker.id && "ring-2 ring-primary shadow-lg scale-[1.02]"
                     )}
+                    onClick={() => handleStickerPreview(sticker)}
                   >
                     {/* Статус владения */}
                     {isOwned && (
@@ -721,6 +866,23 @@ export function CosmeticsCatalog() {
                           <obtainMethod.icon className={cn("w-3 h-3", obtainMethod.color)} />
                           <span className="text-[10px]">{obtainMethod.text}</span>
                         </div>
+
+                        {/* Кнопка примерки */}
+                        <Button
+                          size="sm"
+                          variant={previewSticker?.id === sticker.id ? "default" : "secondary"}
+                          className={cn(
+                            "w-full mt-2",
+                            previewSticker?.id === sticker.id && "bg-primary"
+                          )}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStickerPreview(sticker);
+                          }}
+                        >
+                          <Eye className="w-3 h-3 mr-2" />
+                          {previewSticker?.id === sticker.id ? "Убрать" : "Примерить"}
+                        </Button>
                       </div>
                     </div>
                   </Card>
