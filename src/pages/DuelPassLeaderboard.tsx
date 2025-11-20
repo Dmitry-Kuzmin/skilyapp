@@ -370,11 +370,8 @@ const DuelPassLeaderboard = () => {
                     const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
 
                     return (
-                      <motion.tr
+                      <TableRow
                         key={leader.user_id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.02 }}
                         className={cn(
                           "transition-all hover:bg-muted/50",
                           isCurrentUser && "bg-primary/10 border-l-4 border-l-primary shadow-sm"
