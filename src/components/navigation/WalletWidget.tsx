@@ -226,7 +226,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <button
             onClick={() => {
               console.log('[WalletWidget] Mobile Duel Pass button clicked, opening modal');
-              setDuelPassModalOpen(true);
+                setDuelPassModalOpen(true);
             }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}

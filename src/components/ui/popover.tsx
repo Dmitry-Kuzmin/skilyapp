@@ -19,7 +19,7 @@ const PopoverContent = React.forwardRef<
           className="fixed inset-0 z-40 bg-background/45 backdrop-blur-[2px]"
         />
       </PopoverPrimitive.Close>
-      <PopoverPrimitive.Content
+    <PopoverPrimitive.Content
       ref={ref}
       align={align}
       sideOffset={sideOffset}
@@ -28,7 +28,7 @@ const PopoverContent = React.forwardRef<
         className,
       )}
       {...props}
-      />
+    />
     </>
   </PopoverPrimitive.Portal>
 ));
