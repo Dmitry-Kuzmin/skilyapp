@@ -261,7 +261,7 @@ const DuelPassLeaderboard = () => {
                               src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
                               alt={leaders[0]?.profile?.first_name || "Игрок"}
                             />
-                            <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-bold text-3xl">
+                            <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-bold text-2xl md:text-3xl">
                               {(leaders[0]?.profile?.first_name || "И")[0]}
                             </AvatarFallback>
                           </Avatar>
@@ -318,7 +318,7 @@ const DuelPassLeaderboard = () => {
                             src={leaders[2]?.profile?.photo_url || leaders[2]?.profile?.avatar_url}
                             alt={leaders[2]?.profile?.first_name || "Игрок"}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-2xl">
+                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-xl md:text-2xl">
                             {(leaders[2]?.profile?.first_name || "И")[0]}
                           </AvatarFallback>
                         </Avatar>
