@@ -1,0 +1,69 @@
+name: 🏆 Season Rewards Distribution
+
+on:
+  schedule:
+    # Каждое воскресенье в 00:00 UTC (оптимально для месячных сезонов)
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # Ручной запуск через GitHub Actions UI
+    inputs:
+      season_id:
+        description: 'Optional season ID (leave empty to process all ended seasons)'
+        required: false
+        type: string
+
+jobs:
+  distribute-rewards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📋 Check ended seasons and distribute rewards
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "🚀 Starting season rewards distribution..."
+          
+          # Формируем payload
+          if [ -z "${{ github.event.inputs.season_id }}" ]; then
+            PAYLOAD='{}'
+            echo "📊 Processing all ended seasons..."
+          else
+            PAYLOAD="{\"season_id\": ${{ github.event.inputs.season_id }}}"
+            echo "📊 Processing season ID: ${{ github.event.inputs.season_id }}"
+          fi
+          
+          # Вызываем Edge Function
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${SUPABASE_URL}/functions/v1/season-end-rewards" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "${PAYLOAD}")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📥 Response HTTP Code: ${HTTP_CODE}"
+          echo "📥 Response Body: ${BODY}"
+          
+          if [ "${HTTP_CODE}" -ge 200 ] && [ "${HTTP_CODE}" -lt 300 ]; then
+            echo "✅ Success! Rewards distributed successfully"
+            echo "${BODY}" | jq '.' || echo "${BODY}"
+          else
+            echo "❌ Error! HTTP ${HTTP_CODE}"
+            echo "${BODY}"
+            exit 1
+          fi
+      
+      - name: 📊 Check cron job logs
+        if: always()
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "📋 Checking recent cron job logs..."
+          
+          # Используем Supabase REST API для проверки логов
+          # (или можно использовать psql через GitHub Actions)
+          echo "💡 To view logs, check cron_job_logs table in Supabase Dashboard"
+
