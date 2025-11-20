@@ -199,24 +199,31 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                       className={cn(
                         "p-4 border relative overflow-hidden transition-all",
                         isUnlocked
-                          ? "border-primary/40 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent shadow-lg"
-                          : "border-border/40 bg-card/60"
+                          ? "border-primary/50 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent shadow-[0_10px_30px_rgba(79,70,229,0.25)]"
+                          : "border-border/50 bg-card/60 backdrop-blur-sm opacity-80"
                       )}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             {isUnlocked ? (
-                              <CheckCircle2 className="w-4 h-4 text-primary" />
+                              <CheckCircle2 className="w-5 h-5 text-primary drop-shadow-lg" />
                             ) : (
-                              <Lock className="w-4 h-4 text-muted-foreground" />
+                              <Lock className="w-4 h-4 text-muted-foreground/80" />
                             )}
                             <span className="text-sm font-semibold">{achievement.title.ru}</span>
                           </div>
                           <p className="text-xs text-muted-foreground mb-2">{achievement.description.ru}</p>
                         </div>
-                        <div className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                          +{achievement.reward.xp ?? 0} XP
+                        <div
+                          className={cn(
+                            "text-xs font-semibold px-2 py-0.5 rounded-full border",
+                            isUnlocked
+                              ? "border-primary/50 bg-primary/15 text-primary"
+                              : "border-border/60 text-muted-foreground bg-muted/20"
+                          )}
+                        >
+                          {isUnlocked ? "Получено" : `+${achievement.reward.xp ?? 0} XP`}
                         </div>
                       </div>
                       {!isUnlocked && (
@@ -229,7 +236,12 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                         </>
                       )}
                       {isUnlocked && (
-                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary/5 to-transparent animate-[pulse_3s_ease-in-out_infinite]" />
+                        <>
+                          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-70 animate-[pulse_5s_ease-in-out_infinite]" />
+                          <span className="absolute bottom-3 right-3 text-[11px] uppercase tracking-[0.2em] text-primary/70">
+                            PREMIUM
+                          </span>
+                        </>
                       )}
                     </Card>
                   );

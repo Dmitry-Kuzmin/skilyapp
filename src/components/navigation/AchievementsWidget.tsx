@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { AchievementsModalContent } from "./AchievementsModalContent";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const XP_PER_LEVEL = 225;
 
@@ -31,6 +32,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const isMobileViewport = useIsMobile();
 
   useEffect(() => {
     let isMounted = true;
@@ -124,7 +126,12 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
           {trigger}
         </button>
       </DialogTrigger>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] p-0 flex flex-col">
+      <DialogContent
+        className={cn(
+          "max-h-[85vh] p-0 flex flex-col",
+          isMobileViewport ? "w-screen max-w-none rounded-t-[28px]" : "w-[95vw] max-w-2xl rounded-2xl"
+        )}
+      >
         <DialogHeader className="px-6 pt-6 pb-0">
           <DialogTitle>{t("profileMenu.achievements")}</DialogTitle>
           <DialogDescription>
