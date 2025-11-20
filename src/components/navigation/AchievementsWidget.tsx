@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trophy, Sparkles } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,6 +14,11 @@ interface ProfileStats {
   xp: number;
   streakDays: number;
 }
+
+type ProfileRow = {
+  xp: number | null;
+  streak_days: number | null;
+};
 
 interface AchievementsWidgetProps {
   className?: string;
@@ -53,12 +58,17 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
           return;
         }
 
-        if (isMounted) {
-          setStats({
-            xp: data?.xp || 0,
-            streakDays: data?.streak_days || 0,
-          });
+        if (!isMounted) return;
+        const row = (data ?? null) as ProfileRow | null;
+        if (!row) {
+          setStats({ xp: 0, streakDays: 0 });
+          return;
         }
+
+        setStats({
+          xp: row.xp || 0,
+          streakDays: row.streak_days || 0,
+        });
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -88,30 +98,20 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
   const xp = stats?.xp ?? 0;
   const level = Math.max(1, Math.floor(xp / XP_PER_LEVEL) + 1);
   const xpIntoLevel = xp % XP_PER_LEVEL;
-  const progress = (xpIntoLevel / XP_PER_LEVEL) * 100;
   const xpToNextLevel = xpIntoLevel === 0 ? XP_PER_LEVEL : XP_PER_LEVEL - xpIntoLevel;
 
   const baseClasses =
     variant === "mobile"
-      ? "w-full px-4 py-3 rounded-2xl border border-border/50 bg-card/70 backdrop-blur flex items-center gap-3"
-      : "flex items-center gap-3 px-3 py-2 rounded-2xl border border-border/40 bg-card/70 hover:bg-card transition-colors shadow-sm";
+      ? "w-full flex items-center justify-between px-3 py-2 rounded-2xl border border-border/50 bg-card/80 backdrop-blur"
+      : "flex items-center gap-2 px-2.5 py-1.5 rounded-2xl border border-border/40 bg-card/80 hover:bg-card transition-colors";
 
   const trigger = (
     <div className={cn(baseClasses, className)}>
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow">
-        <Trophy className="w-4 h-4 text-white" />
+      <div className="flex items-center gap-2">
+        <Trophy className="w-4 h-4 text-primary" />
+        <span className="text-sm font-semibold tabular-nums">{xp.toLocaleString()}</span>
       </div>
-      <div className="flex flex-col leading-tight">
-        <span className="text-xs text-muted-foreground">{t("profileMenu.achievements")}</span>
-        <div className="flex items-baseline gap-2">
-          <span className="text-base font-semibold tabular-nums">{xp.toLocaleString()} XP</span>
-          <span className="text-xs text-muted-foreground">Lvl {level}</span>
-        </div>
-      </div>
-      <div className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
-        <Sparkles className="w-3 h-3 text-primary" />
-        <span>{xpToNextLevel} XP →</span>
-      </div>
+      <span className="text-xs text-muted-foreground">XP</span>
     </div>
   );
 
@@ -130,7 +130,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto p-6">
-          <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} onClose={() => setOpen(false)} />
+          <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} />
         </div>
       </DialogContent>
     </Dialog>
