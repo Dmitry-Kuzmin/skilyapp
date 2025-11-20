@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trophy, Crown, Sparkles, Award, Star } from "lucide-react";
+import { Trophy, Crown, Sparkles, Award, Star, TrendingUp } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
-import { RankBadge, RankIcon, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
+import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
+import { motion } from "framer-motion";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -104,112 +105,215 @@ const DuelPassLeaderboard = () => {
             </p>
           </header>
 
-          {/* Топ 3 */}
+          {/* Топ 3 - Премиум пьедестал */}
           {leaders.length >= 3 && (
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
               {/* 2 место */}
-              <Card className="p-6 space-y-4 border-2 border-gray-300/50 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                <div className="flex items-center justify-center">
-                  <div className="relative">
-                    <div className="absolute -top-2 -right-2 bg-gray-400 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                      2
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="p-6 space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+                  {/* Декоративные элементы */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-300/10 to-transparent rounded-full -mr-20 -mt-20" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-gray-200/10 to-transparent rounded-full -ml-16 -mb-16" />
+                  
+                  <div className="flex items-center justify-center relative z-10">
+                    <div className="relative">
+                      <motion.div
+                        className="absolute -top-3 -right-3 bg-gradient-to-br from-gray-500 to-gray-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-black text-base shadow-lg"
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                      >
+                        2
+                      </motion.div>
+                      <div className="relative">
+                        <RankFrame rank={(leaders[1]?.rank || getRankFromLevel(leaders[1]?.duel_pass_level || 1)) as RankType} />
+                        <Avatar className="w-24 h-24 border-4 border-gray-400/60 shadow-xl">
+                          <AvatarImage
+                            src={leaders[1]?.profile?.photo_url || leaders[1]?.profile?.avatar_url}
+                            alt={leaders[1]?.profile?.first_name || "Игрок"}
+                          />
+                          <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-600 text-white font-bold text-2xl">
+                            {(leaders[1]?.profile?.first_name || "И")[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
                     </div>
-                    <Avatar className="w-20 h-20 border-4 border-gray-300">
-                      <AvatarImage
-                        src={leaders[1]?.profile?.photo_url || leaders[1]?.profile?.avatar_url}
-                        alt={leaders[1]?.profile?.first_name || "Игрок"}
+                  </div>
+                  <div className="text-center space-y-3 relative z-10">
+                    <h3 className="font-bold text-lg text-foreground">
+                      {leaders[1]?.profile?.first_name || leaders[1]?.profile?.username || "Игрок"}
+                    </h3>
+                    <div className="flex flex-col items-center gap-2">
+                      <RankBadge 
+                        rank={(leaders[1]?.rank || getRankFromLevel(leaders[1]?.duel_pass_level || 1)) as RankType} 
+                        size="sm" 
+                        variant="pill"
                       />
-                      <AvatarFallback className="bg-gray-400">
-                        {(leaders[1]?.profile?.first_name || "И")[0]}
-                      </AvatarFallback>
-                    </Avatar>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Star className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-semibold">Уровень {leaders[1]?.duel_pass_level || 1}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium">
+                      {leaders[1]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP
+                    </p>
                   </div>
-                </div>
-                <div className="text-center space-y-2">
-                  <h3 className="font-bold text-lg">
-                    {leaders[1]?.profile?.first_name || leaders[1]?.profile?.username || "Игрок"}
-                  </h3>
-                  <div className="flex items-center justify-center gap-2">
-                    <Badge variant="outline" className="gap-1">
-                      <Star className="w-3 h-3" />
-                      Уровень {leaders[1]?.duel_pass_level || 1}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {leaders[1]?.duel_pass_xp || 0} XP
-                  </p>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
 
-              {/* 1 место */}
-              <Card className="p-6 space-y-4 border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full -mr-16 -mt-16" />
-                <div className="flex items-center justify-center">
-                  <div className="relative">
-                    <Crown className="absolute -top-6 left-1/2 -translate-x-1/2 w-8 h-8 text-yellow-500 fill-yellow-500" />
-                    <div className="absolute -top-2 -right-2 bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                      1
+              {/* 1 место - Золотое */}
+              <motion.div
+                initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                className="md:-mt-8"
+              >
+                <Card className="p-8 space-y-5 border-2 border-yellow-400/80 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-300 shadow-2xl shadow-yellow-500/20">
+                  {/* Анимированный фон */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-amber-400/20 to-yellow-500/20"
+                    animate={{
+                      opacity: [0.3, 0.5, 0.3],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-yellow-400/20 to-transparent rounded-full -mr-24 -mt-24 blur-2xl" />
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full -ml-20 -mb-20 blur-2xl" />
+                  
+                  <div className="flex items-center justify-center relative z-10">
+                    <div className="relative">
+                      <motion.div
+                        className="absolute -top-4 left-1/2 -translate-x-1/2 z-20"
+                        animate={{
+                          y: [0, -5, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Crown className="w-10 h-10 text-yellow-500 fill-yellow-500 drop-shadow-lg" />
+                      </motion.div>
+                      <motion.div
+                        className="absolute -top-3 -right-3 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-black text-lg shadow-xl z-20"
+                        whileHover={{ scale: 1.15, rotate: 15 }}
+                        animate={{
+                          boxShadow: [
+                            "0 0 20px rgba(234, 179, 8, 0.5)",
+                            "0 0 30px rgba(234, 179, 8, 0.7)",
+                            "0 0 20px rgba(234, 179, 8, 0.5)",
+                          ],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        1
+                      </motion.div>
+                      <div className="relative">
+                        <RankFrame rank={(leaders[0]?.rank || getRankFromLevel(leaders[0]?.duel_pass_level || 1)) as RankType} />
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <Avatar className="w-32 h-32 border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/30">
+                            <AvatarImage
+                              src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
+                              alt={leaders[0]?.profile?.first_name || "Игрок"}
+                            />
+                            <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-bold text-3xl">
+                              {(leaders[0]?.profile?.first_name || "И")[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                        </motion.div>
+                      </div>
                     </div>
-                    <Avatar className="w-24 h-24 border-4 border-yellow-400 shadow-lg">
-                      <AvatarImage
-                        src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
-                        alt={leaders[0]?.profile?.first_name || "Игрок"}
+                  </div>
+                  <div className="text-center space-y-3 relative z-10">
+                    <h3 className="font-black text-xl text-foreground">
+                      {leaders[0]?.profile?.first_name || leaders[0]?.profile?.username || "Игрок"}
+                    </h3>
+                    <div className="flex flex-col items-center gap-2">
+                      <RankBadge 
+                        rank={(leaders[0]?.rank || getRankFromLevel(leaders[0]?.duel_pass_level || 1)) as RankType} 
+                        size="md" 
+                        variant="pill"
                       />
-                      <AvatarFallback className="bg-yellow-500">
-                        {(leaders[0]?.profile?.first_name || "И")[0]}
-                      </AvatarFallback>
-                    </Avatar>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Crown className="w-4 h-4 text-yellow-600" />
+                        <span className="font-bold">Уровень {leaders[0]?.duel_pass_level || 1}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-semibold">
+                      {leaders[0]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP
+                    </p>
                   </div>
-                </div>
-                <div className="text-center space-y-2">
-                  <h3 className="font-bold text-xl">
-                    {leaders[0]?.profile?.first_name || leaders[0]?.profile?.username || "Игрок"}
-                  </h3>
-                  <div className="flex items-center justify-center gap-2">
-                    <Badge className="bg-yellow-500 gap-1">
-                      <Crown className="w-3 h-3" />
-                      Уровень {leaders[0]?.duel_pass_level || 1}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {leaders[0]?.duel_pass_xp || 0} XP
-                  </p>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
 
               {/* 3 место */}
-              <Card className="p-6 space-y-4 border-2 border-orange-300/50 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
-                <div className="flex items-center justify-center">
-                  <div className="relative">
-                    <div className="absolute -top-2 -right-2 bg-orange-400 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                      3
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="p-6 space-y-4 border-2 border-orange-400/60 bg-gradient-to-br from-orange-50/80 via-amber-50/80 to-orange-50/80 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+                  {/* Декоративные элементы */}
+                  <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-orange-300/10 to-transparent rounded-full -mr-18 -mt-18" />
+                  <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-amber-200/10 to-transparent rounded-full -ml-14 -mb-14" />
+                  
+                  <div className="flex items-center justify-center relative z-10">
+                    <div className="relative">
+                      <motion.div
+                        className="absolute -top-3 -right-3 bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-black text-base shadow-lg"
+                        whileHover={{ scale: 1.1, rotate: -10 }}
+                      >
+                        3
+                      </motion.div>
+                      <div className="relative">
+                        <RankFrame rank={(leaders[2]?.rank || getRankFromLevel(leaders[2]?.duel_pass_level || 1)) as RankType} />
+                        <Avatar className="w-24 h-24 border-4 border-orange-400/60 shadow-xl">
+                          <AvatarImage
+                            src={leaders[2]?.profile?.photo_url || leaders[2]?.profile?.avatar_url}
+                            alt={leaders[2]?.profile?.first_name || "Игрок"}
+                          />
+                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-2xl">
+                            {(leaders[2]?.profile?.first_name || "И")[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
                     </div>
-                    <Avatar className="w-20 h-20 border-4 border-orange-300">
-                      <AvatarImage
-                        src={leaders[2]?.profile?.photo_url || leaders[2]?.profile?.avatar_url}
-                        alt={leaders[2]?.profile?.first_name || "Игрок"}
+                  </div>
+                  <div className="text-center space-y-3 relative z-10">
+                    <h3 className="font-bold text-lg text-foreground">
+                      {leaders[2]?.profile?.first_name || leaders[2]?.profile?.username || "Игрок"}
+                    </h3>
+                    <div className="flex flex-col items-center gap-2">
+                      <RankBadge 
+                        rank={(leaders[2]?.rank || getRankFromLevel(leaders[2]?.duel_pass_level || 1)) as RankType} 
+                        size="sm" 
+                        variant="pill"
                       />
-                      <AvatarFallback className="bg-orange-400">
-                        {(leaders[2]?.profile?.first_name || "И")[0]}
-                      </AvatarFallback>
-                    </Avatar>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Star className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-semibold">Уровень {leaders[2]?.duel_pass_level || 1}</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium">
+                      {leaders[2]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP
+                    </p>
                   </div>
-                </div>
-                <div className="text-center space-y-2">
-                  <h3 className="font-bold text-lg">
-                    {leaders[2]?.profile?.first_name || leaders[2]?.profile?.username || "Игрок"}
-                  </h3>
-                  <div className="flex items-center justify-center gap-2">
-                    <Badge variant="outline" className="gap-1">
-                      <Star className="w-3 h-3" />
-                      Уровень {leaders[2]?.duel_pass_level || 1}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {leaders[2]?.duel_pass_xp || 0} XP
-                  </p>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
             </div>
           )}
 
@@ -316,7 +420,7 @@ const DuelPassLeaderboard = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <RankBadge rank={rank} size="sm" />
+                          <RankBadge rank={rank} size="sm" variant="pill" />
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="gap-1">
