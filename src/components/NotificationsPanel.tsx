@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, ReactNode } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,11 +15,28 @@ import { cn } from '@/lib/utils';
 import { NotificationIcon } from './NotificationIcon';
 import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
 
+type NotificationsApi = ReturnType<typeof useNotifications>;
+
+interface NotificationsPanelProps {
+  notificationsApi?: NotificationsApi;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  renderTrigger?: boolean;
+  trigger?: ReactNode;
+}
+
 type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
 
-export function NotificationsPanel() {
+export function NotificationsPanel({
+  notificationsApi,
+  open,
+  onOpenChange,
+  renderTrigger = true,
+  trigger,
+}: NotificationsPanelProps) {
   const { profileId } = useUserContext();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const api = notificationsApi ?? useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = api;
   const [filter, setFilter] = useState<NotificationFilter>('all');
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
@@ -133,18 +150,28 @@ export function NotificationsPanel() {
     }
   };
 
+  const sheetProps = typeof open === "boolean" && onOpenChange
+    ? { open, onOpenChange }
+    : {};
+
+  const defaultTrigger = (
+    <Button variant="ghost" size="icon" className="relative">
+      <Bell className="h-5 w-5" />
+      {unreadCount > 0 && (
+        <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 min-w-4 p-0 flex items-center justify-center text-[10px] font-semibold bg-red-500/85 border-none text-white">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </Badge>
+      )}
+    </Button>
+  );
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 min-w-4 p-0 flex items-center justify-center text-[10px] font-semibold bg-red-500/85 border-none text-white">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </SheetTrigger>
+    <Sheet {...sheetProps}>
+      {renderTrigger && (
+        <SheetTrigger asChild>
+          {trigger ?? defaultTrigger}
+        </SheetTrigger>
+      )}
       <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
         <SheetHeader className="p-6 pb-4 border-b">
           <div className="flex items-center justify-between mb-4">

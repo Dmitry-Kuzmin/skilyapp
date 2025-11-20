@@ -22,6 +22,7 @@ import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 import { useSessionManager } from "@/hooks/useSessionManager";
 import { ReferralModal } from "./ReferralModal";
 import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface LayoutProps {
   children: ReactNode;
@@ -36,8 +37,10 @@ const Layout = ({ children }: LayoutProps) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
   const mainContentRef = useRef<HTMLElement>(null);
+  const notificationsApi = useNotifications();
   
   // Управление сессиями (только 1 активная сессия одновременно)
   useSessionManager();
@@ -212,11 +215,19 @@ const Layout = ({ children }: LayoutProps) => {
                 </>
               )}
               <div className="flex-shrink-0">
-                <NotificationsPanel />
+                <NotificationsPanel
+                  notificationsApi={notificationsApi}
+                  open={notificationsOpen}
+                  onOpenChange={setNotificationsOpen}
+                  renderTrigger={false}
+                />
               </div>
               {isAuthenticated ? (
                 <div className="flex-shrink-0">
-                  <UserProfilePopover />
+                  <UserProfilePopover
+                    notificationsApi={notificationsApi}
+                    onOpenNotifications={() => setNotificationsOpen(true)}
+                  />
                 </div>
               ) : (
                 <Button 
@@ -306,7 +317,10 @@ const Layout = ({ children }: LayoutProps) => {
           {/* Profile/Login Icon */}
           <div className="flex flex-col items-center gap-1 py-2 px-3">
             {isAuthenticated ? (
-              <UserProfilePopover />
+              <UserProfilePopover
+                notificationsApi={notificationsApi}
+                onOpenNotifications={() => setNotificationsOpen(true)}
+              />
             ) : (
               <button
                 onClick={() => setAuthModalOpen(true)}

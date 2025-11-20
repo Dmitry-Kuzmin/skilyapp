@@ -35,9 +35,12 @@ import {
   Pencil,
   Sparkles,
   Newspaper,
-  ScrollText
+  ScrollText,
+  Mail,
+  Bell
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const supabaseClient = supabase as any;
 
@@ -78,7 +81,14 @@ const getInitials = (name?: string) => {
   return name.substring(0, 2).toUpperCase();
 };
 
-export function UserProfilePopover() {
+type NotificationsApi = ReturnType<typeof useNotifications>;
+
+interface UserProfilePopoverProps {
+  notificationsApi: NotificationsApi;
+  onOpenNotifications?: () => void;
+}
+
+export function UserProfilePopover({ notificationsApi, onOpenNotifications }: UserProfilePopoverProps) {
   const { user, profileId, logout, supabaseUser, platform } = useUserContext();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
@@ -92,6 +102,17 @@ export function UserProfilePopover() {
   const [showSkeleton, setShowSkeleton] = useState(true);
   const isMiniApp = isTelegramMiniApp();
   const hasInitializedRef = useRef(false);
+  const { unreadCount } = notificationsApi;
+  const hasUnreadNotifications = unreadCount > 0;
+  const [shouldPrioritizeNotifications, setShouldPrioritizeNotifications] = useState(false);
+
+  useEffect(() => {
+    if (unreadCount > 0) {
+      setShouldPrioritizeNotifications(true);
+    } else {
+      setShouldPrioritizeNotifications(false);
+    }
+  }, [unreadCount]);
 
   // Загружаем профиль сразу при монтировании для загрузки аватара в header
   useEffect(() => {
@@ -195,6 +216,15 @@ export function UserProfilePopover() {
             type="button"
             className="relative group z-10"
             style={{ pointerEvents: 'auto' }}
+            onClick={(event) => {
+              if (hasUnreadNotifications && shouldPrioritizeNotifications) {
+                event.preventDefault();
+                event.stopPropagation();
+                onOpenNotifications?.();
+                setOpen(false);
+                setShouldPrioritizeNotifications(false);
+              }
+            }}
           >
              {showSkeleton && loading ? (
                <Skeleton className="h-10 w-10 rounded-full" />
@@ -258,7 +288,13 @@ export function UserProfilePopover() {
                </div>
              )}
             {!showSkeleton && (
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
+              hasUnreadNotifications ? (
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-background z-30 shadow-lg animate-pulse">
+                  <Mail className="w-3 h-3" />
+                </div>
+              ) : (
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
+              )
             )}
           </button>
         </PopoverTrigger>
@@ -419,6 +455,17 @@ export function UserProfilePopover() {
             <div className="space-y-1">
               {[
                 {
+                  key: 'notifications',
+                  icon: Bell,
+                  label: t('profileMenu.notifications'),
+                  trailing: unreadCount > 0 ? (
+                    <span className="text-xs font-semibold text-primary">
+                      +{unreadCount > 9 ? '9' : unreadCount}
+                    </span>
+                  ) : null,
+                  action: () => onOpenNotifications?.(),
+                },
+                {
                   key: 'help',
                   icon: HelpCircle,
                   label: t('profileMenu.helpCenter'),
@@ -442,7 +489,7 @@ export function UserProfilePopover() {
                   label: t('profileMenu.invite'),
                   action: () => setReferralModalOpen(true),
                 },
-              ].map(({ key, icon: Icon, label, action }) => (
+              ].map(({ key, icon: Icon, label, action, trailing }) => (
                 <button
                   key={key}
                   type="button"
@@ -456,7 +503,7 @@ export function UserProfilePopover() {
                     <Icon className="h-4 w-4 text-muted-foreground" />
                     <span>{label}</span>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  {trailing ?? <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                 </button>
               ))}
               
