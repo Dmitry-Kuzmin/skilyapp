@@ -1541,7 +1541,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       {/* Unified Progress Bar - переиспользуемый компонент */}
       <div 
-        className="absolute left-0 right-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/30"
+        className="absolute left-0 right-0 z-[5] bg-background/95 backdrop-blur-md border-b border-border/30"
         style={{
           top: `${progressBarTop}px`,
           paddingLeft: `${totalLeftPadding}px`,
@@ -1605,7 +1605,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }}
       >
         {/* Header - Scores & Boosts - Premium Design */}
-        <div className={`flex items-center justify-between gap-3 flex-wrap ${
+        <div className={`relative z-20 flex items-center justify-between gap-3 flex-wrap ${
           isTelegramMobile 
             ? 'mb-2' // Убираем отрицательный margin, чтобы блок не выходил за границы
             : isTelegramDesktop 
