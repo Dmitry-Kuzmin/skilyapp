@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
@@ -10,6 +10,15 @@ import { AchievementsModalContent } from "./AchievementsModalContent";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const XP_PER_LEVEL = 225;
+const ACHIEVEMENTS_CACHE_DURATION = 60000; // 60 секунд
+
+const statsCache: Record<
+  string,
+  {
+    data: ProfileStats;
+    timestamp: number;
+  }
+> = {};
 
 interface ProfileStats {
   xp: number;
@@ -31,21 +40,49 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
   const { t } = useLanguage();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const [open, setOpen] = useState(false);
   const isMobileViewport = useIsMobile();
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
-    const loadStats = async () => {
-      if (!profileId || !isAuthenticated) {
-        if (isMounted) {
-          setStats(null);
-          setLoading(false);
-        }
-        return;
-      }
+    let skeletonTimeout: NodeJS.Timeout | null = null;
+    let hideSkeletonTimeout: NodeJS.Timeout | null = null;
 
+    if (!profileId || !isAuthenticated) {
+      setStats(null);
+      setLoading(false);
+      setShowSkeleton(false);
+      return () => {
+        isMounted = false;
+        if (skeletonTimeout) clearTimeout(skeletonTimeout);
+      };
+    }
+
+    const now = Date.now();
+    const cached = statsCache[profileId];
+    if (cached && now - cached.timestamp < ACHIEVEMENTS_CACHE_DURATION) {
+      setStats(cached.data);
+      setLoading(false);
+      setShowSkeleton(false);
+      hasInitializedRef.current = true;
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    if (!hasInitializedRef.current) {
+      skeletonTimeout = setTimeout(() => {
+        if (isMounted) {
+          setShowSkeleton(true);
+        }
+      }, 80);
+    }
+
+    const loadStats = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from("profiles")
           .select("xp, streak_days")
@@ -55,7 +92,12 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
         if (error) {
           console.error("[AchievementsWidget] Failed to load profile stats:", error);
           if (isMounted) {
-            setStats({ xp: 0, streakDays: 0 });
+            const fallback = { xp: 0, streakDays: 0 };
+            setStats(fallback);
+            statsCache[profileId] = {
+              data: fallback,
+              timestamp: Date.now(),
+            };
           }
           return;
         }
@@ -63,17 +105,33 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
         if (!isMounted) return;
         const row = (data ?? null) as ProfileRow | null;
         if (!row) {
-          setStats({ xp: 0, streakDays: 0 });
+          const fallback = { xp: 0, streakDays: 0 };
+          setStats(fallback);
+          statsCache[profileId] = {
+            data: fallback,
+            timestamp: Date.now(),
+          };
           return;
         }
 
-        setStats({
+        const resolvedStats = {
           xp: row.xp || 0,
           streakDays: row.streak_days || 0,
-        });
+        };
+        setStats(resolvedStats);
+        statsCache[profileId] = {
+          data: resolvedStats,
+          timestamp: Date.now(),
+        };
       } finally {
         if (isMounted) {
           setLoading(false);
+          hasInitializedRef.current = true;
+          hideSkeletonTimeout = setTimeout(() => {
+            if (isMounted) {
+              setShowSkeleton(false);
+            }
+          }, 50);
         }
       }
     };
@@ -82,6 +140,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
     return () => {
       isMounted = false;
+      if (skeletonTimeout) clearTimeout(skeletonTimeout);
+      if (hideSkeletonTimeout) clearTimeout(hideSkeletonTimeout);
     };
   }, [profileId, isAuthenticated]);
 
@@ -89,7 +149,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
     return null;
   }
 
-  if (loading) {
+  if (loading || showSkeleton) {
     return (
       <Skeleton className={cn("h-7 w-20 rounded-lg bg-muted/40", className)} />
     );
