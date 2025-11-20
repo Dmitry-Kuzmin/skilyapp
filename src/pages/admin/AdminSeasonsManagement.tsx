@@ -579,30 +579,58 @@ export function AdminSeasonsManagement() {
   const endedSeasons = seasons.filter((s) => getSeasonStatus(s).label === "Завершён");
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight">Управление сезонами</h1>
-          <p className="text-muted-foreground mt-2">
-            Полный контроль над сезонами, призами и распределением наград
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={checkEndedSeasons} disabled={checkSeasonsLoading}>
-            <RefreshCw className={cn("w-4 h-4 mr-2", checkSeasonsLoading && "animate-spin")} />
-            Проверить сезоны
-          </Button>
-          <Button variant="outline" onClick={planNextSeason}>
-            <Calendar className="w-4 h-4 mr-2" />
-            Запланировать следующий
-          </Button>
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={resetSeasonForm}>
-                <Plus className="w-4 h-4" />
-                Создать сезон
-              </Button>
-            </DialogTrigger>
+    <div className="space-y-6">
+      {/* Улучшенный заголовок с градиентом */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 p-6 md:p-8"
+      >
+        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-primary/20 backdrop-blur-sm">
+                <Calendar className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                  Управление сезонами
+                </h1>
+                <p className="text-muted-foreground mt-1 text-sm md:text-base">
+                  Полный контроль над сезонами, призами и распределением наград
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={checkEndedSeasons} 
+              disabled={checkSeasonsLoading}
+              className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
+            >
+              <RefreshCw className={cn("w-4 h-4", checkSeasonsLoading && "animate-spin")} />
+              Проверить сезоны
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={planNextSeason}
+              className="gap-2 hover:bg-primary/10 hover:border-primary/30 transition-all"
+            >
+              <Calendar className="w-4 h-4" />
+              Запланировать следующий
+            </Button>
+            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all"
+                  onClick={resetSeasonForm}
+                >
+                  <Plus className="w-4 h-4" />
+                  Создать сезон
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Создать новый сезон</DialogTitle>
@@ -618,66 +646,117 @@ export function AdminSeasonsManagement() {
               />
             </DialogContent>
           </Dialog>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Всего сезонов</p>
-                <p className="text-2xl font-bold">{seasons.length}</p>
+      {/* Улучшенная статистика с анимациями */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-4 gap-4"
+      >
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Card className="border-2 border-border/50 hover:border-primary/30 transition-all overflow-hidden relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <CardContent className="p-5 relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Всего сезонов</p>
+                  <p className="text-3xl font-black bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    {seasons.length}
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                  <Calendar className="w-6 h-6 text-primary" />
+                </div>
               </div>
-              <Calendar className="w-8 h-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Активных</p>
-                <p className="text-2xl font-bold text-green-600">{activeSeasons.length}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          transition={{ type: "spring", stiffness: 300, delay: 0.05 }}
+        >
+          <Card className="border-2 border-green-500/20 hover:border-green-500/40 transition-all overflow-hidden relative group bg-gradient-to-br from-green-500/5 to-transparent">
+            <CardContent className="p-5 relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Активных</p>
+                  <p className="text-3xl font-black text-green-600">{activeSeasons.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-green-500/20 group-hover:bg-green-500/30 transition-colors">
+                  <Play className="w-6 h-6 text-green-600" />
+                </div>
               </div>
-              <Play className="w-8 h-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Завершённых</p>
-                <p className="text-2xl font-bold text-orange-600">{endedSeasons.length}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          transition={{ type: "spring", stiffness: 300, delay: 0.1 }}
+        >
+          <Card className="border-2 border-orange-500/20 hover:border-orange-500/40 transition-all overflow-hidden relative group bg-gradient-to-br from-orange-500/5 to-transparent">
+            <CardContent className="p-5 relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Завершённых</p>
+                  <p className="text-3xl font-black text-orange-600">{endedSeasons.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-orange-500/20 group-hover:bg-orange-500/30 transition-colors">
+                  <CheckCircle2 className="w-6 h-6 text-orange-600" />
+                </div>
               </div>
-              <CheckCircle2 className="w-8 h-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">С призами</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {Object.keys(rewards).length}
-                </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          transition={{ type: "spring", stiffness: 300, delay: 0.15 }}
+        >
+          <Card className="border-2 border-purple-500/20 hover:border-purple-500/40 transition-all overflow-hidden relative group bg-gradient-to-br from-purple-500/5 to-transparent">
+            <CardContent className="p-5 relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">С призами</p>
+                  <p className="text-3xl font-black text-purple-600">
+                    {Object.keys(rewards).length}
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
+                  <Trophy className="w-6 h-6 text-purple-600" />
+                </div>
               </div>
-              <Trophy className="w-8 h-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
 
-      <Tabs defaultValue="seasons" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="seasons">Сезоны</TabsTrigger>
-          <TabsTrigger value="monitoring">Мониторинг</TabsTrigger>
-          <TabsTrigger value="logs">Логи Cron</TabsTrigger>
-          <TabsTrigger value="guide">📖 Руководство</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="seasons" className="space-y-6">
+        <div className="flex items-center justify-between">
+          <TabsList className="grid w-full md:w-auto grid-cols-4 gap-2">
+            <TabsTrigger value="seasons" className="gap-2">
+              <Calendar className="w-4 h-4" />
+              Сезоны
+            </TabsTrigger>
+            <TabsTrigger value="monitoring" className="gap-2">
+              <Activity className="w-4 h-4" />
+              Мониторинг
+            </TabsTrigger>
+            <TabsTrigger value="logs" className="gap-2">
+              <FileText className="w-4 h-4" />
+              Логи
+            </TabsTrigger>
+            <TabsTrigger value="guide" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              Руководство
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="seasons" className="space-y-4">
           {/* Фильтры */}
@@ -1321,42 +1400,118 @@ function GuideTab() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Быстрый старт */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-primary" />
-              <h3 className="text-xl font-bold">🚀 Быстрый старт</h3>
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Zap className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">🚀 Быстрый старт</h3>
+                <p className="text-sm text-muted-foreground">Начни работу за 5 минут</p>
+              </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-primary" />
-                    Создание сезона
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p>1. Нажми <strong>"Запланировать следующий"</strong></p>
-                  <p>2. Проверь даты (автоматически заполнены)</p>
-                  <p>3. Заполни название и описание</p>
-                  <p>4. Сохрани</p>
-                </CardContent>
-              </Card>
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Award className="w-5 h-5 text-primary" />
-                    Настройка призов
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p>1. Открой <strong>"Управление призами"</strong></p>
-                  <p>2. Нажми <strong>"Применить шаблон"</strong> для позиций</p>
-                  <p>3. При необходимости отредактируй</p>
-                  <p>4. Готово!</p>
-                </CardContent>
-              </Card>
+              <motion.div
+                whileHover={{ scale: 1.02, y: -4 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all overflow-hidden relative group h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="relative z-10">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Plus className="w-5 h-5 text-primary" />
+                      </div>
+                      Создание сезона
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="relative z-10 space-y-3 text-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <p>Нажми <strong className="text-primary">"Запланировать следующий"</strong> — система автоматически заполнит даты</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <p>Проверь даты начала и окончания (автоматически: текущий сезон + 30 дней)</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <p>Заполни название (RU, ES, EN) и описание сезона</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        4
+                      </div>
+                      <p>Выбери тему (зима, весна, лето, осень, специальный) и сохрани</p>
+                    </div>
+                    <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-border/50">
+                      <p className="text-xs text-muted-foreground">
+                        💡 <strong>Совет:</strong> Сезон автоматически активируется при создании. Можно деактивировать позже.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.02, y: -4 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.05 }}
+              >
+                <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all overflow-hidden relative group h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="relative z-10">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Award className="w-5 h-5 text-primary" />
+                      </div>
+                      Настройка призов
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="relative z-10 space-y-3 text-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <p>Открой карточку сезона и нажми <strong className="text-primary">"Управление"</strong> в разделе "Призы лидерборда"</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <p>Нажми <strong className="text-primary">"Применить шаблон"</strong> для позиций 1, 2, 3, 4-10</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <p>При необходимости отредактируй призы (измени количество монет, выбери другую косметику)</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        4
+                      </div>
+                      <p>Готово! Призы настроены и готовы к автоматическому распределению</p>
+                    </div>
+                    <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-border/50">
+                      <p className="text-xs text-muted-foreground">
+                        💡 <strong>Совет:</strong> Шаблоны создают стандартный набор призов. Можно добавить дополнительные призы вручную.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
-          </section>
+          </motion.section>
 
           {/* Автоматическое распределение */}
           <section className="space-y-4">
@@ -1382,37 +1537,101 @@ function GuideTab() {
                   </div>
                 </div>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <p className="font-semibold text-green-600">Призы распределены</p>
+                  <motion.div
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    className="p-5 rounded-xl bg-gradient-to-br from-green-500/10 to-green-500/5 border-2 border-green-500/30 hover:border-green-500/50 transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-lg bg-green-500/20">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      </div>
+                      <p className="font-bold text-green-600">✅ Призы распределены</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Показано количество распределённых наград
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Показано количество распределённых наград. Все игроки получили свои призы.
                     </p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertCircle className="w-4 h-4 text-orange-600" />
-                      <p className="font-semibold text-orange-600">Сезон завершён</p>
+                    <div className="mt-3 p-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <p className="text-xs text-green-700 dark:text-green-400">
+                        💡 Призы можно посмотреть в разделе "Статистика" сезона
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Призы настроены, но ещё не распределены. Нажми "Проверить сезоны".
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <XCircle className="w-4 h-4 text-red-600" />
-                      <p className="font-semibold text-red-600">Призы не настроены</p>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    className="p-5 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-2 border-orange-500/30 hover:border-orange-500/50 transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-lg bg-orange-500/20">
+                        <AlertCircle className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <p className="font-bold text-orange-600">⏳ Сезон завершён</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Настрой призы через редактор перед распределением.
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Призы настроены, но ещё не распределены. Нажми "Проверить сезоны" для автоматического распределения.
                     </p>
+                    <div className="mt-3 p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                      <p className="text-xs text-orange-700 dark:text-orange-400">
+                        💡 Система автоматически найдёт этот сезон и распределит призы
+                      </p>
+                    </div>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    className="p-5 rounded-xl bg-gradient-to-br from-red-500/10 to-red-500/5 border-2 border-red-500/30 hover:border-red-500/50 transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-lg bg-red-500/20">
+                        <XCircle className="w-5 h-5 text-red-600" />
+                      </div>
+                      <p className="font-bold text-red-600">⚠️ Призы не настроены</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Настрой призы через редактор перед распределением. Без призов распределение не произойдёт.
+                    </p>
+                    <div className="mt-3 p-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                      <p className="text-xs text-red-700 dark:text-red-400">
+                        💡 Используй шаблоны для быстрого создания призов
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
+
+                <div className="border-t pt-6 space-y-4">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-primary" />
+                    Технические детали
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+                      <p className="font-semibold text-sm mb-2">Edge Function: season-end-rewards</p>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Функция вызывается автоматически при нажатии "Проверить сезоны". Она:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground ml-2">
+                        <li>Определяет топ-10 игроков по уровню и XP</li>
+                        <li>Вызывает RPC `claim_leaderboard_rewards` для каждого игрока</li>
+                        <li>Распределяет косметику (скины, бейджи, рамки) в инвентарь</li>
+                        <li>Начисляет монеты в кошелёк</li>
+                        <li>Создаёт уведомления для пользователей</li>
+                      </ul>
+                    </div>
+                    <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+                      <p className="font-semibold text-sm mb-2">RPC: claim_leaderboard_rewards</p>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Функция в БД, которая обрабатывает начисление призов:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-xs text-muted-foreground ml-2">
+                        <li>Получает все призы для позиции из `leaderboard_season_rewards`</li>
+                        <li>Создаёт запись в `user_leaderboard_rewards`</li>
+                        <li>Логирует все операции для отслеживания</li>
+                        <li>Возвращает JSON с результатом распределения</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </section>
+          </motion.section>
 
           {/* FAQ */}
           <section className="space-y-4">
