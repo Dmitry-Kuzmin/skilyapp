@@ -114,7 +114,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button type="button" className="w-full text-left">
+        <button type="button" className="w-full text-left" aria-label={t("profileMenu.achievements")}>
           {trigger}
         </button>
       </DialogTrigger>

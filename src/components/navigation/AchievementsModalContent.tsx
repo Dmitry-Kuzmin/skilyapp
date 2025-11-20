@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Sparkles, Trophy, Star, Zap, Target, Award, Crown } from "lucide-react";
+import { Sparkles, Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import AchievementCard from "@/components/AchievementCard";
+import { cn } from "@/lib/utils";
 
 const XP_PER_LEVEL = 225;
 
@@ -187,18 +187,53 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {sortedAchievements.map((achievement) => (
-                  <AchievementCard
-                    key={achievement.id}
-                    title={achievement.title.ru}
-                    description={achievement.description.ru}
-                    unlocked={achievement.unlocked}
-                    progress={achievement.progress}
-                    maxProgress={achievement.progress_target}
-                    icon={achievement.icon}
-                    reward={achievement.reward}
-                  />
-                ))}
+                {sortedAchievements.map((achievement) => {
+                  const isUnlocked = achievement.unlocked;
+                  const percent = Math.min(
+                    100,
+                    Math.round((achievement.progress / achievement.progress_target) * 100)
+                  );
+                  return (
+                    <Card
+                      key={achievement.id}
+                      className={cn(
+                        "p-4 border relative overflow-hidden transition-all",
+                        isUnlocked
+                          ? "border-primary/40 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent shadow-lg"
+                          : "border-border/40 bg-card/60"
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            {isUnlocked ? (
+                              <CheckCircle2 className="w-4 h-4 text-primary" />
+                            ) : (
+                              <Lock className "w-4 h-4 text-muted-foreground" />
+                            )}
+                            <span className="text-sm font-semibold">{achievement.title.ru}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">{achievement.description.ru}</p>
+                        </div>
+                        <div className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          +{achievement.reward.xp} XP
+                        </div>
+                      </div>
+                      {!isUnlocked && (
+                        <>
+                          <div className="flex items-center justify между текст-[11px] текст-muted-foreground mt-3">
+                            <span>Прогресс</span>
+                            <span>{percent}%</span>
+                          </div>
+                          <Progress value={percent} className="h-1.5 mt-1.5" />
+                        </>
+                      )}
+                      {isUnlocked && (
+                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary/5 to-transparent animate-[pulse_3s_ease-in-out_infinite]" />
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           );
