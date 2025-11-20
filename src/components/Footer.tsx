@@ -35,7 +35,6 @@ export function Footer() {
     ],
     [
       { to: "/subscription-terms", label: t("footer.subscriptionTerms") },
-      { to: "/achievements", label: t("profileMenu.achievements") },
     ],
   ];
 
