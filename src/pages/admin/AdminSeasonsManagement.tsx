@@ -1303,6 +1303,171 @@ function MonitoringTab({ seasons, rewards, seasonStats, getSeasonStatus, formatD
   );
 }
 
+// Компонент вкладки руководства
+function GuideTab() {
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <BookOpen className="w-6 h-6 text-primary" />
+            <div>
+              <CardTitle className="text-2xl">Руководство по управлению сезонами</CardTitle>
+              <CardDescription>
+                Полная инструкция по работе с сезонами, призами и автоматическим распределением
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Быстрый старт */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
+              <h3 className="text-xl font-bold">🚀 Быстрый старт</h3>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-primary" />
+                    Создание сезона
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>1. Нажми <strong>"Запланировать следующий"</strong></p>
+                  <p>2. Проверь даты (автоматически заполнены)</p>
+                  <p>3. Заполни название и описание</p>
+                  <p>4. Сохрани</p>
+                </CardContent>
+              </Card>
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Award className="w-5 h-5 text-primary" />
+                    Настройка призов
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>1. Открой <strong>"Управление призами"</strong></p>
+                  <p>2. Нажми <strong>"Применить шаблон"</strong> для позиций</p>
+                  <p>3. При необходимости отредактируй</p>
+                  <p>4. Готово!</p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* Автоматическое распределение */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
+              <h3 className="text-xl font-bold">🤖 Автоматическое распределение</h3>
+            </div>
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+                  <div className="flex items-start gap-3">
+                    <Lightbulb className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-semibold mb-2">Как это работает:</p>
+                      <ol className="list-decimal list-inside space-y-2 text-sm">
+                        <li>Сезон завершается в указанную дату</li>
+                        <li>Триггер в БД автоматически логирует событие</li>
+                        <li>Нажми <strong>"Проверить сезоны"</strong> — система найдёт все завершившиеся сезоны</li>
+                        <li>Призы распределятся <strong>автоматически</strong> для каждого сезона</li>
+                        <li>Статус отобразится в карточке сезона</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <p className="font-semibold text-green-600">Призы распределены</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Показано количество распределённых наград
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="w-4 h-4 text-orange-600" />
+                      <p className="font-semibold text-orange-600">Сезон завершён</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Призы настроены, но ещё не распределены. Нажми "Проверить сезоны".
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <XCircle className="w-4 h-4 text-red-600" />
+                      <p className="font-semibold text-red-600">Призы не настроены</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Настрой призы через редактор перед распределением.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* FAQ */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2">
+              <HelpCircle className="w-5 h-5 text-primary" />
+              <h3 className="text-xl font-bold">❓ Часто задаваемые вопросы</h3>
+            </div>
+            <div className="space-y-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Нужно ли нажимать "Распределить призы" вручную?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Нет!</strong> Просто нажми <strong>"Проверить сезоны"</strong> — система автоматически найдёт все завершившиеся сезоны и распределит призы для каждого.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Что если призы не настроены?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Система покажет красное предупреждение: "Призы не настроены". Открой "Управление призами" и настрой призы через редактор, затем распредели их.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Можно ли изменить призы после создания?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Да!</strong> Открой редактор призов и нажми ✏️ на любом призе. Измени параметры и сохрани.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // Компонент вкладки логов
 function CronLogsTab({ logs, onRefresh }: { logs: CronLog[]; onRefresh: () => void }) {
   return (
