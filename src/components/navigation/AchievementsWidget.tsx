@@ -109,6 +109,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
     <div className={cn(baseClasses, className)}>
       <Sparkles className="w-4 h-4 text-primary" />
       <span className="text-sm font-semibold tabular-nums">{xp.toLocaleString()}</span>
+      <span className="text-[11px] text-muted-foreground">XP</span>
     </div>
   );
 
