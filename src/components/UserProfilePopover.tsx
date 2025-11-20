@@ -37,12 +37,15 @@ import {
   Newspaper,
   ScrollText,
   MailOpen,
-  Bell
+  Bell,
+  Trophy,
+  Flame,
+  Calendar,
+  Star
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useCosmeticsPreview } from "@/contexts/CosmeticsPreviewContext";
-import { Sparkles, Trophy, Flame, Crown, Calendar, Star } from "lucide-react";
 
 const supabaseClient = supabase as any;
 
