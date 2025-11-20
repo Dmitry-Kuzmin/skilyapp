@@ -33,7 +33,9 @@ import {
   Languages,
   Zap,
   Pencil,
-  Sparkles
+  Sparkles,
+  Newspaper,
+  ScrollText
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -117,13 +119,13 @@ export function UserProfilePopover() {
     try {
       setLoading(true);
       if (!hasInitializedRef.current) {
-        setShowSkeleton(true);
+      setShowSkeleton(true);
       }
       
       // Задержка перед показом skeleton для предотвращения мигания
       const skeletonTimeout = setTimeout(() => {
         if (!hasInitializedRef.current) {
-          setShowSkeleton(true);
+        setShowSkeleton(true);
         }
       }, 100);
 
@@ -362,7 +364,7 @@ export function UserProfilePopover() {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Button
                 variant="outline"
                 className="h-9 text-sm"
@@ -428,10 +430,40 @@ export function UserProfilePopover() {
             <div className="space-y-1">
               <button
                 className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/help');
+                }}
               >
                 <div className="flex items-center gap-2">
                   <HelpCircle className="h-4 w-4 text-muted-foreground" />
                   <span>{t('profileMenu.helpCenter')}</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button
+                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/blog');
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <Newspaper className="h-4 w-4 text-muted-foreground" />
+                  <span>{t('profileMenu.blog')}</span>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button
+                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  navigate('/terms');
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <ScrollText className="h-4 w-4 text-muted-foreground" />
+                  <span>{t('profileMenu.legal')}</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>

@@ -526,8 +526,7 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
       {/* Header */}
       <div
         ref={headerRef}
-        className="flex items-center justify-between p-4 md:p-6 pb-3 bg-transparent border-b border-transparent"
-        style={{ backgroundColor: 'transparent' }}
+        className="flex items-center justify-between p-4 md:p-6 pb-3 bg-transparent border-b border-black/60"
       >
         <div className="flex items-center gap-3">
           {currentSlide > 0 && (
