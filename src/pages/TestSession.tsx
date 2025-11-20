@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
 import { QuestionProgressBar } from "@/components/QuestionProgressBar";
@@ -151,10 +151,22 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
 };
 
 const TestSession = () => {
-  const { mode, topic, testId } = useParams();
+  const params = useParams();
+  const topic = params.topic;
+  const testId = params.testId;
+  const rawMode = params.mode;
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { profileId } = useUserContext();
+  const mode = useMemo(() => {
+    if (rawMode) return rawMode;
+    if (location.pathname.includes("/test/sequential")) return "sequential";
+    if (location.pathname.includes("/test/challenge-bank")) return "challenge-bank";
+    if (location.pathname.includes("/test/module")) return "module";
+    if (location.pathname.includes("/test/dgt")) return "dgt";
+    return "practice";
+  }, [rawMode, location.pathname]);
   
   // Получаем количество вопросов из URL
   const questionCount = parseInt(searchParams.get('count') || '30');
@@ -1345,6 +1357,9 @@ const TestSession = () => {
     }
   };
 
+  const practiceLikeModes = ["practice", "mastery", "sequential", "module", "challenge-bank", "dgt"];
+  const isPracticeLikeMode = practiceLikeModes.includes(mode);
+
   const handleAnswer = async (optionId?: string) => {
     const answerId = optionId || selectedOption;
     if (!answerId) return;
@@ -1489,7 +1504,7 @@ const TestSession = () => {
       console.error("Error saving progress:", error);
     }
 
-    if (mode === "practice" || mode === "dgt" || mode === "mastery") {
+    if (isPracticeLikeMode) {
       // НЕ открываем Lumi автоматически - только по клику пользователя
       // setShowAIExplanation(true); // ОТКЛЮЧЕНО для лучшего UX
       
@@ -1756,7 +1771,7 @@ const TestSession = () => {
       {/* Layout: В экзамене - центрированный широкий блок, в practice - grid с AI Widget */}
         <div className={cn(
         "mx-auto transition-all duration-300",
-        !isTelegramApp && mode === "practice" 
+        !isTelegramApp && isPracticeLikeMode 
           ? "flex flex-col lg:grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] lg:items-start lg:gap-3 xl:gap-4 max-w-full lg:max-w-[1370px] px-2 sm:px-4" 
           : mode === "exam" && !isTelegramApp
           ? "lg:max-w-[1100px] lg:px-4"
@@ -1848,7 +1863,7 @@ const TestSession = () => {
                       {displayQuestion}
                     </h2>
                     {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                    {mode === "practice" && (
+                    {isPracticeLikeMode && (
                       <button
                         onClick={toggleTranslation}
                         className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
@@ -1866,7 +1881,7 @@ const TestSession = () => {
                   {sortedOptions.map((option, optionIndex) => {
                     const isSelected = selectedOption === option.id;
                     const isCorrect = option.is_correct;
-                    const showResult = selectedOption !== null && mode === "practice";
+                    const showResult = selectedOption !== null && isPracticeLikeMode;
                     // Ответы тоже учитывают showTranslation (кнопка перевода)
                     const displayText = showTranslation 
                       ? option.text_ru 
@@ -1886,7 +1901,7 @@ const TestSession = () => {
                             handleAnswer(option.id);
                           }
                         }}
-                        disabled={mode === "practice" && selectedOption !== null}
+                        disabled={isPracticeLikeMode && selectedOption !== null}
                   className={`
                           w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                           ${showResult
@@ -1938,7 +1953,7 @@ const TestSession = () => {
                 {/* Navigation Buttons - с аватаром Lumi на мобильном */}
                 <div className="flex gap-2 items-center">
                   {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
-          {mode === "practice" && (
+          {isPracticeLikeMode && (
                     <button
                       onClick={() => setShowAIExplanation(true)}
                       className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
@@ -1955,7 +1970,7 @@ const TestSession = () => {
                     </button>
                   )}
                   
-                  {mode === "practice" && selectedOption ? (
+                  {isPracticeLikeMode && selectedOption ? (
               <Button
                       onClick={nextQuestion} 
                       className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
@@ -1996,7 +2011,7 @@ const TestSession = () => {
                     {displayQuestion}
                   </h2>
                   {/* Translation Button (Practice Only) - в правом нижнем углу */}
-                  {mode === "practice" && (
+                  {isPracticeLikeMode && (
                     <button
                       onClick={toggleTranslation}
                       className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 hover:bg-muted border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors z-10"
@@ -2014,7 +2029,7 @@ const TestSession = () => {
             {sortedOptions.map((option, optionIndex) => {
               const isSelected = selectedOption === option.id;
               const isCorrect = option.is_correct;
-              const showResult = selectedOption !== null && mode === "practice";
+              const showResult = selectedOption !== null && isPracticeLikeMode;
               // Ответы тоже учитывают showTranslation (кнопка перевода)
               const displayText = showTranslation 
                 ? option.text_ru 
@@ -2034,7 +2049,7 @@ const TestSession = () => {
                       handleAnswer(option.id);
                     }
                   }}
-                  disabled={mode === "practice" && selectedOption !== null}
+                  disabled={isPracticeLikeMode && selectedOption !== null}
                   className={`
                     w-full text-left p-3 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 font-medium
                     ${showResult
@@ -2086,7 +2101,7 @@ const TestSession = () => {
           {/* Navigation Buttons - с аватаром Lumi на мобильном */}
           <div className="flex gap-2 items-center">
             {/* Lumi Avatar - на маленьких экранах в браузере и в Telegram (всегда видна в practice режиме) */}
-            {mode === "practice" && (
+            {isPracticeLikeMode && (
               <button
                 onClick={() => setShowAIExplanation(true)}
                 className="group w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 via-orange-500 to-orange-600 hover:from-yellow-400 hover:via-orange-400 hover:to-orange-500 shadow-xl hover:shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 shrink-0 relative overflow-hidden lg:hidden ring-2 ring-orange-400/50 hover:ring-orange-300/80"
@@ -2102,7 +2117,7 @@ const TestSession = () => {
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-300" />
               </button>
             )}
-            {mode === "practice" && selectedOption ? (
+            {isPracticeLikeMode && selectedOption ? (
               <Button 
                 onClick={nextQuestion} 
                 className="flex-1 font-bold shadow-2xl text-sm sm:text-base md:text-lg bg-gradient-to-r from-secondary to-secondary/80 hover:from-secondary/90 hover:to-secondary/70 h-10 sm:h-11 md:h-12"
@@ -2385,7 +2400,7 @@ const TestSession = () => {
 
 
       {/* AI Explanation Dialog - работает всегда в practice режиме */}
-      {mode === "practice" && (
+      {isPracticeLikeMode && (
         <AIExplanationDialog
           open={showAIExplanation}
           onClose={() => setShowAIExplanation(false)}
@@ -2411,7 +2426,7 @@ const TestSession = () => {
 
       {/* AI Widget Lumi - только в режиме практики в браузере (не в Telegram), НЕ в экзамене */}
       {/* Только на больших экранах (lg+) - справа, на маленьких используется кнопка в навигации */}
-      {!isTelegramApp && mode === "practice" && (
+      {!isTelegramApp && isPracticeLikeMode && (
         <div className={cn(
           "hidden lg:flex lg:flex-col pt-0 md:pt-3",
           !isTelegramApp && "pb-2 md:pb-3"

@@ -16,6 +16,7 @@ import { UserProfilePopover } from "./UserProfilePopover";
 import { TelegramSafeAreaDebug } from "./TelegramSafeAreaDebug";
 import { Footer } from "./Footer";
 import { WalletWidget } from "./navigation/WalletWidget";
+import { AchievementsWidget } from "./navigation/AchievementsWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 import { useSessionManager } from "@/hooks/useSessionManager";
@@ -187,9 +188,10 @@ const Layout = ({ children }: LayoutProps) => {
             <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
               {isAuthenticated && (
                 <>
-                  {/* WalletWidget в header на больших экранах */}
-                  <div className="hidden lg:flex min-w-0 flex-shrink-0 mr-1">
+                  {/* Wallet + Achievements widgets в header на больших экранах */}
+                  <div className="hidden lg:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
                     <WalletWidget />
+                    <AchievementsWidget />
                   </div>
                   <Button
                     variant="ghost"
@@ -236,8 +238,9 @@ const Layout = ({ children }: LayoutProps) => {
       {isAuthenticated && !isTelegramApp && (
         <div className="hidden md:flex lg:hidden border-b border-border/50 backdrop-blur-xl bg-card/20 sticky top-16 z-40">
           <div className="container mx-auto px-4 py-2">
-            <div className="flex items-center justify-end w-full">
+            <div className="flex items-center justify-end w-full gap-2">
               <WalletWidget />
+              <AchievementsWidget />
             </div>
           </div>
         </div>
@@ -265,6 +268,7 @@ const Layout = ({ children }: LayoutProps) => {
         {isAuthenticated && (
           <div className="px-3 py-2 border-b border-border/50 space-y-2 bg-card/50 flex-shrink-0">
             <WalletWidget />
+            <AchievementsWidget variant="mobile" />
             {/* Active Duel Widget для мобильных */}
             <ActiveDuelWidget />
           </div>
