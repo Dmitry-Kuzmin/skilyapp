@@ -184,6 +184,7 @@ const App = () => {
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
           <Route path="/duel-pass-leaderboard" element={<DuelPassLeaderboard />} />
+          <Route path="/hall-of-fame" element={<HallOfFame />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />

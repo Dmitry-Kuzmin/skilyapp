@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
 import { motion } from "framer-motion";
+import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
+import { useNavigate } from "react-router-dom";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -51,15 +53,32 @@ const rarityColors = {
 
 const DuelPassLeaderboard = () => {
   const { profileId } = useUserContext();
+  const navigate = useNavigate();
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [rewardsModalOpen, setRewardsModalOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+  const [activeSeasonId, setActiveSeasonId] = useState<number | null>(null);
 
   useEffect(() => {
     const loadLeaderboard = async () => {
       setLoading(true);
       setError(null);
       try {
+        // Получаем активный сезон
+        const { data: activeSeason } = await supabase
+          .from("duel_pass_seasons")
+          .select("id")
+          .eq("is_active", true)
+          .order("season_number", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (activeSeason) {
+          setActiveSeasonId(activeSeason.id);
+        }
+
         const { data, error } = await supabase.functions.invoke("duel-pass-leaderboard", {
           body: { limit: 50 },
         });
@@ -103,6 +122,16 @@ const DuelPassLeaderboard = () => {
               Лучшие игроки, заработавшие больше всего уровней и наград в Duel Pass.
               Покажи свою косметику и достижения!
             </p>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/hall-of-fame")}
+                className="gap-2"
+              >
+                <Trophy className="w-4 h-4" />
+                Зал славы
+              </Button>
+            </div>
           </header>
 
           {/* Топ 3 - Премиум пьедестал */}
@@ -501,6 +530,16 @@ const DuelPassLeaderboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Модальное окно с призами */}
+      {activeSeasonId && selectedPosition && (
+        <LeaderboardRewardsModal
+          open={rewardsModalOpen}
+          onOpenChange={setRewardsModalOpen}
+          seasonId={activeSeasonId}
+          position={selectedPosition}
+        />
+      )}
     </Layout>
   );
 };
