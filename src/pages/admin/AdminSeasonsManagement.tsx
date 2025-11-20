@@ -29,6 +29,12 @@ import {
   Activity,
   Filter,
   Search,
+  BookOpen,
+  HelpCircle,
+  Lightbulb,
+  CheckCircle,
+  XCircle,
+  Info,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -670,6 +676,7 @@ export function AdminSeasonsManagement() {
           <TabsTrigger value="seasons">Сезоны</TabsTrigger>
           <TabsTrigger value="monitoring">Мониторинг</TabsTrigger>
           <TabsTrigger value="logs">Логи Cron</TabsTrigger>
+          <TabsTrigger value="guide">📖 Руководство</TabsTrigger>
         </TabsList>
 
         <TabsContent value="seasons" className="space-y-4">
@@ -767,6 +774,10 @@ export function AdminSeasonsManagement() {
 
         <TabsContent value="logs" className="space-y-4">
           <CronLogsTab logs={cronLogs} onRefresh={loadCronLogs} />
+        </TabsContent>
+
+        <TabsContent value="guide" className="space-y-4">
+          <GuideTab />
         </TabsContent>
       </Tabs>
 
