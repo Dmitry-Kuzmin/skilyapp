@@ -24,12 +24,19 @@ export function Footer() {
     return null;
   }
 
-  const footerLinks = [
-    { to: "/blog", label: t("footer.blog") },
-    { to: "/help", label: t("footer.help") },
-    { to: "/terms", label: t("footer.terms") },
-    { to: "/privacy", label: t("footer.privacy") },
-    { to: "/subscription-terms", label: t("footer.subscriptionTerms") },
+  const footerColumns = [
+    [
+      { to: "/blog", label: t("footer.blog") },
+      { to: "/help", label: t("footer.help") },
+    ],
+    [
+      { to: "/terms", label: t("footer.terms") },
+      { to: "/privacy", label: t("footer.privacy") },
+    ],
+    [
+      { to: "/subscription-terms", label: t("footer.subscriptionTerms") },
+      { to: "/achievements", label: t("profileMenu.achievements") },
+    ],
   ];
 
   return (
@@ -44,20 +51,22 @@ export function Footer() {
             <span className="text-sm font-semibold text-foreground">Skilyapp</span>
           </div>
 
-          {/* Legal Links */}
-          <div className="w-full md:flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-muted-foreground justify-items-center md:justify-items-start">
-              {footerLinks.map((link) => (
-                <button
-                  key={link.to}
-                  type="button"
-                  className="hover:text-foreground transition-colors"
-                  onClick={() => navigate(link.to)}
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
+          {/* Organized Link Columns */}
+          <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-muted-foreground text-left">
+            {footerColumns.map((column, colIndex) => (
+              <div key={colIndex} className="space-y-2">
+                {column.map((link) => (
+                  <button
+                    key={link.to}
+                    type="button"
+                    className="block text-left hover:text-foreground transition-colors w-full"
+                    onClick={() => navigate(link.to)}
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+            ))}
           </div>
 
           {/* Copyright */}
