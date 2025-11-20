@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useLayoutEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
@@ -33,6 +33,19 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
   const [currentSlide, setCurrentSlide] = useState(0);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const totalSlides = 5;
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [contentOffset, setContentOffset] = useState(0);
+
+  useLayoutEffect(() => {
+    const updateOffset = () => {
+      const headerHeight = headerRef.current?.offsetHeight || 0;
+      setContentOffset(headerHeight);
+    };
+
+    updateOffset();
+    window.addEventListener('resize', updateOffset);
+    return () => window.removeEventListener('resize', updateOffset);
+  }, []);
 
   const handleNext = () => {
     if (currentSlide < totalSlides - 1) {
@@ -511,7 +524,10 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
   return (
     <div className={cn("relative flex flex-col h-full", seasonTheme.gradient)} style={{ height: '100%', minHeight: '100%' }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 md:p-6 pb-3 border-b border-white/10">
+      <div
+        ref={headerRef}
+        className="flex items-center justify-between p-4 md:p-6 pb-3 border-b border-black/40 bg-transparent"
+      >
         <div className="flex items-center gap-3">
           {currentSlide > 0 && (
             <motion.div
@@ -552,24 +568,6 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
         </div>
       </div>
 
-      {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2 px-4 md:px-6 pb-4 pt-3">
-        {Array.from({ length: totalSlides }).map((_, index) => (
-          <motion.button
-            key={index}
-            onClick={() => goToSlide(index)}
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-            className={cn(
-              "h-2 rounded-full transition-all",
-              index === currentSlide
-                ? "w-10 bg-white shadow-lg"
-                : "w-2 bg-white/30 hover:bg-white/50"
-            )}
-          />
-        ))}
-      </div>
-
       {/* Slide content */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0" style={{ flex: '1 1 0%', minHeight: 0 }}>
         <AnimatePresence mode="wait" custom={direction}>
@@ -581,8 +579,8 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
             animate="center"
             exit="exit"
             transition={slideTransition}
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ minHeight: '100%' }}
+            className="absolute inset-x-0 bottom-0 flex items-center justify-center"
+            style={{ top: contentOffset, minHeight: `calc(100% - ${contentOffset}px)` }}
           >
             <div className="w-full h-full flex items-center justify-center">
               <CurrentSlide />
@@ -592,7 +590,23 @@ export function OnboardingContent({ onComplete, seasonData }: OnboardingContentP
       </div>
 
       {/* Footer CTA */}
-      <div className="p-4 md:p-6 pt-2 space-y-3 border-t border-white/10">
+      <div className="p-4 md:p-6 pt-2 space-y-4 border-t border-white/5">
+        <div className="flex items-center justify-center gap-2">
+          {Array.from({ length: totalSlides }).map((_, index) => (
+            <motion.button
+              key={index}
+              onClick={() => goToSlide(index)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className={cn(
+                "h-2 rounded-full transition-all",
+                index === currentSlide
+                  ? "w-10 bg-white"
+                  : "w-2 bg-white/30 hover:bg-white/50"
+              )}
+            />
+          ))}
+        </div>
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

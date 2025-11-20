@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useState, useCallback } from "react";
+import type { UIEvent } from "react";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -293,6 +294,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
   const [unlockedReward, setUnlockedReward] = useState<any | null>(null);
   const [showPremiumSelector, setShowPremiumSelector] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
@@ -380,8 +382,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       console.log('[DuelPassSeasonModal] Opening modal, will show onboarding in 500ms');
       const timeout = setTimeout(() => {
         console.log('[DuelPassSeasonModal] Showing onboarding');
-        setShowOnboarding(true);
-      }, 500);
+          setShowOnboarding(true);
+        }, 500);
       
       return () => clearTimeout(timeout);
     } else {
@@ -399,6 +401,24 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       return () => clearInterval(interval);
     }
   }, [open, profileId, activeSeason]);
+
+  useEffect(() => {
+    if (!open) {
+      setMobileExpanded(false);
+    }
+  }, [open]);
+
+  const handleMobileScroll = useCallback(
+    (event: UIEvent<HTMLDivElement>) => {
+      if (!isMobile) return;
+      const target = event.currentTarget;
+      const shouldExpand = target.scrollTop > 8;
+      setMobileExpanded(shouldExpand);
+    },
+    [isMobile]
+  );
+
+  const mobileSheetHeight = mobileExpanded ? "92vh" : "80vh";
 
   useEffect(() => {
     if (!rewards.length) return;
@@ -980,7 +1000,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <Sheet open={open} onOpenChange={onOpenChange}>
               <SheetContent 
                 side="bottom" 
-                className="h-[80vh] max-h-[80vh] overflow-hidden flex flex-col p-0"
+                className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-300"
+                style={{ height: mobileSheetHeight, maxHeight: mobileSheetHeight }}
                 hideCloseButton
               >
                 <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
@@ -988,7 +1009,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
                   <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
                 </div>
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleMobileScroll}>
                   <SkeletonContent />
                 </div>
               </SheetContent>
@@ -1909,7 +1930,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent 
             side="bottom" 
-            className="h-[80vh] max-h-[80vh] overflow-hidden flex flex-col p-0"
+            className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-300"
+            style={{ height: mobileSheetHeight, maxHeight: mobileSheetHeight }}
             hideCloseButton
           >
             <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
@@ -1918,7 +1940,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
               <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleMobileScroll}>
               <ModalContent />
             </div>
           </SheetContent>
