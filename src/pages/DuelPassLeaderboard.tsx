@@ -21,6 +21,7 @@ interface LeaderboardEntry {
   user_id: string;
   duel_pass_level: number;
   duel_pass_xp: number;
+  season_points?: number; // SP (Season Points) - приоритет для отображения
   rank?: string;
   profile?: {
     first_name?: string | null;
@@ -494,7 +495,7 @@ const DuelPassLeaderboard = () => {
                               <RankBadge rank={rank} size="xs" variant="pill" />
                               <span>Уровень {neighbor.duel_pass_level}</span>
                               <span>•</span>
-                              <span>{neighbor.duel_pass_xp.toLocaleString("ru-RU")} XP</span>
+                              <span>{(neighbor.season_points ?? neighbor.duel_pass_xp).toLocaleString("ru-RU")} {neighbor.season_points !== undefined ? 'SP' : 'XP'}</span>
                             </div>
                           </div>
                         </div>
@@ -638,7 +639,7 @@ const DuelPassLeaderboard = () => {
                               </div>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                 <TrendingUp className="w-3 h-3" />
-                                <span>{filteredLeaders[1]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP</span>
+                                <span>{((filteredLeaders[1]?.season_points ?? filteredLeaders[1]?.duel_pass_xp) || 0).toLocaleString("ru-RU")} {filteredLeaders[1]?.season_points !== undefined ? 'SP' : 'XP'}</span>
                               </div>
                             </div>
                           </div>
@@ -820,7 +821,7 @@ const DuelPassLeaderboard = () => {
                               </div>
                               <div className="flex items-center gap-1.5 text-xs md:text-sm text-muted-foreground font-semibold">
                                 <Sparkles className="w-3.5 h-3.5" />
-                                <span>{filteredLeaders[0]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP</span>
+                                <span>{((filteredLeaders[0]?.season_points ?? filteredLeaders[0]?.duel_pass_xp) || 0).toLocaleString("ru-RU")} {filteredLeaders[0]?.season_points !== undefined ? 'SP' : 'XP'}</span>
                               </div>
                             </div>
                           </div>
@@ -924,7 +925,7 @@ const DuelPassLeaderboard = () => {
                               </div>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                 <TrendingUp className="w-3 h-3" />
-                                <span>{filteredLeaders[2]?.duel_pass_xp.toLocaleString("ru-RU") || 0} XP</span>
+                                <span>{((filteredLeaders[2]?.season_points ?? filteredLeaders[2]?.duel_pass_xp) || 0).toLocaleString("ru-RU")} {filteredLeaders[2]?.season_points !== undefined ? 'SP' : 'XP'}</span>
                               </div>
                             </div>
                           </div>
@@ -975,7 +976,7 @@ const DuelPassLeaderboard = () => {
                       <TableHead>Игрок</TableHead>
                       <TableHead>Ранг</TableHead>
                       <TableHead>Уровень</TableHead>
-                      <TableHead>XP</TableHead>
+                      <TableHead>SP/XP</TableHead>
                       <TableHead>Скин</TableHead>
                       <TableHead>Бейджи</TableHead>
                       <TableHead>Награды</TableHead>
@@ -1073,7 +1074,7 @@ const DuelPassLeaderboard = () => {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
-                            {leader.duel_pass_xp.toLocaleString("ru-RU")}
+                            {(leader.season_points ?? leader.duel_pass_xp).toLocaleString("ru-RU")} {leader.season_points !== undefined ? 'SP' : 'XP'}
                           </TableCell>
                           <TableCell>
                             {skin ? (

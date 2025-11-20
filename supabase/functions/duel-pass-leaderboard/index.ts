@@ -460,7 +460,7 @@ serve(async (req) => {
       }
     }
 
-    // Получаем активный сезон для JOIN с user_season_progress
+    // Получаем активный сезон для получения SP (Season Points)
     const { data: activeSeason } = await supabase
       .from("duel_pass_seasons")
       .select("id")
@@ -469,17 +469,9 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    if (!activeSeason) {
-      return new Response(
-        JSON.stringify({ error: "No active season found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const seasonId = activeSeason?.id;
 
-    const seasonId = activeSeason.id;
-
-    // Получаем профили с JOIN к user_season_progress для получения SP (Season Points)
-    // Используем LEFT JOIN, чтобы включить пользователей даже без прогресса в сезоне
+    // Получаем профили (без JOIN, чтобы избежать проблем с сортировкой)
     let profilesQuery = supabase
       .from("profiles")
       .select(`
@@ -488,13 +480,8 @@ serve(async (req) => {
         username,
         photo_url,
         duel_pass_level,
-        duel_pass_xp,
-        user_season_progress!left (
-          season_points,
-          level
-        )
+        duel_pass_xp
       `, { count: "exact" })
-      .eq("user_season_progress.season_id", seasonId)
       .not("duel_pass_level", "is", null);
 
     // Применяем фильтр по пользователям, если есть
@@ -502,28 +489,24 @@ serve(async (req) => {
       profilesQuery = profilesQuery.in("id", filteredUserIds);
     }
 
-    // Сортировка и пагинация
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
-    const { data: profiles, error: profilesError, count } = await profilesQuery
+    // Сначала получаем все профили для сортировки по SP
+    // Временное решение: сортируем по уровню и XP, затем загрузим SP и пересортируем
+    const { data: allProfiles, error: allProfilesError } = await profilesQuery
       .order("duel_pass_level", { ascending: false })
-      .order("duel_pass_xp", { ascending: false })
-      .range(from, to);
+      .order("duel_pass_xp", { ascending: false });
 
-    if (profilesError) {
-      console.error("[duel-pass-leaderboard] Error loading profiles:", profilesError);
-      console.error("[duel-pass-leaderboard] Error details:", JSON.stringify(profilesError, null, 2));
+    if (allProfilesError) {
+      console.error("[duel-pass-leaderboard] Error loading all profiles:", allProfilesError);
       return new Response(
         JSON.stringify({ 
           error: "Failed to load leaderboard",
-          details: profilesError.message || String(profilesError)
+          details: allProfilesError.message || String(allProfilesError)
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!profiles || profiles.length === 0) {
+    if (!allProfiles || allProfiles.length === 0) {
       console.log("[duel-pass-leaderboard] No profiles found");
       return new Response(
         JSON.stringify({ leaderboard: [] }),
@@ -531,7 +514,51 @@ serve(async (req) => {
       );
     }
 
-    console.log("[duel-pass-leaderboard] Found", profiles.length, "profiles");
+    // Загружаем SP для всех пользователей
+    let seasonProgressMap = new Map<string, { season_points: number; level: number }>();
+    if (seasonId) {
+      const userIds = allProfiles.map((p) => p.id);
+      const { data: seasonProgress, error: spError } = await supabase
+        .from("user_season_progress")
+        .select("user_id, season_points, level")
+        .eq("season_id", seasonId)
+        .in("user_id", userIds);
+
+      if (!spError && seasonProgress) {
+        seasonProgress.forEach((sp: any) => {
+          seasonProgressMap.set(sp.user_id, {
+            season_points: sp.season_points || 0,
+            level: sp.level || 1
+          });
+        });
+      }
+    }
+
+    // Сортируем по уровню (из season_progress если есть, иначе duel_pass_level), затем по SP (если есть, иначе XP)
+    allProfiles.sort((a, b) => {
+      const aSP = seasonProgressMap.get(a.id);
+      const bSP = seasonProgressMap.get(b.id);
+      
+      const aLevel = aSP?.level || a.duel_pass_level || 1;
+      const bLevel = bSP?.level || b.duel_pass_level || 1;
+      
+      if (bLevel !== aLevel) {
+        return bLevel - aLevel;
+      }
+      
+      // Используем SP для сортировки, если доступно, иначе XP
+      const aPoints = aSP?.season_points ?? a.duel_pass_xp ?? 0;
+      const bPoints = bSP?.season_points ?? b.duel_pass_xp ?? 0;
+      return bPoints - aPoints;
+    });
+
+    // Применяем пагинацию
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize;
+    const profiles = allProfiles.slice(from, to);
+    const count = allProfiles.length;
+
+    console.log("[duel-pass-leaderboard] Found", profiles.length, "profiles (page", page, "of", Math.ceil(count / pageSize), ")");
     const userIds = profiles.map((p) => p.id);
     
     if (userIds.length === 0) {
@@ -709,10 +736,16 @@ serve(async (req) => {
         else userRank = "rookie";
       }
 
+      // Получаем SP из seasonProgressMap
+      const sp = seasonProgressMap.get(profile.id);
+      const seasonPoints = sp?.season_points || 0;
+      const seasonLevel = sp?.level || profile.duel_pass_level || 1;
+
       return {
         user_id: profile.id,
-        duel_pass_level: profile.duel_pass_level || 1,
+        duel_pass_level: seasonLevel, // Используем уровень из сезона, если есть
         duel_pass_xp: profile.duel_pass_xp || 0,
+        season_points: seasonPoints, // SP для отображения и сортировки
         rank: userRank,
         profile: {
           first_name: profile.first_name,
@@ -723,14 +756,6 @@ serve(async (req) => {
         displayed_badges: badges,
         claimed_rewards_count: rewardsCount,
       };
-    });
-
-    // Дополнительная сортировка: сначала по уровню, потом по XP
-    leaderboard.sort((a, b) => {
-      if (b.duel_pass_level !== a.duel_pass_level) {
-        return b.duel_pass_level - a.duel_pass_level;
-      }
-      return b.duel_pass_xp - a.duel_pass_xp;
     });
 
     console.log("[duel-pass-leaderboard] Returning", leaderboard.length, "entries");
