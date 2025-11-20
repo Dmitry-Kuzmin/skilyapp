@@ -93,34 +93,24 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   const baseClasses =
     variant === "mobile"
-      ? "w-full px-4 py-3 rounded-2xl border border-border/60 bg-card/70 backdrop-blur space-y-2 text-left"
+      ? "w-full px-4 py-3 rounded-2xl border border-border/50 bg-card/70 backdrop-blur flex items-center gap-3"
       : "flex items-center gap-3 px-3 py-2 rounded-2xl border border-border/40 bg-card/70 hover:bg-card transition-colors shadow-sm";
 
   const trigger = (
     <div className={cn(baseClasses, className)}>
-      <div className={cn("flex items-center gap-3", variant === "mobile" && "w-full")}>
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow">
-          <Trophy className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1 text-left">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{t("profileMenu.achievements")}</span>
-            <span>Lvl {level}</span>
-          </div>
-          <div className="text-base font-semibold tabular-nums leading-tight">
-            {xp.toLocaleString()} XP
-          </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Sparkles className="w-3 h-3 text-primary" />
-            <span>{xpToNextLevel} XP →</span>
-          </div>
+      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow">
+        <Trophy className="w-4 h-4 text-white" />
+      </div>
+      <div className="flex flex-col leading-tight">
+        <span className="text-xs text-muted-foreground">{t("profileMenu.achievements")}</span>
+        <div className="flex items-baseline gap-2">
+          <span className="text-base font-semibold tabular-nums">{xp.toLocaleString()} XP</span>
+          <span className="text-xs text-muted-foreground">Lvl {level}</span>
         </div>
       </div>
-      <div className={cn("w-full h-1.5 rounded-full bg-border/30 overflow-hidden", variant !== "mobile" && "hidden sm:block sm:w-32")}>
-        <div
-          className="h-full bg-gradient-to-r from-primary to-secondary transition-all"
-          style={{ width: `${progress}%` }}
-        />
+      <div className="ml-auto text-xs text-muted-foreground flex items-center gap-1">
+        <Sparkles className="w-3 h-3 text-primary" />
+        <span>{xpToNextLevel} XP →</span>
       </div>
     </div>
   );
