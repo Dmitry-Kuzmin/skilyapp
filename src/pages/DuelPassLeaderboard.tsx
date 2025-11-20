@@ -283,10 +283,19 @@ const DuelPassLeaderboard = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="text-center space-y-3 relative z-10">
-                    <h3 className="font-black text-xl text-foreground">
-                      {leaders[0]?.profile?.first_name || leaders[0]?.profile?.username || "Игрок"}
-                    </h3>
+                  <div className="text-center space-y-2 sm:space-y-3 relative z-10">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <h3 className="font-black text-base sm:text-lg md:text-xl text-foreground truncate cursor-help px-2">
+                            {leaders[0]?.profile?.first_name || leaders[0]?.profile?.username || "Игрок"}
+                          </h3>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-semibold">{leaders[0]?.profile?.first_name || leaders[0]?.profile?.username || "Игрок"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <div className="flex flex-col items-center gap-2">
                       <RankBadge 
                         rank={(leaders[0]?.rank || getRankFromLevel(leaders[0]?.duel_pass_level || 1)) as RankType} 
