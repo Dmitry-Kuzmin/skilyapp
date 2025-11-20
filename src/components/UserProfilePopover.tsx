@@ -317,17 +317,16 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                  )}>
                    {(() => {
                      const photoUrl = profile?.photo_url || user?.photo_url;
-                     // Если есть previewSkin, скрываем изображение через CSS, чтобы показался fallback
+                     // Всегда показываем фото, если оно есть
                      if (photoUrl) {
                        return (
                          <AvatarImage 
-                           src={previewSkin ? undefined : photoUrl}
+                           src={photoUrl}
                            alt={profile?.first_name || user?.first_name || 'User'}
                            className={cn(
                              isPremium && "relative z-10",
-                             previewSkin && "hidden"
+                             previewSkin && previewSkin.metadata.animated && "animate-pulse"
                            )}
-                           style={previewSkin ? { display: 'none' } : undefined}
                            onError={(e) => {
                              // При ошибке загрузки скрываем изображение, показывается fallback
                              console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
@@ -374,6 +373,44 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                      )}
                      <span className="relative z-10">{initials}</span>
                    </AvatarFallback>
+                   {/* Overlay эффекты скина поверх фото */}
+                   {previewSkin && (profile?.photo_url || user?.photo_url) && (
+                     <div className="absolute inset-0 rounded-full pointer-events-none z-20">
+                       {/* Эффекты скина поверх фото */}
+                       {previewSkin.metadata.effect === "sparkle" && (
+                         <>
+                           <Sparkles className="absolute top-0.5 right-0.5 w-3 h-3 animate-spin text-white/90 drop-shadow-lg" />
+                           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(255,255,255,0.1)_100%)] animate-pulse rounded-full" />
+                         </>
+                       )}
+                       {previewSkin.metadata.effect === "fire" && (
+                         <>
+                           <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce drop-shadow-lg" />
+                           <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-orange-500/30 to-transparent rounded-full" />
+                         </>
+                       )}
+                       {previewSkin.metadata.effect === "shine" && (
+                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-full" />
+                       )}
+                       {/* Частицы для легендарных поверх фото */}
+                       {previewSkin.rarity === "legendary" && (
+                         <>
+                           <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
+                           <div className="absolute bottom-1/4 right-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+                         </>
+                       )}
+                       {/* Градиентная рамка скина поверх фото */}
+                       <div
+                         className={cn(
+                           "absolute inset-0 rounded-full border-2 opacity-60",
+                           previewSkin.rarity === "legendary" && "border-yellow-400/60",
+                           previewSkin.rarity === "epic" && "border-blue-400/60",
+                           previewSkin.rarity === "rare" && "border-blue-400/40",
+                           previewSkin.rarity === "common" && "border-gray-400/40"
+                         )}
+                       />
+                     </div>
+                   )}
                  </Avatar>
                  {/* Бейджи рядом с аватаром (максимум 3) */}
                  {previewBadges.length > 0 && (
