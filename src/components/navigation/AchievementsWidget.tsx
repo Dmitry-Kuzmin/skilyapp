@@ -88,10 +88,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
   }
 
   if (loading) {
-    return variant === "mobile" ? (
-      <Skeleton className={cn("h-12 w-full rounded-xl", className)} />
-    ) : (
-      <Skeleton className={cn("h-10 w-40 rounded-xl", className)} />
+    return (
+      <Skeleton className={cn("h-7 w-20 rounded-lg bg-muted/40", className)} />
     );
   }
 
@@ -102,8 +100,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   const baseClasses =
     variant === "mobile"
-      ? "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-      : "hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer";
+      ? "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors"
+      : "hidden sm:inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer";
 
   const trigger = (
     <div className={cn(baseClasses, className)}>
