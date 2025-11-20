@@ -15,7 +15,6 @@ interface LeaderboardEntry {
     first_name?: string | null;
     username?: string | null;
     photo_url?: string | null;
-    avatar_url?: string | null;
   };
   active_skin?: {
     skin_id: string;
@@ -85,7 +84,6 @@ serve(async (req) => {
         first_name,
         username,
         photo_url,
-        avatar_url,
         duel_pass_level,
         duel_pass_xp
       `)
@@ -259,7 +257,6 @@ serve(async (req) => {
           first_name: profile.first_name,
           username: profile.username,
           photo_url: profile.photo_url,
-          avatar_url: profile.avatar_url,
         },
         active_skin: skin || null,
         displayed_badges: badges,
