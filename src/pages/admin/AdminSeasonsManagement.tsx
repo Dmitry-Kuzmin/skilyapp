@@ -35,6 +35,10 @@ import {
   CheckCircle,
   XCircle,
   Info,
+  Coins,
+  Copy,
+  Sparkles,
+  Crown,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
