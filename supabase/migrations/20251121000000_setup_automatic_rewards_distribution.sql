@@ -132,21 +132,29 @@ END $$;
 
 -- Создаём новую задачу (еженедельно, каждое воскресенье в полночь UTC)
 -- Это оптимально для месячных сезонов (30 дней)
--- Используем отдельный блок для вызова cron.schedule, чтобы избежать конфликта с $$
+-- Выносим создание cron задачи за пределы DO блока, так как cron.schedule возвращает значение
+-- Используем условное создание через проверку существования расширения
+
+-- Сначала удаляем старую задачу, если существует
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
-    -- Используем $cron$ как тег для строки, чтобы избежать конфликта с $$
-    PERFORM cron.schedule(
-      'weekly-season-rewards-check',
-      '0 0 * * 0', -- Каждое воскресенье в полночь UTC
-      $cron$SELECT check_and_log_ended_seasons();$cron$
-    );
-    RAISE NOTICE '✅ Создана задача weekly-season-rewards-check (каждое воскресенье в 00:00 UTC)';
-  ELSE
-    RAISE NOTICE '⚠️  pg_cron недоступен. Используй альтернативу через GitHub Actions';
+  IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'weekly-season-rewards-check') THEN
+    PERFORM cron.unschedule('weekly-season-rewards-check');
+    RAISE NOTICE '✅ Удалена старая задача weekly-season-rewards-check';
   END IF;
 END $$;
+
+-- Создаём новую задачу (только если pg_cron доступен)
+-- Используем $cron$ как тег для строки, чтобы избежать конфликта с $$
+-- ВАЖНО: Выполни этот блок только если pg_cron установлен
+-- Если pg_cron недоступен, используй GitHub Actions (см. .github/workflows/season-rewards.yml)
+
+-- Раскомментируй следующие строки, если pg_cron доступен:
+-- SELECT cron.schedule(
+--   'weekly-season-rewards-check',
+--   '0 0 * * 0', -- Каждое воскресенье в полночь UTC
+--   $cron$SELECT check_and_log_ended_seasons();$cron$
+-- );
 
 -- ============================================
 -- 4. ФУНКЦИЯ ДЛЯ РУЧНОГО ЗАПУСКА
