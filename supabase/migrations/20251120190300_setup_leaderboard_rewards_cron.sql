@@ -22,6 +22,7 @@ AS $$
 DECLARE
   v_season RECORD;
   v_result JSONB;
+  v_seasons_array JSONB := '[]'::jsonb;
   v_seasons_found INTEGER := 0;
 BEGIN
   -- Ищем сезоны, которые завершились в последние 24 часа и ещё не обработаны
@@ -66,20 +67,17 @@ BEGIN
       NULL
     );
 
-    v_seasons_found := v_seasons_found + 1;
-    
-    v_result := jsonb_build_object(
-      'success', true,
-      'seasons_found', v_seasons_found,
-      'seasons', jsonb_agg(jsonb_build_object(
-        'season_id', v_season.id,
-        'season_number', v_season.season_number,
-        'season_name', v_season.name_ru
-      ))
+    -- Добавляем сезон в массив
+    v_seasons_array := v_seasons_array || jsonb_build_object(
+      'season_id', v_season.id,
+      'season_number', v_season.season_number,
+      'season_name', v_season.name_ru
     );
+    
+    v_seasons_found := v_seasons_found + 1;
   END LOOP;
 
-  -- Если не нашли сезонов для обработки
+  -- Формируем результат
   IF v_seasons_found = 0 THEN
     v_result := jsonb_build_object(
       'success', true,
@@ -87,30 +85,12 @@ BEGIN
       'message', 'No seasons to process'
     );
   ELSE
-    -- Формируем финальный результат с массивом сезонов
-    SELECT jsonb_build_object(
+    v_result := jsonb_build_object(
       'success', true,
       'seasons_found', v_seasons_found,
       'message', 'Seasons logged for processing. Call season-end-rewards Edge Function manually or via external cron.',
-      'seasons', jsonb_agg(
-        jsonb_build_object(
-          'season_id', id,
-          'season_number', season_number,
-          'season_name', name_ru
-        )
-      )
-    ) INTO v_result
-    FROM duel_pass_seasons
-    WHERE 
-      end_date <= NOW()
-      AND end_date >= NOW() - INTERVAL '24 hours'
-      AND is_active = true
-      AND NOT EXISTS (
-        SELECT 1 
-        FROM user_leaderboard_rewards 
-        WHERE season_id = duel_pass_seasons.id 
-        LIMIT 1
-      );
+      'seasons', v_seasons_array
+    );
   END IF;
 
   RETURN v_result;
