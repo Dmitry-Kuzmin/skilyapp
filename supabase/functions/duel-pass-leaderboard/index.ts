@@ -37,6 +37,169 @@ interface LeaderboardEntry {
   claimed_rewards_count?: number;
 }
 
+// Функция для обогащения пользователей косметикой
+async function enrichUsersWithCosmetics(
+  supabase: any,
+  userIds: string[],
+  season: number
+): Promise<any[]> {
+  if (userIds.length === 0) return [];
+
+  // Загружаем ранги
+  let userRanksMap = new Map<string, string>();
+  try {
+    const { data: activeSeason } = await supabase
+      .from("duel_pass_seasons")
+      .select("id")
+      .eq("is_active", true)
+      .order("season_number", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (activeSeason) {
+      const { data: ranksData } = await supabase
+        .from("user_ranks")
+        .select("user_id, rank")
+        .eq("season_id", activeSeason.id)
+        .in("user_id", userIds);
+
+      if (ranksData) {
+        ranksData.forEach((r: any) => {
+          userRanksMap.set(r.user_id, r.rank);
+        });
+      }
+    }
+  } catch (e) {
+    console.error("[enrichUsersWithCosmetics] Exception loading ranks:", e);
+  }
+
+  // Загружаем скины
+  let activeSkins: any[] = [];
+  try {
+    const { data: skinsData } = await supabase
+      .from("user_skins")
+      .select("user_id, skin_id")
+      .eq("is_active", true)
+      .in("user_id", userIds);
+
+    if (skinsData && skinsData.length > 0) {
+      const skinIds = [...new Set(skinsData.map((s: any) => s.skin_id))];
+      const { data: skinDefs } = await supabase
+        .from("skin_definitions")
+        .select("id, name_ru, rarity, metadata")
+        .in("id", skinIds);
+
+      const defsMap = new Map(skinDefs?.map((d: any) => [d.id, d]) || []);
+      activeSkins = skinsData
+        .map((skin: any) => ({
+          user_id: skin.user_id,
+          skin_id: skin.skin_id,
+          skin_definitions: defsMap.get(skin.skin_id) || null,
+        }))
+        .filter((s: any) => s.skin_definitions);
+    }
+  } catch (e) {
+    console.error("[enrichUsersWithCosmetics] Exception loading skins:", e);
+  }
+
+  // Загружаем бейджи
+  let displayedBadges: any[] = [];
+  try {
+    const { data: badgesData } = await supabase
+      .from("user_badges")
+      .select("user_id, badge_id, display_order")
+      .eq("is_displayed", true)
+      .in("user_id", userIds)
+      .order("display_order", { ascending: true })
+      .limit(3 * userIds.length);
+
+    if (badgesData && badgesData.length > 0) {
+      const badgeIds = [...new Set(badgesData.map((b: any) => b.badge_id))];
+      const { data: badgeDefs } = await supabase
+        .from("badge_definitions")
+        .select("id, name_ru, rarity, metadata")
+        .in("id", badgeIds);
+
+      const defsMap = new Map(badgeDefs?.map((d: any) => [d.id, d]) || []);
+      displayedBadges = badgesData
+        .map((badge: any) => ({
+          user_id: badge.user_id,
+          badge_id: badge.badge_id,
+          display_order: badge.display_order,
+          badge_definitions: defsMap.get(badge.badge_id) || null,
+        }))
+        .filter((b: any) => b.badge_definitions);
+    }
+  } catch (e) {
+    console.error("[enrichUsersWithCosmetics] Exception loading badges:", e);
+  }
+
+  // Загружаем награды
+  let claimedRewards: any[] = [];
+  try {
+    const { data: rewardsData } = await supabase
+      .from("user_claimed_rewards")
+      .select("user_id")
+      .eq("season", season)
+      .in("user_id", userIds);
+
+    claimedRewards = rewardsData || [];
+  } catch (e) {
+    console.error("[enrichUsersWithCosmetics] Exception loading rewards:", e);
+  }
+
+  // Создаем мапы
+  const skinMap = new Map<string, any>();
+  activeSkins.forEach((skin) => {
+    if (skin.skin_definitions) {
+      skinMap.set(skin.user_id, skin);
+    }
+  });
+
+  const badgesMap = new Map<string, any[]>();
+  displayedBadges.forEach((badge) => {
+    if (badge.badge_definitions) {
+      if (!badgesMap.has(badge.user_id)) {
+        badgesMap.set(badge.user_id, []);
+      }
+      const userBadges = badgesMap.get(badge.user_id)!;
+      if (userBadges.length < 3) {
+        userBadges.push(badge);
+      }
+    }
+  });
+
+  const rewardsCountMap = new Map<string, number>();
+  claimedRewards.forEach((reward: any) => {
+    rewardsCountMap.set(
+      reward.user_id,
+      (rewardsCountMap.get(reward.user_id) || 0) + 1
+    );
+  });
+
+  // Формируем результат
+  return userIds.map((userId) => {
+    const level = 1; // Будет перезаписано данными из neighbors
+    let userRank = userRanksMap.get(userId);
+    if (!userRank) {
+      if (level >= 26) userRank = "diamond";
+      else if (level >= 21) userRank = "platinum";
+      else if (level >= 16) userRank = "gold";
+      else if (level >= 11) userRank = "silver";
+      else if (level >= 6) userRank = "bronze";
+      else userRank = "rookie";
+    }
+
+    return {
+      user_id: userId,
+      rank: userRank,
+      active_skin: skinMap.get(userId) || null,
+      displayed_badges: badgesMap.get(userId) || [],
+      claimed_rewards_count: rewardsCountMap.get(userId) || 0,
+    };
+  });
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -58,27 +221,181 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    let limit = 50;
+    // Параметры запроса
+    let limit = 10; // По умолчанию топ-10
     let season = 1;
+    let type = "top"; // 'top' или 'user_position'
+    let filterType = "global"; // 'global', 'friends', 'country'
+    let filterValue: string | null = null;
+    let userId: string | null = null;
+    let neighborsCount = 5;
+    let page = 1;
+    let pageSize = 10;
     
     if (req.method === "POST") {
       try {
         const body = await req.json();
         if (body?.limit) {
-          limit = Math.min(Math.max(parseInt(body.limit, 10) || 50, 10), 100);
+          limit = Math.min(Math.max(parseInt(body.limit, 10) || 10, 10), 100);
         }
         if (body?.season) {
           season = parseInt(body.season, 10) || 1;
+        }
+        if (body?.type) {
+          type = body.type; // 'top' или 'user_position'
+        }
+        if (body?.filter_type) {
+          filterType = body.filter_type; // 'global', 'friends', 'country'
+        }
+        if (body?.filter_value) {
+          filterValue = body.filter_value;
+        }
+        if (body?.user_id) {
+          userId = body.user_id;
+        }
+        if (body?.neighbors_count) {
+          neighborsCount = Math.min(Math.max(parseInt(body.neighbors_count, 10) || 5, 1), 20);
+        }
+        if (body?.page) {
+          page = Math.max(parseInt(body.page, 10) || 1, 1);
+        }
+        if (body?.page_size) {
+          pageSize = Math.min(Math.max(parseInt(body.page_size, 10) || 10, 5), 50);
         }
       } catch (e) {
         console.warn("[duel-pass-leaderboard] Failed to parse body, using defaults");
       }
     }
 
-    console.log("[duel-pass-leaderboard] Loading profiles with limit:", limit);
+    // Если запрос на позицию пользователя
+    if (type === "user_position") {
+      if (!userId) {
+        return new Response(
+          JSON.stringify({ error: "user_id is required for user_position type" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log("[duel-pass-leaderboard] Getting user position for:", userId);
+      
+      const { data: positionData, error: positionError } = await supabase.rpc(
+        "get_user_leaderboard_position",
+        {
+          p_user_id: userId,
+          p_neighbors_count: neighborsCount,
+          p_filter_type: filterType,
+          p_filter_value: filterValue,
+        }
+      );
+
+      if (positionError) {
+        console.error("[duel-pass-leaderboard] Error getting user position:", positionError);
+        return new Response(
+          JSON.stringify({ 
+            error: "Failed to get user position",
+            details: positionError.message || String(positionError)
+          }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Загружаем косметику для соседей
+      const neighbors = positionData?.neighbors || [];
+      const neighborUserIds = neighbors.map((n: any) => n.user_id);
+
+      if (neighborUserIds.length > 0) {
+        // Загружаем косметику для соседей (скины, бейджи)
+        const enrichedNeighbors = await enrichUsersWithCosmetics(
+          supabase,
+          neighborUserIds,
+          season
+        );
+
+        // Объединяем данные
+        const enrichedMap = new Map(enrichedNeighbors.map((e: any) => [e.user_id, e]));
+        const finalNeighbors = neighbors.map((n: any) => ({
+          ...n,
+          ...enrichedMap.get(n.user_id),
+        }));
+
+        return new Response(
+          JSON.stringify({
+            type: "user_position",
+            position: positionData.position,
+            total_players: positionData.total_players,
+            user_data: positionData.user_data,
+            neighbors: finalNeighbors,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          type: "user_position",
+          position: positionData.position,
+          total_players: positionData.total_players,
+          user_data: positionData.user_data,
+          neighbors: [],
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Запрос топ-10/15 с фильтрами
+    console.log("[duel-pass-leaderboard] Loading top profiles with limit:", limit, "filter:", filterType);
+
+    // Определяем фильтр пользователей
+    let filteredUserIds: string[] | null = null;
+
+    if (filterType === "friends" && userId) {
+      // Получаем список друзей из referrals
+      const { data: friendsData } = await supabase
+        .from("referrals")
+        .select("referrer_id, referred_id")
+        .or(`referrer_id.eq.${userId},referred_id.eq.${userId}`);
+
+      if (friendsData && friendsData.length > 0) {
+        const friendIds = new Set<string>();
+        friendsData.forEach((f: any) => {
+          if (f.referrer_id === userId) friendIds.add(f.referred_id);
+          if (f.referred_id === userId) friendIds.add(f.referrer_id);
+        });
+        filteredUserIds = Array.from(friendIds);
+        filteredUserIds.push(userId); // Добавляем самого пользователя
+      } else {
+        // Нет друзей - возвращаем пустой результат
+        return new Response(
+          JSON.stringify({ 
+            leaderboard: [],
+            pagination: { page, page_size: pageSize, total: 0, total_pages: 0 }
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else if (filterType === "country" && filterValue) {
+      // Фильтр по стране (language_code)
+      const { data: countryProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("language_code", filterValue)
+        .not("duel_pass_level", "is", null);
+
+      if (countryProfiles && countryProfiles.length > 0) {
+        filteredUserIds = countryProfiles.map((p: any) => p.id);
+      } else {
+        return new Response(
+          JSON.stringify({ 
+            leaderboard: [],
+            pagination: { page, page_size: pageSize, total: 0, total_pages: 0 }
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // Получаем профили с уровнем и XP Duel Pass, сортируем по уровню и XP
-    const { data: profiles, error: profilesError } = await supabase
+    let profilesQuery = supabase
       .from("profiles")
       .select(`
         id,
@@ -87,11 +404,22 @@ serve(async (req) => {
         photo_url,
         duel_pass_level,
         duel_pass_xp
-      `)
-      .not("duel_pass_level", "is", null)
+      `, { count: "exact" })
+      .not("duel_pass_level", "is", null);
+
+    // Применяем фильтр по пользователям, если есть
+    if (filteredUserIds) {
+      profilesQuery = profilesQuery.in("id", filteredUserIds);
+    }
+
+    // Сортировка и пагинация
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data: profiles, error: profilesError, count } = await profilesQuery
       .order("duel_pass_level", { ascending: false })
       .order("duel_pass_xp", { ascending: false })
-      .limit(limit);
+      .range(from, to);
 
     if (profilesError) {
       console.error("[duel-pass-leaderboard] Error loading profiles:", profilesError);
@@ -316,8 +644,20 @@ serve(async (req) => {
     });
 
     console.log("[duel-pass-leaderboard] Returning", leaderboard.length, "entries");
+    
+    const totalPages = count ? Math.ceil(count / pageSize) : 0;
+    
     return new Response(
-      JSON.stringify({ leaderboard }),
+      JSON.stringify({ 
+        leaderboard,
+        pagination: {
+          page,
+          page_size: pageSize,
+          total: count || 0,
+          total_pages: totalPages,
+        },
+        filter_type: filterType,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
