@@ -137,12 +137,13 @@ const DuelPassLeaderboard = () => {
 
           {/* Топ 3 - Премиум пьедестал */}
           {leaders.length >= 3 && (
-            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+            <div className="flex flex-row gap-3 md:gap-6 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
               {/* 2 место */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
               >
                 <Card className="p-6 space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300">
                   {/* Декоративные элементы */}
@@ -198,9 +199,9 @@ const DuelPassLeaderboard = () => {
                 initial={{ opacity: 0, y: -20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-                className="md:-mt-8"
+                className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
               >
-                <Card className="p-8 space-y-5 border-2 border-yellow-400/80 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-300 shadow-2xl shadow-yellow-500/20">
+                <Card className="p-6 md:p-8 space-y-4 md:space-y-5 border-2 border-yellow-400/80 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-300 shadow-2xl shadow-yellow-500/20 h-full">
                   {/* Анимированный фон */}
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-amber-400/20 to-yellow-500/20"
@@ -255,7 +256,7 @@ const DuelPassLeaderboard = () => {
                           whileHover={{ scale: 1.05 }}
                           transition={{ type: "spring", stiffness: 300 }}
                         >
-                          <Avatar className="w-32 h-32 border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/30">
+                          <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/30">
                             <AvatarImage
                               src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
                               alt={leaders[0]?.profile?.first_name || "Игрок"}
@@ -295,8 +296,9 @@ const DuelPassLeaderboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
+                className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
               >
-                <Card className="p-6 space-y-4 border-2 border-orange-400/60 bg-gradient-to-br from-orange-50/80 via-amber-50/80 to-orange-50/80 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+                <Card className="p-4 md:p-6 space-y-3 md:space-y-4 border-2 border-orange-400/60 bg-gradient-to-br from-orange-50/80 via-amber-50/80 to-orange-50/80 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
                   {/* Декоративные элементы */}
                   <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-orange-300/10 to-transparent rounded-full -mr-18 -mt-18" />
                   <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-amber-200/10 to-transparent rounded-full -ml-14 -mb-14" />
@@ -311,7 +313,7 @@ const DuelPassLeaderboard = () => {
                       </motion.div>
                       <div className="relative">
                         <RankFrame rank={(leaders[2]?.rank || getRankFromLevel(leaders[2]?.duel_pass_level || 1)) as RankType} />
-                        <Avatar className="w-24 h-24 border-4 border-orange-400/60 shadow-xl">
+                        <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-orange-400/60 shadow-xl">
                           <AvatarImage
                             src={leaders[2]?.profile?.photo_url || leaders[2]?.profile?.avatar_url}
                             alt={leaders[2]?.profile?.first_name || "Игрок"}
