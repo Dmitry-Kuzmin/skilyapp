@@ -1,4 +1,4 @@
-import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check, Crown, Star, Users, Award, Infinity } from "lucide-react";
+import { Target, Zap, Trophy, Gift, BookOpen, Clock, Flame, Sparkles, Check, Crown, Infinity } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,6 @@ import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
-import { DuelPassProgress } from "@/components/monetization/DuelPassProgress";
-import { SeasonChallengesWidget } from "@/components/monetization/SeasonChallengesWidget";
-import { testimonials } from "@/data/testimonials";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
@@ -342,11 +339,11 @@ const Index = () => {
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
         {/* Compact Hero Section */}
-        <Card className="p-6 md:p-8 bg-gradient-to-br from-primary/5 via-card to-secondary/5 border-2 border-primary/20">
+        <Card className="p-4 md:p-6 bg-gradient-to-br from-primary/5 via-card to-secondary/5 border-2 border-primary/20">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-2xl md:text-3xl font-bold">
+                <h1 className="text-xl md:text-2xl font-bold">
                   {userSegment === 'beginner' && "Начни свой путь к успеху!"}
                   {userSegment === 'intermediate' && "Ты уже на правильном пути!"}
                   {userSegment === 'advanced' && "Продолжай совершенствоваться!"}
@@ -358,17 +355,17 @@ const Index = () => {
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2 md:gap-4 text-xs md:text-sm text-muted-foreground flex-wrap">
-                <div className="flex items-center gap-1 md:gap-1.5">
-                  <Target className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <Target className="w-4 h-4" />
                   <span>{userStats.testsCompleted} тестов</span>
                 </div>
-                <div className="flex items-center gap-1 md:gap-1.5">
-                  <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-500" />
+                <div className="flex items-center gap-1.5">
+                  <Flame className="w-4 h-4 text-orange-500" />
                   <span>{userStats.streak} дней</span>
                 </div>
-                <div className="flex items-center gap-1 md:gap-1.5">
-                  <Trophy className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" />
+                <div className="flex items-center gap-1.5">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
                   <span>{Math.round(progressPercent)}%</span>
                 </div>
               </div>
@@ -383,142 +380,185 @@ const Index = () => {
           </div>
         </Card>
 
-        {/* Trust Badges & Social Proof */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-center gap-2 md:gap-3 flex-wrap">
-            <Badge variant="outline" className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border-primary/30">
-              <Award className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-1.5 text-primary" />
-              <span className="hidden sm:inline">Выбор студентов 2025</span>
-              <span className="sm:hidden">Выбор 2025</span>
-            </Badge>
-            <Badge variant="outline" className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border-primary/30">
-              <Star className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-1.5 text-yellow-500" />
-              <span className="hidden sm:inline">Лучшее приложение по ПДД</span>
-              <span className="sm:hidden">Лучшее ПДД</span>
-            </Badge>
-            <Badge variant="outline" className="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border-primary/30">
-              <Users className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-1.5 text-primary" />
-              <span className="hidden sm:inline">120 000+ студентов</span>
-              <span className="sm:hidden">120k+</span>
-            </Badge>
-          </div>
-
-          {/* Testimonials */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {testimonials.slice(0, 3).map((testimonial, idx) => (
-              <Card key={idx} className="p-3 md:p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-2 md:gap-3">
-                  <div className="text-xl md:text-2xl flex-shrink-0">{testimonial.avatar}</div>
-                  <div className="flex-1 space-y-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-semibold text-xs md:text-sm truncate">{testimonial.name}</p>
-                      <div className="flex items-center gap-0.5 flex-shrink-0">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-2.5 h-2.5 md:w-3 md:h-3 fill-yellow-500 text-yellow-500" />
-                        ))}
+        {/* Quick Actions Grid - Daily Tasks + Daily Bonus */}
+        {!loading && (dailyTasks.length > 0 || dailyBonus) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Daily Tasks - Compact Version */}
+            {dailyTasks.length > 0 && (
+              <Card className="p-4 gradient-card border-border/50">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-bold flex items-center gap-2">
+                    <Target className="w-5 h-5 text-primary" />
+                    Ежедневные задания
+                  </h3>
+                  <Badge variant="secondary" className="text-xs">
+                    {dailyTasks.filter(t => t.completed).length} / {dailyTasks.length}
+                  </Badge>
+                </div>
+                <div className="space-y-2">
+                  {dailyTasks.slice(0, 3).map((task) => {
+                    const isCompleted = task.completed;
+                    const progressPercent = Math.min((task.progress / task.max_progress) * 100, 100);
+                    
+                    return (
+                      <div
+                        key={task.id}
+                        className={`p-3 rounded-lg border transition-all ${
+                          isCompleted ? "bg-green-500/10 border-green-500/30" : "bg-card/50 border-border/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <p className="text-sm font-semibold line-clamp-1">{task.title}</p>
+                          {isCompleted ? (
+                            <Check className="w-4 h-4 text-green-500 flex-shrink-0 ml-2" />
+                          ) : (
+                            <span className="text-xs text-gold font-semibold">+{task.reward}💰</span>
+                          )}
+                        </div>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-500 ${
+                              isCompleted ? "bg-green-500" : "gradient-primary"
+                            }`}
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between mt-1.5 text-xs text-muted-foreground">
+                          <span>{task.progress} / {task.max_progress}</span>
+                          <span>{Math.round(progressPercent)}%</span>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
-                    <p className="text-xs leading-relaxed line-clamp-2">{testimonial.text}</p>
-                    <Badge variant="secondary" className="text-xs mt-1 truncate max-w-full">
-                      {testimonial.highlight}
-                    </Badge>
-                  </div>
+                    );
+                  })}
+                  {dailyTasks.length > 3 && (
+                    <p className="text-xs text-muted-foreground text-center pt-2">
+                      +{dailyTasks.length - 3} заданий
+                    </p>
+                  )}
                 </div>
               </Card>
-            ))}
+            )}
+
+            {/* Daily Bonus - Compact Version */}
+            {dailyBonus && (
+              <Card className="p-4 gradient-card border-primary/20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center">
+                        <Flame className={`w-5 h-5 text-primary-foreground ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold">Ежедневный бонус</h3>
+                        <p className="text-xs text-muted-foreground">
+                          Серия: {dailyBonus.current_streak || 0} дней
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={`${
+                      (dailyBonus.current_streak || 0) >= 7 ? 'border-orange-500/40 bg-orange-500/10' : ''
+                    }`}>
+                      <Flame className={`w-3 h-3 mr-1 ${
+                        (dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' : ''
+                      }`} />
+                      {dailyBonus.current_streak || 0}
+                    </Badge>
+                  </div>
+
+                  {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) && (
+                    <div className="space-y-2 mb-3">
+                      <div className="text-xs text-muted-foreground">Награда сегодня:</div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            +{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp} XP
+                          </Badge>
+                        )}
+                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins} 🪙
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleClaimBonus}
+                    disabled={!canClaimBonus || claimingBonus}
+                    size="lg"
+                    className="w-full"
+                    variant={canClaimBonus ? "default" : "secondary"}
+                  >
+                    {claimingBonus ? (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                        Получение...
+                      </>
+                    ) : canClaimBonus ? (
+                      <>
+                        <Gift className="w-4 h-4 mr-2" />
+                        Забрать награду
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-4 h-4 mr-2" />
+                        Завтра
+                      </>
+                    )}
+                  </Button>
+                  <Link to="/daily-bonus" className="block mt-2">
+                    <Button variant="ghost" size="sm" className="w-full text-xs">
+                      Посмотреть все награды →
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            )}
           </div>
-        </div>
-
-        {/* Premium Benefits Grid */}
-        {!isPremium && (
-          <Card className="p-4 md:p-6 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <h3 className="text-lg md:text-xl font-bold flex items-center gap-2">
-                  <Crown className="w-4 h-4 md:w-5 md:h-5 text-yellow-500" />
-                  Преимущества Premium
-                </h3>
-                <Button onClick={() => setPaywallOpen(true)} size="sm" className="w-full sm:w-auto">
-                  Получить Premium
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
-                  <Infinity className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm">Безлимитный доступ</p>
-                    <p className="text-xs text-muted-foreground">Ко всем тестам и играм</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
-                  <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm">Удвоенные награды</p>
-                    <p className="text-xs text-muted-foreground">+50% монет за обучение</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
-                  <Trophy className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm">Duel Pass Premium</p>
-                    <p className="text-xs text-muted-foreground">Эксклюзивные награды</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
-                  <Sparkles className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm">Без рекламы</p>
-                    <p className="text-xs text-muted-foreground">Мгновенные подсказки</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
         )}
 
-        {/* Lumi Search Widget */}
-        <LumiSearchWidget />
-
-        {/* Rank Progress */}
-        {!loading && (
-          <RankProgress
-            currentRank={userStats.rank}
-            currentXP={userStats.xp}
-            nextRankXP={userStats.nextRankXP}
-            coins={balance}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatsCard
+            icon={<Target className="w-6 h-6 text-primary-foreground" />}
+            label="Точность"
+            value={`${userStats.accuracy}%`}
+            trend="+3% за неделю"
           />
-        )}
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Статус</p>
-                <p className="text-lg font-semibold">
-                  {isPremium ? "Premium активен" : isTrial ? "Пробный период" : "Бесплатный доступ"}
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => setPaywallOpen(true)}>
-                <Crown className="w-4 h-4 mr-2 text-yellow-500" />
-                Получить Premium
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Premium открывает все режимы тестов, ускоряет монеты и отключает рекламу.
-            </p>
-          </Card>
-          <DuelPassProgress />
-          
-          {/* Season Challenges Widget */}
-          {isAuthenticated && (
-            <SeasonChallengesWidget />
-          )}
+          <StatsCard
+            icon={<BookOpen className="w-6 h-6 text-primary-foreground" />}
+            label="Тестов пройдено"
+            value={userStats.testsCompleted}
+            trend="+2 за сегодня"
+          />
+          <StatsCard
+            icon={<Clock className="w-6 h-6 text-primary-foreground" />}
+            label="Серия дней"
+            value={`${userStats.streak} дней`}
+            trend="Продолжай!"
+          />
         </div>
 
-        {/* Exam Readiness Widget */}
-        {!loading && profileId && (
-          <ExamReadinessWidget />
+        {/* Progress Section - Rank Progress + Exam Readiness */}
+        {!loading && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <RankProgress
+              currentRank={userStats.rank}
+              currentXP={userStats.xp}
+              nextRankXP={userStats.nextRankXP}
+              coins={balance}
+            />
+            {profileId && (
+              <ExamReadinessWidget />
+            )}
+          </div>
         )}
+
+        {/* AI Assistant */}
+        <LumiSearchWidget />
 
         {/* Daily Bonus - Road Journey */}
         {!loading && dailyBonus && (
@@ -725,99 +765,52 @@ const Index = () => {
           </Card>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatsCard
-            icon={<Target className="w-6 h-6 text-primary-foreground" />}
-            label="Точность"
-            value={`${userStats.accuracy}%`}
-            trend="+3% за неделю"
-          />
-          <StatsCard
-            icon={<BookOpen className="w-6 h-6 text-primary-foreground" />}
-            label="Тестов пройдено"
-            value={userStats.testsCompleted}
-            trend="+2 за сегодня"
-          />
-          <StatsCard
-            icon={<Clock className="w-6 h-6 text-primary-foreground" />}
-            label="Серия дней"
-            value={`${userStats.streak} дней`}
-            trend="Продолжай!"
-          />
-        </div>
-
-        {/* Daily Tasks */}
-        {!loading && dailyTasks.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Ежедневные задания</h2>
-              <span className="text-sm text-muted-foreground">
-                {dailyTasks.filter(t => t.completed).length} / {dailyTasks.length}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {dailyTasks.map((task) => {
-                const isCompleted = task.completed;
-                const progressPercent = (task.progress / task.max_progress) * 100;
-
-              return (
-                <Card
-                  key={task.id}
-                  className={`p-4 gradient-card border transition-all duration-300 hover:scale-105 ${
-                    isCompleted ? "border-success/50" : "border-border/50"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <h4 className="font-semibold">{task.title}</h4>
-                      {isCompleted && (
-                        <Trophy className="w-5 h-5 text-success animate-bounce-slow" />
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {task.progress} / {task.max_progress}
-                        </span>
-                        <span className="text-gold font-semibold">+{task.reward} 💰</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-500 ${
-                            isCompleted ? "bg-success" : "gradient-primary"
-                          }`}
-                          style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                        />
-                      </div>
-                    </div>
+        {/* Premium Benefits Grid - Only for non-Premium users */}
+        {!isPremium && (
+          <Card className="p-4 md:p-6 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20">
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h3 className="text-lg md:text-xl font-bold flex items-center gap-2">
+                  <Crown className="w-4 h-4 md:w-5 md:h-5 text-yellow-500" />
+                  Преимущества Premium
+                </h3>
+                <Button onClick={() => setPaywallOpen(true)} size="sm" className="w-full sm:w-auto">
+                  Получить Premium
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Infinity className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Безлимитный доступ</p>
+                    <p className="text-xs text-muted-foreground">Ко всем тестам и играм</p>
                   </div>
-                </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Continue Learning */}
-        <Card className="p-6 gradient-card border-primary/30 hover:border-primary/50 transition-all cursor-pointer group">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-                Продолжить обучение
-              </h3>
-              <p className="text-muted-foreground">
-                Тест: Скорость и дистанция • Вопрос 7/30
-              </p>
-              <div className="h-2 bg-muted rounded-full overflow-hidden w-64">
-                <div className="h-full gradient-primary w-1/4" />
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Удвоенные награды</p>
+                    <p className="text-xs text-muted-foreground">+50% монет за обучение</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Trophy className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Эксклюзивные награды</p>
+                    <p className="text-xs text-muted-foreground">Дополнительные бонусы</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+                  <Sparkles className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Без рекламы</p>
+                    <p className="text-xs text-muted-foreground">Мгновенные подсказки</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <Button size="lg" className="shadow-primary">
-              Продолжить
-            </Button>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* Achievements */}
         {!loading && recentAchievements.length > 0 && (
