@@ -132,15 +132,15 @@ END $$;
 
 -- Создаём новую задачу (еженедельно, каждое воскресенье в полночь UTC)
 -- Это оптимально для месячных сезонов (30 дней)
+-- Используем отдельный блок для вызова cron.schedule, чтобы избежать конфликта с $$
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    -- Используем $cron$ как тег для строки, чтобы избежать конфликта с $$
     PERFORM cron.schedule(
       'weekly-season-rewards-check',
       '0 0 * * 0', -- Каждое воскресенье в полночь UTC
-      $$
-      SELECT check_and_log_ended_seasons();
-      $$
+      $cron$SELECT check_and_log_ended_seasons();$cron$
     );
     RAISE NOTICE '✅ Создана задача weekly-season-rewards-check (каждое воскресенье в 00:00 UTC)';
   ELSE
