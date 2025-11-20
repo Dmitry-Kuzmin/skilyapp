@@ -101,7 +101,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
   const navigation = [
-    { name: t("home"), href: "/", icon: Home },
+    { name: t("home"), href: "/dashboard", icon: Home },
     { name: t("tests"), href: "/tests", icon: FileText },
     { name: t("learning"), href: "/learning", icon: BookOpen },
     activeDuel 
@@ -158,14 +158,17 @@ const Layout = ({ children }: LayoutProps) => {
       )}>
         <div className="container mx-auto px-4 max-w-[1370px]">
           <div className="flex items-center justify-between h-16 min-w-0">
-            <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+            <NavLink
+              to="/dashboard"
+              className="flex items-center gap-2 min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
+            >
               <div className="flex items-center justify-center w-10 h-10 rounded-xl gradient-primary flex-shrink-0">
                 <Crown className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent whitespace-nowrap">
                 Skilyapp
               </span>
-            </div>
+            </NavLink>
 
             <nav className="flex gap-1 min-w-0 flex-shrink">
               {navigation.map((item) => (
@@ -287,8 +290,11 @@ const Layout = ({ children }: LayoutProps) => {
         
         <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href || 
-              (location.pathname === '/games/duel' && (item as any).isActiveDuel);
+            const isDuel = (item as any).isActiveDuel;
+            const isActive =
+              location.pathname === item.href ||
+              location.pathname.startsWith(`${item.href}/`) ||
+              (isDuel && location.pathname.startsWith("/games/duel"));
             return (
               <NavLink
                 key={item.name}

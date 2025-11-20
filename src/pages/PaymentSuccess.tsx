@@ -336,7 +336,7 @@ export default function PaymentSuccess() {
           </div>
 
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => navigate("/")} size="lg">
+            <Button onClick={() => navigate("/dashboard")} size="lg">
               На главную
             </Button>
             <Button onClick={() => navigate("/tests")} variant="outline" size="lg">

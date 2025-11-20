@@ -3078,7 +3078,7 @@ const Article = () => {
               {t("article.nav.back")}
             </Link>
             <div className="flex items-center gap-4">
-              <Link to="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors">
+              <Link to="/dashboard" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors">
                 {t("article.nav.home")}
               </Link>
               <ThemeToggle />

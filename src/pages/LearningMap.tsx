@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, BookOpen, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Layout from "@/components/Layout";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { Topic, TopicProgress } from "@/components/learning-map/TopicCard";
@@ -37,7 +38,12 @@ interface TopicWithSubtopics extends Topic {
   subtopics: Subtopic[];
 }
 
-const LearningMap = () => {
+interface LearningMapProps {
+  variant?: "full" | "embedded";
+  className?: string;
+}
+
+const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
   const { language, t } = useLanguage();
@@ -47,6 +53,21 @@ const LearningMap = () => {
   const [topicsProgress, setTopicsProgress] = useState<Map<string, TopicProgress>>(new Map());
   const [, setUserProfile] = useState<{ rank?: string; xp?: number; streak?: number } | null>(null);
   const topicsCacheKey = useMemo(() => `learning_map_topics_${language}`, [language]);
+  const isEmbedded = variant === "embedded";
+
+  const renderWithLayout = (content: ReactNode) =>
+    isEmbedded ? content : <Layout>{content}</Layout>;
+
+  const wrapperClasses = cn(
+    isEmbedded
+      ? "bg-card/80 border border-border/40 rounded-3xl shadow-xl backdrop-blur-md"
+      : "min-h-screen bg-background",
+    className
+  );
+
+  const innerClasses = isEmbedded
+    ? "px-2 sm:px-3 md:px-5 lg:px-6 py-4 space-y-6"
+    : "container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8";
 
   useEffect(() => {
     logLearningMap("[LearningMap] Loading map, language:", language);
@@ -453,46 +474,57 @@ const LearningMap = () => {
 
   if (loading) {
     logLearningMap("[LearningMap] Rendering loading state");
-    return (
-      <Layout>
-        <LearningMapSkeleton />
-      </Layout>
-    );
+    if (isEmbedded) {
+      return (
+        <div className={wrapperClasses}>
+          <div className={cn(innerClasses, "space-y-4")}>
+            <div className="h-12 rounded-2xl bg-muted/60 animate-pulse" />
+            <div className="h-96 rounded-3xl bg-muted/30 border border-border/40 animate-pulse" />
+          </div>
+        </div>
+      );
+    }
+    return renderWithLayout(<LearningMapSkeleton />);
   }
 
   if (error) {
     logLearningMap("[LearningMap] Rendering error state:", error);
-    return (
-      <Layout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="text-center space-y-4 max-w-md">
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
-              <BookOpen className="w-8 h-8 text-destructive" />
-            </div>
-            <h2 className="text-2xl font-bold">
-              {t("learningMap.errors.title")}
-            </h2>
-            <p className="text-muted-foreground">{error}</p>
-            <Button
-              onClick={() => {
-                logLearningMap("[LearningMap] Retry button clicked");
-                setError(null);
-                setLoading(true);
-                loadLearningMap();
-              }}
-            >
-              {t("learningMap.errors.retry")}
-            </Button>
+    const errorContent = (
+      <div className="flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md py-10">
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <BookOpen className="w-8 h-8 text-destructive" />
           </div>
+          <h2 className="text-2xl font-bold">
+            {t("learningMap.errors.title")}
+          </h2>
+          <p className="text-muted-foreground">{error}</p>
+          <Button
+            onClick={() => {
+              logLearningMap("[LearningMap] Retry button clicked");
+              setError(null);
+              setLoading(true);
+              loadLearningMap();
+            }}
+          >
+            {t("learningMap.errors.retry")}
+          </Button>
         </div>
-      </Layout>
+      </div>
+    );
+
+    if (isEmbedded) {
+      return <div className={wrapperClasses}>{errorContent}</div>;
+    }
+
+    return renderWithLayout(
+      <div className="min-h-screen bg-background">{errorContent}</div>
     );
   }
 
-  return (
-    <Layout>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 pt-4 pb-8 lg:pt-6 lg:pb-10 space-y-8">
+  const mapContent = (
+    <div className={wrapperClasses}>
+      <div className={innerClasses}>
           <section className="flex flex-col gap-6 lg:gap-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="space-y-3 md:max-w-2xl">
@@ -649,10 +681,11 @@ const LearningMap = () => {
               onFinalTestClick={(topicId) => navigate(`/test/module/${topicId}`)}
             />
           )}
-        </div>
       </div>
-    </Layout>
+    </div>
   );
+
+  return renderWithLayout(mapContent);
 };
 
 export default LearningMap;

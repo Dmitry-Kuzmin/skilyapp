@@ -128,7 +128,7 @@ const TopicDetail = () => {
             <p className="text-muted-foreground mb-4">
               Тема с указанным ID не существует
             </p>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <Button onClick={() => navigate("/dashboard")} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Вернуться к карте
             </Button>
@@ -149,7 +149,7 @@ const TopicDetail = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />

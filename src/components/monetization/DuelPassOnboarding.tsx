@@ -816,7 +816,7 @@ export function DuelPassOnboarding({ open, onOpenChange, onComplete, seasonData 
   }
 
   if (!open) return null;
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 

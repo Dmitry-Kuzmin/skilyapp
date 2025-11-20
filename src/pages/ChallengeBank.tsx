@@ -110,7 +110,7 @@ const ChallengeBank = () => {
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-muted-foreground mb-4">Войдите, чтобы увидеть свои сложные вопросы</p>
-          <Button onClick={() => navigate("/")}>
+          <Button onClick={() => navigate("/dashboard")}>
             На главную
           </Button>
         </div>

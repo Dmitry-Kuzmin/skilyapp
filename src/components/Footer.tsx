@@ -44,12 +44,16 @@ export function Footer() {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 text-center md:text-left">
           {/* Logo/Brand */}
-          <div className="flex items-center gap-2 mx-auto md:mx-0">
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-2 mx-auto md:mx-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1 py-1 transition-opacity hover:opacity-90"
+          >
             <div className="flex items-center justify-center w-8 h-8 rounded-lg gradient-primary">
               <span className="text-primary-foreground font-bold text-sm">S</span>
             </div>
             <span className="text-sm font-semibold text-foreground">Skilyapp</span>
-          </div>
+          </button>
 
           {/* Organized Link Columns */}
           <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-muted-foreground text-left">

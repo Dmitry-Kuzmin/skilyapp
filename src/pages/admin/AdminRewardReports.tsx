@@ -80,7 +80,7 @@ export function AdminRewardReports() {
       toast.error("Доступ запрещен", {
         description: "Необходима авторизация",
       });
-      navigate("/");
+      navigate("/dashboard");
       return;
     }
 
@@ -93,7 +93,7 @@ export function AdminRewardReports() {
       toast.error("Доступ запрещен", {
         description: "Требуются права администратора",
       });
-      navigate("/");
+      navigate("/dashboard");
       return;
     }
 

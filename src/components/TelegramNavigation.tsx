@@ -51,7 +51,7 @@ export const TelegramNavigation = () => {
       if (window.history.length > 1) {
         navigate(-1);
       } else {
-        navigate("/");
+        navigate("/dashboard");
         // Если мы уже на главном экране, закрываем Mini App
         if (typeof webApp.close === "function") {
           try {

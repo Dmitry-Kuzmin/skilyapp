@@ -345,7 +345,7 @@ const SubtopicDetail = () => {
             <p className="text-muted-foreground mb-4">
               Подтема с указанным ID не существует
             </p>
-            <Button onClick={() => navigate("/")} variant="outline">
+            <Button onClick={() => navigate("/dashboard")} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Вернуться к карте
             </Button>
