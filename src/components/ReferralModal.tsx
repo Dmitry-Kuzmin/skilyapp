@@ -189,24 +189,18 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               <Button
                 onClick={handleCopyLink}
                 variant="ghost"
-                size="sm"
+                size="icon"
                 className={cn(
-                  "h-8 px-3 rounded-full border border-border/60 bg-background/90 text-sm font-medium transition-all",
+                  "h-8 w-8 rounded-full border border-border/60 bg-background/90 transition-all",
                   copied
                     ? "text-emerald-600 border-emerald-400/80 bg-emerald-50 dark:bg-emerald-500/10"
                     : "text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10"
                 )}
               >
                 {copied ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    <span className="text-xs font-semibold tracking-wide uppercase">Скопировано</span>
-                  </>
+                  <Check className="h-4 w-4" />
                 ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    <span className="text-xs font-semibold tracking-wide uppercase">Скопировать</span>
-                  </>
+                  <Copy className="h-4 w-4" />
                 )}
               </Button>
             </div>
