@@ -8,11 +8,13 @@ import { Trophy, Crown, Sparkles, Award, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
+import { RankBadge, RankIcon, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
 
 interface LeaderboardEntry {
   user_id: string;
   duel_pass_level: number;
   duel_pass_xp: number;
+  rank?: string; // 'rookie', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'master'
   profile?: {
     first_name?: string | null;
     username?: string | null;
@@ -243,6 +245,7 @@ const DuelPassLeaderboard = () => {
                   <TableRow>
                     <TableHead className="w-16">#</TableHead>
                     <TableHead>Игрок</TableHead>
+                    <TableHead>Ранг</TableHead>
                     <TableHead>Уровень</TableHead>
                     <TableHead>XP</TableHead>
                     <TableHead>Скин</TableHead>
@@ -259,6 +262,8 @@ const DuelPassLeaderboard = () => {
                     const isCurrentUser = leader.user_id === profileId;
                     const skin = leader.active_skin?.skin_definitions;
                     const badges = leader.displayed_badges || [];
+                    // Получаем ранг из данных или рассчитываем на основе уровня
+                    const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
 
                     return (
                       <TableRow
@@ -275,15 +280,29 @@ const DuelPassLeaderboard = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage
-                                src={leader.profile?.photo_url || leader.profile?.avatar_url}
-                                alt={name}
-                              />
-                              <AvatarFallback>
-                                {name.slice(0, 1).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
+                            <div className="relative">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage
+                                  src={leader.profile?.photo_url || leader.profile?.avatar_url}
+                                  alt={name}
+                                />
+                                <AvatarFallback>
+                                  {name.slice(0, 1).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              {/* Рамка ранга вокруг аватара */}
+                              {rank !== "rookie" && (
+                                <div className={cn(
+                                  "absolute -inset-0.5 rounded-full border-2",
+                                  rank === "master" && "border-yellow-400/50 animate-pulse",
+                                  rank === "diamond" && "border-purple-400/50",
+                                  rank === "platinum" && "border-blue-400/50",
+                                  rank === "gold" && "border-yellow-400/50",
+                                  rank === "silver" && "border-gray-300/50",
+                                  rank === "bronze" && "border-orange-400/50"
+                                )} />
+                              )}
+                            </div>
                             <div>
                               <p className="font-semibold flex items-center gap-2">
                                 {name}
@@ -295,6 +314,9 @@ const DuelPassLeaderboard = () => {
                               </p>
                             </div>
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          <RankBadge rank={rank} size="sm" />
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="gap-1">

@@ -11,6 +11,7 @@ interface LeaderboardEntry {
   user_id: string;
   duel_pass_level: number;
   duel_pass_xp: number;
+  rank?: string; // 'rookie', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'master'
   profile?: {
     first_name?: string | null;
     username?: string | null;
@@ -121,6 +122,34 @@ serve(async (req) => {
         JSON.stringify({ leaderboard: [] }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Загружаем ранги пользователей для текущего сезона
+    let userRanksMap = new Map<string, string>();
+    try {
+      const { data: activeSeason } = await supabase
+        .from("duel_pass_seasons")
+        .select("id")
+        .eq("is_active", true)
+        .order("season_number", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (activeSeason) {
+        const { data: ranksData } = await supabase
+          .from("user_ranks")
+          .select("user_id, rank")
+          .eq("season_id", activeSeason.id)
+          .in("user_id", userIds);
+
+        if (ranksData) {
+          ranksData.forEach((r: any) => {
+            userRanksMap.set(r.user_id, r.rank);
+          });
+        }
+      }
+    } catch (e) {
+      console.error("[duel-pass-leaderboard] Exception loading ranks:", e);
     }
 
     // Загружаем активные скины пользователей (упрощенный запрос без JOIN)
@@ -248,11 +277,25 @@ serve(async (req) => {
       const skin = skinMap.get(profile.id);
       const badges = badgesMap.get(profile.id) || [];
       const rewardsCount = rewardsCountMap.get(profile.id) || 0;
+      
+      // Получаем ранг из таблицы или рассчитываем на основе уровня
+      let userRank = userRanksMap.get(profile.id);
+      if (!userRank) {
+        // Рассчитываем ранг на основе уровня
+        const level = profile.duel_pass_level || 1;
+        if (level >= 26) userRank = "diamond";
+        else if (level >= 21) userRank = "platinum";
+        else if (level >= 16) userRank = "gold";
+        else if (level >= 11) userRank = "silver";
+        else if (level >= 6) userRank = "bronze";
+        else userRank = "rookie";
+      }
 
       return {
         user_id: profile.id,
         duel_pass_level: profile.duel_pass_level || 1,
         duel_pass_xp: profile.duel_pass_xp || 0,
+        rank: userRank,
         profile: {
           first_name: profile.first_name,
           username: profile.username,
