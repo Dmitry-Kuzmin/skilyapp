@@ -364,7 +364,7 @@ export function UserProfilePopover() {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 className="h-9 text-sm"
@@ -386,17 +386,6 @@ export function UserProfilePopover() {
               >
                 <Sparkles className="h-4 w-4 mr-1" />
                 {t('profileMenu.inventory')}
-              </Button>
-              <Button
-                variant="outline"
-                className="h-9 text-sm"
-                onClick={() => {
-                  setOpen(false);
-                  setReferralModalOpen(true);
-                }}
-              >
-                <Gift className="h-4 w-4 mr-1" />
-                {t('profileMenu.invite')}
               </Button>
             </div>
 
@@ -428,45 +417,48 @@ export function UserProfilePopover() {
 
             {/* Quick Actions */}
             <div className="space-y-1">
-              <button
-                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
-                onClick={() => {
-                  setOpen(false);
-                  navigate('/help');
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                  <span>{t('profileMenu.helpCenter')}</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button
-                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
-                onClick={() => {
-                  setOpen(false);
-                  navigate('/blog');
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Newspaper className="h-4 w-4 text-muted-foreground" />
-                  <span>{t('profileMenu.blog')}</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button
-                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
-                onClick={() => {
-                  setOpen(false);
-                  navigate('/terms');
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <ScrollText className="h-4 w-4 text-muted-foreground" />
-                  <span>{t('profileMenu.legal')}</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
+              {[
+                {
+                  key: 'help',
+                  icon: HelpCircle,
+                  label: t('profileMenu.helpCenter'),
+                  action: () => navigate('/help'),
+                },
+                {
+                  key: 'blog',
+                  icon: Newspaper,
+                  label: t('profileMenu.blog'),
+                  action: () => navigate('/blog'),
+                },
+                {
+                  key: 'legal',
+                  icon: ScrollText,
+                  label: t('profileMenu.legal'),
+                  action: () => navigate('/terms'),
+                },
+                {
+                  key: 'invite',
+                  icon: Gift,
+                  label: t('profileMenu.invite'),
+                  action: () => setReferralModalOpen(true),
+                },
+              ].map(({ key, icon: Icon, label, action }) => (
+                <button
+                  key={key}
+                  type="button"
+                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                  onClick={() => {
+                    setOpen(false);
+                    action();
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    <span>{label}</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+              ))}
               
               {/* Language Dropdown */}
               <DropdownMenu>
