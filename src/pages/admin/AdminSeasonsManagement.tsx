@@ -67,6 +67,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RewardsEditor } from "@/components/admin/RewardsEditor";
 
 interface Season {
   id: number;
@@ -773,6 +774,7 @@ export function AdminSeasonsManagement() {
             <RewardsDialogContent
               season={selectedSeason}
               rewards={rewards[selectedSeason.id] || []}
+              onSave={loadSeasons}
             />
           )}
         </DialogContent>
@@ -1087,9 +1089,36 @@ function SeasonCard({
 }
 
 // Компонент диалога призов
-function RewardsDialogContent({ season, rewards }: { season: Season; rewards: LeaderboardReward[] }) {
+function RewardsDialogContent({ season, rewards, onSave }: { season: Season; rewards: LeaderboardReward[]; onSave: () => void }) {
+  const [showEditor, setShowEditor] = useState(false);
+
+  if (showEditor) {
+    return (
+      <RewardsEditor
+        seasonId={season.id}
+        seasonNumber={season.season_number}
+        onClose={() => setShowEditor(false)}
+        onSave={() => {
+          onSave();
+          setShowEditor(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Призы лидерборда</h3>
+          <p className="text-sm text-muted-foreground">Сезон {season.season_number}</p>
+        </div>
+        <Button onClick={() => setShowEditor(true)}>
+          <Edit className="w-4 h-4 mr-2" />
+          Редактировать призы
+        </Button>
+      </div>
+
       <div className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
         <p className="font-semibold mb-2">📋 Структура призов:</p>
         <ul className="list-disc list-inside space-y-1">
@@ -1101,10 +1130,6 @@ function RewardsDialogContent({ season, rewards }: { season: Season; rewards: Le
             <strong>Топ-10 (4-10):</strong> Бейдж + рамка + титул + аура + 100 монет
           </li>
         </ul>
-        <p className="mt-3 text-xs">
-          💡 Призы настраиваются через SQL миграции. См.{" "}
-          <code className="bg-background px-1 rounded">20251120190200_seed_leaderboard_rewards.sql</code>
-        </p>
       </div>
 
       <div className="space-y-2">
@@ -1143,9 +1168,15 @@ function RewardsDialogContent({ season, rewards }: { season: Season; rewards: Le
             </TableBody>
           </Table>
         ) : (
-          <p className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
-            Призы для этого сезона ещё не настроены. Используй SQL миграцию для создания призов.
-          </p>
+          <div className="p-4 bg-muted/50 rounded-lg text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Призы для этого сезона ещё не настроены.
+            </p>
+            <Button onClick={() => setShowEditor(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Создать призы
+            </Button>
+          </div>
         )}
       </div>
     </div>
