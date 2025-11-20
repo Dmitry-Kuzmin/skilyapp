@@ -2037,13 +2037,13 @@ function GuideTab() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground space-y-2">
+                    <div className="text-sm text-muted-foreground space-y-2">
                       <div>1. Проверь, что призы настроены (зелёный/оранжевый статус в карточке сезона)</div>
-                      <div>2. Проверь, что сезон действительно завершился (`end_date <= NOW()`)</div>
+                      <div>2. Проверь, что сезон действительно завершился (<code className="text-xs bg-muted px-1 py-0.5 rounded">end_date &lt;= NOW()</code>)</div>
                       <div>3. Нажми "Проверить сезоны" ещё раз</div>
-                      <div>4. Проверь логи Edge Function `season-end-rewards` в Dashboard Supabase</div>
+                      <div>4. Проверь логи Edge Function <code className="text-xs bg-muted px-1 py-0.5 rounded">season-end-rewards</code> в Dashboard Supabase</div>
                       <div>5. Если не помогло — нажми "Распределить призы" вручную для конкретного сезона</div>
-                    </p>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
