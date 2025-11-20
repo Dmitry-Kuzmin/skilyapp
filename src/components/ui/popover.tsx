@@ -12,11 +12,14 @@ const PopoverContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
   <PopoverPrimitive.Portal>
-    <div
-      aria-hidden="true"
-      className="fixed inset-0 z-40 bg-background/35 backdrop-blur-[2px] pointer-events-none"
-    />
-    <PopoverPrimitive.Content
+    <>
+      <PopoverPrimitive.Close asChild>
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 z-40 bg-background/45 backdrop-blur-[2px]"
+        />
+      </PopoverPrimitive.Close>
+      <PopoverPrimitive.Content
       ref={ref}
       align={align}
       sideOffset={sideOffset}
@@ -25,7 +28,8 @@ const PopoverContent = React.forwardRef<
         className,
       )}
       {...props}
-    />
+      />
+    </>
   </PopoverPrimitive.Portal>
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
