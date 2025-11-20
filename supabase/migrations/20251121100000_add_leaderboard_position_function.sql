@@ -6,7 +6,7 @@
 CREATE OR REPLACE FUNCTION get_user_leaderboard_position(
   p_user_id UUID,
   p_neighbors_count INTEGER DEFAULT 5,
-  p_filter_type TEXT DEFAULT 'global' CHECK (p_filter_type IN ('global', 'friends', 'country')),
+  p_filter_type TEXT DEFAULT 'global',
   p_filter_value TEXT DEFAULT NULL -- Для 'friends' - user_id друга, для 'country' - код страны
 )
 RETURNS JSONB
@@ -26,6 +26,15 @@ DECLARE
   v_country_code TEXT;
   v_neighbors_jsonb JSONB;
 BEGIN
+  -- Валидация типа фильтра
+  IF p_filter_type NOT IN ('global', 'friends', 'country') THEN
+    RETURN jsonb_build_object(
+      'success', false,
+      'error', 'invalid_filter_type',
+      'message', 'Filter type must be one of: global, friends, country'
+    );
+  END IF;
+
   -- Получаем данные пользователя
   SELECT 
     duel_pass_level,
