@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
@@ -75,6 +75,158 @@ const rarityColors = {
 };
 
 type FilterType = "global" | "friends" | "country";
+
+// Вспомогательная функция для рендеринга аватара с косметикой
+const renderAvatarWithCosmetics = (
+  photoUrl: string | null | undefined,
+  name: string,
+  skin: any,
+  badges: any[],
+  size: "sm" | "md" | "lg" = "md",
+  className?: string
+) => {
+  const sizeClasses = {
+    sm: "h-12 w-12",
+    md: "w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28",
+    lg: "w-24 h-24 md:w-32 md:h-32 lg:w-36 lg:h-36"
+  };
+
+  const skinRarity = skin?.rarity || "common";
+  const skinMetadata = skin?.metadata || {};
+  const skinColor = skinMetadata.color || "#6366f1";
+
+  return (
+    <div className="relative">
+      <Avatar className={cn(
+        sizeClasses[size],
+        "border-2 shadow-md transition-all relative",
+        skinRarity === "legendary" && "border-yellow-400/60 ring-2 ring-yellow-300/30",
+        skinRarity === "epic" && "border-blue-400/60 ring-2 ring-blue-300/30",
+        skinRarity === "rare" && "border-blue-400/40 ring-1 ring-blue-300/20",
+        !skin && "border-slate-400/60",
+        className
+      )}>
+        {photoUrl ? (
+          <AvatarImage
+            src={photoUrl}
+            alt={name}
+            className={cn(
+              skinMetadata.animated && "animate-pulse"
+            )}
+            onError={(e) => {
+              console.warn('[DuelPassLeaderboard] Avatar image failed to load:', photoUrl);
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        ) : null}
+        <AvatarFallback 
+          className={cn(
+            "text-white font-bold relative z-10 overflow-hidden",
+            size === "sm" && "text-sm",
+            size === "md" && "text-2xl md:text-3xl",
+            size === "lg" && "text-3xl md:text-4xl",
+            skinMetadata.animated && "animate-pulse"
+          )}
+          style={
+            skin
+              ? {
+                  background: `radial-gradient(circle at 30% 30%, ${skinColor}ff, ${skinColor}cc 40%, ${skinColor}88 100%)`,
+                }
+              : undefined
+          }
+        >
+          {/* Эффекты скина */}
+          {skinMetadata.effect === "sparkle" && (
+            <Sparkles className="absolute top-0.5 right-0.5 w-3 h-3 animate-spin text-white/90" />
+          )}
+          {skinMetadata.effect === "fire" && (
+            <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce" />
+          )}
+          {skinMetadata.effect === "shine" && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer rounded-full" />
+          )}
+          {skinRarity === "legendary" && (
+            <>
+              <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
+              <div className="absolute bottom-1/4 right-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+            </>
+          )}
+          <span className="relative z-10">{name.slice(0, 1).toUpperCase()}</span>
+        </AvatarFallback>
+      </Avatar>
+      
+      {/* Overlay эффекты скина поверх фото */}
+      {skin && photoUrl && (
+        <div className="absolute inset-0 rounded-full pointer-events-none z-20">
+          {skinMetadata.effect === "sparkle" && (
+            <>
+              <Sparkles className="absolute top-0.5 right-0.5 w-3 h-3 animate-spin text-white/90 drop-shadow-lg" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(255,255,255,0.1)_100%)] animate-pulse rounded-full" />
+            </>
+          )}
+          {skinMetadata.effect === "fire" && (
+            <>
+              <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce drop-shadow-lg" />
+              <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-orange-500/30 to-transparent rounded-full" />
+            </>
+          )}
+          {skinMetadata.effect === "shine" && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-full" />
+          )}
+          {skinRarity === "legendary" && (
+            <>
+              <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
+              <div className="absolute bottom-1/4 right-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+            </>
+          )}
+          <div
+            className={cn(
+              "absolute inset-0 rounded-full border-2 opacity-60",
+              skinRarity === "legendary" && "border-yellow-400/60",
+              skinRarity === "epic" && "border-blue-400/60",
+              skinRarity === "rare" && "border-blue-400/40",
+              skinRarity === "common" && "border-gray-400/40"
+            )}
+          />
+        </div>
+      )}
+      
+      {/* Бейджи рядом с аватаром (максимум 3) */}
+      {badges.length > 0 && (
+        <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 z-30">
+          {badges.slice(0, 3).map((badge: any, index: number) => {
+            const badgeDef = badge.badge_definitions || {};
+            const badgeRarity = badgeDef.rarity || "common";
+            const badgeMetadata = badgeDef.metadata || {};
+            return (
+              <div
+                key={badge.badge_id || index}
+                className={cn(
+                  "w-4 h-4 rounded-full flex items-center justify-center text-[8px] shadow-lg",
+                  badgeRarity === "legendary" && "bg-gradient-to-br from-yellow-500/80 via-orange-500/80 to-yellow-500/80 ring-1 ring-yellow-400/50",
+                  badgeRarity === "epic" && "bg-gradient-to-br from-blue-500/80 via-pink-500/80 to-blue-500/80 ring-1 ring-blue-400/50",
+                  badgeRarity === "rare" && "bg-gradient-to-br from-blue-500/80 via-cyan-500/80 to-blue-500/80 ring-1 ring-blue-400/30",
+                  badgeRarity === "common" && "bg-gradient-to-br from-gray-500/80 via-gray-400/80 to-gray-500/80",
+                  badgeMetadata.animated && "animate-bounce"
+                )}
+                style={{
+                  color: badgeMetadata.color || "#6366f1",
+                }}
+                title={badgeDef.name_ru}
+              >
+                {badgeMetadata.icon === "trophy" && <Trophy className="w-2.5 h-2.5" />}
+                {badgeMetadata.icon === "flame" && "🔥"}
+                {badgeMetadata.icon === "star" && "⭐"}
+                {badgeMetadata.icon === "crown" && "👑"}
+                {badgeMetadata.icon === "calendar" && "📅"}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const DuelPassLeaderboard = () => {
   const { profileId, user } = useUserContext();
@@ -435,15 +587,14 @@ const DuelPassLeaderboard = () => {
                               whileHover={{ scale: 1.05 }}
                               transition={{ type: "spring", stiffness: 300 }}
                             >
-                              <Avatar className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 border-4 border-slate-400/60 shadow-2xl ring-2 ring-slate-300/30">
-                                <AvatarImage
-                                  src={filteredLeaders[1]?.profile?.photo_url || filteredLeaders[1]?.profile?.avatar_url}
-                                  alt={filteredLeaders[1]?.profile?.first_name || "Игрок"}
-                                />
-                                <AvatarFallback className="bg-gradient-to-br from-slate-400 to-slate-600 text-white font-bold text-2xl md:text-3xl">
-                                  {(filteredLeaders[1]?.profile?.first_name || "И")[0]}
-                                </AvatarFallback>
-                              </Avatar>
+                              {renderAvatarWithCosmetics(
+                                filteredLeaders[1]?.profile?.photo_url || filteredLeaders[1]?.profile?.avatar_url,
+                                filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок",
+                                filteredLeaders[1]?.active_skin?.skin_definitions,
+                                filteredLeaders[1]?.displayed_badges || [],
+                                "md",
+                                "border-4 border-slate-400/60 shadow-2xl ring-2 ring-slate-300/30"
+                              )}
                             </motion.div>
                             {/* Серебряная аура */}
                             <div className="absolute inset-0 rounded-full bg-slate-400/20 blur-xl -z-10" />
@@ -454,11 +605,16 @@ const DuelPassLeaderboard = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="relative px-2 w-full">
-                                    <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]">
+                                  <div className="relative px-2 w-full overflow-hidden">
+                                    <h3 
+                                      className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]"
+                                      style={{
+                                        maskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)'
+                                      }}
+                                    >
                                       {filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}
                                     </h3>
-                                    <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-50 via-slate-50/50 to-transparent dark:from-slate-900 dark:via-slate-900/50 pointer-events-none opacity-60" />
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -602,15 +758,14 @@ const DuelPassLeaderboard = () => {
                               whileHover={{ scale: 1.08 }}
                               transition={{ type: "spring", stiffness: 300 }}
                             >
-                              <Avatar className="w-24 h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/40">
-                                <AvatarImage
-                                  src={filteredLeaders[0]?.profile?.photo_url || filteredLeaders[0]?.profile?.avatar_url}
-                                  alt={filteredLeaders[0]?.profile?.first_name || "Игрок"}
-                                />
-                                <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-amber-600 text-white font-bold text-3xl md:text-4xl">
-                                  {(filteredLeaders[0]?.profile?.first_name || "И")[0]}
-                                </AvatarFallback>
-                              </Avatar>
+                              {renderAvatarWithCosmetics(
+                                filteredLeaders[0]?.profile?.photo_url || filteredLeaders[0]?.profile?.avatar_url,
+                                filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок",
+                                filteredLeaders[0]?.active_skin?.skin_definitions,
+                                filteredLeaders[0]?.displayed_badges || [],
+                                "lg",
+                                "border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/40"
+                              )}
                             </motion.div>
                             {/* Золотая аура */}
                             <motion.div
@@ -632,11 +787,16 @@ const DuelPassLeaderboard = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="relative px-2 w-full">
-                                    <h3 className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent cursor-help line-clamp-1 max-w-[120px] sm:max-w-[140px] md:max-w-[160px]">
+                                  <div className="relative px-2 w-full overflow-hidden">
+                                    <h3 
+                                      className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent cursor-help line-clamp-1 max-w-[120px] sm:max-w-[140px] md:max-w-[160px]"
+                                      style={{
+                                        maskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)'
+                                      }}
+                                    >
                                       {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
                                     </h3>
-                                    <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-yellow-50 via-yellow-50/50 to-transparent dark:from-yellow-950 dark:via-yellow-950/50 pointer-events-none opacity-60" />
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -713,15 +873,14 @@ const DuelPassLeaderboard = () => {
                               whileHover={{ scale: 1.05 }}
                               transition={{ type: "spring", stiffness: 300 }}
                             >
-                              <Avatar className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 border-4 border-orange-400/60 shadow-2xl ring-2 ring-orange-300/30">
-                                <AvatarImage
-                                  src={filteredLeaders[2]?.profile?.photo_url || filteredLeaders[2]?.profile?.avatar_url}
-                                  alt={filteredLeaders[2]?.profile?.first_name || "Игрок"}
-                                />
-                                <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-2xl md:text-3xl">
-                                  {(filteredLeaders[2]?.profile?.first_name || "И")[0]}
-                                </AvatarFallback>
-                              </Avatar>
+                              {renderAvatarWithCosmetics(
+                                filteredLeaders[2]?.profile?.photo_url || filteredLeaders[2]?.profile?.avatar_url,
+                                filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок",
+                                filteredLeaders[2]?.active_skin?.skin_definitions,
+                                filteredLeaders[2]?.displayed_badges || [],
+                                "md",
+                                "border-4 border-orange-400/60 shadow-2xl ring-2 ring-orange-300/30"
+                              )}
                             </motion.div>
                             {/* Оранжевая аура */}
                             <div className="absolute inset-0 rounded-full bg-orange-400/20 blur-xl -z-10" />
@@ -732,11 +891,16 @@ const DuelPassLeaderboard = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="relative px-2 w-full">
-                                    <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]">
+                                  <div className="relative px-2 w-full overflow-hidden">
+                                    <h3 
+                                      className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]"
+                                      style={{
+                                        maskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)'
+                                      }}
+                                    >
                                       {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}
                                     </h3>
-                                    <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-orange-50 via-orange-50/50 to-transparent dark:from-orange-950 dark:via-orange-950/50 pointer-events-none opacity-60" />
                                   </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -851,50 +1015,41 @@ const DuelPassLeaderboard = () => {
                                   whileHover={{ scale: 1.1 }}
                                   transition={{ type: "spring", stiffness: 300 }}
                                 >
-                                  <Avatar className={cn(
-                                    "h-12 w-12 border-2 shadow-md transition-all",
-                                    rank === "master" && "border-yellow-400/60 ring-2 ring-yellow-300/30",
-                                    rank === "diamond" && "border-purple-400/60 ring-2 ring-purple-300/30",
-                                    rank === "platinum" && "border-blue-400/60",
-                                    rank === "gold" && "border-yellow-400/60",
-                                    rank === "silver" && "border-gray-300/60",
-                                    rank === "bronze" && "border-orange-400/60"
-                                  )}>
-                                    <AvatarImage
-                                      src={leader.profile?.photo_url || leader.profile?.avatar_url}
-                                      alt={name}
-                                    />
-                                    <AvatarFallback className={cn(
-                                      "font-bold",
-                                      rank === "master" && "bg-gradient-to-br from-yellow-400 to-amber-600",
-                                      rank === "diamond" && "bg-gradient-to-br from-purple-400 to-violet-600",
-                                      rank === "platinum" && "bg-gradient-to-br from-blue-300 to-cyan-500",
-                                      rank === "gold" && "bg-gradient-to-br from-yellow-400 to-amber-500",
-                                      rank === "silver" && "bg-gradient-to-br from-gray-200 to-gray-400",
-                                      rank === "bronze" && "bg-gradient-to-br from-orange-400 to-amber-600"
-                                    )}>
-                                      {name.slice(0, 1).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  {renderAvatarWithCosmetics(
+                                    leader.profile?.photo_url || leader.profile?.avatar_url,
+                                    name,
+                                    skin,
+                                    badges,
+                                    "sm",
+                                    cn(
+                                      "border-2 shadow-md",
+                                      rank === "master" && "border-yellow-400/60 ring-2 ring-yellow-300/30",
+                                      rank === "diamond" && "border-purple-400/60 ring-2 ring-purple-300/30",
+                                      rank === "platinum" && "border-blue-400/60",
+                                      rank === "gold" && "border-yellow-400/60",
+                                      rank === "silver" && "border-gray-300/60",
+                                      rank === "bronze" && "border-orange-400/60"
+                                    )
+                                  )}
                                 </motion.div>
                               </div>
                               <div className="min-w-0 flex-1">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <div className="relative flex items-center gap-2 min-w-0 flex-1">
-                                        <p className={cn(
-                                          "font-semibold cursor-help line-clamp-1 max-w-[80px] sm:max-w-[120px] md:max-w-[150px]",
-                                          isCurrentUser && "text-primary font-bold"
-                                        )}>
+                                      <div className="relative flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                                        <p 
+                                          className={cn(
+                                            "font-semibold cursor-help line-clamp-1 max-w-[80px] sm:max-w-[120px] md:max-w-[150px]",
+                                            isCurrentUser && "text-primary font-bold"
+                                          )}
+                                          style={{
+                                            maskImage: 'linear-gradient(to right, black calc(100% - 15px), transparent 100%)',
+                                            WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 15px), transparent 100%)'
+                                          }}
+                                        >
                                           {name}
                                         </p>
-                                        <div className={cn(
-                                          "absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l pointer-events-none",
-                                          isCurrentUser 
-                                            ? "from-primary/15 via-primary/10 to-transparent opacity-60"
-                                            : "from-background via-background/90 to-transparent"
-                                        )} />
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>

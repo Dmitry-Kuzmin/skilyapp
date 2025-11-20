@@ -11,6 +11,7 @@ interface LeaderboardEntry {
   user_id: string;
   duel_pass_level: number;
   duel_pass_xp: number;
+  season_points?: number; // SP (Season Points) - приоритет для сортировки
   rank?: string; // 'rookie', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'master'
   profile?: {
     first_name?: string | null;
@@ -459,7 +460,26 @@ serve(async (req) => {
       }
     }
 
-    // Получаем профили с уровнем и XP Duel Pass, сортируем по уровню и XP
+    // Получаем активный сезон для JOIN с user_season_progress
+    const { data: activeSeason } = await supabase
+      .from("duel_pass_seasons")
+      .select("id")
+      .eq("is_active", true)
+      .order("season_number", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!activeSeason) {
+      return new Response(
+        JSON.stringify({ error: "No active season found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const seasonId = activeSeason.id;
+
+    // Получаем профили с JOIN к user_season_progress для получения SP (Season Points)
+    // Используем LEFT JOIN, чтобы включить пользователей даже без прогресса в сезоне
     let profilesQuery = supabase
       .from("profiles")
       .select(`
@@ -468,8 +488,13 @@ serve(async (req) => {
         username,
         photo_url,
         duel_pass_level,
-        duel_pass_xp
+        duel_pass_xp,
+        user_season_progress!left (
+          season_points,
+          level
+        )
       `, { count: "exact" })
+      .eq("user_season_progress.season_id", seasonId)
       .not("duel_pass_level", "is", null);
 
     // Применяем фильтр по пользователям, если есть
