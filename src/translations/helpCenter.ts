@@ -1865,6 +1865,91 @@ Stay tuned for updates so you don't miss a new season!`,
   - Win 3 times with insurance → +1500 SP
 
 Complete challenges regularly to maximize your Duel Pass progress!`,
+    "help.content.duelPass.ranks.title": "Ranking System",
+    "help.content.duelPass.ranks.content": `Your rank in Duel Pass is determined by the level you reach in the current season:
+
+**Ranks by Level:**
+• 🟢 **Rookie** — levels 1-5
+• 🟤 **Bronze** — levels 6-10
+• ⚪ **Silver** — levels 11-15
+• 🟡 **Gold** — levels 16-20
+• 🔵 **Platinum** — levels 21-25
+• 💜 **Diamond** — levels 26-30
+• 👑 **Master** — top 100 players by SP
+
+**Rank Rewards:**
+• Each rank unlocks a unique profile frame
+• Gold+ ranks receive exclusive Skily skins
+• Master rank grants exclusive title and special privileges
+
+**How to Increase Rank:**
+• Earn Season Points (SP) from duels and challenges
+• Increase Duel Pass level (each level = 100 SP)
+• Participate in seasonal events
+• Premium users receive +20% SP from duels
+
+Your rank is displayed in your profile and leaderboard!`,
+    "help.content.duelPass.leaderboard.title": "Duel Pass Leaderboard",
+    "help.content.duelPass.leaderboard.content": `The leaderboard shows the best players of the current Duel Pass season.
+
+**What's Displayed:**
+• Ranking position (1, 2, 3...)
+• Player avatar and name
+• Current Duel Pass level
+• Season Points (SP) count
+• Active cosmetic items (skins, badges)
+• Number of rewards received
+
+**How to Get on the Leaderboard:**
+• Earn SP from duels and challenges
+• Increase Duel Pass level
+• Participate in seasonal events
+• Premium users receive +20% SP bonus
+
+**Top-3 and Top-10 Prizes:**
+• 🥇 **1st Place (Champion):**
+  - Exclusive champion skin
+  - Golden animated profile frame
+  - "Season Champion" title
+  - Champion badge
+  - Radiant aura
+  - 500 coins
+
+• 🥈 **2nd Place (Silver):**
+  - Silver runner-up skin
+  - Silver profile frame
+  - "Silver Runner" title
+  - Runner badge
+  - Silver aura
+  - 350 coins
+
+• 🥉 **3rd Place (Bronze):**
+  - Bronze finalist skin
+  - Bronze profile frame
+  - "Bronze Finalist" title
+  - Finalist badge
+  - Bronze aura
+  - 250 coins
+
+• 🏆 **4-10 Places (Elite):**
+  - Top-10 elite badge
+  - Elite profile frame
+  - "Season Elite" title
+  - Elite aura
+  - 100 coins
+
+**Reward Distribution:**
+• Rewards are distributed automatically at the end of the season
+• All rewards are exclusive and won't appear in future seasons
+• Skins and frames are automatically activated
+• Badges are automatically displayed in profile
+
+**Hall of Fame:**
+• All champions are saved in the "Hall of Fame"
+• You can view the history of all seasons
+• Champions remain in history forever
+
+Compete for a top spot and earn exclusive rewards!`,
     
     // Cosmetics section content
     "help.content.cosmetics.overview.title": "Cosmetics System Overview",
