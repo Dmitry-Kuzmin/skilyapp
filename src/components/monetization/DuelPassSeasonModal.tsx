@@ -1000,14 +1000,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <Sheet open={open} onOpenChange={onOpenChange}>
               <SheetContent 
                 side="bottom" 
-                className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-300"
-                style={{ height: mobileSheetHeight, maxHeight: mobileSheetHeight }}
+                className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-500 ease-out"
+                style={{
+                  height: mobileSheetHeight,
+                  maxHeight: mobileSheetHeight,
+                  transition: "height 0.45s cubic-bezier(0.25,0.8,0.25,1), max-height 0.45s cubic-bezier(0.25,0.8,0.25,1)"
+                }}
                 hideCloseButton
               >
                 <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
                 <SheetDescription className="sr-only">Loading Duel Pass Season information</SheetDescription>
                 <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
-                  <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+                  <div className="w-12 h-1 bg-black/40 rounded-full" />
                 </div>
                 <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleMobileScroll}>
                   <SkeletonContent />
@@ -1930,15 +1934,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         <Sheet open={open} onOpenChange={onOpenChange}>
           <SheetContent 
             side="bottom" 
-            className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-300"
-            style={{ height: mobileSheetHeight, maxHeight: mobileSheetHeight }}
+            className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-500 ease-out"
+            style={{
+              height: mobileSheetHeight,
+              maxHeight: mobileSheetHeight,
+              transition: "height 0.45s cubic-bezier(0.25,0.8,0.25,1), max-height 0.45s cubic-bezier(0.25,0.8,0.25,1)"
+            }}
             hideCloseButton
           >
             <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
             <SheetDescription className="sr-only">Duel Pass Season information and rewards</SheetDescription>
             {/* Handle для свайпа */}
             <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
-              <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+              <div className="w-12 h-1 bg-black/40 rounded-full" />
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleMobileScroll}>
               <ModalContent />

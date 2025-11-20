@@ -155,7 +155,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         >
           {/* Индикатор для свайпа вниз (только для bottom sheet) */}
           {side === "bottom" && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-black/40 rounded-full z-10" />
           )}
           {children}
           {!hideCloseButton && (
