@@ -12,7 +12,12 @@ const PopoverContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
   <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Overlay className="fixed inset-0 z-40 bg-background/40 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+    <PopoverPrimitive.Close asChild>
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 z-40 bg-background/35 backdrop-blur-[2px] cursor-default"
+      />
+    </PopoverPrimitive.Close>
     <PopoverPrimitive.Content
       ref={ref}
       align={align}
