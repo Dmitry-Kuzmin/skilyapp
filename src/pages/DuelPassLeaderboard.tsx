@@ -13,6 +13,7 @@ import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from 
 import { motion } from "framer-motion";
 import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
 import { useNavigate } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -145,10 +146,12 @@ const DuelPassLeaderboard = () => {
                 transition={{ delay: 0.2 }}
                 className="flex-1 min-w-0"
               >
-                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
+                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 bg-gradient-to-br from-gray-50/90 via-gray-100/90 to-gray-50/90 dark:from-gray-900/95 dark:via-gray-800/95 dark:to-gray-900/95 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 h-full shadow-lg">
                   {/* Декоративные элементы */}
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-300/10 to-transparent rounded-full -mr-20 -mt-20" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-gray-200/10 to-transparent rounded-full -ml-16 -mb-16" />
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-300/20 to-transparent rounded-full -mr-20 -mt-20 blur-xl" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-gray-200/20 to-transparent rounded-full -ml-16 -mb-16 blur-xl" />
+                  {/* Светящийся эффект при наведении */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-400/0 via-gray-300/0 to-gray-400/0 group-hover:from-gray-400/10 group-hover:via-gray-300/5 group-hover:to-gray-400/10 transition-all duration-300 rounded-lg" />
                   
                   <div className="flex items-center justify-center relative z-10">
                     <div className="relative">
@@ -173,9 +176,18 @@ const DuelPassLeaderboard = () => {
                     </div>
                   </div>
                   <div className="text-center space-y-2 sm:space-y-3 relative z-10">
-                    <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate">
-                      {leaders[1]?.profile?.first_name || leaders[1]?.profile?.username || "Игрок"}
-                    </h3>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate cursor-help px-2">
+                            {leaders[1]?.profile?.first_name || leaders[1]?.profile?.username || "Игрок"}
+                          </h3>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-semibold">{leaders[1]?.profile?.first_name || leaders[1]?.profile?.username || "Игрок"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <div className="flex flex-col items-center gap-1.5 sm:gap-2">
                       <RankBadge 
                         rank={(leaders[1]?.rank || getRankFromLevel(leaders[1]?.duel_pass_level || 1)) as RankType} 
@@ -201,10 +213,10 @@ const DuelPassLeaderboard = () => {
                 transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                 className="flex-1 min-w-0"
               >
-                <Card className="p-4 sm:p-5 md:p-8 space-y-3 sm:space-y-4 md:space-y-5 border-2 border-yellow-400/80 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-300 shadow-2xl shadow-yellow-500/20 h-full">
+                <Card className="p-4 sm:p-5 md:p-8 space-y-3 sm:space-y-4 md:space-y-5 bg-gradient-to-br from-yellow-50/95 via-amber-50/95 to-yellow-50/95 dark:from-yellow-900/40 dark:via-amber-900/40 dark:to-yellow-900/40 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 shadow-2xl shadow-yellow-500/30 h-full">
                   {/* Анимированный фон */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-amber-400/20 to-yellow-500/20"
+                    className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 via-amber-400/30 to-yellow-500/30"
                     animate={{
                       opacity: [0.3, 0.5, 0.3],
                     }}
@@ -214,8 +226,10 @@ const DuelPassLeaderboard = () => {
                       ease: "easeInOut",
                     }}
                   />
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-yellow-400/20 to-transparent rounded-full -mr-24 -mt-24 blur-2xl" />
-                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full -ml-20 -mb-20 blur-2xl" />
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-yellow-400/30 to-transparent rounded-full -mr-24 -mt-24 blur-2xl" />
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-amber-400/30 to-transparent rounded-full -ml-20 -mb-20 blur-2xl" />
+                  {/* Светящийся эффект при наведении */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/0 via-amber-300/0 to-yellow-400/0 group-hover:from-yellow-400/20 group-hover:via-amber-300/10 group-hover:to-yellow-400/20 transition-all duration-300 rounded-lg" />
                   
                   <div className="flex items-center justify-center relative z-10">
                     <div className="relative">
@@ -256,7 +270,7 @@ const DuelPassLeaderboard = () => {
                           whileHover={{ scale: 1.05 }}
                           transition={{ type: "spring", stiffness: 300 }}
                         >
-                          <Avatar className="w-18 h-18 sm:w-20 sm:h-20 md:w-32 md:h-32 border-2 sm:border-4 border-yellow-400 shadow-2xl ring-2 sm:ring-4 ring-yellow-300/30">
+                          <Avatar className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 border-2 sm:border-4 border-yellow-400 shadow-2xl ring-2 sm:ring-4 ring-yellow-300/30">
                             <AvatarImage
                               src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
                               alt={leaders[0]?.profile?.first_name || "Игрок"}
@@ -298,10 +312,12 @@ const DuelPassLeaderboard = () => {
                 transition={{ delay: 0.3 }}
                 className="flex-1 min-w-0"
               >
-                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 border-2 border-orange-400/60 bg-gradient-to-br from-orange-50/80 via-amber-50/80 to-orange-50/80 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
+                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 bg-gradient-to-br from-orange-50/90 via-amber-50/90 to-orange-50/90 dark:from-orange-900/30 dark:via-amber-900/30 dark:to-orange-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 h-full shadow-lg">
                   {/* Декоративные элементы */}
-                  <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-orange-300/10 to-transparent rounded-full -mr-18 -mt-18" />
-                  <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-amber-200/10 to-transparent rounded-full -ml-14 -mb-14" />
+                  <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-orange-300/20 to-transparent rounded-full -mr-18 -mt-18 blur-xl" />
+                  <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-amber-200/20 to-transparent rounded-full -ml-14 -mb-14 blur-xl" />
+                  {/* Светящийся эффект при наведении */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400/0 via-amber-300/0 to-orange-400/0 group-hover:from-orange-400/10 group-hover:via-amber-300/5 group-hover:to-orange-400/10 transition-all duration-300 rounded-lg" />
                   
                   <div className="flex items-center justify-center relative z-10">
                     <div className="relative">
@@ -326,9 +342,18 @@ const DuelPassLeaderboard = () => {
                     </div>
                   </div>
                   <div className="text-center space-y-2 sm:space-y-3 relative z-10">
-                    <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate">
-                      {leaders[2]?.profile?.first_name || leaders[2]?.profile?.username || "Игрок"}
-                    </h3>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate cursor-help px-2">
+                            {leaders[2]?.profile?.first_name || leaders[2]?.profile?.username || "Игрок"}
+                          </h3>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-semibold">{leaders[2]?.profile?.first_name || leaders[2]?.profile?.username || "Игрок"}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                     <div className="flex flex-col items-center gap-1.5 sm:gap-2">
                       <RankBadge 
                         rank={(leaders[2]?.rank || getRankFromLevel(leaders[2]?.duel_pass_level || 1)) as RankType} 
