@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trophy } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -102,16 +102,13 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   const baseClasses =
     variant === "mobile"
-      ? "w-full flex items-center justify-between px-3 py-2 rounded-2xl border border-border/50 bg-card/80 backdrop-blur"
-      : "flex items-center gap-2 px-2.5 py-1.5 rounded-2xl border border-border/40 bg-card/80 hover:bg-card transition-colors";
+      ? "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+      : "hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer";
 
   const trigger = (
     <div className={cn(baseClasses, className)}>
-      <div className="flex items-center gap-2">
-        <Trophy className="w-4 h-4 text-primary" />
-        <span className="text-sm font-semibold tabular-nums">{xp.toLocaleString()}</span>
-      </div>
-      <span className="text-xs text-muted-foreground">XP</span>
+      <Sparkles className="w-4 h-4 text-primary" />
+      <span className="text-sm font-semibold tabular-nums">{xp.toLocaleString()}</span>
     </div>
   );
 
