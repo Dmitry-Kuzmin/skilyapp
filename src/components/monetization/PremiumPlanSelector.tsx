@@ -98,7 +98,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
       badgeColor: 'bg-green-500',
       gradient: 'from-yellow-500 to-orange-500',
       features: [
-        'Premium награды на 28 дней',
+        'Premium награды на 30 дней',
         'Эксклюзивные скины и бейджи',
         'Ускоренная прогрессия',
         'Доступ только к текущему сезону',

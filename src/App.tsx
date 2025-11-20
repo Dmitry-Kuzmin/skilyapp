@@ -33,6 +33,9 @@ const AdminImport = lazy(() =>
 const AdminTestCovers = lazy(() =>
   import("./pages/admin/AdminTestCovers").then((module) => ({ default: module.AdminTestCovers }))
 );
+const AdminSeasonsManagement = lazy(() =>
+  import("./pages/admin/AdminSeasonsManagement").then((module) => ({ default: module.AdminSeasonsManagement }))
+);
 const AdminEditor = lazy(() => import("./pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
 const RaceGame = lazy(() => import("./pages/games/RaceGame"));
@@ -170,6 +173,7 @@ const App = () => {
             <Route path="sync" element={<AdminSync />} />
             <Route path="import" element={<AdminImport />} />
             <Route path="test-covers" element={<AdminTestCovers />} />
+            <Route path="seasons" element={<AdminSeasonsManagement />} />
           </Route>
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />

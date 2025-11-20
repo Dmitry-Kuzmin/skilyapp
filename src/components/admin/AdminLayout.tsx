@@ -13,6 +13,7 @@ import {
   MessageSquare,
   AlertTriangle,
   Image as ImageIcon,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +78,12 @@ const adminNavItems = [
     label: "Обложки тестов",
     icon: ImageIcon,
     path: "/admin/test-covers",
+  },
+  {
+    id: "seasons",
+    label: "Сезоны и призы",
+    icon: Calendar,
+    path: "/admin/seasons",
   },
 ];
 

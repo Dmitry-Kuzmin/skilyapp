@@ -627,7 +627,7 @@ Premium окупается за неделю активного использо
 **Важно:**
 • Каждый уровень Duel Pass требует 100 SP
 • Всего 30 уровней в сезоне (3000 SP максимум)
-• Сезон длится 28 дней (4 недели)`,
+• Сезон длится 30 дней (~1 месяц)`,
     "help.content.duelPass.claiming.title": "Как получить награды",
     "help.content.duelPass.claiming.content": `Чтобы получить награду Duel Pass:
 
@@ -655,7 +655,7 @@ Premium Duel Pass можно приобрести отдельно или пол
     "help.content.duelPass.seasons.title": "Сезоны Duel Pass",
     "help.content.duelPass.seasons.content": `Duel Pass работает по сезонам:
 
-• Каждый сезон длится 28 дней (4 недели)
+• Каждый сезон длится 30 дней (~1 месяц)
 • В начале нового сезона прогресс сбрасывается
 • Всего 30 уровней в сезоне (каждый уровень = 100 SP)
 • Новые уровни и награды появляются каждый сезон
@@ -1789,7 +1789,7 @@ Rewards can only be claimed once per level. After claiming, they are marked as "
 **Important:**
 • Each Duel Pass level requires 100 SP
 • Total 30 levels per season (3000 SP maximum)
-• Season lasts 28 days (4 weeks)`,
+• Season lasts 30 days (~1 month)`,
     "help.content.duelPass.claiming.title": "How to Claim Rewards",
     "help.content.duelPass.claiming.content": `To claim a Duel Pass reward:
 
@@ -1817,7 +1817,7 @@ Premium Duel Pass can be purchased separately or obtained automatically with Pre
     "help.content.duelPass.seasons.title": "Duel Pass Seasons",
     "help.content.duelPass.seasons.content": `Duel Pass works in seasons:
 
-• Each season lasts 28 days (4 weeks)
+• Each season lasts 30 days (~1 month)
 • At the start of a new season, progress resets
 • Total 30 levels per season (each level = 100 SP)
 • New levels and rewards appear each season
