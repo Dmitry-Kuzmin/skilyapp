@@ -337,14 +337,17 @@ export function AdminLayout() {
             <div className="w-px bg-border" />
 
             {/* Main Content */}
-            <main className="flex-1 min-w-0">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Outlet />
-              </motion.div>
+            <main className="flex-1 min-w-0 overflow-hidden">
+              <ScrollArea className="h-[calc(100vh-8rem)]">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="pr-4"
+                >
+                  <Outlet />
+                </motion.div>
+              </ScrollArea>
             </main>
           </div>
         </div>
