@@ -137,15 +137,15 @@ const DuelPassLeaderboard = () => {
 
           {/* Топ 3 - Премиум пьедестал */}
           {leaders.length >= 3 && (
-            <div className="flex flex-row gap-3 md:gap-6 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+            <div className="flex flex-row gap-2 sm:gap-3 md:gap-6">
               {/* 2 место */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
+                className="flex-1 min-w-0"
               >
-                <Card className="p-4 md:p-6 space-y-3 md:space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
+                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
                   {/* Декоративные элементы */}
                   <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-300/10 to-transparent rounded-full -mr-20 -mt-20" />
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-gray-200/10 to-transparent rounded-full -ml-16 -mb-16" />
@@ -199,9 +199,9 @@ const DuelPassLeaderboard = () => {
                 initial={{ opacity: 0, y: -20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-                className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
+                className="flex-1 min-w-0"
               >
-                <Card className="p-6 md:p-8 space-y-4 md:space-y-5 border-2 border-yellow-400/80 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-300 shadow-2xl shadow-yellow-500/20 h-full">
+                <Card className="p-4 sm:p-5 md:p-8 space-y-3 sm:space-y-4 md:space-y-5 border-2 border-yellow-400/80 bg-gradient-to-br from-yellow-50/90 via-amber-50/90 to-yellow-50/90 dark:from-yellow-900/30 dark:via-amber-900/30 dark:to-yellow-900/30 backdrop-blur-sm relative overflow-hidden group hover:shadow-2xl transition-all duration-300 shadow-2xl shadow-yellow-500/20 h-full">
                   {/* Анимированный фон */}
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 via-amber-400/20 to-yellow-500/20"
@@ -220,7 +220,7 @@ const DuelPassLeaderboard = () => {
                   <div className="flex items-center justify-center relative z-10">
                     <div className="relative">
                       <motion.div
-                        className="absolute -top-4 left-1/2 -translate-x-1/2 z-20"
+                        className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-20"
                         animate={{
                           y: [0, -5, 0],
                         }}
@@ -230,10 +230,10 @@ const DuelPassLeaderboard = () => {
                           ease: "easeInOut",
                         }}
                       >
-                        <Crown className="w-10 h-10 text-yellow-500 fill-yellow-500 drop-shadow-lg" />
+                        <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-500 fill-yellow-500 drop-shadow-lg" />
                       </motion.div>
                       <motion.div
-                        className="absolute -top-3 -right-3 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-black text-lg shadow-xl z-20"
+                        className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-gradient-to-br from-yellow-500 to-amber-600 text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center font-black text-base sm:text-lg shadow-xl z-20"
                         whileHover={{ scale: 1.15, rotate: 15 }}
                         animate={{
                           boxShadow: [
@@ -256,7 +256,7 @@ const DuelPassLeaderboard = () => {
                           whileHover={{ scale: 1.05 }}
                           transition={{ type: "spring", stiffness: 300 }}
                         >
-                          <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/30">
+                          <Avatar className="w-18 h-18 sm:w-24 sm:h-24 md:w-32 md:h-32 border-2 sm:border-4 border-yellow-400 shadow-2xl ring-2 sm:ring-4 ring-yellow-300/30">
                             <AvatarImage
                               src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
                               alt={leaders[0]?.profile?.first_name || "Игрок"}
@@ -296,9 +296,9 @@ const DuelPassLeaderboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
+                className="flex-1 min-w-0"
               >
-                <Card className="p-4 md:p-6 space-y-3 md:space-y-4 border-2 border-orange-400/60 bg-gradient-to-br from-orange-50/80 via-amber-50/80 to-orange-50/80 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
+                <Card className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-3 md:space-y-4 border-2 border-orange-400/60 bg-gradient-to-br from-orange-50/80 via-amber-50/80 to-orange-50/80 dark:from-orange-900/20 dark:via-amber-900/20 dark:to-orange-900/20 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
                   {/* Декоративные элементы */}
                   <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-orange-300/10 to-transparent rounded-full -mr-18 -mt-18" />
                   <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-amber-200/10 to-transparent rounded-full -ml-14 -mb-14" />
