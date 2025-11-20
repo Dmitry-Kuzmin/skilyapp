@@ -58,10 +58,10 @@ export function WalletWidget({ className }: WalletWidgetProps) {
 
     // Задержка перед показом skeleton для предотвращения мигания
     if (!hasInitializedRef.current) {
-      setShowSkeleton(true);
+    setShowSkeleton(true);
       skeletonTimeout = setTimeout(() => {
-        setShowSkeleton(true);
-      }, 100);
+      setShowSkeleton(true);
+    }, 100);
     }
 
     const loadDuelPass = async () => {
@@ -225,9 +225,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         ) : duelPassData ? (
           <button
             onClick={() => {
-              // Всегда показываем onboarding при клике
-              console.log('[WalletWidget] Mobile Duel Pass button clicked, opening onboarding');
-              setOnboardingOpen(true);
+              console.log('[WalletWidget] Mobile Duel Pass button clicked, opening modal');
+              setDuelPassModalOpen(true);
             }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}
@@ -260,7 +259,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <button
             onClick={() => {
               console.log('[WalletWidget] Duel Pass button clicked, opening modal');
-              setDuelPassModalOpen(true);
+                setDuelPassModalOpen(true);
             }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}
