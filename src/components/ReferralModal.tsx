@@ -217,7 +217,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto"
               onClick={() => {
                 onOpenChange(false);
-                window.location.href = '/help#rules-referral';
+                window.location.href = '/help#rewards-referral';
               }}
             >
               Посмотреть условия и положения
