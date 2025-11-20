@@ -153,37 +153,37 @@ const DuelPassLeaderboard = () => {
                   <div className="flex items-center justify-center relative z-10">
                     <div className="relative">
                       <motion.div
-                        className="absolute -top-3 -right-3 bg-gradient-to-br from-gray-500 to-gray-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-black text-base shadow-lg"
+                        className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-gradient-to-br from-gray-500 to-gray-600 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center font-black text-sm sm:text-base shadow-lg"
                         whileHover={{ scale: 1.1, rotate: 10 }}
                       >
                         2
                       </motion.div>
                       <div className="relative">
                         <RankFrame rank={(leaders[1]?.rank || getRankFromLevel(leaders[1]?.duel_pass_level || 1)) as RankType} />
-                        <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-gray-400/60 shadow-xl">
+                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 border-2 sm:border-4 border-gray-400/60 shadow-xl">
                           <AvatarImage
                             src={leaders[1]?.profile?.photo_url || leaders[1]?.profile?.avatar_url}
                             alt={leaders[1]?.profile?.first_name || "Игрок"}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-600 text-white font-bold text-xl md:text-2xl">
+                          <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-600 text-white font-bold text-lg sm:text-xl md:text-2xl">
                             {(leaders[1]?.profile?.first_name || "И")[0]}
                           </AvatarFallback>
                         </Avatar>
                       </div>
                     </div>
                   </div>
-                  <div className="text-center space-y-3 relative z-10">
-                    <h3 className="font-bold text-lg text-foreground">
+                  <div className="text-center space-y-2 sm:space-y-3 relative z-10">
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate">
                       {leaders[1]?.profile?.first_name || leaders[1]?.profile?.username || "Игрок"}
                     </h3>
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-1.5 sm:gap-2">
                       <RankBadge 
                         rank={(leaders[1]?.rank || getRankFromLevel(leaders[1]?.duel_pass_level || 1)) as RankType} 
                         size="sm" 
                         variant="pill"
                       />
-                      <div className="flex items-center gap-2 text-sm">
-                        <Star className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                        <Star className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                         <span className="font-semibold">Уровень {leaders[1]?.duel_pass_level || 1}</span>
                       </div>
                     </div>
@@ -256,7 +256,7 @@ const DuelPassLeaderboard = () => {
                           whileHover={{ scale: 1.05 }}
                           transition={{ type: "spring", stiffness: 300 }}
                         >
-                          <Avatar className="w-18 h-18 sm:w-24 sm:h-24 md:w-32 md:h-32 border-2 sm:border-4 border-yellow-400 shadow-2xl ring-2 sm:ring-4 ring-yellow-300/30">
+                          <Avatar className="w-18 h-18 sm:w-20 sm:h-20 md:w-32 md:h-32 border-2 sm:border-4 border-yellow-400 shadow-2xl ring-2 sm:ring-4 ring-yellow-300/30">
                             <AvatarImage
                               src={leaders[0]?.profile?.photo_url || leaders[0]?.profile?.avatar_url}
                               alt={leaders[0]?.profile?.first_name || "Игрок"}
@@ -318,25 +318,25 @@ const DuelPassLeaderboard = () => {
                             src={leaders[2]?.profile?.photo_url || leaders[2]?.profile?.avatar_url}
                             alt={leaders[2]?.profile?.first_name || "Игрок"}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-xl md:text-2xl">
+                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-amber-600 text-white font-bold text-lg sm:text-xl md:text-2xl">
                             {(leaders[2]?.profile?.first_name || "И")[0]}
                           </AvatarFallback>
                         </Avatar>
                       </div>
                     </div>
                   </div>
-                  <div className="text-center space-y-3 relative z-10">
-                    <h3 className="font-bold text-lg text-foreground">
+                  <div className="text-center space-y-2 sm:space-y-3 relative z-10">
+                    <h3 className="font-bold text-sm sm:text-base md:text-lg text-foreground truncate">
                       {leaders[2]?.profile?.first_name || leaders[2]?.profile?.username || "Игрок"}
                     </h3>
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-1.5 sm:gap-2">
                       <RankBadge 
                         rank={(leaders[2]?.rank || getRankFromLevel(leaders[2]?.duel_pass_level || 1)) as RankType} 
                         size="sm" 
                         variant="pill"
                       />
-                      <div className="flex items-center gap-2 text-sm">
-                        <Star className="w-4 h-4 text-muted-foreground" />
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                        <Award className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                         <span className="font-semibold">Уровень {leaders[2]?.duel_pass_level || 1}</span>
                       </div>
                     </div>
