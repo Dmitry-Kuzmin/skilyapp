@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ interface ReferralData {
 
 export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
   const { profileId } = useUserContext();
+  const navigate = useNavigate();
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -217,7 +219,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto"
               onClick={() => {
                 onOpenChange(false);
-                window.location.href = '/help#rewards-referral';
+                navigate('/help#rewards-referral');
               }}
             >
               Посмотреть условия и положения
