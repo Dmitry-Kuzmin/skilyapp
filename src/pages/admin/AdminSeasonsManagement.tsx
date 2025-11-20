@@ -1633,54 +1633,658 @@ function GuideTab() {
             </Card>
           </motion.section>
 
+          {/* Детальное описание редактора призов */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Award className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">🎁 Редактор призов — полное руководство</h3>
+                <p className="text-sm text-muted-foreground">Всё о создании, редактировании и управлении призами</p>
+              </div>
+            </div>
+            <Card className="border-2 border-primary/20">
+              <CardContent className="p-6 space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <Copy className="w-4 h-4 text-primary" />
+                        Быстрое создание через шаблоны
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <p className="text-muted-foreground">
+                          Шаблоны создают полный набор призов для каждой позиции одним кликом:
+                        </p>
+                        <ul className="list-disc list-inside space-y-1 ml-2">
+                          <li><strong>1 место:</strong> Скин + Бейдж + Рамка + Титул + Аура + 500 монет</li>
+                          <li><strong>2 место:</strong> Скин + Бейдж + Рамка + Титул + Аура + 350 монет</li>
+                          <li><strong>3 место:</strong> Скин + Бейдж + Рамка + Титул + Аура + 250 монет</li>
+                          <li><strong>4-10 места:</strong> Бейдж + Рамка + Титул + Аура + 100 монет</li>
+                        </ul>
+                        <div className="mt-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                          <p className="text-xs text-blue-700 dark:text-blue-400">
+                            💡 После применения шаблона можно отредактировать любой приз или добавить дополнительные.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <Edit className="w-4 h-4 text-primary" />
+                        Ручное создание призов
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <p className="text-muted-foreground mb-3">
+                          Для создания кастомных призов:
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex items-start gap-2">
+                            <span className="text-primary font-bold">1.</span>
+                            <p>Нажми <strong>"Добавить приз"</strong> или <strong>"Добавить"</strong> для конкретной позиции</p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-primary font-bold">2.</span>
+                            <p>Выбери тип приза из списка</p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-primary font-bold">3.</span>
+                            <p>Заполни параметры (ID косметики, количество монет, описание)</p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-primary font-bold">4.</span>
+                            <p>Настрой дополнительные опции (эксклюзивность, автоактивация)</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-6 space-y-4">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <Settings className="w-4 h-4 text-primary" />
+                    Типы призов и их параметры
+                  </h4>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Coins className="w-4 h-4 text-yellow-600" />
+                        <p className="font-semibold text-sm">Монеты</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Укажи количество монет (от 1 до 10000). Монеты начисляются автоматически в кошелёк пользователя.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-4 h-4 text-purple-600" />
+                        <p className="font-semibold text-sm">Скин</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Выбери скин из списка доступных. Можно включить автоактивацию — скин автоматически активируется при получении.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Award className="w-4 h-4 text-blue-600" />
+                        <p className="font-semibold text-sm">Бейдж</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Выбери бейдж из списка. Можно включить автопоказ — бейдж автоматически отобразится в профиле.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Crown className="w-4 h-4 text-yellow-600" />
+                        <p className="font-semibold text-sm">Рамка</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Выбери рамку профиля. Рамка автоматически активируется при получении (если включена опция).
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Zap className="w-4 h-4 text-orange-600" />
+                        <p className="font-semibold text-sm">Титул</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Укажи ID титула (например: "title_champion_season_1"). Титул отображается в профиле игрока.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Zap className="w-4 h-4 text-pink-600" />
+                        <p className="font-semibold text-sm">Аура</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Укажи тип ауры (elite, champion, silver, bronze). Аура создаёт визуальный эффект вокруг аватара.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-6 space-y-3">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <Info className="w-4 h-4 text-primary" />
+                    Важные настройки
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                      <p className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <Crown className="w-4 h-4 text-yellow-600" />
+                        Эксклюзивный приз
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Отметь эту опцию для уникальных призов (например, чемпионский скин). Эти призы больше не появятся в будущих сезонах и создают дополнительную мотивацию для игроков.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <p className="font-semibold text-sm mb-2 flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-blue-600" />
+                        Автоматическая активация/показ
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Для скинов и рамок: автоматически активируется при получении. Для бейджей: автоматически отображается в профиле. Это улучшает UX — игрок сразу видит награду.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          {/* Типичный workflow */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Calendar className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">📅 Типичный workflow</h3>
+                <p className="text-sm text-muted-foreground">Пошаговые сценарии работы с сезонами</p>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-2 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-primary" />
+                    Подготовка нового сезона
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Создай сезон</p>
+                        <p className="text-sm text-muted-foreground">
+                          Нажми "Запланировать следующий" → проверь даты (автоматически: следующий день после окончания текущего + 30 дней) → заполни название и описание → сохрани
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Настрой призы</p>
+                        <p className="text-sm text-muted-foreground">
+                          Открой "Управление призами" → примени шаблоны для позиций 1, 2, 3, 4-10 → при необходимости отредактируй призы → готово!
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Активируй сезон</p>
+                        <p className="text-sm text-muted-foreground">
+                          Сезон автоматически активен при создании. Если нужно деактивировать — нажми "Деактивировать" в карточке сезона.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-primary" />
+                    Завершение сезона
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        1
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Сезон завершается</p>
+                        <p className="text-sm text-muted-foreground">
+                          Автоматически в указанную дату. Триггер логирует событие в `cron_job_logs`.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        2
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Проверь сезоны</p>
+                        <p className="text-sm text-muted-foreground">
+                          Нажми "Проверить сезоны" → система найдёт завершившиеся → автоматически распределит призы для каждого сезона.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0 mt-0.5">
+                        3
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1">Проверь статус</p>
+                        <p className="text-sm text-muted-foreground">
+                          В карточке сезона будет показано: "Призы распределены (X наград)" с зелёным индикатором.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.section>
+
           {/* FAQ */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-primary" />
-              <h3 className="text-xl font-bold">❓ Часто задаваемые вопросы</h3>
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <HelpCircle className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">❓ Часто задаваемые вопросы</h3>
+                <p className="text-sm text-muted-foreground">Ответы на популярные вопросы</p>
+              </div>
             </div>
             <div className="space-y-3">
-              <Card>
+              <motion.div
+                whileHover={{ scale: 1.01, x: 4 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card className="border-2 border-border/50 hover:border-primary/30 transition-all">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Info className="w-4 h-4 text-primary" />
+                      </div>
+                      Нужно ли нажимать "Распределить призы" вручную?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Нет!</strong> Просто нажми <strong className="text-primary">"Проверить сезоны"</strong> — система автоматически найдёт все завершившиеся сезоны и распределит призы для каждого. Кнопка "Распределить призы" в карточке сезона нужна только для ручного распределения конкретного сезона (если автоматическое не сработало).
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.01, x: 4 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.05 }}
+              >
+                <Card className="border-2 border-border/50 hover:border-primary/30 transition-all">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Info className="w-4 h-4 text-primary" />
+                      </div>
+                      Что если призы не настроены?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Система покажет красное предупреждение: "Призы не настроены". Открой "Управление призами" и настрой призы через редактор (используй шаблоны для быстрого создания), затем нажми "Проверить сезоны" для распределения.
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.01, x: 4 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.1 }}
+              >
+                <Card className="border-2 border-border/50 hover:border-primary/30 transition-all">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Info className="w-4 h-4 text-primary" />
+                      </div>
+                      Можно ли изменить призы после создания?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      <strong className="text-foreground">Да!</strong> Открой редактор призов и нажми ✏️ на любом призе. Измени параметры (тип, количество монет, косметику, описание) и сохрани. Изменения применятся сразу, но уже распределённые призы не изменятся.
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.01, x: 4 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.15 }}
+              >
+                <Card className="border-2 border-border/50 hover:border-primary/30 transition-all">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Info className="w-4 h-4 text-primary" />
+                      </div>
+                      Как создать призы для всех позиций сразу?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Используй шаблоны: нажми "Применить шаблон" для позиции 1, затем для 2, затем для 3, и наконец для 4-10 (создаст для всех позиций сразу). Это займёт меньше минуты!
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.01, x: 4 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+              >
+                <Card className="border-2 border-border/50 hover:border-primary/30 transition-all">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Info className="w-4 h-4 text-primary" />
+                      </div>
+                      Что делать, если призы не распределились?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground space-y-2">
+                      <div>1. Проверь, что призы настроены (зелёный/оранжевый статус в карточке сезона)</div>
+                      <div>2. Проверь, что сезон действительно завершился (`end_date <= NOW()`)</div>
+                      <div>3. Нажми "Проверить сезоны" ещё раз</div>
+                      <div>4. Проверь логи Edge Function `season-end-rewards` в Dashboard Supabase</div>
+                      <div>5. Если не помогло — нажми "Распределить призы" вручную для конкретного сезона</div>
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.01, x: 4 }}
+                transition={{ type: "spring", stiffness: 300, delay: 0.25 }}
+              >
+                <Card className="border-2 border-border/50 hover:border-primary/30 transition-all">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-primary/10">
+                        <Info className="w-4 h-4 text-primary" />
+                      </div>
+                      Можно ли создать сезон с нестандартной длительностью?
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Да, можно указать любые даты начала и окончания. Но рекомендуется использовать стандартную длительность 30 дней для синхронизации с другими системами (Duel Pass, челленджи). При планировании следующего сезона система автоматически предлагает 30 дней.
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </motion.section>
+
+          {/* Полезные советы */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Lightbulb className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">💡 Полезные советы и лучшие практики</h3>
+                <p className="text-sm text-muted-foreground">Рекомендации для эффективной работы</p>
+              </div>
+            </div>
+            <Card className="border-2 border-primary/20">
+              <CardContent className="p-6 space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <Copy className="w-4 h-4 text-primary" />
+                        Шаблоны призов
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Используй шаблоны для быстрого создания стандартных призов:
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <Crown className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <strong>1 место</strong> — чемпионский набор (скин, бейдж, рамка, титул, аура, 500 монет)
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Award className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <strong>2 место</strong> — серебряный набор (350 монет)
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Award className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <strong>3 место</strong> — бронзовый набор (250 монет)
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <strong>4-10 места</strong> — элитный набор (100 монет)
+                          </div>
+                        </li>
+                      </ul>
+                      <div className="mt-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <p className="text-xs text-blue-700 dark:text-blue-400">
+                          💡 После применения шаблона можно отредактировать любой приз или добавить дополнительные.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                        Косметика
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        При выборе скина/бейджа/рамки:
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>Список загружается из базы данных автоматически</div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>Показывается редкость каждого предмета (common, rare, epic, legendary)</div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>Можно создать новую косметику в таблицах `skin_definitions`, `badge_definitions`</div>
+                        </li>
+                      </ul>
+                      <div className="mt-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                        <p className="text-xs text-purple-700 dark:text-purple-400">
+                          💡 Для создания новой косметики используй SQL миграцию или админ-панель (если доступна).
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-primary" />
+                      Эксклюзивные призы
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Отметь "Эксклюзивный" для уникальных призов (например, чемпионский скин). Эти призы:
+                    </p>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>Больше не появятся в будущих сезонах</div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>Создают дополнительную мотивацию для игроков</div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>Повышают ценность достижения топ-3</div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-primary" />
+                      Автоматизация
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Всё работает автоматически:
+                    </p>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>Просто настрой призы один раз, и система сама распределит их при завершении сезона</div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>Триггер в БД автоматически логирует завершившиеся сезоны</div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <div>Edge Function автоматически определяет топ-10 и распределяет призы</div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.section>
+
+          {/* Техническая информация */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Settings className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">⚙️ Техническая информация</h3>
+                <p className="text-sm text-muted-foreground">Детали реализации и архитектуры</p>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card className="border-2 border-border/50">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Info className="w-4 h-4" />
-                    Нужно ли нажимать "Распределить призы" вручную?
-                  </CardTitle>
+                  <CardTitle className="text-base">Таблицы базы данных</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Нет!</strong> Просто нажми <strong>"Проверить сезоны"</strong> — система автоматически найдёт все завершившиеся сезоны и распределит призы для каждого.
-                  </p>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">duel_pass_seasons</p>
+                    <p className="text-xs text-muted-foreground">Хранит информацию о сезонах</p>
+                  </div>
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">leaderboard_season_rewards</p>
+                    <p className="text-xs text-muted-foreground">Определения призов для каждой позиции</p>
+                  </div>
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">user_leaderboard_rewards</p>
+                    <p className="text-xs text-muted-foreground">Полученные призы пользователями</p>
+                  </div>
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">cron_job_logs</p>
+                    <p className="text-xs text-muted-foreground">Логи автоматических проверок</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-2 border-border/50">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Info className="w-4 h-4" />
-                    Что если призы не настроены?
-                  </CardTitle>
+                  <CardTitle className="text-base">Edge Functions</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Система покажет красное предупреждение: "Призы не настроены". Открой "Управление призами" и настрой призы через редактор, затем распредели их.
-                  </p>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">season-end-rewards</p>
+                    <p className="text-xs text-muted-foreground">Распределение призов в конце сезона</p>
+                  </div>
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">duel-pass-leaderboard</p>
+                    <p className="text-xs text-muted-foreground">Получение данных лидерборда</p>
+                  </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="border-2 border-border/50">
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Info className="w-4 h-4" />
-                    Можно ли изменить призы после создания?
-                  </CardTitle>
+                  <CardTitle className="text-base">RPC функции</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Да!</strong> Открой редактор призов и нажми ✏️ на любом призе. Измени параметры и сохрани.
-                  </p>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">claim_leaderboard_rewards</p>
+                    <p className="text-xs text-muted-foreground">Начисление призов пользователю</p>
+                  </div>
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">manual_check_seasons</p>
+                    <p className="text-xs text-muted-foreground">Проверка завершившихся сезонов</p>
+                  </div>
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">check_and_log_ended_seasons</p>
+                    <p className="text-xs text-muted-foreground">Автоматическая проверка и логирование</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-base">Триггеры</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="p-2 rounded bg-muted/50">
+                    <p className="font-semibold">trigger_auto_distribute_rewards</p>
+                    <p className="text-xs text-muted-foreground">Автоматическое логирование завершившихся сезонов</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          </section>
+          </motion.section>
         </CardContent>
       </Card>
     </div>
