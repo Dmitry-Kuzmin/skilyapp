@@ -209,7 +209,7 @@ const Layout = ({ children }: LayoutProps) => {
                       "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
                       referralModalOpen
                         ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
-                        : "text-muted-foreground hover:text-primary border-[0.5px] border-white/60 hover:border-white/80 hover:bg-primary/10"
+                        : "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
                     )}
                     title="Реферальная программа"
                   >
