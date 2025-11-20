@@ -94,30 +94,40 @@ serve(async (req) => {
 
     const userIds = profiles.map((p) => p.id);
 
-    // Загружаем активные скины пользователей
-    const { data: activeSkins } = await supabase
+    // Загружаем активные скины пользователей (используем left join, чтобы не падало если нет скинов)
+    const { data: activeSkins, error: skinsError } = await supabase
       .from("user_skins")
       .select(`
         user_id,
         skin_id,
-        skin_definitions:skin_definitions!inner(id, name_ru, rarity, metadata)
+        skin_definitions:skin_definitions(id, name_ru, rarity, metadata)
       `)
       .eq("is_active", true)
       .in("user_id", userIds);
 
-    // Загружаем отображаемые бейджи (до 3 на пользователя)
-    const { data: displayedBadges } = await supabase
+    if (skinsError) {
+      console.error("[duel-pass-leaderboard] Error loading skins:", skinsError);
+      // Не прерываем выполнение, просто логируем
+    }
+
+    // Загружаем отображаемые бейджи (до 3 на пользователя, left join)
+    const { data: displayedBadges, error: badgesError } = await supabase
       .from("user_badges")
       .select(`
         user_id,
         badge_id,
         display_order,
-        badge_definitions:badge_definitions!inner(id, name_ru, rarity, metadata)
+        badge_definitions:badge_definitions(id, name_ru, rarity, metadata)
       `)
       .eq("is_displayed", true)
       .in("user_id", userIds)
       .order("display_order", { ascending: true })
       .limit(3 * userIds.length); // Максимум 3 бейджа на пользователя
+
+    if (badgesError) {
+      console.error("[duel-pass-leaderboard] Error loading badges:", badgesError);
+      // Не прерываем выполнение, просто логируем
+    }
 
     // Загружаем количество полученных наград
     const { data: claimedRewards } = await supabase
@@ -129,15 +139,25 @@ serve(async (req) => {
     // Создаем мапы для быстрого доступа
     const skinMap = new Map<string, any>();
     activeSkins?.forEach((skin) => {
-      skinMap.set(skin.user_id, skin);
+      // Фильтруем только скины с определениями
+      if (skin.skin_definitions) {
+        skinMap.set(skin.user_id, skin);
+      }
     });
 
     const badgesMap = new Map<string, any[]>();
     displayedBadges?.forEach((badge) => {
-      if (!badgesMap.has(badge.user_id)) {
-        badgesMap.set(badge.user_id, []);
+      // Фильтруем только бейджи с определениями
+      if (badge.badge_definitions) {
+        if (!badgesMap.has(badge.user_id)) {
+          badgesMap.set(badge.user_id, []);
+        }
+        // Ограничиваем до 3 бейджей на пользователя
+        const userBadges = badgesMap.get(badge.user_id)!;
+        if (userBadges.length < 3) {
+          userBadges.push(badge);
+        }
       }
-      badgesMap.get(badge.user_id)!.push(badge);
     });
 
     const rewardsCountMap = new Map<string, number>();
@@ -178,8 +198,12 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("[duel-pass-leaderboard] unexpected error", error);
+    console.error("[duel-pass-leaderboard] error details:", JSON.stringify(error, null, 2));
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : String(error)
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
