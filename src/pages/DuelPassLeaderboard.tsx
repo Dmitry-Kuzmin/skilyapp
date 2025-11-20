@@ -145,7 +145,7 @@ const DuelPassLeaderboard = () => {
                 transition={{ delay: 0.2 }}
                 className="flex-shrink-0 w-[280px] md:w-auto md:flex-1"
               >
-                <Card className="p-6 space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300">
+                <Card className="p-4 md:p-6 space-y-3 md:space-y-4 border-2 border-gray-300/60 bg-gradient-to-br from-gray-50/80 via-gray-100/80 to-gray-50/80 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm relative overflow-hidden group hover:shadow-xl transition-all duration-300 h-full">
                   {/* Декоративные элементы */}
                   <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-gray-300/10 to-transparent rounded-full -mr-20 -mt-20" />
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-gray-200/10 to-transparent rounded-full -ml-16 -mb-16" />
@@ -160,12 +160,12 @@ const DuelPassLeaderboard = () => {
                       </motion.div>
                       <div className="relative">
                         <RankFrame rank={(leaders[1]?.rank || getRankFromLevel(leaders[1]?.duel_pass_level || 1)) as RankType} />
-                        <Avatar className="w-24 h-24 border-4 border-gray-400/60 shadow-xl">
+                        <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-gray-400/60 shadow-xl">
                           <AvatarImage
                             src={leaders[1]?.profile?.photo_url || leaders[1]?.profile?.avatar_url}
                             alt={leaders[1]?.profile?.first_name || "Игрок"}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-600 text-white font-bold text-2xl">
+                          <AvatarFallback className="bg-gradient-to-br from-gray-400 to-gray-600 text-white font-bold text-xl md:text-2xl">
                             {(leaders[1]?.profile?.first_name || "И")[0]}
                           </AvatarFallback>
                         </Avatar>
