@@ -115,6 +115,20 @@ serve(async (req) => {
       })
       .eq("id", user_id);
 
+    // Автоматически обновляем ранг пользователя при изменении уровня
+    if (levelUp) {
+      try {
+        await supabase.rpc("update_user_rank", {
+          p_user_id: user_id,
+          p_season_id: null, // Используем активный сезон
+          p_force_update: false,
+        });
+      } catch (rankError) {
+        // Не прерываем выполнение, если обновление ранга не удалось
+        console.warn("[duel-pass-xp] Failed to update user rank:", rankError);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
