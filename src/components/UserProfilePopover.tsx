@@ -317,13 +317,17 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                  )}>
                    {(() => {
                      const photoUrl = profile?.photo_url || user?.photo_url;
-                     // Показываем изображение только если есть URL и нет превью скина
-                     if (photoUrl && !previewSkin) {
+                     // Если есть previewSkin, скрываем изображение через CSS, чтобы показался fallback
+                     if (photoUrl) {
                        return (
                          <AvatarImage 
-                           src={photoUrl} 
+                           src={previewSkin ? undefined : photoUrl}
                            alt={profile?.first_name || user?.first_name || 'User'}
-                           className={cn(isPremium && "relative z-10")}
+                           className={cn(
+                             isPremium && "relative z-10",
+                             previewSkin && "hidden"
+                           )}
+                           style={previewSkin ? { display: 'none' } : undefined}
                            onError={(e) => {
                              // При ошибке загрузки скрываем изображение, показывается fallback
                              console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
@@ -358,6 +362,9 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                      )}
                      {previewSkin?.metadata.effect === "fire" && (
                        <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce" />
+                     )}
+                     {previewSkin?.metadata.effect === "shine" && (
+                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer rounded-full" />
                      )}
                      {previewSkin?.rarity === "legendary" && (
                        <>
