@@ -58,6 +58,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
+const DuelPassLeaderboard = lazy(() => import("./pages/DuelPassLeaderboard"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
@@ -182,6 +183,7 @@ const App = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
+          <Route path="/duel-pass-leaderboard" element={<DuelPassLeaderboard />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />
