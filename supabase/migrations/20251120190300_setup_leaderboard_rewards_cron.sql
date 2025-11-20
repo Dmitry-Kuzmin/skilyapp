@@ -22,7 +22,7 @@ AS $$
 DECLARE
   v_season RECORD;
   v_result JSONB;
-  v_http_response http_response;
+  v_seasons_found INTEGER := 0;
 BEGIN
   -- Ищем сезоны, которые завершились в последние 24 часа и ещё не обработаны
   FOR v_season IN
@@ -44,21 +44,8 @@ BEGIN
       )
     ORDER BY end_date DESC
   LOOP
-    -- Вызываем Edge Function через http
-    -- Используем supabase_functions.http_request для вызова Edge Function
-    SELECT * INTO v_http_response
-    FROM http((
-      'POST',
-      current_setting('app.settings.supabase_url') || '/functions/v1/season-end-rewards',
-      ARRAY[
-        http_header('Content-Type', 'application/json'),
-        http_header('Authorization', 'Bearer ' || current_setting('app.settings.service_role_key'))
-      ],
-      'application/json',
-      json_build_object('season_id', v_season.id)::text
-    )::http_request);
-
-    -- Логируем результат
+    -- Логируем сезон, который нужно обработать
+    -- Edge Function должен быть вызван извне (через внешний cron или вручную)
     INSERT INTO public.cron_job_logs (
       job_name,
       status,
@@ -66,35 +53,64 @@ BEGIN
       error_message
     ) VALUES (
       'check_and_distribute_season_rewards',
-      CASE WHEN v_http_response.status = 200 THEN 'success' ELSE 'error' END,
+      'running',
       jsonb_build_object(
         'season_id', v_season.id,
         'season_number', v_season.season_number,
-        'http_status', v_http_response.status,
-        'response', v_http_response.content
+        'season_name', v_season.name_ru,
+        'end_date', v_season.end_date,
+        'action', 'needs_processing',
+        'edge_function_url', '/functions/v1/season-end-rewards',
+        'payload', jsonb_build_object('season_id', v_season.id)
       ),
-      CASE WHEN v_http_response.status != 200 THEN v_http_response.content ELSE NULL END
+      NULL
     );
 
-    -- Обновляем статус сезона (делаем неактивным после обработки)
-    UPDATE duel_pass_seasons
-    SET is_active = false
-    WHERE id = v_season.id;
-
+    v_seasons_found := v_seasons_found + 1;
+    
     v_result := jsonb_build_object(
       'success', true,
-      'season_id', v_season.id,
-      'season_number', v_season.season_number,
-      'processed', true
+      'seasons_found', v_seasons_found,
+      'seasons', jsonb_agg(jsonb_build_object(
+        'season_id', v_season.id,
+        'season_number', v_season.season_number,
+        'season_name', v_season.name_ru
+      ))
     );
   END LOOP;
 
   -- Если не нашли сезонов для обработки
-  IF v_result IS NULL THEN
+  IF v_seasons_found = 0 THEN
     v_result := jsonb_build_object(
       'success', true,
+      'seasons_found', 0,
       'message', 'No seasons to process'
     );
+  ELSE
+    -- Формируем финальный результат с массивом сезонов
+    SELECT jsonb_build_object(
+      'success', true,
+      'seasons_found', v_seasons_found,
+      'message', 'Seasons logged for processing. Call season-end-rewards Edge Function manually or via external cron.',
+      'seasons', jsonb_agg(
+        jsonb_build_object(
+          'season_id', id,
+          'season_number', season_number,
+          'season_name', name_ru
+        )
+      )
+    ) INTO v_result
+    FROM duel_pass_seasons
+    WHERE 
+      end_date <= NOW()
+      AND end_date >= NOW() - INTERVAL '24 hours'
+      AND is_active = true
+      AND NOT EXISTS (
+        SELECT 1 
+        FROM user_leaderboard_rewards 
+        WHERE season_id = duel_pass_seasons.id 
+        LIMIT 1
+      );
   END IF;
 
   RETURN v_result;
