@@ -115,14 +115,14 @@ const Learning = () => {
 
           <aside className="xl:w-[22%] space-y-4 xl:sticky xl:top-24 h-full">
             <Card className="p-5 space-y-4 border-border/50 bg-card/80 backdrop-blur">
-              <div className="flex items-center justify-between gap-2">
-                <div>
+              <div className="flex items-start sm:items-center justify-between gap-2 flex-wrap">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
                     Материалы
                   </p>
-                  <h3 className="text-lg font-semibold mt-1">Быстрый доступ</h3>
+                  <h3 className="text-lg font-semibold mt-1 break-words">Быстрый доступ</h3>
                 </div>
-                <Badge variant="secondary">+ новые</Badge>
+                <Badge variant="secondary" className="flex-shrink-0 whitespace-nowrap">+ новые</Badge>
               </div>
 
               <div className="space-y-3">
@@ -135,7 +135,7 @@ const Learning = () => {
                       disabled={isDisabled}
                       onClick={() => resource.path && navigate(resource.path)}
                       className={cn(
-                        "w-full rounded-2xl border border-border/60 bg-background/60 transition-all duration-300 px-4 py-3 text-left flex items-start gap-3",
+                        "w-full rounded-2xl border border-border/60 bg-background/60 transition-all duration-300 px-4 py-3 text-left flex items-start gap-3 overflow-hidden",
                         isDisabled
                           ? "opacity-60 cursor-not-allowed"
                           : "hover:border-primary/40 hover:bg-primary/5"
@@ -144,26 +144,28 @@ const Learning = () => {
                       <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary flex-shrink-0">
                         <resource.icon className="w-5 h-5" />
                       </div>
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm leading-tight">{resource.title}</p>
-                          {resource.premium && (
-                            <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                              Premium
-                            </Badge>
-                          )}
-                          {resource.badge && (
-                            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
-                              {resource.badge}
-                            </Badge>
-                          )}
-                          {resource.comingSoon && (
-                            <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                              Скоро
-                            </Badge>
-                          )}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex items-start gap-2 flex-wrap">
+                          <p className="font-semibold text-sm leading-tight break-words">{resource.title}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {resource.premium && (
+                              <Badge variant="outline" className="text-[10px] uppercase tracking-wide whitespace-nowrap">
+                                Premium
+                              </Badge>
+                            )}
+                            {resource.badge && (
+                              <Badge variant="secondary" className="text-[10px] uppercase tracking-wide whitespace-nowrap">
+                                {resource.badge}
+                              </Badge>
+                            )}
+                            {resource.comingSoon && (
+                              <Badge variant="outline" className="text-[10px] uppercase tracking-wide whitespace-nowrap">
+                                Скоро
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{resource.description}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2 break-words">{resource.description}</p>
                       </div>
                     </button>
                   );
@@ -185,16 +187,23 @@ const Learning = () => {
                 {supportResources.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-border/60 bg-background/60 px-4 py-3 flex items-center gap-3"
+                    className="rounded-2xl border border-border/60 bg-background/60 px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3 overflow-hidden"
                   >
-                    <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary/15 text-secondary flex-shrink-0">
-                      <item.icon className="w-5 h-5" />
+                    <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary/15 text-secondary flex-shrink-0">
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm break-words">{item.title}</p>
+                        <p className="text-xs text-muted-foreground break-words">{item.description}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">{item.description}</p>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => navigate(item.action)}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => navigate(item.action)}
+                      className="w-full sm:w-auto flex-shrink-0"
+                    >
                       Открыть
                     </Button>
                   </div>
