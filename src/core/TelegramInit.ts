@@ -76,64 +76,21 @@ export function initTelegram() {
 
 /**
  * Обработка deep links из Telegram уведомлений
+ * Сохраняет deep link в sessionStorage для обработки компонентом DeepLinkHandler
+ * (который работает внутри BrowserRouter и может использовать navigate)
  */
 function handleDeepLink(deepLink: DeepLinkData): void {
   console.log('[Telegram Init] Handling deep link:', deepLink);
 
   // Сохраняем deep link для обработки после загрузки приложения
+  // DeepLinkHandler компонент обработает его внутри BrowserRouter
   sessionStorage.setItem('telegram_deeplink', JSON.stringify(deepLink));
 
-  // Навигация в зависимости от action
-  setTimeout(() => {
-    switch (deepLink.action) {
-      case 'duel':
-        if (deepLink.id) {
-          console.log('[Telegram Init] Navigating to duel with code:', deepLink.id);
-          window.location.href = `/games/duel?code=${deepLink.id}`;
-        }
-        break;
-      
-      case 'ref':
-        if (deepLink.id) {
-          console.log('[Telegram Init] Storing referral code:', deepLink.id);
-          // Сохраняем код для использования при регистрации
-          sessionStorage.setItem('referral_code', deepLink.id.toUpperCase());
-          // Перенаправляем на главную
-          window.location.href = '/';
-        }
-        break;
-      
-      case 'test':
-        if (deepLink.id) {
-          console.log('[Telegram Init] Navigating to test:', deepLink.id);
-          window.location.href = `/test?topic=${deepLink.id}`;
-        }
-        break;
-      
-      case 'learn':
-        console.log('[Telegram Init] Navigating to learn');
-        window.location.href = '/learn';
-        break;
-      
-      case 'dashboard':
-        console.log('[Telegram Init] Navigating to dashboard');
-        window.location.href = '/dashboard';
-        break;
-      
-      case 'exam-prep':
-        console.log('[Telegram Init] Navigating to exam prep');
-        window.location.href = '/exam-prep';
-        break;
-      
-      case 'daily-bonus':
-        console.log('[Telegram Init] Navigating to daily bonus');
-        window.location.href = '/daily-bonus';
-        break;
-      
-      default:
-        console.log('[Telegram Init] Unknown deep link action:', deepLink.action);
-    }
-  }, 100); // Небольшая задержка для корректной навигации
+  // Для referral кода сохраняем отдельно
+  if (deepLink.action === 'ref' && deepLink.id) {
+    console.log('[Telegram Init] Storing referral code:', deepLink.id);
+    sessionStorage.setItem('referral_code', deepLink.id.toUpperCase());
+  }
 }
 
 export function isTelegramPlatform(): boolean {

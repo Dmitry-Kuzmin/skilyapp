@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { ReferralWelcome } from "@/components/ReferralWelcome";
 import { PageLoader } from "@/components/PageLoader";
+import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 
 const Index = lazy(() => import("./pages/Index"));
 const LearningMap = lazy(() => import("./pages/LearningMap"));
@@ -133,6 +134,7 @@ const App = () => {
         )}
         
         <BrowserRouter basename={basename}>
+          <DeepLinkHandler />
           <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
