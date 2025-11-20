@@ -120,16 +120,16 @@ export function CosmeticsInventory() {
         const transformedSkins = skinsResult.value.data
           .filter((item: any) => item.skin_definitions) // Фильтруем скины без определений
           .map((item: any) => ({
-            id: item.id,
-            skin_id: item.skin_id,
-            is_active: item.is_active,
-            obtained_at: item.obtained_at,
-            skin_definitions: typeof item.skin_definitions === 'object' 
-              ? item.skin_definitions 
-              : (typeof item.skin_definitions === 'string' 
-                  ? JSON.parse(item.skin_definitions) 
-                  : item.skin_definitions)
-          }));
+          id: item.id,
+          skin_id: item.skin_id,
+          is_active: item.is_active,
+          obtained_at: item.obtained_at,
+          skin_definitions: typeof item.skin_definitions === 'object' 
+            ? item.skin_definitions 
+            : (typeof item.skin_definitions === 'string' 
+                ? JSON.parse(item.skin_definitions) 
+                : item.skin_definitions)
+        }));
         setSkins(transformedSkins);
         console.log('[CosmeticsInventory] ✅ Загружено скинов через RPC:', transformedSkins.length, transformedSkins);
         

@@ -454,9 +454,12 @@ const DuelPassLeaderboard = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground truncate cursor-help px-2">
-                                    {filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}
-                                  </h3>
+                                  <div className="relative px-2 w-full">
+                                    <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]">
+                                      {filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}
+                                    </h3>
+                                    <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-slate-50 via-slate-50/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 pointer-events-none" />
+                                  </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-semibold">{filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}</p>
@@ -629,9 +632,12 @@ const DuelPassLeaderboard = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <h3 className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent truncate cursor-help px-2">
-                                    {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
-                                  </h3>
+                                  <div className="relative px-2 w-full">
+                                    <h3 className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent cursor-help line-clamp-1 max-w-[120px] sm:max-w-[140px] md:max-w-[160px]">
+                                      {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
+                                    </h3>
+                                    <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-yellow-50 via-yellow-50/80 to-transparent dark:from-yellow-950 dark:via-yellow-950/80 pointer-events-none" />
+                                  </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-semibold">{filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}</p>
@@ -726,9 +732,12 @@ const DuelPassLeaderboard = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground truncate cursor-help px-2">
-                                    {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}
-                                  </h3>
+                                  <div className="relative px-2 w-full">
+                                    <h3 className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]">
+                                      {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}
+                                    </h3>
+                                    <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-orange-50 via-orange-50/80 to-transparent dark:from-orange-950 dark:via-orange-950/80 pointer-events-none" />
+                                  </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-semibold">{filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}</p>
@@ -758,7 +767,9 @@ const DuelPassLeaderboard = () => {
                         </div>
                       </CardContent>
                     </Card>
-              </motion.div>
+                  </motion.div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -832,9 +843,9 @@ const DuelPassLeaderboard = () => {
                               <Trophy className="w-4 h-4 inline-block ml-1 text-yellow-500" />
                             )}
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="relative">
+                          <TableCell className="max-w-[200px] sm:max-w-[250px] md:max-w-none">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="relative flex-shrink-0">
                                 <RankFrame rank={rank} />
                                 <motion.div
                                   whileHover={{ scale: 1.1 }}
@@ -867,25 +878,28 @@ const DuelPassLeaderboard = () => {
                                   </Avatar>
                                 </motion.div>
                               </div>
-                              <div>
+                              <div className="min-w-0 flex-1">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <p className="font-semibold flex items-center gap-2 truncate cursor-help">
-                                        {name}
+                                      <div className="relative flex items-center gap-2 min-w-0 flex-1">
+                                        <p className="font-semibold cursor-help line-clamp-1 max-w-[80px] sm:max-w-[120px] md:max-w-[150px]">
+                                          {name}
+                                        </p>
                                         {isCurrentUser && (
-                                          <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
+                                          <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30 flex-shrink-0">
                                             Вы
                                           </Badge>
                                         )}
-                                      </p>
+                                        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background via-background/90 to-transparent pointer-events-none" />
+                                      </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <p className="font-semibold">{name}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-muted-foreground truncate">
                                   Уровень {leader.duel_pass_level}
                                 </p>
                               </div>
