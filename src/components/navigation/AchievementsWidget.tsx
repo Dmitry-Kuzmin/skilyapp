@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Trophy, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { AchievementsModalContent } from "./AchievementsModalContent";
 
 const XP_PER_LEVEL = 225;
 
@@ -22,9 +23,9 @@ interface AchievementsWidgetProps {
 export const AchievementsWidget = ({ className, variant = "desktop" }: AchievementsWidgetProps) => {
   const { profileId, isAuthenticated } = useUserContext();
   const { t } = useLanguage();
-  const navigate = useNavigate();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -95,12 +96,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
       ? "w-full px-4 py-3 rounded-2xl border border-border/60 bg-card/70 backdrop-blur space-y-2 text-left"
       : "flex items-center gap-3 px-3 py-2 rounded-2xl border border-border/40 bg-card/70 hover:bg-card transition-colors shadow-sm";
 
-  return (
-    <button
-      type="button"
-      onClick={() => navigate("/achievements")}
-      className={cn(baseClasses, className)}
-    >
+  const trigger = (
+    <div className={cn(baseClasses, className)}>
       <div className={cn("flex items-center gap-3", variant === "mobile" && "w-full")}>
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow">
           <Trophy className="w-5 h-5 text-white" />
@@ -125,7 +122,28 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
           style={{ width: `${progress}%` }}
         />
       </div>
-    </button>
+    </div>
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button type="button" className="w-full text-left">
+          {trigger}
+        </button>
+      </DialogTrigger>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] p-0 flex flex-col">
+        <DialogHeader className="px-6 pt-6 pb-0">
+          <DialogTitle>{t("profileMenu.achievements")}</DialogTitle>
+          <DialogDescription>
+            {t("profileMenu.achievementsDesc") || "Отслеживайте прогресс и открывайте награды"}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex-1 overflow-y-auto p-6">
+          <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} onClose={() => setOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

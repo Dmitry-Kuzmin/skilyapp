@@ -33,7 +33,6 @@ const AdminTestCovers = lazy(() =>
 );
 const AdminEditor = lazy(() => import("./pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
-const Achievements = lazy(() => import("./pages/Achievements"));
 const RaceGame = lazy(() => import("./pages/games/RaceGame"));
 const GuessTheSign = lazy(() => import("./pages/games/GuessTheSign"));
 const MatchingGame = lazy(() => import("./pages/games/MatchingGame"));
@@ -157,7 +156,6 @@ const App = () => {
           <Route path="/games/four-variants" element={<FourVariantsGame />} />
           <Route path="/games/road-race" element={<RoadRace />} />
           <Route path="/games/flashcards" element={<FlashCardsGame />} />
-          <Route path="/achievements" element={<Achievements />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/join/:code" element={<InviteLanding />} />
           <Route path="/admin" element={<AdminLayout />}>
