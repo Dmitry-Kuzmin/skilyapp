@@ -45,11 +45,54 @@ import { useNotifications } from "@/hooks/useNotifications";
 const supabaseClient = supabase as any;
 
 // Глобальный кэш для данных профиля (не очищается при навигации)
-const profileCache: Record<string, { 
-  data: any; 
+type CachedProfile = {
+  data: {
+    photo_url?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    username?: string | null;
+    xp?: number;
+    subscription_status?: string | null;
+    settings?: Record<string, unknown> | null;
+  };
   timestamp: number;
-}> = {};
+};
+
+const profileCache: Record<string, CachedProfile> = {};
 const PROFILE_CACHE_DURATION = 300000; // 5 минут
+const PROFILE_CACHE_STORAGE_KEY = "profile_avatar_cache";
+
+const isBrowser = typeof window !== "undefined";
+
+const loadProfileFromStorage = (profileId: string): CachedProfile | null => {
+  if (!isBrowser) return null;
+  try {
+    const raw = window.localStorage.getItem(PROFILE_CACHE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Record<string, CachedProfile>;
+    const cached = parsed?.[profileId];
+    if (!cached) return null;
+    if (Date.now() - cached.timestamp > PROFILE_CACHE_DURATION) {
+      return null;
+    }
+    return cached;
+  } catch (error) {
+    console.warn("[UserProfilePopover] Failed to read avatar cache:", error);
+    return null;
+  }
+};
+
+const saveProfileToStorage = (profileId: string, cachedProfile: CachedProfile) => {
+  if (!isBrowser) return;
+  try {
+    const raw = window.localStorage.getItem(PROFILE_CACHE_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Record<string, CachedProfile>) : {};
+    parsed[profileId] = cachedProfile;
+    window.localStorage.setItem(PROFILE_CACHE_STORAGE_KEY, JSON.stringify(parsed));
+  } catch (error) {
+    console.warn("[UserProfilePopover] Failed to persist avatar cache:", error);
+  }
+};
 
 // Функция для инвалидации кэша профиля (для использования в других компонентах)
 export function invalidateProfileCache(profileId: string) {
@@ -137,6 +180,19 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
       return;
     }
 
+    // Пытаемся взять из persistent storage
+    if (!force) {
+      const stored = loadProfileFromStorage(profileId);
+      if (stored) {
+        profileCache[profileId] = stored;
+        setProfile(stored.data);
+        setLoading(false);
+        setShowSkeleton(false);
+        hasInitializedRef.current = true;
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       if (!hasInitializedRef.current) {
@@ -159,9 +215,11 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
       if (error) throw error;
 
       if (data) {
+        const cachedProfile: CachedProfile = { data, timestamp: now };
         setProfile(data);
         // Сохраняем в кэш
-        profileCache[profileId] = { data, timestamp: now };
+        profileCache[profileId] = cachedProfile;
+        saveProfileToStorage(profileId, cachedProfile);
       }
       
       clearTimeout(skeletonTimeout);
