@@ -62,6 +62,7 @@ const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const DuelPassLeaderboard = lazy(() => import("./pages/DuelPassLeaderboard"));
+const HallOfFame = lazy(() => import("./pages/HallOfFame"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
