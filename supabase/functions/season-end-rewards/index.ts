@@ -109,7 +109,8 @@ serve(async (req) => {
 async function processSeason(season_id: number, supabase: any) {
   console.log(`[season-end-rewards] Processing rewards for season ${season_id}`);
 
-  // Получаем топ-10 игроков по Duel Pass уровню и XP
+  try {
+    // Получаем топ-10 игроков по Duel Pass уровню и XP
     const { data: topPlayers, error: playersError } = await supabase
       .from("profiles")
       .select("id, duel_pass_level, duel_pass_xp, first_name, username")
@@ -120,17 +121,18 @@ async function processSeason(season_id: number, supabase: any) {
 
     if (playersError) {
       console.error("[season-end-rewards] Error fetching top players:", playersError);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch top players", details: playersError.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return {
+        success: false,
+        error: "Failed to fetch top players",
+        details: playersError.message,
+      };
     }
 
     if (!topPlayers || topPlayers.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "No players found for leaderboard" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return {
+        success: false,
+        error: "No players found for leaderboard",
+      };
     }
 
     console.log(`[season-end-rewards] Found ${topPlayers.length} top players`);
@@ -344,23 +346,21 @@ async function processSeason(season_id: number, supabase: any) {
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        season_id,
-        processed: results.length,
-        successful: results.filter((r) => r.success).length,
-        failed: results.filter((r) => !r.success).length,
-        results,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return {
+      success: true,
+      season_id,
+      processed: results.length,
+      successful: results.filter((r) => r.success).length,
+      failed: results.filter((r) => !r.success).length,
+      results,
+    };
   } catch (error) {
-    console.error("[season-end-rewards] Unexpected error:", error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    console.error("[season-end-rewards] Error processing season:", error);
+    return {
+      success: false,
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : "Unknown",
+    };
   }
-});
+}
 
