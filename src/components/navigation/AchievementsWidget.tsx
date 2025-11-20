@@ -100,8 +100,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   const baseClasses =
     variant === "mobile"
-      ? "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors"
-      : "hidden sm:inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer";
+      ? "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors flex-shrink-0"
+      : "hidden sm:inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer flex-shrink-0";
 
   const trigger = (
     <div className={cn(baseClasses, className)}>
@@ -111,8 +111,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
     </div>
   );
 
-  const triggerButtonClass =
-    variant === "mobile" ? "w-full" : "inline-flex w-auto";
+  const triggerButtonClass = "inline-flex w-auto flex-shrink-0";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
