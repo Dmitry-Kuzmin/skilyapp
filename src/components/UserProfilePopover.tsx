@@ -400,7 +400,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <Button
                 variant="outline"
                 className="h-9 text-sm"
@@ -422,6 +422,22 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
               >
                 <Sparkles className="h-4 w-4 mr-1" />
                 {t('profileMenu.inventory')}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-9 text-sm flex items-center justify-center gap-1.5"
+                onClick={() => {
+                  setOpen(false);
+                  onOpenNotifications?.();
+                }}
+              >
+                <Bell className="h-4 w-4" />
+                <span>{t('profileMenu.notifications')}</span>
+                {unreadCount > 0 && (
+                  <span className="text-xs font-semibold text-primary">
+                    +{unreadCount > 9 ? '9' : unreadCount}
+                  </span>
+                )}
               </Button>
             </div>
 
