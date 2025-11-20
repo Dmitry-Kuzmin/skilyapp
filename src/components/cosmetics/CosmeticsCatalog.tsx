@@ -17,14 +17,13 @@ import {
   Target,
   Calendar,
   Flame,
-  Eye,
-  X
+  Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { usePremium } from "@/hooks/usePremium";
-import { AvatarPreview } from "./AvatarPreview";
+import { useCosmeticsPreview, type PreviewSkin, type PreviewBadge, type PreviewSticker } from "@/contexts/CosmeticsPreviewContext";
 
 interface SkinDefinition {
   id: string;
@@ -114,9 +113,10 @@ const rarityGradients = {
 };
 
 export function CosmeticsCatalog() {
-  const { profileId, user } = useUserContext();
+  const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const navigate = useNavigate();
+  const { previewSkin, previewBadges, previewSticker, setPreviewSkin, setPreviewBadges, setPreviewSticker } = useCosmeticsPreview();
   const [loading, setLoading] = useState(true);
   const [skins, setSkins] = useState<SkinDefinition[]>([]);
   const [badges, setBadges] = useState<BadgeDefinition[]>([]);
@@ -124,42 +124,13 @@ export function CosmeticsCatalog() {
   const [ownedSkins, setOwnedSkins] = useState<Set<string>>(new Set());
   const [ownedBadges, setOwnedBadges] = useState<Set<string>>(new Set());
   const [ownedStickers, setOwnedStickers] = useState<Set<string>>(new Set());
-  
-  // Состояния для примерки
-  const [previewSkin, setPreviewSkin] = useState<SkinDefinition | null>(null);
-  const [previewBadges, setPreviewBadges] = useState<BadgeDefinition[]>([]);
-  const [previewSticker, setPreviewSticker] = useState<StickerDefinition | null>(null);
-  const [userName, setUserName] = useState<string>("Т");
 
   useEffect(() => {
     loadCatalog();
     if (profileId) {
       loadOwnedItems();
-      loadUserName();
-    } else if (user?.first_name) {
-      setUserName(user.first_name);
     }
-  }, [profileId, user]);
-
-  const loadUserName = async () => {
-    if (!profileId) return;
-    
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('first_name')
-        .eq('id', profileId)
-        .maybeSingle();
-      
-      if (profile?.first_name) {
-        setUserName(profile.first_name);
-      } else if (user?.first_name) {
-        setUserName(user.first_name);
-      }
-    } catch (error) {
-      console.error("Error loading user name:", error);
-    }
-  };
+  }, [profileId]);
 
   const loadCatalog = async () => {
     try {
@@ -264,7 +235,7 @@ export function CosmeticsCatalog() {
   }
 
   const handleSkinPreview = (skin: SkinDefinition) => {
-    setPreviewSkin(skin);
+    setPreviewSkin(skin as PreviewSkin);
     // Сбрасываем другие превью при переключении вкладок
     setPreviewBadges([]);
     setPreviewSticker(null);
@@ -279,9 +250,9 @@ export function CosmeticsCatalog() {
       }
       if (prev.length >= 3) {
         // Убираем первый, добавляем новый
-        return [...prev.slice(1), badge];
+        return [...prev.slice(1), badge as PreviewBadge];
       }
-      return [...prev, badge];
+      return [...prev, badge as PreviewBadge];
     });
     // Сбрасываем другие превью
     setPreviewSkin(null);
@@ -289,16 +260,10 @@ export function CosmeticsCatalog() {
   };
 
   const handleStickerPreview = (sticker: StickerDefinition) => {
-    setPreviewSticker((prev) => (prev?.id === sticker.id ? null : sticker));
+    setPreviewSticker((prev) => (prev?.id === sticker.id ? null : (sticker as PreviewSticker)));
     // Сбрасываем другие превью
     setPreviewSkin(null);
     setPreviewBadges([]);
-  };
-
-  const clearPreview = () => {
-    setPreviewSkin(null);
-    setPreviewBadges([]);
-    setPreviewSticker(null);
   };
 
   return (
@@ -306,46 +271,15 @@ export function CosmeticsCatalog() {
       <div>
         <h2 className="text-2xl font-bold mb-2">Каталог косметики</h2>
         <p className="text-sm text-muted-foreground">
-          Кликните на любой элемент, чтобы примерить его в реальном времени. Получайте косметику через Duel Pass, достижения и Premium подписку!
+          Кликните на любой элемент, чтобы примерить его на ваш аватар в хедере в реальном времени. Получайте косметику через Duel Pass, достижения и Premium подписку!
         </p>
+        {(previewSkin || previewBadges.length > 0 || previewSticker) && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs text-primary">
+            <Eye className="w-3 h-3" />
+            <span>Превью активно — смотрите на аватар в хедере</span>
+          </div>
+        )}
       </div>
-
-      {/* Превью аватара - фиксированная панель */}
-      {(previewSkin || previewBadges.length > 0 || previewSticker) && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="sticky top-4 z-10 mb-6"
-        >
-          <Card className="p-6 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-xl border-2 border-primary/20 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <Eye className="w-5 h-5 text-primary" />
-                <div>
-                  <h3 className="font-bold text-lg">Превью</h3>
-                  <p className="text-xs text-muted-foreground">Как будет выглядеть ваш аватар</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={clearPreview}
-                className="h-8 w-8"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex items-center justify-center py-4">
-              <AvatarPreview
-                previewSkin={previewSkin}
-                previewBadges={previewBadges}
-                previewSticker={previewSticker}
-                userName={userName}
-              />
-            </div>
-          </Card>
-        </motion.div>
-      )}
 
       <Tabs defaultValue="skins" className="w-full">
         <TabsList className="grid w-full grid-cols-3">

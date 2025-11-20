@@ -8,6 +8,7 @@ import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { ReferralWelcome } from "@/components/ReferralWelcome";
 import { PageLoader } from "@/components/PageLoader";
 import { DeepLinkHandler } from "@/components/DeepLinkHandler";
+import { CosmeticsPreviewProvider } from "@/contexts/CosmeticsPreviewContext";
 
 const Index = lazy(() => import("./pages/Index"));
 const LearningMap = lazy(() => import("./pages/LearningMap"));
@@ -123,19 +124,19 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        
-        {/* Referral Welcome Screen */}
-        {showReferralWelcome && referralCode && (
-          <ReferralWelcome
-            referralCode={referralCode}
-            onAccept={handleAcceptReferral}
-            onDecline={handleDeclineReferral}
-          />
-        )}
-        
-        <BrowserRouter basename={basename}>
-          <DeepLinkHandler />
-          <Suspense fallback={<PageLoader />}>
+        <CosmeticsPreviewProvider>
+          {/* Referral Welcome Screen */}
+          {showReferralWelcome && referralCode && (
+            <ReferralWelcome
+              referralCode={referralCode}
+              onAccept={handleAcceptReferral}
+              onDecline={handleDeclineReferral}
+            />
+          )}
+          
+          <BrowserRouter basename={basename}>
+            <DeepLinkHandler />
+            <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Index />} />
@@ -187,10 +188,11 @@ const App = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-          </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+            </Suspense>
+          </BrowserRouter>
+        </CosmeticsPreviewProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 

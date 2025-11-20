@@ -41,6 +41,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useCosmeticsPreview } from "@/contexts/CosmeticsPreviewContext";
+import { Sparkles, Trophy, Flame, Crown, Calendar, Star } from "lucide-react";
 
 const supabaseClient = supabase as any;
 
@@ -137,6 +139,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   const { theme, setTheme } = useTheme();
   const { isPremium } = usePremium();
   const navigate = useNavigate();
+  const { previewSkin, previewBadges, previewSticker } = useCosmeticsPreview();
   const [open, setOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
@@ -304,12 +307,15 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                    "h-10 w-10 transition-all cursor-pointer relative z-10",
                    isPremium 
                      ? "ring-0 animate-premium-glow" 
-                     : "ring-2 ring-border hover:ring-primary"
+                     : "ring-2 ring-border hover:ring-primary",
+                   previewSkin && previewSkin.rarity === "legendary" && "ring-2 ring-yellow-400/50 shadow-yellow-500/30",
+                   previewSkin && previewSkin.rarity === "epic" && "ring-2 ring-blue-400/50 shadow-blue-500/30",
+                   previewSkin && previewSkin.rarity === "rare" && "ring-2 ring-blue-400/30"
                  )}>
                    {(() => {
                      const photoUrl = profile?.photo_url || user?.photo_url;
-                     // Показываем изображение только если есть URL
-                     if (photoUrl) {
+                     // Показываем изображение только если есть URL и нет превью скина
+                     if (photoUrl && !previewSkin) {
                        return (
                          <AvatarImage 
                            src={photoUrl} 
@@ -327,14 +333,72 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                    })()}
                    <AvatarFallback 
                      className={cn(
-                       "text-white font-bold text-sm relative z-10",
-                       isPremium && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
+                       "text-white font-bold text-sm relative z-10 overflow-hidden",
+                       isPremium && !previewSkin && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90",
+                       previewSkin?.metadata.animated && "animate-pulse"
                      )}
-                     style={!isPremium ? { backgroundColor: avatarColor } : undefined}
+                     style={
+                       previewSkin
+                         ? {
+                             background: previewSkin.metadata.color
+                               ? `radial-gradient(circle at 30% 30%, ${previewSkin.metadata.color}ff, ${previewSkin.metadata.color}cc 40%, ${previewSkin.metadata.color}88 100%)`
+                               : "radial-gradient(circle at 30% 30%, #6366f1ff, #8b5cf6cc 40%, #6366f188 100%)",
+                           }
+                         : !isPremium
+                         ? { backgroundColor: avatarColor }
+                         : undefined
+                     }
                    >
-                     {initials}
+                     {/* Эффекты скина */}
+                     {previewSkin?.metadata.effect === "sparkle" && (
+                       <Sparkles className="absolute top-0.5 right-0.5 w-3 h-3 animate-spin text-white/90" />
+                     )}
+                     {previewSkin?.metadata.effect === "fire" && (
+                       <Flame className="absolute top-0.5 right-0.5 w-3 h-3 text-orange-400 animate-bounce" />
+                     )}
+                     {previewSkin?.rarity === "legendary" && (
+                       <>
+                         <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
+                         <div className="absolute bottom-1/4 right-1/4 w-0.5 h-0.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
+                       </>
+                     )}
+                     <span className="relative z-10">{initials}</span>
                    </AvatarFallback>
                  </Avatar>
+                 {/* Бейджи рядом с аватаром (максимум 3) */}
+                 {previewBadges.length > 0 && (
+                   <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5 z-20">
+                     {previewBadges.slice(0, 3).map((badge, index) => (
+                       <div
+                         key={badge.id}
+                         className={cn(
+                           "w-4 h-4 rounded-full flex items-center justify-center text-[8px] shadow-lg",
+                           badge.rarity === "legendary" && "bg-gradient-to-br from-yellow-500/80 via-orange-500/80 to-yellow-500/80 ring-1 ring-yellow-400/50",
+                           badge.rarity === "epic" && "bg-gradient-to-br from-blue-500/80 via-pink-500/80 to-blue-500/80 ring-1 ring-blue-400/50",
+                           badge.rarity === "rare" && "bg-gradient-to-br from-blue-500/80 via-cyan-500/80 to-blue-500/80 ring-1 ring-blue-400/30",
+                           badge.rarity === "common" && "bg-gradient-to-br from-gray-500/80 via-gray-400/80 to-gray-500/80",
+                           badge.metadata.animated && "animate-bounce"
+                         )}
+                         style={{
+                           color: badge.metadata.color || "#6366f1",
+                         }}
+                         title={badge.name_ru}
+                       >
+                         {badge.metadata.icon === "trophy" && <Trophy className="w-2.5 h-2.5" />}
+                         {badge.metadata.icon === "flame" && "🔥"}
+                         {badge.metadata.icon === "star" && "⭐"}
+                         {badge.metadata.icon === "crown" && "👑"}
+                         {badge.metadata.icon === "calendar" && "📅"}
+                       </div>
+                     ))}
+                   </div>
+                 )}
+                 {/* Стикер рядом с аватаром */}
+                 {previewSticker && (
+                   <div className="absolute -top-1 -left-1 w-6 h-6 rounded-lg flex items-center justify-center text-lg shadow-lg z-20 bg-background/80 backdrop-blur-sm">
+                     {previewSticker.metadata.emoji || "😊"}
+                   </div>
+                 )}
                  {/* Premium Crown Icon - только если не skeleton */}
                  {!showSkeleton && isPremium && (
                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
