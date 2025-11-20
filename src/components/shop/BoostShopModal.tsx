@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1353,6 +1353,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0 overflow-x-hidden">
+          <DialogTitle className="sr-only">{t('boostShop.title')}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {t('boostShop.description') !== 'boostShop.description'
+              ? t('boostShop.description')
+              : 'Browse boosts, buy coins, and manage premium options'}
+          </DialogDescription>
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <ModalContent />
           </div>

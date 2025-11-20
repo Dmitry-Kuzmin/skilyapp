@@ -51,7 +51,7 @@ const DialogContent = React.forwardRef<
           ref={ref}
           className={cn(
             // Базовые стили для bottom sheet
-            "fixed z-50 gap-4 bg-background shadow-lg transition ease-in-out",
+            "fixed z-[2147483646] gap-4 bg-background shadow-lg transition ease-in-out",
             // Позиционирование снизу без отступов
             "inset-x-0 bottom-0",
             // Скругление сверху
