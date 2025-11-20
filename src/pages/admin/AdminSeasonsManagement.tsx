@@ -248,14 +248,39 @@ export function AdminSeasonsManagement() {
   const checkEndedSeasons = async () => {
     setCheckSeasonsLoading(true);
     try {
-      const { data, error } = await supabase.rpc("manual_check_seasons");
+      // Сначала проверяем завершившиеся сезоны
+      const { data: checkData, error: checkError } = await supabase.rpc("manual_check_seasons");
 
-      if (error) throw error;
+      if (checkError) throw checkError;
 
-      toast({
-        title: "Проверка завершена",
-        description: data?.message || `Найдено сезонов: ${data?.seasons_found || 0}`,
-      });
+      // Если есть завершившиеся сезоны, автоматически распределяем призы
+      if (checkData?.seasons_found > 0 && checkData?.seasons) {
+        const seasonsToProcess = checkData.seasons as Array<{ season_id: number }>;
+        
+        toast({
+          title: "Найдены завершившиеся сезоны",
+          description: `Найдено ${seasonsToProcess.length} сезонов. Начинаю автоматическое распределение призов...`,
+        });
+
+        // Распределяем призы для каждого сезона
+        for (const season of seasonsToProcess) {
+          try {
+            await distributeRewards(season.season_id);
+          } catch (error) {
+            console.error(`[AdminSeasonsManagement] Error distributing rewards for season ${season.season_id}:`, error);
+          }
+        }
+
+        toast({
+          title: "Распределение завершено",
+          description: `Обработано ${seasonsToProcess.length} сезонов`,
+        });
+      } else {
+        toast({
+          title: "Проверка завершена",
+          description: checkData?.message || `Найдено сезонов: ${checkData?.seasons_found || 0}`,
+        });
+      }
 
       await loadCronLogs();
       await loadSeasons();
