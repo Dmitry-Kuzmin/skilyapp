@@ -25,16 +25,91 @@ serve(async (req) => {
 
     const { season_id } = await req.json();
 
+    // Если season_id не указан, ищем все завершившиеся сезоны
     if (!season_id) {
+      console.log("[season-end-rewards] No season_id provided, searching for ended seasons");
+      
+      const { data: endedSeasons, error: seasonsError } = await supabase
+        .from("duel_pass_seasons")
+        .select("id, season_number, name_ru, end_date")
+        .lte("end_date", new Date().toISOString())
+        .eq("is_active", true)
+        .order("end_date", { ascending: false });
+
+      if (seasonsError) {
+        console.error("[season-end-rewards] Error fetching ended seasons:", seasonsError);
+        return new Response(
+          JSON.stringify({ error: "Failed to fetch ended seasons", details: seasonsError.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!endedSeasons || endedSeasons.length === 0) {
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: "No ended seasons found",
+            processed: 0 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Обрабатываем все завершившиеся сезоны
+      const allResults: any[] = [];
+      for (const season of endedSeasons) {
+        // Проверяем, не обработан ли уже сезон
+        const { data: existingRewards } = await supabase
+          .from("user_leaderboard_rewards")
+          .select("id")
+          .eq("season_id", season.id)
+          .limit(1);
+
+        if (existingRewards && existingRewards.length > 0) {
+          console.log(`[season-end-rewards] Season ${season.id} already processed, skipping`);
+          continue;
+        }
+
+        // Рекурсивно вызываем функцию для каждого сезона
+        // (в реальности лучше обработать в цикле, но для простоты используем рекурсию)
+        const seasonResult = await processSeason(season.id, supabase);
+        allResults.push({
+          season_id: season.id,
+          season_number: season.season_number,
+          ...seasonResult
+        });
+      }
+
       return new Response(
-        JSON.stringify({ error: "season_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({
+          success: true,
+          processed_seasons: allResults.length,
+          results: allResults
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`[season-end-rewards] Processing rewards for season ${season_id}`);
+    // Обрабатываем конкретный сезон
+    const result = await processSeason(season_id, supabase);
+    return new Response(
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("[season-end-rewards] Unexpected error:", error);
+    return new Response(
+      JSON.stringify({ error: "Internal server error", details: error instanceof Error ? error.message : "Unknown" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
 
-    // Получаем топ-10 игроков по Duel Pass уровню и XP
+// Вынесенная функция для обработки одного сезона
+async function processSeason(season_id: number, supabase: any) {
+  console.log(`[season-end-rewards] Processing rewards for season ${season_id}`);
+
+  // Получаем топ-10 игроков по Duel Pass уровню и XP
     const { data: topPlayers, error: playersError } = await supabase
       .from("profiles")
       .select("id, duel_pass_level, duel_pass_xp, first_name, username")
