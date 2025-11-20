@@ -675,8 +675,8 @@ const RaceGame = () => {
             transition={{ duration: 0.3 }}
             className="max-w-2xl mx-auto"
           >
-            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl">
-              <div className="p-6 md:p-10 space-y-8">
+            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl min-h-[60vh] sm:min-h-auto">
+              <div className="p-6 md:p-10 space-y-6 md:space-y-8">
                 {/* Ultra-Modern Header */}
                 <div className="text-center space-y-4">
                   <motion.div

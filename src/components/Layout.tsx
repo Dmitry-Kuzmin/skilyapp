@@ -206,10 +206,10 @@ const Layout = ({ children }: LayoutProps) => {
                     aria-pressed={referralModalOpen}
                     onClick={() => setReferralModalOpen(true)}
                     className={cn(
-                      "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-full transition-all",
+                      "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
                       referralModalOpen
-                        ? "bg-primary/15 text-primary border border-primary/40 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
-                        : "text-muted-foreground hover:text-primary border border-border/60 hover:border-primary/40 hover:bg-primary/10"
+                        ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
+                        : "text-muted-foreground hover:text-primary border-[0.5px] border-white/60 hover:border-white/80 hover:bg-primary/10"
                     )}
                     title="Реферальная программа"
                   >
