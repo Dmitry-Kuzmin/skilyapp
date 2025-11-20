@@ -182,26 +182,22 @@ $$;
 
 -- Вариант 1: Ежедневная проверка в 00:00 UTC
 -- Раскомментируй, если pg_cron доступен и настроен
-/*
-SELECT cron.schedule(
-  'daily-season-rewards-check',
-  '0 0 * * *', -- Каждый день в полночь UTC
-  $$
-  SELECT check_and_distribute_season_rewards();
-  $$
-);
-*/
+-- SELECT cron.schedule(
+--   'daily-season-rewards-check',
+--   '0 0 * * *', -- Каждый день в полночь UTC
+--   $$
+--   SELECT check_and_distribute_season_rewards();
+--   $$
+-- );
 
 -- Вариант 2: Проверка каждые 6 часов
-/*
-SELECT cron.schedule(
-  'season-rewards-check-6h',
-  '0 */6 * * *', -- Каждые 6 часов
-  $$
-  SELECT mark_season_for_rewards_distribution();
-  $$
-);
-*/
+-- SELECT cron.schedule(
+--   'season-rewards-check-6h',
+--   '0 */6 * * *', -- Каждые 6 часов
+--   $$
+--   SELECT mark_season_for_rewards_distribution();
+--   $$
+-- );
 
 -- ============================================
 -- 6. РУЧНОЙ ЗАПУСК (для тестирования)
