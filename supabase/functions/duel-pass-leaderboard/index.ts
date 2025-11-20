@@ -406,6 +406,25 @@ serve(async (req) => {
         }
       }
 
+      // 3. Друзья из Telegram групп/чатов
+      // Находим пользователей, которые состоят в тех же группах
+      // Используем RPC функцию для получения друзей из чатов
+      try {
+        const { data: chatFriendsIds, error: chatFriendsError } = await supabase.rpc(
+          "get_chat_friends",
+          { p_user_id: userId }
+        );
+
+        if (!chatFriendsError && chatFriendsIds && Array.isArray(chatFriendsIds)) {
+          chatFriendsIds.forEach((friendId: string) => {
+            if (friendId) friendIds.add(friendId);
+          });
+        }
+      } catch (error) {
+        console.error("[duel-pass-leaderboard] Error getting chat friends:", error);
+        // Продолжаем работу, даже если не удалось получить друзей из чатов
+      }
+
       if (friendIds.size > 0) {
         filteredUserIds = Array.from(friendIds);
         filteredUserIds.push(userId); // Добавляем самого пользователя

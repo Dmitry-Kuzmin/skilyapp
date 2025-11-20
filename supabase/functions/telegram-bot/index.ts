@@ -78,6 +78,7 @@ serve(async (req) => {
 async function handleMessage(message: any, supabase: any): Promise<void> {
   const text = message.text?.trim() || '';
   const user = message.from;
+  const chat = message.chat;
 
   if (!user) return;
 
@@ -85,6 +86,33 @@ async function handleMessage(message: any, supabase: any): Promise<void> {
 
   // Аутентифицируем пользователя в нашей БД
   await authenticateUser(user, supabase);
+
+  // Синхронизируем участника группы, если сообщение из группы
+  if (chat && (chat.type === 'group' || chat.type === 'supergroup')) {
+    try {
+      // Получаем профиль пользователя
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('telegram_id', user.id)
+        .single();
+
+      if (profile) {
+        // Добавляем/обновляем участника группы
+        await supabase.rpc('upsert_chat_member', {
+          p_chat_id: chat.id,
+          p_chat_type: chat.type,
+          p_chat_title: chat.title || null,
+          p_telegram_id: user.id,
+          p_user_id: profile.id,
+        });
+        console.log(`[Telegram Bot] Synced chat member: chat_id=${chat.id}, user_id=${profile.id}`);
+      }
+    } catch (error) {
+      console.error('[Telegram Bot] Error syncing chat member:', error);
+      // Не прерываем обработку сообщения из-за ошибки синхронизации
+    }
+  }
 
   // Обработка команд
   if (text.startsWith('/')) {

@@ -84,12 +84,17 @@ BEGIN
       
       UNION
       
-      -- Друзья из Telegram контактов (если есть телефонные номера)
-      -- Находим пользователей с совпадающими телефонными номерами из контактов
-      -- (Это будет работать, если мы добавим поле phone_number в profiles)
-      -- Пока оставляем заготовку для будущей реализации
-      SELECT NULL::UUID AS friend_id
-      WHERE false  -- Пока не реализовано
+      -- Друзья из Telegram групп/чатов
+      -- Находим пользователей, которые состоят в тех же группах
+      SELECT cm2.user_id AS friend_id
+      FROM telegram_chat_members cm1
+      INNER JOIN telegram_chat_members cm2 
+        ON cm1.chat_id = cm2.chat_id
+        AND cm1.user_id != cm2.user_id
+      WHERE cm1.user_id = p_user_id
+        AND cm1.is_active = true
+        AND cm2.is_active = true
+        AND cm2.user_id IS NOT NULL
     ) AS friends
     WHERE friend_id IS NOT NULL;
     
