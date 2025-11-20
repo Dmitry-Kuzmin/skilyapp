@@ -1068,14 +1068,40 @@ function SeasonCard({
           <div className="border-t pt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
               {new Date(season.end_date) <= new Date() && season.is_active && (
-                <div className="flex items-center gap-2 text-orange-600">
-                  <AlertCircle className="w-4 h-4" />
-                  Сезон завершён. Распределите призы.
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const rewardsDistributed = stats?.total_rewards_distributed || 0;
+                    const hasRewards = seasonRewards.length > 0;
+                    
+                    if (rewardsDistributed > 0) {
+                      return (
+                        <div className="flex items-center gap-2 text-green-600">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Призы распределены ({rewardsDistributed} наград)
+                        </div>
+                      );
+                    } else if (hasRewards) {
+                      return (
+                        <div className="flex items-center gap-2 text-orange-600">
+                          <AlertCircle className="w-4 h-4" />
+                          Сезон завершён. Нажмите "Проверить сезоны" для автоматического распределения.
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className="flex items-center gap-2 text-red-600">
+                          <AlertCircle className="w-4 h-4" />
+                          Призы не настроены. Настройте призы перед распределением.
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2">
-              {new Date(season.end_date) <= new Date() && (
+              {new Date(season.end_date) <= new Date() && 
+               !(stats?.total_rewards_distributed) && (
                 <Button
                   variant="default"
                   size="sm"
