@@ -349,18 +349,64 @@ serve(async (req) => {
     let filteredUserIds: string[] | null = null;
 
     if (filterType === "friends" && userId) {
-      // Получаем список друзей из referrals
-      const { data: friendsData } = await supabase
+      // Получаем список друзей из ВСЕХ источников:
+      // 1. Реферальная система (referrals)
+      // 2. Дуэли (duel_players)
+      const friendIds = new Set<string>();
+
+      // 1. Друзья из реферальной системы
+      const { data: referralsData } = await supabase
         .from("referrals")
         .select("referrer_id, referred_id")
         .or(`referrer_id.eq.${userId},referred_id.eq.${userId}`);
 
-      if (friendsData && friendsData.length > 0) {
-        const friendIds = new Set<string>();
-        friendsData.forEach((f: any) => {
+      if (referralsData && referralsData.length > 0) {
+        referralsData.forEach((f: any) => {
           if (f.referrer_id === userId) friendIds.add(f.referred_id);
           if (f.referred_id === userId) friendIds.add(f.referrer_id);
         });
+      }
+
+      // 2. Друзья из дуэлей (те, с кем играл в завершённых дуэлях)
+      // Сначала получаем все дуэли пользователя
+      const { data: userDuelsData } = await supabase
+        .from("duel_players")
+        .select("duel_id")
+        .eq("user_id", userId)
+        .eq("is_bot", false)
+        .not("duel_id", "is", null);
+
+      if (userDuelsData && userDuelsData.length > 0) {
+        const duelIds = userDuelsData.map((d: any) => d.duel_id);
+
+        // Проверяем, что дуэли завершены
+        const { data: finishedDuels } = await supabase
+          .from("duels")
+          .select("id")
+          .in("id", duelIds)
+          .eq("status", "finished");
+
+        if (finishedDuels && finishedDuels.length > 0) {
+          const finishedDuelIds = finishedDuels.map((d: any) => d.id);
+
+          // Получаем всех участников этих завершённых дуэлей (кроме ботов и самого пользователя)
+          const { data: duelFriendsData } = await supabase
+            .from("duel_players")
+            .select("user_id")
+            .in("duel_id", finishedDuelIds)
+            .eq("is_bot", false)
+            .not("user_id", "is", null)
+            .neq("user_id", userId);
+
+          if (duelFriendsData && duelFriendsData.length > 0) {
+            duelFriendsData.forEach((f: any) => {
+              if (f.user_id) friendIds.add(f.user_id);
+            });
+          }
+        }
+      }
+
+      if (friendIds.size > 0) {
         filteredUserIds = Array.from(friendIds);
         filteredUserIds.push(userId); // Добавляем самого пользователя
       } else {
