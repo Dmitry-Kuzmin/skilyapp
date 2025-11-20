@@ -370,10 +370,14 @@ const DuelPassLeaderboard = () => {
                     const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
 
                     return (
-                      <TableRow
+                      <motion.tr
                         key={leader.user_id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.02 }}
                         className={cn(
-                          isCurrentUser && "bg-primary/5 border-l-4 border-l-primary"
+                          "transition-all hover:bg-muted/50",
+                          isCurrentUser && "bg-primary/10 border-l-4 border-l-primary shadow-sm"
                         )}
                       >
                         <TableCell className="font-bold">
@@ -385,36 +389,49 @@ const DuelPassLeaderboard = () => {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="relative">
-                              <Avatar className="h-10 w-10">
-                                <AvatarImage
-                                  src={leader.profile?.photo_url || leader.profile?.avatar_url}
-                                  alt={name}
-                                />
-                                <AvatarFallback>
-                                  {name.slice(0, 1).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              {/* Рамка ранга вокруг аватара */}
-                              {rank !== "rookie" && (
-                                <div className={cn(
-                                  "absolute -inset-0.5 rounded-full border-2",
-                                  rank === "master" && "border-yellow-400/50 animate-pulse",
-                                  rank === "diamond" && "border-purple-400/50",
-                                  rank === "platinum" && "border-blue-400/50",
-                                  rank === "gold" && "border-yellow-400/50",
-                                  rank === "silver" && "border-gray-300/50",
-                                  rank === "bronze" && "border-orange-400/50"
-                                )} />
-                              )}
+                              <RankFrame rank={rank} />
+                              <motion.div
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                              >
+                                <Avatar className={cn(
+                                  "h-12 w-12 border-2 shadow-md transition-all",
+                                  rank === "master" && "border-yellow-400/60 ring-2 ring-yellow-300/30",
+                                  rank === "diamond" && "border-purple-400/60 ring-2 ring-purple-300/30",
+                                  rank === "platinum" && "border-blue-400/60",
+                                  rank === "gold" && "border-yellow-400/60",
+                                  rank === "silver" && "border-gray-300/60",
+                                  rank === "bronze" && "border-orange-400/60"
+                                )}>
+                                  <AvatarImage
+                                    src={leader.profile?.photo_url || leader.profile?.avatar_url}
+                                    alt={name}
+                                  />
+                                  <AvatarFallback className={cn(
+                                    "font-bold",
+                                    rank === "master" && "bg-gradient-to-br from-yellow-400 to-amber-600",
+                                    rank === "diamond" && "bg-gradient-to-br from-purple-400 to-violet-600",
+                                    rank === "platinum" && "bg-gradient-to-br from-blue-300 to-cyan-500",
+                                    rank === "gold" && "bg-gradient-to-br from-yellow-400 to-amber-500",
+                                    rank === "silver" && "bg-gradient-to-br from-gray-200 to-gray-400",
+                                    rank === "bronze" && "bg-gradient-to-br from-orange-400 to-amber-600"
+                                  )}>
+                                    {name.slice(0, 1).toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </motion.div>
                             </div>
                             <div>
                               <p className="font-semibold flex items-center gap-2">
                                 {name}
                                 {isCurrentUser && (
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
                                     Вы
                                   </Badge>
                                 )}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Уровень {leader.duel_pass_level}
                               </p>
                             </div>
                           </div>
