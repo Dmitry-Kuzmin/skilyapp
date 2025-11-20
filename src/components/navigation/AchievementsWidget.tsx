@@ -100,7 +100,7 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   const baseClasses =
     variant === "mobile"
-      ? "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors"
+      ? "flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors"
       : "hidden sm:inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer";
 
   const trigger = (
@@ -111,10 +111,17 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
     </div>
   );
 
+  const triggerButtonClass =
+    variant === "mobile" ? "w-full" : "inline-flex w-auto";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button type="button" className="w-full text-left" aria-label={t("profileMenu.achievements")}>
+        <button
+          type="button"
+          className={cn(triggerButtonClass, "text-left")}
+          aria-label={t("profileMenu.achievements")}
+        >
           {trigger}
         </button>
       </DialogTrigger>

@@ -209,19 +209,19 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                             {isUnlocked ? (
                               <CheckCircle2 className="w-4 h-4 text-primary" />
                             ) : (
-                              <Lock className "w-4 h-4 text-muted-foreground" />
+                              <Lock className="w-4 h-4 text-muted-foreground" />
                             )}
                             <span className="text-sm font-semibold">{achievement.title.ru}</span>
                           </div>
                           <p className="text-xs text-muted-foreground mb-2">{achievement.description.ru}</p>
                         </div>
                         <div className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                          +{achievement.reward.xp} XP
+                          +{achievement.reward.xp ?? 0} XP
                         </div>
                       </div>
                       {!isUnlocked && (
                         <>
-                          <div className="flex items-center justify между текст-[11px] текст-muted-foreground mt-3">
+                          <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-3">
                             <span>Прогресс</span>
                             <span>{percent}%</span>
                           </div>
