@@ -1121,7 +1121,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const subtitle = definition?.description || (config.subtitleKey ? t(config.subtitleKey) : config.defaultSubtitle);
     const tag = definition?.rarity ? getRarityLabel(definition.rarity) : t(config.labelKey);
     const color = definition?.color || metadata?.color || config.color;
-    const iconEmoji = definition?.icon || metadata?.emoji;
+    const iconEmojiRaw = definition?.icon || metadata?.emoji;
+    const iconEmoji =
+      iconEmojiRaw && !/[a-zA-Z]/.test(iconEmojiRaw) && iconEmojiRaw.length <= 4
+        ? iconEmojiRaw
+        : undefined;
 
     return {
       title,
