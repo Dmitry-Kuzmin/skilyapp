@@ -130,7 +130,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
       loading={loading && !referralData}
       skeletonVariant="default"
     >
-        <div className="px-6 pt-6 pb-6 space-y-6">
+      <div className="px-6 pt-6 pb-6 space-y-6">
           {/* Main Content */}
           <div className="space-y-4">
             <div>
