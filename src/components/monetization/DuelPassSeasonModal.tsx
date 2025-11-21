@@ -1713,7 +1713,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-muted/50 border-b border-border">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground w-16">
                       {dp("table.columns.level")}
                     </th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
@@ -1820,25 +1820,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         }}
                       >
                         {/* Уровень */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className={cn(
-                              "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold transition-all",
-                              isCurrent 
-                                ? "bg-primary text-primary-foreground shadow-sm" 
-                                : allClaimed 
-                                ? "bg-green-500/20 text-green-600" 
-                                : unlocked 
-                                ? "bg-muted text-foreground" 
-                                : "bg-muted/50 text-muted-foreground"
-                            )}>
-                              {reward.level}
-                            </div>
-                            {isCurrent && (
-                              <Badge variant="secondary" className="text-xs">
-                                {dp("table.status.current")}
-                              </Badge>
-                            )}
+                        <td className="px-3 py-3 w-16">
+                          <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold transition-all",
+                            isCurrent 
+                              ? "bg-primary text-primary-foreground shadow-sm" 
+                              : allClaimed 
+                              ? "bg-green-500/20 text-green-600" 
+                              : unlocked 
+                              ? "bg-muted text-foreground" 
+                              : "bg-muted/50 text-muted-foreground"
+                          )}>
+                            {reward.level}
                           </div>
                         </td>
                         
