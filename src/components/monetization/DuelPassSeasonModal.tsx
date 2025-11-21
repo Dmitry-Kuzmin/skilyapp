@@ -18,7 +18,6 @@ import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OnboardingContent } from "./DuelPassOnboardingContent";
 import { useModalRoute } from "@/hooks/useModalRoute";
 
 const supabaseClient = supabase as any;
@@ -377,17 +376,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   useEffect(() => {
     if (open && profileId) {
       loadSeasonData();
-      
-      // Всегда показываем онбординг при открытии модалки
-      console.log('[DuelPassSeasonModal] Opening modal, will show onboarding in 500ms');
-      const timeout = setTimeout(() => {
-        console.log('[DuelPassSeasonModal] Showing onboarding');
-          setShowOnboarding(true);
-        }, 500);
-      
-      return () => clearTimeout(timeout);
     } else {
-      // Сбрасываем onboarding при закрытии модалки
       setShowOnboarding(false);
     }
   }, [open, profileId]);
@@ -1214,18 +1203,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
     // Показываем onboarding если нужно
     if (showOnboarding) {
-      return (
-        <OnboardingContent
-          onComplete={() => {
-            setShowOnboarding(false);
-          }}
-          seasonData={activeSeason ? {
-            name_ru: activeSeason.name_ru,
-            days_remaining: activeSeason.days_remaining,
-            end_date: activeSeason.end_date
-          } : undefined}
-        />
-      );
+      // Onboarding временно отключен
+      setShowOnboarding(false);
     }
 
     const seasonHighlights = [
