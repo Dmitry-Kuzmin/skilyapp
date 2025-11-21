@@ -1280,13 +1280,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     <>
       {/* Упрощенный Header */}
       {isMobile ? (
-        <SheetHeader className="px-4 pt-2 pb-4 border-b">
+        <SheetHeader className="px-4 pt-2 pb-4 border-b text-left">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-xl font-bold">{dp("title")}</SheetTitle>
+              <SheetTitle className="text-xl font-bold text-left">{dp("title")}</SheetTitle>
               <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>
@@ -1320,13 +1320,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
         </SheetHeader>
       ) : (
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b text-left">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-bold">{dp("title")}</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-left">{dp("title")}</DialogTitle>
               <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>
