@@ -517,43 +517,16 @@ const DuelPassLeaderboard = () => {
               
               {/* Пьедестал */}
               <div className="flex flex-col items-center gap-4 md:gap-6">
-                {/* Визуальный пьедестал (подставка) */}
-                <div className="w-full max-w-4xl mx-auto relative">
-                  <div className="flex items-end justify-center gap-1 md:gap-2 h-8 md:h-12">
-                    {/* Левая подставка (2 место) */}
-                    <motion.div
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      transition={{ delay: 0.4, duration: 0.5, ease: "easeOut" }}
-                      className="w-[28%] md:w-[30%] h-6 md:h-8 bg-gradient-to-t from-slate-400/40 via-slate-300/30 to-slate-200/20 rounded-t-lg border-t border-x border-slate-400/30"
-                    />
-                    {/* Центральная подставка (1 место) - выше */}
-                    <motion.div
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-                      className="w-[32%] md:w-[35%] h-10 md:h-12 bg-gradient-to-t from-yellow-500/50 via-yellow-400/40 to-yellow-300/30 rounded-t-lg border-t-2 border-x-2 border-yellow-400/50 shadow-lg shadow-yellow-500/20"
-                    />
-                    {/* Правая подставка (3 место) */}
-                    <motion.div
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
-                      className="w-[28%] md:w-[30%] h-5 md:h-7 bg-gradient-to-t from-orange-400/40 via-orange-300/30 to-orange-200/20 rounded-t-lg border-t border-x border-orange-400/30"
-                    />
-                  </div>
-                </div>
-
                 {/* Карточки игроков */}
-                <div className="w-full max-w-5xl mx-auto flex flex-nowrap gap-2 sm:gap-3 md:gap-4 lg:gap-6 px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-4 overflow-visible">
+                <div className="w-full max-w-5xl mx-auto flex items-stretch justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-4">
                   {/* 2 место - Серебро */}
                   <motion.div
                     initial={{ opacity: 0, y: 50, scale: 0.9 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 15 }}
-                    className="order-2 md:order-1 flex-1 basis-0 min-w-0"
+                    className="order-1 flex-1 basis-0 min-w-0"
                   >
-                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-slate-50 via-slate-100/80 to-slate-50 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 border border-slate-200/40 dark:border-slate-700/40 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-slate-50 via-slate-100/70 to-slate-50 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 shadow-xl hover:shadow-2xl transition-all duration-300 group">
                       {/* Серебряный градиентный фон */}
                       <div className="absolute inset-0 bg-gradient-to-br from-slate-200/30 via-slate-100/20 to-transparent dark:from-slate-700/30 dark:via-slate-800/20" />
                       
@@ -627,10 +600,10 @@ const DuelPassLeaderboard = () => {
                             </TooltipProvider>
 
                             {/* Ранг */}
-                            <RankBadge 
-                              rank={(filteredLeaders[1]?.rank || getRankFromLevel(filteredLeaders[1]?.duel_pass_level || 1)) as RankType} 
-                              size="sm" 
-                              variant="pill"
+                            <RankBadge
+                              rank={(filteredLeaders[1]?.rank || getRankFromLevel(filteredLeaders[1]?.duel_pass_level || 1)) as RankType}
+                              size="xs"
+                              variant="subtle"
                             />
 
                             {/* Статистика */}
@@ -655,9 +628,9 @@ const DuelPassLeaderboard = () => {
                     initial={{ opacity: 0, y: -30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 12 }}
-                    className="order-1 md:order-2 -mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
+                    className="order-2 -mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
                   >
-                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/90 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 border border-yellow-300/50 dark:border-yellow-500/30 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
+                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/80 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
                       {/* Золотой градиентный фон */}
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 via-amber-400/20 to-yellow-500/30" />
                       
@@ -809,11 +782,11 @@ const DuelPassLeaderboard = () => {
                             </TooltipProvider>
 
                             {/* Ранг */}
-                            <RankBadge 
-                              rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType} 
-                              size="md" 
-                              variant="pill"
-                            />
+                              <RankBadge
+                                rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType}
+                                size="sm"
+                                variant="subtle"
+                              />
 
                             {/* Статистика */}
                             <div className="flex flex-col items-center gap-2 text-sm md:text-base">
@@ -839,7 +812,7 @@ const DuelPassLeaderboard = () => {
                     transition={{ delay: 0.3, type: "spring", stiffness: 150, damping: 15 }}
                     className="order-3 flex-1 basis-0 min-w-0"
                   >
-                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-orange-50 via-amber-50/80 to-orange-50 dark:from-orange-950/40 dark:via-amber-950/40 dark:to-orange-950/40 border border-orange-200/40 dark:border-orange-500/30 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+                    <Card className="relative overflow-hidden h-full bg-gradient-to-br from-orange-50 via-amber-50/70 to-orange-50 dark:from-orange-950/40 dark:via-amber-950/40 dark:to-orange-950/40 shadow-xl hover:shadow-2xl transition-all duration-300 group">
                       {/* Бронзовый градиентный фон */}
                       <div className="absolute inset-0 bg-gradient-to-br from-orange-300/25 via-orange-200/15 to-transparent dark:from-orange-700/25 dark:via-orange-800/15" />
                       
@@ -913,10 +886,10 @@ const DuelPassLeaderboard = () => {
                             </TooltipProvider>
 
                             {/* Ранг */}
-                            <RankBadge 
-                              rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType} 
-                              size="sm" 
-                              variant="pill"
+                            <RankBadge
+                              rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType}
+                              size="xs"
+                              variant="subtle"
                             />
 
                             {/* Статистика */}
