@@ -440,10 +440,10 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Priority Section: Tasks + Daily Bonus + Progress (3 columns) */}
+            {/* Priority Section: Tasks + Progress (2 columns) */}
             {!loading && (
               <motion.div variants={itemVariants}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   {/* Daily Tasks - Priority 1 */}
                   {dailyTasks.length > 0 ? (
                     <Card className="p-5 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
@@ -511,79 +511,7 @@ const Index = () => {
               </Card>
                   ) : null}
 
-                  {/* Daily Bonus - Priority 2 */}
-                  {dailyBonus ? (
-                    <Card className="p-5 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 backdrop-blur-xl border border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
-                      <div className="relative">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`}>
-                              <Flame className="w-5 h-5 text-primary-foreground" />
-          </div>
-                            <div>
-                              <h3 className="text-lg font-bold">Бонус</h3>
-                              <p className="text-xs text-muted-foreground">Серия: {dailyBonus.current_streak || 0} дней</p>
-                            </div>
-                          </div>
-                          <Badge variant="outline" className={`${
-                            (dailyBonus.current_streak || 0) >= 7 ? 'border-orange-500/40 bg-orange-500/10' : ''
-                          }`}>
-                            <Flame className={`w-3 h-3 mr-1 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' : ''}`} />
-                            {dailyBonus.current_streak || 0}
-                          </Badge>
-        </div>
-
-                        {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) && (
-                          <div className="mb-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
-                            <div className="text-xs text-muted-foreground mb-1.5">Награда сегодня:</div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp > 0 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  <Sparkles className="w-3 h-3 mr-1" />
-                                  +{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp} XP
-                                </Badge>
-                              )}
-                              {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins > 0 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  +{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins} 🪙
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                          <Button
-                            onClick={handleClaimBonus}
-                            disabled={!canClaimBonus || claimingBonus}
-                            size="lg"
-                            className="w-full h-11 font-semibold"
-                            variant={canClaimBonus ? "default" : "secondary"}
-                          >
-                            {claimingBonus ? (
-                              <>
-                                <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                                Получение...
-                              </>
-                            ) : canClaimBonus ? (
-                              <>
-                                <Gift className="w-4 h-4 mr-2" />
-                                Забрать награду
-                              </>
-                            ) : (
-                              <>
-                                <Clock className="w-4 h-4 mr-2" />
-                                Завтра
-                              </>
-                            )}
-                </Button>
-                        </motion.div>
-              </div>
-                    </Card>
-                  ) : null}
-
-                  {/* Progress Summary - Priority 3 */}
+                  {/* Progress Summary - Priority 2 */}
                   <Card className="p-5 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
@@ -722,52 +650,57 @@ const Index = () => {
             {/* Weekly Road - Full Version */}
         {!loading && dailyBonus && (
               <motion.div variants={itemVariants}>
-                <Card className="p-5 md:p-8 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-xl border-2 border-primary/20 relative overflow-hidden group hover:border-primary/30 transition-all duration-300 shadow-2xl">
-                  {/* Animated background elements */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
-                  <div className="absolute -top-20 -right-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-                  <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                <Card className="p-4 md:p-6 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-xl border border-primary/20 relative overflow-hidden group hover:border-primary/30 transition-all duration-300 shadow-lg hover:shadow-xl">
+                  {/* Subtle animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-secondary/3 pointer-events-none" />
+                  <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse opacity-50" />
+                  <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-secondary/5 rounded-full blur-3xl animate-pulse opacity-50" style={{ animationDelay: '1s' }} />
             
-                  <div className="relative space-y-6">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-xl shadow-primary/30 group-hover:scale-110 transition-transform ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`}>
-                          <Zap className="w-8 h-8 text-primary-foreground" strokeWidth={2.5} />
-                  </div>
-                  <div>
-                          <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                      Путь водителя 🚗
-                    </h3>
-                          <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                      <Flame className={`w-4 h-4 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500 animate-pulse' : 'text-orange-400'}`} />
-                      <span className="font-semibold">{dailyBonus.current_streak || 0}</span> 
-                      <span>из 90 дней</span>
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Streak Badge */}
-                <div className={`px-4 py-2 rounded-full border-2 ${
-                  (dailyBonus.current_streak || 0) >= 30 ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/40' :
-                  (dailyBonus.current_streak || 0) >= 7 ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/40' :
-                  'bg-muted/50 border-border'
-                }`}>
-                  <div className="flex items-center gap-2">
-                    <Flame className={`w-5 h-5 ${
-                      (dailyBonus.current_streak || 0) >= 30 ? 'text-yellow-500' :
-                      (dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' :
-                      'text-muted-foreground'
-                    } ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`} />
-                    <span className="font-bold text-lg">{dailyBonus.current_streak || 0}</span>
-                  </div>
-                </div>
+                  <div className="relative space-y-4">
+              {/* Compact Header */}
+              <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <motion.div 
+                          className={`w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform flex-shrink-0 ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`}
+                          whileHover={{ scale: 1.05, rotate: 5 }}
+                        >
+                          <Zap className="w-6 h-6 md:w-7 md:h-7 text-primary-foreground" strokeWidth={2.5} />
+                        </motion.div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent truncate">
+                            Путь водителя 🚗
+                          </h3>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <Flame className={`w-3.5 h-3.5 flex-shrink-0 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500 animate-pulse' : 'text-orange-400'}`} />
+                            <span className="text-xs md:text-sm text-muted-foreground">
+                              <span className="font-semibold text-foreground">{dailyBonus.current_streak || 0}</span> / 90 дней
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Compact Progress Badge */}
+                      <motion.div 
+                        className={`px-3 py-1.5 rounded-full border flex items-center gap-1.5 flex-shrink-0 ${
+                          (dailyBonus.current_streak || 0) >= 30 ? 'bg-gradient-to-r from-yellow-500/15 to-orange-500/15 border-yellow-500/30' :
+                          (dailyBonus.current_streak || 0) >= 7 ? 'bg-gradient-to-r from-orange-500/15 to-red-500/15 border-orange-500/30' :
+                          'bg-muted/40 border-border/50'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Flame className={`w-4 h-4 ${
+                          (dailyBonus.current_streak || 0) >= 30 ? 'text-yellow-500' :
+                          (dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' :
+                          'text-muted-foreground'
+                        } ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`} />
+                        <span className="font-bold text-sm">{Math.round(((dailyBonus.current_streak || 0) / 90) * 100)}%</span>
+                      </motion.div>
               </div>
 
-              {/* Road Progress - Horizontal Scroll */}
+              {/* Compact Road Progress */}
               <div className="relative">
-                <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-                  <div className="flex gap-2 min-w-max px-1">
+                <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent -mx-1 px-1">
+                  <div className="flex gap-1.5 min-w-max">
                     {weeklyRewards.slice(0, Math.min(14, weeklyRewards.length)).map((reward, idx) => {
                       const dayNum = reward.day_number;
                       const isCompleted = (dailyBonus.current_streak || 0) >= dayNum;
@@ -777,149 +710,170 @@ const Index = () => {
                       const hasBadge = reward.reward.badge;
                       
                       return (
-                        <div
+                        <motion.div
                           key={dayNum}
-                          className={`relative flex flex-col items-center gap-1.5 ${isSpecial ? 'w-20' : 'w-16'}`}
+                          className={`relative flex flex-col items-center gap-1 ${isSpecial ? 'w-14' : 'w-12'}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.03 }}
+                          whileHover={{ scale: 1.1, zIndex: 10 }}
                         >
                           {/* Day marker */}
-                          <div className={`
-                            ${isSpecial ? 'w-16 h-16' : 'w-12 h-12'}
-                            rounded-2xl border-2 flex items-center justify-center relative transition-all duration-300
-                            ${isCompleted ? 
-                              'bg-gradient-to-br from-primary to-secondary border-primary shadow-lg shadow-primary/30 scale-105' :
-                              isCurrent ? 
-                              'bg-gradient-to-br from-primary/30 to-secondary/30 border-primary animate-pulse shadow-md' :
-                              'bg-muted/30 border-border/50'
-                            }
-                          `}>
+                          <motion.div 
+                            className={`
+                              ${isSpecial ? 'w-12 h-12' : 'w-10 h-10'}
+                              rounded-xl border-2 flex items-center justify-center relative transition-all duration-300
+                              ${isCompleted ? 
+                                'bg-gradient-to-br from-primary to-secondary border-primary shadow-md shadow-primary/25' :
+                                isCurrent ? 
+                                'bg-gradient-to-br from-primary/40 to-secondary/40 border-primary shadow-md animate-pulse' :
+                                'bg-muted/20 border-border/40'
+                              }
+                            `}
+                            whileHover={{ scale: 1.15 }}
+                          >
                             {/* Icon */}
                             {isCompleted ? (
-                              <Check className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary-foreground`} strokeWidth={3} />
+                              <Check className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary-foreground`} strokeWidth={2.5} />
                             ) : isCurrent ? (
                               <>
                                 {hasBadge ? (
-                                  <Trophy className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary animate-bounce`} />
+                                  <Trophy className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary animate-bounce`} />
                                 ) : hasBoost ? (
-                                  <Zap className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary animate-pulse`} />
+                                  <Zap className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary animate-pulse`} />
                                 ) : (
-                                  <Gift className={`${isSpecial ? 'w-8 h-8' : 'w-6 h-6'} text-primary animate-bounce`} />
+                                  <Gift className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary animate-bounce`} />
                                 )}
                               </>
                             ) : (
-                              <div className={`text-center ${isSpecial ? 'text-xs' : 'text-[10px]'}`}>
+                              <div className={`text-center leading-tight ${isSpecial ? 'text-[10px]' : 'text-[9px]'}`}>
                                 {reward.reward.xp > 0 && <div className="font-bold text-primary">+{reward.reward.xp}</div>}
-                                {reward.reward.coins > 0 && <div className="text-[8px] text-gold">+{reward.reward.coins}💰</div>}
+                                {reward.reward.coins > 0 && <div className="text-[8px] text-yellow-500">+{reward.reward.coins}💰</div>}
                               </div>
                             )}
                             
                             {/* Special badge indicator */}
                             {hasBadge && !isCompleted && !isCurrent && (
-                              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gold rounded-full flex items-center justify-center">
-                                <Trophy className="w-3 h-3 text-white" />
+                              <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center shadow-sm">
+                                <Trophy className="w-2.5 h-2.5 text-white" />
                               </div>
                             )}
-                          </div>
+                          </motion.div>
                           
                           {/* Day number */}
-                          <div className={`text-[10px] font-bold ${isCompleted || isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>
-                            День {dayNum}
+                          <div className={`text-[9px] font-semibold leading-tight ${isCompleted || isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>
+                            {dayNum}
                           </div>
                           
                           {/* Connecting line */}
                           {idx < Math.min(13, weeklyRewards.length - 1) && (
-                            <div className={`absolute top-6 left-full w-2 h-0.5 ${
-                              (dailyBonus.current_streak || 0) >= dayNum ? 'bg-primary' : 'bg-border'
+                            <div className={`absolute top-5 left-full w-1.5 h-0.5 ${
+                              (dailyBonus.current_streak || 0) >= dayNum ? 'bg-primary' : 'bg-border/50'
                             }`} />
                           )}
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>
                 </div>
                 
-                {/* Progress bar */}
-                <div className="mt-3 space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Прогресс</span>
-                    <span className="font-bold text-primary">{Math.round(((dailyBonus.current_streak || 0) / 90) * 100)}%</span>
-                  </div>
-                  <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-primary via-secondary to-primary transition-all duration-500"
-                      style={{ width: `${Math.min(((dailyBonus.current_streak || 0) / 90) * 100, 100)}%` }}
+                {/* Compact Progress bar */}
+                <div className="mt-2.5">
+                  <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-primary via-secondary to-primary"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(((dailyBonus.current_streak || 0) / 90) * 100, 100)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Reward preview & Claim button */}
-              <div className="flex gap-3">
-                <div className="flex-1 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl p-3 border border-primary/20">
-                  <div className="text-xs text-muted-foreground mb-1">Награда сегодня</div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) && (
+              {/* Compact Reward & Claim Section */}
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                {/* Reward preview */}
+                {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) ? (
+                  <div className="flex-1 flex items-center gap-2 flex-wrap">
+                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp > 0 && (
+                      <motion.div 
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/10 rounded-lg border border-primary/20"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <span className="text-xs font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp} XP</span>
+                      </motion.div>
+                    )}
+                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins > 0 && (
+                      <motion.div 
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-yellow-500/10 rounded-lg border border-yellow-500/20"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <span className="text-xs font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins} 🪙</span>
+                      </motion.div>
+                    )}
+                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.boost && (
+                      <motion.div 
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/10 rounded-lg border border-secondary/20"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Zap className="w-3.5 h-3.5 text-secondary" />
+                        <span className="text-xs font-bold">Boost</span>
+                      </motion.div>
+                    )}
+                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.badge && (
+                      <motion.div 
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-yellow-500/10 rounded-lg border border-yellow-500/20"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Trophy className="w-3.5 h-3.5 text-yellow-500" />
+                        <span className="text-xs font-bold">Бейдж</span>
+                      </motion.div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center text-sm text-muted-foreground">
+                    <Clock className="w-4 h-4 mr-2" />
+                    Возвращайся завтра
+                  </div>
+                )}
+
+                {/* Claim button */}
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={handleClaimBonus}
+                    disabled={!canClaimBonus || claimingBonus}
+                    size="default"
+                    className={`px-4 md:px-6 font-semibold shadow-md transition-all ${
+                      canClaimBonus ? 'shadow-primary/20 hover:shadow-primary/30' : ''
+                    }`}
+                    variant={canClaimBonus ? "default" : "secondary"}
+                  >
+                    {claimingBonus ? (
                       <>
-                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp > 0 && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-primary/20 rounded-lg">
-                            <Sparkles className="w-3 h-3 text-primary" />
-                            <span className="text-sm font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp} XP</span>
-                          </div>
-                        )}
-                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins > 0 && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-gold/20 rounded-lg">
-                            <span className="text-sm font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins} 🪙</span>
-                          </div>
-                        )}
-                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.boost && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-secondary/20 rounded-lg">
-                            <Zap className="w-3 h-3 text-secondary" />
-                            <span className="text-sm font-bold">Boost</span>
-                          </div>
-                        )}
-                        {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.badge && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-gold/20 rounded-lg">
-                            <Trophy className="w-3 h-3 text-gold" />
-                            <span className="text-sm font-bold">Бейдж</span>
-                          </div>
-                        )}
+                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                        <span className="hidden sm:inline">Получение...</span>
+                        <span className="sm:hidden">...</span>
+                      </>
+                    ) : canClaimBonus ? (
+                      <>
+                        <Gift className="w-4 h-4 mr-2" />
+                        Забрать
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-4 h-4 mr-2" />
+                        Завтра
                       </>
                     )}
-                    {!canClaimBonus && <span className="text-sm text-muted-foreground">Возвращайся завтра</span>}
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handleClaimBonus}
-                  disabled={!canClaimBonus || claimingBonus}
-                  size="lg"
-                  className={`px-6 font-bold shadow-lg transition-all ${
-                    canClaimBonus ? 'shadow-primary/30 hover:shadow-primary/50' : ''
-                  }`}
-                  variant={canClaimBonus ? "default" : "secondary"}
-                >
-                  {claimingBonus ? (
-                    <>
-                      <Sparkles className="w-5 h-5 mr-2 animate-spin" />
-                      Получение...
-                    </>
-                  ) : canClaimBonus ? (
-                    <>
-                      <Gift className="w-5 h-5 mr-2" />
-                      Забрать
-                    </>
-                  ) : (
-                    <>
-                      <Clock className="w-5 h-5 mr-2" />
-                      Завтра
-                    </>
-                  )}
-                </Button>
+                  </Button>
+                </motion.div>
               </div>
 
               {/* Link to full page */}
-                      <Link to="/daily-bonus" className="block mt-4">
-                <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-primary">
-                  Посмотреть все награды →
+              <Link to="/daily-bonus" className="block">
+                <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground hover:text-primary h-8">
+                  Все награды →
                 </Button>
               </Link>
             </div>
