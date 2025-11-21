@@ -682,6 +682,29 @@ All colors MUST be HSL.
     display: none;
   }
 
+  /* Dashboard styles */
+  .mesh-gradient {
+    background: linear-gradient(125deg, #4f46e5, #7c3aed, #2563eb);
+    background-size: 200% 200%;
+    animation: meshMove 15s ease infinite;
+  }
+
+  @keyframes meshMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .metal-ring {
+    background: conic-gradient(
+      #d1d5db 0%,
+      #f3f4f6 25%,
+      #9ca3af 50%,
+      #f3f4f6 75%,
+      #d1d5db 100%
+    );
+  }
+
   /* Modern learning map styles */
   .modern-topic-card {
     flex-shrink: 0;

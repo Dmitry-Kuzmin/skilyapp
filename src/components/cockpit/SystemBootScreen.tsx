@@ -42,7 +42,7 @@ export function SystemBootScreen({ onComplete }: SystemBootScreenProps) {
         setLoadedModules((prev) => new Set([...prev, currentModule]));
         sounds.click(1000 + currentModule * 100, 0.1);
         setCurrentModule((prev) => prev + 1);
-      }
+    }
     }, 300);
 
     // Complete after all modules loaded
@@ -65,32 +65,32 @@ export function SystemBootScreen({ onComplete }: SystemBootScreenProps) {
   return (
     <AnimatePresence>
       {showScan && (
-        <motion.div
+      <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+        transition={{ duration: 0.3 }}
           className="fixed inset-0 z-50 bg-gradient-to-br from-black via-slate-950 to-black flex items-center justify-center"
-        >
-          {/* Grid pattern background */}
-          <div className="absolute inset-0 opacity-20">
-            <div
+      >
+        {/* Grid pattern background */}
+        <div className="absolute inset-0 opacity-20">
+          <div
               className="absolute inset-0"
-              style={{
-                backgroundImage: `
+            style={{
+              backgroundImage: `
                   linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
                   linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px)
-                `,
-                backgroundSize: "50px 50px",
-              }}
-            />
-          </div>
+              `,
+              backgroundSize: "50px 50px",
+            }}
+          />
+        </div>
 
           <div className="relative z-10 max-w-md w-full px-8">
             {/* Biometric Scan Animation */}
             <div className="mb-12 relative">
               <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
-                <motion.div
+        <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${scanProgress}%` }}
                   transition={{ duration: 0.1, ease: "linear" }}
@@ -103,11 +103,11 @@ export function SystemBootScreen({ onComplete }: SystemBootScreenProps) {
                   <span>Scanning biometrics...</span>
                 </div>
                 <span className="font-mono">{scanProgress}%</span>
-              </div>
+            </div>
             </div>
 
             {/* System Modules Loading */}
-            <div className="space-y-3">
+          <div className="space-y-3">
               <div className="text-sm font-mono text-slate-400 mb-6">
                 Initializing system modules...
               </div>
@@ -116,36 +116,36 @@ export function SystemBootScreen({ onComplete }: SystemBootScreenProps) {
                 const isLoading = currentModule === index && !isLoaded;
                 
                 return (
-                  <motion.div
-                    key={module.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+              <motion.div
+                key={module.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: module.delay }}
                     className="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 border border-slate-800/50 backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-3">
                       {isLoaded ? (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 500 }}
-                        >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500 }}
+                    >
                           <Check className="w-5 h-5 text-green-500" />
-                        </motion.div>
+                    </motion.div>
                       ) : isLoading ? (
                         <Loader2 className="w-5 h-5 text-cyan-500 animate-spin" />
                       ) : (
                         <div className="w-5 h-5 rounded-full border-2 border-slate-700" />
-                      )}
+                  )}
                       <span className="font-mono text-slate-300">{module.name}</span>
                     </div>
                     <div className="text-xs font-mono text-slate-500">
                       {isLoaded ? "OK" : isLoading ? "..." : ""}
-                    </div>
-                  </motion.div>
+                </div>
+              </motion.div>
                 );
               })}
-            </div>
+          </div>
 
             {/* System Status */}
             <motion.div
@@ -159,14 +159,14 @@ export function SystemBootScreen({ onComplete }: SystemBootScreenProps) {
                 <span className="text-xs font-mono text-green-500">System Ready</span>
               </div>
             </motion.div>
-          </div>
+        </div>
 
           {/* Neon glow effects */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
           </div>
-        </motion.div>
+      </motion.div>
       )}
     </AnimatePresence>
   );
