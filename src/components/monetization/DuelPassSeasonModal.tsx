@@ -1356,7 +1356,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-baseline gap-2">
               <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                {dp("progress.currentLevel")}
+                {dp("progress.currentLevelLabel")}
               </span>
               <span className="text-3xl font-black text-foreground">Lv {currentLevel}</span>
               <span className="text-sm text-muted-foreground">
@@ -1364,7 +1364,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{dp("progress.seasonPointsShort")}</span>
+              <span>{dp("progress.seasonPointsLabel")}</span>
               <span className="text-lg font-semibold text-foreground">{currentSP}</span>
             </div>
           </div>
