@@ -7,10 +7,10 @@ export type RankType = "rookie" | "bronze" | "silver" | "gold" | "platinum" | "d
 
 interface RankBadgeProps {
   rank: RankType;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   showIcon?: boolean;
   className?: string;
-  variant?: "badge" | "pill" | "minimal";
+  variant?: "badge" | "pill" | "minimal" | "subtle";
 }
 
 const rankConfig = {
@@ -94,6 +94,12 @@ const rankConfig = {
 };
 
 const sizeConfig = {
+  xs: {
+    badge: "text-[11px] px-2 py-0.5",
+    pill: "text-xs px-2.5 py-0.5",
+    icon: "w-3 h-3",
+    iconContainer: "w-4 h-4",
+  },
   sm: {
     badge: "text-xs px-2.5 py-1",
     pill: "text-xs px-3 py-1",
@@ -122,13 +128,29 @@ export function RankBadge({
   className 
 }: RankBadgeProps) {
   const config = rankConfig[rank];
-  const sizeStyle = sizeConfig[size];
+  const sizeStyle = sizeConfig[size] ?? sizeConfig.sm;
   const Icon = config.icon;
   const isMaster = rank === "master";
 
   if (variant === "minimal") {
     return (
-      <span className={cn("font-semibold", config.textColor, sizeStyle.badge)}>
+      <span className={cn("font-semibold", config.textColor, sizeStyle.badge, className)}>
+        {config.name}
+      </span>
+    );
+  }
+
+  if (variant === "subtle") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full border border-white/15 bg-background/70 text-xs font-semibold shadow-inner",
+          config.textColor,
+          sizeStyle.badge,
+          className
+        )}
+      >
+        {showIcon && <Icon className={cn(sizeStyle.icon, "opacity-70")} />}
         {config.name}
       </span>
     );
