@@ -152,17 +152,17 @@ export function useDashboardData() {
 
       // Загружаем дополнительные данные параллельно
       const [tasksResult, achievementsResult, rewardsResult] = await Promise.all([
-        // Ежедневные задания
+        // Ежедневные задания (используем только существующие колонки)
         supabase
           .from('daily_tasks')
-          .select('id, title, description, completed, progress, date')
+          .select('id, task_type, title, progress, max_progress, reward, completed, date')
           .eq('user_id', profileId)
           .eq('date', new Date().toISOString().split('T')[0]),
         
-        // Последние достижения
+        // Последние достижения (используем только существующие колонки)
         supabase
           .from('achievements')
-          .select('id, title, description, icon, created_at')
+          .select('id, achievement_type, title, description, unlocked, progress, max_progress, unlocked_at, created_at')
           .eq('user_id', profileId)
           .order('created_at', { ascending: false })
           .limit(4),
