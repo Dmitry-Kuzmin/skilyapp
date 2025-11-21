@@ -5,7 +5,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { AchievementsModalContent } from "./AchievementsModalContent";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -176,33 +176,36 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
   const triggerButtonClass = "inline-flex w-auto flex-shrink-0";
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className={cn(triggerButtonClass, "text-left")}
-          aria-label={t("profileMenu.achievements")}
-        >
-          {trigger}
-        </button>
-      </DialogTrigger>
-      <DialogContent
+    <>
+      <button
+        type="button"
+        className={cn(triggerButtonClass, "text-left")}
+        aria-label={t("profileMenu.achievements")}
+        onClick={() => setOpen(true)}
+      >
+        {trigger}
+      </button>
+      <UnifiedModal
+        open={open}
+        onOpenChange={setOpen}
+        title={t("profileMenu.achievements")}
         className={cn(
           "max-h-[85vh] p-0 flex flex-col",
           isMobileViewport ? "w-screen max-w-none rounded-t-[28px]" : "w-[95vw] max-w-2xl rounded-2xl"
         )}
+        showTitleBar={false}
       >
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle>{t("profileMenu.achievements")}</DialogTitle>
-          <DialogDescription>
+        <div className="px-6 pt-6 pb-2 border-b border-border/40">
+          <h2 className="text-xl font-semibold">{t("profileMenu.achievements")}</h2>
+          <p className="text-sm text-muted-foreground">
             {t("profileMenu.achievementsDesc") || "Отслеживайте прогресс и открывайте награды"}
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </div>
         <div className="flex-1 overflow-y-auto p-6">
           <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} />
         </div>
-      </DialogContent>
-    </Dialog>
+      </UnifiedModal>
+    </>
   );
 };
 
