@@ -356,6 +356,10 @@ export function DuelPassLeaderboardModal() {
 
   const userPosition = getUserPosition();
 
+  const disableAnimations = useMemo(() => loading || !isOpen, [loading, isOpen]);
+
+  const getMotionProps = <T,>(config: T): Partial<T> => (disableAnimations ? {} : config);
+
   const renderLoadingState = () => (
     <div className="space-y-6 py-4">
       <div className="space-y-3">
@@ -571,9 +575,11 @@ export function DuelPassLeaderboardModal() {
                 <div className="w-full max-w-5xl mx-auto flex items-stretch justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-4">
                   {/* 2 место - Серебро */}
                   <motion.div
-                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 15 }}
+                    {...getMotionProps({
+                      initial: { opacity: 0, y: 50, scale: 0.9 },
+                      animate: { opacity: 1, y: 0, scale: 1 },
+                      transition: { delay: 0.2, type: "spring", stiffness: 150, damping: 15 },
+                    })}
                     className="order-1 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-slate-50 via-slate-100/70 to-slate-50 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 shadow-xl hover:shadow-2xl transition-all duration-300 group">
@@ -675,9 +681,11 @@ export function DuelPassLeaderboardModal() {
 
                   {/* 1 место - Золото (центр, выше) */}
                   <motion.div
-                    initial={{ opacity: 0, y: -30, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 12 }}
+                    {...getMotionProps({
+                      initial: { opacity: 0, y: -30, scale: 0.8 },
+                      animate: { opacity: 1, y: 0, scale: 1 },
+                      transition: { delay: 0.1, type: "spring", stiffness: 200, damping: 12 },
+                    })}
                     className="order-2 -mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/80 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
@@ -857,9 +865,11 @@ export function DuelPassLeaderboardModal() {
 
                   {/* 3 место - Бронза */}
                   <motion.div
-                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring", stiffness: 150, damping: 15 }}
+                    {...getMotionProps({
+                      initial: { opacity: 0, y: 50, scale: 0.9 },
+                      animate: { opacity: 1, y: 0, scale: 1 },
+                      transition: { delay: 0.3, type: "spring", stiffness: 150, damping: 15 },
+                    })}
                     className="order-3 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-orange-50 via-amber-50/70 to-orange-50 dark:from-orange-950/40 dark:via-amber-950/40 dark:to-orange-950/40 shadow-xl hover:shadow-2xl transition-all duration-300 group">
