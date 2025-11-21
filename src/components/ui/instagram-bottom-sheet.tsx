@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const DrawerPortal = Drawer.Portal;
+const DrawerTitle = Drawer.Title;
+const DrawerDescription = Drawer.Description;
 
 interface InstagramBottomSheetProps {
   open: boolean;
@@ -99,6 +101,10 @@ export function InstagramBottomSheet({
             {/* Индикатор для свайпа */}
             <div className="mx-auto mt-4 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
             
+          {/* Скрытые элементы доступности для Radix */}
+          <DrawerTitle className="sr-only">{title || "Модальное окно"}</DrawerTitle>
+          <DrawerDescription className="sr-only">Содержимое модального окна</DrawerDescription>
+          
             {/* Заголовок */}
             {title && (
               <div className="px-6 pt-4 pb-2 border-b shrink-0">
