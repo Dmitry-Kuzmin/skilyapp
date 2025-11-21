@@ -363,26 +363,24 @@ export function DuelPassLeaderboardModal() {
   const renderLoadingState = () => (
     <div className="space-y-6 py-4">
       <div className="space-y-3">
-        <Skeleton className="h-4 w-40 rounded-full" />
-        <Skeleton className="h-8 w-64 rounded-xl" />
-        <Skeleton className="h-4 w-72 rounded-xl" />
+        <Skeleton className="h-4 w-32 sm:w-40 rounded-full" />
+        <Skeleton className="h-8 w-48 sm:w-64 rounded-xl" />
+        <Skeleton className="h-4 w-56 sm:w-72 rounded-xl" />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="flex-1 min-w-0 p-4 space-y-4">
-            <Skeleton className="h-6 w-16 rounded-full" />
+          <Card key={i} className="p-3 space-y-3">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-6 w-10 rounded-full" />
+              <Skeleton className="h-6 w-6 rounded-full" />
+            </div>
             <div className="flex justify-center">
-              <Skeleton className="h-20 w-20 sm:h-24 sm:w-24 rounded-full" />
+              <Skeleton className="h-16 w-16 sm:h-20 sm:w-20 rounded-full" />
             </div>
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-32 mx-auto rounded-full" />
-              <Skeleton className="h-4 w-24 mx-auto rounded-full" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-3 w-20 mx-auto rounded-full" />
-              <Skeleton className="h-3 w-16 mx-auto rounded-full" />
-            </div>
+            <Skeleton className="h-4 w-20 mx-auto rounded-full" />
+            <Skeleton className="h-3 w-16 mx-auto rounded-full" />
+            <Skeleton className="h-3 w-14 mx-auto rounded-full" />
           </Card>
         ))}
       </div>
