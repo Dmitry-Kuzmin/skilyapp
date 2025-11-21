@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -108,34 +102,36 @@ export function LeaderboardRewardsModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1, type: "spring" }}
-              className="text-4xl"
-            >
-              {positionLabel.emoji}
-            </motion.div>
-            <div>
-              <DialogTitle className="text-2xl font-black">
-                {positionLabel.label}
-              </DialogTitle>
-              <DialogDescription className="text-base">
-                Поздравляем! Вы заняли {position} место в сезоне!
-              </DialogDescription>
-            </div>
+    <UnifiedModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={positionLabel.label}
+      showTitleBar={false}
+      className="max-w-2xl max-h-[90vh] overflow-hidden"
+      loading={loading && rewards.length === 0}
+      skeletonVariant="default"
+    >
+      <div className="overflow-y-auto max-h-[90vh] px-4">
+        <div className="flex items-center gap-3 py-4 border-b border-border/40">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1, type: "spring" }}
+            className="text-4xl"
+          >
+            {positionLabel.emoji}
+          </motion.div>
+          <div>
+            <h2 className="text-2xl font-black">
+              {positionLabel.label}
+            </h2>
+            <p className="text-base text-muted-foreground">
+              Поздравляем! Вы заняли {position} место в сезоне!
+            </p>
           </div>
-        </DialogHeader>
+        </div>
 
-        {loading ? (
-          <div className="py-8 text-center text-muted-foreground">
-            Загрузка призов...
-          </div>
-        ) : rewards.length === 0 ? (
+        {rewards.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             Призы не найдены
           </div>
@@ -216,8 +212,8 @@ export function LeaderboardRewardsModal({
             Понятно
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </UnifiedModal>
   );
 }
 

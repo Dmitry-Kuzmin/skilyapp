@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -204,21 +204,30 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-xl gradient-primary">
+    <UnifiedModal
+      open={open}
+      onOpenChange={(state) => {
+        if (!state) onClose();
+      }}
+      title={isSignUp ? "Регистрация" : "Вход в систему"}
+      showTitleBar={false}
+      className="sm:max-w-md"
+    >
+      <div className="space-y-6 py-4">
+        <div className="text-center space-y-3">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-xl gradient-primary">
             <Crown className="w-8 h-8 text-primary-foreground" />
           </div>
-          <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {isSignUp ? "Регистрация" : "Вход в систему"}
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
-          </DialogDescription>
-        </DialogHeader>
+          <div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {isSignUp ? "Регистрация" : "Вход в систему"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
+            </p>
+          </div>
+        </div>
 
-        <div className="space-y-6 py-4">
           {/* Telegram Login */}
           <div className="space-y-2">
             <Label className="text-center block text-lg">Войти через Telegram</Label>
@@ -314,8 +323,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               </button>
             </div>
           </form>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </UnifiedModal>
   );
 }

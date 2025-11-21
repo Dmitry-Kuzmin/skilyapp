@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { UnifiedModal } from '@/components/ui/unified-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Gift, Copy, Check, Zap, Crown, MessageCircle, Sparkles, X, Link as LinkIcon } from 'lucide-react';
@@ -121,8 +121,15 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
     : '';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
+    <UnifiedModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Пригласи друзей"
+      showTitleBar={false}
+      className="max-w-lg p-0 overflow-hidden"
+      loading={loading && !referralData}
+      skeletonVariant="default"
+    >
         <div className="px-6 pt-6 pb-6 space-y-6">
           {/* Main Content */}
           <div className="space-y-4">
@@ -220,8 +227,8 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </UnifiedModal>
   );
 }
 

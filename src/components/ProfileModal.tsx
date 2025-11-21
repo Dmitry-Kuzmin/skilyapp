@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,6 @@ import {
   Gift, ChevronRight, Shield, Bell, Mail, Link as LinkIcon, Check, ExternalLink
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
 
@@ -38,13 +36,8 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const { user, logout, profileId, supabaseUser } = useUserContext();
   const { setTheme, theme: currentTheme } = useTheme();
   const { t } = useLanguage();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  // Debug logging
-  useEffect(() => {
-    console.log('[ProfileModal] Render - open:', open, 'user:', user, 'isMobile:', isMobile);
-  }, [open, user, isMobile]);
   const [settings, setSettings] = useState<UserSettings>({
     theme: 'light',
     language: 'ru',
@@ -846,34 +839,18 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   // Always render modal, Radix UI handles visibility via open prop
   return (
     <>
-      {isMobile ? (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-          <SheetContent
-            side="bottom"
-            className="max-h-[90vh] rounded-t-2xl overflow-y-auto flex flex-col"
-          >
-            <SheetHeader>
-              <SheetTitle className="sr-only">{t('profileMenu.title')}</SheetTitle>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto px-1">
-              {profileContent}
-        </div>
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                {t('profileMenu.title')}
-              </DialogTitle>
-            </DialogHeader>
-            {profileContent}
-      </DialogContent>
-    </Dialog>
-      )}
-      
+      <UnifiedModal
+        open={open}
+        onOpenChange={onOpenChange}
+        title={t('profileMenu.title')}
+        className="max-w-md"
+        showTitleBar={false}
+        loading={loading}
+        skeletonVariant="profile"
+      >
+        {profileContent}
+      </UnifiedModal>
+
       {/* Auth Modal for linking accounts */}
       <AuthModal 
         open={authModalOpen} 

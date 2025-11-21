@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { UnifiedModal } from '@/components/ui/unified-modal';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCircle2, Clock, Trophy, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -16,19 +16,22 @@ export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModa
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" />
-            Получайте напоминания
-          </DialogTitle>
-          <DialogDescription>
-            Подключите Telegram бота, чтобы не пропустить важные события
-          </DialogDescription>
-        </DialogHeader>
+    <UnifiedModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Получайте напоминания"
+      showTitleBar={false}
+      className="sm:max-w-md"
+    >
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-lg font-semibold">
+          <Bell className="w-5 h-5 text-primary" />
+          Получайте напоминания
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Подключите Telegram бота, чтобы не пропустить важные события
+        </p>
 
-        <div className="space-y-4">
           {/* Benefits */}
           <div className="space-y-2">
             <p className="text-sm font-medium">Что вы будете получать:</p>
@@ -65,9 +68,8 @@ export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModa
           <p className="text-xs text-muted-foreground text-center">
             Вы сможете отключить уведомления в любой момент в настройках
           </p>
-        </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </UnifiedModal>
   );
 }
 

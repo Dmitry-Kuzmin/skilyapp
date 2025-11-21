@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -76,108 +70,106 @@ export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps
     .slice(0, 8);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-primary/5 border-2 border-primary/20 shadow-2xl">
-        <div className="overflow-y-auto max-h-[85vh] p-6 space-y-6">
-          <DialogHeader className="space-y-3 pb-4 border-b border-border/50">
-            <div className="flex items-center gap-3">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="flex items-center justify-center w-12 h-12 rounded-xl gradient-primary shadow-primary"
-              >
-                <Trophy className="w-6 h-6 text-primary-foreground" />
-              </motion.div>
-              <div className="flex-1">
-                <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  Прогресс изучения терминов
-                </DialogTitle>
-                <DialogDescription className="text-base mt-1">
-                  Отслеживайте свой прогресс в изучении испанских терминов
-                </DialogDescription>
-              </div>
+    <UnifiedModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Прогресс изучения терминов"
+      className="max-w-3xl max-h-[85vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-primary/5 border-2 border-primary/20 shadow-2xl"
+      showTitleBar={false}
+      loading={loading}
+      skeletonVariant="default"
+    >
+      <div className="overflow-y-auto max-h-[85vh] p-6 space-y-6">
+        <div className="space-y-3 pb-4 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              className="flex items-center justify-center w-12 h-12 rounded-xl gradient-primary shadow-primary"
+            >
+              <Trophy className="w-6 h-6 text-primary-foreground" />
+            </motion.div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Прогресс изучения терминов
+              </h2>
+              <p className="text-base mt-1 text-muted-foreground">
+                Отслеживайте свой прогресс в изучении испанских терминов
+              </p>
             </div>
-            
-            {/* Объяснение логики */}
-            <Collapsible open={showExplanation} onOpenChange={setShowExplanation}>
-              <CollapsibleTrigger asChild>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-between p-3 rounded-lg bg-primary/5 hover:bg-primary/10 border border-primary/20 transition-colors group"
-                >
-                  <div className="flex items-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-primary" />
-                    <span className="text-sm font-medium text-primary">
-                      Как считается статистика?
-                    </span>
-                  </div>
-                  <motion.div
-                    animate={{ rotate: showExplanation ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Info className="w-4 h-4 text-primary" />
-                  </motion.div>
-                </motion.button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
+          </div>
+          
+          {/* Объяснение логики */}
+          <Collapsible open={showExplanation} onOpenChange={setShowExplanation}>
+            <CollapsibleTrigger asChild>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full flex items-center justify-between p-3 rounded-lg bg-primary/5 hover:bg-primary/10 border border-primary/20 transition-colors group"
+              >
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">
+                    Как считается статистика?
+                  </span>
+                </div>
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 p-4 rounded-lg bg-muted/50 border border-border/50 space-y-3"
+                  animate={{ rotate: showExplanation ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-success mt-0.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-success">Изучено:</span>
-                        <p className="text-muted-foreground">
-                          Термин считается изученным, если вы правильно ответили на него <strong>3 раза</strong> в играх (Race, Четыре варианта и др.).
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Clock className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-primary">В процессе:</span>
-                        <p className="text-muted-foreground">
-                          Термины, на которые вы ответили правильно <strong>1-2 раза</strong>. Продолжайте практиковаться!
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <BookOpen className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <div>
-                        <span className="font-semibold text-muted-foreground">Не начато:</span>
-                        <p className="text-muted-foreground">
-                          Термины, которые вы еще не встречали в играх.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="pt-2 border-t border-border/50">
-                      <p className="text-xs text-muted-foreground">
-                        <strong>Важно:</strong> Прогресс обновляется только в играх, связанных с терминами (Race, Четыре варианта). 
-                        Каждый правильный ответ увеличивает счетчик на 1, неправильный ответ уменьшает уровень мастерства на 5%.
+                  <Info className="w-4 h-4 text-primary" />
+                </motion.div>
+              </motion.button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 p-4 rounded-lg bg-muted/50 border border-border/50 space-y-3"
+              >
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-success mt-0.5 shrink-0" />
+                    <div>
+                      <span className="font-semibold text-success">Изучено:</span>
+                      <p className="text-muted-foreground">
+                        Термин считается изученным, если вы правильно ответили на него <strong>3 раза</strong> в играх (Race, Четыре варианта и др.).
                       </p>
                     </div>
                   </div>
-                </motion.div>
-              </CollapsibleContent>
-            </Collapsible>
-          </DialogHeader>
+                  <div className="flex items-start gap-2">
+                    <Clock className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <span className="font-semibold text-primary">В процессе:</span>
+                      <p className="text-muted-foreground">
+                        Термины, на которые вы ответили правильно <strong>1-2 раза</strong>. Продолжайте практиковаться!
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <BookOpen className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Не начато:</span>
+                      <p className="text-muted-foreground">
+                        Термины, которые вы еще не встречали в играх.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-border/50">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Важно:</strong> Прогресс обновляется только в играх, связанных с терминами (Race, Четыре варианта). 
+                      Каждый правильный ответ увеличивает счетчик на 1, неправильный ответ уменьшает уровень мастерства на 5%.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full"
-              />
-            </div>
-          ) : (
-            <div className="space-y-6">
+        <div className="space-y-6">
               {/* Общая статистика с анимацией */}
               <div className="grid grid-cols-3 gap-4">
                 <motion.div
