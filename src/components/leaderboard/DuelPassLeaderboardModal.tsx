@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from "react";
-import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +12,10 @@ import { useUserContext } from "@/contexts/UserContext";
 import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from "@/components/ranking/RankBadge";
 import { motion } from "framer-motion";
 import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
-import { useNavigate } from "react-router-dom";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -230,10 +229,10 @@ const renderAvatarWithCosmetics = (
   );
 };
 
-const DuelPassLeaderboard = () => {
+export function DuelPassLeaderboardModal() {
   const { profileId, user } = useUserContext();
-  const navigate = useNavigate();
-  const { openModal } = useModalRoute('hall-of-fame');
+  const { isOpen, closeModal } = useModalRoute('duel-pass-leaderboard');
+  const { openModal: openHallOfFameModal } = useModalRoute('hall-of-fame');
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [userPositionData, setUserPositionData] = useState<UserPositionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -328,8 +327,9 @@ const DuelPassLeaderboard = () => {
   };
 
   useEffect(() => {
+    if (!isOpen) return;
     loadTopLeaderboard(pagination.page);
-  }, [filterType]);
+  }, [filterType, isOpen]);
 
   // Фильтрация по поиску
   const filteredLeaders = useMemo(() => {
@@ -356,9 +356,17 @@ const DuelPassLeaderboard = () => {
   const userPosition = getUserPosition();
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-8 px-4 md:px-8 lg:px-12">
-        <div className="max-w-6xl mx-auto space-y-8">
+    <>
+      <UnifiedModal
+        open={isOpen}
+        onOpenChange={(open) => !open ? closeModal() : undefined}
+        title="Таблица лидеров"
+        snapPoints={["70vh", "95vh"]}
+        initialSnap={0}
+        showTitleBar={false}
+        className="max-w-5xl"
+      >
+        <div className="space-y-8 py-4">
           <header className="space-y-3 text-left">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 text-primary text-sm font-semibold">
               <Trophy className="w-4 h-4" />
@@ -374,7 +382,7 @@ const DuelPassLeaderboard = () => {
             <div className="flex items-center justify-center gap-4 mt-4">
               <Button
                 variant="outline"
-                onClick={() => openModal()}
+                onClick={() => openHallOfFameModal()}
                 className="gap-2"
               >
                 <Trophy className="w-4 h-4" />
@@ -1136,9 +1144,8 @@ const DuelPassLeaderboard = () => {
             )}
           </Card>
         </div>
-      </div>
+      </UnifiedModal>
 
-      {/* Модальное окно с призами */}
       {activeSeasonId && selectedPosition && (
         <LeaderboardRewardsModal
           open={rewardsModalOpen}
@@ -1147,8 +1154,7 @@ const DuelPassLeaderboard = () => {
           position={selectedPosition}
         />
       )}
-    </Layout>
+    </>
   );
-};
+}
 
-export default DuelPassLeaderboard;

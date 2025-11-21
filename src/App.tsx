@@ -10,6 +10,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { CosmeticsPreviewProvider } from "@/contexts/CosmeticsPreviewContext";
 import { HallOfFameModal } from "@/components/HallOfFameModal";
+import { DuelPassLeaderboardModal } from "@/components/leaderboard/DuelPassLeaderboardModal";
 
 const Index = lazy(() => import("./pages/Index"));
 const LearningMap = lazy(() => import("./pages/LearningMap"));
@@ -62,8 +63,6 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
-const DuelPassLeaderboard = lazy(() => import("./pages/DuelPassLeaderboard"));
-const HallOfFame = lazy(() => import("./pages/HallOfFame"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
@@ -189,8 +188,6 @@ const App = () => {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
-          <Route path="/duel-pass-leaderboard" element={<DuelPassLeaderboard />} />
-          <Route path="/hall-of-fame" element={<HallOfFame />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />
@@ -200,6 +197,7 @@ const App = () => {
             </Suspense>
             {/* Модалки, доступные на всех страницах */}
             <HallOfFameModal />
+            <DuelPassLeaderboardModal />
           </BrowserRouter>
         </CosmeticsPreviewProvider>
       </TooltipProvider>

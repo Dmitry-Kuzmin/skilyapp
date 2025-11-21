@@ -1,6 +1,5 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
 import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OnboardingContent } from "./DuelPassOnboardingContent";
+import { useModalRoute } from "@/hooks/useModalRoute";
 
 const supabaseClient = supabase as any;
 const localeMap: Record<Language, string> = {
@@ -268,11 +268,11 @@ const CountdownTicker = memo(({ endDate, labels }: { endDate?: string | null; la
 CountdownTicker.displayName = "CountdownTicker";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
+  const { openModal: openLeaderboardModal } = useModalRoute('duel-pass-leaderboard');
   const dateLocale = localeMap[language] || "en-US";
   const dp = useCallback(
     (path: string, params?: Record<string, string | number>) => t(`duelPass.${path}`, params),
@@ -1285,7 +1285,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
                   onClick={() => {
                     onOpenChange(false);
-                    navigate("/duel-pass-leaderboard");
+                  openLeaderboardModal();
                   }}
                 >
                   <BarChart3 className="w-4 h-4" />
