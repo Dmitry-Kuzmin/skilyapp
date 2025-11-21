@@ -357,7 +357,7 @@ const DuelPassLeaderboard = () => {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-8 px-4 md:px-8 lg:px-12">
         <div className="max-w-6xl mx-auto space-y-8">
-          <header className="space-y-3 text-center">
+          <header className="space-y-3 text-left">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 text-primary text-sm font-semibold">
               <Trophy className="w-4 h-4" />
               Турнирная таблица Duel Pass
@@ -365,7 +365,7 @@ const DuelPassLeaderboard = () => {
             <h1 className="text-3xl md:text-4xl font-black tracking-tight">
               Топ игроков по Duel Pass
             </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl">
               Лучшие игроки, заработавшие больше всего уровней и наград в Duel Pass.
               Покажи свою косметику и достижения!
             </p>
