@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { InstagramBottomSheet } from "@/components/ui/instagram-bottom-sheet";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -144,7 +144,7 @@ export function HallOfFameModal() {
   }, {} as Record<number, Champion[]>);
 
   return (
-    <InstagramBottomSheet
+    <UnifiedModal
       open={isOpen}
       onOpenChange={(open) => !open && closeModal()}
       title="Зал славы"
@@ -399,7 +399,7 @@ export function HallOfFameModal() {
           </div>
         )}
       </div>
-    </InstagramBottomSheet>
+    </UnifiedModal>
   );
 }
 
