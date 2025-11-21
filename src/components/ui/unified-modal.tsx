@@ -63,6 +63,7 @@ export function UnifiedModal({
     : children;
   
   const prevOpenRef = React.useRef(open);
+  const prevRouteIsOpenRef = React.useRef(routeIsOpen);
   const isUpdatingFromPropRef = React.useRef(false);
   
   const handleOpenChange = React.useCallback(
@@ -86,26 +87,48 @@ export function UnifiedModal({
 
   // Синхронизация: если open prop меняется извне, обновляем URL
   React.useEffect(() => {
-    if (!modalRouteKey || isUpdatingFromPropRef.current) return;
+    if (!modalRouteKey) return;
     if (open !== prevOpenRef.current) {
+      const wasOpen = prevOpenRef.current;
       prevOpenRef.current = open;
+      isUpdatingFromPropRef.current = true;
+      
       if (open && !routeIsOpen) {
+        // Открываем через URL
         routeOpenModal?.();
+        // Обновляем prevRouteIsOpenRef, чтобы второй эффект не сработал
+        prevRouteIsOpenRef.current = true;
       } else if (!open && routeIsOpen) {
+        // Закрываем через URL
         routeCloseModal?.();
+        // Обновляем prevRouteIsOpenRef, чтобы второй эффект не сработал
+        prevRouteIsOpenRef.current = false;
       }
+      
+      // Сбрасываем флаг после небольшой задержки
+      setTimeout(() => {
+        isUpdatingFromPropRef.current = false;
+      }, 150);
     }
   }, [modalRouteKey, open, routeIsOpen, routeOpenModal, routeCloseModal]);
+
+  // Инициализация prevRouteIsOpenRef
+  React.useEffect(() => {
+    if (modalRouteKey) {
+      prevRouteIsOpenRef.current = routeIsOpen;
+    }
+  }, [modalRouteKey]);
 
   // Синхронизация: если URL меняется (прямой переход), обновляем open prop
   React.useEffect(() => {
     if (!modalRouteKey || isUpdatingFromPropRef.current) return;
-    if (routeIsOpen && !open) {
-      onOpenChange(true);
-      prevOpenRef.current = true;
-    } else if (!routeIsOpen && open) {
-      onOpenChange(false);
-      prevOpenRef.current = false;
+    // Обновляем prop только если URL изменился независимо от prop
+    if (routeIsOpen !== prevRouteIsOpenRef.current) {
+      prevRouteIsOpenRef.current = routeIsOpen;
+      if (routeIsOpen !== open) {
+        onOpenChange(!!routeIsOpen);
+        prevOpenRef.current = !!routeIsOpen;
+      }
     }
   }, [modalRouteKey, routeIsOpen, onOpenChange, open]);
 
