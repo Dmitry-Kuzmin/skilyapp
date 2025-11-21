@@ -1353,27 +1353,28 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
         {/* Прогресс по уровням */}
         <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">{currentLevel}</span>
-                <span className="text-sm text-muted-foreground">
-                  {dp("progress.levelOf", { total: maxLevel })}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {currentLevel < maxLevel && spToNextLevel > 0 
-                  ? dp("progress.toNext", { sp: spToNextLevel, level: currentLevel + 1 })
-                  : currentLevel >= maxLevel 
-                  ? dp("progress.max")
-                  : dp("progress.loading")}
-              </p>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
+                {dp("progress.currentLevel")}
+              </Badge>
+              <span className="text-3xl font-bold">{currentLevel}</span>
+              <span className="text-sm text-muted-foreground">
+                {dp("progress.levelOf", { total: maxLevel })}
+              </span>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold">{currentSP}</p>
-              <p className="text-xs text-muted-foreground">{dp("progress.seasonPoints")}</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{dp("progress.seasonPointsShort")}</span>
+              <span className="text-lg font-semibold text-foreground">{currentSP}</span>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            {currentLevel < maxLevel && spToNextLevel > 0 
+              ? dp("progress.toNext", { sp: spToNextLevel, level: currentLevel + 1 })
+              : currentLevel >= maxLevel 
+              ? dp("progress.max")
+              : dp("progress.loading")}
+          </p>
           <div className="relative h-3 bg-muted rounded-full overflow-hidden">
             <motion.div
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-blue-500 to-primary rounded-full"
