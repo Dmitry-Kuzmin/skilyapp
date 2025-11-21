@@ -9,6 +9,7 @@ import { ReferralWelcome } from "@/components/ReferralWelcome";
 import { PageLoader } from "@/components/PageLoader";
 import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { CosmeticsPreviewProvider } from "@/contexts/CosmeticsPreviewContext";
+import { HallOfFameModal } from "@/components/HallOfFameModal";
 
 const Index = lazy(() => import("./pages/Index"));
 const LearningMap = lazy(() => import("./pages/LearningMap"));
@@ -63,7 +64,6 @@ const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const DuelPassLeaderboard = lazy(() => import("./pages/DuelPassLeaderboard"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame"));
-const HallOfFameModal = lazy(() => import("./components/HallOfFameModal").then((module) => ({ default: module.HallOfFameModal })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
@@ -199,9 +199,7 @@ const App = () => {
         </Routes>
             </Suspense>
             {/* Модалки, доступные на всех страницах */}
-            <Suspense fallback={null}>
-              <HallOfFameModal />
-            </Suspense>
+            <HallOfFameModal />
           </BrowserRouter>
         </CosmeticsPreviewProvider>
       </TooltipProvider>
