@@ -146,6 +146,8 @@ export function UnifiedModal({
 
   // Блокировка скролла body при открытии модалки
   React.useEffect(() => {
+    let preventBodyScrollHandler: ((e: TouchEvent) => void) | null = null;
+    
     if (resolvedOpen) {
       // Сохраняем текущую позицию скролла перед блокировкой
       const scrollY = window.scrollY;
@@ -162,20 +164,18 @@ export function UnifiedModal({
       document.body.setAttribute('data-scroll-y', scrollY.toString());
       
       // Предотвращаем скролл фона через touchmove на мобильных
-      const preventBodyScroll = (e: TouchEvent) => {
+      preventBodyScrollHandler = (e: TouchEvent) => {
         // Разрешаем скролл только внутри модалки
         const target = e.target as HTMLElement;
-        const modalContent = target.closest('[role="dialog"]') || target.closest('[data-radix-dialog-content]');
+        const modalContent = target.closest('[role="dialog"]') || 
+                            target.closest('[data-radix-dialog-content]') ||
+                            target.closest('[data-state="open"]');
         if (!modalContent) {
           e.preventDefault();
         }
       };
       
-      document.addEventListener('touchmove', preventBodyScroll, { passive: false });
-      
-      return () => {
-        document.removeEventListener('touchmove', preventBodyScroll);
-      };
+      document.addEventListener('touchmove', preventBodyScrollHandler, { passive: false });
     } else {
       // Восстанавливаем позицию скролла
       const scrollY = document.body.getAttribute('data-scroll-y');
@@ -194,6 +194,26 @@ export function UnifiedModal({
         window.scrollTo(0, parseInt(scrollY, 10));
       }
     }
+    
+    return () => {
+      // Очистка при размонтировании или изменении состояния
+      if (preventBodyScrollHandler) {
+        document.removeEventListener('touchmove', preventBodyScrollHandler);
+      }
+      
+      // Восстанавливаем скролл, если модалка была открыта
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      if (scrollY) {
+        document.body.removeAttribute('data-scroll-y');
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+    };
   }, [resolvedOpen]);
 
   const shouldShowHandle = isMobile && showHandle;
