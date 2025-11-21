@@ -12,6 +12,7 @@ interface InstagramBottomSheetProps {
   hideCloseButton?: boolean;
   snapPoints?: string[];
   initialSnap?: number;
+  showTitleBar?: boolean;
   className?: string;
 }
 
@@ -32,6 +33,7 @@ export function InstagramBottomSheet({
   hideCloseButton = false,
   snapPoints = ['60vh', '92vh'],
   initialSnap = 0,
+  showTitleBar = true,
   className,
 }: InstagramBottomSheetProps) {
   const isMobile = useIsMobile();
@@ -69,7 +71,7 @@ export function InstagramBottomSheet({
             transition: "height 0.26s ease-out, transform 0.26s ease-out",
           }}
         >
-          {title && (
+          {title && showTitleBar && (
             <div className="px-6 pb-3 border-b border-border/50">
               <h2 className="text-xl font-bold">{title}</h2>
             </div>
@@ -92,7 +94,7 @@ export function InstagramBottomSheet({
         className={cn("max-w-4xl max-h-[90vh]", className)}
         autoAccessibility={false}
       >
-        <DialogHeader>
+        <DialogHeader className={showTitleBar ? undefined : "sr-only"}>
           <DialogTitle className={title ? undefined : "sr-only"}>
             {title || "Модальное окно"}
           </DialogTitle>

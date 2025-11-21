@@ -150,10 +150,11 @@ export function HallOfFameModal() {
       title="Зал славы"
       snapPoints={['55%', '95%']}
       initialSnap={0}
+      showTitleBar={false}
     >
       <div className="space-y-6">
         {/* Заголовок (внутри scroll, с отступами) */}
-        <div className="text-center space-y-2 px-4">
+        <div className="text-center space-y-3 px-4 pt-2 pb-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-600 text-xs font-semibold">
             <Trophy className="w-3 h-3" />
             Легенды сезонов
