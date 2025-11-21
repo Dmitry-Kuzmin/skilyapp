@@ -80,7 +80,7 @@ export function InstagramBottomSheet({
           )}
 
           <div
-            className="flex-1 overflow-y-auto px-6 py-4"
+            className="flex-1 overflow-y-auto px-6 py-4 scrollbar-none"
           >
             {children}
           </div>
@@ -104,7 +104,7 @@ export function InstagramBottomSheet({
             Содержимое модального окна
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="overflow-y-auto max-h-[calc(90vh-120px)] scrollbar-none">
           {children}
         </div>
       </DialogContent>
