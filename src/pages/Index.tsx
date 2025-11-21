@@ -514,8 +514,6 @@ const Index = () => {
                   {/* Daily Bonus - Priority 2 */}
                   {dailyBonus && (
                     <Card className="p-5 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 backdrop-blur-xl border border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 pointer-events-none" />
-                      <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
                       <div className="relative">
                         <div className="flex items-center justify-between mb-4">
