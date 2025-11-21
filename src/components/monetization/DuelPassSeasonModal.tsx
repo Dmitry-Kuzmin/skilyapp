@@ -1353,14 +1353,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
         {/* Прогресс по уровням */}
         <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
                 {dp("progress.currentLevel")}
-              </Badge>
-              <span className="text-3xl font-bold">{currentLevel}</span>
+              </span>
+              <span className="text-3xl font-black text-foreground">Lv {currentLevel}</span>
               <span className="text-sm text-muted-foreground">
-                {dp("progress.levelOf", { total: maxLevel })}
+                / {maxLevel}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
