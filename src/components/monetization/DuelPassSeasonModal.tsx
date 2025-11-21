@@ -303,6 +303,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
+  const route = useModalRoute('duel-pass-season');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   const { openModal: openLeaderboardModal } = useModalRoute('duel-pass-leaderboard');
   const dateLocale = localeMap[language] || "en-US";
   const dp = React.useCallback(
@@ -406,20 +412,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   // }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
 
   useEffect(() => {
-    if (open && profileId) {
+    if (isOpen && profileId) {
       loadSeasonData();
     }
-  }, [open, profileId]);
+  }, [isOpen, profileId]);
 
   // Автообновление данных каждые 30 секунд когда модалка открыта (тихое обновление без показа loading)
   useEffect(() => {
-    if (open && profileId && activeSeason) {
+    if (isOpen && profileId && activeSeason) {
       const interval = setInterval(() => {
         loadSeasonData(true); // true = тихое обновление
       }, 30000); // Увеличено до 30 секунд
       return () => clearInterval(interval);
     }
-  }, [open, profileId, activeSeason]);
+  }, [isOpen, profileId, activeSeason]);
 
 
   useEffect(() => {
@@ -984,11 +990,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     content: React.ReactNode,
     title?: string,
     description?: string,
-    options?: { showHandle?: boolean; contentClassName?: string }
+    options?: { showHandle?: boolean; contentClassName?: string; loading?: boolean }
   ) => (
     <UnifiedModal
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       title={title || dp("title")}
       showTitleBar={false}
       className={cn(
@@ -997,6 +1003,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       )}
       showHandle={options?.showHandle}
       contentClassName={options?.contentClassName}
+      loading={options?.loading ?? loading}
+      skeletonVariant="default"
+      modalRouteKey="duel-pass-season"
     >
                 <div className="flex-1 overflow-y-auto">
         {description && (
@@ -1037,6 +1046,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         {renderModalShell(fallbackContent, dp("title"), dp("migration.description"), {
           showHandle: true,
           contentClassName: "px-4 sm:px-6 py-4",
+          loading: loading,
         })}
         <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
         {premiumRewardPreview && (
@@ -1934,6 +1944,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       {renderModalShell(<ModalContent />, undefined, undefined, {
         showHandle: true,
         contentClassName: "px-0 sm:px-6 sm:py-6",
+        loading: loading,
       })}
     <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
     {premiumRewardPreview && (
