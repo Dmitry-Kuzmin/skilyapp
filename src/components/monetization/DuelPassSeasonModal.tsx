@@ -1277,8 +1277,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     return (
     <>
       {/* Упрощенный Header */}
-      <div className={cn("border-b text-left", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
-          <div className="flex items-center gap-3">
+      <div className={cn("relative text-left", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
+        {/* Плавное затемнение снизу для плавного перехода */}
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none" />
+          <div className="relative z-10 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
               <Trophy className="w-5 h-5 text-white" />
             </div>
@@ -1333,9 +1335,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         >
           <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
           <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
-          {/* Плавное затемнение для лучшей читаемости */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-black/10 pointer-events-none" />
+          {/* Плавное затемнение по краям (vignette effect) */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none" />
           <div className="relative z-10 space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-3">
