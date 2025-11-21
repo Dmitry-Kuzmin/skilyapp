@@ -18,6 +18,7 @@ interface UnifiedModalProps {
   skeletonVariant?: ModalSkeletonVariant;
   skeleton?: React.ReactNode;
   className?: string;
+  contentClassName?: string;
 }
 
 /**
@@ -42,12 +43,14 @@ export function UnifiedModal({
   skeletonVariant = "default",
   skeleton,
   className,
+  contentClassName,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
   const renderContent = loading
     ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
     : children;
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
+  const rafRef = React.useRef<number>();
 
   const collapsedHeight = snapPoints[0] ?? '60vh';
   const expandedHeight = snapPoints[1] ?? '92vh';
@@ -55,13 +58,16 @@ export function UnifiedModal({
   // Плавно расширяем лист один раз после открытия, без отслеживания скролла
   React.useEffect(() => {
     if (!open) {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       setIsExpanded(initialSnap > 0);
       return;
     }
 
     setIsExpanded(initialSnap > 0);
-    const timer = window.setTimeout(() => setIsExpanded(true), 80);
-    return () => window.clearTimeout(timer);
+    rafRef.current = window.requestAnimationFrame(() => setIsExpanded(true));
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [open, initialSnap]);
 
   if (isMobile) {
@@ -76,18 +82,23 @@ export function UnifiedModal({
           )}
           style={{
             height: isExpanded ? expandedHeight : collapsedHeight,
-            transform: `translateY(${isExpanded ? '0px' : '12px'})`,
+            transform: `translateY(${isExpanded ? '0px' : '8px'})`,
             maxHeight: expandedHeight,
             transition: "height 0.26s ease-out, transform 0.26s ease-out",
           }}
         >
           {title && showTitleBar && (
-            <div className="px-6 pb-3 border-b border-border/50">
+            <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
               <h2 className="text-xl font-bold">{title}</h2>
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-none">
+          <div
+            className={cn(
+              "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4",
+              contentClassName
+            )}
+          >
             {renderContent}
           </div>
         </SheetContent>
@@ -99,7 +110,7 @@ export function UnifiedModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={cn("max-w-4xl max-h-[90vh]", className)}
+        className={cn("max-w-4xl max-h-[90vh] p-0 flex flex-col", className)}
         autoAccessibility={false}
       >
         <DialogHeader className={showTitleBar ? undefined : "sr-only"}>
@@ -110,7 +121,12 @@ export function UnifiedModal({
             Содержимое модального окна
           </DialogDescription>
         </DialogHeader>
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)] scrollbar-none">
+        <div
+          className={cn(
+            "overflow-y-auto max-h-[calc(90vh-60px)] px-6 py-4 scrollbar-none",
+            contentClassName
+          )}
+        >
           {renderContent}
         </div>
       </DialogContent>
