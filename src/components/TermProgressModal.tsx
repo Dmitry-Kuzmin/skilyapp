@@ -470,8 +470,8 @@ export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </UnifiedModal>
   );
 }
 
