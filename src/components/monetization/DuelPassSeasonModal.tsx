@@ -959,7 +959,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       onOpenChange={onOpenChange}
       title={title || dp("title")}
       showTitleBar={false}
-      className="w-[95vw] max-w-5xl max-h-[85vh] p-0 flex flex-col"
+      className={cn(
+        "max-h-[85vh] p-0 flex flex-col",
+        isMobile ? "w-screen max-w-none" : "w-[95vw] max-w-5xl"
+      )}
       showHandle={options?.showHandle}
       contentClassName={options?.contentClassName}
     >
