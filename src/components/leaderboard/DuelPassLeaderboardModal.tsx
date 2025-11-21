@@ -16,6 +16,7 @@ import { useModalRoute } from "@/hooks/useModalRoute";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnifiedModal } from "@/components/ui/unified-modal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -355,18 +356,59 @@ export function DuelPassLeaderboardModal() {
 
   const userPosition = getUserPosition();
 
+  const renderLoadingState = () => (
+    <div className="space-y-6 py-4">
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-40 rounded-full" />
+        <Skeleton className="h-8 w-64 rounded-xl" />
+        <Skeleton className="h-4 w-72 rounded-xl" />
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="flex-1 min-w-0 p-4 space-y-4">
+            <Skeleton className="h-6 w-16 rounded-full" />
+            <div className="flex justify-center">
+              <Skeleton className="h-20 w-20 sm:h-24 sm:w-24 rounded-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32 mx-auto rounded-full" />
+              <Skeleton className="h-4 w-24 mx-auto rounded-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-20 mx-auto rounded-full" />
+              <Skeleton className="h-3 w-16 mx-auto rounded-full" />
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="p-4 space-y-4">
+        <Skeleton className="h-10 w-full rounded-2xl" />
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-12 w-full rounded-xl" />
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+
   return (
     <>
       <UnifiedModal
         open={isOpen}
-        onOpenChange={(open) => !open ? closeModal() : undefined}
+        onOpenChange={(open) => (!open ? closeModal() : undefined)}
         title="Таблица лидеров"
         snapPoints={["70vh", "95vh"]}
         initialSnap={0}
         showTitleBar={false}
         className="max-w-5xl"
       >
-        <div className="space-y-8 py-4">
+        {loading ? (
+          renderLoadingState()
+        ) : (
+          <div className="space-y-8 py-4">
           <header className="space-y-3 text-left">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 text-primary text-sm font-semibold">
               <Trophy className="w-4 h-4" />
@@ -1143,7 +1185,8 @@ export function DuelPassLeaderboardModal() {
               </>
             )}
           </Card>
-        </div>
+          </div>
+        )}
       </UnifiedModal>
 
       {activeSeasonId && selectedPosition && (
