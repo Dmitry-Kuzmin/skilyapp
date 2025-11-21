@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import type { UIEvent } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, type LucideIcon } from "lucide-react";
+import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
@@ -268,6 +269,7 @@ const CountdownTicker = memo(({ endDate, labels }: { endDate?: string | null; la
 CountdownTicker.displayName = "CountdownTicker";
 
 export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
@@ -1293,6 +1295,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 </span>
               </SheetDescription>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 shrink-0"
+              onClick={() => {
+                onOpenChange(false);
+                navigate("/duel-pass-leaderboard");
+              }}
+              title="Таблица лидеров"
+            >
+              <Award className="w-4 h-4" />
+            </Button>
           </div>
         </SheetHeader>
       ) : (
@@ -1312,6 +1326,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 </span>
               </DialogDescription>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 shrink-0"
+              onClick={() => {
+                onOpenChange(false);
+                navigate("/duel-pass-leaderboard");
+              }}
+              title="Таблица лидеров"
+            >
+              <Award className="w-4 h-4" />
+            </Button>
           </div>
         </DialogHeader>
       )}
