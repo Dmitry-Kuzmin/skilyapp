@@ -873,7 +873,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
             </div>
 
-      <div className={cn("space-y-6", isMobile ? "py-4" : "px-6 py-6")}>
+      <div className={cn("space-y-6", isMobile ? "px-3 py-4" : "px-6 py-6")}>
         {/* Progress Skeleton */}
         <div className="space-y-3">
           <div className="flex items-end justify-between">
@@ -1283,7 +1283,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
       </div>
 
-      <div className={cn("space-y-6", isMobile ? "py-4" : "px-6 py-6")}>
+      <div className={cn("space-y-6", isMobile ? "px-3 py-4" : "px-6 py-6")}>
         {/* Сезонный hero блок */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -1292,8 +1292,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             "relative overflow-hidden rounded-3xl border px-5 py-6 text-white",
             seasonTheme.gradient,
             seasonTheme.border,
-            seasonTheme.glow,
-            isMobile && "-mx-4 rounded-none border-l-0 border-r-0"
+            seasonTheme.glow
           )}
         >
           <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
