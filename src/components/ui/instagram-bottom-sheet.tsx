@@ -69,10 +69,6 @@ export function InstagramBottomSheet({
             transition: "height 0.26s ease-out, transform 0.26s ease-out",
           }}
         >
-          <div className="flex justify-center pt-3 pb-2">
-            <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-          </div>
-
           {title && (
             <div className="px-6 pb-3 border-b border-border/50">
               <h2 className="text-xl font-bold">{title}</h2>
