@@ -63,26 +63,30 @@ export function UnifiedModal({
     : children;
   
   const prevOpenRef = React.useRef(open);
-  const prevRouteIsOpenRef = React.useRef(routeIsOpen);
+  const isUpdatingFromPropRef = React.useRef(false);
   
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
+      onOpenChange(state);
       if (modalRouteKey) {
+        isUpdatingFromPropRef.current = true;
         if (state) {
           routeOpenModal?.();
         } else {
           routeCloseModal?.();
         }
+        // Сбрасываем флаг после обновления URL
+        setTimeout(() => {
+          isUpdatingFromPropRef.current = false;
+        }, 100);
       }
-      onOpenChange(state);
-      prevOpenRef.current = state;
     },
     [modalRouteKey, routeOpenModal, routeCloseModal, onOpenChange]
   );
 
   // Синхронизация: если open prop меняется извне, обновляем URL
   React.useEffect(() => {
-    if (!modalRouteKey) return;
+    if (!modalRouteKey || isUpdatingFromPropRef.current) return;
     if (open !== prevOpenRef.current) {
       prevOpenRef.current = open;
       if (open && !routeIsOpen) {
@@ -93,16 +97,15 @@ export function UnifiedModal({
     }
   }, [modalRouteKey, open, routeIsOpen, routeOpenModal, routeCloseModal]);
 
-  // Синхронизация: если URL меняется (прямой переход), обновляем open prop только если он не был явно установлен
+  // Синхронизация: если URL меняется (прямой переход), обновляем open prop
   React.useEffect(() => {
-    if (!modalRouteKey) return;
-    if (routeIsOpen !== prevRouteIsOpenRef.current) {
-      prevRouteIsOpenRef.current = routeIsOpen;
-      // Обновляем prop только если он отличается от URL состояния
-      if (routeIsOpen !== open) {
-        onOpenChange(!!routeIsOpen);
-        prevOpenRef.current = !!routeIsOpen;
-      }
+    if (!modalRouteKey || isUpdatingFromPropRef.current) return;
+    if (routeIsOpen && !open) {
+      onOpenChange(true);
+      prevOpenRef.current = true;
+    } else if (!routeIsOpen && open) {
+      onOpenChange(false);
+      prevOpenRef.current = false;
     }
   }, [modalRouteKey, routeIsOpen, onOpenChange, open]);
 
