@@ -119,6 +119,30 @@ const rewardTypeVisuals: Record<
   },
 };
 
+const resolveRewardType = (rewardData: any): string => {
+  if (!rewardData) return "coins";
+  const directType =
+    rewardData.type ||
+    rewardData.reward_type ||
+    rewardData.rewardType ||
+    rewardData.category;
+  if (directType && rewardTypeVisuals[directType]) {
+    return directType;
+  }
+
+  const identifier = (rewardData.id || rewardData.slug || rewardData.name || "")
+    .toString()
+    .toLowerCase();
+
+  if (identifier.includes("trophy")) return "trophy";
+  if (identifier.includes("badge")) return "badge";
+  if (identifier.includes("skin")) return "skin";
+  if (identifier.includes("sticker")) return "sticker";
+  if (identifier.includes("boost")) return "boost";
+
+  return "coins";
+};
+
 const seasonThemes: Record<
   string,
   {
@@ -1079,7 +1103,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const getRewardVisualMeta = (rewardData: any) => {
     if (!rewardData) return null;
 
-    const type = rewardData.type || "coins";
+    const type = resolveRewardType(rewardData);
     const config = rewardTypeVisuals[type] || rewardTypeVisuals.coins;
     const key = rewardData.id ? `${type}:${rewardData.id}` : undefined;
     const definition = key ? rewardDetails[key] : undefined;
