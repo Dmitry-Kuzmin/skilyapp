@@ -7,7 +7,6 @@ import { Gift, Copy, Check, Zap, Crown, MessageCircle, Sparkles, X, Link as Link
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface ReferralModalProps {
@@ -226,7 +225,6 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               Посмотреть условия и положения
             </Button>
           </div>
-        </div>
       </div>
     </UnifiedModal>
   );
