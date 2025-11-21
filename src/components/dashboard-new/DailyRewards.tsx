@@ -19,13 +19,19 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
   };
 
-  const { weeklyProgress, progressPercent, strokeDashoffset } = useMemo(() => {
+  const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference } = useMemo(() => {
     const wp = (currentStreak % 7) || 7;
     const pp = (wp / 7) * 100;
-    const radius = 50;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (pp / 100) * circumference;
-    return { weeklyProgress: wp, progressPercent: pp, strokeDashoffset: offset };
+    const r = 50;
+    const circ = 2 * Math.PI * r;
+    const offset = circ - (pp / 100) * circ;
+    return { 
+      weeklyProgress: wp, 
+      progressPercent: pp, 
+      strokeDashoffset: offset,
+      radius: r,
+      circumference: circ
+    };
   }, [currentStreak]);
 
   return (
