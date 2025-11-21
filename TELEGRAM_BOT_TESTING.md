@@ -37,9 +37,9 @@ supabase db push
 Добавить секреты:
 
 ```bash
-TELEGRAM_BOT_TOKEN=8065301889:AAHiLExEVl-KJFZxcUzaDwbFsUOJNBb_Vaw
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
 TELEGRAM_WEBHOOK_SECRET=random_secret_string_here
-MINI_APP_URL=https://sdadim-dgt-prep.lovable.app
+MINI_APP_URL=https://your-domain.com
 GROQ_API_KEY=your_groq_key_here
 GEMINI_API_KEY=your_gemini_key_here
 ```
@@ -48,8 +48,8 @@ GEMINI_API_KEY=your_gemini_key_here
 
 ```bash
 # Установить все секреты
-supabase secrets set TELEGRAM_BOT_TOKEN=8065301889:AAHiLExEVl-KJFZxcUzaDwbFsUOJNBb_Vaw
-supabase secrets set MINI_APP_URL=https://sdadim-dgt-prep.lovable.app
+supabase secrets set TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+supabase secrets set MINI_APP_URL=https://your-domain.com
 
 # Проверить установленные секреты
 supabase secrets list

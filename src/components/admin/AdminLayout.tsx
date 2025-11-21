@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Image as ImageIcon,
   Calendar,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +85,12 @@ const adminNavItems = [
     label: "Сезоны и призы",
     icon: Calendar,
     path: "/admin/seasons",
+  },
+  {
+    id: "security",
+    label: "Безопасность",
+    icon: Shield,
+    path: "/admin/security",
   },
 ];
 

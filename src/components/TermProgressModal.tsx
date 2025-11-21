@@ -22,10 +22,14 @@ interface TermProgressModalProps {
 export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps) {
   const { profileId } = useUserContext();
   const route = useModalRoute('term-progress');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   const [loading, setLoading] = useState(true);
   const [showExplanation, setShowExplanation] = useState(false);

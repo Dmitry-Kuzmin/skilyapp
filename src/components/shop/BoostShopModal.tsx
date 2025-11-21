@@ -67,10 +67,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
   const route = useModalRoute('boost-shop');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const showStarsPayment = isTelegramMiniApp();

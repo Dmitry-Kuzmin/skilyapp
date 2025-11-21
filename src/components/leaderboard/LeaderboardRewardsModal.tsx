@@ -31,10 +31,14 @@ export function LeaderboardRewardsModal({
   position,
 }: LeaderboardRewardsModalProps) {
   const route = useModalRoute('leaderboard-rewards');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   const { profileId } = useUserContext();
   const [rewards, setRewards] = useState<Reward[]>([]);

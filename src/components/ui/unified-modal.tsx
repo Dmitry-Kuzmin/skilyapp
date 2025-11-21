@@ -55,27 +55,47 @@ export function UnifiedModal({
   const routeIsOpen = route?.isOpen;
   const routeOpenModal = route?.openModal;
   const routeCloseModal = route?.closeModal;
-  const resolvedOpen = modalRouteKey ? !!routeIsOpen : open;
+  // Модалка открыта, если открыта через prop ИЛИ через URL
+  const resolvedOpen = modalRouteKey ? (open || !!routeIsOpen) : open;
   const renderContent = loading
     ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
     : children;
+  
+  const isSyncingRef = React.useRef(false);
+  
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
       if (modalRouteKey) {
+        isSyncingRef.current = true;
         if (state) {
           routeOpenModal?.();
         } else {
           routeCloseModal?.();
         }
+        // Сбрасываем флаг после небольшой задержки
+        setTimeout(() => {
+          isSyncingRef.current = false;
+        }, 100);
       }
       onOpenChange(state);
     },
     [modalRouteKey, routeOpenModal, routeCloseModal, onOpenChange]
   );
 
+  // Синхронизация: если open меняется извне, обновляем URL
   React.useEffect(() => {
-    if (!modalRouteKey) return;
-    if ((!!routeIsOpen) !== open) {
+    if (!modalRouteKey || isSyncingRef.current) return;
+    if (open && !routeIsOpen) {
+      routeOpenModal?.();
+    } else if (!open && routeIsOpen) {
+      routeCloseModal?.();
+    }
+  }, [modalRouteKey, open, routeIsOpen, routeOpenModal, routeCloseModal]);
+
+  // Синхронизация: если URL меняется (прямой переход), обновляем open prop
+  React.useEffect(() => {
+    if (!modalRouteKey || isSyncingRef.current) return;
+    if (routeIsOpen !== open) {
       onOpenChange(!!routeIsOpen);
     }
   }, [modalRouteKey, routeIsOpen, onOpenChange, open]);

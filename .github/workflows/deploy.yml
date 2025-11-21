@@ -1,147 +1,33 @@
-name: Deploy to GitHub Pages
+# ⚠️ ОТКЛЮЧЕНО: Используется Vercel для деплоя
+# Этот workflow больше не используется, так как проект деплоится на Vercel
+# 
+# Для полного отключения GitHub Pages:
+# 1. Перейти: https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep/settings/pages
+# 2. В разделе "Source" выбрать "None"
+# 3. Нажать "Save"
+#
+# Или можно удалить этот файл полностью
 
-on:
-  push:
-    branches: [ main, master, feature/premium-race-game ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Verify secrets are set
-        run: |
-          echo "🔍 Checking secrets..."
-          SUPABASE_URL="${{ secrets.VITE_SUPABASE_URL }}"
-          SUPABASE_KEY="${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}"
-          
-          if [ -z "$SUPABASE_URL" ]; then
-            echo "❌ ERROR: VITE_SUPABASE_URL secret is not set!"
-            exit 1
-          else
-            URL_LENGTH=${#SUPABASE_URL}
-            echo "✅ VITE_SUPABASE_URL is set (length: $URL_LENGTH)"
-          fi
-          
-          if [ -z "$SUPABASE_KEY" ]; then
-            echo "❌ ERROR: VITE_SUPABASE_PUBLISHABLE_KEY secret is not set!"
-            exit 1
-          else
-            KEY_LENGTH=${#SUPABASE_KEY}
-            KEY_PREFIX=$(echo "$SUPABASE_KEY" | cut -c1-20)
-            echo "✅ VITE_SUPABASE_PUBLISHABLE_KEY is set (length: $KEY_LENGTH, starts with: $KEY_PREFIX...)"
-          fi
-          echo "✅ All secrets are configured correctly!"
-      
-      - name: Verify environment variables before build
-        run: |
-          echo "🔍 Verifying environment variables before build..."
-          if [ -z "$VITE_SUPABASE_URL" ]; then
-            echo "❌ ERROR: VITE_SUPABASE_URL environment variable is not set!"
-            exit 1
-          else
-            echo "✅ VITE_SUPABASE_URL is set: ${VITE_SUPABASE_URL:0:30}..."
-          fi
-          
-          if [ -z "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then
-            echo "❌ ERROR: VITE_SUPABASE_PUBLISHABLE_KEY environment variable is not set!"
-            exit 1
-          else
-            echo "✅ VITE_SUPABASE_PUBLISHABLE_KEY is set: ${VITE_SUPABASE_PUBLISHABLE_KEY:0:20}..."
-          fi
-          echo "✅ All environment variables are set correctly!"
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-      
-      - name: Build
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          GITHUB_PAGES: 'true'
-        continue-on-error: false
-      
-      - name: Verify environment variables in build output
-        run: |
-          echo "🔍 Checking if environment variables are in build output..."
-          if grep -q "VITE_SUPABASE_URL" dist/assets/*.js 2>/dev/null; then
-            echo "✅ VITE_SUPABASE_URL found in build output"
-          else
-            echo "⚠️  VITE_SUPABASE_URL not found in build output (might be minified)"
-          fi
-          
-          # Check if the actual URL is in the build
-          if grep -q "yffjnqegeiorunyvcxkn.supabase.co" dist/assets/*.js 2>/dev/null; then
-            echo "✅ Supabase URL found in build output"
-          else
-            echo "⚠️  Supabase URL not found in build output"
-          fi
-      
-      - name: Verify build output
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed: dist directory not found"
-            exit 1
-          fi
-          echo "✅ Build successful: dist directory exists"
-          ls -la dist/ | head -10
-      
-      - name: Create .nojekyll file
-        run: |
-          touch dist/.nojekyll
-          echo "✅ Created .nojekyll file to disable Jekyll processing"
-      
-      - name: Copy 404.html if exists
-        run: |
-          if [ -f "public/404.html" ]; then
-            cp public/404.html dist/404.html
-            echo "✅ Copied 404.html to dist"
-          else
-            echo "⚠️  404.html not found in public, skipping"
-          fi
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-
-
-
-
+# name: Deploy to GitHub Pages
+#
+# on:
+#   push:
+#     branches: [ main, master, feature/premium-race-game ]
+#   workflow_dispatch:
+#
+# permissions:
+#   contents: read
+#   pages: write
+#   id-token: write
+#
+# concurrency:
+#   group: "pages"
+#   cancel-in-progress: false
+#
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       # ... остальной код закомментирован

@@ -38,6 +38,9 @@ const AdminTestCovers = lazy(() =>
 const AdminSeasonsManagement = lazy(() =>
   import("./pages/admin/AdminSeasonsManagement").then((module) => ({ default: module.AdminSeasonsManagement }))
 );
+const AdminSecurityMonitoring = lazy(() =>
+  import("./pages/admin/AdminSecurityMonitoring").then((module) => ({ default: module.AdminSecurityMonitoring }))
+);
 const AdminEditor = lazy(() => import("./pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
 const RaceGame = lazy(() => import("./pages/games/RaceGame"));
@@ -175,6 +178,7 @@ const App = () => {
             <Route path="import" element={<AdminImport />} />
             <Route path="test-covers" element={<AdminTestCovers />} />
             <Route path="seasons" element={<AdminSeasonsManagement />} />
+            <Route path="security" element={<AdminSecurityMonitoring />} />
           </Route>
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />

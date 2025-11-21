@@ -11,10 +11,14 @@ interface ReminderConnectModalProps {
 
 export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModalProps) {
   const route = useModalRoute('reminder-connect');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   const handleConnect = () => {
     // TODO: Реализовать подключение к Telegram боту для напоминаний

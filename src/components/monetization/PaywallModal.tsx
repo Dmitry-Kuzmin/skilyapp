@@ -42,10 +42,14 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium, isTrial, daysRemaining, refresh } = usePremium();
   const route = useModalRoute('paywall');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});

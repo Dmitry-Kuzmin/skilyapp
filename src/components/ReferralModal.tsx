@@ -24,10 +24,14 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
   const { profileId } = useUserContext();
   const navigate = useNavigate();
   const route = useModalRoute('referral');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [copied, setCopied] = useState(false);

@@ -304,10 +304,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
   const route = useModalRoute('duel-pass-season');
-  const isOpen = open ?? route.isOpen;
+  // Модалка открыта, если открыта через prop ИЛИ через URL
+  const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
+    if (state) {
+      route.openModal();
+    } else {
+      route.closeModal();
+    }
   };
   const { openModal: openLeaderboardModal } = useModalRoute('duel-pass-leaderboard');
   const dateLocale = localeMap[language] || "en-US";

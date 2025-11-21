@@ -12,7 +12,13 @@ import { createClient } from '@supabase/supabase-js';
 // Новая база данных (ваша)
 const NEW_PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 const NEW_SUPABASE_URL = `https://${NEW_PROJECT_ID}.supabase.co`;
-const NEW_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw';
+const NEW_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!NEW_SERVICE_ROLE_KEY) {
+  console.error('❌ ERROR: SUPABASE_SERVICE_ROLE_KEY environment variable is required!');
+  console.error('Set it with: export SUPABASE_SERVICE_ROLE_KEY=your_key');
+  process.exit(1);
+}
 
 // Старая база данных Lovable (замените на ваши данные)
 const OLD_PROJECT_ID = process.env.OLD_PROJECT_ID || 'ijijcrucqqnnjbkclqhb';

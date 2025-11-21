@@ -43,7 +43,7 @@
 
 Файл `.env` должен выглядеть так:
 ```
-SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyOTQ0MTYxMywiZXhwIjoyMDQ1MDE3NjEzfQ...
+SUPABASE_SERVICE_KEY=your_service_role_key_here
 ```
 
 (Это пример, у тебя будет другой ключ)

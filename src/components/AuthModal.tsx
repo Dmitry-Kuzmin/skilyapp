@@ -30,11 +30,17 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const route = useModalRoute('auth');
-  const isOpen = open ?? route.isOpen;
+  const isOpen = open || route.isOpen;
   const handleClose = () => {
     if (onClose) onClose();
     route.closeModal();
   };
+  
+  useEffect(() => {
+    if (open && !route.isOpen) {
+      route.openModal();
+    }
+  }, [open, route]);
 
   useEffect(() => {
     // Only load widget when modal is open

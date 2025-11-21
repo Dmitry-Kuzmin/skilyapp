@@ -8,7 +8,13 @@ import { createClient } from '@supabase/supabase-js';
 
 const PROJECT_ID = 'yffjnqegeiorunyvcxkn';
 const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
-const SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw';
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SERVICE_ROLE_KEY) {
+  console.error('❌ ERROR: SUPABASE_SERVICE_ROLE_KEY environment variable is required!');
+  console.error('Set it with: export SUPABASE_SERVICE_ROLE_KEY=your_key');
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: {
@@ -97,7 +103,12 @@ async function checkDatabase() {
 
   // Проверка RLS через попытку чтения
   console.log('\n🔒 Проверка RLS (через попытку чтения с anon key):');
-  const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA';
+  const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
+  
+  if (!anonKey) {
+    console.log('   ⚠️  Anon key не установлен, пропускаем проверку RLS через anon client');
+    return;
+  }
   const anonClient = createClient(SUPABASE_URL, anonKey);
 
   const rlsTables = ['profiles', 'topics', 'questions_new'];
