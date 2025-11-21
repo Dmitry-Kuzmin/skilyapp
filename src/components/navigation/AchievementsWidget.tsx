@@ -195,13 +195,13 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
         )}
         showTitleBar={false}
       >
-        <div className="px-6 pt-6 pb-2 border-b border-border/40">
-          <h2 className="text-xl font-semibold">{t("profileMenu.achievements")}</h2>
-          <p className="text-sm text-muted-foreground">
+        <div className="px-4 pt-4 pb-2 border-b border-border/40 sm:px-6 sm:pt-6">
+          <h2 className="text-lg font-semibold sm:text-xl">{t("profileMenu.achievements")}</h2>
+          <p className="text-xs text-muted-foreground sm:text-sm">
             {t("profileMenu.achievementsDesc") || "Отслеживайте прогресс и открывайте награды"}
           </p>
         </div>
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 scrollbar-none">
           <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} />
         </div>
       </UnifiedModal>
