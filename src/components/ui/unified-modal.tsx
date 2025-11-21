@@ -51,91 +51,53 @@ export function UnifiedModal({
   modalRouteKey,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
-  const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
-  const routeIsOpen = route?.isOpen;
-  const routeOpenModal = route?.openModal;
-  const routeCloseModal = route?.closeModal;
   
-  // Модалка открыта, если открыта через prop ИЛИ через URL
-  const resolvedOpen = modalRouteKey ? (open || !!routeIsOpen) : open;
+  // Используем URL только если modalRouteKey задан
+  const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
+  
+  // Простая логика: модалка открыта если open=true ИЛИ route.isOpen=true
+  const resolvedOpen = modalRouteKey ? (open || !!route?.isOpen) : open;
+  
   const renderContent = loading
     ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
     : children;
   
-  const prevOpenRef = React.useRef(open);
-  const prevRouteIsOpenRef = React.useRef(!!routeIsOpen);
-  const isUpdatingFromPropRef = React.useRef(false);
-  const isUpdatingFromRouteRef = React.useRef(false);
-  
+  // Простой обработчик: обновляем и prop, и URL
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
-      if (modalRouteKey) {
-        isUpdatingFromPropRef.current = true;
-        if (state) {
-          routeOpenModal?.();
-        } else {
-          routeCloseModal?.();
-        }
-        // Сбрасываем флаг после обновления URL
-        setTimeout(() => {
-          isUpdatingFromPropRef.current = false;
-        }, 50);
-      }
       onOpenChange(state);
+      if (modalRouteKey && route) {
+        if (state) {
+          route.openModal();
+        } else {
+          route.closeModal();
+        }
+      }
     },
-    [modalRouteKey, routeOpenModal, routeCloseModal, onOpenChange]
+    [modalRouteKey, route, onOpenChange]
   );
 
-  // Инициализация refs только при первом монтировании modalRouteKey
+  // Синхронизация: если open prop меняется извне, обновляем URL (только если отличается)
   React.useEffect(() => {
-    if (modalRouteKey) {
-      prevRouteIsOpenRef.current = !!routeIsOpen ?? false;
-      prevOpenRef.current = open ?? false;
-    }
-  }, [modalRouteKey]);
-
-  // Синхронизация: если open prop меняется извне, обновляем URL
-  React.useEffect(() => {
-    if (!modalRouteKey || isUpdatingFromRouteRef.current) return;
-    const currentOpen = !!open;
-    const currentRouteIsOpen = !!routeIsOpen;
+    if (!modalRouteKey || !route) return;
     
-    if (currentOpen !== prevOpenRef.current) {
-      prevOpenRef.current = currentOpen;
-      isUpdatingFromPropRef.current = true;
-      
-      if (currentOpen && !currentRouteIsOpen) {
-        routeOpenModal?.();
-        prevRouteIsOpenRef.current = true;
-      } else if (!currentOpen && currentRouteIsOpen) {
-        routeCloseModal?.();
-        prevRouteIsOpenRef.current = false;
-      }
-      
-      setTimeout(() => {
-        isUpdatingFromPropRef.current = false;
-      }, 50);
+    const routeIsOpen = route.isOpen;
+    if (open && !routeIsOpen) {
+      route.openModal();
+    } else if (!open && routeIsOpen) {
+      route.closeModal();
     }
-  }, [modalRouteKey, open, routeIsOpen, routeOpenModal, routeCloseModal]);
+  }, [modalRouteKey, open, route?.isOpen, route]);
 
-  // Синхронизация: если URL меняется (прямой переход), обновляем open prop
+  // Синхронизация: если URL меняется (прямой переход), обновляем open prop (только если отличается)
   React.useEffect(() => {
-    if (!modalRouteKey || isUpdatingFromPropRef.current) return;
-    const currentRouteIsOpen = !!routeIsOpen;
-    const currentOpen = !!open;
+    if (!modalRouteKey || !route) return;
     
-    if (currentRouteIsOpen !== prevRouteIsOpenRef.current) {
-      prevRouteIsOpenRef.current = currentRouteIsOpen;
-      if (currentRouteIsOpen !== currentOpen) {
-        isUpdatingFromRouteRef.current = true;
-        onOpenChange(currentRouteIsOpen);
-        prevOpenRef.current = currentRouteIsOpen;
-        setTimeout(() => {
-          isUpdatingFromRouteRef.current = false;
-        }, 50);
-      }
+    const routeIsOpen = route.isOpen;
+    if (routeIsOpen !== open) {
+      onOpenChange(routeIsOpen);
     }
-  }, [modalRouteKey, routeIsOpen, onOpenChange, open]);
+  }, [modalRouteKey, route?.isOpen, onOpenChange, open]);
 
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
   const rafRef = React.useRef<number>();
@@ -143,7 +105,7 @@ export function UnifiedModal({
   const collapsedHeight = snapPoints[0] ?? '60vh';
   const expandedHeight = snapPoints[1] ?? '92vh';
 
-  // Плавно расширяем лист один раз после открытия, без отслеживания скролла
+  // Плавно расширяем лист один раз после открытия
   React.useEffect(() => {
     if (!resolvedOpen) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -203,7 +165,7 @@ export function UnifiedModal({
 
   // На десктопе используем обычный Dialog (центрированный)
   return (
-      <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
       <DialogContent 
         className={cn("max-w-4xl max-h-[90vh] p-0 flex flex-col", className)}
         autoAccessibility={false}
@@ -228,4 +190,3 @@ export function UnifiedModal({
     </Dialog>
   );
 }
-

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -123,11 +123,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     return price ? `${description} - €${price}` : description;
   };
 
+  const hasLoadedRef = useRef(false);
+  
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasLoadedRef.current && profileId) {
+      hasLoadedRef.current = true;
       loadData();
+    } else if (!isOpen) {
+      // Сбрасываем флаг при закрытии, чтобы загрузить свежие данные при следующем открытии
+      hasLoadedRef.current = false;
     }
-  }, [isOpen]);
+  }, [isOpen, profileId]);
 
   // Загружаем историю транзакций при переключении на вкладку "История"
   useEffect(() => {

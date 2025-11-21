@@ -415,10 +415,16 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   //   }
   // }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
 
+  const hasLoadedRef = React.useRef(false);
+  
   useEffect(() => {
     const isOpen = open || route.isOpen;
-    if (isOpen && profileId) {
+    if (isOpen && profileId && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
       loadSeasonData();
+    } else if (!isOpen) {
+      // Сбрасываем флаг при закрытии для свежих данных при следующем открытии
+      hasLoadedRef.current = false;
     }
   }, [open, route.isOpen, profileId]);
 
