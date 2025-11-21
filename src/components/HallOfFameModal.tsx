@@ -163,6 +163,82 @@ export function HallOfFameModal() {
           </p>
         </div>
 
+        {/* Дополнительный контент для тестирования */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Crown className="w-4 h-4 text-yellow-500" />
+              <h3 className="font-semibold text-base">Как попасть в Hall of Fame?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Держи высокий темп прокачки, не пропускай сезонные ивенты и используй бусты XP — стабильность даёт шанс попасть в топ.
+            </p>
+            <ul className="text-xs text-muted-foreground space-y-1 border-t border-border/50 pt-2">
+              <li>• Выполняй ежедневные задания для ускорения прогресса</li>
+              <li>• Подключай бусты и наборы за дуэльные монеты</li>
+              <li>• Финальные недели сезона решают всё — увеличь активность</li>
+            </ul>
+          </Card>
+
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-emerald-500" />
+              <h3 className="font-semibold text-base">Мини-аналитика топа</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-lg border p-2">
+                <p className="text-muted-foreground mb-1">Средний уровень топ-3</p>
+                <p className="text-xl font-black text-emerald-500">24</p>
+              </div>
+              <div className="rounded-lg border p-2">
+                <p className="text-muted-foreground mb-1">Максимальное XP</p>
+                <p className="text-xl font-black text-primary">1.2M</p>
+              </div>
+              <div className="rounded-lg border p-2">
+                <p className="text-muted-foreground mb-1">Игроков с легендарным титулом</p>
+                <p className="text-xl font-black text-sky-500">42</p>
+              </div>
+              <div className="rounded-lg border p-2">
+                <p className="text-muted-foreground mb-1">Рекорд серии побед</p>
+                <p className="text-xl font-black text-rose-500">18</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <Card className="p-4 space-y-3">
+          <h4 className="font-semibold text-base">Маршрут чемпиона</h4>
+          <div className="flex flex-col gap-3 text-sm text-muted-foreground">
+            <div className="flex gap-3">
+              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                1
+              </span>
+              <div>
+                <p className="text-foreground font-medium">Старт сезона</p>
+                <p>Сконцентрируйся на ежедневных заданиях и удвоенных XP акциях.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                2
+              </span>
+              <div>
+                <p className="text-foreground font-medium">Середина</p>
+                <p>Подключай дуэли и командные события, чтобы удержаться в топе.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                3
+              </span>
+              <div>
+                <p className="text-foreground font-medium">Финиш</p>
+                <p>Следи за рейтингом, бусти опыт и закрывай пропущенные задачи.</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Фильтр по сезонам */}
         {seasons.length > 0 && (
           <div className="flex flex-wrap gap-2 justify-center">
