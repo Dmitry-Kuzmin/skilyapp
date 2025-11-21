@@ -1160,30 +1160,29 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     options: { claimed: boolean; unlocked: boolean }
   ) => {
     if (!rewardData) {
-      return <span className="text-sm text-muted-foreground">—</span>;
+      return <span className="text-xs text-muted-foreground">—</span>;
     }
 
     const meta = getRewardVisualMeta(rewardData);
     if (!meta) {
-      return <span className="text-sm text-muted-foreground">—</span>;
+      return <span className="text-xs text-muted-foreground">—</span>;
     }
 
     const Icon = meta.Icon;
-    const tierLabel = variant === "premium" ? dp("table.columns.premium") : dp("table.columns.free");
 
     return (
       <motion.div
-        whileHover={{ scale: options.unlocked ? 1.015 : 1 }}
+        whileHover={{ scale: options.unlocked ? 1.02 : 1 }}
         className={cn(
-          "rounded-xl border px-3 py-2 transition-all bg-muted/30 shadow-sm",
+          "rounded-lg border px-2 py-1.5 transition-all bg-muted/30 shadow-sm",
           variant === "premium" && "border-yellow-500/40 bg-yellow-500/5",
           options.claimed && "ring-1 ring-green-400/40",
           !options.unlocked && "opacity-60"
         )}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-semibold"
+            className="w-7 h-7 rounded-md flex items-center justify-center text-sm font-semibold flex-shrink-0"
             style={{
               background: meta.color
                 ? `linear-gradient(135deg, ${withAlpha(meta.color, "33")}, ${withAlpha(meta.color, "11")})`
@@ -1191,18 +1190,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               color: meta.color || undefined,
             }}
           >
-            {meta.iconEmoji ? meta.iconEmoji : Icon ? <Icon className="w-5 h-5" /> : meta.title.charAt(0)}
+            {meta.iconEmoji ? meta.iconEmoji : Icon ? <Icon className="w-3.5 h-3.5" /> : meta.title.charAt(0)}
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">{meta.title}</p>
-            <p className="text-xs text-muted-foreground truncate">{meta.subtitle}</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold truncate leading-tight">{meta.title}</p>
+            {meta.subtitle && (
+              <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">{meta.subtitle}</p>
+            )}
           </div>
-        </div>
-        <div className="mt-1 flex items-center justify-between text-[11px] uppercase tracking-wide text-muted-foreground">
-          <span>{tierLabel}</span>
-          <span className={cn("font-semibold", meta.rarityKey && rarityColorsMap[meta.rarityKey])}>
-            {meta.tag}
-          </span>
         </div>
       </motion.div>
     );
@@ -1730,29 +1725,36 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           
           {/* Улучшенная таблица */}
           <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-            <div className="overflow-x-auto">
+            <div className="overflow-hidden">
               <table className="w-full border-collapse">
+                <colgroup>
+                  <col className="w-12" />
+                  <col style={{ width: 'auto', minWidth: '120px' }} />
+                  <col style={{ width: 'auto', minWidth: '120px' }} />
+                  <col className="w-20" />
+                  <col className="w-24" />
+                </colgroup>
                 <thead>
                   <tr className="bg-muted/50 border-b border-border">
-                    <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground w-16">
+                    <th className="text-left px-2 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                       {dp("table.columns.level")}
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Coins className="w-4 h-4 text-yellow-500" />
+                    <th className="text-left px-2 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      <div className="flex items-center gap-1">
+                        <Coins className="w-3 h-3 text-yellow-500" />
                         <span>{dp("table.columns.free")}</span>
                       </div>
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Crown className="w-4 h-4 text-yellow-600" />
+                    <th className="text-left px-2 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      <div className="flex items-center gap-1">
+                        <Crown className="w-3 h-3 text-yellow-600" />
                         <span>{dp("table.columns.premium")}</span>
                       </div>
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">
+                    <th className="text-left px-2 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                       {dp("table.columns.sp")}
                     </th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-muted-foreground">
+                    <th className="text-center px-2 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                       {dp("table.columns.status")}
                     </th>
                   </tr>
@@ -1841,9 +1843,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         }}
                       >
                         {/* Уровень */}
-                        <td className="px-3 py-3 w-16">
+                        <td className="px-2 py-2">
                           <div className={cn(
-                            "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold transition-all",
+                            "flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold transition-all",
                             isCurrent 
                               ? "bg-primary text-primary-foreground shadow-sm" 
                               : allClaimed 
@@ -1857,32 +1859,32 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         </td>
                         
                         {/* Free reward preview */}
-                        <td className="px-4 py-3 align-top">
+                        <td className="px-2 py-2 align-top">
                           {renderTableRewardCell(reward.free_reward, 'free', { claimed: freeClaimed, unlocked })}
                         </td>
                         
                         {/* Premium reward preview */}
-                        <td className="px-4 py-3 align-top">
+                        <td className="px-2 py-2 align-top">
                           {renderTableRewardCell(reward.premium_reward, 'premium', { claimed: premiumClaimed, unlocked })}
                         </td>
                         
                         {/* SP */}
-                        <td className="px-4 py-3">
+                        <td className="px-2 py-2">
                           {!unlocked ? (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">
                               {dp("table.spBadge", { sp: reward.sp_required - currentSP })}
                             </Badge>
                           ) : (
-                            <span className="text-sm text-muted-foreground">—</span>
+                            <span className="text-xs text-muted-foreground">—</span>
                           )}
                         </td>
                         
                         {/* Действие */}
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-2 py-2 text-center">
                           {allClaimed ? (
-                            <div className="flex items-center justify-center gap-2">
-                              <CheckCircle2 className="w-5 h-5 text-green-500" />
-                              <span className="text-xs font-medium text-green-600">
+                            <div className="flex items-center justify-center gap-1">
+                              <CheckCircle2 className="w-4 h-4 text-green-500" />
+                              <span className="text-[10px] font-medium text-green-600">
                                 {dp("table.status.claimed")}
                               </span>
                             </div>
@@ -1894,7 +1896,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                 handleRewardClick(reward);
                               }}
                               className={cn(
-                                "h-8 px-4 text-xs font-medium",
+                                "h-7 px-2 text-[10px] font-medium",
                                 // Если есть бесплатная награда и она не получена - обычная кнопка
                                 // Если бесплатная получена, но есть премиум - желтая кнопка
                                 // Если только премиум - желтая кнопка
