@@ -23,10 +23,10 @@ export const EdgeSwipeBack: React.FC = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  const startRef = useRef({ x: 0, y: 0, active: false });
+
   const isRoot = location.pathname === "/";
   if (!enabled || isRoot) return null;
-
-  const startRef = useRef({ x: 0, y: 0, active: false });
 
   const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
     const t = e.touches[0];
