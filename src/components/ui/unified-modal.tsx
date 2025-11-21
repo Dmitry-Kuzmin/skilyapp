@@ -32,6 +32,7 @@ interface UnifiedModalProps {
  * - На десктопе: центрированная модалка
  * - Поддержка свайпа для закрытия (через Vaul)
  * - Плавное расширение при скролле контента
+ * - Оптимизировано для быстрого открытия и плавных анимаций
  */
 export function UnifiedModal({
   open,
@@ -55,12 +56,16 @@ export function UnifiedModal({
   // Используем URL только если modalRouteKey задан
   const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
   
-  // Простая логика: модалка открыта если open=true ИЛИ route.isOpen=true
-  const resolvedOpen = modalRouteKey ? (open || !!route?.isOpen) : open;
+  // Мемоизируем resolvedOpen для избежания лишних ре-рендеров
+  const resolvedOpen = React.useMemo(() => {
+    return modalRouteKey ? (open || !!route?.isOpen) : open;
+  }, [modalRouteKey, open, route?.isOpen]);
   
-  const renderContent = loading
-    ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
-    : children;
+  const renderContent = React.useMemo(() => {
+    return loading
+      ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
+      : children;
+  }, [loading, skeleton, skeletonVariant, children]);
   
   // Простой обработчик: обновляем и prop, и URL
   const handleOpenChange = React.useCallback(
@@ -77,47 +82,66 @@ export function UnifiedModal({
     [modalRouteKey, route, onOpenChange]
   );
 
-  // Синхронизация: если open prop меняется извне, обновляем URL (только если отличается)
+  // Оптимизированная синхронизация: используем ref для предотвращения циклов
+  const syncingRef = React.useRef(false);
+  
+  // Синхронизация: если open prop меняется извне, обновляем URL
   React.useEffect(() => {
-    if (!modalRouteKey || !route) return;
+    if (!modalRouteKey || !route || syncingRef.current) return;
     
     const routeIsOpen = route.isOpen;
     if (open && !routeIsOpen) {
+      syncingRef.current = true;
       route.openModal();
+      // Сбрасываем флаг после следующего тика
+      requestAnimationFrame(() => {
+        syncingRef.current = false;
+      });
     } else if (!open && routeIsOpen) {
+      syncingRef.current = true;
       route.closeModal();
+      requestAnimationFrame(() => {
+        syncingRef.current = false;
+      });
     }
   }, [modalRouteKey, open, route?.isOpen, route]);
 
-  // Синхронизация: если URL меняется (прямой переход), обновляем open prop (только если отличается)
+  // Синхронизация: если URL меняется (прямой переход), обновляем open prop
   React.useEffect(() => {
-    if (!modalRouteKey || !route) return;
+    if (!modalRouteKey || !route || syncingRef.current) return;
     
     const routeIsOpen = route.isOpen;
     if (routeIsOpen !== open) {
+      syncingRef.current = true;
       onOpenChange(routeIsOpen);
+      requestAnimationFrame(() => {
+        syncingRef.current = false;
+      });
     }
   }, [modalRouteKey, route?.isOpen, onOpenChange, open]);
 
+  // Оптимизированное расширение: сразу устанавливаем финальное состояние
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
-  const rafRef = React.useRef<number>();
 
   const collapsedHeight = snapPoints[0] ?? '60vh';
   const expandedHeight = snapPoints[1] ?? '92vh';
 
-  // Плавно расширяем лист один раз после открытия
+  // Быстрое расширение при открытии - используем один RAF для минимальной задержки
   React.useEffect(() => {
-    if (!resolvedOpen) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (resolvedOpen) {
+      // Если initialSnap > 0, сразу расширяем, иначе расширяем через один RAF
+      if (initialSnap > 0) {
+        setIsExpanded(true);
+      } else {
+        // Один RAF для минимальной задержки
+        const rafId = requestAnimationFrame(() => {
+          setIsExpanded(true);
+        });
+        return () => cancelAnimationFrame(rafId);
+      }
+    } else {
       setIsExpanded(initialSnap > 0);
-      return;
     }
-
-    setIsExpanded(initialSnap > 0);
-    rafRef.current = window.requestAnimationFrame(() => setIsExpanded(true));
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
   }, [resolvedOpen, initialSnap]);
 
   const shouldShowHandle = isMobile && showHandle;
@@ -136,7 +160,10 @@ export function UnifiedModal({
             height: isExpanded ? expandedHeight : collapsedHeight,
             transform: `translateY(${isExpanded ? '0px' : '8px'})`,
             maxHeight: expandedHeight,
-            transition: "height 0.26s ease-out, transform 0.26s ease-out",
+            // Ускоренная анимация: 0.15s вместо 0.26s
+            transition: "height 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+            // GPU ускорение для плавности
+            willChange: resolvedOpen ? "height, transform" : "auto",
           }}
         >
           {shouldShowHandle && (
