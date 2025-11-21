@@ -412,6 +412,7 @@ const Index = () => {
           onStartTest={handleStartTest}
           currentTopic={undefined}
           progress={overallProgress}
+          profileId={profileId}
         />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       </Layout>

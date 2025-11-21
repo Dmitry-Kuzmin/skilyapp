@@ -17,6 +17,7 @@ interface DigitalCockpitProps {
   onStartTest: () => void;
   currentTopic?: string;
   progress: number;
+  profileId?: string;
 }
 
 export function DigitalCockpit({
@@ -29,6 +30,7 @@ export function DigitalCockpit({
   onStartTest,
   currentTopic,
   progress,
+  profileId,
 }: DigitalCockpitProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -175,7 +177,8 @@ export function DigitalCockpit({
             <GPSRoadmap
               progress={progress}
               currentTopic={currentTopic}
-              nextTopics={[]}
+              accuracy={accuracy}
+              profileId={profileId}
             />
           </motion.div>
         </div>
