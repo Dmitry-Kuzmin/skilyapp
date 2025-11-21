@@ -40,7 +40,13 @@ export function InstagramBottomSheet({
 
   const collapsedHeight = snapPoints[0] ?? '60vh';
   const expandedHeight = snapPoints[1] ?? '92vh';
-  const currentHeight = isExpanded ? expandedHeight : collapsedHeight;
+  const targetHeight = isExpanded ? expandedHeight : collapsedHeight;
+  const [currentHeight, setCurrentHeight] = React.useState(targetHeight);
+  
+  React.useEffect(() => {
+    // Плавная интерполяция высоты
+    setCurrentHeight(targetHeight);
+  }, [targetHeight]);
 
   React.useEffect(() => {
     if (!open) {
@@ -48,12 +54,20 @@ export function InstagramBottomSheet({
     }
   }, [open, initialSnap]);
 
-  const handleMobileScroll = React.useCallback((event: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = event.currentTarget.scrollTop;
-    if (!isExpanded && scrollTop > 16) {
-      setIsExpanded(true);
-    }
-  }, [isExpanded]);
+  const handleMobileScroll = React.useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      const scrollTop = event.currentTarget.scrollTop;
+      // Когда пользователь скроллит вниз, плавно расширяем
+      if (!isExpanded && scrollTop > 24) {
+        setIsExpanded(true);
+      }
+      // Если пользователь прокручивает в начало, возвращаем компактную высоту
+      if (isExpanded && scrollTop < 8) {
+        setIsExpanded(false);
+      }
+    },
+    [isExpanded]
+  );
 
   if (isMobile) {
     return (
@@ -67,7 +81,7 @@ export function InstagramBottomSheet({
           )}
           style={{
             height: currentHeight,
-            transition: "height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+            transition: "height 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
             maxHeight: "92vh",
           }}
         >
