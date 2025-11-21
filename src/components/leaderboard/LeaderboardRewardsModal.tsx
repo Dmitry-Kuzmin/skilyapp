@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { UnifiedModal } from "@/components/ui/unified-modal";
+import { useModalRoute } from "@/hooks/useModalRoute";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -29,15 +30,21 @@ export function LeaderboardRewardsModal({
   seasonId,
   position,
 }: LeaderboardRewardsModalProps) {
+  const route = useModalRoute('leaderboard-rewards');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   const { profileId } = useUserContext();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (open && seasonId && position) {
+    if (isOpen && seasonId && position) {
       loadRewards();
     }
-  }, [open, seasonId, position]);
+  }, [isOpen, seasonId, position]);
 
   const loadRewards = async () => {
     setLoading(true);
@@ -103,13 +110,14 @@ export function LeaderboardRewardsModal({
 
   return (
     <UnifiedModal
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       title={positionLabel.label}
       showTitleBar={false}
       className="max-w-2xl max-h-[90vh] overflow-hidden"
       loading={loading && rewards.length === 0}
       skeletonVariant="default"
+      modalRouteKey="leaderboard-rewards"
     >
       <div className="overflow-y-auto max-h-[90vh] px-4">
         <div className="flex items-center gap-3 py-4 border-b border-border/40">

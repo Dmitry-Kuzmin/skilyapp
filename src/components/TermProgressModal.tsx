@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
+import { useModalRoute } from "@/hooks/useModalRoute";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,12 @@ interface TermProgressModalProps {
 
 export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps) {
   const { profileId } = useUserContext();
+  const route = useModalRoute('term-progress');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   const [loading, setLoading] = useState(true);
   const [showExplanation, setShowExplanation] = useState(false);
   const [stats, setStats] = useState({
@@ -31,13 +38,13 @@ export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps
   });
 
   useEffect(() => {
-    if (open && profileId) {
+    if (isOpen && profileId) {
       const timer = setTimeout(() => {
         loadStats();
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [open, profileId]);
+  }, [isOpen, profileId]);
 
   const loadStats = async () => {
     if (!profileId) return;
@@ -69,13 +76,14 @@ export function TermProgressModal({ open, onOpenChange }: TermProgressModalProps
 
   return (
     <UnifiedModal
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       title="Прогресс изучения терминов"
       className="max-w-3xl max-h-[85vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-primary/5 border-2 border-primary/20 shadow-2xl"
       showTitleBar={false}
       loading={loading}
       skeletonVariant="default"
+      modalRouteKey="term-progress"
     >
         <div className="overflow-y-auto max-h-[85vh] p-6 space-y-6">
         <div className="space-y-3 pb-4 border-b border-border/50">

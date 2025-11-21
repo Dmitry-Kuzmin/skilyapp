@@ -1,4 +1,5 @@
 import { UnifiedModal } from '@/components/ui/unified-modal';
+import { useModalRoute } from '@/hooks/useModalRoute';
 import { Button } from '@/components/ui/button';
 import { Bell, CheckCircle2, Clock, Trophy, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -9,19 +10,26 @@ interface ReminderConnectModalProps {
 }
 
 export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModalProps) {
+  const route = useModalRoute('reminder-connect');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   const handleConnect = () => {
     // TODO: Реализовать подключение к Telegram боту для напоминаний
     // Пока просто закрываем модалку
-    onOpenChange(false);
+    handleOpenChange(false);
   };
 
   return (
     <UnifiedModal
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       title="Получайте напоминания"
       showTitleBar={false}
       className="sm:max-w-md"
+      modalRouteKey="reminder-connect"
     >
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-lg font-semibold">
