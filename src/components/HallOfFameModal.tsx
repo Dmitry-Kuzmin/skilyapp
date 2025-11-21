@@ -151,6 +151,7 @@ export function HallOfFameModal() {
       snapPoints={['55%', '95%']}
       initialSnap={0}
       showTitleBar={false}
+      modalRouteKey="hall-of-fame"
     >
       <div className="space-y-6">
         {/* Заголовок (внутри scroll, с отступами) */}

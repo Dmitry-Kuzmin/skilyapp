@@ -25,11 +25,11 @@ export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModa
     >
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-lg font-semibold">
-          <Bell className="w-5 h-5 text-primary" />
-          Получайте напоминания
+            <Bell className="w-5 h-5 text-primary" />
+            Получайте напоминания
         </div>
         <p className="text-sm text-muted-foreground">
-          Подключите Telegram бота, чтобы не пропустить важные события
+            Подключите Telegram бота, чтобы не пропустить важные события
         </p>
 
           {/* Benefits */}
@@ -68,7 +68,7 @@ export function ReminderConnectModal({ open, onOpenChange }: ReminderConnectModa
           <p className="text-xs text-muted-foreground text-center">
             Вы сможете отключить уведомления в любой момент в настройках
           </p>
-      </div>
+        </div>
     </UnifiedModal>
   );
 }

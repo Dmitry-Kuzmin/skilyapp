@@ -177,14 +177,14 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   return (
     <>
-      <button
-        type="button"
-        className={cn(triggerButtonClass, "text-left")}
-        aria-label={t("profileMenu.achievements")}
+        <button
+          type="button"
+          className={cn(triggerButtonClass, "text-left")}
+          aria-label={t("profileMenu.achievements")}
         onClick={() => setOpen(true)}
-      >
-        {trigger}
-      </button>
+        >
+          {trigger}
+        </button>
       <UnifiedModal
         open={open}
         onOpenChange={setOpen}

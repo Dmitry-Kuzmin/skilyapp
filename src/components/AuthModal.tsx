@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UnifiedModal } from "@/components/ui/unified-modal";
+import { useModalRoute } from "@/hooks/useModalRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,10 +29,16 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const { login, platform } = useUserContext();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const route = useModalRoute('auth');
+  const isOpen = open ?? route.isOpen;
+  const handleClose = () => {
+    if (onClose) onClose();
+    route.closeModal();
+  };
 
   useEffect(() => {
     // Only load widget when modal is open
-    if (!open) {
+    if (!isOpen) {
       return;
     }
 
@@ -205,13 +212,14 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   return (
     <UnifiedModal
-      open={open}
+      open={isOpen}
       onOpenChange={(state) => {
-        if (!state) onClose();
+        if (!state) handleClose();
       }}
       title={isSignUp ? "Регистрация" : "Вход в систему"}
       showTitleBar={false}
       className="sm:max-w-md"
+      modalRouteKey="auth"
     >
       <div className="space-y-6 py-4">
         <div className="text-center space-y-3">
@@ -220,10 +228,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           </div>
           <div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              {isSignUp ? "Регистрация" : "Вход в систему"}
+            {isSignUp ? "Регистрация" : "Вход в систему"}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
+            {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
             </p>
           </div>
         </div>
@@ -323,7 +331,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               </button>
             </div>
           </form>
-      </div>
+        </div>
     </UnifiedModal>
   );
 }

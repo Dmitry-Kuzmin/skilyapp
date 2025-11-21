@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
+import { useModalRoute } from "@/hooks/useModalRoute";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const { setTheme, theme: currentTheme } = useTheme();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const route = useModalRoute('profile');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
 
   const [settings, setSettings] = useState<UserSettings>({
     theme: 'light',
@@ -66,19 +73,19 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   // Load user settings from database
   useEffect(() => {
-    if (open && (profileId || user || supabaseUser)) {
+    if (isOpen && (profileId || user || supabaseUser)) {
       loadUserProfile();
     }
-  }, [user, open, profileId, supabaseUser]);
+  }, [user, isOpen, profileId, supabaseUser]);
 
   // Check admin access separately
   useEffect(() => {
-    if (open && supabaseUser) {
+    if (isOpen && supabaseUser) {
       checkAdminAccess();
-    } else if (!open) {
+    } else if (!isOpen) {
       setIsAdmin(false);
     }
-  }, [open, supabaseUser]);
+  }, [isOpen, supabaseUser]);
 
   const checkAdminAccess = async () => {
     if (!supabaseUser) {
@@ -840,17 +847,18 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   return (
     <>
       <UnifiedModal
-        open={open}
-        onOpenChange={onOpenChange}
+        open={isOpen}
+        onOpenChange={handleOpenChange}
         title={t('profileMenu.title')}
         className="max-w-md"
         showTitleBar={false}
         loading={loading}
         skeletonVariant="profile"
+        modalRouteKey="profile"
       >
-        {profileContent}
+              {profileContent}
       </UnifiedModal>
-
+      
       {/* Auth Modal for linking accounts */}
       <AuthModal 
         open={authModalOpen} 

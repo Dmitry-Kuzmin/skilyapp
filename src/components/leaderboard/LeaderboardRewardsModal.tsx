@@ -113,23 +113,23 @@ export function LeaderboardRewardsModal({
     >
       <div className="overflow-y-auto max-h-[90vh] px-4">
         <div className="flex items-center gap-3 py-4 border-b border-border/40">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.1, type: "spring" }}
-            className="text-4xl"
-          >
-            {positionLabel.emoji}
-          </motion.div>
-          <div>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: "spring" }}
+              className="text-4xl"
+            >
+              {positionLabel.emoji}
+            </motion.div>
+            <div>
             <h2 className="text-2xl font-black">
-              {positionLabel.label}
+                {positionLabel.label}
             </h2>
             <p className="text-base text-muted-foreground">
-              Поздравляем! Вы заняли {position} место в сезоне!
+                Поздравляем! Вы заняли {position} место в сезоне!
             </p>
           </div>
-        </div>
+          </div>
 
         {rewards.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">

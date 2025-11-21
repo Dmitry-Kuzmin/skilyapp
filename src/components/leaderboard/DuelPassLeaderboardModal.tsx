@@ -406,6 +406,7 @@ export function DuelPassLeaderboardModal() {
         initialSnap={0}
         showTitleBar={false}
         className="max-w-5xl"
+        modalRouteKey="duel-pass-leaderboard"
       >
         {loading ? (
           renderLoadingState()

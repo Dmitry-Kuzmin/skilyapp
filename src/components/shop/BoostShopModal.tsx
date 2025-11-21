@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { UnifiedModal } from '@/components/ui/unified-modal';
+import { useModalRoute } from '@/hooks/useModalRoute';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,6 +66,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
+  const route = useModalRoute('boost-shop');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const showStarsPayment = isTelegramMiniApp();
   const [boosts, setBoosts] = useState<Boost[]>([]);
@@ -113,17 +120,17 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   };
 
   useEffect(() => {
-    if (open) {
+    if (isOpen) {
       loadData();
     }
-  }, [open]);
+  }, [isOpen]);
 
   // Загружаем историю транзакций при переключении на вкладку "История"
   useEffect(() => {
-    if (open && activeTab === 'history' && transactions.length === 0) {
+    if (isOpen && activeTab === 'history' && transactions.length === 0) {
       loadTransactionHistory();
     }
-  }, [open, activeTab]);
+  }, [isOpen, activeTab]);
 
   const loadData = async () => {
     if (!profileId) {
@@ -969,55 +976,58 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     { amount: 1200, price: '€19.99', bonus: 200, catalogKey: 'coins_pack_1200', packageKey: 'coins_1200', priceCoins: 1400 },
                     { amount: 3000, price: '€39.99', bonus: 500, catalogKey: 'coins_pack_3000', packageKey: 'coins_3000', priceCoins: 3500 },
                   ].map((pack, idx) => (
-                    <Card key={idx} className="p-4 hover:border-primary/50 transition-colors">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
-                            <Coins className="w-6 h-6 text-yellow-500" />
+                    <Card
+                      key={idx}
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-sm p-4 md:p-5 shadow-lg transition-all duration-200 hover:-translate-y-1 hover:border-primary/60"
+                    >
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500/30 to-orange-500/30 flex items-center justify-center text-yellow-400 flex-shrink-0">
+                            <Coins className="w-7 h-7" />
                           </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold truncate">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-lg font-semibold text-white truncate">
                               {t('boostShop.coins.packLabel', { amount: pack.amount })}
                             </p>
                             {pack.bonus > 0 && (
-                              <Badge variant="secondary" className="text-xs mt-0.5">
+                              <Badge variant="secondary" className="text-xs mt-1 bg-yellow-500/20 text-yellow-100 border border-yellow-500/40">
                                 {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                               </Badge>
                             )}
                           </div>
+                          <span className="text-lg font-bold text-white bg-white/10 rounded-full px-3 py-1 flex-shrink-0">
+                            {pack.price}
+                          </span>
                         </div>
-                        <div className="w-full sm:w-auto flex flex-col sm:items-end gap-2">
-                          <p className="font-bold text-right">{pack.price}</p>
-                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleCoinPurchase(pack.catalogKey)}
-                              className="w-full sm:w-auto"
-                              disabled={!profileId}
-                              variant="default"
-                            >
-                              {t('boostShop.buttons.buy')}
-                            </Button>
-                            {showStarsPayment && (
-                              <StarsPaymentButton
-                                packageKey={pack.packageKey}
-                                priceCoins={pack.priceCoins}
-                                onSuccess={() => {
-                                  loadData(); // Обновить баланс после успешной оплаты
-                                  toast({
-                                    title: t('boostShop.coins.successTitle'),
-                                    description: t('boostShop.coins.successDescription', { amount: pack.amount }),
-                                    duration: 5000,
-                                  });
-                                  setShowConfetti(true);
-                                  setTimeout(() => setShowConfetti(false), 3000);
-                                }}
-                                variant="outline"
-                                size="sm"
-                                className="w-full sm:w-auto"
-                              />
-                            )}
-                          </div>
+
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleCoinPurchase(pack.catalogKey)}
+                            className="w-full sm:flex-1 sm:min-w-[160px]"
+                            disabled={!profileId}
+                          >
+                            {t('boostShop.buttons.buy')}
+                          </Button>
+                          {showStarsPayment && (
+                            <StarsPaymentButton
+                              packageKey={pack.packageKey}
+                              priceCoins={pack.priceCoins}
+                              onSuccess={() => {
+                                loadData(); // Обновить баланс после успешной оплаты
+                                toast({
+                                  title: t('boostShop.coins.successTitle'),
+                                  description: t('boostShop.coins.successDescription', { amount: pack.amount }),
+                                  duration: 5000,
+                                });
+                                setShowConfetti(true);
+                                setTimeout(() => setShowConfetti(false), 3000);
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="w-full sm:flex-1 sm:min-w-[160px]"
+                            />
+                          )}
                         </div>
                       </div>
                     </Card>
@@ -1348,13 +1358,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <UnifiedModal
-        open={open}
-        onOpenChange={onOpenChange}
+        open={isOpen}
+        onOpenChange={handleOpenChange}
         title={t('boostShop.title')}
         showTitleBar={false}
         className="max-w-4xl"
         loading={loading}
         skeletonVariant="shop"
+        modalRouteKey="boost-shop"
       >
         {!loading && (
           <div className="flex-1 overflow-y-auto overflow-x-hidden">

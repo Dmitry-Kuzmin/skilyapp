@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UnifiedModal } from '@/components/ui/unified-modal';
+import { useModalRoute } from '@/hooks/useModalRoute';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Gift, Copy, Check, Zap, Crown, MessageCircle, Sparkles, X, Link as LinkIcon } from 'lucide-react';
@@ -22,12 +23,18 @@ interface ReferralData {
 export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
   const { profileId } = useUserContext();
   const navigate = useNavigate();
+  const route = useModalRoute('referral');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   const [referralData, setReferralData] = useState<ReferralData | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (open && profileId) {
+    if (isOpen && profileId) {
       loadReferralData();
     }
   }, [open, profileId]);
@@ -121,15 +128,16 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
 
   return (
     <UnifiedModal
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       title="Пригласи друзей"
       showTitleBar={false}
       className="max-w-lg p-0 overflow-hidden"
       loading={loading && !referralData}
       skeletonVariant="default"
+      modalRouteKey="referral"
     >
-      <div className="px-6 pt-6 pb-6 space-y-6">
+        <div className="px-6 pt-6 pb-6 space-y-6">
           {/* Main Content */}
           <div className="space-y-4">
             <div>
@@ -225,7 +233,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               Посмотреть условия и положения
             </Button>
           </div>
-      </div>
+        </div>
     </UnifiedModal>
   );
 }

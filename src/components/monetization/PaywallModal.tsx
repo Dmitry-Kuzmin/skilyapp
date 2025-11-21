@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
+import { useModalRoute } from "@/hooks/useModalRoute";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
@@ -40,6 +41,12 @@ const plans = [
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium, isTrial, daysRemaining, refresh } = usePremium();
+  const route = useModalRoute('paywall');
+  const isOpen = open ?? route.isOpen;
+  const handleOpenChange = (state: boolean) => {
+    if (onOpenChange) onOpenChange(state);
+    if (!state) route.closeModal();
+  };
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
   const [loadingPackages, setLoadingPackages] = useState(false);
@@ -165,18 +172,19 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
   return (
     <UnifiedModal
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={handleOpenChange}
       title="Получить Premium"
       showTitleBar={false}
       className="sm:max-w-lg"
       loading={loadingPackages && Object.keys(pricingPackages).length === 0}
       skeletonVariant="shop"
+      modalRouteKey="paywall"
     >
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-lg font-semibold">
-          <Crown className="w-5 h-5 text-yellow-500" />
-          Получи Premium
+            <Crown className="w-5 h-5 text-yellow-500" />
+            Получи Premium
         </div>
           {isPremium && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
@@ -246,7 +254,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               );
             })}
           </div>
-      </div>
+        </div>
     </UnifiedModal>
   );
 }
