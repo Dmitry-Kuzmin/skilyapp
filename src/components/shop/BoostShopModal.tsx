@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { UnifiedModal } from '@/components/ui/unified-modal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,9 +17,6 @@ import { BoostCard } from './BoostCard';
 import { motion } from 'framer-motion';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
-import { ModalSkeleton } from '@/components/ui/modal-skeleton';
-import { getDialogContentClasses } from '@/lib/modal-config';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { dispatchUserEvent } from '@/lib/notification-events';
@@ -66,7 +63,6 @@ interface Transaction {
 export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium } = usePremium();
-  const isMobile = useIsMobile();
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
@@ -833,13 +829,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом */}
-        <DialogHeader className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
-              <DialogTitle className="text-base md:text-lg font-semibold truncate">
+              <h2 className="text-base md:text-lg font-semibold truncate">
                 {t('boostShop.title')}
-              </DialogTitle>
+              </h2>
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <button 
@@ -866,7 +862,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               </Button>
             </div>
           </div>
-        </DialogHeader>
+        </div>
 
         <div className="relative">
           {isRefreshing && (
@@ -1351,19 +1347,21 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent modalType="shop" hideCloseButton className="overflow-hidden flex flex-col p-0 overflow-x-hidden">
-          <DialogTitle className="sr-only">{t('boostShop.title')}</DialogTitle>
-          <DialogDescription className="sr-only">
-            {t('boostShop.description') !== 'boostShop.description'
-              ? t('boostShop.description')
-              : 'Browse boosts, buy coins, and manage premium options'}
-          </DialogDescription>
+      <UnifiedModal
+        open={open}
+        onOpenChange={onOpenChange}
+        title={t('boostShop.title')}
+        showTitleBar={false}
+        className="max-w-4xl"
+        loading={loading}
+        skeletonVariant="shop"
+      >
+        {!loading && (
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             <ModalContent />
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+      </UnifiedModal>
       <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
     </>
   );
