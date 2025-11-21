@@ -19,6 +19,7 @@ interface UnifiedModalProps {
   skeleton?: React.ReactNode;
   className?: string;
   contentClassName?: string;
+  showHandle?: boolean;
 }
 
 /**
@@ -44,6 +45,7 @@ export function UnifiedModal({
   skeleton,
   className,
   contentClassName,
+  showHandle = true,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
   const renderContent = loading
@@ -70,6 +72,8 @@ export function UnifiedModal({
     };
   }, [open, initialSnap]);
 
+  const shouldShowHandle = isMobile && showHandle;
+
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -87,6 +91,11 @@ export function UnifiedModal({
             transition: "height 0.26s ease-out, transform 0.26s ease-out",
           }}
         >
+          {shouldShowHandle && (
+            <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
+              <div className="w-12 h-1 bg-black/40 rounded-full" />
+            </div>
+          )}
           {title && showTitleBar && (
             <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
               <h2 className="text-xl font-bold">{title}</h2>

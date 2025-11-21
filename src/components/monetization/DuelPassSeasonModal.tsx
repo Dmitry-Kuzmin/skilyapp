@@ -289,7 +289,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set());
   const [claimedFreeRewards, setClaimedFreeRewards] = useState<Set<number>>(new Set());
   const [claimedPremiumRewards, setClaimedPremiumRewards] = useState<Set<number>>(new Set());
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const showOnboarding = false;
   const [showPaywall, setShowPaywall] = useState(false);
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
   const [unlockedReward, setUnlockedReward] = useState<any | null>(null);
@@ -376,8 +376,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   useEffect(() => {
     if (open && profileId) {
       loadSeasonData();
-    } else {
-      setShowOnboarding(false);
     }
   }, [open, profileId]);
 
@@ -866,16 +864,16 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const SkeletonContent = () => (
     <>
       <div className={cn("border-b", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
-        <div className="flex items-center gap-3">
-          <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-4 w-48" />
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </div>
           </div>
-        </div>
-      </div>
+            </div>
 
-      <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
+      <div className={cn("space-y-6", isMobile ? "py-4" : "px-6 py-6")}>
         {/* Progress Skeleton */}
         <div className="space-y-3">
           <div className="flex items-end justify-between">
@@ -950,54 +948,61 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     return specials.slice(0, 3);
   }, [rewards]);
 
-  const renderModalShell = (content: React.ReactNode, title?: string, description?: string) => (
+  const renderModalShell = (
+    content: React.ReactNode,
+    title?: string,
+    description?: string,
+    options?: { showHandle?: boolean; contentClassName?: string }
+  ) => (
     <UnifiedModal
       open={open}
       onOpenChange={onOpenChange}
       title={title || dp("title")}
       showTitleBar={false}
       className="w-[95vw] max-w-5xl max-h-[85vh] p-0 flex flex-col"
+      showHandle={options?.showHandle}
+      contentClassName={options?.contentClassName}
     >
-      <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0 sm:hidden">
-        <div className="w-12 h-1 bg-black/40 rounded-full" />
-      </div>
-      <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto">
         {description && (
           <div className="px-6 pt-4 pb-2 border-b border-border/40">
             <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
+                </div>
         )}
         {content}
       </div>
     </UnifiedModal>
-  );
+      );
 
   if (!activeSeason || !seasonProgress) {
     const fallbackContent = loading ? (
       <SkeletonContent />
     ) : (
       <div className="text-center py-12 space-y-4 px-6">
-        <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
-        <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-          <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
-          <p className="text-xs mb-2">
-            {dp("migration.warningDescription")}
-          </p>
-          <ol className="text-xs list-decimal list-inside space-y-1 text-left">
-            <li>{dp("migration.steps.0")}</li>
-            <li>
-              {dp("migration.steps.1")}{" "}
-              <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
-            </li>
-            <li>{dp("migration.steps.2")}</li>
-          </ol>
-        </div>
-      </div>
+            <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
+            <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+              <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
+              <p className="text-xs mb-2">
+                {dp("migration.warningDescription")}
+              </p>
+              <ol className="text-xs list-decimal list-inside space-y-1 text-left">
+                <li>{dp("migration.steps.0")}</li>
+                <li>
+                  {dp("migration.steps.1")}{" "}
+                  <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
+                </li>
+                <li>{dp("migration.steps.2")}</li>
+              </ol>
+            </div>
+          </div>
     );
 
     return (
       <>
-        {renderModalShell(fallbackContent, dp("title"), dp("migration.description"))}
+        {renderModalShell(fallbackContent, dp("title"), dp("migration.description"), {
+          showHandle: true,
+          contentClassName: "px-4 sm:px-6 py-4",
+        })}
         <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
         {premiumRewardPreview && (
           <PremiumRewardUpsell
@@ -1201,12 +1206,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       return <SkeletonContent />;
     }
 
-    // Показываем onboarding если нужно
-    if (showOnboarding) {
-      // Onboarding временно отключен
-      setShowOnboarding(false);
-    }
-
     const seasonHighlights = [
       {
         icon: Gauge,
@@ -1240,48 +1239,48 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     <>
       {/* Упрощенный Header */}
       <div className={cn("border-b text-left", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-            <Trophy className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
             <h2 className="text-xl font-bold">{dp("title")}</h2>
             <p className="text-xs mt-0.5 flex items-center gap-2 text-muted-foreground">
-              <span>{activeSeason.name_ru}</span>
-              <span>·</span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
-              </span>
+                <span>{activeSeason.name_ru}</span>
+                <span>·</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
+                </span>
             </p>
-          </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                  onClick={() => {
-                    onOpenChange(false);
+            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                    onClick={() => {
+                      onOpenChange(false);
                   openLeaderboardModal();
-                  }}
-                >
-                  <BarChart3 className="w-4 h-4" />
+                    }}
+                  >
+                    <BarChart3 className="w-4 h-4" />
                   <span className="text-xs font-medium">
                     {isMobile ? "Лидеры" : "Таблица лидеров"}
-                  </span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
+                </span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
                 <p>{isMobile ? "Таблица лидеров сезона" : "Посмотреть рейтинг участников сезона"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
       </div>
 
-      <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
+      <div className={cn("space-y-6", isMobile ? "py-4" : "px-6 py-6")}>
         {/* Сезонный hero блок */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -1290,7 +1289,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             "relative overflow-hidden rounded-3xl border px-5 py-6 text-white",
             seasonTheme.gradient,
             seasonTheme.border,
-            seasonTheme.glow
+            seasonTheme.glow,
+            isMobile && "-mx-4 rounded-none border-l-0 border-r-0"
           )}
         >
           <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
@@ -1894,40 +1894,43 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   return (
     <>
-      {renderModalShell(<ModalContent />)}
-      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
-      {premiumRewardPreview && (
-        <PremiumRewardUpsell
-          open={!!premiumRewardPreview}
-          onOpenChange={(open) => {
-            if (!open) setPremiumRewardPreview(null);
-          }}
-          reward={premiumRewardPreview}
-          onGetPremium={() => {
-            setShowPaywall(true);
-            setPremiumRewardPreview(null);
-          }}
-        />
-      )}
-      {unlockedReward && (
-        <RewardUnlockAnimation
-          open={!!unlockedReward}
-          onOpenChange={(open) => {
-            if (!open) setUnlockedReward(null);
-          }}
-          reward={unlockedReward}
-        />
-      )}
-      <PremiumPlanSelector
-        open={showPremiumSelector}
+      {renderModalShell(<ModalContent />, undefined, undefined, {
+        showHandle: true,
+        contentClassName: "px-0 sm:px-6 sm:py-6",
+      })}
+    <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+    {premiumRewardPreview && (
+      <PremiumRewardUpsell
+        open={!!premiumRewardPreview}
         onOpenChange={(open) => {
-          setShowPremiumSelector(open);
-          if (!open) {
-            loadSeasonData(true);
-          }
+          if (!open) setPremiumRewardPreview(null);
         }}
-        triggerSource="duel_pass"
+        reward={premiumRewardPreview}
+        onGetPremium={() => {
+          setShowPaywall(true);
+          setPremiumRewardPreview(null);
+        }}
       />
+    )}
+    {unlockedReward && (
+      <RewardUnlockAnimation
+        open={!!unlockedReward}
+        onOpenChange={(open) => {
+          if (!open) setUnlockedReward(null);
+        }}
+        reward={unlockedReward}
+      />
+    )}
+    <PremiumPlanSelector
+      open={showPremiumSelector}
+      onOpenChange={(open) => {
+        setShowPremiumSelector(open);
+        if (!open) {
+          loadSeasonData(true);
+        }
+      }}
+      triggerSource="duel_pass"
+    />
     </>
   );
 }
