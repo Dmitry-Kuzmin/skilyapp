@@ -152,8 +152,8 @@ export function HallOfFameModal() {
       initialSnap={0}
     >
       <div className="space-y-6">
-        {/* Заголовок (sticky) */}
-        <div className="text-center space-y-2 sticky top-0 z-10 bg-background/90 backdrop-blur px-4 pb-3 pt-1 rounded-t-2xl border-b border-border/60 shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
+        {/* Заголовок */}
+        <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-600 text-xs font-semibold">
             <Trophy className="w-3 h-3" />
             Легенды сезонов
