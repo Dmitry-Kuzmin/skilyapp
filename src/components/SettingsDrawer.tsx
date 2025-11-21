@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   User, Crown, Moon, Sun, Globe, Zap, Bell, Download, 
-  Shield, HelpCircle, LogOut, ChevronRight, Smartphone
+  Shield, HelpCircle, LogOut, ChevronRight, Smartphone, Volume2
 } from "lucide-react";
+import { sounds } from "@/lib/sounds";
 import {
   Drawer,
   DrawerClose,
@@ -28,6 +29,26 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState(true);
   const [language, setLanguage] = useState("ru");
+  const [soundsEnabled, setSoundsEnabled] = useState(true);
+
+  useEffect(() => {
+    // Load sounds preference from localStorage
+    const savedSounds = localStorage.getItem('soundsEnabled');
+    if (savedSounds !== null) {
+      const enabled = savedSounds === 'true';
+      setSoundsEnabled(enabled);
+      sounds.setEnabled(enabled);
+    }
+  }, []);
+
+  const handleSoundsToggle = (enabled: boolean) => {
+    setSoundsEnabled(enabled);
+    sounds.setEnabled(enabled);
+    localStorage.setItem('soundsEnabled', enabled.toString());
+    if (enabled) {
+      sounds.playClick(1000, 0.1);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -178,6 +199,19 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
               <Switch 
                 checked={notifications} 
                 onCheckedChange={setNotifications}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Volume2 className="w-5 h-5 text-primary" />
+                </div>
+                <span className="font-medium">Звуковые эффекты</span>
+              </div>
+              <Switch 
+                checked={soundsEnabled} 
+                onCheckedChange={handleSoundsToggle}
               />
             </div>
 

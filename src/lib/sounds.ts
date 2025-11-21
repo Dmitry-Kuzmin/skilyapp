@@ -496,6 +496,11 @@ class SoundManager {
     this.playClick(700, 0.08);
   }
 
+  // Generic click sound (public method for cockpit)
+  click(frequency: number = 1000, volume: number = 0.1) {
+    this.playClick(frequency, volume);
+  }
+
   // Success/Error aliases for consistency
   success() {
     this.correctAnswer();

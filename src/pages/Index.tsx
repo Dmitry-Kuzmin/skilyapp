@@ -18,6 +18,9 @@ import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
+import { SystemBootScreen } from "@/components/cockpit/SystemBootScreen";
+import { DigitalCockpit } from "@/components/cockpit/DigitalCockpit";
+import { useExamReadiness } from "@/hooks/useExamReadiness";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
@@ -43,10 +46,18 @@ const Index = () => {
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [weeklyRewards, setWeeklyRewards] = useState<any[]>([]);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [showBootScreen, setShowBootScreen] = useState(true);
+  const [bootCompleted, setBootCompleted] = useState(false);
+
+  // Get exam readiness
+  const { readiness, metrics, loading: readinessLoading } = useExamReadiness(profileId);
 
   useEffect(() => {
     if (isAuthenticated && profileId) {
       console.log('[Index] Loading data for profile:', profileId);
+      // Reset boot screen when user logs in
+      setShowBootScreen(true);
+      setBootCompleted(false);
       loadUserData();
     } else {
       console.log('[Index] Not loading data - authenticated:', isAuthenticated, 'profileId:', profileId);
@@ -324,6 +335,16 @@ const Index = () => {
     return <Landing />;
   }
 
+  // Handle boot screen completion
+  const handleBootComplete = () => {
+    setShowBootScreen(false);
+    setBootCompleted(true);
+  };
+
+  const handleStartTest = () => {
+    navigate('/tests');
+  };
+
   // Calculate user segment for personalization
   const getUserSegment = () => {
     if (userStats.testsCompleted < 5) return 'beginner';
@@ -359,618 +380,41 @@ const Index = () => {
     },
   };
 
+  // Show System Boot Screen
+  if (showBootScreen && isAuthenticated) {
+    return (
+      <>
+        <SystemBootScreen onComplete={handleBootComplete} />
+      </>
+    );
+  }
+
+  // Show Digital Cockpit after boot
+  const readinessPercent = readiness?.percent || 0;
+  const accuracy = metrics?.accuracy ? Math.round(metrics.accuracy * 100) : userStats.accuracy;
+  const overallProgress = metrics?.topicsCovered ? Math.round(metrics.topicsCovered * 100) : Math.round(progressPercent);
+
   return (
     <>
-    <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-8">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-6 md:space-y-8"
-          >
-            {/* Ultra Modern Hero Banner - Full Width */}
-            <motion.div variants={itemVariants}>
-              <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-primary/10 via-background to-secondary/10 backdrop-blur-xl shadow-2xl">
-                {/* Animated Background Elements */}
-                <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse-slow" />
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
-                
-                <div className="relative p-6 md:p-10">
-                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-                    {/* Left: Welcome & Stats */}
-                    <div className="flex-1 space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-                            {userSegment === 'beginner' && "Начни путь к успеху! 🚀"}
-                            {userSegment === 'intermediate' && "Продолжай движение! 💪"}
-                            {userSegment === 'advanced' && "Становись мастером! ⭐"}
-                </h1>
-                {isPremium && (
-                            <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none px-3 py-1 text-sm shadow-lg">
-                              <Crown className="w-4 h-4 mr-1.5" />
-                    Premium
-                  </Badge>
-                )}
-              </div>
-                        <p className="text-muted-foreground text-sm md:text-base">
-                          {userSegment === 'beginner' && "Каждый тест приближает тебя к цели"}
-                          {userSegment === 'intermediate' && "Твоя настойчивость окупается"}
-                          {userSegment === 'advanced' && "Ты на пути к совершенству"}
-                        </p>
-                </div>
-                      
-                      {/* Compact Stats */}
-                      <div className="flex items-center gap-4 md:gap-6 flex-wrap">
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50">
-                          <Target className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-semibold">{userStats.testsCompleted}</span>
-                          <span className="text-xs text-muted-foreground">тестов</span>
-                </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50">
-                          <Flame className="w-4 h-4 text-orange-500" />
-                          <span className="text-sm font-semibold">{userStats.streak}</span>
-                          <span className="text-xs text-muted-foreground">дней</span>
-                </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50">
-                          <Trophy className="w-4 h-4 text-yellow-500" />
-                          <span className="text-sm font-semibold">{Math.round(progressPercent)}%</span>
-                          <span className="text-xs text-muted-foreground">прогресс</span>
-              </div>
-            </div>
-                    </div>
-                    
-                    {/* Right: Main CTA */}
-                    <div className="flex-shrink-0">
-            <Button 
-              size="lg" 
-                        onClick={() => navigate('/tests')}
-                        className="group relative w-full lg:w-auto px-8 py-6 text-lg font-bold bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
-            >
-                        <Play className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
-                        Начать тест
-                        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Button>
-          </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Priority Section: Tasks + Progress (2 columns) */}
-            {!loading && (
-              <motion.div variants={itemVariants}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                  {/* Daily Tasks - Priority 1 */}
-                  {dailyTasks.length > 0 ? (
-                    <Card className="p-5 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Target className="w-5 h-5 text-primary" />
-                          </div>
-                          <h3 className="text-lg font-bold">Задания</h3>
-                        </div>
-                        <Badge variant="secondary" className="text-xs font-semibold">
-                          {dailyTasks.filter(t => t.completed).length}/{dailyTasks.length}
-            </Badge>
-          </div>
-                      <div className="space-y-2.5">
-                        {dailyTasks.slice(0, 3).map((task, idx) => {
-                          const isCompleted = task.completed;
-                          const progressPercent = Math.min((task.progress / task.max_progress) * 100, 100);
-                          
-                          return (
-                            <motion.div
-                              key={task.id}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.1 }}
-                              className={`p-3 rounded-xl border transition-all hover:scale-[1.02] ${
-                                isCompleted 
-                                  ? "bg-green-500/10 border-green-500/30 shadow-sm" 
-                                  : "bg-card/50 border-border/50 hover:border-primary/30"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between mb-1.5">
-                                <p className="text-sm font-semibold line-clamp-1 flex-1">{task.title}</p>
-                                {isCompleted ? (
-                                  <Check className="w-4 h-4 text-green-500 flex-shrink-0 ml-2" />
-                                ) : (
-                                  <span className="text-xs text-yellow-600 dark:text-yellow-500 font-bold">+{task.reward}💰</span>
-                                )}
-                      </div>
-                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                                <motion.div
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${progressPercent}%` }}
-                                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                  className={`h-full ${
-                                    isCompleted ? "bg-green-500" : "bg-gradient-to-r from-primary to-secondary"
-                                  }`}
-                                />
-                    </div>
-                              <div className="flex items-center justify-between mt-1.5 text-xs text-muted-foreground">
-                                <span>{task.progress}/{task.max_progress}</span>
-                                <span className="font-medium">{Math.round(progressPercent)}%</span>
-                  </div>
-                            </motion.div>
-                          );
-                        })}
-                        {dailyTasks.length > 3 && (
-                          <Link to="/tasks">
-                            <Button variant="ghost" size="sm" className="w-full text-xs mt-2">
-                              Все задания <ArrowRight className="w-3 h-3 ml-1" />
-                            </Button>
-                          </Link>
-                        )}
-                </div>
-              </Card>
-                  ) : null}
-
-                  {/* Progress Summary - Priority 2 */}
-                  <Card className="p-5 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <TrendingUp className="w-5 h-5 text-primary" />
-                  </div>
-                      <h3 className="text-lg font-bold">Прогресс</h3>
-                </div>
-                    <div className="space-y-4">
-                  <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm text-muted-foreground">Ранг</span>
-                          <span className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                            {userStats.rank}
-                          </span>
-                  </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${progressPercent}%` }}
-                            transition={{ duration: 0.8 }}
-                            className="h-full bg-gradient-to-r from-primary to-secondary"
-                          />
-                </div>
-                        <div className="flex items-center justify-between mt-1.5 text-xs text-muted-foreground">
-                          <span>{userStats.xp.toLocaleString()} XP</span>
-                          <span>До {userStats.nextRankXP.toLocaleString()} XP</span>
-                        </div>
-                      </div>
-                      <div className="pt-3 border-t border-border/50">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">Монеты</span>
-                          <span className="text-lg font-bold text-yellow-600 dark:text-yellow-500">
-                            {balance.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Stats Overview - Compact Modern */}
-            <motion.div variants={itemVariants}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <motion.div
-                  whileHover={{ scale: 1.03, y: -4 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Card className="p-4 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                          <Target className="w-5 h-5 text-primary" />
-                        </div>
-                  <div>
-                          <p className="text-xs text-muted-foreground mb-0.5">Точность</p>
-                          <p className="text-xl font-bold">{userStats.accuracy}%</p>
-                  </div>
-                </div>
-                      <Badge variant="secondary" className="text-xs">+3%</Badge>
-                    </div>
-                  </Card>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.03, y: -4 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Card className="p-4 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
-                          <BookOpen className="w-5 h-5 text-secondary" />
-                        </div>
-                  <div>
-                          <p className="text-xs text-muted-foreground mb-0.5">Тестов</p>
-                          <p className="text-xl font-bold">{userStats.testsCompleted}</p>
-                  </div>
-                </div>
-                      <Badge variant="secondary" className="text-xs">+2</Badge>
-              </div>
-                  </Card>
-                </motion.div>
-                <motion.div
-                  whileHover={{ scale: 1.03, y: -4 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Card className="p-4 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                          <Flame className="w-5 h-5 text-orange-500" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-0.5">Серия</p>
-                          <p className="text-xl font-bold">{userStats.streak} дней</p>
-                        </div>
-                      </div>
-                      <Star className="w-4 h-4 text-yellow-500" />
-            </div>
-          </Card>
-                </motion.div>
-              </div>
-            </motion.div>
-
-            {/* Progress Hub - Rank + Exam Readiness */}
-        {!loading && (
-              <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  transition={{ duration: 0.2 }}
-                >
-          <RankProgress
-            currentRank={userStats.rank}
-            currentXP={userStats.xp}
-            nextRankXP={userStats.nextRankXP}
-            coins={balance}
-          />
-                </motion.div>
-                {profileId && (
-                  <motion.div
-                    whileHover={{ scale: 1.01 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ExamReadinessWidget />
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-
-            {/* AI Assistant */}
-            <motion.div variants={itemVariants}>
-              <LumiSearchWidget />
-            </motion.div>
-
-            {/* Weekly Road - Full Version */}
-        {!loading && dailyBonus && (
-              <motion.div variants={itemVariants}>
-                <Card className="p-4 md:p-6 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-xl border border-primary/20 relative overflow-hidden group hover:border-primary/30 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  {/* Subtle animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-secondary/3 pointer-events-none" />
-                  <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse opacity-50" />
-                  <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-secondary/5 rounded-full blur-3xl animate-pulse opacity-50" style={{ animationDelay: '1s' }} />
-            
-                  <div className="relative space-y-4">
-              {/* Compact Header */}
-              <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <motion.div 
-                          className={`w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform flex-shrink-0 ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`}
-                          whileHover={{ scale: 1.05, rotate: 5 }}
-                        >
-                          <Zap className="w-6 h-6 md:w-7 md:h-7 text-primary-foreground" strokeWidth={2.5} />
-                        </motion.div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent truncate">
-                            Путь водителя 🚗
-                          </h3>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <Flame className={`w-3.5 h-3.5 flex-shrink-0 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500 animate-pulse' : 'text-orange-400'}`} />
-                            <span className="text-xs md:text-sm text-muted-foreground">
-                              <span className="font-semibold text-foreground">{dailyBonus.current_streak || 0}</span> / 90 дней
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Compact Progress Badge */}
-                      <motion.div 
-                        className={`px-3 py-1.5 rounded-full border flex items-center gap-1.5 flex-shrink-0 ${
-                          (dailyBonus.current_streak || 0) >= 30 ? 'bg-gradient-to-r from-yellow-500/15 to-orange-500/15 border-yellow-500/30' :
-                          (dailyBonus.current_streak || 0) >= 7 ? 'bg-gradient-to-r from-orange-500/15 to-red-500/15 border-orange-500/30' :
-                          'bg-muted/40 border-border/50'
-                        }`}
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <Flame className={`w-4 h-4 ${
-                          (dailyBonus.current_streak || 0) >= 30 ? 'text-yellow-500' :
-                          (dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' :
-                          'text-muted-foreground'
-                        } ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`} />
-                        <span className="font-bold text-sm">{Math.round(((dailyBonus.current_streak || 0) / 90) * 100)}%</span>
-                      </motion.div>
-              </div>
-
-              {/* Compact Road Progress */}
-              <div className="relative">
-                <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent -mx-1 px-1">
-                  <div className="flex gap-1.5 min-w-max">
-                    {weeklyRewards.slice(0, Math.min(14, weeklyRewards.length)).map((reward, idx) => {
-                      const dayNum = reward.day_number;
-                      const isCompleted = (dailyBonus.current_streak || 0) >= dayNum;
-                      const isCurrent = canClaimBonus && ((dailyBonus.current_streak || 0) + 1) === dayNum;
-                      const isSpecial = dayNum % 7 === 0;
-                      const hasBoost = reward.reward.boost;
-                      const hasBadge = reward.reward.badge;
-                      
-                      return (
-                        <motion.div
-                          key={dayNum}
-                          className={`relative flex flex-col items-center gap-1 ${isSpecial ? 'w-14' : 'w-12'}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: idx * 0.03 }}
-                          whileHover={{ scale: 1.1, zIndex: 10 }}
-                        >
-                          {/* Day marker */}
-                          <motion.div 
-                            className={`
-                              ${isSpecial ? 'w-12 h-12' : 'w-10 h-10'}
-                              rounded-xl border-2 flex items-center justify-center relative transition-all duration-300
-                              ${isCompleted ? 
-                                'bg-gradient-to-br from-primary to-secondary border-primary shadow-md shadow-primary/25' :
-                                isCurrent ? 
-                                'bg-gradient-to-br from-primary/40 to-secondary/40 border-primary shadow-md animate-pulse' :
-                                'bg-muted/20 border-border/40'
-                              }
-                            `}
-                            whileHover={{ scale: 1.15 }}
-                          >
-                            {/* Icon */}
-                            {isCompleted ? (
-                              <Check className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary-foreground`} strokeWidth={2.5} />
-                            ) : isCurrent ? (
-                              <>
-                                {hasBadge ? (
-                                  <Trophy className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary animate-bounce`} />
-                                ) : hasBoost ? (
-                                  <Zap className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary animate-pulse`} />
-                                ) : (
-                                  <Gift className={`${isSpecial ? 'w-6 h-6' : 'w-5 h-5'} text-primary animate-bounce`} />
-                                )}
-                              </>
-                            ) : (
-                              <div className={`text-center leading-tight ${isSpecial ? 'text-[10px]' : 'text-[9px]'}`}>
-                                {reward.reward.xp > 0 && <div className="font-bold text-primary">+{reward.reward.xp}</div>}
-                                {reward.reward.coins > 0 && <div className="text-[8px] text-yellow-500">+{reward.reward.coins}💰</div>}
-                              </div>
-                            )}
-                            
-                            {/* Special badge indicator */}
-                            {hasBadge && !isCompleted && !isCurrent && (
-                              <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center shadow-sm">
-                                <Trophy className="w-2.5 h-2.5 text-white" />
-                              </div>
-                            )}
-                          </motion.div>
-                          
-                          {/* Day number */}
-                          <div className={`text-[9px] font-semibold leading-tight ${isCompleted || isCurrent ? 'text-primary' : 'text-muted-foreground'}`}>
-                            {dayNum}
-                          </div>
-                          
-                          {/* Connecting line */}
-                          {idx < Math.min(13, weeklyRewards.length - 1) && (
-                            <div className={`absolute top-5 left-full w-1.5 h-0.5 ${
-                              (dailyBonus.current_streak || 0) >= dayNum ? 'bg-primary' : 'bg-border/50'
-                            }`} />
-                          )}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                {/* Compact Progress bar */}
-                <div className="mt-2.5">
-                  <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-primary via-secondary to-primary"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(((dailyBonus.current_streak || 0) / 90) * 100, 100)}%` }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Compact Reward & Claim Section */}
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                {/* Reward preview */}
-                {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) ? (
-                  <div className="flex-1 flex items-center gap-2 flex-wrap">
-                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp > 0 && (
-                      <motion.div 
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/10 rounded-lg border border-primary/20"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-xs font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.xp} XP</span>
-                      </motion.div>
-                    )}
-                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins > 0 && (
-                      <motion.div 
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-yellow-500/10 rounded-lg border border-yellow-500/20"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <span className="text-xs font-bold">+{weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.coins} 🪙</span>
-                      </motion.div>
-                    )}
-                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.boost && (
-                      <motion.div 
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/10 rounded-lg border border-secondary/20"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <Zap className="w-3.5 h-3.5 text-secondary" />
-                        <span className="text-xs font-bold">Boost</span>
-                      </motion.div>
-                    )}
-                    {weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1))?.reward.badge && (
-                      <motion.div 
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-yellow-500/10 rounded-lg border border-yellow-500/20"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        <Trophy className="w-3.5 h-3.5 text-yellow-500" />
-                        <span className="text-xs font-bold">Бейдж</span>
-                      </motion.div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex-1 flex items-center text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4 mr-2" />
-                    Возвращайся завтра
-                  </div>
-                )}
-
-                {/* Claim button */}
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button
-                    onClick={handleClaimBonus}
-                    disabled={!canClaimBonus || claimingBonus}
-                    size="default"
-                    className={`px-4 md:px-6 font-semibold shadow-md transition-all ${
-                      canClaimBonus ? 'shadow-primary/20 hover:shadow-primary/30' : ''
-                    }`}
-                    variant={canClaimBonus ? "default" : "secondary"}
-                  >
-                    {claimingBonus ? (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                        <span className="hidden sm:inline">Получение...</span>
-                        <span className="sm:hidden">...</span>
-                      </>
-                    ) : canClaimBonus ? (
-                      <>
-                        <Gift className="w-4 h-4 mr-2" />
-                        Забрать
-                      </>
-                    ) : (
-                      <>
-                        <Clock className="w-4 h-4 mr-2" />
-                        Завтра
-                      </>
-                    )}
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Link to full page */}
-              <Link to="/daily-bonus" className="block">
-                <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground hover:text-primary h-8">
-                  Все награды →
-                </Button>
-              </Link>
-            </div>
-          </Card>
-                </motion.div>
-        )}
-
-            {/* Premium Benefits - Modern Design */}
-            {!isPremium && (
-              <motion.div variants={itemVariants}>
-                <Card className="p-6 md:p-8 bg-gradient-to-br from-yellow-500/10 via-orange-500/5 to-yellow-500/10 border-2 border-yellow-500/20 shadow-xl relative overflow-hidden">
-                  {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-orange-500/5 pointer-events-none" />
-                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-yellow-500/10 rounded-full blur-3xl animate-pulse" />
-                  
-                  <div className="relative space-y-6">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
-                          <Crown className="w-6 h-6 text-yellow-500" />
-            </div>
-                        <div>
-                          <h3 className="text-xl md:text-2xl font-bold">Преимущества Premium</h3>
-                          <p className="text-sm text-muted-foreground">Открой все возможности</p>
-                    </div>
-                      </div>
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button onClick={() => setPaywallOpen(true)} size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-500/90 hover:to-orange-500/90 text-white shadow-lg">
-                          Получить Premium
-                        </Button>
-                      </motion.div>
-                      </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {[
-                        { icon: Infinity, title: "Безлимитный доступ", desc: "Ко всем тестам и играм", color: "text-primary" },
-                        { icon: Zap, title: "Удвоенные награды", desc: "+50% монет за обучение", color: "text-yellow-500" },
-                        { icon: Trophy, title: "Эксклюзивные награды", desc: "Дополнительные бонусы", color: "text-orange-500" },
-                        { icon: Sparkles, title: "Без рекламы", desc: "Мгновенные подсказки", color: "text-blue-500" }
-                      ].map((benefit, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          whileHover={{ scale: 1.05, y: -4 }}
-                          className="flex flex-col items-start gap-3 p-4 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50 hover:border-yellow-500/30 transition-all"
-                        >
-                          <benefit.icon className={`w-6 h-6 ${benefit.color} flex-shrink-0`} />
-                          <div>
-                            <p className="font-semibold text-sm mb-1">{benefit.title}</p>
-                            <p className="text-xs text-muted-foreground">{benefit.desc}</p>
-                    </div>
-                        </motion.div>
-                      ))}
-                  </div>
-            </div>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Achievements - Modern Design */}
-        {!loading && recentAchievements.length > 0 && (
-              <motion.div variants={itemVariants} className="space-y-4">
-            <div className="flex items-center justify-between">
-                  <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                    Достижения
-                  </h2>
-              <Button variant="ghost" size="sm" asChild>
-                    <Link to="/achievements">Все достижения <ArrowRight className="w-4 h-4 ml-1" /></Link>
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {recentAchievements.map((achievement, idx) => (
-                    <motion.div
-                  key={achievement.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      whileHover={{ scale: 1.02, y: -4 }}
-                    >
-                      <AchievementCard 
-                  title={achievement.title}
-                  description={achievement.description}
-                  unlocked={achievement.unlocked}
-                  progress={achievement.progress}
-                  maxProgress={achievement.max_progress}
-                />
-                    </motion.div>
-              ))}
-            </div>
-              </motion.div>
-        )}
-          </motion.div>
-        </div>
-      </div>
-    </Layout>
-    <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      <Layout>
+        <DigitalCockpit
+          readinessPercent={readinessPercent}
+          accuracy={accuracy}
+          testsCompleted={userStats.testsCompleted}
+          streak={userStats.streak}
+          coins={balance || userStats.coins}
+          dailyTasks={dailyTasks.map(task => ({
+            id: task.id,
+            title: task.title || task.description || 'Задание',
+            completed: task.completed || false,
+            progress: task.progress || undefined,
+          }))}
+          onStartTest={handleStartTest}
+          currentTopic={undefined}
+          progress={overallProgress}
+        />
+        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      </Layout>
     </>
   );
 };
