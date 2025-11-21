@@ -1,8 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
+export type ModalSkeletonVariant = 'default' | 'shop' | 'duelPass' | 'profile';
+
 interface ModalSkeletonProps {
-  variant?: 'default' | 'shop' | 'duelPass' | 'profile';
+  variant?: ModalSkeletonVariant;
   className?: string;
 }
 

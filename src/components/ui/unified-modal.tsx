@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { ModalSkeleton, type ModalSkeletonVariant } from "@/components/ui/modal-skeleton";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -13,6 +14,9 @@ interface UnifiedModalProps {
   snapPoints?: string[];
   initialSnap?: number;
   showTitleBar?: boolean;
+  loading?: boolean;
+  skeletonVariant?: ModalSkeletonVariant;
+  skeleton?: React.ReactNode;
   className?: string;
 }
 
@@ -34,9 +38,15 @@ export function UnifiedModal({
   snapPoints = ['60vh', '92vh'],
   initialSnap = 0,
   showTitleBar = true,
+  loading = false,
+  skeletonVariant = "default",
+  skeleton,
   className,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
+  const renderContent = loading
+    ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
+    : children;
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
 
   const collapsedHeight = snapPoints[0] ?? '60vh';
@@ -77,10 +87,8 @@ export function UnifiedModal({
             </div>
           )}
 
-          <div
-            className="flex-1 overflow-y-auto px-6 py-4 scrollbar-none"
-          >
-            {children}
+          <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-none">
+            {renderContent}
           </div>
         </SheetContent>
       </Sheet>
@@ -103,7 +111,7 @@ export function UnifiedModal({
           </DialogDescription>
         </DialogHeader>
         <div className="overflow-y-auto max-h-[calc(90vh-120px)] scrollbar-none">
-          {children}
+          {renderContent}
         </div>
       </DialogContent>
     </Dialog>
