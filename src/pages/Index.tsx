@@ -234,19 +234,40 @@ const Index = () => {
 
   // Show error state
   if (error) {
+    console.error('[Index] Dashboard error:', error);
     return (
       <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md">
           <h2 className="text-2xl font-bold mb-4">Ошибка загрузки</h2>
-          <p className="text-slate-400 mb-4">{error.message}</p>
-          <button
-            onClick={() => refreshDashboard(true)}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
-          >
-            Повторить
-          </button>
+          <p className="text-slate-400 mb-2">{error.message}</p>
+          {error.message.includes('RLS') && (
+            <p className="text-xs text-yellow-400 mb-4">
+              Возможна проблема с правами доступа. Проверьте RLS политики в Supabase.
+            </p>
+          )}
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => refreshDashboard(true)}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+            >
+              Повторить
+            </button>
+            <button
+              onClick={() => {
+                console.log('[Index] Current state:', {
+                  profileId,
+                  isAuthenticated,
+                  error: error.message,
+                  dashboardData: !!dashboardData,
+                });
+              }}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors text-sm"
+            >
+              Логи
+            </button>
+          </div>
         </div>
-            </div>
+      </div>
     );
   }
 
@@ -269,10 +290,17 @@ const Index = () => {
             testsCompleted: dashboardData.stats.tests_completed || 0,
             accuracy: accuracy,
             coins: balance || dashboardData.profile.coins || 0,
+            xp: dashboardData.profile.xp || 0,
+            level: Math.floor((dashboardData.profile.xp || 0) / 5000) + 1 || 1,
           }}
           onStartQuiz={handleStartTest}
           onClaimReward={handleClaimBonus}
           hasClaimedToday={hasClaimedToday}
+          onGetPremium={() => setPaywallOpen(true)}
+          readinessStatus={readiness ? {
+            status: readiness.status,
+            statusText: readiness.statusText,
+          } : undefined}
         />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       </div>

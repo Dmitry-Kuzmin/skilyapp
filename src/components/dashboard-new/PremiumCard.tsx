@@ -1,15 +1,64 @@
-import React from 'react';
-import { Crown, ChevronRight } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Crown, ChevronRight, Sparkles } from 'lucide-react';
 import { usePremium } from '@/hooks/usePremium';
-import { useNavigate } from 'react-router-dom';
+import { sounds } from '@/lib/sounds';
 
-export const PremiumCard: React.FC = () => {
-  const { isPremium } = usePremium();
-  const navigate = useNavigate();
+interface PremiumCardProps {
+  onGetPremium?: () => void;
+}
+
+export const PremiumCard: React.FC<PremiumCardProps> = ({ onGetPremium }) => {
+  const { isPremium, isLifetime, daysRemaining, loading } = usePremium();
 
   const handleClick = () => {
-    navigate('/premium');
+    sounds.click(1000, 0.2);
+    if (onGetPremium) {
+      onGetPremium();
+    } else {
+      // Fallback: попытка открыть через событие или магазин
+      const event = new CustomEvent('openPaywall');
+      window.dispatchEvent(event);
+    }
   };
+
+  const statusInfo = useMemo(() => {
+    if (loading) {
+      return {
+        title: 'Загрузка...',
+        description: 'Проверка статуса',
+        badge: null,
+      };
+    }
+    
+    if (isLifetime) {
+      return {
+        title: 'Premium Forever',
+        description: 'Пожизненный доступ ко всем функциям',
+        badge: 'Forever',
+      };
+    }
+    
+    if (isPremium) {
+      if (daysRemaining !== null && daysRemaining > 0 && daysRemaining < 30) {
+        return {
+          title: 'Premium активен',
+          description: `Осталось ${daysRemaining} ${daysRemaining === 1 ? 'день' : daysRemaining < 5 ? 'дня' : 'дней'}`,
+          badge: `${daysRemaining}д`,
+        };
+      }
+      return {
+        title: 'Premium активен',
+        description: 'Все функции доступны',
+        badge: null,
+      };
+    }
+    
+    return {
+      title: 'Разблокировать все',
+      description: 'Доступ к 5,000+ тестам и безлимитные возможности',
+      badge: null,
+    };
+  }, [isPremium, isLifetime, daysRemaining, loading]);
 
   return (
     <div 
@@ -25,23 +74,33 @@ export const PremiumCard: React.FC = () => {
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex justify-between items-start">
            <div className="flex items-center gap-2">
-              <Crown size={20} className="text-yellow-400 fill-yellow-400" />
-              <span className="text-xs font-bold text-yellow-500 tracking-[0.3em] uppercase">Premium Pass</span>
+              {isLifetime ? (
+                <Sparkles size={20} className="text-yellow-400 fill-yellow-400" />
+              ) : (
+                <Crown size={20} className="text-yellow-400 fill-yellow-400" />
+              )}
+              <span className="text-xs font-bold text-yellow-500 tracking-[0.3em] uppercase">
+                {isLifetime ? 'Forever' : 'Premium Pass'}
+              </span>
            </div>
-           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
-             <ChevronRight size={16} className="text-white" />
+           <div className="flex items-center gap-2">
+             {statusInfo.badge && (
+               <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400">
+                 {statusInfo.badge}
+               </span>
+             )}
+             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+               <ChevronRight size={16} className="text-white" />
+             </div>
            </div>
         </div>
 
         <div>
-           <h3 className="text-2xl font-bold text-white mb-1">
-             {isPremium ? 'Premium активен' : 'Разблокировать все'}
+           <h3 className="text-xl md:text-2xl font-bold text-white mb-1 leading-tight">
+             {statusInfo.title}
            </h3>
-           <p className="text-slate-400 text-sm">
-             {isPremium 
-               ? 'Все функции доступны' 
-               : 'Доступ к 5,000+ тестам и безлимитные возможности.'
-             }
+           <p className="text-slate-400 text-xs md:text-sm leading-relaxed">
+             {statusInfo.description}
            </p>
         </div>
       </div>

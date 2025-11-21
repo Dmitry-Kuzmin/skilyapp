@@ -45,6 +45,7 @@ export function useDashboardData() {
 
   const refreshData = useCallback(async (force = false) => {
     if (!profileId) {
+      console.warn('[useDashboardData] No profileId provided');
       setLoading(false);
       return;
     }
@@ -53,12 +54,14 @@ export function useDashboardData() {
     const cached = dashboardCache[profileId];
     const now = Date.now();
     if (!force && cached && (now - cached.timestamp) < CACHE_DURATION) {
+      console.log('[useDashboardData] Using cached data');
       setData(cached.data);
       setLoading(false);
       setError(null);
       return;
     }
 
+    console.log('[useDashboardData] Starting data fetch', { profileId, force });
     setLoading(true);
     setError(null);
 
@@ -70,7 +73,12 @@ export function useDashboardData() {
 
       if (statsError) {
         // Если RPC функция не найдена, используем fallback (старые запросы)
-        console.warn('[useDashboardData] RPC function not found, using fallback:', statsError);
+        console.warn('[useDashboardData] RPC function error, using fallback:', {
+          code: statsError.code,
+          message: statsError.message,
+          details: statsError.details,
+          hint: statsError.hint,
+        });
         
         // Fallback: делаем запросы по старинке
         const [profileResult, sessionsResult, bonusResult] = await Promise.all([
@@ -92,9 +100,18 @@ export function useDashboardData() {
             .maybeSingle(),
         ]);
 
-        if (profileResult.error) throw profileResult.error;
-        if (sessionsResult.error) throw sessionsResult.error;
-        if (bonusResult.error) throw bonusResult.error;
+        if (profileResult.error) {
+          console.error('[useDashboardData] Profile error:', profileResult.error);
+          throw profileResult.error;
+        }
+        if (sessionsResult.error) {
+          console.error('[useDashboardData] Sessions error:', sessionsResult.error);
+          throw sessionsResult.error;
+        }
+        if (bonusResult.error) {
+          console.error('[useDashboardData] Bonus error:', bonusResult.error);
+          throw bonusResult.error;
+        }
 
         const profile = profileResult.data;
         if (!profile) {
@@ -175,9 +192,18 @@ export function useDashboardData() {
           .limit(90),
       ]);
 
-      if (tasksResult.error) throw tasksResult.error;
-      if (achievementsResult.error) throw achievementsResult.error;
-      if (rewardsResult.error) throw rewardsResult.error;
+      if (tasksResult.error) {
+        console.error('[useDashboardData] Tasks error:', tasksResult.error);
+        throw tasksResult.error;
+      }
+      if (achievementsResult.error) {
+        console.error('[useDashboardData] Achievements error:', achievementsResult.error);
+        throw achievementsResult.error;
+      }
+      if (rewardsResult.error) {
+        console.error('[useDashboardData] Rewards error:', rewardsResult.error);
+        throw rewardsResult.error;
+      }
 
       const result: DashboardData = {
         ...stats,
@@ -189,9 +215,30 @@ export function useDashboardData() {
       // Сохраняем в кэш
       dashboardCache[profileId] = { data: result, timestamp: now };
       setData(result);
+      console.log('[useDashboardData] ✅ Data loaded successfully:', {
+        profileId,
+        hasData: !!result,
+        testsCompleted: result.stats.tests_completed,
+        xp: result.profile.xp,
+      });
     } catch (err) {
-      console.error('[useDashboardData] Error loading data:', err);
-      setError(err instanceof Error ? err : new Error('Failed to load dashboard data'));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorDetails = err instanceof Error ? {
+        name: err.name,
+        stack: err.stack,
+      } : {};
+      
+      console.error('[useDashboardData] ❌ Error loading data:', {
+        profileId,
+        error: errorMessage,
+        ...errorDetails,
+        fullError: err,
+      });
+      
+      setError(err instanceof Error ? err : new Error(`Failed to load dashboard data: ${errorMessage}`));
+      
+      // Устанавливаем null данные, чтобы показать состояние ошибки
+      setData(null);
     } finally {
       setLoading(false);
     }

@@ -35,3 +35,4 @@ dist-ssr
 
 # Telegram Bot Token (не коммитить!)
 # TELEGRAM_BOT_TOKEN должен быть в .env.local
+.vercel

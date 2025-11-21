@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Flame, Award } from 'lucide-react';
+import { sounds } from '@/lib/sounds';
 
 interface DailyRewardsProps {
   currentStreak: number;
@@ -11,16 +12,24 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [isClaiming, setIsClaiming] = useState(false);
 
   const handleClaim = async () => {
+    if (hasClaimedToday || isClaiming) return;
+    
+    sounds.click(1000, 0.2);
     setIsClaiming(true);
     try {
       await onClaim();
+      sounds.click(1200, 0.15); // Success sound
     } finally {
       setTimeout(() => setIsClaiming(false), 1000);
     }
   };
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference } = useMemo(() => {
-    const wp = (currentStreak % 7) || 7;
+    // Вычисляем прогресс в текущей неделе (от 1 до 7)
+    // Если стрик 0, то прогресс 0
+    // Если стрик кратен 7 (7, 14, 21...), то прогресс 7 (неделя завершена)
+    // Иначе: остаток от деления на 7 (1-6 дней в текущей неделе)
+    const wp = currentStreak === 0 ? 0 : (currentStreak % 7 === 0 ? 7 : currentStreak % 7);
     const pp = (wp / 7) * 100;
     const r = 50;
     const circ = 2 * Math.PI * r;
