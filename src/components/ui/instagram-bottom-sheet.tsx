@@ -35,39 +35,22 @@ export function InstagramBottomSheet({
   className,
 }: InstagramBottomSheetProps) {
   const isMobile = useIsMobile();
-  const contentRef = React.useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
 
   const collapsedHeight = snapPoints[0] ?? '60vh';
   const expandedHeight = snapPoints[1] ?? '92vh';
-  const targetHeight = isExpanded ? expandedHeight : collapsedHeight;
-  const [currentHeight, setCurrentHeight] = React.useState(targetHeight);
-  
-  React.useEffect(() => {
-    // Плавная интерполяция высоты
-    setCurrentHeight(targetHeight);
-  }, [targetHeight]);
 
+  // Плавно расширяем лист один раз после открытия, без отслеживания скролла
   React.useEffect(() => {
     if (!open) {
       setIsExpanded(initialSnap > 0);
+      return;
     }
-  }, [open, initialSnap]);
 
-  const handleMobileScroll = React.useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      const scrollTop = event.currentTarget.scrollTop;
-      // Когда пользователь скроллит вниз, плавно расширяем
-      if (!isExpanded && scrollTop > 24) {
-        setIsExpanded(true);
-      }
-      // Если пользователь прокручивает в начало, возвращаем компактную высоту
-      if (isExpanded && scrollTop < 8) {
-        setIsExpanded(false);
-      }
-    },
-    [isExpanded]
-  );
+    setIsExpanded(initialSnap > 0);
+    const timer = window.setTimeout(() => setIsExpanded(true), 80);
+    return () => window.clearTimeout(timer);
+  }, [open, initialSnap]);
 
   if (isMobile) {
     return (
@@ -80,9 +63,10 @@ export function InstagramBottomSheet({
             className
           )}
           style={{
-            height: currentHeight,
-            transition: "height 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
-            maxHeight: "92vh",
+            height: isExpanded ? expandedHeight : collapsedHeight,
+            transform: `translateY(${isExpanded ? '0px' : '12px'})`,
+            maxHeight: expandedHeight,
+            transition: "height 0.26s ease-out, transform 0.26s ease-out",
           }}
         >
           <div className="flex justify-center pt-3 pb-2">
@@ -96,9 +80,7 @@ export function InstagramBottomSheet({
           )}
 
           <div
-            ref={contentRef}
             className="flex-1 overflow-y-auto px-6 py-4"
-            onScroll={handleMobileScroll}
           >
             {children}
           </div>
