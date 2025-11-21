@@ -14,6 +14,7 @@ import { RankBadge, RankIcon, RankFrame, getRankFromLevel, type RankType } from 
 import { motion } from "framer-motion";
 import { LeaderboardRewardsModal } from "@/components/leaderboard/LeaderboardRewardsModal";
 import { useNavigate } from "react-router-dom";
+import { useModalRoute } from "@/hooks/useModalRoute";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -232,6 +233,7 @@ const renderAvatarWithCosmetics = (
 const DuelPassLeaderboard = () => {
   const { profileId, user } = useUserContext();
   const navigate = useNavigate();
+  const { openModal } = useModalRoute('hall-of-fame');
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [userPositionData, setUserPositionData] = useState<UserPositionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -372,7 +374,7 @@ const DuelPassLeaderboard = () => {
             <div className="flex items-center justify-center gap-4 mt-4">
               <Button
                 variant="outline"
-                onClick={() => navigate("/hall-of-fame")}
+                onClick={() => openModal()}
                 className="gap-2"
               >
                 <Trophy className="w-4 h-4" />

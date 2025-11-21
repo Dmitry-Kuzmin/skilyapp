@@ -63,6 +63,7 @@ const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const DuelPassLeaderboard = lazy(() => import("./pages/DuelPassLeaderboard"));
 const HallOfFame = lazy(() => import("./pages/HallOfFame"));
+const HallOfFameModal = lazy(() => import("./components/HallOfFameModal").then((module) => ({ default: module.HallOfFameModal })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
@@ -196,6 +197,10 @@ const App = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+            </Suspense>
+            {/* Модалки, доступные на всех страницах */}
+            <Suspense fallback={null}>
+              <HallOfFameModal />
             </Suspense>
           </BrowserRouter>
         </CosmeticsPreviewProvider>
