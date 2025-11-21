@@ -31,20 +31,22 @@ const Index = () => {
   const navigate = useNavigate();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  
+  // Показываем прелоадер только при первом открытии приложения
+  const [showWelcome, setShowWelcome] = useState(() => {
+    // Проверяем, был ли уже показан прелоадер
+    if (typeof window !== 'undefined') {
+      const hasSeenWelcome = localStorage.getItem('has_seen_welcome');
+      return !hasSeenWelcome; // Показываем только если еще не видели
+    }
+    return true;
+  });
 
   // Get dashboard data with caching
   const { data: dashboardData, loading, error, refresh: refreshDashboard, invalidateCache } = useDashboardData();
   
   // Get exam readiness
   const { readiness, metrics, loading: readinessLoading } = useExamReadiness(profileId);
-
-  useEffect(() => {
-    if (isAuthenticated && profileId) {
-      // Reset welcome screen when user logs in
-      setShowWelcome(true);
-    }
-  }, [isAuthenticated, profileId]);
 
   useEffect(() => {
     if (isTrial && daysRemaining <= 1) {
@@ -197,6 +199,10 @@ const Index = () => {
   // Handle welcome screen completion
   const handleWelcomeComplete = () => {
     setShowWelcome(false);
+    // Сохраняем флаг, что прелоадер уже был показан
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('has_seen_welcome', 'true');
+    }
   };
 
   const handleStartTest = () => {
