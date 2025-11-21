@@ -152,6 +152,92 @@ const HallOfFame = () => {
             </p>
           </header>
 
+          {/* Дополнительный контент для тестирования макета */}
+          <section className="grid gap-6 md:grid-cols-2">
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <Crown className="w-5 h-5 text-yellow-500" />
+                <h3 className="text-xl font-bold">Как попасть в Зал славы?</h3>
+              </div>
+              <p className="text-muted-foreground">
+                Секрет прост: стабильно держи высокий темп прокачки Duel Pass, выполняй
+                ежедневные задания и не пропускай сезонные события. Чем больше твоё
+                финальное место и уровень, тем выше шанс оказаться среди легенд.
+              </p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>• Тренируйся ежедневно, чтобы не выпадать из топ-10</li>
+                <li>• Используй бусты опыта и сезонные наборы</li>
+                <li>• Следи за уведомлениями о двойном XP</li>
+              </ul>
+            </Card>
+
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
+                <h3 className="text-xl font-bold">Мини-аналитика сезонов</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl border p-3">
+                  <p className="text-muted-foreground">Средний уровень топ-3</p>
+                  <p className="text-2xl font-black text-emerald-500">24</p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <p className="text-muted-foreground">Максимальное XP</p>
+                  <p className="text-2xl font-black text-primary">1.2M</p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <p className="text-muted-foreground">Средний прогресс</p>
+                  <p className="text-2xl font-black text-sky-500">87%</p>
+                </div>
+                <div className="rounded-xl border p-3">
+                  <p className="text-muted-foreground">Игроков с легендарным титулом</p>
+                  <p className="text-2xl font-black text-rose-500">42</p>
+                </div>
+              </div>
+            </Card>
+          </section>
+
+          <section className="grid gap-6 lg:grid-cols-3">
+            <Card className="p-6">
+              <h4 className="text-lg font-semibold mb-3">FAQ</h4>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div>
+                  <p className="font-medium text-foreground">Сколько длится один сезон?</p>
+                  <p>В среднем 6–8 недель. Но бывают короткие «ивент-сезоны».</p>
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Можно ли вернуться после падения?</p>
+                  <p>Да! Даже если ты выпал из топа, достаточно серии побед, чтобы вернуться.</p>
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Что получают чемпионы?</p>
+                  <p>Редкие скины, повышенный рейтинг профиля и упоминание в Hall of Fame.</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 lg:col-span-2">
+              <h4 className="text-lg font-semibold mb-4">«Маршрут чемпиона»</h4>
+              <div className="flex flex-col gap-4">
+                {[
+                  { title: "Старт сезона", desc: "Быстро закрывай первые уровни задачами на 15–20 минут в день." },
+                  { title: "Середина", desc: "Подключай командные ивенты, чтобы получить +25% к набранному опыту." },
+                  { title: "Финиш", desc: "Фокус на метриках: XP, winrate, streak. Любое падение компенсируй бустами." },
+                ].map((step, index) => (
+                  <div key={step.title} className="flex items-start gap-3">
+                    <span className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">
+                      {index + 1}
+                    </span>
+                    <div>
+                      <p className="font-semibold">{step.title}</p>
+                      <p className="text-sm text-muted-foreground">{step.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </section>
+
           {/* Фильтр по сезонам */}
           {seasons.length > 0 && (
             <div className="flex flex-wrap gap-2 justify-center">
