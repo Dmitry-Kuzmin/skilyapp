@@ -1,9 +1,7 @@
-import { memo, useEffect, useMemo, useState, useCallback } from "react";
-import type { UIEvent } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -297,7 +295,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
   const [unlockedReward, setUnlockedReward] = useState<any | null>(null);
   const [showPremiumSelector, setShowPremiumSelector] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState(false);
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
@@ -405,23 +402,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   }, [open, profileId, activeSeason]);
 
-  useEffect(() => {
-    if (!open) {
-      setMobileExpanded(false);
-    }
-  }, [open]);
-
-  const handleMobileScroll = useCallback(
-    (event: UIEvent<HTMLDivElement>) => {
-      if (!isMobile) return;
-      const target = event.currentTarget;
-      const shouldExpand = target.scrollTop > 8;
-      setMobileExpanded(shouldExpand);
-    },
-    [isMobile]
-  );
-
-  const mobileSheetHeight = mobileExpanded ? "92vh" : "80vh";
 
   useEffect(() => {
     if (!rewards.length) return;
@@ -896,28 +876,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   // Skeleton контент для загрузки
   const SkeletonContent = () => (
     <>
-      {/* Header Skeleton */}
-      {isMobile ? (
-        <SheetHeader className="px-4 pt-2 pb-4 border-b">
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
+      <div className={cn("border-b", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-48" />
           </div>
-        </SheetHeader>
-      ) : (
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-          </div>
-        </DialogHeader>
-      )}
+        </div>
+      </div>
 
       <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
         {/* Progress Skeleton */}
@@ -994,74 +961,88 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     return specials.slice(0, 3);
   }, [rewards]);
 
-  if (!activeSeason || !seasonProgress) {
-    // Показываем skeleton если еще загружается, иначе показываем ошибку
-    if (loading) {
-      return (
-        <>
-          {isMobile ? (
-            <Sheet open={open} onOpenChange={onOpenChange}>
-              <SheetContent 
-                side="bottom" 
-                className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-500 ease-out"
-                style={{
-                  height: mobileSheetHeight,
-                  maxHeight: mobileSheetHeight,
-                  transition: "height 0.45s cubic-bezier(0.25,0.8,0.25,1), max-height 0.45s cubic-bezier(0.25,0.8,0.25,1)"
-                }}
-                hideCloseButton
-              >
-                <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
-                <SheetDescription className="sr-only">Loading Duel Pass Season information</SheetDescription>
-                <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
-                  <div className="w-12 h-1 bg-black/40 rounded-full" />
-                </div>
-                <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleMobileScroll}>
-                  <SkeletonContent />
-                </div>
-              </SheetContent>
-            </Sheet>
-          ) : (
-            <Dialog open={open} onOpenChange={onOpenChange}>
-              <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] overflow-hidden flex flex-col p-0">
-                <DialogTitle className="sr-only">Duel Pass Season</DialogTitle>
-                <DialogDescription className="sr-only">Loading Duel Pass Season information</DialogDescription>
-                <div className="flex-1 overflow-y-auto">
-                  <SkeletonContent />
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </>
-      );
-    }
-    
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[95vw] max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{dp("title")}</DialogTitle>
-            <DialogDescription>{dp("migration.description")}</DialogDescription>
-          </DialogHeader>
-          <div className="text-center py-12 space-y-4">
-            <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
-            <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-              <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
-              <p className="text-xs mb-2">
-                {dp("migration.warningDescription")}
-              </p>
-              <ol className="text-xs list-decimal list-inside space-y-1 text-left">
-                <li>{dp("migration.steps.0")}</li>
-                <li>
-                  {dp("migration.steps.1")}{" "}
-                  <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
-                </li>
-                <li>{dp("migration.steps.2")}</li>
-              </ol>
-            </div>
+  const renderModalShell = (content: React.ReactNode, title?: string, description?: string) => (
+    <UnifiedModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title || dp("title")}
+      showTitleBar={false}
+      className="w-[95vw] max-w-5xl max-h-[85vh] p-0 flex flex-col"
+    >
+      <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0 sm:hidden">
+        <div className="w-12 h-1 bg-black/40 rounded-full" />
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        {description && (
+          <div className="px-6 pt-4 pb-2 border-b border-border/40">
+            <p className="text-sm text-muted-foreground">{description}</p>
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+        {content}
+      </div>
+    </UnifiedModal>
+  );
+
+  if (!activeSeason || !seasonProgress) {
+    const fallbackContent = loading ? (
+      <SkeletonContent />
+    ) : (
+      <div className="text-center py-12 space-y-4 px-6">
+        <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
+        <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+          <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
+          <p className="text-xs mb-2">
+            {dp("migration.warningDescription")}
+          </p>
+          <ol className="text-xs list-decimal list-inside space-y-1 text-left">
+            <li>{dp("migration.steps.0")}</li>
+            <li>
+              {dp("migration.steps.1")}{" "}
+              <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
+            </li>
+            <li>{dp("migration.steps.2")}</li>
+          </ol>
+        </div>
+      </div>
+    );
+
+    return (
+      <>
+        {renderModalShell(fallbackContent, dp("title"), dp("migration.description"))}
+        <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+        {premiumRewardPreview && (
+          <PremiumRewardUpsell
+            open={!!premiumRewardPreview}
+            onOpenChange={(open) => {
+              if (!open) setPremiumRewardPreview(null);
+            }}
+            reward={premiumRewardPreview}
+            onGetPremium={() => {
+              setShowPaywall(true);
+              setPremiumRewardPreview(null);
+            }}
+          />
+        )}
+        {unlockedReward && (
+          <RewardUnlockAnimation
+            open={!!unlockedReward}
+            onOpenChange={(open) => {
+              if (!open) setUnlockedReward(null);
+            }}
+            reward={unlockedReward}
+          />
+        )}
+        <PremiumPlanSelector
+          open={showPremiumSelector}
+          onOpenChange={(open) => {
+            setShowPremiumSelector(open);
+            if (!open) {
+              loadSeasonData(true);
+            }
+          }}
+          triggerSource="duel_pass"
+        />
+      </>
     );
   }
 
@@ -1279,87 +1260,47 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     return (
     <>
       {/* Упрощенный Header */}
-      {isMobile ? (
-        <SheetHeader className="px-4 pt-2 pb-4 border-b text-left">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-              <Trophy className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <SheetTitle className="text-xl font-bold text-left">{dp("title")}</SheetTitle>
-              <SheetDescription className="text-xs mt-0.5 flex items-center gap-2">
-                <span>{activeSeason.name_ru}</span>
-                <span>·</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
-                </span>
-              </SheetDescription>
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                    onClick={() => {
-                      onOpenChange(false);
-                      navigate("/duel-pass-leaderboard");
-                    }}
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    <span className="text-xs font-medium">Лидеры</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Таблица лидеров сезона</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+      <div className={cn("border-b text-left", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
+            <Trophy className="w-5 h-5 text-white" />
           </div>
-        </SheetHeader>
-      ) : (
-        <DialogHeader className="px-6 pt-6 pb-4 border-b text-left">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-              <Trophy className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <DialogTitle className="text-xl font-bold text-left">{dp("title")}</DialogTitle>
-              <DialogDescription className="text-xs mt-0.5 flex items-center gap-2">
-                <span>{activeSeason.name_ru}</span>
-                <span>·</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
-                </span>
-              </DialogDescription>
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                    onClick={() => {
-                      onOpenChange(false);
-                      navigate("/duel-pass-leaderboard");
-                    }}
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    <span className="text-xs font-medium">Таблица лидеров</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Посмотреть рейтинг участников сезона</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl font-bold">{dp("title")}</h2>
+            <p className="text-xs mt-0.5 flex items-center gap-2 text-muted-foreground">
+              <span>{activeSeason.name_ru}</span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
+              </span>
+            </p>
           </div>
-        </DialogHeader>
-      )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                  onClick={() => {
+                    onOpenChange(false);
+                    navigate("/duel-pass-leaderboard");
+                  }}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span className="text-xs font-medium">
+                    {isMobile ? "Лидеры" : "Таблица лидеров"}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isMobile ? "Таблица лидеров сезона" : "Посмотреть рейтинг участников сезона"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
 
       <div className={cn("space-y-6", isMobile ? "px-4 py-4" : "px-6 py-6")}>
         {/* Сезонный hero блок */}
@@ -1974,82 +1915,40 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   return (
     <>
-      {/* Модалка для десктопа, Sheet для мобилки */}
-      {isMobile ? (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-          <SheetContent 
-            side="bottom" 
-            className="overflow-hidden flex flex-col p-0 transition-[height,max-height] duration-500 ease-out"
-            style={{
-              height: mobileSheetHeight,
-              maxHeight: mobileSheetHeight,
-              transition: "height 0.45s cubic-bezier(0.25,0.8,0.25,1), max-height 0.45s cubic-bezier(0.25,0.8,0.25,1)"
-            }}
-            hideCloseButton
-          >
-            <SheetTitle className="sr-only">Duel Pass Season</SheetTitle>
-            <SheetDescription className="sr-only">Duel Pass Season information and rewards</SheetDescription>
-            {/* Handle для свайпа */}
-            <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
-              <div className="w-12 h-1 bg-black/40 rounded-full" />
-            </div>
-            <div className="flex-1 min-h-0 overflow-y-auto" onScroll={handleMobileScroll}>
-              <ModalContent />
-            </div>
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="w-[95vw] max-w-5xl max-h-[85vh] p-0 !flex !flex-col !gap-0 overflow-hidden" style={{ height: '85vh', maxHeight: '85vh' }}>
-            <DialogTitle className="sr-only">Duel Pass Season</DialogTitle>
-            <DialogDescription className="sr-only">Duel Pass Season information and rewards</DialogDescription>
-            <div className="flex-1 min-h-0 overflow-y-auto" style={{ flex: '1 1 0%', minHeight: 0 }}>
-              <ModalContent />
-            </div>
-          </DialogContent>
-        </Dialog>
+      {renderModalShell(<ModalContent />)}
+      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+      {premiumRewardPreview && (
+        <PremiumRewardUpsell
+          open={!!premiumRewardPreview}
+          onOpenChange={(open) => {
+            if (!open) setPremiumRewardPreview(null);
+          }}
+          reward={premiumRewardPreview}
+          onGetPremium={() => {
+            setShowPaywall(true);
+            setPremiumRewardPreview(null);
+          }}
+        />
       )}
-
-    <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
-    
-    {/* Premium Reward Upsell Modal */}
-    {premiumRewardPreview && (
-      <PremiumRewardUpsell
-        open={!!premiumRewardPreview}
+      {unlockedReward && (
+        <RewardUnlockAnimation
+          open={!!unlockedReward}
+          onOpenChange={(open) => {
+            if (!open) setUnlockedReward(null);
+          }}
+          reward={unlockedReward}
+        />
+      )}
+      <PremiumPlanSelector
+        open={showPremiumSelector}
         onOpenChange={(open) => {
-          if (!open) setPremiumRewardPreview(null);
+          setShowPremiumSelector(open);
+          if (!open) {
+            loadSeasonData(true);
+          }
         }}
-        reward={premiumRewardPreview}
-        onGetPremium={() => {
-          setShowPaywall(true);
-          setPremiumRewardPreview(null);
-        }}
+        triggerSource="duel_pass"
       />
-    )}
-    
-    {/* Reward Unlock Animation */}
-    {unlockedReward && (
-      <RewardUnlockAnimation
-        open={!!unlockedReward}
-        onOpenChange={(open) => {
-          if (!open) setUnlockedReward(null);
-        }}
-        reward={unlockedReward}
-      />
-    )}
-
-    {/* Premium Plan Selector */}
-    <PremiumPlanSelector
-      open={showPremiumSelector}
-      onOpenChange={(open) => {
-        setShowPremiumSelector(open);
-        if (!open) {
-          // Перезагружаем данные после закрытия селектора
-          loadSeasonData(true);
-        }
-      }}
-      triggerSource="duel_pass"
-    />
     </>
   );
 }
