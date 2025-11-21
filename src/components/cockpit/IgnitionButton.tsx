@@ -17,10 +17,14 @@ export function IgnitionButton({
   className,
 }: IgnitionButtonProps) {
   const playClickSound = () => {
-    const clickSound = new Audio("/sounds/click.mp3").catch(() => {});
-    if (clickSound instanceof HTMLAudioElement) {
+    try {
+      const clickSound = new Audio("/sounds/click.mp3");
       clickSound.volume = 0.3;
-      clickSound.play().catch(() => {});
+      clickSound.play().catch(() => {
+        // Audio autoplay blocked or file not found - ignore
+      });
+    } catch (error) {
+      // Audio creation failed - ignore
     }
   };
 
