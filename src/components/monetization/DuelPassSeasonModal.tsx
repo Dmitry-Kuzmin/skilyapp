@@ -304,8 +304,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
   const route = useModalRoute('duel-pass-season');
-  // Модалка открыта, если открыта через prop ИЛИ через URL
-  const isOpen = open || route.isOpen;
+  // Передаем open prop напрямую в UnifiedModal, он сам синхронизирует с URL
   const handleOpenChange = (state: boolean) => {
     if (onOpenChange) onOpenChange(state);
     if (state) {
@@ -417,20 +416,22 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   // }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
 
   useEffect(() => {
+    const isOpen = open || route.isOpen;
     if (isOpen && profileId) {
       loadSeasonData();
     }
-  }, [isOpen, profileId]);
+  }, [open, route.isOpen, profileId]);
 
   // Автообновление данных каждые 30 секунд когда модалка открыта (тихое обновление без показа loading)
   useEffect(() => {
+    const isOpen = open || route.isOpen;
     if (isOpen && profileId && activeSeason) {
       const interval = setInterval(() => {
         loadSeasonData(true); // true = тихое обновление
       }, 30000); // Увеличено до 30 секунд
       return () => clearInterval(interval);
     }
-  }, [isOpen, profileId, activeSeason]);
+  }, [open, route.isOpen, profileId, activeSeason]);
 
 
   useEffect(() => {
@@ -998,7 +999,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     options?: { showHandle?: boolean; contentClassName?: string; loading?: boolean }
   ) => (
     <UnifiedModal
-      open={isOpen}
+      open={open}
       onOpenChange={handleOpenChange}
       title={title || dp("title")}
       showTitleBar={false}

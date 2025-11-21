@@ -55,48 +55,54 @@ export function UnifiedModal({
   const routeIsOpen = route?.isOpen;
   const routeOpenModal = route?.openModal;
   const routeCloseModal = route?.closeModal;
+  
   // Модалка открыта, если открыта через prop ИЛИ через URL
   const resolvedOpen = modalRouteKey ? (open || !!routeIsOpen) : open;
   const renderContent = loading
     ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
     : children;
   
-  const isSyncingRef = React.useRef(false);
+  const prevOpenRef = React.useRef(open);
+  const prevRouteIsOpenRef = React.useRef(routeIsOpen);
   
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
       if (modalRouteKey) {
-        isSyncingRef.current = true;
         if (state) {
           routeOpenModal?.();
         } else {
           routeCloseModal?.();
         }
-        // Сбрасываем флаг после небольшой задержки
-        setTimeout(() => {
-          isSyncingRef.current = false;
-        }, 100);
       }
       onOpenChange(state);
+      prevOpenRef.current = state;
     },
     [modalRouteKey, routeOpenModal, routeCloseModal, onOpenChange]
   );
 
-  // Синхронизация: если open меняется извне, обновляем URL
+  // Синхронизация: если open prop меняется извне, обновляем URL
   React.useEffect(() => {
-    if (!modalRouteKey || isSyncingRef.current) return;
-    if (open && !routeIsOpen) {
-      routeOpenModal?.();
-    } else if (!open && routeIsOpen) {
-      routeCloseModal?.();
+    if (!modalRouteKey) return;
+    if (open !== prevOpenRef.current) {
+      prevOpenRef.current = open;
+      if (open && !routeIsOpen) {
+        routeOpenModal?.();
+      } else if (!open && routeIsOpen) {
+        routeCloseModal?.();
+      }
     }
   }, [modalRouteKey, open, routeIsOpen, routeOpenModal, routeCloseModal]);
 
-  // Синхронизация: если URL меняется (прямой переход), обновляем open prop
+  // Синхронизация: если URL меняется (прямой переход), обновляем open prop только если он не был явно установлен
   React.useEffect(() => {
-    if (!modalRouteKey || isSyncingRef.current) return;
-    if (routeIsOpen !== open) {
-      onOpenChange(!!routeIsOpen);
+    if (!modalRouteKey) return;
+    if (routeIsOpen !== prevRouteIsOpenRef.current) {
+      prevRouteIsOpenRef.current = routeIsOpen;
+      // Обновляем prop только если он отличается от URL состояния
+      if (routeIsOpen !== open) {
+        onOpenChange(!!routeIsOpen);
+        prevOpenRef.current = !!routeIsOpen;
+      }
     }
   }, [modalRouteKey, routeIsOpen, onOpenChange, open]);
 
