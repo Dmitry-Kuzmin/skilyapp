@@ -109,6 +109,14 @@ const rewardTypeVisuals: Record<
     defaultSubtitle: "",
     subtitleKey: "duelPass.rewardTypes.sticker.subtitle",
   },
+  trophy: {
+    label: "",
+    labelKey: "duelPass.rewardTypes.trophy.label",
+    icon: Trophy,
+    color: "#fcd34d",
+    defaultSubtitle: "",
+    subtitleKey: "duelPass.rewardTypes.trophy.subtitle",
+  },
 };
 
 const seasonThemes: Record<

@@ -391,6 +391,7 @@ const translations: Record<Language, Record<string, any>> = {
         badge: { label: "Insignia", subtitle: "Colección de logros" },
         boost: { label: "Impulso", subtitle: "Acelera el progreso" },
         sticker: { label: "Sticker", subtitle: "Expresiones en duelos" },
+        trophy: { label: "Trofeo", subtitle: "Reconocimiento exclusivo" },
       },
       fallbackRewardName: "Recompensa",
       countdown: {
@@ -410,7 +411,9 @@ const translations: Record<Language, Record<string, any>> = {
         levelsRemaining: "Quedan {{count}} niveles para completar el pase",
       },
       progress: {
-        seasonPoints: "Season Points",
+        currentLevelLabel: "Nivel actual",
+        seasonPointsLabel: "SP actuales",
+        seasonPoints: "Puntos de temporada",
         summary: "Total {{total}} SP",
         nextLevel: "Próximo nivel en {{sp}} SP",
         toNext: "{{sp}} SP para el nivel {{level}}",
@@ -966,6 +969,7 @@ const translations: Record<Language, Record<string, any>> = {
         badge: { label: "Badge", subtitle: "Achievement collection" },
         boost: { label: "Boost", subtitle: "Speed up your progress" },
         sticker: { label: "Sticker", subtitle: "Express yourself in duels" },
+        trophy: { label: "Trophy", subtitle: "Exclusive accolade" },
       },
       fallbackRewardName: "Reward",
       countdown: {
@@ -985,6 +989,8 @@ const translations: Record<Language, Record<string, any>> = {
         levelsRemaining: "{{count}} levels until full pass",
       },
       progress: {
+        currentLevelLabel: "Current level",
+        seasonPointsLabel: "Current SP",
         seasonPoints: "Season Points",
         summary: "Total {{total}} SP",
         nextLevel: "Next level in {{sp}} SP",
@@ -1541,6 +1547,7 @@ const translations: Record<Language, Record<string, any>> = {
         badge: { label: "Бейдж", subtitle: "Коллекция достижений" },
         boost: { label: "Буст", subtitle: "Ускорение прогресса" },
         sticker: { label: "Стикер", subtitle: "Эмоции в дуэлях" },
+        trophy: { label: "Трофей", subtitle: "Эксклюзивная награда" },
       },
       fallbackRewardName: "Награда",
       countdown: {
@@ -1560,7 +1567,9 @@ const translations: Record<Language, Record<string, any>> = {
         levelsRemaining: "Осталось {{count}} уровней до полного пропуска",
       },
       progress: {
-        seasonPoints: "Season Points",
+        currentLevelLabel: "Текущий уровень",
+        seasonPointsLabel: "Текущие SP",
+        seasonPoints: "Сезонные очки",
         summary: "Всего {{total}} SP",
         nextLevel: "След. уровень через {{sp}} SP",
         toNext: "{{sp}} SP до уровня {{level}}",

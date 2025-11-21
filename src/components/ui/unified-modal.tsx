@@ -4,6 +4,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { ModalSkeleton, type ModalSkeletonVariant } from "@/components/ui/modal-skeleton";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useModalRoute } from "@/hooks/useModalRoute";
 
 interface UnifiedModalProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface UnifiedModalProps {
   className?: string;
   contentClassName?: string;
   showHandle?: boolean;
+  modalRouteKey?: string;
 }
 
 /**
@@ -46,11 +48,38 @@ export function UnifiedModal({
   className,
   contentClassName,
   showHandle = true,
+  modalRouteKey,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
+  const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
+  const routeIsOpen = route?.isOpen;
+  const routeOpenModal = route?.openModal;
+  const routeCloseModal = route?.closeModal;
+  const resolvedOpen = modalRouteKey ? !!routeIsOpen : open;
   const renderContent = loading
     ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
     : children;
+  const handleOpenChange = React.useCallback(
+    (state: boolean) => {
+      if (modalRouteKey) {
+        if (state) {
+          routeOpenModal?.();
+        } else {
+          routeCloseModal?.();
+        }
+      }
+      onOpenChange(state);
+    },
+    [modalRouteKey, routeOpenModal, routeCloseModal, onOpenChange]
+  );
+
+  React.useEffect(() => {
+    if (!modalRouteKey) return;
+    if ((!!routeIsOpen) !== open) {
+      onOpenChange(!!routeIsOpen);
+    }
+  }, [modalRouteKey, routeIsOpen, onOpenChange, open]);
+
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
   const rafRef = React.useRef<number>();
 
@@ -59,7 +88,7 @@ export function UnifiedModal({
 
   // Плавно расширяем лист один раз после открытия, без отслеживания скролла
   React.useEffect(() => {
-    if (!open) {
+    if (!resolvedOpen) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       setIsExpanded(initialSnap > 0);
       return;
@@ -70,13 +99,13 @@ export function UnifiedModal({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [open, initialSnap]);
+  }, [resolvedOpen, initialSnap]);
 
   const shouldShowHandle = isMobile && showHandle;
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet open={resolvedOpen} onOpenChange={handleOpenChange}>
         <SheetContent
           side="bottom"
           hideCloseButton={hideCloseButton}
@@ -92,8 +121,8 @@ export function UnifiedModal({
           }}
         >
           {shouldShowHandle && (
-            <div className="flex justify-center pt-2 pb-1 sticky top-0 bg-background z-10 shrink-0">
-              <div className="w-12 h-1 bg-black/40 rounded-full" />
+            <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 bg-gradient-to-b from-background via-background/95 to-background/0 backdrop-blur-md border-b border-white/5">
+              <div className="w-12 h-1.5 rounded-full bg-foreground/20 shadow-[0_2px_6px_rgba(15,23,42,0.35)]" />
             </div>
           )}
           {title && showTitleBar && (
@@ -117,7 +146,7 @@ export function UnifiedModal({
 
   // На десктопе используем обычный Dialog (центрированный)
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
       <DialogContent 
         className={cn("max-w-4xl max-h-[90vh] p-0 flex flex-col", className)}
         autoAccessibility={false}
