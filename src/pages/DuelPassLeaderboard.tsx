@@ -545,13 +545,13 @@ const DuelPassLeaderboard = () => {
                 </div>
 
                 {/* Карточки игроков */}
-                <div className="w-full max-w-5xl mx-auto flex flex-nowrap gap-3 md:gap-4 lg:gap-6 px-2 md:px-4 overflow-x-auto md:overflow-visible pb-4 scrollbar-hide">
+                <div className="w-full max-w-5xl mx-auto flex flex-nowrap gap-2 sm:gap-3 md:gap-4 lg:gap-6 px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-4 overflow-visible">
                   {/* 2 место - Серебро */}
                   <motion.div
                     initial={{ opacity: 0, y: 50, scale: 0.9 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 15 }}
-                    className="order-2 md:order-1 flex-shrink-0 min-w-[240px] sm:min-w-[280px] md:min-w-0 md:flex-1"
+                    className="order-2 md:order-1 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-slate-50 via-slate-100/80 to-slate-50 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 border border-slate-200/40 dark:border-slate-700/40 shadow-xl hover:shadow-2xl transition-all duration-300 group">
                       {/* Серебряный градиентный фон */}
@@ -655,7 +655,7 @@ const DuelPassLeaderboard = () => {
                     initial={{ opacity: 0, y: -30, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 12 }}
-                    className="order-1 md:order-2 -mt-6 md:-mt-12 lg:-mt-16 flex-shrink-0 min-w-[260px] sm:min-w-[320px] md:min-w-0 md:flex-1"
+                    className="order-1 md:order-2 -mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/90 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 border border-yellow-300/50 dark:border-yellow-500/30 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
                       {/* Золотой градиентный фон */}
@@ -837,7 +837,7 @@ const DuelPassLeaderboard = () => {
                     initial={{ opacity: 0, y: 50, scale: 0.9 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ delay: 0.3, type: "spring", stiffness: 150, damping: 15 }}
-                    className="order-3 flex-shrink-0 min-w-[240px] sm:min-w-[280px] md:min-w-0 md:flex-1"
+                    className="order-3 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-orange-50 via-amber-50/80 to-orange-50 dark:from-orange-950/40 dark:via-amber-950/40 dark:to-orange-950/40 border border-orange-200/40 dark:border-orange-500/30 shadow-xl hover:shadow-2xl transition-all duration-300 group">
                       {/* Бронзовый градиентный фон */}
