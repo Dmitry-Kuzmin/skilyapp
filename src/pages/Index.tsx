@@ -445,7 +445,7 @@ const Index = () => {
               <motion.div variants={itemVariants}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                   {/* Daily Tasks - Priority 1 */}
-                  {dailyTasks.length > 0 && (
+                  {dailyTasks.length > 0 ? (
                     <Card className="p-5 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300 group">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
@@ -509,10 +509,10 @@ const Index = () => {
                         )}
                       </div>
                     </Card>
-                  )}
+                  ) : null}
 
                   {/* Daily Bonus - Priority 2 */}
-                  {dailyBonus && (
+                  {dailyBonus ? (
                     <Card className="p-5 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5 backdrop-blur-xl border border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
                       <div className="relative">
@@ -581,7 +581,7 @@ const Index = () => {
                         </motion.div>
                       </div>
                     </Card>
-                  )}
+                  ) : null}
 
                   {/* Progress Summary - Priority 3 */}
                   <Card className="p-5 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
