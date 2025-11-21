@@ -43,47 +43,6 @@ const DialogContent = React.forwardRef<
   const isMobile = useIsMobile();
   const config = getModalConfig(modalType);
   const sizeConfig = isMobile ? config.mobile : config.desktop;
-  
-  // Проверяем, есть ли DialogTitle и DialogDescription в children
-  // Используем более надежную проверку через поиск по всем вложенным элементам
-  const childrenArray = React.Children.toArray(children);
-  const hasTitle = React.useMemo(() => {
-    const findTitle = (nodes: React.ReactNode[]): boolean => {
-      for (const node of nodes) {
-        if (React.isValidElement(node)) {
-          // Проверяем displayName компонента
-          if (node.type && (node.type as any).displayName === DialogPrimitive.Title.displayName) {
-            return true;
-          }
-          // Проверяем вложенные children
-          if (node.props?.children) {
-            const nested = React.Children.toArray(node.props.children);
-            if (findTitle(nested)) return true;
-          }
-        }
-      }
-      return false;
-    };
-    return findTitle(childrenArray);
-  }, [childrenArray]);
-  
-  const hasDescription = React.useMemo(() => {
-    const findDescription = (nodes: React.ReactNode[]): boolean => {
-      for (const node of nodes) {
-        if (React.isValidElement(node)) {
-          if (node.type && (node.type as any).displayName === DialogPrimitive.Description.displayName) {
-            return true;
-          }
-          if (node.props?.children) {
-            const nested = React.Children.toArray(node.props.children);
-            if (findDescription(nested)) return true;
-          }
-        }
-      }
-      return false;
-    };
-    return findDescription(childrenArray);
-  }, [childrenArray]);
 
   // На мобильных используем bottom sheet стиль
   if (isMobile) {
@@ -120,12 +79,12 @@ const DialogContent = React.forwardRef<
           {/* Индикатор для свайпа */}
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-muted-foreground/30 rounded-full z-10" />
           
-          {/* Автоматически добавляем скрытые элементы доступности, если их нет */}
-          {autoAccessibility && !hasTitle && (
-            <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
-          )}
-          {autoAccessibility && !hasDescription && (
-            <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+          {/* Автоматически добавляем скрытые элементы доступности */}
+          {autoAccessibility && (
+            <>
+              <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+            </>
           )}
           
           {children}
@@ -170,12 +129,12 @@ const DialogContent = React.forwardRef<
         )}
         {...props}
       >
-        {/* Автоматически добавляем скрытые элементы доступности, если их нет */}
-        {autoAccessibility && !hasTitle && (
-          <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
-        )}
-        {autoAccessibility && !hasDescription && (
-          <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+        {/* Автоматически добавляем скрытые элементы доступности */}
+        {autoAccessibility && (
+          <>
+            <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
+            <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+          </>
         )}
         
         {children}

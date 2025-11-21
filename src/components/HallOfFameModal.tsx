@@ -35,6 +35,11 @@ export function HallOfFameModal() {
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
   const [seasons, setSeasons] = useState<Array<{ id: number; season_number: number; name_ru: string }>>([]);
 
+  // Отладка
+  useEffect(() => {
+    console.log('[HallOfFameModal] isOpen:', isOpen);
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       loadSeasons();
