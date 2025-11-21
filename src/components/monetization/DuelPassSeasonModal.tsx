@@ -11,9 +11,10 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, type LucideIcon } from "lucide-react";
+import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
 import { PaywallModal } from "./PaywallModal";
 import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
@@ -1295,18 +1296,27 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 </span>
               </SheetDescription>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 shrink-0"
-              onClick={() => {
-                onOpenChange(false);
-                navigate("/duel-pass-leaderboard");
-              }}
-              title="Таблица лидеров"
-            >
-              <Award className="w-4 h-4" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                    onClick={() => {
+                      onOpenChange(false);
+                      navigate("/duel-pass-leaderboard");
+                    }}
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    <span className="text-xs font-medium">Лидеры</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Таблица лидеров сезона</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </SheetHeader>
       ) : (
@@ -1326,18 +1336,27 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 </span>
               </DialogDescription>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 shrink-0"
-              onClick={() => {
-                onOpenChange(false);
-                navigate("/duel-pass-leaderboard");
-              }}
-              title="Таблица лидеров"
-            >
-              <Award className="w-4 h-4" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
+                    onClick={() => {
+                      onOpenChange(false);
+                      navigate("/duel-pass-leaderboard");
+                    }}
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    <span className="text-xs font-medium">Таблица лидеров</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Посмотреть рейтинг участников сезона</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </DialogHeader>
       )}
