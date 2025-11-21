@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState, useCallback } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
@@ -274,11 +274,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const isMobile = useIsMobile();
   const { openModal: openLeaderboardModal } = useModalRoute('duel-pass-leaderboard');
   const dateLocale = localeMap[language] || "en-US";
-  const dp = useCallback(
+  const dp = React.useCallback(
     (path: string, params?: Record<string, string | number>) => t(`duelPass.${path}`, params),
     [t]
   );
-  const walletText = useCallback(
+  const walletText = React.useCallback(
     (path: string, params?: Record<string, string | number>) => t(`wallet.${path}`, params),
     [t]
   );
@@ -299,12 +299,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
 
-  const formatSeasonDate = useCallback((date: Date | null) => {
+  const formatSeasonDate = React.useCallback((date: Date | null) => {
     if (!date) return "—";
     return date.toLocaleDateString(dateLocale, { day: "2-digit", month: "long" });
   }, [dateLocale]);
 
-  const getRarityLabel = useCallback(
+  const getRarityLabel = React.useCallback(
     (rarity?: string) => {
       if (!rarity) return undefined;
       const key = rarityLabelKeys[rarity];
