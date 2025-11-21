@@ -56,7 +56,13 @@ const Index = () => {
 
 
   const handleClaimBonus = async () => {
-    if (!dashboardData?.daily_bonus || !profileId) return;
+    if (!dashboardData?.daily_bonus || !profileId) {
+      console.error('[handleClaimBonus] Missing data:', { 
+        hasDailyBonus: !!dashboardData?.daily_bonus, 
+        profileId 
+      });
+      return;
+    }
 
     try {
       setClaimingBonus(true);
@@ -65,28 +71,50 @@ const Index = () => {
       
       const dailyBonus = dashboardData.daily_bonus;
       
+      // Проверяем, можно ли получить награду
+      if (!dailyBonus.can_claim) {
+        toast({
+          title: "Уже получено",
+          description: "Сегодняшняя награда уже получена",
+          variant: "default",
+        });
+        return;
+      }
+
       // Вычисляем новый стрик (до 90 дней)
       let newStreak = 1;
       if (dailyBonus.last_claimed_date === yesterday) {
         newStreak = Math.min((dailyBonus.current_streak || 0) + 1, 90);
+      } else if (dailyBonus.last_claimed_date === today) {
+        // Уже получено сегодня
+        toast({
+          title: "Уже получено",
+          description: "Сегодняшняя награда уже получена",
+          variant: "default",
+        });
+        return;
       }
 
       // Получаем награду текущего дня
       const currentReward = dashboardData.weeklyRewards.find(r => r.day_number === newStreak);
-      if (!currentReward) throw new Error('Reward not found');
+      if (!currentReward) {
+        console.error('[handleClaimBonus] Reward not found for streak:', newStreak);
+        throw new Error('Reward not found');
+      }
 
       // Обновляем или создаём user_daily_bonus
+      let bonusUpdateError = null;
       if (dailyBonus.id) {
-      const { error: bonusError } = await (supabase as any)
-        .from('user_daily_bonus')
-        .update({
-          current_streak: newStreak,
-          last_claimed_date: today,
-          total_claims: dailyBonus.total_claims + 1,
-        })
-        .eq('id', dailyBonus.id);
+        const { error: bonusError } = await (supabase as any)
+          .from('user_daily_bonus')
+          .update({
+            current_streak: newStreak,
+            last_claimed_date: today,
+            total_claims: (dailyBonus.total_claims || 0) + 1,
+          })
+          .eq('id', dailyBonus.id);
 
-      if (bonusError) throw bonusError;
+        bonusUpdateError = bonusError;
       } else {
         const { error: bonusError } = await (supabase as any)
           .from('user_daily_bonus')
@@ -97,52 +125,79 @@ const Index = () => {
             total_claims: 1,
           });
 
-        if (bonusError) throw bonusError;
+        bonusUpdateError = bonusError;
       }
 
-      await supabase.functions.invoke('coins-earn', {
-        body: { user_id: profileId, reward_type: 'daily_login' },
-      });
-
-      // Начисляем Season Points за ежедневный вход
-      await supabase.functions.invoke('season-sp', {
-        body: { 
-          user_id: profileId, 
-          source_type: 'daily_login',
-          metadata: { streak_days: newStreak }
-        },
-      });
-
-      const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
-        body: { user_id: profileId, source_type: 'daily_login' },
-      });
-      if (xpData?.level_up) {
-        const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
-          body: { trigger: 'duel_pass_level_up' },
-        });
-        const message = suggestion?.suggestion?.message;
-        if (message) {
-          toast({
-            title: "Duel Pass",
-            description: message,
-          });
-        }
+      if (bonusUpdateError) {
+        console.error('[handleClaimBonus] Error updating daily_bonus:', bonusUpdateError);
+        throw bonusUpdateError;
       }
 
-      await supabase
+      // Обновляем XP сразу (без ожидания Edge Functions)
+      const { error: xpError } = await supabase
         .from('profiles')
         .update({
-          xp: (dashboardData.profile.xp || 0) + currentReward.reward.xp,
+          xp: (dashboardData.profile.xp || 0) + (currentReward.reward.xp || 0),
         })
         .eq('id', profileId);
 
-      // Инвалидируем кэш для обновления данных
-      invalidateCache();
-      await refreshDashboard(true);
+      if (xpError) {
+        console.error('[handleClaimBonus] Error updating XP:', xpError);
+        // Не прерываем выполнение, продолжаем
+      }
 
+      // Вызываем Edge Functions асинхронно (без ожидания - они могут быть медленными)
+      // Продолжаем выполнение даже если функции не ответили
+      Promise.allSettled([
+        supabase.functions.invoke('coins-earn', {
+          body: { user_id: profileId, reward_type: 'daily_login' },
+        }).catch(err => {
+          console.warn('[handleClaimBonus] coins-earn error (non-blocking):', err);
+        }),
+        supabase.functions.invoke('season-sp', {
+          body: { 
+            user_id: profileId, 
+            source_type: 'daily_login',
+            metadata: { streak_days: newStreak }
+          },
+        }).catch(err => {
+          console.warn('[handleClaimBonus] season-sp error (non-blocking):', err);
+        }),
+        supabase.functions.invoke('duel-pass-xp', {
+          body: { user_id: profileId, source_type: 'daily_login' },
+        }).then(({ data: xpData }) => {
+          if (xpData?.level_up) {
+            supabase.functions.invoke('assistant-suggest', {
+              body: { trigger: 'duel_pass_level_up' },
+            }).then(({ data: suggestion }) => {
+              const message = suggestion?.suggestion?.message;
+              if (message) {
+                toast({
+                  title: "Duel Pass",
+                  description: message,
+                });
+              }
+            }).catch(err => {
+              console.warn('[handleClaimBonus] assistant-suggest error:', err);
+            });
+          }
+        }).catch(err => {
+          console.warn('[handleClaimBonus] duel-pass-xp error (non-blocking):', err);
+        }),
+      ]);
+
+      // Инвалидируем кэш и обновляем данные
+      invalidateCache();
+      
+      // Показываем успешное сообщение сразу
       toast({
         title: "🎉 Награда получена!",
-        description: `+${currentReward.reward.xp} XP${currentReward.reward.coins > 0 ? `, +${currentReward.reward.coins} монет` : ""}`,
+        description: `+${currentReward.reward.xp || 0} XP${currentReward.reward.coins > 0 ? `, +${currentReward.reward.coins} монет` : ""}`,
+      });
+
+      // Обновляем данные в фоне (не блокируем UI)
+      refreshDashboard(true).catch(err => {
+        console.error('[handleClaimBonus] Error refreshing dashboard:', err);
       });
 
       // Специальные уведомления для вех
