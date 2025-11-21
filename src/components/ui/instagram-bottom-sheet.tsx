@@ -1,13 +1,8 @@
 import * as React from "react";
-import { Drawer } from "vaul";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const DrawerPortal = Drawer.Portal;
-const DrawerTitle = Drawer.Title;
-const DrawerDescription = Drawer.Description;
 
 interface InstagramBottomSheetProps {
   open: boolean;
@@ -35,100 +30,66 @@ export function InstagramBottomSheet({
   children,
   title,
   hideCloseButton = false,
-  snapPoints = ['55%', '95%'],
+  snapPoints = ['60vh', '92vh'],
   initialSnap = 0,
   className,
 }: InstagramBottomSheetProps) {
   const isMobile = useIsMobile();
   const contentRef = React.useRef<HTMLDivElement>(null);
-  const [snapIndex, setSnapIndex] = React.useState(initialSnap);
-  const drawerRef = React.useRef<HTMLDivElement>(null);
+  const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
 
-  // Отладка
-  React.useEffect(() => {
-    console.log('[InstagramBottomSheet] open:', open, 'isMobile:', isMobile);
-  }, [open, isMobile]);
+  const collapsedHeight = snapPoints[0] ?? '60vh';
+  const expandedHeight = snapPoints[1] ?? '92vh';
+  const currentHeight = isExpanded ? expandedHeight : collapsedHeight;
 
-  // Расширение при скролле
-  React.useEffect(() => {
-    if (!contentRef.current || snapIndex === snapPoints.length - 1 || !isMobile) return;
-    
-    const handleScroll = () => {
-      const scrollTop = contentRef.current?.scrollTop || 0;
-      // Если пользователь начал скроллить и модалка не развернута
-      if (scrollTop > 10 && snapIndex === 0) {
-        // Плавно расширяем до максимума
-        setSnapIndex(1);
-      }
-    };
-    
-    const content = contentRef.current;
-    content?.addEventListener('scroll', handleScroll, { passive: true });
-    return () => content?.removeEventListener('scroll', handleScroll);
-  }, [snapIndex, snapPoints.length, isMobile]);
-
-  // Сброс snapIndex при закрытии
   React.useEffect(() => {
     if (!open) {
-      setSnapIndex(initialSnap);
+      setIsExpanded(initialSnap > 0);
     }
   }, [open, initialSnap]);
 
-  // На мобильных используем Vaul Drawer
+  const handleMobileScroll = React.useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = event.currentTarget.scrollTop;
+    if (!isExpanded && scrollTop > 16) {
+      setIsExpanded(true);
+    }
+  }, [isExpanded]);
+
   if (isMobile) {
     return (
-      <Drawer.Root 
-        open={open} 
-        onOpenChange={onOpenChange} 
-        snapPoints={snapPoints}
-        activeSnapPoint={snapIndex}
-        onSnapPointChange={(index) => {
-          if (typeof index === 'number') {
-            setSnapIndex(index);
-          }
-        }}
-      >
-        <DrawerPortal>
-          <Drawer.Overlay className="fixed inset-0 z-[2147483647] bg-black/80" />
-          <Drawer.Content
-            ref={drawerRef}
-            className={cn(
-              "fixed inset-x-0 bottom-0 z-[2147483647] mt-24 flex flex-col rounded-t-[20px] border-t bg-background",
-              "focus:outline-none",
-              className
-            )}
-          >
-            {/* Индикатор для свайпа */}
-            <div className="mx-auto mt-4 h-1.5 w-12 rounded-full bg-muted-foreground/30" />
-            
-          {/* Скрытые элементы доступности для Radix */}
-          <DrawerTitle className="sr-only">{title || "Модальное окно"}</DrawerTitle>
-          <DrawerDescription className="sr-only">Содержимое модального окна</DrawerDescription>
-          
-            {/* Заголовок */}
-            {title && (
-              <div className="px-6 pt-4 pb-2 border-b shrink-0">
-                <h2 className="text-xl font-bold">{title}</h2>
-              </div>
-            )}
-            
-            {/* Контент с скроллом */}
-            <div 
-              ref={contentRef}
-              className="flex-1 overflow-y-auto px-6 py-4 min-h-0"
-            >
-              {children}
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          side="bottom"
+          hideCloseButton={hideCloseButton}
+          className={cn(
+            "p-0 border-none bg-background rounded-t-[24px] flex flex-col shadow-[0_-16px_40px_rgba(15,23,42,0.25)]",
+            className
+          )}
+          style={{
+            height: currentHeight,
+            transition: "height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+            maxHeight: "92vh",
+          }}
+        >
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+          </div>
+
+          {title && (
+            <div className="px-6 pb-3 border-b border-border/50">
+              <h2 className="text-xl font-bold">{title}</h2>
             </div>
-            
-            {!hideCloseButton && (
-              <Drawer.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
-                <X className="h-5 w-5" />
-                <span className="sr-only">Close</span>
-              </Drawer.Close>
-            )}
-          </Drawer.Content>
-        </DrawerPortal>
-      </Drawer.Root>
+          )}
+
+          <div
+            ref={contentRef}
+            className="flex-1 overflow-y-auto px-6 py-4"
+            onScroll={handleMobileScroll}
+          >
+            {children}
+          </div>
+        </SheetContent>
+      </Sheet>
     );
   }
 
