@@ -208,7 +208,12 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShopOpen(true)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('[WalletWidget] Coins button clicked, opening shop');
+              setShopOpen(true);
+            }}
             className="h-8 px-1.5 md:px-2 gap-1 md:gap-1.5 hover:bg-muted/50"
           >
             <Coins className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" />

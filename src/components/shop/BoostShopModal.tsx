@@ -69,6 +69,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const route = useModalRoute('boost-shop');
   const isOpen = open || route.isOpen;
   const handleOpenChange = (state: boolean) => {
+    console.log('[BoostShopModal] handleOpenChange called:', { state, open, routeIsOpen: route.isOpen });
     if (onOpenChange) onOpenChange(state);
     if (state) {
       route.openModal();
@@ -76,6 +77,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       route.closeModal();
     }
   };
+  
+  useEffect(() => {
+    console.log('[BoostShopModal] State changed:', { open, isOpen, routeIsOpen: route.isOpen });
+  }, [open, isOpen, route.isOpen]);
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const showStarsPayment = isTelegramMiniApp();
   const [boosts, setBoosts] = useState<Boost[]>([]);
