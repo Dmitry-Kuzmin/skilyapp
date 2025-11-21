@@ -211,7 +211,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('[WalletWidget] Coins button clicked, opening shop');
               setShopOpen(true);
             }}
             className="h-8 px-1.5 md:px-2 gap-1 md:gap-1.5 hover:bg-muted/50"
@@ -230,8 +229,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         ) : duelPassData ? (
           <button
             onClick={() => {
-              console.log('[WalletWidget] Mobile Duel Pass button clicked, opening modal');
-                setDuelPassModalOpen(true);
+              setDuelPassModalOpen(true);
             }}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
             title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}
@@ -263,8 +261,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         {!isLoading && duelPassData && (
           <button
             onClick={() => {
-              console.log('[WalletWidget] Duel Pass button clicked, opening modal');
-                setDuelPassModalOpen(true);
+              setDuelPassModalOpen(true);
             }}
             className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}

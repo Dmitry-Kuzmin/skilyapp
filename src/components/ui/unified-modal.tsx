@@ -63,12 +63,12 @@ export function UnifiedModal({
     : children;
   
   const prevOpenRef = React.useRef(open);
-  const prevRouteIsOpenRef = React.useRef(routeIsOpen);
+  const prevRouteIsOpenRef = React.useRef(!!routeIsOpen);
   const isUpdatingFromPropRef = React.useRef(false);
+  const isUpdatingFromRouteRef = React.useRef(false);
   
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
-      onOpenChange(state);
       if (modalRouteKey) {
         isUpdatingFromPropRef.current = true;
         if (state) {
@@ -79,55 +79,60 @@ export function UnifiedModal({
         // Сбрасываем флаг после обновления URL
         setTimeout(() => {
           isUpdatingFromPropRef.current = false;
-        }, 100);
+        }, 50);
       }
+      onOpenChange(state);
     },
     [modalRouteKey, routeOpenModal, routeCloseModal, onOpenChange]
   );
 
+  // Инициализация refs только при первом монтировании modalRouteKey
+  React.useEffect(() => {
+    if (modalRouteKey) {
+      prevRouteIsOpenRef.current = !!routeIsOpen ?? false;
+      prevOpenRef.current = open ?? false;
+    }
+  }, [modalRouteKey]);
+
   // Синхронизация: если open prop меняется извне, обновляем URL
   React.useEffect(() => {
-    if (!modalRouteKey) return;
-    if (open !== prevOpenRef.current) {
-      const wasOpen = prevOpenRef.current;
-      prevOpenRef.current = open;
+    if (!modalRouteKey || isUpdatingFromRouteRef.current) return;
+    const currentOpen = !!open;
+    const currentRouteIsOpen = !!routeIsOpen;
+    
+    if (currentOpen !== prevOpenRef.current) {
+      prevOpenRef.current = currentOpen;
       isUpdatingFromPropRef.current = true;
       
-      if (open && !routeIsOpen) {
-        // Открываем через URL
+      if (currentOpen && !currentRouteIsOpen) {
         routeOpenModal?.();
-        // Обновляем prevRouteIsOpenRef, чтобы второй эффект не сработал
         prevRouteIsOpenRef.current = true;
-      } else if (!open && routeIsOpen) {
-        // Закрываем через URL
+      } else if (!currentOpen && currentRouteIsOpen) {
         routeCloseModal?.();
-        // Обновляем prevRouteIsOpenRef, чтобы второй эффект не сработал
         prevRouteIsOpenRef.current = false;
       }
       
-      // Сбрасываем флаг после небольшой задержки
       setTimeout(() => {
         isUpdatingFromPropRef.current = false;
-      }, 150);
+      }, 50);
     }
   }, [modalRouteKey, open, routeIsOpen, routeOpenModal, routeCloseModal]);
-
-  // Инициализация prevRouteIsOpenRef
-  React.useEffect(() => {
-    if (modalRouteKey) {
-      prevRouteIsOpenRef.current = routeIsOpen;
-    }
-  }, [modalRouteKey]);
 
   // Синхронизация: если URL меняется (прямой переход), обновляем open prop
   React.useEffect(() => {
     if (!modalRouteKey || isUpdatingFromPropRef.current) return;
-    // Обновляем prop только если URL изменился независимо от prop
-    if (routeIsOpen !== prevRouteIsOpenRef.current) {
-      prevRouteIsOpenRef.current = routeIsOpen;
-      if (routeIsOpen !== open) {
-        onOpenChange(!!routeIsOpen);
-        prevOpenRef.current = !!routeIsOpen;
+    const currentRouteIsOpen = !!routeIsOpen;
+    const currentOpen = !!open;
+    
+    if (currentRouteIsOpen !== prevRouteIsOpenRef.current) {
+      prevRouteIsOpenRef.current = currentRouteIsOpen;
+      if (currentRouteIsOpen !== currentOpen) {
+        isUpdatingFromRouteRef.current = true;
+        onOpenChange(currentRouteIsOpen);
+        prevOpenRef.current = currentRouteIsOpen;
+        setTimeout(() => {
+          isUpdatingFromRouteRef.current = false;
+        }, 50);
       }
     }
   }, [modalRouteKey, routeIsOpen, onOpenChange, open]);
