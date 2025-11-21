@@ -388,20 +388,20 @@ const Index = () => {
                             {userSegment === 'beginner' && "Начни путь к успеху! 🚀"}
                             {userSegment === 'intermediate' && "Продолжай движение! 💪"}
                             {userSegment === 'advanced' && "Становись мастером! ⭐"}
-                          </h1>
-                          {isPremium && (
+                </h1>
+                {isPremium && (
                             <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-none px-3 py-1 text-sm shadow-lg">
                               <Crown className="w-4 h-4 mr-1.5" />
-                              Premium
-                            </Badge>
-                          )}
-                        </div>
+                    Premium
+                  </Badge>
+                )}
+              </div>
                         <p className="text-muted-foreground text-sm md:text-base">
                           {userSegment === 'beginner' && "Каждый тест приближает тебя к цели"}
                           {userSegment === 'intermediate' && "Твоя настойчивость окупается"}
                           {userSegment === 'advanced' && "Ты на пути к совершенству"}
                         </p>
-                      </div>
+                </div>
                       
                       {/* Compact Stats */}
                       <div className="flex items-center gap-4 md:gap-6 flex-wrap">
@@ -409,32 +409,32 @@ const Index = () => {
                           <Target className="w-4 h-4 text-primary" />
                           <span className="text-sm font-semibold">{userStats.testsCompleted}</span>
                           <span className="text-xs text-muted-foreground">тестов</span>
-                        </div>
+                </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50">
                           <Flame className="w-4 h-4 text-orange-500" />
                           <span className="text-sm font-semibold">{userStats.streak}</span>
                           <span className="text-xs text-muted-foreground">дней</span>
-                        </div>
+                </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50">
                           <Trophy className="w-4 h-4 text-yellow-500" />
                           <span className="text-sm font-semibold">{Math.round(progressPercent)}%</span>
                           <span className="text-xs text-muted-foreground">прогресс</span>
-                        </div>
-                      </div>
+              </div>
+            </div>
                     </div>
                     
                     {/* Right: Main CTA */}
                     <div className="flex-shrink-0">
-                      <Button
-                        size="lg"
+            <Button 
+              size="lg" 
                         onClick={() => navigate('/tests')}
                         className="group relative w-full lg:w-auto px-8 py-6 text-lg font-bold bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/40 transition-all duration-300 hover:scale-105"
-                      >
+            >
                         <Play className="w-5 h-5 mr-2 group-hover:translate-x-1 transition-transform" />
                         Начать тест
                         <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </Button>
-                    </div>
+            </Button>
+          </div>
                   </div>
                 </div>
               </div>
@@ -456,8 +456,8 @@ const Index = () => {
                         </div>
                         <Badge variant="secondary" className="text-xs font-semibold">
                           {dailyTasks.filter(t => t.completed).length}/{dailyTasks.length}
-                        </Badge>
-                      </div>
+            </Badge>
+          </div>
                       <div className="space-y-2.5">
                         {dailyTasks.slice(0, 3).map((task, idx) => {
                           const isCompleted = task.completed;
@@ -482,7 +482,7 @@ const Index = () => {
                                 ) : (
                                   <span className="text-xs text-yellow-600 dark:text-yellow-500 font-bold">+{task.reward}💰</span>
                                 )}
-                              </div>
+                      </div>
                               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                 <motion.div
                                   initial={{ width: 0 }}
@@ -492,11 +492,11 @@ const Index = () => {
                                     isCompleted ? "bg-green-500" : "bg-gradient-to-r from-primary to-secondary"
                                   }`}
                                 />
-                              </div>
+                    </div>
                               <div className="flex items-center justify-between mt-1.5 text-xs text-muted-foreground">
                                 <span>{task.progress}/{task.max_progress}</span>
                                 <span className="font-medium">{Math.round(progressPercent)}%</span>
-                              </div>
+                  </div>
                             </motion.div>
                           );
                         })}
@@ -507,8 +507,8 @@ const Index = () => {
                             </Button>
                           </Link>
                         )}
-                      </div>
-                    </Card>
+                </div>
+              </Card>
                   ) : null}
 
                   {/* Daily Bonus - Priority 2 */}
@@ -520,7 +520,7 @@ const Index = () => {
                           <div className="flex items-center gap-2">
                             <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`}>
                               <Flame className="w-5 h-5 text-primary-foreground" />
-                            </div>
+          </div>
                             <div>
                               <h3 className="text-lg font-bold">Бонус</h3>
                               <p className="text-xs text-muted-foreground">Серия: {dailyBonus.current_streak || 0} дней</p>
@@ -532,7 +532,7 @@ const Index = () => {
                             <Flame className={`w-3 h-3 mr-1 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500' : ''}`} />
                             {dailyBonus.current_streak || 0}
                           </Badge>
-                        </div>
+        </div>
 
                         {canClaimBonus && weeklyRewards.find(r => r.day_number === ((dailyBonus.current_streak || 0) + 1)) && (
                           <div className="mb-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
@@ -577,9 +577,9 @@ const Index = () => {
                                 Завтра
                               </>
                             )}
-                          </Button>
+                </Button>
                         </motion.div>
-                      </div>
+              </div>
                     </Card>
                   ) : null}
 
@@ -588,17 +588,17 @@ const Index = () => {
                     <div className="flex items-center gap-2 mb-4">
                       <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                         <TrendingUp className="w-5 h-5 text-primary" />
-                      </div>
+                  </div>
                       <h3 className="text-lg font-bold">Прогресс</h3>
-                    </div>
+                </div>
                     <div className="space-y-4">
-                      <div>
+                  <div>
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm text-muted-foreground">Ранг</span>
                           <span className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                             {userStats.rank}
                           </span>
-                        </div>
+                  </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
@@ -606,7 +606,7 @@ const Index = () => {
                             transition={{ duration: 0.8 }}
                             className="h-full bg-gradient-to-r from-primary to-secondary"
                           />
-                        </div>
+                </div>
                         <div className="flex items-center justify-between mt-1.5 text-xs text-muted-foreground">
                           <span>{userStats.xp.toLocaleString()} XP</span>
                           <span>До {userStats.nextRankXP.toLocaleString()} XP</span>
@@ -639,11 +639,11 @@ const Index = () => {
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                           <Target className="w-5 h-5 text-primary" />
                         </div>
-                        <div>
+                  <div>
                           <p className="text-xs text-muted-foreground mb-0.5">Точность</p>
                           <p className="text-xl font-bold">{userStats.accuracy}%</p>
-                        </div>
-                      </div>
+                  </div>
+                </div>
                       <Badge variant="secondary" className="text-xs">+3%</Badge>
                     </div>
                   </Card>
@@ -658,13 +658,13 @@ const Index = () => {
                         <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
                           <BookOpen className="w-5 h-5 text-secondary" />
                         </div>
-                        <div>
+                  <div>
                           <p className="text-xs text-muted-foreground mb-0.5">Тестов</p>
                           <p className="text-xl font-bold">{userStats.testsCompleted}</p>
-                        </div>
-                      </div>
+                  </div>
+                </div>
                       <Badge variant="secondary" className="text-xs">+2</Badge>
-                    </div>
+              </div>
                   </Card>
                 </motion.div>
                 <motion.div
@@ -683,25 +683,25 @@ const Index = () => {
                         </div>
                       </div>
                       <Star className="w-4 h-4 text-yellow-500" />
-                    </div>
-                  </Card>
+            </div>
+          </Card>
                 </motion.div>
               </div>
             </motion.div>
 
             {/* Progress Hub - Rank + Exam Readiness */}
-            {!loading && (
+        {!loading && (
               <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 <motion.div
                   whileHover={{ scale: 1.01 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <RankProgress
-                    currentRank={userStats.rank}
-                    currentXP={userStats.xp}
-                    nextRankXP={userStats.nextRankXP}
-                    coins={balance}
-                  />
+          <RankProgress
+            currentRank={userStats.rank}
+            currentXP={userStats.xp}
+            nextRankXP={userStats.nextRankXP}
+            coins={balance}
+          />
                 </motion.div>
                 {profileId && (
                   <motion.div
@@ -720,32 +720,32 @@ const Index = () => {
             </motion.div>
 
             {/* Weekly Road - Full Version */}
-            {!loading && dailyBonus && (
+        {!loading && dailyBonus && (
               <motion.div variants={itemVariants}>
                 <Card className="p-5 md:p-8 bg-gradient-to-br from-card via-card/95 to-card/90 backdrop-blur-xl border-2 border-primary/20 relative overflow-hidden group hover:border-primary/30 transition-all duration-300 shadow-2xl">
                   {/* Animated background elements */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
                   <div className="absolute -top-20 -right-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse" />
                   <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-                  
+            
                   <div className="relative space-y-6">
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
+              {/* Header */}
+              <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-primary via-secondary to-primary flex items-center justify-center shadow-xl shadow-primary/30 group-hover:scale-110 transition-transform ${(dailyBonus.current_streak || 0) >= 7 ? 'animate-pulse' : ''}`}>
                           <Zap className="w-8 h-8 text-primary-foreground" strokeWidth={2.5} />
-                        </div>
-                        <div>
+                  </div>
+                  <div>
                           <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                            Путь водителя 🚗
-                          </h3>
+                      Путь водителя 🚗
+                    </h3>
                           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                            <Flame className={`w-4 h-4 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500 animate-pulse' : 'text-orange-400'}`} />
-                            <span className="font-semibold">{dailyBonus.current_streak || 0}</span> 
-                            <span>из 90 дней</span>
-                          </p>
-                        </div>
-                      </div>
+                      <Flame className={`w-4 h-4 ${(dailyBonus.current_streak || 0) >= 7 ? 'text-orange-500 animate-pulse' : 'text-orange-400'}`} />
+                      <span className="font-semibold">{dailyBonus.current_streak || 0}</span> 
+                      <span>из 90 дней</span>
+                    </p>
+                  </div>
+                </div>
                 
                 {/* Streak Badge */}
                 <div className={`px-4 py-2 rounded-full border-2 ${
@@ -916,16 +916,16 @@ const Index = () => {
                 </Button>
               </div>
 
-                      {/* Link to full page */}
+              {/* Link to full page */}
                       <Link to="/daily-bonus" className="block mt-4">
-                        <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-primary">
-                          Посмотреть все награды →
-                        </Button>
-                      </Link>
-                    </div>
-                  </Card>
+                <Button variant="ghost" size="sm" className="w-full text-muted-foreground hover:text-primary">
+                  Посмотреть все награды →
+                </Button>
+              </Link>
+            </div>
+          </Card>
                 </motion.div>
-              )}
+        )}
 
             {/* Premium Benefits - Modern Design */}
             {!isPremium && (
@@ -940,18 +940,18 @@ const Index = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
                           <Crown className="w-6 h-6 text-yellow-500" />
-                        </div>
+            </div>
                         <div>
                           <h3 className="text-xl md:text-2xl font-bold">Преимущества Premium</h3>
                           <p className="text-sm text-muted-foreground">Открой все возможности</p>
-                        </div>
+                    </div>
                       </div>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button onClick={() => setPaywallOpen(true)} size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-500/90 hover:to-orange-500/90 text-white shadow-lg">
                           Получить Premium
                         </Button>
                       </motion.div>
-                    </div>
+                      </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
                         { icon: Infinity, title: "Безлимитный доступ", desc: "Ко всем тестам и играм", color: "text-primary" },
@@ -971,47 +971,47 @@ const Index = () => {
                           <div>
                             <p className="font-semibold text-sm mb-1">{benefit.title}</p>
                             <p className="text-xs text-muted-foreground">{benefit.desc}</p>
-                          </div>
+                    </div>
                         </motion.div>
                       ))}
-                    </div>
                   </div>
+            </div>
                 </Card>
               </motion.div>
             )}
 
             {/* Achievements - Modern Design */}
-            {!loading && recentAchievements.length > 0 && (
+        {!loading && recentAchievements.length > 0 && (
               <motion.div variants={itemVariants} className="space-y-4">
-                <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
                   <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                     Достижения
                   </h2>
-                  <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild>
                     <Link to="/achievements">Все достижения <ArrowRight className="w-4 h-4 ml-1" /></Link>
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {recentAchievements.map((achievement, idx) => (
                     <motion.div
-                      key={achievement.id}
+                  key={achievement.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.1 }}
                       whileHover={{ scale: 1.02, y: -4 }}
                     >
                       <AchievementCard 
-                        title={achievement.title}
-                        description={achievement.description}
-                        unlocked={achievement.unlocked}
-                        progress={achievement.progress}
-                        maxProgress={achievement.max_progress}
-                      />
+                  title={achievement.title}
+                  description={achievement.description}
+                  unlocked={achievement.unlocked}
+                  progress={achievement.progress}
+                  maxProgress={achievement.max_progress}
+                />
                     </motion.div>
-                  ))}
-                </div>
+              ))}
+            </div>
               </motion.div>
-            )}
+        )}
           </motion.div>
         </div>
       </div>
