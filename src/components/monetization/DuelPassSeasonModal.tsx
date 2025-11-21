@@ -1204,7 +1204,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       <motion.div
         key={`${reward.variant}-${reward.level}-${index}`}
         whileHover={{ scale: 1.03 }}
-        className="relative min-w-[180px] max-w-[220px] rounded-2xl border border-white/10 bg-white/5 p-3 text-white backdrop-blur"
+        className="relative w-full rounded-2xl border border-white/10 bg-white/5 p-3 text-white backdrop-blur sm:min-w-[180px] sm:max-w-[220px]"
       >
         <div className="flex items-center justify-between text-[10px] uppercase tracking-wide text-white/60">
           <span>{reward.variant === "premium" ? "Premium" : "Free"}</span>
@@ -1215,7 +1215,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </div>
         <div className="mt-2 flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-semibold"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-semibold sm:w-12 sm:h-12 w-11 h-11"
             style={{
               background: meta.color
                 ? `linear-gradient(135deg, ${withAlpha(meta.color, "66")}, ${withAlpha(meta.color, "22")})`
