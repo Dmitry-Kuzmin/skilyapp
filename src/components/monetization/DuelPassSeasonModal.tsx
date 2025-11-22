@@ -412,11 +412,11 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     if (open && profileId && !hasLoadedRef.current) {
       hasLoadedRef.current = true;
       loadSeasonData();
-    } else if (!isOpen) {
+    } else if (!open) {
       // Сбрасываем флаг при закрытии для свежих данных при следующем открытии
       hasLoadedRef.current = false;
     }
-  }, [open, route.isOpen, profileId]);
+  }, [open, profileId]);
 
   // Автообновление данных каждые 30 секунд когда модалка открыта (тихое обновление без показа loading)
   useEffect(() => {
