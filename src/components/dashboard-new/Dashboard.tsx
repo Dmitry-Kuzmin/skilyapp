@@ -1,10 +1,11 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { Power, Volume2, Play, Bell, CheckCircle, Star } from 'lucide-react';
 import { DailyRewards } from './DailyRewards';
 import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
 import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
+import { StatsDetailModal } from './StatsDetailModal';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 
 interface DashboardProps {
@@ -40,6 +41,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   readinessStatus
 }) => {
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
+  const [statsModalOpen, setStatsModalOpen] = useState(false);
+  const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'accuracy' | 'streak' | 'coins' | 'level'>('xp');
   
   const handleStartQuiz = () => {
     playClickSound();
@@ -50,6 +53,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setExamReadinessExpanded(expanded);
   };
 
+  const handleStatClick = (statType: 'xp' | 'tests' | 'accuracy' | 'streak' | 'coins' | 'level') => {
+    playClickSound();
+    setSelectedStatType(statType);
+    setStatsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white">
       <div className="max-w-[1370px] mx-auto space-y-6">
@@ -57,11 +66,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Header */}
         <div className="flex items-center gap-3 mb-6 animate-fade-in">
            <div className="text-2xl font-bold text-white">DGT Prep</div>
-           <div className="hidden sm:flex items-center gap-2 text-sm text-slate-400">
-             <span>•</span>
-             <span>Sistema en línea</span>
-             <span>•</span>
-             <span>Licencia B</span>
+           <div className="hidden sm:flex items-center gap-3">
+             {/* Online Status Badge */}
+             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm">
+               <div className="relative">
+                 <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
+                 <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
+               </div>
+               <span className="text-xs font-semibold text-emerald-300">Sistema en línea</span>
+             </div>
+             
+             {/* License Badge */}
+             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 transition-all duration-300">
+               <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+               <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                 Licencia B
+               </span>
+             </div>
            </div>
         </div>
 
@@ -123,15 +144,49 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Bottom section: Stats blocks */}
-              <div className="flex gap-4">
-                <div className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <button
+                  onClick={() => handleStatClick('xp')}
+                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                >
                   <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Опыт</div>
-                  <div className="text-2xl font-bold text-white">{stats.xp || 0} XP</div>
-                </div>
-                <div className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4">
+                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.xp || 0} XP</div>
+                </button>
+                <button
+                  onClick={() => handleStatClick('tests')}
+                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                >
                   <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Всего тестов</div>
-                  <div className="text-2xl font-bold text-white">{stats.testsCompleted}</div>
-                </div>
+                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.testsCompleted}</div>
+                </button>
+                <button
+                  onClick={() => handleStatClick('accuracy')}
+                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                >
+                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Точность</div>
+                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.accuracy}%</div>
+                </button>
+                <button
+                  onClick={() => handleStatClick('streak')}
+                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                >
+                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Серия</div>
+                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.currentStreak} 🔥</div>
+                </button>
+                <button
+                  onClick={() => handleStatClick('coins')}
+                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                >
+                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Монеты</div>
+                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.coins}</div>
+                </button>
+                <button
+                  onClick={() => handleStatClick('level')}
+                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                >
+                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Уровень</div>
+                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.level || 1}</div>
+                </button>
               </div>
             </div>
           </div>
@@ -181,6 +236,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         </div>
       </div>
+
+      {/* Stats Detail Modal */}
+      <StatsDetailModal
+        open={statsModalOpen}
+        onOpenChange={setStatsModalOpen}
+        stats={stats}
+        statType={selectedStatType}
+      />
     </div>
   );
 };
