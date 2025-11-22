@@ -66,9 +66,49 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     // Объединяем refs
     React.useImperativeHandle(ref, () => contentRef.current as any);
 
+    // Сбрасываем состояния свайпа при закрытии модалки другими способами
+    React.useEffect(() => {
+      // Отслеживаем изменения через MutationObserver для data-state
+      if (!contentRef.current || side !== "bottom") return;
+
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'data-state') {
+            const newState = contentRef.current?.getAttribute('data-state');
+            // Если модалка закрылась, сбрасываем все состояния свайпа
+            if (newState === 'closed' && (isDragging || startY !== null || currentY !== null)) {
+              if (contentRef.current) {
+                contentRef.current.style.transform = '';
+                contentRef.current.style.transition = '';
+                contentRef.current.style.touchAction = '';
+              }
+              setStartY(null);
+              setCurrentY(null);
+              setIsDragging(false);
+            }
+          }
+        });
+      });
+
+      observer.observe(contentRef.current, {
+        attributes: true,
+        attributeFilter: ['data-state'],
+      });
+
+      return () => {
+        observer.disconnect();
+      };
+    }, [side, isDragging, startY, currentY]);
+
     // Обработка свайпа для закрытия (только для bottom sheet)
     const handleTouchStart = (e: React.TouchEvent) => {
       if (side !== "bottom") return;
+      
+      // Проверяем, что модалка открыта
+      if (contentRef.current && contentRef.current.getAttribute('data-state') !== 'open') {
+        return;
+      }
+      
       // Проверяем, что свайп начинается от верха sheet (включая индикатор свайпа)
       const touchY = e.touches[0].clientY;
       const rect = contentRef.current?.getBoundingClientRect();
@@ -84,6 +124,15 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
 
     const handleTouchMove = (e: React.TouchEvent) => {
       if (side !== "bottom" || startY === null || !isDragging) return;
+      
+      // Проверяем, что модалка еще открыта
+      if (contentRef.current && contentRef.current.getAttribute('data-state') !== 'open') {
+        // Если модалка уже закрыта, прекращаем обработку
+        setStartY(null);
+        setCurrentY(null);
+        setIsDragging(false);
+        return;
+      }
       
       const currentYPos = e.touches[0].clientY;
       const diff = currentYPos - startY;
@@ -108,28 +157,49 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       
       if (contentRef.current) {
         const threshold = 80; // Порог для закрытия
+        const shouldClose = currentY && currentY > threshold;
         
-        if (currentY && currentY > threshold) {
+        if (shouldClose) {
           // Закрываем sheet через onOpenChange из props
           // Radix UI автоматически обработает это через Sheet.Root
           if (props.onOpenChange) {
+            // Сбрасываем transform перед закрытием, чтобы Radix UI мог правильно анимировать
+            contentRef.current.style.transform = '';
+            contentRef.current.style.transition = '';
+            // Вызываем закрытие
             props.onOpenChange(false);
           }
         } else {
-          // Возвращаем на место с анимацией
-          contentRef.current.style.transform = '';
-          contentRef.current.style.transition = 'transform 0.3s ease-out';
-          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-          if (overlay) {
-            overlay.style.opacity = '0.8';
-            overlay.style.transition = 'opacity 0.3s ease-out';
+          // Возвращаем на место с анимацией только если модалка еще открыта
+          // Проверяем состояние через data-state атрибут
+          const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
+          
+          if (isStillOpen) {
+            // Возвращаем на место с анимацией
+            contentRef.current.style.transform = '';
+            contentRef.current.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            
+            const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+            if (overlay) {
+              overlay.style.opacity = '0.8';
+              overlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+          } else {
+            // Если модалка уже закрыта, просто сбрасываем стили
+            contentRef.current.style.transform = '';
+            contentRef.current.style.transition = '';
           }
         }
         
-        // Восстанавливаем touchAction
-        contentRef.current.style.touchAction = '';
+        // Восстанавливаем touchAction после небольшой задержки, чтобы анимация успела начаться
+        setTimeout(() => {
+          if (contentRef.current) {
+            contentRef.current.style.touchAction = '';
+          }
+        }, 50);
       }
       
+      // Сбрасываем состояния
       setStartY(null);
       setCurrentY(null);
       setIsDragging(false);

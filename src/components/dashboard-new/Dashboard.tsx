@@ -55,8 +55,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex items-center mb-6 animate-fade-in">
+        <div className="flex items-center gap-3 mb-6 animate-fade-in">
            <div className="text-2xl font-bold text-white">DGT Prep</div>
+           <div className="hidden sm:flex items-center gap-2 text-sm text-slate-400">
+             <span>•</span>
+             <span>Sistema en línea</span>
+             <span>•</span>
+             <span>Licencia B</span>
+           </div>
         </div>
 
         {/* BENTO GRID */}
