@@ -66,8 +66,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
             <div className="text-2xl font-bold text-white">DGT Prep</div>
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
              {/* Online Status Badge */}
@@ -84,22 +84,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
                <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
                  Licencia B
-              </span>
-            </div>
-          </div>
+               </span>
+             </div>
+           </div>
           
-          {/* Quick Settings Button */}
+          {/* Quick Settings Button - только иконка */}
           <button
             onClick={() => {
               playClickSound();
               setQuickSettingsOpen(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group"
+            className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group flex items-center justify-center"
+            aria-label="Настройки"
           >
-            <Settings className="w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
-            <span className="text-sm font-medium text-slate-300 group-hover:text-indigo-300 transition-colors hidden sm:inline">
-              Настройки
-            </span>
+            <Settings className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 group-hover:rotate-90 transition-all duration-300" />
           </button>
         </div>
 
