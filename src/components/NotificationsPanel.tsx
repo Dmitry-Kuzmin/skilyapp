@@ -150,9 +150,16 @@ export function NotificationsPanel({
     }
   };
 
+  // Всегда предоставляем onOpenChange для Sheet, даже если он не передан извне
+  const handleSheetOpenChange = (newOpen: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(newOpen);
+    }
+  };
+
   const sheetProps = typeof open === "boolean" && onOpenChange
-    ? { open, onOpenChange }
-    : {};
+    ? { open, onOpenChange: handleSheetOpenChange }
+    : { onOpenChange: handleSheetOpenChange };
 
   const defaultTrigger = (
         <Button variant="ghost" size="icon" className="relative">
