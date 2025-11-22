@@ -55,7 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up auto-rows-min">
           
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
           <div 
@@ -139,8 +139,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
              <SkilyChat />
           </div>
 
-          {/* 4. EXAM READINESS (Col: 1, Row: 1) */}
-          <div className="md:col-span-1 lg:col-span-1">
+          {/* 4. EXAM READINESS (Col: 1, Row: 1) - может расширяться через ExamReadiness showLevels */}
+          <div className="md:col-span-1 lg:col-span-1 lg:row-span-1">
              <ExamReadiness 
                averageScore={stats.averageScore}
                testsCompleted={stats.testsCompleted}

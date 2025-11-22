@@ -230,7 +230,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   };
   
   return (
-    <div className="h-full bg-slate-800/80 backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border border-slate-700 flex flex-col items-center justify-center relative overflow-hidden group hover:border-slate-600 transition-all duration-300">
+    <div className={`bg-slate-800/80 backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border border-slate-700 flex flex-col relative overflow-hidden group hover:border-slate-600 transition-all duration-500 ${
+      showLevels 
+        ? 'h-auto min-h-[600px] xl:min-h-[700px]' 
+        : 'h-full items-center justify-center'
+    }`}>
        {/* Header with Info Icon */}
        <div className="absolute top-6 right-6 z-20">
          <button
@@ -332,7 +336,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
            </div>
            
            {/* Split View: Levels (Left) + Analytics (Right) - простой адаптивный layout */}
-           <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-6 min-h-0">
+           <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-6 min-h-[500px] xl:min-h-[600px]">
              {/* Left Side: Levels - фиксированные пропорции */}
              <div className="flex flex-col w-full xl:w-[45%] xl:min-w-[300px] xl:max-w-[400px]">
                <div className="mb-3">
@@ -340,7 +344,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                </div>
 
                {/* Levels List with Progress Line */}
-               <div className="flex-1 relative flex flex-col justify-between min-h-0 overflow-y-auto">
+               <div className="flex-1 relative flex flex-col justify-between min-h-[400px] overflow-y-auto">
                  {/* Vertical Progress Line (background) */}
                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700/50"></div>
                  
@@ -432,11 +436,12 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
              </div>
              
              {/* Right Side: Analytics - фиксированные пропорции */}
-             <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
+             <div className="flex flex-col flex-1 min-h-[500px] xl:min-h-[600px] w-full xl:min-w-0">
                <div className="mb-3">
                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">TELEMETRÍA AVANZADA</h4>
                </div>
-               <AnalyticsPanel
+               <div className="flex-1 min-h-0 overflow-y-auto">
+                 <AnalyticsPanel
                  trend={analytics?.trend || null}
                  consistency={analytics?.consistency || null}
                  timeToPass={analytics?.timeToPass || null}
@@ -447,6 +452,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                  loading={analyticsLoading}
                  showHeader={false}
                />
+                 </div>
              </div>
            </div>
          </div>
