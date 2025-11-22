@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings, Zap, FileText, Target, Flame, Coins, Trophy } from 'lucide-react';
 import { DailyRewards } from './DailyRewards';
 import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
@@ -164,45 +164,98 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <button
                   onClick={() => handleStatClick('xp')}
-                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Опыт</div>
-                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.xp || 0} XP</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:to-purple-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Zap className="w-4 h-4 text-yellow-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Опыт</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.xp || 0} XP</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => handleStatClick('tests')}
-                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Всего тестов</div>
-                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.testsCompleted}</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-600/0 group-hover:from-blue-500/10 group-hover:to-indigo-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <FileText className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Тестов</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.testsCompleted}</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => handleStatClick('accuracy')}
-                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Точность</div>
-                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.accuracy}%</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-green-600/0 group-hover:from-emerald-500/10 group-hover:to-green-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Target className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Точность</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.accuracy}%</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => handleStatClick('streak')}
-                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Серия</div>
-                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.currentStreak} 🔥</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-red-600/0 group-hover:from-orange-500/10 group-hover:to-red-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-orange-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Серия</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.currentStreak} 🔥</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => handleStatClick('coins')}
-                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Монеты</div>
-                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.coins}</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/0 to-amber-600/0 group-hover:from-yellow-500/10 group-hover:to-amber-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Coins className="w-4 h-4 text-yellow-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Монеты</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.coins}</div>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => handleStatClick('level')}
-                  className="flex-1 rounded-2xl bg-purple-900/30 backdrop-blur-sm border border-white/10 p-4 hover:bg-purple-900/40 hover:border-white/20 transition-all cursor-pointer group"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="text-xs text-white/70 font-medium mb-2 uppercase tracking-wide">Уровень</div>
-                  <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.level || 1}</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-600/0 group-hover:from-purple-500/10 group-hover:to-pink-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Trophy className="w-4 h-4 text-purple-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Уровень</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.level || 1}</div>
+                  </div>
                 </button>
               </div>
             </div>
@@ -253,6 +306,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         </div>
       </div>
+      </div>
 
       {/* Stats Detail Modal */}
       <StatsDetailModal
@@ -270,21 +324,4 @@ export const Dashboard: React.FC<DashboardProps> = ({
     </div>
   );
 };
-
-const AudioButton = React.memo(({ onClick, icon: Icon, color }: { onClick: () => void; icon: React.ComponentType<{ size?: number }>; color: 'indigo' | 'orange' | 'emerald' }) => {
-  const colorClasses = {
-    indigo: 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border-indigo-500/20',
-    orange: 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border-orange-500/20',
-    emerald: 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/20',
-  };
-
-  return (
-    <button 
-      onClick={onClick}
-      className={`flex items-center justify-center p-3 rounded-xl transition-colors border ${colorClasses[color]}`}
-    >
-      <Icon size={16} />
-    </button>
-  );
-});
 
