@@ -336,12 +336,10 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                />
              )}
 
-             {/* Levels Container - равномерное распределение */}
-             <div className="relative h-full flex flex-col justify-between gap-4 sm:gap-6">
+             {/* Levels Container - равномерное распределение по высоте */}
+             <div className="relative h-full flex flex-col justify-between">
                {readinessLevels.map((level, index) => {
                  const isActive = index === currentLevelIndex && !hasNoData;
-                 const isBefore = index < currentLevelIndex;
-                 const isAfter = index > currentLevelIndex;
                  
                  return (
                    <motion.div
@@ -352,14 +350,14 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                        x: showLevels ? 0 : -20 
                      }}
                      transition={{ delay: index * 0.1, duration: 0.4 }}
-                     className="relative flex items-start gap-3 sm:gap-4"
+                     className="relative flex items-start gap-3 sm:gap-4 flex-1 min-h-0"
                    >
                      {/* Dot on Progress Line */}
-                     <div className="relative z-10 flex-shrink-0">
+                     <div className="relative z-10 flex-shrink-0 flex items-center">
                        <div
-                         className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border transition-all duration-500 flex items-center justify-center relative ${
+                         className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${
                            isActive
-                             ? 'bg-orange-500/20 border-orange-400/50 shadow-lg shadow-orange-500/30'
+                             ? 'bg-transparent border-orange-400 shadow-lg shadow-orange-500/50 scale-110'
                              : 'bg-transparent border-slate-700/30'
                          }`}
                        >
@@ -367,17 +365,17 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                          <div
                            className={`rounded-full transition-all duration-500 ${
                              isActive
-                               ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 bg-orange-500 animate-pulse'
-                               : 'w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-600'
+                               ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 bg-orange-500'
+                               : 'w-2 h-2 sm:w-2.5 sm:h-2.5 bg-slate-600'
                            }`}
                          />
                          
-                         {/* Glow effect for active */}
+                         {/* Pulse glow effect for active */}
                          {isActive && (
                            <motion.div 
-                             animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                             transition={{ duration: 2, repeat: Infinity }}
-                             className="absolute inset-0 rounded-full bg-orange-500/40"
+                             animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
+                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                             className="absolute inset-0 rounded-full bg-orange-500/30"
                            />
                          )}
                        </div>
@@ -386,16 +384,16 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                        {isActive && (
                          <motion.div 
                            initial={{ height: 0, opacity: 0 }}
-                           animate={{ height: 'auto', opacity: 1 }}
-                           transition={{ delay: 0.3, duration: 0.6 }}
-                           className="absolute top-5 sm:top-6 left-1/2 -translate-x-1/2 w-0.5 h-12 sm:h-16 bg-gradient-to-b from-orange-500/90 via-orange-500/50 to-transparent"
+                           animate={{ height: '60px', opacity: 1 }}
+                           transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+                           className="absolute top-6 sm:top-7 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-orange-500/90 via-orange-500/60 to-transparent"
                          />
                        )}
                      </div>
 
                      {/* Level Content */}
-                     <div className={`flex-1 transition-all duration-300 pt-0.5 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                       <div className="flex flex-wrap items-baseline gap-2 mb-0.5">
+                     <div className={`flex-1 transition-all duration-300 pt-0.5 flex flex-col justify-center ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                       <div className="flex flex-wrap items-baseline gap-2 mb-1">
                          <span className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${level.titleColor}`}>
                            {level.title}
                          </span>
