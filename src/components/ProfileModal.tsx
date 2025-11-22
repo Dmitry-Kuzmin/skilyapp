@@ -838,12 +838,19 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
     </div>
   );
 
+  // Ensure onOpenChange is always defined
+  const handleModalOpenChange = (state: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(state);
+    }
+  };
+
   // Always render modal, Radix UI handles visibility via open prop
   return (
     <>
       <UnifiedModal
         open={open}
-        onOpenChange={handleOpenChange}
+        onOpenChange={handleModalOpenChange}
         title={t('profileMenu.title')}
         className="max-w-md"
         showTitleBar={false}

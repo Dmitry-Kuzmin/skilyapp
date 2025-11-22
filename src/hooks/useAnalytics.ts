@@ -77,26 +77,37 @@ export function useAnalytics(
         // Загружаем темы отдельно
         let topicMap = new Map<string, { id: string; title: string }>();
         if (progressData && progressData.length > 0) {
-          // Собираем уникальные topic_id
+          // Собираем уникальные topic_id (только валидные UUID)
           const topicIds = new Set<string>();
           progressData.forEach((progress: any) => {
             const topicId = progress.questions_new?.topic_id;
-            if (topicId) {
+            // Проверяем, что topic_id существует и является валидным UUID
+            if (topicId && typeof topicId === 'string' && topicId.length > 0) {
               topicIds.add(topicId);
             }
           });
 
-          // Загружаем темы одним запросом
+          // Загружаем темы одним запросом (только если есть валидные ID)
           if (topicIds.size > 0) {
-            const { data: topicsData, error: topicsError } = await supabase
-              .from('topics')
-              .select('id, title')
-              .in('id', Array.from(topicIds));
+            const topicIdsArray = Array.from(topicIds);
+            // Дополнительная проверка: фильтруем только валидные UUID
+            const validTopicIds = topicIdsArray.filter(id => 
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+            );
+            
+            if (validTopicIds.length > 0) {
+              const { data: topicsData, error: topicsError } = await supabase
+                .from('topics')
+                .select('id, title')
+                .in('id', validTopicIds);
 
-            if (!topicsError && topicsData) {
-              topicsData.forEach((topic: any) => {
-                topicMap.set(topic.id, { id: topic.id, title: topic.title || 'Неизвестная тема' });
-              });
+              if (!topicsError && topicsData) {
+                topicsData.forEach((topic: any) => {
+                  topicMap.set(topic.id, { id: topic.id, title: topic.title || 'Неизвестная тема' });
+                });
+              } else if (topicsError) {
+                console.warn('[useAnalytics] Topics query error:', topicsError);
+              }
             }
           }
         }
