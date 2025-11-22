@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UnifiedModal } from "@/components/ui/unified-modal";
-import { useModalRoute } from "@/hooks/useModalRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,22 +28,16 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const { login, platform } = useUserContext();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const route = useModalRoute('auth');
-  const isOpen = open || route.isOpen;
-  const handleClose = () => {
-    if (onClose) onClose();
-    route.closeModal();
-  };
-  
-  useEffect(() => {
-    if (open && !route.isOpen) {
-      route.openModal();
+  // UnifiedModal сам синхронизирует с URL через modalRouteKey
+  const handleOpenChange = (state: boolean) => {
+    if (!state && onClose) {
+      onClose();
     }
-  }, [open, route]);
+  };
 
   useEffect(() => {
     // Only load widget when modal is open
-    if (!isOpen) {
+    if (!open) {
       return;
     }
 
@@ -217,11 +210,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   };
 
   return (
-    <UnifiedModal
-      open={isOpen}
-      onOpenChange={(state) => {
-        if (!state) handleClose();
-      }}
+      <UnifiedModal
+      open={open}
+      onOpenChange={handleOpenChange}
       title={isSignUp ? "Регистрация" : "Вход в систему"}
       showTitleBar={false}
       className="sm:max-w-md"

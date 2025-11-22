@@ -20,8 +20,10 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { WelcomeOverlay } from "@/components/dashboard-new/WelcomeOverlay";
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
+import { DuelPassSeasonModal } from "@/components/monetization/DuelPassSeasonModal";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useModalRoute } from "@/hooks/useModalRoute";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
@@ -31,6 +33,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const duelPassRoute = useModalRoute('duel-pass-season');
   
   // Показываем прелоадер только при первом открытии приложения
   const [showWelcome, setShowWelcome] = useState(() => {
@@ -361,6 +364,16 @@ const Index = () => {
           } : undefined}
         />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+        <DuelPassSeasonModal 
+          open={duelPassRoute.isOpen} 
+          onOpenChange={(open) => {
+            if (open) {
+              duelPassRoute.openModal();
+            } else {
+              duelPassRoute.closeModal();
+            }
+          }} 
+        />
       </div>
     </>
   );

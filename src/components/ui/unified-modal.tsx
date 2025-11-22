@@ -96,12 +96,19 @@ export function UnifiedModal({
 
   // Синхронизация URL -> prop: если URL меняется извне (прямой переход), обновляем prop
   // Но только если open prop не был явно установлен (undefined)
+  // Используем ref для предотвращения циклов
+  const isSyncingRef = React.useRef(false);
   React.useEffect(() => {
-    if (!modalRouteKey || !route || open !== undefined) return;
+    if (!modalRouteKey || !route || open !== undefined || isSyncingRef.current) return;
     
     // Синхронизируем prop с URL только если open не задан явно
     if (route.isOpen !== open) {
+      isSyncingRef.current = true;
       onOpenChange(route.isOpen);
+      // Сбрасываем флаг после следующего тика
+      requestAnimationFrame(() => {
+        isSyncingRef.current = false;
+      });
     }
   }, [modalRouteKey, route?.isOpen, onOpenChange, open]);
 
