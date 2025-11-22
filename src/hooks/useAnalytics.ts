@@ -98,12 +98,12 @@ export function useAnalytics(
             if (validTopicIds.length > 0) {
               const { data: topicsData, error: topicsError } = await supabase
                 .from('topics')
-                .select('id, title')
+                .select('id, title_ru')
                 .in('id', validTopicIds);
 
               if (!topicsError && topicsData) {
                 topicsData.forEach((topic: any) => {
-                  topicMap.set(topic.id, { id: topic.id, title: topic.title || 'Неизвестная тема' });
+                  topicMap.set(topic.id, { id: topic.id, title: topic.title_ru || 'Неизвестная тема' });
                 });
               } else if (topicsError) {
                 console.warn('[useAnalytics] Topics query error:', topicsError);
