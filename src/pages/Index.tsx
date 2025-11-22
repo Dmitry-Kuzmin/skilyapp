@@ -80,7 +80,7 @@ const Index = () => {
         });
         return;
       }
-
+      
       // Вычисляем новый стрик (до 90 дней)
       let newStreak = 1;
       if (dailyBonus.last_claimed_date === yesterday) {
@@ -105,14 +105,14 @@ const Index = () => {
       // Обновляем или создаём user_daily_bonus
       let bonusUpdateError = null;
       if (dailyBonus.id) {
-        const { error: bonusError } = await (supabase as any)
-          .from('user_daily_bonus')
-          .update({
-            current_streak: newStreak,
-            last_claimed_date: today,
+      const { error: bonusError } = await (supabase as any)
+        .from('user_daily_bonus')
+        .update({
+          current_streak: newStreak,
+          last_claimed_date: today,
             total_claims: (dailyBonus.total_claims || 0) + 1,
-          })
-          .eq('id', dailyBonus.id);
+        })
+        .eq('id', dailyBonus.id);
 
         bonusUpdateError = bonusError;
       } else {
@@ -150,33 +150,33 @@ const Index = () => {
       // Продолжаем выполнение даже если функции не ответили
       Promise.allSettled([
         supabase.functions.invoke('coins-earn', {
-          body: { user_id: profileId, reward_type: 'daily_login' },
+        body: { user_id: profileId, reward_type: 'daily_login' },
         }).catch(err => {
           console.warn('[handleClaimBonus] coins-earn error (non-blocking):', err);
         }),
         supabase.functions.invoke('season-sp', {
-          body: { 
-            user_id: profileId, 
-            source_type: 'daily_login',
-            metadata: { streak_days: newStreak }
-          },
+        body: { 
+          user_id: profileId, 
+          source_type: 'daily_login',
+          metadata: { streak_days: newStreak }
+        },
         }).catch(err => {
           console.warn('[handleClaimBonus] season-sp error (non-blocking):', err);
         }),
         supabase.functions.invoke('duel-pass-xp', {
-          body: { user_id: profileId, source_type: 'daily_login' },
+        body: { user_id: profileId, source_type: 'daily_login' },
         }).then(({ data: xpData }) => {
-          if (xpData?.level_up) {
+      if (xpData?.level_up) {
             supabase.functions.invoke('assistant-suggest', {
-              body: { trigger: 'duel_pass_level_up' },
+          body: { trigger: 'duel_pass_level_up' },
             }).then(({ data: suggestion }) => {
-              const message = suggestion?.suggestion?.message;
-              if (message) {
-                toast({
-                  title: "Duel Pass",
-                  description: message,
-                });
-              }
+        const message = suggestion?.suggestion?.message;
+        if (message) {
+          toast({
+            title: "Duel Pass",
+            description: message,
+          });
+        }
             }).catch(err => {
               console.warn('[handleClaimBonus] assistant-suggest error:', err);
             });
@@ -188,7 +188,7 @@ const Index = () => {
 
       // Инвалидируем кэш и обновляем данные
       invalidateCache();
-      
+
       // Показываем успешное сообщение сразу
       toast({
         title: "🎉 Награда получена!",
@@ -355,6 +355,8 @@ const Index = () => {
           readinessStatus={readiness ? {
             status: readiness.status,
             statusText: readiness.statusText,
+            shortText: readiness.shortText,
+            description: readiness.description,
           } : undefined}
         />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />

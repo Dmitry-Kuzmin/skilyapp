@@ -51,6 +51,24 @@ function CircularProgress({ percent, size = 160, strokeWidth = 12, color = 'prim
                 <stop offset="100%" stopColor="#059669" />
               </>
             )}
+            {color === 'purple' && (
+              <>
+                <stop offset="0%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#9333ea" />
+              </>
+            )}
+            {color === 'yellow' && (
+              <>
+                <stop offset="0%" stopColor="#eab308" />
+                <stop offset="100%" stopColor="#ca8a04" />
+              </>
+            )}
+            {color === 'slate' && (
+              <>
+                <stop offset="0%" stopColor="#64748b" />
+                <stop offset="100%" stopColor="#475569" />
+              </>
+            )}
             {color === 'primary' && (
               <>
                 <stop offset="0%" stopColor="hsl(var(--primary))" />
@@ -113,7 +131,13 @@ function CircularProgress({ percent, size = 160, strokeWidth = 12, color = 'prim
             transition={{ delay: 0.5, duration: 0.5 }}
             className={cn('font-bold', textSize)}
             style={{ 
-              color: color === 'orange' 
+              color: color === 'purple'
+                ? '#a855f7'
+                : color === 'yellow'
+                ? '#eab308'
+                : color === 'slate'
+                ? '#64748b'
+                : color === 'orange' 
                 ? '#f97316' 
                 : color === 'emerald' 
                 ? '#10b981' 
@@ -178,17 +202,17 @@ export function ExamReadinessCard() {
     return null; // Не показываем, если нет данных (но нет ошибки)
   }
 
-  const { percent, status, statusText, color, recommendations } = readiness;
+  const { percent, status, statusText, shortText, description, color, recommendations } = readiness;
 
   // Определяем CTA кнопку в зависимости от статуса
   const getCTAAction = () => {
-    if (status === 'high') {
+    if (status === 'ready' || status === 'legend') {
       return {
         text: 'Пройти пробный экзамен',
         onClick: () => navigate('/test/exam'),
         variant: 'default' as const,
       };
-    } else if (status === 'medium') {
+    } else if (status === 'near') {
       return {
         text: 'Улучшить слабые темы',
         onClick: () => navigate('/tests'),
@@ -205,25 +229,37 @@ export function ExamReadinessCard() {
 
   const cta = getCTAAction();
 
-  // Цвета для статуса
+  // Цвета для статуса (5 уровней)
   const statusColors = {
-    low: {
-      bg: 'bg-destructive/10',
-      border: 'border-destructive/20',
-      text: 'text-destructive',
+    start: {
+      bg: 'bg-slate-500/10',
+      border: 'border-slate-500/20',
+      text: 'text-slate-500',
       icon: AlertCircle,
     },
-    medium: {
+    progress: {
       bg: 'bg-orange-500/10',
       border: 'border-orange-500/20',
       text: 'text-orange-500',
       icon: TrendingUp,
     },
-    high: {
+    near: {
+      bg: 'bg-yellow-500/10',
+      border: 'border-yellow-500/20',
+      text: 'text-yellow-500',
+      icon: TrendingUp,
+    },
+    ready: {
       bg: 'bg-emerald-500/10',
       border: 'border-emerald-500/20',
       text: 'text-emerald-500',
       icon: CheckCircle2,
+    },
+    legend: {
+      bg: 'bg-purple-500/10',
+      border: 'border-purple-500/20',
+      text: 'text-purple-500',
+      icon: Award,
     },
   };
 
@@ -256,7 +292,7 @@ export function ExamReadinessCard() {
               <div>
                 <CardTitle className="text-lg sm:text-xl md:text-2xl">Готовность к экзамену</CardTitle>
                 <CardDescription className="text-xs sm:text-sm hidden sm:block">
-                  Проверь, насколько ты готов к сдаче теории
+                  {readiness?.description || 'Проверь, насколько ты готов к сдаче теории'}
                 </CardDescription>
               </div>
             </div>
@@ -273,7 +309,7 @@ export function ExamReadinessCard() {
               )}
             >
               <StatusIcon className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">{statusText}</span>
+              <span className="hidden sm:inline">{shortText || statusText}</span>
               <span className="sm:hidden">{percent}%</span>
             </motion.div>
           </div>

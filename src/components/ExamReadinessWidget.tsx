@@ -47,6 +47,24 @@ function CircularProgress({ percent, size = 120, strokeWidth = 10, color = 'prim
                 <stop offset="100%" stopColor="#059669" />
               </>
             )}
+            {color === 'purple' && (
+              <>
+                <stop offset="0%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#9333ea" />
+              </>
+            )}
+            {color === 'yellow' && (
+              <>
+                <stop offset="0%" stopColor="#eab308" />
+                <stop offset="100%" stopColor="#ca8a04" />
+              </>
+            )}
+            {color === 'slate' && (
+              <>
+                <stop offset="0%" stopColor="#64748b" />
+                <stop offset="100%" stopColor="#475569" />
+              </>
+            )}
             {color === 'primary' && (
               <>
                 <stop offset="0%" stopColor="hsl(var(--primary))" />
@@ -84,7 +102,13 @@ function CircularProgress({ percent, size = 120, strokeWidth = 10, color = 'prim
           <div 
             className="text-3xl font-bold"
             style={{ 
-              color: color === 'orange' 
+              color: color === 'purple'
+                ? '#a855f7'
+                : color === 'yellow'
+                ? '#eab308'
+                : color === 'slate'
+                ? '#64748b'
+                : color === 'orange' 
                 ? '#f97316' 
                 : color === 'emerald' 
                 ? '#10b981' 
@@ -129,15 +153,19 @@ export function ExamReadinessWidget() {
   const { percent, status, color } = readiness;
 
   const statusColors = {
-    low: 'text-destructive',
-    medium: 'text-orange-500',
-    high: 'text-emerald-500',
+    start: 'text-slate-500',
+    progress: 'text-orange-500',
+    near: 'text-yellow-500',
+    ready: 'text-emerald-500',
+    legend: 'text-purple-500',
   };
 
   const statusTexts = {
-    low: 'Пока рано',
-    medium: 'Почти готов',
-    high: 'Готов!',
+    start: 'Начало',
+    progress: 'Прогресс',
+    near: 'Почти готов',
+    ready: 'Готов!',
+    legend: 'Мастер',
   };
 
   return (
@@ -176,7 +204,7 @@ export function ExamReadinessWidget() {
               <h3 className="text-sm font-semibold text-foreground">Готовность к экзамену</h3>
             </div>
             <p className={cn('text-lg font-bold mb-1', statusColors[status])}>
-              {percent}% — {statusTexts[status]}
+              {percent}% — {readiness.shortText || statusTexts[status]}
             </p>
             <p className="text-xs text-muted-foreground">
               Нажмите, чтобы увидеть детали

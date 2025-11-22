@@ -12,8 +12,10 @@ export interface ReadinessMetrics {
 
 export interface ReadinessResult {
   percent: number; // 0-100
-  status: 'low' | 'medium' | 'high';
+  status: 'start' | 'progress' | 'near' | 'ready' | 'legend';
   statusText: string;
+  shortText: string; // Короткий текст для UI
+  description: string; // Подробное описание уровня
   color: string;
   recommendations: string[];
 }
@@ -55,29 +57,62 @@ export function calculateActivityScore(lastAttempts: Date[]): number {
 
 /**
  * Определяет статус готовности на основе процента
+ * Новая система с 5 уровнями и подробными описаниями
  */
 export function getReadinessStatus(percent: number): {
-  status: 'low' | 'medium' | 'high';
+  status: 'start' | 'progress' | 'near' | 'ready' | 'legend';
   statusText: string;
+  shortText: string;
+  description: string;
   color: string;
 } {
-  if (percent <= 50) {
+  if (percent === 0) {
     return {
-      status: 'low',
-      statusText: 'Пока рано идти на экзамен',
-      color: 'destructive',
+      status: 'start',
+      shortText: 'Начни обучение',
+      statusText: 'Нет данных. Пройди свой первый тест, чтобы начать отслеживать прогресс.',
+      description: 'Ты только присоединился к платформе. Пройди первый тест, чтобы система могла оценить твою текущую готовность и составить персональный план обучения.',
+      color: 'slate',
     };
-  } else if (percent <= 75) {
+  } else if (percent <= 30) {
     return {
-      status: 'medium',
-      statusText: 'Почти готов — подтяни слабые темы',
+      status: 'start',
+      shortText: 'Начало пути',
+      statusText: '0-30%: Ты только начинаешь. Сейчас у тебя базовый уровень знаний.',
+      description: 'Ты в начале обучения. Твоя точность ответов еще низкая, и ты только начинаешь изучать материал. Продолжай регулярно тренироваться, проходи тесты и изучай темы. Цель этого этапа — понять структуру экзамена и основы правил дорожного движения.',
+      color: 'slate',
+    };
+  } else if (percent <= 70) {
+    return {
+      status: 'progress',
+      shortText: 'Есть прогресс',
+      statusText: '31-70%: Твои усилия дают результат, но еще нужно больше практики.',
+      description: 'Ты уже сделал значительный прогресс! Твоя точность улучшилась, и ты начинаешь понимать большинство вопросов. Однако для успешной сдачи экзамена нужно продолжать тренироваться. Изучи оставшиеся темы, регулярно проходи тесты и обращай внимание на ошибки, чтобы их не повторять.',
       color: 'orange',
+    };
+  } else if (percent <= 84) {
+    return {
+      status: 'near',
+      shortText: 'Почти готов',
+      statusText: '71-84%: Ты очень близок к цели! Осталось немного подтянуть слабые места.',
+      description: 'Отличная работа! Ты почти готов к экзамену. Твоя точность высокая, и ты хорошо знаешь материал. Сосредоточься на темах, где делаешь ошибки, пройди еще несколько тестов для уверенности и повтори сложные вопросы. Еще немного усилий — и ты будешь полностью готов!',
+      color: 'yellow',
+    };
+  } else if (percent <= 95) {
+    return {
+      status: 'ready',
+      shortText: 'Готов к экзамену',
+      statusText: '85-95%: Ты готов сдать экзамен! Твои показатели говорят о высокой готовности.',
+      description: 'Поздравляем! Ты достиг необходимого уровня готовности. Твоя точность отличная, ты знаешь все темы и успешно проходишь тесты. Ты можешь записываться на экзамен с уверенностью в успехе. Рекомендуется пройти еще 1-2 тренировочных теста перед экзаменом для поддержания формы.',
+      color: 'emerald',
     };
   } else {
     return {
-      status: 'high',
-      statusText: 'Готов к экзамену!',
-      color: 'emerald',
+      status: 'legend',
+      shortText: 'Уровень мастер',
+      statusText: '96-100%: Ты превзошел все ожидания! Сдача экзамена гарантирована.',
+      description: 'Невероятно! Ты достиг мастерского уровня. Твоя точность близка к идеалу, ты знаешь материал на отлично и демонстрируешь стабильно высокие результаты. Ты превзошел необходимый уровень для сдачи экзамена. Записывайся на экзамен смело — успех гарантирован! 🏆',
+      color: 'purple',
     };
   }
 }
@@ -181,7 +216,11 @@ export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
   
   return {
     percent: roundedPercent,
-    ...status,
+    status: status.status,
+    statusText: status.statusText,
+    shortText: status.shortText,
+    description: status.description,
+    color: status.color,
     recommendations,
   };
 }

@@ -22,8 +22,10 @@ interface DashboardProps {
   hasClaimedToday: boolean;
   onGetPremium?: () => void;
   readinessStatus?: {
-    status: 'low' | 'medium' | 'high';
+    status: 'start' | 'progress' | 'near' | 'ready' | 'legend';
     statusText: string;
+    shortText?: string;
+    description?: string;
   };
 }
 
@@ -142,6 +144,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                testsCompleted={stats.testsCompleted}
                status={readinessStatus?.status}
                statusText={readinessStatus?.statusText}
+               shortText={readinessStatus?.shortText}
+               description={readinessStatus?.description}
                onStartTest={onStartQuiz}
              />
           </div>
