@@ -45,7 +45,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'accuracy' | 'streak' | 'coins' | 'level'>('xp');
   const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
-  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   
   const handleStartQuiz = () => {
     playClickSound();
