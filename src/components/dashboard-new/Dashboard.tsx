@@ -162,10 +162,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <button
                   onClick={() => handleStatClick('xp')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:to-purple-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
+                  <div className="w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Zap className="w-4 h-4 text-yellow-400" />
@@ -178,10 +177,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 
                 <button
                   onClick={() => handleStatClick('tests')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-600/0 group-hover:from-blue-500/10 group-hover:to-indigo-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
+                  <div className="w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <FileText className="w-4 h-4 text-blue-400" />
@@ -194,10 +192,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 
                 <button
                   onClick={() => handleStatClick('accuracy')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-green-600/0 group-hover:from-emerald-500/10 group-hover:to-green-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
+                  <div className="w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-green-500/20 border border-emerald-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Target className="w-4 h-4 text-emerald-400" />
@@ -210,10 +207,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 
                 <button
                   onClick={() => handleStatClick('streak')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-red-600/0 group-hover:from-orange-500/10 group-hover:to-red-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
+                  <div className="w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-orange-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
@@ -226,10 +222,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 
                 <button
                   onClick={() => handleStatClick('coins')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/0 to-amber-600/0 group-hover:from-yellow-500/10 group-hover:to-amber-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
+                  <div className="w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Coins className="w-4 h-4 text-yellow-400" />
@@ -242,10 +237,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 
                 <button
                   onClick={() => handleStatClick('level')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-pink-600/0 group-hover:from-purple-500/10 group-hover:to-pink-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
+                  <div className="w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-purple-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Trophy className="w-4 h-4 text-purple-400" />
