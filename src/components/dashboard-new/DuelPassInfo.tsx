@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Zap, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useSearchParams } from 'react-router-dom';
+import { useModalRoute } from '@/hooks/useModalRoute';
 import { playClickSound } from '@/services/audioService';
 
 interface DuelPassInfoProps {
@@ -11,7 +11,7 @@ interface DuelPassInfoProps {
 
 export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
   const { profileId } = useUserContext();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { openModal } = useModalRoute('duel-pass-season');
   const [loading, setLoading] = useState(true);
   const [duelPassData, setDuelPassData] = useState<{
     level: number;
@@ -88,10 +88,8 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
 
   const handleClick = () => {
     playClickSound();
-    // Открываем модалку через URL параметр (формат как в DuelPassSeasonModal)
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('modal', 'duel-pass-season');
-    setSearchParams(newParams, { replace: true });
+    // Открываем модалку через useModalRoute
+    openModal();
   };
 
   if (loading) {
