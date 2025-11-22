@@ -63,17 +63,49 @@ export function useAnalytics(
         if (sessionsError) throw sessionsError;
 
         // 2. Загружаем прогресс для определения критической точки
+        // Делаем два запроса для избежания проблем с вложенными join'ами
         const { data: progressData, error: progressError } = await supabase
           .from('user_progress')
           .select(`
             is_correct,
             question_id,
-            questions_new!inner(topic_id, topics!inner(id, title))
+            questions_new!inner(topic_id)
           `)
           .eq('user_id', profileId)
           .eq('is_answered', true);
 
-        if (progressError) throw progressError;
+        // Загружаем темы отдельно
+        let topicMap = new Map<string, { id: string; title: string }>();
+        if (progressData && progressData.length > 0) {
+          // Собираем уникальные topic_id
+          const topicIds = new Set<string>();
+          progressData.forEach((progress: any) => {
+            const topicId = progress.questions_new?.topic_id;
+            if (topicId) {
+              topicIds.add(topicId);
+            }
+          });
+
+          // Загружаем темы одним запросом
+          if (topicIds.size > 0) {
+            const { data: topicsData, error: topicsError } = await supabase
+              .from('topics')
+              .select('id, title')
+              .in('id', Array.from(topicIds));
+
+            if (!topicsError && topicsData) {
+              topicsData.forEach((topic: any) => {
+                topicMap.set(topic.id, { id: topic.id, title: topic.title || 'Неизвестная тема' });
+              });
+            }
+          }
+        }
+
+        if (progressError) {
+          console.error('[useAnalytics] Progress query error:', progressError);
+          // Продолжаем работу без данных прогресса, используем только сессии
+          console.warn('[useAnalytics] Continuing without progress data');
+        }
 
         // 3. Преобразуем данные сессий в формат TestResult
         const testResults: TestResult[] = (sessionsData || []).map(session => {
@@ -89,29 +121,18 @@ export function useAnalytics(
           };
         });
 
-        // 4. Создаем карту тем для критической точки
-        const topicMap = new Map<string, string>();
-        if (progressData) {
-          progressData.forEach((progress: any) => {
-            const topic = progress.questions_new?.topics;
-            if (topic && topic.id) {
-              topicMap.set(topic.id, topic.title || 'Неизвестная тема');
-            }
-          });
-        }
-
-        // Подсчитываем ошибки по темам
+        // 4. Подсчитываем ошибки по темам (используем уже загруженную карту тем)
         const topicErrors = new Map<string, { errors: number; attempts: number }>();
         if (progressData) {
           progressData.forEach((progress: any) => {
-            const topic = progress.questions_new?.topics;
-            if (topic && topic.id) {
-              const stats = topicErrors.get(topic.id) || { errors: 0, attempts: 0 };
+            const topicId = progress.questions_new?.topic_id;
+            if (topicId && topicMap.has(topicId)) {
+              const stats = topicErrors.get(topicId) || { errors: 0, attempts: 0 };
               stats.attempts += 1;
               if (!progress.is_correct) {
                 stats.errors += 1;
               }
-              topicErrors.set(topic.id, stats);
+              topicErrors.set(topicId, stats);
             }
           });
         }
@@ -121,10 +142,10 @@ export function useAnalytics(
           // Простая эвристика: распределяем ошибки по темам пропорционально
           if (index < progressData?.length) {
             const progress = progressData[index];
-            const topic = (progress as any).questions_new?.topics;
+            const topicId = (progress as any).questions_new?.topic_id;
             return {
               ...result,
-              topic_id: topic?.id,
+              topic_id: topicId,
             };
           }
           return result;
@@ -136,7 +157,11 @@ export function useAnalytics(
             if (!result.topic_id && index < 10) {
               // Присваиваем тему с наибольшим количеством ошибок первым тестам
               const maxErrorTopic = Array.from(topicErrors.entries())
-                .sort((a, b) => b[1].error_rate - a[1].error_rate)[0];
+                .sort((a, b) => {
+                  const aRate = a[1].attempts > 0 ? a[1].errors / a[1].attempts : 0;
+                  const bRate = b[1].attempts > 0 ? b[1].errors / b[1].attempts : 0;
+                  return bRate - aRate;
+                })[0];
               if (maxErrorTopic) {
                 result.topic_id = maxErrorTopic[0];
               }
@@ -168,9 +193,10 @@ export function useAnalytics(
               const errorRate = stats.attempts > 0
                 ? Math.round((stats.errors / stats.attempts) * 100)
                 : 0;
+              const topicInfo = topicMap.get(topicId);
               return {
                 topic_id: topicId,
-                topic_title: topicMap.get(topicId) || 'Неизвестная тема',
+                topic_title: topicInfo?.title || 'Неизвестная тема',
                 error_count: stats.errors,
                 error_rate: errorRate,
                 attempts: stats.attempts,
@@ -185,7 +211,11 @@ export function useAnalytics(
             });
 
           if (topicsWithErrors.length > 0 && topicsWithErrors[0].error_rate > 0) {
-            criticalPoint = topicsWithErrors[0];
+            const topicInfo = topicMap.get(topicsWithErrors[0].topic_id);
+            criticalPoint = {
+              ...topicsWithErrors[0],
+              topic_title: topicInfo?.title || topicsWithErrors[0].topic_title,
+            };
           }
         }
 
