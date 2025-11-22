@@ -158,53 +158,53 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </button>
               </div>
 
-              {/* Bottom section: Stats blocks */}
-              <div className="grid grid-cols-3 gap-3">
+              {/* Bottom section: Stats blocks - компактный современный дизайн */}
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={() => handleStatClick('xp')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex-1 flex items-center gap-2.5 rounded-xl bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-yellow-500/10 backdrop-blur-sm border border-yellow-400/20 px-3 py-2.5 hover:border-yellow-400/40 hover:shadow-lg hover:shadow-yellow-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:to-purple-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Zap className="w-4 h-4 text-yellow-400" />
-                      </div>
-                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Опыт</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/0 to-orange-500/0 group-hover:from-yellow-500/10 group-hover:to-orange-500/10 transition-all duration-300" />
+                  <div className="relative z-10 flex items-center gap-2.5 w-full">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400/30 to-orange-500/30 border border-yellow-400/40 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 flex-shrink-0">
+                      <Zap className="w-3.5 h-3.5 text-yellow-300" />
                     </div>
-                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.xp || 0} XP</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-yellow-300/70 font-semibold uppercase tracking-wider leading-tight">Опыт</div>
+                      <div className="text-lg font-bold text-white leading-tight group-hover:text-yellow-200 transition-colors">{stats.xp || 0} <span className="text-xs text-yellow-300/60">XP</span></div>
+                    </div>
                   </div>
                 </button>
                 
                 <button
                   onClick={() => handleStatClick('tests')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex-1 flex items-center gap-2.5 rounded-xl bg-gradient-to-br from-blue-500/10 via-indigo-500/10 to-blue-500/10 backdrop-blur-sm border border-blue-400/20 px-3 py-2.5 hover:border-blue-400/40 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-600/0 group-hover:from-blue-500/10 group-hover:to-indigo-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <FileText className="w-4 h-4 text-blue-400" />
-                      </div>
-                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Тестов</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/10 transition-all duration-300" />
+                  <div className="relative z-10 flex items-center gap-2.5 w-full">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400/30 to-indigo-500/30 border border-blue-400/40 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 flex-shrink-0">
+                      <FileText className="w-3.5 h-3.5 text-blue-300" />
                     </div>
-                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.testsCompleted}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-blue-300/70 font-semibold uppercase tracking-wider leading-tight">Тестов</div>
+                      <div className="text-lg font-bold text-white leading-tight group-hover:text-blue-200 transition-colors">{stats.testsCompleted}</div>
+                    </div>
                   </div>
                 </button>
                 
                 <button
                   onClick={() => handleStatClick('coins')}
-                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex-1 flex items-center gap-2.5 rounded-xl bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-amber-500/10 backdrop-blur-sm border border-amber-400/20 px-3 py-2.5 hover:border-amber-400/40 hover:shadow-lg hover:shadow-amber-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/0 to-amber-600/0 group-hover:from-yellow-500/10 group-hover:to-amber-600/10 transition-all duration-300" />
-                  <div className="relative z-10 w-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Coins className="w-4 h-4 text-yellow-400" />
-                      </div>
-                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Монеты</div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-yellow-500/0 group-hover:from-amber-500/10 group-hover:to-yellow-500/10 transition-all duration-300" />
+                  <div className="relative z-10 flex items-center gap-2.5 w-full">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400/30 to-yellow-500/30 border border-amber-400/40 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 flex-shrink-0">
+                      <Coins className="w-3.5 h-3.5 text-amber-300" />
                     </div>
-                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.coins}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-amber-300/70 font-semibold uppercase tracking-wider leading-tight">Монеты</div>
+                      <div className="text-lg font-bold text-white leading-tight group-hover:text-amber-200 transition-colors">{stats.coins}</div>
+                    </div>
                   </div>
                 </button>
               </div>
