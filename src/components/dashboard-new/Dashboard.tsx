@@ -1,10 +1,11 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings, Zap, FileText, Coins } from 'lucide-react';
 import { DailyRewards } from './DailyRewards';
 import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
 import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
+import { StatsDetailModal } from './StatsDetailModal';
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 
@@ -41,6 +42,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   readinessStatus
 }) => {
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
+  const [statsModalOpen, setStatsModalOpen] = useState(false);
+  const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
   const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   
   const handleStartQuiz = () => {
@@ -52,6 +55,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setExamReadinessExpanded(expanded);
   };
 
+  const handleStatClick = (statType: 'xp' | 'tests' | 'coins') => {
+    playClickSound();
+    setSelectedStatType(statType);
+    setStatsModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white">
@@ -149,6 +157,57 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </button>
               </div>
+
+              {/* Bottom section: Stats blocks */}
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => handleStatClick('xp')}
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-600/0 group-hover:from-purple-500/10 group-hover:to-purple-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Zap className="w-4 h-4 text-yellow-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Опыт</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.xp || 0} XP</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => handleStatClick('tests')}
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-indigo-600/0 group-hover:from-blue-500/10 group-hover:to-indigo-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-indigo-500/20 border border-blue-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <FileText className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Тестов</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.testsCompleted}</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => handleStatClick('coins')}
+                  className="group relative flex flex-col items-start rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 hover:bg-white/10 hover:border-white/20 hover:shadow-lg hover:shadow-yellow-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/0 to-amber-600/0 group-hover:from-yellow-500/10 group-hover:to-amber-600/10 transition-all duration-300" />
+                  <div className="relative z-10 w-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Coins className="w-4 h-4 text-yellow-400" />
+                      </div>
+                      <div className="text-xs text-white/70 font-medium uppercase tracking-wide">Монеты</div>
+                    </div>
+                    <div className="text-2xl font-bold text-white group-hover:scale-105 transition-transform">{stats.coins}</div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -197,6 +256,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         </div>
       </div>
+
+      {/* Stats Detail Modal */}
+      <StatsDetailModal
+        open={statsModalOpen}
+        onOpenChange={setStatsModalOpen}
+        stats={stats}
+        statType={selectedStatType}
+      />
 
       {/* Quick Settings Panel */}
       <QuickSettingsPanel
