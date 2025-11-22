@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
-import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap, Maximize2, Minimize2 } from 'lucide-react';
+import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getReadinessStatus } from '@/utils/examReadiness';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -84,7 +84,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 }) => {
   const navigate = useNavigate();
   const [showLevels, setShowLevels] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<'levels' | 'analytics' | null>(null);
   
   const hasNoData = averageScore === 0 && testsCompleted === 0;
   
@@ -228,14 +227,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   const toggleLevels = () => {
     playClickSound();
     setShowLevels(!showLevels);
-    if (!showLevels) {
-      setExpandedSection(null); // Сбрасываем расширенную секцию при открытии
-    }
-  };
-
-  const toggleExpandedSection = (section: 'levels' | 'analytics') => {
-    playClickSound();
-    setExpandedSection(expandedSection === section ? null : section);
   };
   
   return (
@@ -340,42 +331,12 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
              <h3 className="font-bold text-white text-base sm:text-lg">TELEMETRÍA & PREDICCIÓN</h3>
            </div>
            
-           {/* Split View: Levels (Left) + Analytics (Right) - адаптивный layout */}
-           <div className="flex-1 flex flex-col lg:flex-row gap-3 sm:gap-4 min-h-0">
-             {/* Left Side: Levels - адаптивные размеры */}
-             <motion.div 
-               className={`
-                 flex flex-col transition-all duration-500 ease-in-out
-                 ${expandedSection === 'levels' 
-                   ? 'w-full lg:w-2/3' 
-                   : expandedSection === 'analytics'
-                   ? 'w-full lg:w-1/3 lg:max-h-[60vh]'
-                   : 'w-full lg:w-2/5'
-                 }
-                 ${expandedSection === 'analytics' ? 'lg:opacity-60 lg:pointer-events-none' : ''}
-               `}
-               animate={{
-                 opacity: expandedSection === 'analytics' ? 0.6 : 1,
-                 scale: expandedSection === 'levels' ? 1.02 : 1,
-               }}
-               transition={{ duration: 0.5, ease: "easeInOut" }}
-             >
-               <div 
-                 className="flex items-center justify-between mb-3 cursor-pointer group px-2 py-1 -mx-2 -my-1 rounded-lg hover:bg-slate-700/30 transition-all"
-                 onClick={() => toggleExpandedSection('levels')}
-                 title={expandedSection === 'levels' ? 'Click para colapsar' : 'Click para expandir'}
-               >
-                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-slate-300 transition-colors">NIVELES DE VUELO</h4>
-                 <div className="flex items-center gap-2">
-                   {expandedSection !== 'levels' && (
-                     <span className="text-[9px] text-slate-500 hidden lg:inline">Expandir</span>
-                   )}
-                   {expandedSection === 'levels' ? (
-                     <Minimize2 size={14} className="text-slate-400 group-hover:text-slate-300 transition-colors" />
-                   ) : (
-                     <Maximize2 size={14} className="text-slate-400 group-hover:text-slate-300 transition-colors" />
-                   )}
-                 </div>
+           {/* Split View: Levels (Left) + Analytics (Right) - простой адаптивный layout */}
+           <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-6 min-h-0">
+             {/* Left Side: Levels - фиксированные пропорции */}
+             <div className="flex flex-col w-full xl:w-[45%] xl:min-w-[300px] xl:max-w-[400px]">
+               <div className="mb-3">
+                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">NIVELES DE VUELO</h4>
                </div>
 
                {/* Levels List with Progress Line */}
@@ -468,44 +429,12 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                    })}
                  </div>
                </div>
-             </motion.div>
+             </div>
              
-             {/* Right Side: Analytics - адаптивные размеры */}
-             <motion.div 
-               className={`
-                 flex flex-col min-h-0 transition-all duration-500 ease-in-out
-                 ${expandedSection === 'analytics' 
-                   ? 'w-full lg:w-2/3' 
-                   : expandedSection === 'levels'
-                   ? 'w-full lg:w-1/3 lg:max-h-[60vh]'
-                   : 'w-full lg:flex-1'
-                 }
-                 ${expandedSection === 'levels' ? 'lg:opacity-60 lg:pointer-events-none' : ''}
-               `}
-               animate={{
-                 opacity: expandedSection === 'levels' ? 0.6 : 1,
-                 scale: expandedSection === 'analytics' ? 1.02 : 1,
-               }}
-               transition={{ duration: 0.5, ease: "easeInOut" }}
-             >
-               <div 
-                 className="flex items-center justify-between mb-3 cursor-pointer group px-2 py-1 -mx-2 -my-1 rounded-lg hover:bg-slate-700/30 transition-all"
-                 onClick={() => toggleExpandedSection('analytics')}
-                 title={expandedSection === 'analytics' ? 'Click para colapsar' : 'Click para expandir'}
-               >
-                 <h4 className="text-xs font-bold text-white uppercase tracking-wider group-hover:text-slate-300 transition-colors">
-                   TELEMETRÍA AVANZADA
-                 </h4>
-                 <div className="flex items-center gap-2">
-                   {expandedSection !== 'analytics' && (
-                     <span className="text-[9px] text-slate-500 hidden lg:inline">Expandir</span>
-                   )}
-                   {expandedSection === 'analytics' ? (
-                     <Minimize2 size={14} className="text-slate-400 group-hover:text-slate-300 transition-colors" />
-                   ) : (
-                     <Maximize2 size={14} className="text-slate-400 group-hover:text-slate-300 transition-colors" />
-                   )}
-                 </div>
+             {/* Right Side: Analytics - фиксированные пропорции */}
+             <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
+               <div className="mb-3">
+                 <h4 className="text-xs font-bold text-white uppercase tracking-wider">TELEMETRÍA AVANZADA</h4>
                </div>
                <AnalyticsPanel
                  trend={analytics?.trend || null}
@@ -518,7 +447,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                  loading={analyticsLoading}
                  showHeader={false}
                />
-             </motion.div>
+             </div>
            </div>
          </div>
        </div>
