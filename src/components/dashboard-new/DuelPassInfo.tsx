@@ -3,7 +3,7 @@ import { Trophy, Zap, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
-import { sounds } from '@/lib/sounds';
+import { playClickSound } from '@/services/audioService';
 
 interface DuelPassInfoProps {
   className?: string;
@@ -87,7 +87,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
   }, [profileId]);
 
   const handleClick = () => {
-    sounds.click(1000, 0.2);
+    playClickSound();
     // Открываем модалку через URL параметр (формат как в DuelPassSeasonModal)
     const newParams = new URLSearchParams(searchParams);
     newParams.set('modal', 'duel-pass-season');

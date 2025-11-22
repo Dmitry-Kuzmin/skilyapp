@@ -5,7 +5,7 @@ import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
 import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
-import { sounds } from '@/lib/sounds';
+import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 
 interface DashboardProps {
   stats: {
@@ -37,13 +37,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   
   const handleStartQuiz = () => {
-    sounds.click(1000, 0.2);
+    playClickSound();
     onStartQuiz();
   };
-
-  const playClickSound = useCallback(() => sounds.click(800, 0.1), []);
-  const playAlertSound = useCallback(() => sounds.click(600, 0.15), []);
-  const playSuccessSound = useCallback(() => sounds.click(1200, 0.15), []);
 
   return (
     <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white">
@@ -59,6 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
           <div 
+            onMouseEnter={playHoverSound}
             className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
             style={{
               background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',

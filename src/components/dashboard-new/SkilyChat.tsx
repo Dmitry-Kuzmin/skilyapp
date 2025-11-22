@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Maximize2, Minimize2, ArrowRight, Loader2 } from 'lucide-react';
 import { useLumiChat } from '@/hooks/useLumiChat';
-import { sounds } from '@/lib/sounds';
+import { playClickSound, playNotificationSound, playTabSwitchSound } from '@/services/audioService';
 
 export const SkilyChat = React.memo(() => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -16,7 +16,7 @@ export const SkilyChat = React.memo(() => {
   }, [messages, isExpanded, isLoading]);
 
   const handleExpand = () => {
-    sounds.click(800, 0.1);
+    playClickSound();
     setIsExpanded(true);
   };
 
@@ -24,14 +24,14 @@ export const SkilyChat = React.memo(() => {
     if (e) {
       e.stopPropagation();
     }
-    sounds.click(800, 0.1);
+    playClickSound();
     setIsExpanded(false);
   };
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
     
-    sounds.click(1000, 0.15);
+    playNotificationSound();
     const userMessage = input.trim();
     setInput('');
     await sendMessage(userMessage);

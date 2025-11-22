@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sounds } from '@/lib/sounds';
+import { playClickSound } from '@/services/audioService';
 
 interface ExamReadinessProps {
   averageScore: number;
@@ -89,7 +89,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   }, [averageScore, status, statusText, hasNoData]);
   
   const handleStartTest = () => {
-    sounds.click(1000, 0.2);
+    playClickSound();
     if (onStartTest) {
       onStartTest();
     } else {

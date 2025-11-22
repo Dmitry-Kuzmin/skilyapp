@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Crown, ChevronRight, Sparkles } from 'lucide-react';
 import { usePremium } from '@/hooks/usePremium';
-import { sounds } from '@/lib/sounds';
+import { playClickSound } from '@/services/audioService';
 
 interface PremiumCardProps {
   onGetPremium?: () => void;
@@ -11,7 +11,7 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({ onGetPremium }) => {
   const { isPremium, isLifetime, daysRemaining, loading } = usePremium();
 
   const handleClick = () => {
-    sounds.click(1000, 0.2);
+    playClickSound();
     if (onGetPremium) {
       onGetPremium();
     } else {

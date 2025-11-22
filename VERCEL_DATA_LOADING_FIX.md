@@ -235,3 +235,4 @@ console.log('ProfileId:', profileId);
 2. Скопируйте ошибки из Network tab
 3. Проверьте логи в Supabase Dashboard → Logs → API
 
+

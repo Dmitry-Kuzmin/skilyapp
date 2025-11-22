@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Flame, Award } from 'lucide-react';
-import { sounds } from '@/lib/sounds';
+import { playClickSound, playSuccessSound } from '@/services/audioService';
 
 interface DailyRewardsProps {
   currentStreak: number;
@@ -14,11 +14,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const handleClaim = async () => {
     if (hasClaimedToday || isClaiming) return;
     
-    sounds.click(1000, 0.2);
+    playClickSound();
     setIsClaiming(true);
     try {
       await onClaim();
-      sounds.click(1200, 0.15); // Success sound
+      playSuccessSound(); // Success sound
     } finally {
       setTimeout(() => setIsClaiming(false), 1000);
     }

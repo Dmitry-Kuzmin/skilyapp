@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Power, Fingerprint, Scan, ShieldCheck, Key } from 'lucide-react';
-import { sounds } from '@/lib/sounds';
+import { playClickSound, playEngineSound, playBiometricSound, playUnlockSound } from '@/services/audioService';
 
 interface WelcomeOverlayProps {
   onComplete: () => void;
@@ -18,8 +18,15 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
     
     setIsIgniting(true);
     
-    // Trigger Sound
-    sounds.click(800, 0.15);
+    // Trigger Sound based on mode
+    playClickSound();
+    if (mode === 'mechanical') {
+      playEngineSound();
+    } else if (mode === 'biometric') {
+      playBiometricSound();
+    } else if (mode === 'elite') {
+      playUnlockSound();
+    }
     
     // Ignition sequence timing
     setTimeout(() => {
