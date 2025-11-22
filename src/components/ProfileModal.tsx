@@ -38,12 +38,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const { setTheme, theme: currentTheme } = useTheme();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const route = useModalRoute('profile');
-  const isOpen = open ?? route.isOpen;
-  const handleOpenChange = (state: boolean) => {
-    if (onOpenChange) onOpenChange(state);
-    if (!state) route.closeModal();
-  };
+  // UnifiedModal сам синхронизирует с URL через modalRouteKey
 
   const [settings, setSettings] = useState<UserSettings>({
     theme: 'light',
@@ -73,19 +68,19 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   // Load user settings from database
   useEffect(() => {
-    if (isOpen && (profileId || user || supabaseUser)) {
+    if (open && (profileId || user || supabaseUser)) {
       loadUserProfile();
     }
-  }, [user, isOpen, profileId, supabaseUser]);
+  }, [user, open, profileId, supabaseUser]);
 
   // Check admin access separately
   useEffect(() => {
-    if (isOpen && supabaseUser) {
+    if (open && supabaseUser) {
       checkAdminAccess();
-    } else if (!isOpen) {
+    } else if (!open) {
       setIsAdmin(false);
     }
-  }, [isOpen, supabaseUser]);
+  }, [open, supabaseUser]);
 
   const checkAdminAccess = async () => {
     if (!supabaseUser) {
@@ -847,7 +842,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   return (
     <>
       <UnifiedModal
-        open={isOpen}
+        open={open}
         onOpenChange={handleOpenChange}
         title={t('profileMenu.title')}
         className="max-w-md"

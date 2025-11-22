@@ -341,92 +341,93 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 
                {/* Levels List with Progress Line */}
                <div className="flex-1 relative flex flex-col justify-between min-h-0 overflow-y-auto">
-             {/* Vertical Progress Line (background) */}
-             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700/50"></div>
-             
-             {/* Active Progress Line (filled portion - только до активного уровня) */}
-             {!hasNoData && currentLevelIndex > 0 && (
-               <div 
-                 className="absolute left-4 top-0 w-0.5 transition-all duration-1000 ease-out"
-                 style={{
-                   height: `${(currentLevelIndex / (readinessLevels.length - 1)) * 100}%`,
-                   background: `linear-gradient(to bottom, ${gaugeColor}60, ${gaugeColor}40)`,
-                 }}
-               />
-             )}
-
-             {/* Levels Container - равномерное распределение по высоте */}
-             <div className="relative h-full flex flex-col justify-between">
-               {readinessLevels.map((level, index) => {
-                 const isActive = index === currentLevelIndex && !hasNoData;
+                 {/* Vertical Progress Line (background) */}
+                 <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700/50"></div>
                  
-                 return (
-                   <motion.div
-                     key={level.status}
-                     initial={{ opacity: 0, x: -20 }}
-                     animate={{ 
-                       opacity: showLevels ? 1 : 0, 
-                       x: showLevels ? 0 : -20 
+                 {/* Active Progress Line (filled portion - только до активного уровня) */}
+                 {!hasNoData && currentLevelIndex > 0 && (
+                   <div 
+                     className="absolute left-4 top-0 w-0.5 transition-all duration-1000 ease-out"
+                     style={{
+                       height: `${(currentLevelIndex / (readinessLevels.length - 1)) * 100}%`,
+                       background: `linear-gradient(to bottom, ${gaugeColor}60, ${gaugeColor}40)`,
                      }}
-                     transition={{ delay: index * 0.1, duration: 0.4 }}
-                     className="relative flex items-start gap-3 sm:gap-4 flex-1 min-h-0"
-                   >
-                     {/* Dot on Progress Line */}
-                     <div className="relative z-10 flex-shrink-0 flex items-center">
-                       <div
-                         className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${
-                           isActive
-                             ? 'bg-transparent border-orange-400 shadow-lg shadow-orange-500/50 scale-110'
-                             : 'bg-transparent border-slate-700/30'
-                         }`}
-                       >
-                         {/* Inner dot */}
-                         <div
-                           className={`rounded-full transition-all duration-500 ${
-                             isActive
-                               ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 bg-orange-500'
-                               : 'w-2 h-2 sm:w-2.5 sm:h-2.5 bg-slate-600'
-                           }`}
-                         />
-                         
-                         {/* Pulse glow effect for active */}
-                         {isActive && (
-                           <motion.div 
-                             animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
-                             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                             className="absolute inset-0 rounded-full bg-orange-500/30"
-                           />
-                         )}
-                       </div>
-                       
-                       {/* Glowing line extending downward from active dot */}
-                       {isActive && (
-                         <motion.div 
-                           initial={{ height: 0, opacity: 0 }}
-                           animate={{ height: '60px', opacity: 1 }}
-                           transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-                           className="absolute top-6 sm:top-7 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-orange-500/90 via-orange-500/60 to-transparent"
-                         />
-                       )}
-                     </div>
+                   />
+                 )}
 
-                     {/* Level Content */}
-                     <div className={`flex-1 transition-all duration-300 pt-0.5 flex flex-col justify-center ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                       <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                         <span className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${level.titleColor}`}>
-                           {level.title}
-                         </span>
-                         <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">
-                           {level.range}
-                         </span>
-                       </div>
-                       <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed">
-                         {level.description}
-                       </p>
-                     </div>
-                   </motion.div>
-                 );
-               })}
+                 {/* Levels Container - равномерное распределение по высоте */}
+                 <div className="relative h-full flex flex-col justify-between">
+                   {readinessLevels.map((level, index) => {
+                     const isActive = index === currentLevelIndex && !hasNoData;
+                     
+                     return (
+                       <motion.div
+                         key={level.status}
+                         initial={{ opacity: 0, x: -20 }}
+                         animate={{ 
+                           opacity: showLevels ? 1 : 0, 
+                           x: showLevels ? 0 : -20 
+                         }}
+                         transition={{ delay: index * 0.1, duration: 0.4 }}
+                         className="relative flex items-start gap-3 sm:gap-4 flex-1 min-h-0"
+                       >
+                         {/* Dot on Progress Line */}
+                         <div className="relative z-10 flex-shrink-0 flex items-center">
+                           <div
+                             className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${
+                               isActive
+                                 ? 'bg-transparent border-orange-400 shadow-lg shadow-orange-500/50 scale-110'
+                                 : 'bg-transparent border-slate-700/30'
+                             }`}
+                           >
+                             {/* Inner dot */}
+                             <div
+                               className={`rounded-full transition-all duration-500 ${
+                                 isActive
+                                   ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 bg-orange-500'
+                                   : 'w-2 h-2 sm:w-2.5 sm:h-2.5 bg-slate-600'
+                               }`}
+                             />
+                             
+                             {/* Pulse glow effect for active */}
+                             {isActive && (
+                               <motion.div 
+                                 animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
+                                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                 className="absolute inset-0 rounded-full bg-orange-500/30"
+                               />
+                             )}
+                           </div>
+                           
+                           {/* Glowing line extending downward from active dot */}
+                           {isActive && (
+                             <motion.div 
+                               initial={{ height: 0, opacity: 0 }}
+                               animate={{ height: '60px', opacity: 1 }}
+                               transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+                               className="absolute top-6 sm:top-7 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-orange-500/90 via-orange-500/60 to-transparent"
+                             />
+                           )}
+                         </div>
+
+                         {/* Level Content */}
+                         <div className={`flex-1 transition-all duration-300 pt-0.5 flex flex-col justify-center ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                           <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                             <span className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${level.titleColor}`}>
+                               {level.title}
+                             </span>
+                             <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">
+                               {level.range}
+                             </span>
+                           </div>
+                           <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed">
+                             {level.description}
+                           </p>
+                         </div>
+                       </motion.div>
+                     );
+                   })}
+                 </div>
                </div>
              </div>
              

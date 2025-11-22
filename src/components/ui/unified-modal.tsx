@@ -56,13 +56,18 @@ export function UnifiedModal({
   // Используем URL только если modalRouteKey задан
   const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
   
-  // Единый источник истины: open prop имеет приоритет, но если его нет - используем URL
+  // Единый источник истины: open prop имеет приоритет
+  // Если modalRouteKey задан, синхронизируем с URL, но open prop - главный
   const resolvedOpen = React.useMemo(() => {
-    if (modalRouteKey && route) {
-      // Если open явно задан - используем его, иначе URL
-      return open !== undefined ? open : route.isOpen;
+    // open prop всегда имеет приоритет
+    if (open !== undefined) {
+      return open;
     }
-    return open;
+    // Если open не задан, используем URL (для программного открытия через URL)
+    if (modalRouteKey && route) {
+      return route.isOpen;
+    }
+    return false;
   }, [modalRouteKey, open, route?.isOpen]);
   
   const renderContent = React.useMemo(() => {
@@ -74,10 +79,10 @@ export function UnifiedModal({
   // Упрощенный обработчик: обновляем prop и синхронизируем URL
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
-      // Сначала обновляем prop (основной источник истины)
+      // Обновляем prop (основной источник истины)
       onOpenChange(state);
       
-      // Затем синхронизируем URL (если используется)
+      // Синхронизируем URL (если используется)
       if (modalRouteKey && route) {
         if (state) {
           route.openModal();
@@ -89,16 +94,16 @@ export function UnifiedModal({
     [modalRouteKey, route, onOpenChange]
   );
 
-  // Простая синхронизация: если URL меняется извне (прямой переход), обновляем prop
-  // Но только если open prop не был явно установлен
+  // Синхронизация URL -> prop: если URL меняется извне (прямой переход), обновляем prop
+  // Но только если open prop не был явно установлен (undefined)
   React.useEffect(() => {
-    if (!modalRouteKey || !route) return;
+    if (!modalRouteKey || !route || open !== undefined) return;
     
-    // Если open prop не задан явно, синхронизируем с URL
-    if (open === undefined && route.isOpen !== resolvedOpen) {
+    // Синхронизируем prop с URL только если open не задан явно
+    if (route.isOpen !== open) {
       onOpenChange(route.isOpen);
     }
-  }, [modalRouteKey, route?.isOpen, onOpenChange, open, resolvedOpen]);
+  }, [modalRouteKey, route?.isOpen, onOpenChange, open]);
 
   // Оптимизированное расширение: сразу устанавливаем финальное состояние
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);

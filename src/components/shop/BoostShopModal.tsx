@@ -124,14 +124,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       // Сбрасываем флаг при закрытии, чтобы загрузить свежие данные при следующем открытии
       hasLoadedRef.current = false;
     }
-  }, [isOpen, profileId]);
+  }, [open, profileId]);
 
   // Загружаем историю транзакций при переключении на вкладку "История"
   useEffect(() => {
-    if (isOpen && activeTab === 'history' && transactions.length === 0) {
+    if (open && activeTab === 'history' && transactions.length === 0) {
       loadTransactionHistory();
     }
-  }, [isOpen, activeTab]);
+  }, [open, activeTab]);
 
   const loadData = async () => {
     if (!profileId) {
