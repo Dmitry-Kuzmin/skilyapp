@@ -66,39 +66,39 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+        <div className="mb-6 animate-fade-in">
+          <div className="flex items-center justify-between mb-3">
             <div className="text-2xl font-bold text-white">DGT Prep</div>
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-             {/* Online Status Badge */}
-             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
-               <div className="relative">
-                 <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
-                 <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
-               </div>
-               <span className="text-xs font-semibold text-emerald-300">Sistema en línea</span>
-             </div>
-             
-             {/* License Badge */}
-             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
-               <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-               <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
-                 Licencia B
-               </span>
-             </div>
-           </div>
-          
-          {/* Quick Settings Button - только иконка */}
-          <button
-            onClick={() => {
-              playClickSound();
-              setQuickSettingsOpen(true);
-            }}
-            className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group flex items-center justify-center"
-            aria-label="Настройки"
-          >
-            <Settings className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 group-hover:rotate-90 transition-all duration-300" />
-          </button>
+            {/* Quick Settings Button - только иконка */}
+            <button
+              onClick={() => {
+                playClickSound();
+                setQuickSettingsOpen(true);
+              }}
+              className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group flex items-center justify-center"
+              aria-label="Настройки"
+            >
+              <Settings className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 group-hover:rotate-90 transition-all duration-300" />
+            </button>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            {/* Online Status Badge */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
+              <div className="relative">
+                <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
+                <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
+              </div>
+              <span className="text-xs font-semibold text-emerald-300">Sistema en línea</span>
+            </div>
+            
+            {/* License Badge */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+              <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                Licencia B
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* BENTO GRID */}

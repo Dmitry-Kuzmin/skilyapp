@@ -205,6 +205,8 @@ export function UnifiedModal({
           hideCloseButton={hideCloseButton}
           className={cn(
             "p-0 border-none bg-background rounded-t-[24px] flex flex-col shadow-[0_-16px_40px_rgba(15,23,42,0.25)]",
+            // На мобильных всегда полная ширина, игнорируем max-w из className
+            "!w-full !max-w-none !left-0 !right-0",
             className
           )}
           style={{
@@ -215,6 +217,11 @@ export function UnifiedModal({
             transition: "height 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
             // GPU ускорение для плавности
             willChange: resolvedOpen ? "height, transform" : "auto",
+            // Гарантируем полную ширину на мобильных
+            width: '100%',
+            maxWidth: '100%',
+            left: 0,
+            right: 0,
           }}
         >
           {shouldShowHandle && (
