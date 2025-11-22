@@ -1007,7 +1007,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       modalRouteKey="duel-pass-season"
       loading={options?.loading ?? loading}
       skeletonVariant="default"
-      modalRouteKey="duel-pass-season"
     >
                 <div className="flex-1 overflow-y-auto">
         {description && (
