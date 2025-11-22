@@ -1,11 +1,12 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings } from 'lucide-react';
 import { DailyRewards } from './DailyRewards';
 import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
 import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
 import { StatsDetailModal } from './StatsDetailModal';
+import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 
 interface DashboardProps {
@@ -43,6 +44,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'accuracy' | 'streak' | 'coins' | 'level'>('xp');
+  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
+  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   
   const handleStartQuiz = () => {
     playClickSound();
@@ -64,11 +67,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6 animate-fade-in">
-           <div className="text-2xl font-bold text-white">DGT Prep</div>
-           <div className="hidden sm:flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="text-2xl font-bold text-white">DGT Prep</div>
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
              {/* Online Status Badge */}
-             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm">
+             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
                <div className="relative">
                  <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
                  <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
@@ -77,13 +81,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
              </div>
              
              {/* License Badge */}
-             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 transition-all duration-300">
+             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
                <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
                <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
                  Licencia B
-               </span>
-             </div>
-           </div>
+              </span>
+            </div>
+          </div>
+          
+          {/* Quick Settings Button */}
+          <button
+            onClick={() => {
+              playClickSound();
+              setQuickSettingsOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group"
+          >
+            <Settings className="w-4 h-4 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+            <span className="text-sm font-medium text-slate-300 group-hover:text-indigo-300 transition-colors hidden sm:inline">
+              Настройки
+            </span>
+          </button>
         </div>
 
         {/* BENTO GRID */}
@@ -243,6 +261,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         onOpenChange={setStatsModalOpen}
         stats={stats}
         statType={selectedStatType}
+      />
+
+      {/* Quick Settings Panel */}
+      <QuickSettingsPanel
+        open={quickSettingsOpen}
+        onOpenChange={setQuickSettingsOpen}
       />
     </div>
   );
