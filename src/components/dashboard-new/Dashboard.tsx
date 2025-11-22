@@ -39,10 +39,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
   profileId,
   readinessStatus
 }) => {
+  const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   
   const handleStartQuiz = () => {
     playClickSound();
     onStartQuiz();
+  };
+
+  const handleExamReadinessExpanded = (expanded: boolean) => {
+    setExamReadinessExpanded(expanded);
   };
 
   return (
@@ -55,7 +60,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up auto-rows-min">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
           
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
           <div 
@@ -139,8 +144,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
              <SkilyChat />
           </div>
 
-          {/* 4. EXAM READINESS (Col: 1, Row: 1) - может расширяться через ExamReadiness showLevels */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-1">
+          {/* 4. EXAM READINESS (Col: 1, Row: 1) - расширяется до 2 колонок */}
+          <div className={`transition-all duration-500 ease-in-out ${
+            examReadinessExpanded 
+              ? 'md:col-span-2 lg:col-span-2 lg:row-span-2' 
+              : 'md:col-span-1 lg:col-span-1'
+          }`}>
              <ExamReadiness 
                averageScore={stats.averageScore}
                testsCompleted={stats.testsCompleted}
@@ -150,11 +159,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
                description={readinessStatus?.description}
                profileId={profileId}
                onStartTest={onStartQuiz}
+               onExpandedChange={handleExamReadinessExpanded}
              />
           </div>
 
-          {/* 5. PREMIUM CARD (Col: 1, Row: 1) */}
-          <div className="md:col-span-1 lg:col-span-1">
+          {/* 5. PREMIUM CARD (Col: 1, Row: 1) - сдвигается вниз при расширении ExamReadiness */}
+          <div className="md:col-span-1 lg:col-span-1 transition-all duration-500 ease-in-out">
              <PremiumCard onGetPremium={onGetPremium} />
           </div>
 
