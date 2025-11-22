@@ -426,7 +426,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       }, 30000); // Увеличено до 30 секунд
       return () => clearInterval(interval);
     }
-  }, [open, route.isOpen, profileId, activeSeason]);
+  }, [open, profileId, activeSeason]);
 
 
   useEffect(() => {
