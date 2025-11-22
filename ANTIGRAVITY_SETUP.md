@@ -188,7 +188,7 @@ git commit -m "feat: update component B"
    ```
    Убедись, что видишь все изменения из обоих редакторов
 
-2. **Запушь изменения:**
+2. **Запушь изменения в GitHub:**
    ```bash
    # Если работаешь в feature ветке
    git push origin feature/название-фичи
@@ -208,7 +208,116 @@ git commit -m "feat: update component B"
 
 5. **Автоматический деплой в Vercel** произойдет после пуша в main
 
-**💡 Важно:** Неважно, из какого редактора ты пушишь - все идет в одну ветку на GitHub!
+**💡 Важно:** 
+- Неважно, из какого редактора ты пушишь - все идет в одну ветку на GitHub!
+- Vercel автоматически задеплоит после пуша в `main` (если настроен автодеплой)
+- Или можно использовать Vercel CLI (см. ниже)
+
+---
+
+## 🚀 Деплой в Vercel из Antigravity
+
+### Способ 1: Автоматический деплой через Git (рекомендуется)
+
+Vercel отслеживает пуши в GitHub и автоматически деплоит:
+
+1. **Запушь изменения:**
+   ```bash
+   git add .
+   git commit -m "feat: описание изменений"
+   git push origin main
+   ```
+
+2. **Vercel автоматически задеплоит** (если настроен автодеплой)
+
+3. **Проверь статус деплоя:**
+   - Vercel Dashboard → Deployments
+   - Или в терминале: `vercel ls`
+
+### Способ 2: Ручной деплой через Vercel CLI
+
+Если нужно задеплоить вручную:
+
+1. **Установи Vercel CLI (если еще не установлен):**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Залогинься (если еще не залогинен):**
+   ```bash
+   vercel login
+   ```
+
+3. **Привяжи проект (если еще не привязан):**
+   ```bash
+   vercel link
+   ```
+   Выбери существующий проект в Vercel
+
+4. **Задеплой:**
+   ```bash
+   # Preview деплой
+   vercel
+   
+   # Production деплой
+   vercel --prod --yes
+   ```
+
+### Проверка настроек Git в Antigravity
+
+Убедись, что Git правильно настроен в Antigravity:
+
+1. **Проверь Git конфигурацию:**
+   ```bash
+   git config --list
+   ```
+
+2. **Проверь remote (подключение к GitHub):**
+   ```bash
+   git remote -v
+   ```
+   Должно показать:
+   ```
+   origin  https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep.git (fetch)
+   origin  https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep.git (push)
+   ```
+
+3. **Если remote не настроен, добавь:**
+   ```bash
+   git remote add origin https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep.git
+   ```
+
+### Настройка автодеплоя в Vercel
+
+Если автодеплой не работает:
+
+1. **Vercel Dashboard → Settings → Git**
+2. **Проверь подключение к GitHub**
+3. **Убедись, что выбрана ветка `main` для Production**
+4. **Проверь, что включен "Auto-deploy"**
+
+---
+
+## 📋 Полный workflow деплоя из Antigravity
+
+```bash
+# 1. Проверь изменения
+git status
+git diff
+
+# 2. Добавь изменения
+git add .
+
+# 3. Закоммить
+git commit -m "feat: описание изменений"
+
+# 4. Запушь в GitHub
+git push origin main
+
+# 5. Vercel автоматически задеплоит
+# Или вручную:
+vercel --prod --yes
+```
 
 ---
 
@@ -353,6 +462,7 @@ git push origin main
    - Работает через Git, не зависит от редактора
    - `git push origin main` → автоматический деплой
    - Или через Vercel CLI: `vercel --prod --yes`
+   - **Можно пушить из любого редактора** - Vercel отслеживает GitHub, а не редактор
 
 3. **Telegram Bot**
    - Использует токен из `.env.local`
@@ -361,6 +471,15 @@ git push origin main
 4. **Все API ключи и токены**
    - Читаются из `.env.local`
    - Работают одинаково везде
+
+### 🔄 Как Vercel видит пуши:
+
+**Vercel НЕ знает, из какого редактора ты пушишь!**
+
+- Vercel отслеживает **GitHub репозиторий**, а не редактор
+- Когда ты делаешь `git push origin main` из Antigravity → GitHub получает коммит
+- Vercel видит новый коммит в GitHub → автоматически запускает деплой
+- Работает одинаково из Cursor, Antigravity, VS Code или любого другого редактора
 
 ### 📋 Проверка подключений:
 
