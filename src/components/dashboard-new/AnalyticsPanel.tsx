@@ -12,6 +12,7 @@ interface AnalyticsPanelProps {
   activityHeatmap: Array<{ date: Date; count: number; level: 0 | 1 | 2 | 3 | 4 }> | null;
   currentScore: number;
   loading?: boolean;
+  showHeader?: boolean;
 }
 
 export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
@@ -23,6 +24,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   activityHeatmap,
   currentScore,
   loading = false,
+  showHeader = true,
 }) => {
   if (loading || !trend || !consistency || !timeToPass) {
     return (
@@ -41,12 +43,14 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   return (
     <div className="flex-1 bg-slate-900/50 backdrop-blur-xl rounded-2xl p-4 border border-slate-700/50 overflow-y-auto">
       <div className="space-y-4">
-        {/* Header */}
-        <div className="mb-4">
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-1">
-            TELEMETRÍA AVANZADA
-          </h3>
-        </div>
+        {/* Header - опциональный */}
+        {showHeader && (
+          <div className="mb-4">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-1">
+              TELEMETRÍA AVANZADA
+            </h3>
+          </div>
+        )}
 
         {/* Critical Point */}
         {criticalPoint && (
