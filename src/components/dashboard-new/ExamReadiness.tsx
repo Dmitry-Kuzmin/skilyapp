@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
-import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles } from 'lucide-react';
+import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getReadinessStatus } from '@/utils/examReadiness';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ExamReadinessProps {
   averageScore: number;
@@ -12,6 +13,7 @@ interface ExamReadinessProps {
   shortText?: string;
   description?: string;
   status?: 'start' | 'progress' | 'near' | 'ready' | 'legend';
+  profileId?: string | null;
   onStartTest?: () => void;
 }
 
@@ -76,12 +78,20 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   shortText,
   description,
   status,
+  profileId,
   onStartTest 
 }) => {
   const navigate = useNavigate();
   const [showLevels, setShowLevels] = useState(false);
   
   const hasNoData = averageScore === 0 && testsCompleted === 0;
+  
+  // Загружаем аналитические данные
+  const { analytics, loading: analyticsLoading } = useAnalytics(
+    profileId || null,
+    averageScore,
+    85 // Целевой уровень 85%
+  );
   
   const { score, statusInfo, gaugeColor, textColor, bgColor, fullDescription, currentLevelIndex } = useMemo(() => {
     const scoreValue = Math.round(averageScore);

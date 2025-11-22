@@ -352,6 +352,7 @@ const Index = () => {
           onClaimReward={handleClaimBonus}
           hasClaimedToday={hasClaimedToday}
           onGetPremium={() => setPaywallOpen(true)}
+          profileId={profileId}
           readinessStatus={readiness ? {
             status: readiness.status,
             statusText: readiness.statusText,

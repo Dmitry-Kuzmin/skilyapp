@@ -21,6 +21,7 @@ interface DashboardProps {
   onClaimReward: () => void;
   hasClaimedToday: boolean;
   onGetPremium?: () => void;
+  profileId?: string | null;
   readinessStatus?: {
     status: 'start' | 'progress' | 'near' | 'ready' | 'legend';
     statusText: string;
@@ -35,7 +36,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onClaimReward,
   hasClaimedToday,
   onGetPremium,
-  readinessStatus 
+  profileId,
+  readinessStatus
 }) => {
   
   const handleStartQuiz = () => {
@@ -146,6 +148,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                statusText={readinessStatus?.statusText}
                shortText={readinessStatus?.shortText}
                description={readinessStatus?.description}
+               profileId={profileId}
                onStartTest={onStartQuiz}
              />
           </div>
