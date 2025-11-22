@@ -107,23 +107,13 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       if (side !== "bottom" || startY === null || !isDragging) return;
       
       if (contentRef.current) {
-        const threshold = 80; // Уменьшаем порог для более легкого закрытия
+        const threshold = 80; // Порог для закрытия
         
         if (currentY && currentY > threshold) {
-          // Закрываем sheet через Radix API - используем onOpenChange из props
+          // Закрываем sheet через onOpenChange из props
+          // Radix UI автоматически обработает это через Sheet.Root
           if (props.onOpenChange) {
             props.onOpenChange(false);
-          } else {
-            // Fallback: программно закрываем через событие ESC
-            const escEvent = new KeyboardEvent('keydown', {
-              key: 'Escape',
-              code: 'Escape',
-              keyCode: 27,
-              which: 27,
-              bubbles: true,
-              cancelable: true
-            });
-            contentRef.current.dispatchEvent(escEvent);
           }
         } else {
           // Возвращаем на место с анимацией

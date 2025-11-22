@@ -56,9 +56,13 @@ export function UnifiedModal({
   // Используем URL только если modalRouteKey задан
   const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
   
-  // Мемоизируем resolvedOpen для избежания лишних ре-рендеров
+  // Единый источник истины: open prop имеет приоритет, но если его нет - используем URL
   const resolvedOpen = React.useMemo(() => {
-    return modalRouteKey ? (open || !!route?.isOpen) : open;
+    if (modalRouteKey && route) {
+      // Если open явно задан - используем его, иначе URL
+      return open !== undefined ? open : route.isOpen;
+    }
+    return open;
   }, [modalRouteKey, open, route?.isOpen]);
   
   const renderContent = React.useMemo(() => {
@@ -67,10 +71,13 @@ export function UnifiedModal({
       : children;
   }, [loading, skeleton, skeletonVariant, children]);
   
-  // Простой обработчик: обновляем и prop, и URL
+  // Упрощенный обработчик: обновляем prop и синхронизируем URL
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
+      // Сначала обновляем prop (основной источник истины)
       onOpenChange(state);
+      
+      // Затем синхронизируем URL (если используется)
       if (modalRouteKey && route) {
         if (state) {
           route.openModal();
@@ -82,43 +89,16 @@ export function UnifiedModal({
     [modalRouteKey, route, onOpenChange]
   );
 
-  // Оптимизированная синхронизация: используем ref для предотвращения циклов
-  const syncingRef = React.useRef(false);
-  
-  // Синхронизация: если open prop меняется извне, обновляем URL
+  // Простая синхронизация: если URL меняется извне (прямой переход), обновляем prop
+  // Но только если open prop не был явно установлен
   React.useEffect(() => {
-    if (!modalRouteKey || !route || syncingRef.current) return;
+    if (!modalRouteKey || !route) return;
     
-    const routeIsOpen = route.isOpen;
-    if (open && !routeIsOpen) {
-      syncingRef.current = true;
-      route.openModal();
-      // Сбрасываем флаг после следующего тика
-      requestAnimationFrame(() => {
-        syncingRef.current = false;
-      });
-    } else if (!open && routeIsOpen) {
-      syncingRef.current = true;
-      route.closeModal();
-      requestAnimationFrame(() => {
-        syncingRef.current = false;
-      });
+    // Если open prop не задан явно, синхронизируем с URL
+    if (open === undefined && route.isOpen !== resolvedOpen) {
+      onOpenChange(route.isOpen);
     }
-  }, [modalRouteKey, open, route?.isOpen, route]);
-
-  // Синхронизация: если URL меняется (прямой переход), обновляем open prop
-  React.useEffect(() => {
-    if (!modalRouteKey || !route || syncingRef.current) return;
-    
-    const routeIsOpen = route.isOpen;
-    if (routeIsOpen !== open) {
-      syncingRef.current = true;
-      onOpenChange(routeIsOpen);
-      requestAnimationFrame(() => {
-        syncingRef.current = false;
-      });
-    }
-  }, [modalRouteKey, route?.isOpen, onOpenChange, open]);
+  }, [modalRouteKey, route?.isOpen, onOpenChange, open, resolvedOpen]);
 
   // Оптимизированное расширение: сразу устанавливаем финальное состояние
   const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
@@ -145,72 +125,59 @@ export function UnifiedModal({
   }, [resolvedOpen, initialSnap]);
 
   // Блокировка скролла body при открытии модалки
+  // Radix UI сам управляет блокировкой, но мы добавляем дополнительную защиту
   React.useEffect(() => {
-    let preventBodyScrollHandler: ((e: TouchEvent) => void) | null = null;
+    if (!resolvedOpen) return;
     
-    if (resolvedOpen) {
-      // Сохраняем текущую позицию скролла перед блокировкой
-      const scrollY = window.scrollY;
-      
-      // Блокируем скролл фона при открытом модальном окне
+    // Сохраняем текущую позицию скролла перед блокировкой
+    const scrollY = window.scrollY;
+    document.body.setAttribute('data-scroll-y', scrollY.toString());
+    
+    // Дополнительная блокировка для предотвращения скролла фона
+    // Radix UI уже блокирует скролл, но мы добавляем дополнительную защиту
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const originalTop = document.body.style.top;
+    const originalWidth = document.body.style.width;
+    
+    // Блокируем скролл только если Radix UI еще не сделал этого
+    if (!document.body.hasAttribute('data-radix-scroll-locked')) {
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      document.body.style.left = '0';
-      document.body.style.right = '0';
+    }
+    
+    // Предотвращаем скролл фона через touchmove на мобильных
+    const preventBodyScrollHandler = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      const modalContent = target.closest('[role="dialog"]') || 
+                          target.closest('[data-radix-dialog-content]') ||
+                          target.closest('[data-state="open"]');
+      if (!modalContent) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('touchmove', preventBodyScrollHandler, { passive: false });
+    
+    return () => {
+      document.removeEventListener('touchmove', preventBodyScrollHandler);
       
-      // Сохраняем позицию скролла в data-атрибут для восстановления
-      document.body.setAttribute('data-scroll-y', scrollY.toString());
-      
-      // Предотвращаем скролл фона через touchmove на мобильных
-      preventBodyScrollHandler = (e: TouchEvent) => {
-        // Разрешаем скролл только внутри модалки
-        const target = e.target as HTMLElement;
-        const modalContent = target.closest('[role="dialog"]') || 
-                            target.closest('[data-radix-dialog-content]') ||
-                            target.closest('[data-state="open"]');
-        if (!modalContent) {
-          e.preventDefault();
-        }
-      };
-      
-      document.addEventListener('touchmove', preventBodyScrollHandler, { passive: false });
-    } else {
-      // Восстанавливаем позицию скролла
+      // Восстанавливаем скролл
       const scrollY = document.body.getAttribute('data-scroll-y');
       document.body.removeAttribute('data-scroll-y');
       
-      // Разблокируем скролл при закрытии
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
+      // Восстанавливаем стили только если мы их меняли
+      if (!document.body.hasAttribute('data-radix-scroll-locked')) {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.top = originalTop;
+        document.body.style.width = originalWidth;
+      }
       
       // Восстанавливаем позицию скролла
       if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY, 10));
-      }
-    }
-    
-    return () => {
-      // Очистка при размонтировании или изменении состояния
-      if (preventBodyScrollHandler) {
-        document.removeEventListener('touchmove', preventBodyScrollHandler);
-      }
-      
-      // Восстанавливаем скролл, если модалка была открыта
-      const scrollY = document.body.getAttribute('data-scroll-y');
-      if (scrollY) {
-        document.body.removeAttribute('data-scroll-y');
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
         window.scrollTo(0, parseInt(scrollY, 10));
       }
     };

@@ -66,16 +66,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
-  const route = useModalRoute('boost-shop');
-  const isOpen = open || route.isOpen;
-  const handleOpenChange = (state: boolean) => {
-    if (onOpenChange) onOpenChange(state);
-    if (state) {
-      route.openModal();
-    } else {
-      route.closeModal();
-    }
-  };
+  // UnifiedModal сам синхронизирует с URL через modalRouteKey
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const showStarsPayment = isTelegramMiniApp();
   const [boosts, setBoosts] = useState<Boost[]>([]);
@@ -126,10 +117,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const hasLoadedRef = useRef(false);
   
   useEffect(() => {
-    if (isOpen && !hasLoadedRef.current && profileId) {
+    if (open && !hasLoadedRef.current && profileId) {
       hasLoadedRef.current = true;
       loadData();
-    } else if (!isOpen) {
+    } else if (!open) {
       // Сбрасываем флаг при закрытии, чтобы загрузить свежие данные при следующем открытии
       hasLoadedRef.current = false;
     }
@@ -1368,8 +1359,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   return (
     <>
       <UnifiedModal
-        open={isOpen}
-        onOpenChange={handleOpenChange}
+        open={open}
+        onOpenChange={onOpenChange}
         title={t('boostShop.title')}
         showTitleBar={false}
         className="max-w-4xl"

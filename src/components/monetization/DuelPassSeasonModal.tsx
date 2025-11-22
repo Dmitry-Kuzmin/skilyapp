@@ -303,16 +303,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
-  const route = useModalRoute('duel-pass-season');
-  // Передаем open prop напрямую в UnifiedModal, он сам синхронизирует с URL
-  const handleOpenChange = (state: boolean) => {
-    if (onOpenChange) onOpenChange(state);
-    if (state) {
-      route.openModal();
-    } else {
-      route.closeModal();
-    }
-  };
+  // UnifiedModal сам синхронизирует с URL через modalRouteKey
   const { openModal: openLeaderboardModal } = useModalRoute('duel-pass-leaderboard');
   const dateLocale = localeMap[language] || "en-US";
   const dp = React.useCallback(
@@ -1006,7 +997,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   ) => (
     <UnifiedModal
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={onOpenChange}
       title={title || dp("title")}
       showTitleBar={false}
       className={cn(
@@ -1015,6 +1006,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       )}
       showHandle={options?.showHandle}
       contentClassName={options?.contentClassName}
+      modalRouteKey="duel-pass-season"
       loading={options?.loading ?? loading}
       skeletonVariant="default"
       modalRouteKey="duel-pass-season"

@@ -5,6 +5,7 @@ import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Acti
 import { motion } from 'framer-motion';
 import { getReadinessStatus } from '@/utils/examReadiness';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { AnalyticsPanel } from './AnalyticsPanel';
 
 interface ExamReadinessProps {
   averageScore: number;
@@ -322,16 +323,24 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
          </div>
        </div>
 
-       {/* Levels Panel - плавное появление */}
-       <div className={`absolute inset-0 p-6 sm:p-8 transition-all duration-500 ${showLevels ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+       {/* Levels Panel - плавное появление с Split View */}
+       <div className={`absolute inset-0 p-4 sm:p-6 transition-all duration-500 ${showLevels ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
          <div className="h-full flex flex-col">
            {/* Title */}
-           <div className="mb-6 relative z-10 flex items-center justify-between">
-             <h3 className="font-bold text-white text-base sm:text-lg">NIVELES DE VUELO</h3>
+           <div className="mb-4 relative z-10 flex items-center justify-between">
+             <h3 className="font-bold text-white text-base sm:text-lg">TELEMETRÍA & PREDICCIÓN</h3>
            </div>
+           
+           {/* Split View: Levels (Left) + Analytics (Right) */}
+           <div className="flex-1 flex gap-4 min-h-0">
+             {/* Left Side: Levels */}
+             <div className="w-2/5 flex flex-col">
+               <div className="mb-3">
+                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">NIVELES DE VUELO</h4>
+               </div>
 
-           {/* Levels List with Progress Line */}
-           <div className="flex-1 relative flex flex-col justify-between min-h-0">
+               {/* Levels List with Progress Line */}
+               <div className="flex-1 relative flex flex-col justify-between min-h-0 overflow-y-auto">
              {/* Vertical Progress Line (background) */}
              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700/50"></div>
              
@@ -418,6 +427,21 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                    </motion.div>
                  );
                })}
+               </div>
+             </div>
+             
+             {/* Right Side: Analytics */}
+             <div className="flex-1 flex flex-col min-h-0">
+               <AnalyticsPanel
+                 trend={analytics?.trend || null}
+                 consistency={analytics?.consistency || null}
+                 timeToPass={analytics?.timeToPass || null}
+                 criticalPoint={analytics?.criticalPoint || null}
+                 focusBattery={analytics?.focusBattery || null}
+                 activityHeatmap={analytics?.activityHeatmap || null}
+                 currentScore={score}
+                 loading={analyticsLoading}
+               />
              </div>
            </div>
          </div>
