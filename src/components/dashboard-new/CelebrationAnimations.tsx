@@ -87,9 +87,10 @@ const getRecommendedDuration = (type: CelebrationType): number => {
       return 7000; // 7 секунд
     case 'mega-burst':
     case 'explosion':
-    case 'phoenix':
     case 'rainbow':
       return 8000; // 8 секунд
+    case 'phoenix':
+      return 8000; // 8 секунд - эпичная трансформация
     case 'galaxy':
     case 'cosmic':
     case 'golden-rain':
@@ -798,39 +799,101 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
     case 'phoenix':
       return (
         <div className="fixed inset-0 pointer-events-none z-[9999] bg-gradient-to-br from-orange-900/40 via-red-900/40 to-yellow-900/40">
-          {/* Феникс - огненные частицы */}
-          {[...Array(250)].map((_, i) => (
+          {/* Начальная иконка пламени - трансформируется из маленькой в большую */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            initial={{ scale: 0.3, opacity: 1, y: 0 }}
+            animate={{ 
+              scale: [0.3, 2, 3, 2.5],
+              opacity: [1, 1, 0.9, 0],
+              y: [0, -50, -100, -150],
+              rotate: [0, 180, 360, 540]
+            }}
+            transition={{ 
+              duration: 2,
+              ease: [0.4, 0, 0.2, 1],
+              times: [0, 0.3, 0.7, 1]
+            }}
+          >
+            <Flame className="w-8 h-8 text-orange-500 fill-orange-500 drop-shadow-[0_0_30px_rgba(251,146,60,1)]" />
+          </motion.div>
+          
+          {/* Феникс - огненные частицы, появляются после трансформации иконки */}
+          {[...Array(400)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-3 h-3 rounded-full"
+              className="absolute w-4 h-4 rounded-full"
               style={{
                 left: '50%',
                 top: '50%',
-                background: `radial-gradient(circle, hsl(${20 + i % 40}, 100%, 60%), hsl(${10 + i % 30}, 100%, 40%))`,
-                boxShadow: `0 0 20px hsl(${20 + i % 40}, 100%, 60%)`,
+                background: `radial-gradient(circle, hsl(${15 + (i % 50)}, 100%, 65%), hsl(${10 + (i % 30)}, 100%, 45%))`,
+                boxShadow: `0 0 25px hsl(${15 + (i % 50)}, 100%, 65%)`,
               }}
-              initial={{ scale: 0, opacity: 1 }}
+              initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
               animate={{
-                scale: [0, 2, 0],
-                opacity: [1, 1, 0],
-                x: (Math.cos((i / 250) * Math.PI * 2) * 600) + (Math.random() - 0.5) * 200,
-                y: (Math.sin((i / 250) * Math.PI * 2) * 600) + (Math.random() - 0.5) * 200 - 200,
+                scale: [0, 2.5, 1.5, 0],
+                opacity: [0, 1, 1, 0],
+                x: (Math.cos((i / 400) * Math.PI * 2) * 800) + (Math.random() - 0.5) * 300,
+                y: (Math.sin((i / 400) * Math.PI * 2) * 800) + (Math.random() - 0.5) * 300 - 300,
               }}
               transition={{
-                duration: 3,
-                delay: i * 0.01,
+                duration: 4,
+                delay: 0.5 + (i * 0.008),
+                ease: [0.4, 0, 0.2, 1],
+              }}
+            />
+          ))}
+          
+          {/* Крылья феникса - большие огненные волны */}
+          {[...Array(8)].map((_, wingIndex) => (
+            <motion.div
+              key={`wing-${wingIndex}`}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{
+                width: '200px',
+                height: '400px',
+                background: `radial-gradient(ellipse, 
+                  hsla(${20 + wingIndex * 5}, 100%, 60%, 0.8) 0%,
+                  hsla(${15 + wingIndex * 5}, 100%, 50%, 0.4) 50%,
+                  transparent 100%
+                )`,
+                clipPath: `polygon(
+                  ${50 + Math.cos((wingIndex / 8) * Math.PI * 2) * 30}% ${50 + Math.sin((wingIndex / 8) * Math.PI * 2) * 30}%,
+                  ${50 + Math.cos((wingIndex / 8) * Math.PI * 2) * 80}% ${50 + Math.sin((wingIndex / 8) * Math.PI * 2) * 80}%,
+                  ${50 + Math.cos(((wingIndex + 1) / 8) * Math.PI * 2) * 80}% ${50 + Math.sin(((wingIndex + 1) / 8) * Math.PI * 2) * 80}%,
+                  ${50 + Math.cos(((wingIndex + 1) / 8) * Math.PI * 2) * 30}% ${50 + Math.sin(((wingIndex + 1) / 8) * Math.PI * 2) * 30}%
+                )`,
+              }}
+              initial={{ scale: 0, opacity: 0, rotate: (wingIndex / 8) * 360 }}
+              animate={{
+                scale: [0, 1.2, 1.5, 0],
+                opacity: [0, 0.6, 0.4, 0],
+                rotate: [(wingIndex / 8) * 360, (wingIndex / 8) * 360 + 45, (wingIndex / 8) * 360 + 90],
+              }}
+              transition={{
+                duration: 3.5,
+                delay: 1 + wingIndex * 0.2,
                 ease: 'easeOut',
               }}
             />
           ))}
-          {/* Центральное пламя */}
+          
+          {/* Финальное большое пламя в центре */}
           <motion.div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
             initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 1.5, 1], opacity: [0, 1, 1] }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
+            animate={{ 
+              scale: [0, 1.5, 2, 1.8, 0],
+              opacity: [0, 1, 0.9, 0.7, 0],
+              rotate: [0, 180, 360]
+            }}
+            transition={{ 
+              duration: 3,
+              delay: 1.5,
+              ease: 'easeOut'
+            }}
           >
-            <Flame className="w-40 h-40 text-orange-500 fill-orange-500 drop-shadow-[0_0_50px_rgba(251,146,60,1)]" />
+            <Flame className="w-48 h-48 text-orange-500 fill-orange-500 drop-shadow-[0_0_80px_rgba(251,146,60,1)]" />
           </motion.div>
         </div>
       );

@@ -16,8 +16,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [showNewWeek, setShowNewWeek] = useState(false);
-  const [celebrationType, setCelebrationType] = useState<CelebrationType>('supernova'); // Можно менять тип
-  const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('fanfare');
+  const [celebrationType, setCelebrationType] = useState<CelebrationType>('phoenix');
+  const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
@@ -64,9 +64,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     // Если день 7 - показываем анимацию поздравления и модальное окно
     if (weekDay === 7) {
       setShowCelebration(true);
-      // Длительность зависит от типа анимации (6-10 секунд)
-      const animationDuration = celebrationType === 'supernova' ? 10000 : 
-                                celebrationType === 'confetti' ? 3000 : 7000;
+      // Phoenix анимация длится 8 секунд
+      const animationDuration = 8000;
       setTimeout(() => {
         setShowCelebration(false);
         setShowCelebrationModal(true);
@@ -85,8 +84,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const handleTestAnimations = () => {
     if (process.env.NODE_ENV === 'development') {
       setShowCelebration(true);
-      const animationDuration = celebrationType === 'supernova' ? 10000 : 
-                                celebrationType === 'confetti' ? 3000 : 7000;
+      const animationDuration = 8000; // Phoenix длится 8 секунд
       setTimeout(() => {
         setShowCelebration(false);
       }, animationDuration);
@@ -108,7 +106,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       setCelebrationType(newType);
       setShowCelebration(true);
       const animationDuration = newType === 'supernova' ? 10000 : 
-                                newType === 'confetti' ? 3000 : 7000;
+                                newType === 'confetti' ? 3000 : 
+                                newType === 'phoenix' ? 8000 : 7000;
       setTimeout(() => setShowCelebration(false), animationDuration);
     }
   };
