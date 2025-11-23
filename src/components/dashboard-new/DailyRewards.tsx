@@ -81,42 +81,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
   };
 
-  const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
-    // Вычисляем прогресс в текущей неделе (от 1 до 7)
-    // Если стрик 0, то прогресс 0
-    // Если стрик кратен 7 (7, 14, 21...), то прогресс 7 (неделя завершена)
-    // Иначе: остаток от деления на 7 (1-6 дней в текущей неделе)
-    const wp = currentStreak === 0 ? 0 : (currentStreak % 7 === 0 ? 7 : currentStreak % 7);
-    const pp = (wp / 7) * 100;
-    const r = 50;
-    const circ = 2 * Math.PI * r;
-    const offset = circ - (pp / 100) * circ;
-    const wn = currentStreak === 0 ? 0 : Math.ceil(currentStreak / 7);
-    const wd = currentStreak === 0 ? 0 : (currentStreak % 7 || 7);
-    const isDay7Value = wd === 7 && !hasClaimedToday;
-    const isNewWeekValue = wd === 1 && currentStreak > 7 && !hasClaimedToday;
-    return { 
-      weeklyProgress: wp, 
-      progressPercent: pp, 
-      strokeDashoffset: offset,
-      radius: r,
-      circumference: circ,
-      weekNumber: wn,
-      weekDay: wd,
-      isDay7: isDay7Value,
-      isNewWeek: isNewWeekValue
-    };
-  }, [currentStreak, hasClaimedToday]);
-
-  // Показываем плашку "Следующая неделя началась" при новой неделе
-  useEffect(() => {
-    if (isNewWeek && !showNewWeek) {
-      setShowNewWeek(true);
-      const timer = setTimeout(() => setShowNewWeek(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isNewWeek, showNewWeek]);
-
   return (
     <div className="h-full min-h-[360px] bg-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
       

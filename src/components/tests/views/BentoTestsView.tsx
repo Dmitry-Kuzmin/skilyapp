@@ -1,13 +1,10 @@
 import { motion } from "framer-motion";
 import {
-    BookOpen, Brain, GraduationCap, Shuffle, Zap, Flame,
-    History, AlertTriangle, Clock, CheckCircle2, Flag, Layers,
-    ChevronRight, Star, Trophy, Sparkles, Target, BarChart3
+    BookOpen, Shuffle, Zap, Flame,
+    History, AlertTriangle, Clock,
+    ChevronRight, Trophy, Sparkles, Target, BarChart3
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 import { useState } from "react";
@@ -22,30 +19,10 @@ interface BentoTestsViewProps {
     handleTopicClick: (id: string) => void;
 }
 
-// --- Animation Variants ---
-const containerVariants = {
+// --- Simplified Animation Variants (Performance Optimized) ---
+const fadeIn = {
     hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.2
-        }
-    }
-};
-
-const itemVariants = {
-    hidden: { y: 20, opacity: 0, scale: 0.95 },
-    visible: {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        transition: {
-            type: "spring",
-            stiffness: 100,
-            damping: 15
-        }
-    }
+    visible: { opacity: 1, transition: { duration: 0.3 } }
 };
 
 // --- Components ---
@@ -62,44 +39,39 @@ const BentoCard = ({
     gradient?: string;
 }) => {
     return (
-        <motion.div
-            variants={itemVariants}
-            whileHover={{ y: -5, scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+        <div
             onClick={onClick}
             className={cn(
-                "relative overflow-hidden rounded-[32px] border border-white/5 bg-[#121214] p-6 backdrop-blur-xl transition-all duration-300",
-                onClick && "cursor-pointer hover:border-white/10 hover:shadow-2xl hover:shadow-black/50",
+                "relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#18181b] to-[#121214] p-6 transition-all duration-200",
+                onClick && "cursor-pointer hover:border-white/20 hover:shadow-xl hover:shadow-black/20 active:scale-[0.98]",
                 className
             )}
+            style={{ willChange: 'transform' }}
         >
-            {/* Dynamic Gradient Background */}
+            {/* Gradient Background */}
             {gradient && (
                 <div
-                    className="absolute inset-0 opacity-20 transition-opacity duration-500 group-hover:opacity-30"
+                    className="absolute inset-0 opacity-30"
                     style={{ background: gradient }}
                 />
             )}
-
-            {/* Noise Texture */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
             {/* Content */}
             <div className="relative z-10 h-full">
                 {children}
             </div>
-        </motion.div>
+        </div>
     );
 };
 
 const StatBadge = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) => (
-    <div className="flex items-center gap-3 bg-white/5 rounded-2xl p-3 border border-white/5 backdrop-blur-md">
-        <div className={cn("p-2 rounded-xl", color)}>
+    <div className="flex items-center gap-3 bg-white/[0.08] rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+        <div className={cn("p-2 rounded-lg", color)}>
             <Icon className="w-4 h-4 text-white" />
         </div>
         <div>
-            <div className="text-[10px] text-white/40 uppercase font-bold tracking-wider">{label}</div>
-            <div className="text-lg font-bold text-white leading-none mt-0.5">{value}</div>
+            <div className="text-[10px] text-white/50 uppercase font-bold tracking-wider">{label}</div>
+            <div className="text-xl font-bold text-white leading-none mt-0.5">{value}</div>
         </div>
     </div>
 );
@@ -119,70 +91,57 @@ export const BentoTestsView = ({
     return (
         <div className="w-full flex justify-center pt-8 pb-20">
             <motion.div
-                variants={containerVariants}
+                variants={fadeIn}
                 initial="hidden"
                 animate="visible"
                 className="w-full max-w-[1370px] px-6 space-y-8"
             >
                 {/* Header & Stats */}
-                <div className="flex flex-col lg:flex-row items-end justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <motion.h1
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight"
-                        >
+                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
                             Центр тестирования
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-white/50 text-lg"
-                        >
+                        </h1>
+                        <p className="text-white/60 text-base md:text-lg">
                             Выбирайте режим и улучшайте свои навыки
-                        </motion.p>
+                        </p>
                     </div>
 
-                    <motion.div
-                        variants={itemVariants}
-                        className="flex flex-wrap gap-3"
-                    >
+                    <div className="flex flex-wrap gap-3">
                         <StatBadge icon={Target} label="Точность" value={`${stats.accuracy}%`} color="bg-blue-500/20" />
-                        <StatBadge icon={CheckCircle2} label="Ответов" value={stats.totalAnswered} color="bg-green-500/20" />
+                        <StatBadge icon={BarChart3} label="Ответов" value={stats.totalAnswered} color="bg-emerald-500/20" />
                         <StatBadge icon={AlertTriangle} label="Ошибок" value={stats.errors} color="bg-red-500/20" />
                         <StatBadge icon={Trophy} label="Уровень" value="1" color="bg-amber-500/20" />
-                    </motion.div>
+                    </div>
                 </div>
 
                 {/* BENTO GRID */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 auto-rows-min">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
 
                     {/* COLUMN 1: Main Actions (4 cols) */}
                     <div className="lg:col-span-4 flex flex-col gap-6">
                         {/* Random Test - Hero Card */}
                         <BentoCard
-                            className="group min-h-[320px] lg:h-[380px]"
+                            className="group min-h-[340px] bg-gradient-to-br from-indigo-600 to-purple-700 border-indigo-500/20"
                             onClick={() => handleStartTest(`/test/practice?count=${randomQuestionCount}`)}
-                            gradient="linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)"
                         >
                             <div className="flex flex-col justify-between h-full">
-                                <div className="flex justify-between items-start">
-                                    <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10 text-white">
-                                        <Shuffle className="w-8 h-8" />
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md border border-white/30 text-white">
+                                        <Shuffle className="w-7 h-7" />
                                     </div>
-                                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-md">
-                                        POPULAR
+                                    <Badge className="bg-white/30 hover:bg-white/40 text-white border-none backdrop-blur-md font-bold px-3 py-1">
+                                        HOT
                                     </Badge>
                                 </div>
 
                                 <div>
-                                    <h3 className="text-3xl font-bold text-white mb-2">Случайный тест</h3>
-                                    <p className="text-white/70 mb-6 text-sm lg:text-base">
-                                        Быстрая проверка знаний на случайных вопросах.
+                                    <h3 className="text-3xl font-bold text-white mb-3 leading-tight">Случайный тест</h3>
+                                    <p className="text-white/90 mb-6 text-sm">
+                                        Быстрая проверка знаний на случайных вопросах из всех тем.
                                     </p>
 
-                                    <div className="flex items-center gap-2 flex-wrap">
+                                    <div className="flex items-center gap-2.5">
                                         {[10, 20, 30].map(count => (
                                             <button
                                                 key={count}
@@ -191,10 +150,10 @@ export const BentoTestsView = ({
                                                     setRandomQuestionCount(count);
                                                 }}
                                                 className={cn(
-                                                    "px-4 py-2 rounded-xl text-sm font-bold transition-all border",
+                                                    "px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
                                                     randomQuestionCount === count
-                                                        ? "bg-white text-black border-white"
-                                                        : "bg-black/20 text-white border-white/10 hover:bg-white/10"
+                                                        ? "bg-white text-indigo-600 shadow-lg"
+                                                        : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
                                                 )}
                                             >
                                                 {count}
@@ -203,8 +162,8 @@ export const BentoTestsView = ({
                                     </div>
                                 </div>
 
-                                <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
-                                    <div className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-lg">
+                                <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 transition-all duration-300">
+                                    <div className="w-12 h-12 bg-white/30 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-xl border border-white/40">
                                         <ChevronRight className="w-6 h-6" />
                                     </div>
                                 </div>
@@ -213,143 +172,157 @@ export const BentoTestsView = ({
 
                         {/* Exam Card */}
                         <BentoCard
-                            className="min-h-[180px] lg:h-[200px] group bg-[#1c1c1e]"
+                            className="min-h-[200px] bg-gradient-to-br from-emerald-600 to-teal-700 border-emerald-500/20"
                             onClick={() => handleStartTest("/test/exam")}
                         >
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-emerald-500/20 rounded-xl text-emerald-400">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="p-3 bg-white/20 rounded-xl text-white backdrop-blur-sm">
                                     <Clock className="w-6 h-6" />
                                 </div>
-                                <div className="flex gap-1">
-                                    {[1, 2, 3].map(i => (
-                                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                                    ))}
-                                </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-white mb-1">Экзамен</h3>
-                            <p className="text-white/40 text-sm">Симуляция DGT</p>
+                            <h3 className="text-2xl font-bold text-white mb-2">Экзамен DGT</h3>
+                            <p className="text-white/80 text-sm mb-4">Полная симуляция экзамена</p>
 
-                            <div className="mt-4 flex gap-2">
-                                <Badge variant="outline" className="border-white/10 text-white/60 bg-white/5">30 мин</Badge>
-                                <Badge variant="outline" className="border-white/10 text-white/60 bg-white/5">3 ошибки</Badge>
+                            <div className="flex gap-2">
+                                <Badge variant="outline" className="border-white/30 bg-white/10 text-white font-medium">30 мин</Badge>
+                                <Badge variant="outline" className="border-white/30 bg-white/10 text-white font-medium">30 вопросов</Badge>
                             </div>
                         </BentoCard>
                     </div>
 
                     {/* COLUMN 2: Modes Grid (4 cols) */}
-                    <div className="lg:col-span-4 grid grid-cols-2 gap-6 h-full content-start">
+                    <div className="lg:col-span-4 grid grid-cols-2 gap-5">
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
+                            className="aspect-square bg-gradient-to-br from-amber-500 to-orange-600 border-amber-500/20 hover:from-amber-400 hover:to-orange-500"
                             onClick={() => handleStartTest("/test/practice?mode=blitz&count=20&timer=300")}
                         >
-                            <Zap className="w-8 h-8 text-amber-400" />
-                            <div>
-                                <div className="text-lg font-bold text-white">Блиц</div>
-                                <div className="text-xs text-white/40 mt-1">20 вопросов • 5 мин</div>
+                            <div className="h-full flex flex-col justify-between">
+                                <div className="p-2 bg-white/20 rounded-lg w-fit backdrop-blur-sm">
+                                    <Zap className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <div className="text-xl font-bold text-white">Блиц</div>
+                                    <div className="text-xs text-white/80 mt-1 font-medium">20 вопросов • 5 мин</div>
+                                </div>
                             </div>
                         </BentoCard>
 
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
+                            className="aspect-square bg-gradient-to-br from-red-500 to-pink-600 border-red-500/20 hover:from-red-400 hover:to-pink-500"
                             onClick={() => handleStartTest("/test/practice?mode=marathon")}
                         >
-                            <Flame className="w-8 h-8 text-red-500" />
-                            <div>
-                                <div className="text-lg font-bold text-white">Марафон</div>
-                                <div className="text-xs text-white/40 mt-1">До первой ошибки</div>
+                            <div className="h-full flex flex-col justify-between">
+                                <div className="p-2 bg-white/20 rounded-lg w-fit backdrop-blur-sm">
+                                    <Flame className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <div className="text-xl font-bold text-white">Марафон</div>
+                                    <div className="text-xs text-white/80 mt-1 font-medium">До первой ошибки</div>
+                                </div>
                             </div>
                         </BentoCard>
 
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
+                            className="aspect-square bg-gradient-to-br from-purple-500 to-violet-600 border-purple-500/20 hover:from-purple-400 hover:to-violet-500"
                             onClick={() => handleStartTest("/test/challenge-bank")}
                         >
-                            <History className="w-8 h-8 text-purple-400" />
-                            <div>
-                                <div className="text-lg font-bold text-white">Ошибки</div>
-                                <div className="text-xs text-white/40 mt-1">{challengeBankCount} вопросов</div>
+                            <div className="h-full flex flex-col justify-between">
+                                <div className="p-2 bg-white/20 rounded-lg w-fit backdrop-blur-sm">
+                                    <History className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <div className="text-xl font-bold text-white">Ошибки</div>
+                                    <div className="text-xs text-white/80 mt-1 font-medium">{challengeBankCount} вопросов</div>
+                                </div>
                             </div>
                         </BentoCard>
 
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
+                            className="aspect-square bg-gradient-to-br from-slate-600 to-slate-700 border-slate-500/20 hover:from-slate-500 hover:to-slate-600"
                             onClick={() => handleStartTest("/test/hardest")}
                         >
-                            <AlertTriangle className="w-8 h-8 text-orange-400" />
-                            <div>
-                                <div className="text-lg font-bold text-white">Сложные</div>
-                                <div className="text-xs text-white/40 mt-1">ТОП-50 трудных</div>
+                            <div className="h-full flex flex-col justify-between">
+                                <div className="p-2 bg-white/20 rounded-lg w-fit backdrop-blur-sm">
+                                    <AlertTriangle className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <div className="text-xl font-bold text-white">Сложные</div>
+                                    <div className="text-xs text-white/80 mt-1 font-medium">ТОП-50</div>
+                                </div>
                             </div>
                         </BentoCard>
                     </div>
 
                     {/* COLUMN 3: Topics List (4 cols) */}
-                    <div className="lg:col-span-4 h-full min-h-[500px] lg:h-[604px]">
-                        <BentoCard className="h-full flex flex-col p-0 bg-[#121214] overflow-hidden">
-                            <div className="p-6 pb-4 border-b border-white/5 bg-[#121214] z-20">
+                    <div className="lg:col-span-4 h-full min-h-[500px] lg:h-[564px]">
+                        <BentoCard className="h-full flex flex-col p-0 bg-gradient-to-b from-[#1a1a1d] to-[#121214] border-white/10">
+                            <div className="p-5 pb-4 border-b border-white/10 bg-gradient-to-r from-blue-600/10 to-purple-600/10">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                        <div className="p-2.5 bg-blue-500/20 rounded-xl text-blue-400 border border-blue-500/20">
                                             <BookOpen className="w-5 h-5" />
                                         </div>
                                         <h3 className="font-bold text-white text-lg">Темы курса</h3>
                                     </div>
-                                    <Badge variant="secondary" className="bg-white/10 text-white hover:bg-white/20">
+                                    <Badge className="bg-white/10 text-white border-white/20 hover:bg-white/20 font-bold">
                                         {topics.length}
                                     </Badge>
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                                {topics.map((topic, i) => (
-                                    <motion.div
+                            <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
+                                {topics.map((topic) => (
+                                    <div
                                         key={topic.id}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: i * 0.05 }}
                                         className={cn(
-                                            "group flex items-center gap-4 p-3 rounded-2xl transition-all cursor-pointer border border-transparent",
-                                            hoveredTopic === topic.id ? "bg-white/10 border-white/10" : "hover:bg-white/5"
+                                            "group flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer border",
+                                            hoveredTopic === topic.id
+                                                ? "bg-white/10 border-white/20"
+                                                : "border-transparent hover:bg-white/5 hover:border-white/10"
                                         )}
                                         onMouseEnter={() => setHoveredTopic(topic.id)}
                                         onMouseLeave={() => setHoveredTopic(null)}
                                         onClick={() => handleTopicClick(topic.id)}
                                     >
                                         <div className={cn(
-                                            "w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-colors",
-                                            hoveredTopic === topic.id ? "bg-white text-black" : "bg-[#1c1c1e] text-white/40"
+                                            "w-11 h-11 rounded-xl flex items-center justify-center font-bold text-base transition-all shrink-0",
+                                            hoveredTopic === topic.id
+                                                ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg"
+                                                : "bg-[#1c1c1e] text-white/50"
                                         )}>
                                             {topic.number}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
                                             <div className={cn(
-                                                "font-medium text-sm truncate transition-colors",
-                                                hoveredTopic === topic.id ? "text-white" : "text-white/80"
+                                                "font-semibold text-sm truncate transition-colors",
+                                                hoveredTopic === topic.id ? "text-white" : "text-white/70"
                                             )}>
                                                 {topic.name}
                                             </div>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <div className="h-1 flex-1 bg-white/10 rounded-full overflow-hidden">
-                                                    <div className="h-full w-0 bg-blue-500 rounded-full" />
+                                            <div className="flex items-center gap-2 mt-1.5">
+                                                <div className="h-1.5 flex-1 bg-white/[0.08] rounded-full overflow-hidden">
+                                                    <div className="h-full w-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full" />
                                                 </div>
-                                                <div className="text-[10px] text-white/30 font-medium">0%</div>
+                                                <div className="text-[10px] text-white/40 font-bold">0%</div>
                                             </div>
                                         </div>
 
                                         {topic.is_premium && !isPremium ? (
-                                            <div className="p-2 rounded-full bg-white/5 text-white/20">
+                                            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 shrink-0">
                                                 <Sparkles className="w-4 h-4" />
                                             </div>
                                         ) : (
                                             <div className={cn(
-                                                "p-2 rounded-full transition-all",
-                                                hoveredTopic === topic.id ? "bg-white text-black" : "bg-white/5 text-white/20"
+                                                "p-2 rounded-lg transition-all shrink-0",
+                                                hoveredTopic === topic.id
+                                                    ? "bg-white/20 text-white"
+                                                    : "bg-white/5 text-white/30"
                                             )}>
                                                 <ChevronRight className="w-4 h-4" />
                                             </div>
                                         )}
-                                    </motion.div>
+                                    </div>
                                 ))}
                             </div>
                         </BentoCard>
