@@ -452,8 +452,8 @@ const Games = () => {
       />
 
       <BoostShopModal
-        isOpen={isBoostShopOpen}
-        onClose={() => setIsBoostShopOpen(false)}
+        open={isBoostShopOpen}
+        onOpenChange={setIsBoostShopOpen}
       />
     </>
   );
