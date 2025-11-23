@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
-import { Trophy, Sparkles, Star, Award, Zap } from 'lucide-react';
+import { Trophy, Sparkles, Star, Award, Zap, Crown, Flame } from 'lucide-react';
+import { playLevelUpSound, playSuccessSound, playCelebrationSound } from '@/services/audioService';
+import { sounds } from '@/lib/sounds';
 
 export type CelebrationType = 
   | 'confetti' 
@@ -11,13 +13,27 @@ export type CelebrationType =
   | 'sparkles' 
   | 'trophy' 
   | 'gradient' 
-  | 'particles';
+  | 'particles'
+  | 'mega-burst'
+  | 'galaxy'
+  | 'rainbow'
+  | 'champion'
+  | 'victory-fanfare'
+  | 'explosion'
+  | 'cosmic'
+  | 'golden-rain'
+  | 'diamond-shower'
+  | 'phoenix'
+  | 'supernova';
 
 interface CelebrationAnimationsProps {
   type: CelebrationType;
   show: boolean;
   onComplete?: () => void;
   duration?: number;
+  withSound?: boolean;
+  fullScreen?: boolean;
+  message?: string;
 }
 
 /**
@@ -37,7 +53,9 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
   type,
   show,
   onComplete,
-  duration = 3000
+  duration = 5000, // Увеличено до 5 секунд
+  withSound = true,
+  fullScreen = true
 }) => {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
@@ -51,6 +69,41 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
+
+  // Звуковые эффекты
+  useEffect(() => {
+    if (show && withSound) {
+      // Разные звуки для разных типов анимаций
+      switch (type) {
+        case 'victory-fanfare':
+        case 'champion':
+        case 'trophy':
+        case 'supernova':
+          sounds.victory();
+          playCelebrationSound();
+          playLevelUpSound();
+          break;
+        case 'fireworks':
+        case 'mega-burst':
+        case 'explosion':
+        case 'phoenix':
+          sounds.confetti();
+          playCelebrationSound();
+          playSuccessSound();
+          break;
+        case 'galaxy':
+        case 'cosmic':
+        case 'rainbow':
+          playCelebrationSound();
+          sounds.victory();
+          break;
+        default:
+          playCelebrationSound();
+          sounds.victory();
+          playSuccessSound();
+      }
+    }
+  }, [show, withSound, type]);
 
   useEffect(() => {
     if (show && onComplete) {
@@ -307,6 +360,472 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
         </div>
       );
 
+    case 'mega-burst':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-black/20">
+          {/* Множественные взрывы */}
+          {[...Array(5)].map((_, burstIndex) => (
+            <div key={burstIndex} className="absolute" style={{ left: `${20 + burstIndex * 20}%`, top: `${20 + burstIndex * 15}%` }}>
+              {[...Array(50)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-4 h-4 rounded-full"
+                  style={{
+                    background: `hsl(${(burstIndex * 72 + i * 7) % 360}, 100%, 60%)`,
+                    boxShadow: `0 0 20px hsl(${(burstIndex * 72 + i * 7) % 360}, 100%, 60%)`,
+                  }}
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{
+                    scale: [0, 2, 0],
+                    opacity: [1, 1, 0],
+                    x: (Math.cos((i / 50) * Math.PI * 2) * 400),
+                    y: (Math.sin((i / 50) * Math.PI * 2) * 400),
+                  }}
+                  transition={{
+                    duration: 2,
+                    delay: burstIndex * 0.3 + i * 0.02,
+                    ease: 'easeOut',
+                  }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+
+    case 'galaxy':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-black/50">
+          {/* Спиральная галактика */}
+          {[...Array(200)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                background: `hsl(${i * 2 % 360}, 100%, ${50 + (i % 3) * 20}%)`,
+                boxShadow: `0 0 10px hsl(${i * 2 % 360}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 0, rotate: 0 }}
+              animate={{
+                scale: [0, 1.5, 0.8, 0],
+                opacity: [0, 1, 1, 0],
+                rotate: 720,
+                x: (Math.cos((i / 200) * Math.PI * 4 + i * 0.1) * (200 + i * 2)),
+                y: (Math.sin((i / 200) * Math.PI * 4 + i * 0.1) * (200 + i * 2)),
+              }}
+              transition={{
+                duration: 3,
+                delay: i * 0.01,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+        </div>
+      );
+
+    case 'rainbow':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999]">
+          {/* Радужные волны */}
+          {[...Array(7)].map((_, waveIndex) => (
+            <motion.div
+              key={waveIndex}
+              className="absolute inset-0"
+              style={{
+                background: `conic-gradient(from ${waveIndex * 45}deg, 
+                  hsl(${waveIndex * 60}, 100%, 50%), 
+                  hsl(${(waveIndex * 60 + 60) % 360}, 100%, 50%), 
+                  hsl(${(waveIndex * 60 + 120) % 360}, 100%, 50%))`,
+                opacity: 0.3,
+              }}
+              initial={{ scale: 0, rotate: 0 }}
+              animate={{
+                scale: [0, 2, 3],
+                rotate: 360,
+                opacity: [0.3, 0.6, 0],
+              }}
+              transition={{
+                duration: 2.5,
+                delay: waveIndex * 0.2,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+          {/* Радужные частицы */}
+          {[...Array(150)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-3 h-3 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                background: `hsl(${i * 2.4 % 360}, 100%, 60%)`,
+                boxShadow: `0 0 15px hsl(${i * 2.4 % 360}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 1.5, 0],
+                opacity: [1, 1, 0],
+                x: (Math.cos((i / 150) * Math.PI * 2) * 600),
+                y: (Math.sin((i / 150) * Math.PI * 2) * 600),
+              }}
+              transition={{
+                duration: 2,
+                delay: i * 0.01,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+        </div>
+      );
+
+    case 'champion':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] flex items-center justify-center bg-gradient-to-br from-yellow-900/40 via-orange-900/40 to-red-900/40">
+          <motion.div
+            initial={{ scale: 0, rotate: -180, opacity: 0 }}
+            animate={{ scale: [0, 1.2, 1], rotate: [0, 10, -10, 0], opacity: 1 }}
+            exit={{ scale: 0, rotate: 180, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15, duration: 1 }}
+            className="relative"
+          >
+            <Crown className="w-40 h-40 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]" />
+            {/* Золотые частицы */}
+            {[...Array(100)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full bg-yellow-400"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  boxShadow: '0 0 10px #FFD700',
+                }}
+                initial={{ scale: 0, opacity: 1 }}
+                animate={{
+                  scale: [0, 1.5, 0],
+                  opacity: [1, 1, 0],
+                  x: (Math.cos((i / 100) * Math.PI * 2) * 300),
+                  y: (Math.sin((i / 100) * Math.PI * 2) * 300),
+                }}
+                transition={{
+                  duration: 2,
+                  delay: 0.5 + i * 0.02,
+                  ease: 'easeOut',
+                }}
+              />
+            ))}
+          </motion.div>
+        </div>
+      );
+
+    case 'victory-fanfare':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] flex items-center justify-center bg-gradient-to-br from-blue-900/30 via-purple-900/30 to-pink-900/30">
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1.3, 1], opacity: [0, 1, 1] }}
+            transition={{ type: 'spring', stiffness: 150, damping: 12, duration: 1 }}
+            className="relative"
+          >
+            <Trophy className="w-48 h-48 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_40px_rgba(251,191,36,1)]" />
+            {/* Фанфары - множественные взрывы */}
+          </motion.div>
+          {[...Array(3)].map((_, burstIndex) => (
+            <div key={burstIndex} className="absolute" style={{ left: `${30 + burstIndex * 20}%`, top: `${30 + burstIndex * 20}%` }}>
+              {[...Array(60)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-3 h-3 rounded-full"
+                  style={{
+                    background: `hsl(${(burstIndex * 120 + i * 6) % 360}, 100%, 60%)`,
+                    boxShadow: `0 0 20px hsl(${(burstIndex * 120 + i * 6) % 360}, 100%, 60%)`,
+                  }}
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{
+                    scale: [0, 2, 0],
+                    opacity: [1, 1, 0],
+                    x: (Math.cos((i / 60) * Math.PI * 2) * 500),
+                    y: (Math.sin((i / 60) * Math.PI * 2) * 500),
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    delay: burstIndex * 0.5 + i * 0.03,
+                    ease: 'easeOut',
+                  }}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+
+    case 'explosion':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-black/30">
+          {/* Центральный взрыв */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, #FFD700, #FF6B6B, #4ECDC4)',
+              boxShadow: '0 0 100px rgba(255, 215, 0, 0.8)',
+            }}
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{
+              scale: [0, 15, 20],
+              opacity: [1, 0.8, 0],
+            }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+          />
+          {/* Частицы взрыва */}
+          {[...Array(200)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                background: `hsl(${i * 1.8 % 360}, 100%, 60%)`,
+                boxShadow: `0 0 15px hsl(${i * 1.8 % 360}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 2, 0],
+                opacity: [1, 1, 0],
+                x: (Math.random() - 0.5) * 800,
+                y: (Math.random() - 0.5) * 800,
+              }}
+              transition={{
+                duration: 2,
+                delay: Math.random() * 0.3,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+        </div>
+      );
+
+    case 'cosmic':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-gradient-to-br from-indigo-900/50 via-purple-900/50 to-pink-900/50">
+          {/* Космические частицы */}
+          {[...Array(300)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: `hsl(${i * 1.2 % 360}, 100%, ${50 + Math.random() * 50}%)`,
+                boxShadow: `0 0 10px hsl(${i * 1.2 % 360}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{
+                scale: [0, Math.random() * 3 + 1, 0],
+                opacity: [0, 1, 0],
+                x: (Math.random() - 0.5) * 1000,
+                y: (Math.random() - 0.5) * 1000,
+              }}
+              transition={{
+                duration: Math.random() * 2 + 2,
+                delay: Math.random() * 1,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+          {/* Центральная звезда */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            initial={{ scale: 0, rotate: 0 }}
+            animate={{ scale: [0, 1.5, 1], rotate: 360 }}
+            transition={{ duration: 2, ease: 'easeOut' }}
+          >
+            <Star className="w-32 h-32 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_50px_rgba(251,191,36,1)]" />
+          </motion.div>
+        </div>
+      );
+
+    case 'golden-rain':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-gradient-to-b from-yellow-900/20 to-transparent">
+          <Confetti
+            width={windowSize.width}
+            height={windowSize.height}
+            recycle={false}
+            numberOfPieces={500}
+            gravity={0.5}
+            colors={['#FFD700', '#FFA500', '#FF8C00', '#FFD700']}
+            initialVelocityY={-30}
+          />
+          {/* Золотые капли */}
+          {[...Array(200)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-8 rounded-full"
+              style={{
+                left: `${(i * 3.7) % 100}%`,
+                top: '-10%',
+                background: 'linear-gradient(to bottom, #FFD700, #FFA500)',
+                boxShadow: '0 0 10px #FFD700',
+              }}
+              initial={{ y: -100, opacity: 0, rotate: 0 }}
+              animate={{
+                y: windowSize.height + 100,
+                opacity: [0, 1, 1, 0],
+                rotate: [0, 360],
+              }}
+              transition={{
+                duration: Math.random() * 2 + 2,
+                delay: Math.random() * 2,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          ))}
+        </div>
+      );
+
+    case 'diamond-shower':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-gradient-to-b from-cyan-900/30 to-transparent">
+          {/* Алмазные частицы */}
+          {[...Array(300)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute"
+              style={{
+                left: `${(i * 2.3) % 100}%`,
+                top: '-5%',
+                width: '12px',
+                height: '12px',
+                background: 'linear-gradient(135deg, #00FFFF, #0080FF, #00FFFF)',
+                clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
+                boxShadow: '0 0 20px #00FFFF',
+              }}
+              initial={{ y: -50, opacity: 0, rotate: 0 }}
+              animate={{
+                y: windowSize.height + 50,
+                opacity: [0, 1, 1, 0],
+                rotate: 720,
+                scale: [0.5, 1, 0.5],
+              }}
+              transition={{
+                duration: Math.random() * 3 + 2,
+                delay: Math.random() * 2,
+                ease: 'easeIn',
+              }}
+            />
+          ))}
+        </div>
+      );
+
+    case 'phoenix':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-gradient-to-br from-orange-900/40 via-red-900/40 to-yellow-900/40">
+          {/* Феникс - огненные частицы */}
+          {[...Array(250)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-3 h-3 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                background: `radial-gradient(circle, hsl(${20 + i % 40}, 100%, 60%), hsl(${10 + i % 30}, 100%, 40%))`,
+                boxShadow: `0 0 20px hsl(${20 + i % 40}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 2, 0],
+                opacity: [1, 1, 0],
+                x: (Math.cos((i / 250) * Math.PI * 2) * 600) + (Math.random() - 0.5) * 200,
+                y: (Math.sin((i / 250) * Math.PI * 2) * 600) + (Math.random() - 0.5) * 200 - 200,
+              }}
+              transition={{
+                duration: 3,
+                delay: i * 0.01,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+          {/* Центральное пламя */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1.5, 1], opacity: [0, 1, 1] }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+          >
+            <Flame className="w-40 h-40 text-orange-500 fill-orange-500 drop-shadow-[0_0_50px_rgba(251,146,60,1)]" />
+          </motion.div>
+        </div>
+      );
+
+    case 'supernova':
+      return (
+        <div className="fixed inset-0 pointer-events-none z-[9999] bg-black/50">
+          {/* Супернова - взрыв с множественными волнами */}
+          <motion.div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, #FFFFFF, #FFD700, #FF6B6B, #4ECDC4, #000000)',
+              boxShadow: '0 0 200px rgba(255, 255, 255, 0.9)',
+            }}
+            initial={{ scale: 0, opacity: 1 }}
+            animate={{
+              scale: [0, 25, 30],
+              opacity: [1, 0.9, 0],
+            }}
+            transition={{ duration: 3, ease: 'easeOut' }}
+          />
+          {/* Волны энергии */}
+          {[...Array(10)].map((_, waveIndex) => (
+            <motion.div
+              key={waveIndex}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-4"
+              style={{
+                borderColor: `hsl(${waveIndex * 36}, 100%, 60%)`,
+                boxShadow: `0 0 50px hsl(${waveIndex * 36}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 0.8 }}
+              animate={{
+                scale: [0, 20],
+                opacity: [0.8, 0],
+              }}
+              transition={{
+                duration: 3,
+                delay: waveIndex * 0.2,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+          {/* Частицы суперновы */}
+          {[...Array(400)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+                background: `hsl(${i * 0.9 % 360}, 100%, 60%)`,
+                boxShadow: `0 0 20px hsl(${i * 0.9 % 360}, 100%, 60%)`,
+              }}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{
+                scale: [0, 3, 0],
+                opacity: [1, 1, 0],
+                x: (Math.cos((i / 400) * Math.PI * 2) * (800 + Math.random() * 400)),
+                y: (Math.sin((i / 400) * Math.PI * 2) * (800 + Math.random() * 400)),
+              }}
+              transition={{
+                duration: 3,
+                delay: Math.random() * 0.5,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+        </div>
+      );
+
     default:
       return null;
   }
@@ -323,7 +842,7 @@ export const CelebrationAnimationSelector: React.FC<{
   const [previewType, setPreviewType] = useState<CelebrationType>(currentType);
 
   const animations: { type: CelebrationType; name: string; description: string }[] = [
-    { type: 'confetti', name: 'Конфетти', description: 'Классическое конфетти (текущее)' },
+    { type: 'confetti', name: 'Конфетти', description: 'Классическое конфетти' },
     { type: 'fireworks', name: 'Фейерверк', description: 'Яркий фейерверк с цветными частицами' },
     { type: 'stars', name: 'Звезды', description: 'Звезды, разлетающиеся от центра' },
     { type: 'burst', name: 'Взрыв', description: 'Взрыв цветных частиц от центра' },
@@ -331,6 +850,17 @@ export const CelebrationAnimationSelector: React.FC<{
     { type: 'trophy', name: 'Трофей', description: 'Анимация трофея с частицами' },
     { type: 'gradient', name: 'Градиент', description: 'Градиентная волна' },
     { type: 'particles', name: 'Частицы', description: 'Физические частицы' },
+    { type: 'mega-burst', name: 'Мега-взрыв', description: 'Множественные взрывы по экрану' },
+    { type: 'galaxy', name: 'Галактика', description: 'Спиральная галактика из частиц' },
+    { type: 'rainbow', name: 'Радуга', description: 'Радужные волны и частицы' },
+    { type: 'champion', name: 'Чемпион', description: 'Корона с золотыми частицами' },
+    { type: 'victory-fanfare', name: 'Фанфары', description: 'Трофей с фанфарами' },
+    { type: 'explosion', name: 'Взрыв', description: 'Мощный центральный взрыв' },
+    { type: 'cosmic', name: 'Космос', description: 'Космические частицы и звезда' },
+    { type: 'golden-rain', name: 'Золотой дождь', description: 'Дождь из золотых капель' },
+    { type: 'diamond-shower', name: 'Алмазный дождь', description: 'Дождь из алмазов' },
+    { type: 'phoenix', name: 'Феникс', description: 'Огненный феникс' },
+    { type: 'supernova', name: 'Супернова', description: 'Взрыв суперновы (самый мощный!)' },
   ];
 
   const handlePreview = (type: CelebrationType) => {
@@ -366,7 +896,9 @@ export const CelebrationAnimationSelector: React.FC<{
       <CelebrationAnimations
         type={previewType}
         show={showPreview}
-        duration={3000}
+        duration={5000}
+        withSound={true}
+        fullScreen={true}
       />
     </div>
   );

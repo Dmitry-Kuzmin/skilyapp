@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Flame, Award, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
+import { CelebrationModal } from './CelebrationModal';
 import { playClickSound, playSuccessSound } from '@/services/audioService';
 
 interface DailyRewardsProps {
@@ -13,8 +14,9 @@ interface DailyRewardsProps {
 export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasClaimedToday, onClaim }) => {
   const [isClaiming, setIsClaiming] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [showNewWeek, setShowNewWeek] = useState(false);
-  const [celebrationType, setCelebrationType] = useState<CelebrationType>('fireworks'); // Можно менять тип
+  const [celebrationType, setCelebrationType] = useState<CelebrationType>('supernova'); // Можно менять тип
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
@@ -58,10 +60,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     playClickSound();
     setIsClaiming(true);
     
-    // Если день 7 - показываем анимацию поздравления
+    // Если день 7 - показываем анимацию поздравления и модальное окно
     if (weekDay === 7) {
       setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
+      setTimeout(() => {
+        setShowCelebration(false);
+        setShowCelebrationModal(true);
+      }, 2000); // Сначала анимация, потом модальное окно
     }
     
     try {
@@ -78,19 +83,24 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       setShowCelebration(true);
       setTimeout(() => {
         setShowCelebration(false);
-      }, 3000);
+      }, 5000);
     }
   };
 
   // Функция для смены типа анимации (только в dev режиме)
   const handleChangeAnimation = () => {
     if (process.env.NODE_ENV === 'development') {
-      const types: CelebrationType[] = ['confetti', 'fireworks', 'stars', 'burst', 'sparkles', 'trophy', 'gradient', 'particles'];
+      const types: CelebrationType[] = [
+        'confetti', 'fireworks', 'stars', 'burst', 'sparkles', 'trophy', 
+        'gradient', 'particles', 'mega-burst', 'galaxy', 'rainbow', 
+        'champion', 'victory-fanfare', 'explosion', 'cosmic', 
+        'golden-rain', 'diamond-shower', 'phoenix', 'supernova'
+      ];
       const currentIndex = types.indexOf(celebrationType);
       const nextIndex = (currentIndex + 1) % types.length;
       setCelebrationType(types[nextIndex]);
       setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
+      setTimeout(() => setShowCelebration(false), 5000);
     }
   };
 
@@ -101,7 +111,19 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       <CelebrationAnimations
         type={celebrationType}
         show={showCelebration}
-        duration={3000}
+        duration={5000}
+        withSound={true}
+        fullScreen={true}
+        message="🏆 Неделя завершена!"
+      />
+
+      {/* Модальное окно с поздравлением */}
+      <CelebrationModal
+        show={showCelebrationModal}
+        onClose={() => setShowCelebrationModal(false)}
+        message="🏆 Неделя завершена!"
+        weekNumber={weekNumber}
+        totalStreak={currentStreak}
       />
 
       {/* Плашка "Следующая неделя началась" */}

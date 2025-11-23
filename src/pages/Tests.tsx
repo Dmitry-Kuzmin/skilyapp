@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
-  Sparkles, LayoutDashboard, LayoutGrid, List, Grid3X3
+  Sparkles, LayoutDashboard, LayoutGrid, List, Grid3X3, Layers
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import Layout from "@/components/Layout";
@@ -17,6 +17,7 @@ import { useTheme } from "next-themes";
 // Views
 import { ClassicTestsView } from "@/components/tests/views/ClassicTestsView";
 import { BentoTestsView } from "@/components/tests/views/BentoTestsView";
+import { NeoTestsView } from "@/components/tests/views/NeoTestsView";
 import { DashboardTestCard } from "@/components/tests/DashboardTestCard";
 import { TestCategoryCard } from "@/components/tests/TestCategoryCard";
 import { TestModeSelector } from "@/components/tests/TestModeSelector";
@@ -61,7 +62,7 @@ const Tests = () => {
   const [loading, setLoading] = useState(true);
 
   // Style variant state
-  const [styleVariant, setStyleVariant] = useState<"classic" | "dashboard" | "bento">("bento");
+  const [styleVariant, setStyleVariant] = useState<"classic" | "dashboard" | "bento" | "neo">("neo");
 
   const isDark = theme === "dark";
 
@@ -336,6 +337,18 @@ const Tests = () => {
           >
             <Grid3X3 className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => setStyleVariant("neo")}
+            className={cn(
+              "p-2 rounded-full transition-all",
+              styleVariant === "neo"
+                ? (isDark ? "bg-white/20 text-white" : "bg-gray-200 text-gray-900")
+                : (isDark ? "text-white/40 hover:text-white" : "text-gray-400 hover:text-gray-900")
+            )}
+            title="Neo / 3D"
+          >
+            <Layers className="w-4 h-4" />
+          </button>
         </div>
 
         {styleVariant === "classic" && (
@@ -432,6 +445,18 @@ const Tests = () => {
 
         {styleVariant === "bento" && (
           <BentoTestsView
+            topics={topics}
+            stats={stats}
+            challengeBankCount={challengeBankCount}
+            randomQuestionCount={randomQuestionCount}
+            setRandomQuestionCount={setRandomQuestionCount}
+            handleStartTest={handleStartTest}
+            handleTopicClick={handleTopicClick}
+          />
+        )}
+
+        {styleVariant === "neo" && (
+          <NeoTestsView
             topics={topics}
             stats={stats}
             challengeBankCount={challengeBankCount}

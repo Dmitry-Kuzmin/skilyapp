@@ -388,6 +388,55 @@ export const playLevelUpSound = () => {
   });
 };
 
+export const playCelebrationSound = () => {
+  playSound((ctx, t) => {
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.2;
+    masterGain.connect(ctx.destination);
+
+    // Триумфальный аккорд
+    const freqs = [523.25, 659.25, 783.99, 1046.5]; // C, E, G, C (мажорный аккорд)
+    
+    freqs.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      
+      osc.frequency.setValueAtTime(f, t);
+      
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.15, t + 0.1);
+      gain.gain.linearRampToValueAtTime(0.1, t + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(t);
+      osc.stop(t + 1.5);
+    });
+
+    // Дополнительные высокие ноты для "вау" эффекта
+    const highFreqs = [1318.51, 1567.98, 1975.53]; // E, G, B
+    highFreqs.forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      
+      const startTime = t + 0.3 + i * 0.1;
+      osc.frequency.setValueAtTime(f, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 0.8);
+    });
+  });
+};
+
 export const playUnlockSound = () => {
   playSound((ctx, t) => {
     const createClick = (time: number, freq: number) => {
