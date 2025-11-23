@@ -64,10 +64,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     // Если день 7 - показываем анимацию поздравления и модальное окно
     if (weekDay === 7) {
       setShowCelebration(true);
+      // Длительность зависит от типа анимации (6-10 секунд)
+      const animationDuration = celebrationType === 'supernova' ? 10000 : 
+                                celebrationType === 'confetti' ? 3000 : 7000;
       setTimeout(() => {
         setShowCelebration(false);
         setShowCelebrationModal(true);
-      }, 2000); // Сначала анимация, потом модальное окно
+      }, animationDuration); // Сначала анимация, потом модальное окно
     }
     
     try {
@@ -82,9 +85,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const handleTestAnimations = () => {
     if (process.env.NODE_ENV === 'development') {
       setShowCelebration(true);
+      const animationDuration = celebrationType === 'supernova' ? 10000 : 
+                                celebrationType === 'confetti' ? 3000 : 7000;
       setTimeout(() => {
         setShowCelebration(false);
-      }, 5000);
+      }, animationDuration);
     }
   };
 
@@ -99,9 +104,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       ];
       const currentIndex = types.indexOf(celebrationType);
       const nextIndex = (currentIndex + 1) % types.length;
-      setCelebrationType(types[nextIndex]);
+      const newType = types[nextIndex];
+      setCelebrationType(newType);
       setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 5000);
+      const animationDuration = newType === 'supernova' ? 10000 : 
+                                newType === 'confetti' ? 3000 : 7000;
+      setTimeout(() => setShowCelebration(false), animationDuration);
     }
   };
 
@@ -126,7 +134,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       <CelebrationAnimations
         type={celebrationType}
         show={showCelebration}
-        duration={5000}
         withSound={true}
         soundType={celebrationSoundType}
         fullScreen={true}

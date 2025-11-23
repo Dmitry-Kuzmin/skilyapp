@@ -67,15 +67,52 @@ interface CelebrationAnimationsProps {
  * - gradient: Градиентная волна
  * - particles: Частицы с физикой
  */
+// Рекомендуемые длительности для разных типов анимаций
+const getRecommendedDuration = (type: CelebrationType): number => {
+  switch (type) {
+    case 'confetti':
+    case 'pop':
+      return 3000; // 3 секунды - короткие
+    case 'sparkles':
+    case 'gradient':
+      return 4000; // 4 секунды
+    case 'fireworks':
+    case 'burst':
+    case 'stars':
+    case 'particles':
+      return 6000; // 6 секунд - средние
+    case 'trophy':
+    case 'champion':
+    case 'victory-fanfare':
+      return 7000; // 7 секунд
+    case 'mega-burst':
+    case 'explosion':
+    case 'phoenix':
+    case 'rainbow':
+      return 8000; // 8 секунд
+    case 'galaxy':
+    case 'cosmic':
+    case 'golden-rain':
+    case 'diamond-shower':
+      return 7000; // 7 секунд
+    case 'supernova':
+      return 10000; // 10 секунд - самый эпичный!
+    default:
+      return 6000; // 6 секунд по умолчанию
+  }
+};
+
 export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
   type,
   show,
   onComplete,
-  duration = 5000, // Увеличено до 5 секунд
+  duration, // Если не указана, используем рекомендуемую
   withSound = true,
   soundType = 'fanfare', // По умолчанию фанфары
   fullScreen = true
 }) => {
+  // Используем рекомендуемую длительность, если не указана
+  const finalDuration = duration || getRecommendedDuration(type);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -145,10 +182,10 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
 
   useEffect(() => {
     if (show && onComplete) {
-      const timer = setTimeout(onComplete, duration);
+      const timer = setTimeout(onComplete, finalDuration);
       return () => clearTimeout(timer);
     }
-  }, [show, duration, onComplete]);
+  }, [show, finalDuration, onComplete]);
 
   if (!show) return null;
 
@@ -208,7 +245,7 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
     case 'stars':
       return (
         <div className="fixed inset-0 pointer-events-none z-[9999]">
-          {[...Array(50)].map((_, i) => (
+          {[...Array(100)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute"
@@ -218,19 +255,19 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
               }}
               initial={{ scale: 0, opacity: 1, rotate: 0 }}
               animate={{
-                scale: [0, 1, 0],
+                scale: [0, 1.5, 0],
                 opacity: [1, 1, 0],
-                x: (Math.cos((i / 50) * Math.PI * 2) * 300),
-                y: (Math.sin((i / 50) * Math.PI * 2) * 300),
-                rotate: 360,
+                x: (Math.cos((i / 100) * Math.PI * 2) * 500),
+                y: (Math.sin((i / 100) * Math.PI * 2) * 500),
+                rotate: 720,
               }}
               transition={{
-                duration: 1.5,
-                delay: i * 0.02,
+                duration: 3,
+                delay: i * 0.03,
                 ease: 'easeOut',
               }}
             >
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
             </motion.div>
           ))}
         </div>
@@ -810,53 +847,53 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
             }}
             initial={{ scale: 0, opacity: 1 }}
             animate={{
-              scale: [0, 25, 30],
+              scale: [0, 30, 40],
               opacity: [1, 0.9, 0],
             }}
-            transition={{ duration: 3, ease: 'easeOut' }}
+            transition={{ duration: 5, ease: 'easeOut' }}
           />
           {/* Волны энергии */}
-          {[...Array(10)].map((_, waveIndex) => (
+          {[...Array(15)].map((_, waveIndex) => (
             <motion.div
               key={waveIndex}
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-4"
               style={{
-                borderColor: `hsl(${waveIndex * 36}, 100%, 60%)`,
-                boxShadow: `0 0 50px hsl(${waveIndex * 36}, 100%, 60%)`,
+                borderColor: `hsl(${waveIndex * 24}, 100%, 60%)`,
+                boxShadow: `0 0 80px hsl(${waveIndex * 24}, 100%, 60%)`,
               }}
               initial={{ scale: 0, opacity: 0.8 }}
               animate={{
-                scale: [0, 20],
+                scale: [0, 25],
                 opacity: [0.8, 0],
               }}
               transition={{
-                duration: 3,
-                delay: waveIndex * 0.2,
+                duration: 5,
+                delay: waveIndex * 0.3,
                 ease: 'easeOut',
               }}
             />
           ))}
           {/* Частицы суперновы */}
-          {[...Array(400)].map((_, i) => (
+          {[...Array(600)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-2 h-2 rounded-full"
+              className="absolute w-3 h-3 rounded-full"
               style={{
                 left: '50%',
                 top: '50%',
-                background: `hsl(${i * 0.9 % 360}, 100%, 60%)`,
-                boxShadow: `0 0 20px hsl(${i * 0.9 % 360}, 100%, 60%)`,
+                background: `hsl(${i * 0.6 % 360}, 100%, 60%)`,
+                boxShadow: `0 0 30px hsl(${i * 0.6 % 360}, 100%, 60%)`,
               }}
               initial={{ scale: 0, opacity: 1 }}
               animate={{
-                scale: [0, 3, 0],
+                scale: [0, 4, 0],
                 opacity: [1, 1, 0],
-                x: (Math.cos((i / 400) * Math.PI * 2) * (800 + Math.random() * 400)),
-                y: (Math.sin((i / 400) * Math.PI * 2) * (800 + Math.random() * 400)),
+                x: (Math.cos((i / 600) * Math.PI * 2) * (1000 + Math.random() * 500)),
+                y: (Math.sin((i / 600) * Math.PI * 2) * (1000 + Math.random() * 500)),
               }}
               transition={{
-                duration: 3,
-                delay: Math.random() * 0.5,
+                duration: 5,
+                delay: Math.random() * 1,
                 ease: 'easeOut',
               }}
             />
@@ -934,7 +971,6 @@ export const CelebrationAnimationSelector: React.FC<{
       <CelebrationAnimations
         type={previewType}
         show={showPreview}
-        duration={5000}
         withSound={true}
         fullScreen={true}
       />
