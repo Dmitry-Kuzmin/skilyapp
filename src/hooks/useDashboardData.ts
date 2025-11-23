@@ -184,12 +184,12 @@ export function useDashboardData() {
           .order('created_at', { ascending: false })
           .limit(4),
         
-        // Ежедневные награды
+        // Ежедневные награды (7-дневный цикл)
         supabase
           .from('daily_bonus_def')
           .select('day_number, reward, description')
           .order('day_number', { ascending: true })
-          .limit(90),
+          .limit(7),
       ]);
 
       if (tasksResult.error) {

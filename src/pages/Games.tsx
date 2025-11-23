@@ -246,313 +246,215 @@ const Games = () => {
   return (
     <>
       <Layout>
-        <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8 pb-20 md:pb-4">
-          {/* Hero Section - Компактный лаконичный баннер */}
+        <div className="container mx-auto px-4 py-4 md:py-8 space-y-8 pb-20 md:pb-4">
+
+          {/* Page Header - Compact */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                Игровая зона
+              </h1>
+              <p className="text-slate-400 font-medium">
+                Выбирай режим и прокачивай навыки
+              </p>
+            </div>
+
+            {/* Stats Compact */}
+            <div className="flex items-center gap-4 bg-slate-900/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-500" />
+                <span className="font-bold text-white">{stats.gamesPlayed}</span>
+              </div>
+              <div className="w-px h-4 bg-white/10" />
+              <div className="flex items-center gap-2">
+                <Brain className="w-4 h-4 text-cyan-500" />
+                <span className="font-bold text-white">{stats.studiedTerms}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* DUEL HERO CARD - MAIN FEATURE */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-3xl border px-6 py-8 md:px-10 md:py-10 text-white bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 border-cyan-500/30 shadow-[0_0_50px_rgba(34,211,238,0.4)]"
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 shadow-[0_0_60px_rgba(139,92,246,0.4)] border border-violet-400/30 group cursor-pointer"
+            onClick={() => navigate('/games/duel')}
           >
             {/* Noise texture */}
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
 
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                {/* Левая часть */}
-                <div className="flex-1 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 backdrop-blur-sm">
-                      <Gamepad2 className="w-7 h-7 md:w-8 md:h-8 text-cyan-400" />
-                    </div>
-                    <div>
-                      <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight">
-                        Игры
-                      </h1>
-                      <p className="text-sm md:text-base text-slate-300 mt-1 font-medium">
-                        Учись играя, побеждай знаниями
-                      </p>
-                    </div>
-                  </div>
+            {/* Animated Background Gradients */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-fuchsia-500/30 to-purple-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-indigo-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
 
-                  {/* Статистика в одну строку */}
-                  <div className="flex items-center gap-5 md:gap-8 text-sm md:text-base">
-                    <div className="flex items-center gap-2">
-                      <Trophy className="w-4 h-4 text-cyan-400" />
-                      <span className="font-bold text-white">{stats.gamesPlayed}</span>
-                      <span className="text-slate-400">игр</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Brain className="w-4 h-4 text-cyan-400" />
-                      <span className="font-bold text-white">{stats.studiedTerms}</span>
-                      <span className="text-slate-400">терминов</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-cyan-400" />
-                      <span className="font-bold text-white">{stats.averageResult}%</span>
-                      <span className="text-slate-400">результат</span>
-                    </div>
-                  </div>
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
+              {/* Left Content */}
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <Badge className="bg-white/20 backdrop-blur-md text-white border-white/20 px-4 py-1.5 text-sm font-bold shadow-lg">
+                    👑 Главный режим
+                  </Badge>
+                  <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[0.9]">
+                    ДУЭЛЬ
+                  </h2>
+                  <p className="text-lg md:text-xl text-violet-100 font-medium max-w-md leading-relaxed">
+                    Сразись с другом или случайным соперником в битве знаний. Ставки, рейтинг и слава ждут!
+                  </p>
                 </div>
 
-                {/* Правая часть: Premium кнопка */}
-                {!isPremium && (
+                <div className="flex flex-wrap gap-4">
                   <Button
                     size="lg"
-                    onClick={() => setPaywallOpen(true)}
-                    className="w-full md:w-auto relative group bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 shadow-xl hover:shadow-2xl hover:shadow-yellow-500/50 transition-all duration-300 hover:scale-105 active:scale-95 text-white font-bold px-8 py-6 text-base overflow-hidden"
+                    className="h-14 px-8 rounded-2xl bg-white text-violet-700 hover:bg-white/90 font-black text-lg shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_rgba(255,255,255,0.5)] hover:scale-105 transition-all duration-300 group/btn relative overflow-hidden"
                   >
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                    <Crown className="w-5 h-5 mr-2 relative z-10" />
-                    <span className="relative z-10">Получить Premium</span>
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Swords className="w-6 h-6" />
+                      ИГРАТЬ СЕЙЧАС
+                    </span>
+                    {/* Shimmer */}
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-violet-200/50 to-transparent" />
                   </Button>
-                )}
+
+                  <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-black/20 backdrop-blur-sm border border-white/10">
+                    <div className="flex -space-x-3">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-indigo-400 border-2 border-purple-600" />
+                      ))}
+                    </div>
+                    <span className="text-white font-bold text-sm">
+                      124 игрока онлайн
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Visual */}
+              <div className="hidden lg:flex justify-center items-center relative">
+                <motion.div
+                  animate={{
+                    y: [0, -20, 0],
+                    rotate: [0, 5, 0]
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="relative z-10"
+                >
+                  <div className="w-80 h-80 rounded-[3rem] bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/20 flex items-center justify-center shadow-2xl transform rotate-6 group-hover:rotate-12 transition-transform duration-700">
+                    <Swords className="w-40 h-40 text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.5)]" />
+                  </div>
+
+                  {/* Floating elements */}
+                  <div className="absolute -top-10 -right-10 p-4 rounded-2xl bg-yellow-500/20 backdrop-blur-xl border border-yellow-500/30 shadow-xl animate-bounce delay-700">
+                    <Trophy className="w-12 h-12 text-yellow-400" />
+                  </div>
+                  <div className="absolute -bottom-5 -left-10 p-4 rounded-2xl bg-cyan-500/20 backdrop-blur-xl border border-cyan-500/30 shadow-xl animate-bounce delay-1000">
+                    <Zap className="w-10 h-10 text-cyan-400" />
+                  </div>
+                </motion.div>
               </div>
             </div>
           </motion.div>
 
-          {/* Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {games.map((game, index) => {
-              const isFeatured = game.featured;
-              const Icon = game.icon;
+          {/* Other Games Grid */}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Gamepad2 className="w-6 h-6 text-slate-400" />
+              Другие режимы
+            </h3>
 
-              return (
-                <motion.div
-                  key={game.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  className={`
-                    ${isFeatured ? 'md:col-span-1 lg:col-span-2 lg:row-span-2' : 'md:col-span-1 lg:col-span-1'}
-                    relative overflow-hidden rounded-3xl p-6 md:p-8 cursor-pointer group
-                    bg-gradient-to-br ${game.gradient}
-                    shadow-2xl hover:shadow-3xl
-                    transition-all duration-500
-                    hover:scale-[1.02] active:scale-[0.98]
-                    border border-white/10
-                  `}
-                  onClick={() => {
-                    if (game.premium && !isPremium) {
-                      setPaywallOpen(true);
-                    } else if (game.route) {
-                      navigate(game.route);
-                    }
-                  }}
-                >
-                  {/* Noise texture */}
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {games.filter(g => g.id !== 1).map((game, index) => {
+                const Icon = game.icon;
+                // Race is still featured but smaller than Duel
+                const isFeatured = game.id === 2;
 
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                return (
+                  <motion.div
+                    key={game.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 + 0.2, duration: 0.4 }}
+                    className={`
+                      ${isFeatured ? 'md:col-span-2' : 'col-span-1'}
+                      relative overflow-hidden rounded-3xl p-6 md:p-8 cursor-pointer group
+                      bg-gradient-to-br ${game.gradient}
+                      shadow-lg hover:shadow-2xl hover:shadow-${game.color}-500/20
+                      transition-all duration-500
+                      hover:scale-[1.02] active:scale-[0.98]
+                      border border-white/10
+                    `}
+                    onClick={() => {
+                      if (game.premium && !isPremium) {
+                        setPaywallOpen(true);
+                      } else if (game.route) {
+                        navigate(game.route);
+                      }
+                    }}
+                  >
+                    {/* Noise texture */}
+                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
 
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    {/* Hover Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  {/* Premium badge */}
-                  {game.premium && (
-                    <div className="absolute top-4 right-4 z-20">
-                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-none font-bold shadow-lg">
-                        Premium
-                      </Badge>
-                    </div>
-                  )}
+                    {/* Premium badge */}
+                    {game.premium && (
+                      <div className="absolute top-4 right-4 z-20">
+                        <Badge className="bg-black/50 backdrop-blur-md text-white border-none font-bold">
+                          Premium
+                        </Badge>
+                      </div>
+                    )}
 
-                  {/* Content */}
-                  <div className="relative z-10 flex flex-col h-full justify-between">
-                    {/* Top: Icon and badge */}
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-4">
+                    <div className="relative z-10 flex flex-col h-full justify-between gap-8">
+                      <div className="flex justify-between items-start">
                         <div className={`
-                        ${isFeatured ? 'w-16 h-16 md:w-20 md:h-20' : 'w-14 h-14'}
-                        flex-shrink-0 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30
-                        flex items-center justify-center
-                        group-hover:scale-110 group-hover:rotate-6
-                        transition-all duration-500
-                        shadow-xl
-                      `}>
-                          <Icon className={`${isFeatured ? 'w-8 h-8 md:w-10 md:h-10' : 'w-7 h-7'} text-white`} />
+                            p-3 rounded-2xl bg-white/20 backdrop-blur-md border border-white/20
+                            group-hover:scale-110 transition-transform duration-500
+                         `}>
+                          <Icon className="w-8 h-8 text-white" />
                         </div>
-
-                        <Badge
-                          variant="outline"
-                          className="bg-white/10 backdrop-blur-sm border-white/30 text-white text-xs font-bold"
-                        >
+                        <Badge variant="outline" className="border-white/20 text-white/90 bg-black/20 backdrop-blur-sm">
                           {game.difficulty}
                         </Badge>
                       </div>
 
-                      {/* Title and description */}
-                      <div className="space-y-2">
-                        <h3 className={`
-                        ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}
-                        font-black text-white tracking-tight
-                        group-hover:text-white/90
-                        transition-colors duration-300
-                      `}>
+                      <div>
+                        <h3 className="text-2xl font-black text-white mb-2 tracking-tight">
                           {game.title}
                         </h3>
-                        <p className={`
-                        ${isFeatured ? 'text-base' : 'text-sm'}
-                        text-white/80 font-medium
-                        ${isFeatured ? 'line-clamp-3' : 'line-clamp-2'}
-                      `}>
+                        <p className="text-white/80 font-medium text-sm leading-relaxed">
                           {game.description}
                         </p>
                       </div>
                     </div>
-
-                    {/* Bottom: Button */}
-                    <div className="mt-6">
-                      <Button
-                        className={`
-                        w-full 
-                        bg-white/20 hover:bg-white/30 
-                        backdrop-blur-sm 
-                        border-2 border-white/40 hover:border-white/60
-                        text-white font-bold
-                        shadow-xl hover:shadow-2xl
-                        transition-all duration-300
-                        group-hover:scale-105
-                        ${isFeatured ? 'py-6 text-base' : 'py-5 text-sm'}
-                      `}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (game.premium && !isPremium) {
-                            setPaywallOpen(true);
-                          } else if (game.route) {
-                            navigate(game.route);
-                          }
-                        }}
-                      >
-                        {game.premium && !isPremium ? "Разблокировать Premium" : "Играть"}
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Stats Card - переработанная */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="relative overflow-hidden rounded-3xl border border-slate-700/50 bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 backdrop-blur-xl p-6 md:p-8 shadow-2xl"
-          >
-            {/* Noise texture */}
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
-
-            <div className="relative z-10">
-              {isLoadingStats ? (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="space-y-3">
-                      <div className="h-12 bg-slate-700/30 rounded-xl animate-pulse mx-auto w-20" />
-                      <div className="h-4 bg-slate-700/20 rounded animate-pulse mx-auto w-28" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Игр сыграно */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="text-center p-6 rounded-2xl bg-gradient-to-br from-violet-500/10 to-purple-500/10 border border-violet-500/20 hover:border-violet-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/20"
-                  >
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <Swords className="w-6 h-6 text-violet-400" />
-                      <motion.p
-                        key={stats.gamesPlayed}
-                        initial={{ scale: 1.2 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                        className="text-4xl font-black text-violet-400"
-                      >
-                        {stats.gamesPlayed}
-                      </motion.p>
-                    </div>
-                    <p className="text-sm text-slate-300 font-semibold">Игр сыграно</p>
                   </motion.div>
-
-                  {/* Терминов изучено */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="cursor-pointer text-center p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border border-amber-500/20 hover:border-amber-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 group"
-                    onClick={() => setIsProgressModalOpen(true)}
-                  >
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <TrendingUp className="w-6 h-6 text-amber-400" />
-                      <motion.p
-                        key={stats.studiedTerms}
-                        initial={{ scale: 1.2 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                        className="text-4xl font-black text-amber-400"
-                      >
-                        {stats.studiedTerms}
-                      </motion.p>
-                    </div>
-                    <p className="text-sm text-slate-300 font-semibold">Терминов изучено</p>
-                    <p className="text-xs text-cyan-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
-                      Нажмите для деталей
-                    </p>
-                  </motion.div>
-
-                  {/* Средний результат */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="text-center p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 hover:border-cyan-400/40 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20"
-                  >
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <div className={`w-4 h-4 rounded-full ${stats.averageResult >= 80 ? 'bg-emerald-500' :
-                        stats.averageResult >= 60 ? 'bg-yellow-500' :
-                          'bg-red-500'
-                        }`} />
-                      <motion.p
-                        key={stats.averageResult}
-                        initial={{ scale: 1.2 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200 }}
-                        className={`text-4xl font-black ${stats.averageResult >= 80 ? 'text-emerald-400' :
-                          stats.averageResult >= 60 ? 'text-yellow-400' :
-                            'text-red-400'
-                          }`}
-                      >
-                        {stats.averageResult}%
-                      </motion.p>
-                    </div>
-                    <p className="text-sm text-slate-300 font-semibold">Средний результат</p>
-                    {stats.averageResult > 0 && (
-                      <p className="text-xs text-slate-400 mt-2 font-medium">
-                        {stats.averageResult >= 80 ? 'Отлично!' :
-                          stats.averageResult >= 60 ? 'Хорошо' :
-                            'Продолжай тренироваться'}
-                      </p>
-                    )}
-                  </motion.div>
-                </div>
-              )}
+                );
+              })}
             </div>
-          </motion.div>
+          </div>
         </div>
-
-        {/* Term Progress Modal */}
-        <TermProgressModal
-          open={isProgressModalOpen}
-          onOpenChange={setIsProgressModalOpen}
-        />
-
-        {/* Boost Shop Modal */}
-        <BoostShopModal
-          open={isBoostShopOpen}
-          onOpenChange={setIsBoostShopOpen}
-        />
       </Layout>
-      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+
+      {/* Modals */}
+      <PaywallModal
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+      />
+
+      <TermProgressModal
+        isOpen={isProgressModalOpen}
+        onClose={() => setIsProgressModalOpen(false)}
+      />
+
+      <BoostShopModal
+        isOpen={isBoostShopOpen}
+        onClose={() => setIsBoostShopOpen(false)}
+      />
     </>
   );
 };
