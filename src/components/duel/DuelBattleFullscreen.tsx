@@ -1517,18 +1517,20 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const totalRightPadding = Math.round(safeArea.right);
 
   // Высота панели прогресс-бара (py-2 = 8px сверху/снизу + высота элементов ~44px = ~60px)
-  const PROGRESS_BAR_HEIGHT = 10;
+  // Исправленная высота прогресс-бара (реальная высота компонента около 50-60px)
+  const PROGRESS_BAR_HEIGHT = 64;
 
   // Для мобильной версии Telegram: поднимаем прогресс-бар выше на 15px
   const progressBarTop = isTelegramMobile
     ? totalTopPadding - 15
     : totalTopPadding;
 
-  // Вычисляем отступ для контента: для мобильной версии Telegram уменьшаем на 50px
+  // Вычисляем отступ для контента:
+  // Для десктопа добавляем отступ, чтобы контент не заезжал под фиксированный прогресс-бар
   const contentTopPadding =
     isTelegramMobile
-      ? progressBarTop + PROGRESS_BAR_HEIGHT - 50 // Уменьшаем зазор на 50px между прогресс-баром и контентом
-      : totalTopPadding + PROGRESS_BAR_HEIGHT;
+      ? progressBarTop + PROGRESS_BAR_HEIGHT - 20 // Для мобильных компактнее
+      : progressBarTop + PROGRESS_BAR_HEIGHT + 16; // Для десктопа больше воздуха
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
 
