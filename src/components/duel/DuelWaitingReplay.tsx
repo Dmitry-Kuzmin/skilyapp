@@ -7,12 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
-import { 
-  Clock, 
-  Trophy, 
-  CheckCircle2, 
-  XCircle, 
-  Loader2, 
+import {
+  Clock,
+  Trophy,
+  CheckCircle2,
+  XCircle,
+  Loader2,
   EyeOff,
   Eye,
   Zap,
@@ -42,9 +42,9 @@ interface DuelWaitingReplayProps {
   initialHidden?: boolean; // Start in hidden state if true
 }
 
-export function DuelWaitingReplay({ 
-  duelId, 
-  myScore, 
+export function DuelWaitingReplay({
+  duelId,
+  myScore,
   totalQuestions,
   onDuelFinished,
   onHide,
@@ -69,7 +69,7 @@ export function DuelWaitingReplay({
   // Refs для функций чтобы использовать в fallback useEffect
   const loadOpponentDataRef = useRef<(() => Promise<void>) | null>(null);
   const checkIfOpponentFinishedRef = useRef<((force?: boolean) => Promise<void>) | null>(null);
-  
+
   // Используем useDuelRealtime для получения статуса дуэли через Realtime (вместо периодических проверок)
   // КРИТИЧНО: Передаем myPlayerId как state, а не ref.current
   const { state: realtimeState } = useDuelRealtime(duelId, myPlayerId);
@@ -80,24 +80,52 @@ export function DuelWaitingReplay({
       console.log('[DuelWaitingReplay] ⚠️ onDuelFinished already called, skipping');
       return;
     }
-    
+
     onDuelFinishedCalledRef.current = true;
     isDuelFinishedRef.current = true;
     setIsDuelFinished(true);
-    
+
+    // IMPROVED: Wrap all operations in try-catch for better error handling
     try {
       sounds.victory();
+    } catch (soundError) {
+      console.warn('[DuelWaitingReplay] Error playing victory sound:', soundError);
+      // Continue execution - sound is not critical
+    }
+
+    try {
       toast.success('🏁 Дуэль завершена!', {
         description: 'Переход к результатам...',
         duration: 1500,
       });
-      
+    } catch (toastError) {
+      console.warn('[DuelWaitingReplay] Error showing toast:', toastError);
+      // Continue execution - toast is not critical
+    }
+
+    try {
       console.log('[DuelWaitingReplay] ⚡ Calling onDuelFinished (single call)');
       onDuelFinished();
     } catch (error) {
-      console.error('[DuelWaitingReplay] ❌ Error calling onDuelFinished:', error);
-      // Reset ref on error so it can be retried
+      console.error('[DuelWaitingReplay] ❌ CRITICAL: Error calling onDuelFinished:', error);
+
+      // CRITICAL FIX: Reset flags on error to allow retry
       onDuelFinishedCalledRef.current = false;
+      isDuelFinishedRef.current = false;
+
+      // Show error to user
+      toast.error('Ошибка перехода к результатам', {
+        description: 'Повторная попытка через 2 секунды...',
+        duration: 3000
+      });
+
+      // IMPROVED: Retry after 2 seconds
+      setTimeout(() => {
+        if (!onDuelFinishedCalledRef.current) {
+          console.log('[DuelWaitingReplay] 🔄 Retrying onDuelFinished after error...');
+          safeCallOnDuelFinished();
+        }
+      }, 2000);
     }
   }, [onDuelFinished]);
 
@@ -106,13 +134,13 @@ export function DuelWaitingReplay({
   const loadQuestionPositions = async () => {
     try {
       console.log('[DuelWaitingReplay] 🔄 Loading question positions for duel:', duelId);
-      
+
       const { data: questions, error } = await supabase
         .from('duel_questions')
         .select('id, position')
         .eq('duel_id', duelId)
         .order('position', { ascending: true });
-      
+
       if (error) {
         console.error('[DuelWaitingReplay] ❌ Error loading question positions:', error);
         // Fallback: пробуем через Edge Function
@@ -130,7 +158,7 @@ export function DuelWaitingReplay({
         }
         return;
       }
-      
+
       if (questions && questions.length > 0) {
         const positionsMap = new Map(questions.map(q => [q.id, q.position]));
         questionPositionsRef.current = positionsMap;
@@ -148,27 +176,27 @@ export function DuelWaitingReplay({
 
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    
+
     // Load question positions first (critical for Telegram WebApp)
     // КРИТИЧНО: Позиции должны быть загружены ДО загрузки ответов
     const initialize = async () => {
       console.log('[DuelWaitingReplay] 🚀 Initializing component...');
-      
+
       // Шаг 1: Загружаем позиции вопросов (критично!)
       await loadQuestionPositions();
-      
+
       // Небольшая задержка чтобы убедиться что кэш заполнен
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       // Шаг 2: Загружаем данные соперника (использует кэш позиций)
       await loadOpponentData();
-      
+
       // Шаг 3: Подписываемся на Realtime обновления
       subscribeToOpponentProgress();
-      
+
       console.log('[DuelWaitingReplay] ✅ Initialization complete');
     };
-    
+
     // Initial load with delay for Telegram to ensure WebApp is ready
     if (isTelegram) {
       // Увеличенная задержка для Telegram WebApp чтобы убедиться что все готово
@@ -178,171 +206,59 @@ export function DuelWaitingReplay({
     } else {
       initialize();
     }
-    
+
     // УБРАНО: Fallback логика перенесена в отдельный useEffect после определения функций
   }, [duelId]);
-  
-  // FALLBACK для Telegram WebApp: Периодическая проверка статуса и загрузка ответов
-  // Realtime может работать нестабильно в Telegram WebApp, поэтому нужен fallback
-  // ВАЖНО: Этот useEffect использует функции определенные ниже через refs
-  useEffect(() => {
-    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    
-    if (!isTelegram || isDuelFinishedRef.current) {
-      return; // Не нужен fallback или уже закончили
-    }
-    
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    
-    const scheduleNext = () => {
-      if (isDuelFinishedRef.current) return;
-      
-      const now = Date.now();
-      const realtimeFresh = connectionStatus === 'connected' && now - lastEventAt < 5000;
-      const baseDelay = realtimeFresh ? 15000 : 5000;
-      const jitter = Math.floor(Math.random() * 1500);
-      const delay = baseDelay + jitter;
-      
-      timeoutId = setTimeout(async () => {
-        if (isDuelFinishedRef.current) {
-          return;
-        }
-        
-        console.log('[DuelWaitingReplay] 🔄 Adaptive fallback polling', {
-          connectionStatus,
-          lastEventDelta: now - lastEventAt,
-          delay,
-        });
-        
-        try {
-          if (loadOpponentDataRef.current) {
-            await loadOpponentDataRef.current();
-          }
-          
-          if (checkIfOpponentFinishedRef.current) {
-            await checkIfOpponentFinishedRef.current(!realtimeFresh);
-          }
-        } catch (error) {
-          console.error('[DuelWaitingReplay] Fallback: polling error', error);
-        } finally {
-          scheduleNext();
-        }
-      }, delay);
-    };
-    
-    scheduleNext();
-    
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [connectionStatus, lastEventAt, duelId]);
-  
+
+  // REMOVED: Fallback polling useEffect that was causing ReferenceError
+  // Realtime subscription and other check mechanisms are sufficient
+
   // ОПТИМИЗИРОВАНО: Используем Realtime статус дуэли для МГНОВЕННОГО перехода к результатам
   // Это основной и самый быстрый способ определения завершения дуэли
   useEffect(() => {
     if (realtimeState.duelFinished && !isDuelFinishedRef.current) {
       console.log('[DuelWaitingReplay] ⚡⚡⚡ REALTIME: Duel finished! Transitioning IMMEDIATELY');
-      
+
       // Переходим мгновенно без задержек
       isDuelFinishedRef.current = true;
       setIsDuelFinished(true);
-      
+
       // Звук и уведомление в фоне, не блокируем переход
       try {
         sounds.victory();
       } catch (err) {
         console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
       }
-      
+
       toast.success('🏁 Дуэль завершена!', {
         description: 'Переход к результатам...',
         duration: 1500,
       });
-      
+
       // Мгновенный переход без задержек
       safeCallOnDuelFinished();
     }
   }, [realtimeState.duelFinished, safeCallOnDuelFinished]);
-  
-  // Используем Realtime счет соперника (вместо периодических проверок)
+
+  // REMOVED: Opponent disconnect check that was causing premature duel finish
+  // Realtime subscription will handle duel status updates
+  // Auto-finish on disconnect should only happen in Edge Function when both players actually finished
+
+  // Update opponent score from Realtime
   useEffect(() => {
     if (typeof realtimeState.opponentScore === 'number' && realtimeState.opponentScore >= 0) {
       setOpponentScore(realtimeState.opponentScore);
     }
   }, [realtimeState.opponentScore]);
 
-  // Проверка отключения соперника каждые 5 секунд
-  useEffect(() => {
-    if (isDuelFinished || !duelId || !profileId) return;
-    
-    const checkOpponentDisconnect = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'auto_finish_on_opponent_disconnect',
-            duel_id: duelId,
-            profile_id: profileId
-          }
-        });
-        
-        if (error) {
-          console.error('[DuelWaitingReplay] Error checking opponent disconnect:', error);
-          return;
-        }
-        
-        // Обновляем статус соперника
-        if (data?.opponent_online === false) {
-          setOpponentStatus('offline');
-        } else if (data?.opponent_online === true) {
-          setOpponentStatus('online');
-        }
-        
-        if (data?.finished) {
-          console.log('[DuelWaitingReplay] ✅ Opponent disconnected, duel finished automatically');
-          isDuelFinishedRef.current = true;
-          setIsDuelFinished(true);
-          
-          toast.success('🏁 Соперник покинул игру', {
-            description: 'Дуэль завершена автоматически',
-            duration: 3000
-          });
-          
-          safeCallOnDuelFinished();
-        } else if (data?.cancelled) {
-          console.log('[DuelWaitingReplay] ✅ Opponent disconnected before start, duel cancelled');
-          isDuelFinishedRef.current = true;
-          setIsDuelFinished(true);
-          
-          toast.info('Соперник не присоединился', {
-            description: 'Ставка возвращена',
-            duration: 3000
-          });
-          
-          // Переходим к результатам с сообщением об отмене
-          safeCallOnDuelFinished();
-        }
-      } catch (error) {
-        console.error('[DuelWaitingReplay] Exception checking opponent disconnect:', error);
-      }
-    };
-    
-    // Проверяем сразу и затем каждые 5 секунд
-    checkOpponentDisconnect();
-    const interval = setInterval(checkOpponentDisconnect, 5000);
-    
-    return () => clearInterval(interval);
-  }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
-
   // Максимальное время ожидания - 2 минуты
   useEffect(() => {
     if (isDuelFinished || !duelId) return;
-    
+
     const maxWaitTimeout = setTimeout(() => {
       if (!isDuelFinishedRef.current) {
         console.log('[DuelWaitingReplay] ⏰ Max wait time exceeded, forcing finish');
-        
+
         // Проверяем статус соперника в последний раз
         supabase.functions.invoke('duel-manager', {
           body: {
@@ -371,10 +287,10 @@ export function DuelWaitingReplay({
         });
       }
     }, 120000); // 2 минуты
-    
+
     return () => clearTimeout(maxWaitTimeout);
   }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
-  
+
   // ОПТИМИЗИРОВАНО: Проверка при каждом обновлении ответов соперника
   // Если у соперника есть все ответы - переходим мгновенно (Realtime уже должен был обновить статус)
   useEffect(() => {
@@ -382,16 +298,16 @@ export function DuelWaitingReplay({
     if (isDuelFinishedRef.current || realtimeState.duelFinished) {
       return;
     }
-    
+
     if (opponentAnswers.length >= totalQuestions) {
       console.log('[DuelWaitingReplay] 🔥 Opponent has ALL answers! Transitioning immediately...');
       console.log('[DuelWaitingReplay] Opponent answers:', opponentAnswers.length, 'Required:', totalQuestions);
-      
+
       // Переходим мгновенно - Realtime должен был уже обновить статус
       // Если нет - делаем быструю проверку без задержек
       const quickCheck = async () => {
         if (isDuelFinishedRef.current) return;
-        
+
         try {
           // Быстрая проверка статуса через Edge Function (без задержек)
           const { data, error } = await supabase.functions.invoke('duel-manager', {
@@ -401,25 +317,25 @@ export function DuelWaitingReplay({
               profile_id: profileId
             }
           });
-          
+
           // Если статус finished или есть ошибка - переходим сразу
           if (data?.status === 'finished' || data?.finished === true || error) {
             if (!isDuelFinishedRef.current) {
               console.log('[DuelWaitingReplay] ✅✅✅ Transitioning to results immediately');
               isDuelFinishedRef.current = true;
               setIsDuelFinished(true);
-              
+
               try {
                 sounds.victory();
               } catch (err) {
                 console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
               }
-              
+
               toast.success('🏁 Дуэль завершена!', {
                 description: 'Переход к результатам...',
                 duration: 1500,
               });
-              
+
               safeCallOnDuelFinished();
             }
           }
@@ -434,7 +350,7 @@ export function DuelWaitingReplay({
           }
         }
       };
-      
+
       // Выполняем проверку без задержек
       quickCheck();
     }
@@ -449,7 +365,7 @@ export function DuelWaitingReplay({
         console.log('[DuelWaitingReplay] Already checking, skipping...');
         return;
       }
-      
+
       // Use ref to avoid stale closure issues
       if (isDuelFinishedRef.current || isDuelFinished) {
         console.log('[DuelWaitingReplay] Already finished, skipping check');
@@ -492,18 +408,18 @@ export function DuelWaitingReplay({
         isCheckingFinishedRef.current = false;
         isDuelFinishedRef.current = true;
         setIsDuelFinished(true);
-        
+
         try {
           sounds.victory();
         } catch (err) {
           console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
         }
-        
+
         toast.success('🏁 Дуэль завершена!', {
           description: 'Переход к результатам...',
           duration: 1500,
         });
-        
+
         safeCallOnDuelFinished();
         return;
       }
@@ -554,31 +470,31 @@ export function DuelWaitingReplay({
           isCheckingFinishedRef.current = false;
           return;
         }
-        
+
         console.log('[DuelWaitingReplay] ⚡⚡⚡ Duel status is FINISHED - TRANSITIONING IMMEDIATELY', {
           opponentAnswers,
           required: duel.num_questions,
           duelStatus: duel.status
         });
-        
+
         // Transition immediately - не ждем дополнительных проверок
         isDuelFinishedRef.current = true;
         setIsDuelFinished(true);
         isCheckingFinishedRef.current = false;
-        
+
         sounds.victory();
         toast.success('🏁 Дуэль завершена!', {
           description: 'Переход к результатам...',
           duration: 1500,
         });
-        
+
         // Call once using safe wrapper
         console.log('[DuelWaitingReplay] 🚀🚀🚀 Calling onDuelFinished (status finished)...');
         safeCallOnDuelFinished();
-        
+
         return;
       }
-      
+
       // Also check if opponent finished (even if status is not 'finished' yet)
       if (opponentFinished) {
         if (isDuelFinishedRef.current) {
@@ -586,25 +502,25 @@ export function DuelWaitingReplay({
           isCheckingFinishedRef.current = false;
           return;
         }
-        
+
         console.log('[DuelWaitingReplay] ✅ Opponent finished (by answer count)! Transitioning to results', {
           opponentAnswers,
           required: duel.num_questions,
           duelStatus: duel.status,
           opponentFinished
         });
-        
+
         // Set both state and ref atomically
         isDuelFinishedRef.current = true;
         setIsDuelFinished(true);
         isCheckingFinishedRef.current = false;
-        
+
         sounds.victory();
         toast.success('🏁 Соперник закончил!', {
           description: 'Переход к результатам...',
           duration: 1500,
         });
-        
+
         // Call once using safe wrapper
         console.log('[DuelWaitingReplay] 🚀 Calling onDuelFinished (opponent finished by count)...');
         safeCallOnDuelFinished();
@@ -622,7 +538,7 @@ export function DuelWaitingReplay({
     try {
       // Skip if already finished
       if (isDuelFinishedRef.current) return;
-      
+
       const { data: duel } = await supabase
         .from('duels')
         .select('status, num_questions')
@@ -642,7 +558,7 @@ export function DuelWaitingReplay({
           console.log('[DuelWaitingReplay] checkDuelStatus: Already finished (ref), skipping');
           return;
         }
-        
+
         console.log('[DuelWaitingReplay] ✅✅✅ checkDuelStatus: Duel status is FINISHED - TRANSITIONING IMMEDIATELY');
         isDuelFinishedRef.current = true;
         setIsDuelFinished(true);
@@ -651,7 +567,7 @@ export function DuelWaitingReplay({
           description: 'Смотрите результаты',
           duration: 2000,
         });
-        
+
         // Call immediately - multiple times
         console.log('[DuelWaitingReplay] 🚀🚀🚀 checkDuelStatus: Calling onDuelFinished');
         safeCallOnDuelFinished();
@@ -695,7 +611,7 @@ export function DuelWaitingReplay({
           console.log('[DuelWaitingReplay] checkDuelStatus: Already finished (ref check), skipping');
           return;
         }
-        
+
         console.log('[DuelWaitingReplay] ✅ checkDuelStatus: Opponent finished all questions, transitioning to results');
         isDuelFinishedRef.current = true;
         setIsDuelFinished(true);
@@ -704,7 +620,7 @@ export function DuelWaitingReplay({
           description: 'Смотрите результаты',
           duration: 3000,
         });
-        
+
         // Call using safe wrapper
         console.log('[DuelWaitingReplay] ✅ checkDuelStatus: Calling onDuelFinished');
         safeCallOnDuelFinished();
@@ -734,7 +650,7 @@ export function DuelWaitingReplay({
           const players = edgeData.players;
           const opponent = players.find((p: any) => p.user_id !== profileId);
           const myPlayer = players.find((p: any) => p.user_id === profileId);
-          
+
           if (opponent) {
             // Используем имя из Edge Function (уже обработано)
             const name = opponent.name || 'Соперник';
@@ -742,7 +658,7 @@ export function DuelWaitingReplay({
               name,
               opponent: { id: opponent.id, user_id: opponent.user_id, score: opponent.score }
             });
-            
+
             // Проверяем, что имя не пустое и не "Игрок" (может быть реальное имя)
             if (name && name.trim() && name !== 'Игрок') {
               setOpponentName(name);
@@ -754,7 +670,7 @@ export function DuelWaitingReplay({
           } else {
             console.warn('[DuelWaitingReplay] No opponent found in Edge Function response');
           }
-          
+
           if (myPlayer) {
             const myName = myPlayer.name || 'Вы';
             if (myName && myName.trim() && myName !== 'Игрок') {
@@ -766,70 +682,70 @@ export function DuelWaitingReplay({
         } else {
           console.error('[DuelWaitingReplay] Error loading players via Edge Function:', edgeError);
           // Fallback к прямому запросу БЕЗ JOIN (чтобы избежать ошибки 400)
-      const { data: players, error: playersError } = await supabase
-        .from('duel_players')
-        .select('id, user_id, score, correct_count')
-        .eq('duel_id', duelId);
+          const { data: players, error: playersError } = await supabase
+            .from('duel_players')
+            .select('id, user_id, score, correct_count')
+            .eq('duel_id', duelId);
 
-      if (playersError) {
-        console.error('[DuelWaitingReplay] Error loading players:', playersError);
-        return;
-      }
+          if (playersError) {
+            console.error('[DuelWaitingReplay] Error loading players:', playersError);
+            return;
+          }
 
-      if (players && players.length >= 2) {
-        const opponent = players.find(p => p.user_id !== profileId);
-        const myPlayer = players.find(p => p.user_id === profileId);
-        
-        if (opponent) {
-          setOpponentScore(opponent.score || 0);
-        }
-        
-        // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
-        const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
-        if (userIds.length > 0) {
-          // Загружаем профили по одному через Promise.all
-          const profilePromises = userIds.map(async (userId) => {
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('id, first_name, username')
-              .eq('id', userId)
-              .single();
-            
-            if (error) {
-              console.error(`[DuelWaitingReplay] ❌ Error loading profile for ${userId}:`, error);
-              return null;
+          if (players && players.length >= 2) {
+            const opponent = players.find(p => p.user_id !== profileId);
+            const myPlayer = players.find(p => p.user_id === profileId);
+
+            if (opponent) {
+              setOpponentScore(opponent.score || 0);
             }
-            
-            return { userId, profile };
-          });
-          
-          const profileResults = await Promise.all(profilePromises);
-          const profilesMap = new Map();
-          
-          profileResults.forEach((result) => {
-            if (result && result.profile) {
-              profilesMap.set(result.userId, result.profile);
-            }
-          });
-          
-          if (opponent?.user_id) {
-            const opponentProfile = profilesMap.get(opponent.user_id);
-            if (opponentProfile) {
-              const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
-              console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
-              setOpponentName(name);
+
+            // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
+            const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
+            if (userIds.length > 0) {
+              // Загружаем профили по одному через Promise.all
+              const profilePromises = userIds.map(async (userId) => {
+                const { data: profile, error } = await supabase
+                  .from('profiles')
+                  .select('id, first_name, username')
+                  .eq('id', userId)
+                  .single();
+
+                if (error) {
+                  console.error(`[DuelWaitingReplay] ❌ Error loading profile for ${userId}:`, error);
+                  return null;
+                }
+
+                return { userId, profile };
+              });
+
+              const profileResults = await Promise.all(profilePromises);
+              const profilesMap = new Map();
+
+              profileResults.forEach((result) => {
+                if (result && result.profile) {
+                  profilesMap.set(result.userId, result.profile);
+                }
+              });
+
+              if (opponent?.user_id) {
+                const opponentProfile = profilesMap.get(opponent.user_id);
+                if (opponentProfile) {
+                  const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
+                  console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
+                  setOpponentName(name);
+                }
+              }
+
+              if (myPlayer?.user_id) {
+                const myProfile = profilesMap.get(myPlayer.user_id);
+                if (myProfile) {
+                  const name = myProfile.first_name || myProfile.username || 'Вы';
+                  setMyName(name);
+                }
+              }
             }
           }
-          
-          if (myPlayer?.user_id) {
-            const myProfile = profilesMap.get(myPlayer.user_id);
-            if (myProfile) {
-              const name = myProfile.first_name || myProfile.username || 'Вы';
-              setMyName(name);
-            }
-          }
-        }
-      }
         }
       } catch (error) {
         console.error('[DuelWaitingReplay] Exception loading players:', error);
@@ -847,11 +763,11 @@ export function DuelWaitingReplay({
         if (players && players.length >= 2) {
           const opponent = players.find(p => p.user_id !== profileId);
           const myPlayer = players.find(p => p.user_id === profileId);
-          
+
           if (opponent) {
             setOpponentScore(opponent.score || 0);
           }
-          
+
           // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
           const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
           if (userIds.length > 0) {
@@ -862,24 +778,24 @@ export function DuelWaitingReplay({
                 .select('id, first_name, username')
                 .eq('id', userId)
                 .single();
-              
+
               if (error) {
                 console.error(`[DuelWaitingReplay] ❌ Error loading profile for ${userId} (fallback):`, error);
                 return null;
               }
-              
+
               return { userId, profile };
             });
-            
+
             const profileResults = await Promise.all(profilePromises);
             const profilesMap = new Map();
-            
+
             profileResults.forEach((result) => {
               if (result && result.profile) {
                 profilesMap.set(result.userId, result.profile);
               }
             });
-            
+
             if (opponent?.user_id) {
               const opponentProfile = profilesMap.get(opponent.user_id);
               if (opponentProfile) {
@@ -898,33 +814,33 @@ export function DuelWaitingReplay({
         .from('duel_players')
         .select('id, user_id, score')
         .eq('duel_id', duelId);
-      
+
       if (!allPlayers || allPlayers.length < 2) {
         console.warn('[DuelWaitingReplay] Not enough players found');
         return;
       }
-      
+
       const myPlayer = allPlayers.find(p => p.user_id === profileId);
       const opponent = allPlayers.find(p => p.user_id !== profileId);
-      
+
       if (!myPlayer || !opponent) {
         console.warn('[DuelWaitingReplay] Could not find my player or opponent');
         return;
       }
-      
+
       // Store player IDs: myPlayerId as state (for useDuelRealtime re-subscription), opponent as ref
       // КРИТИЧНО: setMyPlayerId триггерит ре-рендер и useDuelRealtime переподпишется с правильным playerId
       setMyPlayerId(myPlayer.id);
       opponentPlayerIdRef.current = opponent.id;
-      
+
       console.log('[DuelWaitingReplay] Stored player IDs:', {
         myPlayerId: myPlayer.id,
         opponentPlayerId: opponentPlayerIdRef.current
       });
-      
+
       // Update opponent score
       setOpponentScore(opponent.score || 0);
-      
+
       // Get opponent's answers using opponent's player ID (without JOIN - faster and more reliable)
       const { data: answers, error: answersError } = await supabase
         .from('duel_answers')
@@ -944,14 +860,14 @@ export function DuelWaitingReplay({
           console.warn('[DuelWaitingReplay] ⚠️ Question positions cache is empty, reloading...');
           await loadQuestionPositions();
         }
-        
+
         const formattedAnswers = answers.map((ans: any) => {
           // Use cached position from questionPositionsRef
           let position = questionPositionsRef.current.get(ans.duel_question_id);
-          
+
           // Fallback: если позиция не найдена, пробуем получить из created_at (временной порядок)
           if (!position && answers.length > 0) {
-            const sortedAnswers = [...answers].sort((a: any, b: any) => 
+            const sortedAnswers = [...answers].sort((a: any, b: any) =>
               new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
             );
             position = sortedAnswers.findIndex((a: any) => a.id === ans.id) + 1;
@@ -961,18 +877,18 @@ export function DuelWaitingReplay({
               fallbackPosition: position
             });
           }
-          
+
           return {
             question_number: position || 0,
-          is_correct: ans.is_correct,
-          is_skipped: ans.is_skipped || false,
-          time_taken_ms: ans.time_taken_ms,
-          points_awarded: ans.points_awarded || 0,
+            is_correct: ans.is_correct,
+            is_skipped: ans.is_skipped || false,
+            time_taken_ms: ans.time_taken_ms,
+            points_awarded: ans.points_awarded || 0,
           };
         })
-        // НЕ фильтруем ответы без позиций - используем fallback позиции
-        .sort((a, b) => a.question_number - b.question_number);
-        
+          // НЕ фильтруем ответы без позиций - используем fallback позиции
+          .sort((a, b) => a.question_number - b.question_number);
+
         console.log('[DuelWaitingReplay] ✅ Loaded opponent answers in loadOpponentData:', {
           count: formattedAnswers.length,
           questionNumbers: formattedAnswers.map((a: any) => a.question_number),
@@ -983,19 +899,19 @@ export function DuelWaitingReplay({
           allFinished: formattedAnswers.length >= totalQuestions,
           isTelegram: typeof window !== 'undefined' && !!window.Telegram?.WebApp
         });
-        
+
         // КРИТИЧНО: Всегда обновляем opponentAnswers, даже если количество не изменилось
         // Это важно для Telegram WebApp где Realtime может не работать
         // Используем функциональное обновление для гарантии актуального состояния
         setOpponentAnswers(prev => {
           // Проверяем, изменилось ли что-то
-          const hasChanged = prev.length !== formattedAnswers.length || 
+          const hasChanged = prev.length !== formattedAnswers.length ||
             prev.some((p, idx) => {
               const newAnswer = formattedAnswers[idx];
-              return !newAnswer || p.question_number !== newAnswer.question_number || 
-                     p.is_correct !== newAnswer.is_correct;
+              return !newAnswer || p.question_number !== newAnswer.question_number ||
+                p.is_correct !== newAnswer.is_correct;
             });
-          
+
           if (hasChanged) {
             console.log('[DuelWaitingReplay] 🔄 Updating opponentAnswers - state changed:', {
               prevCount: prev.length,
@@ -1009,7 +925,7 @@ export function DuelWaitingReplay({
             return prev;
           }
         });
-        
+
         // CRITICAL: Check if opponent finished after loading answers
         if (formattedAnswers.length >= totalQuestions && !isDuelFinishedRef.current) {
           console.log('[DuelWaitingReplay] 🔥 Opponent has all answers in loadOpponentData - checking finish');
@@ -1044,34 +960,34 @@ export function DuelWaitingReplay({
 
   const subscribeToOpponentProgress = async () => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-    
+
     // Get all players to find opponent's player ID
     const { data: allPlayers } = await supabase
       .from('duel_players')
       .select('id, user_id')
       .eq('duel_id', duelId);
-    
+
     if (!allPlayers || allPlayers.length < 2) {
       console.error('[DuelWaitingReplay] Could not get players for subscription');
       return;
     }
-    
+
     const myPlayer = allPlayers.find(p => p.user_id === profileId);
     const opponent = allPlayers.find(p => p.user_id !== profileId);
-    
+
     if (!myPlayer || !opponent) {
       console.error('[DuelWaitingReplay] Could not find my player or opponent for subscription');
       return;
     }
-    
+
     const myPlayerIdLocal = myPlayer.id;
     const opponentPlayerId = opponent.id;
-    
+
     // Update state and ref
     // КРИТИЧНО: setMyPlayerId триггерит ре-рендер и useDuelRealtime переподпишется
     setMyPlayerId(myPlayerIdLocal);
     opponentPlayerIdRef.current = opponentPlayerId;
-    
+
     console.log('[DuelWaitingReplay] Subscribing to opponent progress:', {
       duelId,
       myPlayerId: myPlayerIdLocal,
@@ -1092,15 +1008,15 @@ export function DuelWaitingReplay({
         },
         async (payload) => {
           const answer = payload.new as any;
-          
+
           // Use ref to get current opponent player ID (handles closure issues)
           const currentOpponentPlayerId = opponentPlayerIdRef.current;
-          
+
           if (!currentOpponentPlayerId) {
             console.warn('[DuelWaitingReplay] Opponent player ID not set in subscription');
             return;
           }
-          
+
           // Check if it's opponent's answer using opponent player ID from ref
           if (answer.player_id === currentOpponentPlayerId) {
             console.log('[DuelWaitingReplay] ✅ Opponent answered!', {
@@ -1140,7 +1056,7 @@ export function DuelWaitingReplay({
                   .eq('duel_id', duelId)
                   .eq('player_id', currentOpponentPlayerId)
                   .order('created_at', { ascending: true });
-                
+
                 if (reloadError) {
                   console.error('[DuelWaitingReplay] Error reloading answers:', reloadError);
                   // Fallback: update state manually
@@ -1170,39 +1086,39 @@ export function DuelWaitingReplay({
                       points_awarded: ans.points_awarded || 0,
                     };
                   })
-                  .filter((a: any) => a.question_number > 0)
-                  .sort((a, b) => a.question_number - b.question_number);
-              
+                    .filter((a: any) => a.question_number > 0)
+                    .sort((a, b) => a.question_number - b.question_number);
+
                   console.log('[DuelWaitingReplay] ✅ Reloaded opponent answers after new answer:', {
                     count: formatted.length,
                     questionNumbers: formatted.map(a => a.question_number),
                     totalQuestions,
                     allFinished: formatted.length >= totalQuestions
                   });
-                  
+
                   setOpponentAnswers(formatted);
-                  
+
                   // КРИТИЧНО: Если соперник ответил на все вопросы - сразу переходим к результатам
                   if (formatted.length >= totalQuestions && !isDuelFinishedRef.current) {
                     console.log('[DuelWaitingReplay] 🔥🔥🔥 Opponent answered ALL questions in reload! Transitioning IMMEDIATELY', {
                       answerCount: formatted.length,
                       totalQuestions
                     });
-                    
+
                     isDuelFinishedRef.current = true;
                     setIsDuelFinished(true);
-                    
+
                     sounds.victory();
                     toast.success('🏁 Соперник закончил!', {
                       description: 'Переход к результатам...',
                       duration: 1500,
                     });
-                
+
                     // Вызываем onDuelFinished немедленно
                     safeCallOnDuelFinished();
-                    
+
                     // Также проверяем статус через Edge Function для надежности
-                  setTimeout(() => {
+                    setTimeout(() => {
                       supabase.functions.invoke('duel-manager', {
                         body: {
                           action: 'check_status',
@@ -1225,8 +1141,8 @@ export function DuelWaitingReplay({
                     const existing = prev.find(a => a.question_number === position);
                     if (existing) return prev;
                     const updated = [...prev, newAnswer].sort((a, b) => a.question_number - b.question_number);
-                return updated;
-              });
+                    return updated;
+                  });
                 }
               } catch (error) {
                 console.error('[DuelWaitingReplay] Exception reloading answers:', error);
@@ -1252,14 +1168,14 @@ export function DuelWaitingReplay({
         },
         async (payload) => {
           const updatedPlayer = payload.new as any;
-          
+
           // Use ref to get current opponent player ID
           const currentOpponentPlayerId = opponentPlayerIdRef.current;
-          
+
           if (!currentOpponentPlayerId) {
             return;
           }
-          
+
           // Check if this is opponent's score update using opponent player ID from ref
           if (updatedPlayer.id === currentOpponentPlayerId) {
             console.log('[DuelWaitingReplay] ✅ Opponent score UPDATE:', {
@@ -1270,7 +1186,7 @@ export function DuelWaitingReplay({
             });
             // Use server score as source of truth
             setOpponentScore(updatedPlayer.score || 0);
-            
+
             // If opponent's correct_count is set, check if they finished
             // Get totalQuestions from duel to avoid stale closure
             if (updatedPlayer.correct_count !== undefined && !isDuelFinishedRef.current) {
@@ -1280,7 +1196,7 @@ export function DuelWaitingReplay({
                 .select('num_questions')
                 .eq('id', duelId)
                 .single();
-              
+
               if (duel && updatedPlayer.correct_count >= duel.num_questions) {
                 console.log('[DuelWaitingReplay] 🎯 Opponent correct_count matches totalQuestions - triggering finish check', {
                   correctCount: updatedPlayer.correct_count,
@@ -1307,7 +1223,7 @@ export function DuelWaitingReplay({
       supabase.removeChannel(channel);
     };
   };
-  
+
   // Сохраняем ссылки на функции для fallback механизма (после их определения)
   useEffect(() => {
     // Сохраняем ссылки на функции для использования в fallback useEffect
@@ -1360,11 +1276,11 @@ export function DuelWaitingReplay({
       exit={{ opacity: 0 }}
       className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4"
     >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-2xl space-y-6"
-            >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="w-full max-w-2xl space-y-6"
+      >
         {/* Header */}
         <Card className="p-6 bg-card border border-border/50 shadow-lg">
           <div className="text-center space-y-5">
@@ -1375,16 +1291,16 @@ export function DuelWaitingReplay({
             >
               <Trophy className="w-8 h-8 text-white" />
             </motion.div>
-            
+
             <div>
               <h2 className="text-2xl font-bold mb-2">Вы закончили первым!</h2>
               <p className="text-muted-foreground">
                 Ожидание ответа от <span className="font-semibold text-foreground">{opponentName}</span>
               </p>
-              
+
               {/* Индикатор статуса соперника */}
               {opponentStatus === 'offline' && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-3 bg-red-500/10 border border-red-500/30 rounded-lg p-3"
@@ -1404,7 +1320,7 @@ export function DuelWaitingReplay({
             <div className="flex items-center justify-center gap-8 pt-3 pb-2">
               <div className="text-center">
                 <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wide">Вы</div>
-                <motion.div 
+                <motion.div
                   className="text-3xl font-black text-primary"
                   key={myScore}
                   animate={{ scale: [1, 1.05, 1] }}
@@ -1416,7 +1332,7 @@ export function DuelWaitingReplay({
               <div className="text-xl font-bold text-muted-foreground/40">VS</div>
               <div className="text-center">
                 <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wide">{opponentName}</div>
-                <motion.div 
+                <motion.div
                   className="text-3xl font-black text-secondary"
                   key={opponentScore}
                   animate={{ scale: [1, 1.2, 1] }}
@@ -1484,21 +1400,21 @@ export function DuelWaitingReplay({
                       {opponentAnswers.length} / {totalQuestions}
                     </span>
                   </div>
-                  
+
                   {/* Compact Visual Timeline */}
                   <div className="flex items-center gap-1.5 flex-wrap">
                     {Array.from({ length: totalQuestions }).map((_, idx) => {
                       const questionNum = idx + 1;
                       const answer = opponentAnswers.find(a => a.question_number === questionNum);
                       const isAnswered = !!answer;
-                      
+
                       // Determine current question: next unanswered question after all answered ones
                       // Get all answered question numbers sorted
                       const answeredQuestionNumbers = opponentAnswers
                         .map(a => a.question_number)
                         .filter(n => n >= 1 && n <= totalQuestions)
                         .sort((a, b) => a - b);
-                      
+
                       // Current question is the next unanswered question
                       // If answered [1, 2, 3, 4], current is 5
                       // If answered [1, 2, 4, 5], current is 3 (first gap)
@@ -1513,7 +1429,7 @@ export function DuelWaitingReplay({
                           }
                         }
                       }
-                      
+
                       const isCurrent = currentQuestionNumber !== null && questionNum === currentQuestionNumber && !isAnswered;
 
                       return (
@@ -1522,27 +1438,26 @@ export function DuelWaitingReplay({
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: idx * 0.03 }}
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${
-                            isAnswered 
-                              ? answer.is_skipped
-                                ? 'bg-muted text-muted-foreground'
-                                : answer.is_correct 
-                                ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30' 
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${isAnswered
+                            ? answer.is_skipped
+                              ? 'bg-muted text-muted-foreground'
+                              : answer.is_correct
+                                ? 'bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30'
                                 : 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30'
-                              : isCurrent
+                            : isCurrent
                               ? 'bg-primary/20 text-primary border-2 border-primary animate-pulse'
                               : 'bg-muted/30 text-muted-foreground border border-border/30'
-                          }`}
+                            }`}
                           title={
-                            isAnswered 
+                            isAnswered
                               ? answer.is_skipped
                                 ? `Вопрос ${questionNum}: Пропущено`
-                                : answer.is_correct 
-                                ? `Вопрос ${questionNum}: Правильно (+${answer.points_awarded})`
-                                : `Вопрос ${questionNum}: Неправильно`
+                                : answer.is_correct
+                                  ? `Вопрос ${questionNum}: Правильно (+${answer.points_awarded})`
+                                  : `Вопрос ${questionNum}: Неправильно`
                               : isCurrent
-                              ? 'Отвечает...'
-                              : 'Ожидание'
+                                ? 'Отвечает...'
+                                : 'Ожидание'
                           }
                         >
                           {isAnswered ? (
@@ -1575,13 +1490,12 @@ export function DuelWaitingReplay({
                         key={`${answer.question_number}-${idx}`}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className={`flex items-center justify-between p-2 rounded-lg text-sm ${
-                          answer.is_skipped
-                            ? 'bg-muted/20'
-                            : answer.is_correct 
-                            ? 'bg-green-500/10' 
+                        className={`flex items-center justify-between p-2 rounded-lg text-sm ${answer.is_skipped
+                          ? 'bg-muted/20'
+                          : answer.is_correct
+                            ? 'bg-green-500/10'
                             : 'bg-red-500/10'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2">
                           {answer.is_skipped ? (
