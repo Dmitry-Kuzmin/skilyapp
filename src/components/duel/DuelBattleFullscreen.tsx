@@ -1636,7 +1636,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
           }`}>
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
-          <div className={`flex items-center gap-3 md:gap-5 ${isTelegramMobile ? 'flex-1 justify-center' : ''}`}>
+          <div className={`flex items-center gap-2 md:gap-3 min-w-0 ${isTelegramMobile ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
             <motion.div
               className="flex items-center gap-2 md:gap-3 group"
