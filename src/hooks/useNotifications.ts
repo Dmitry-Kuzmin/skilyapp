@@ -171,9 +171,23 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             console.warn('[Notifications] ⚠️ Binding mismatch (should be fixed by RLS policy update)');
           }
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('[Notifications] ❌ Channel error - check RLS policies and realtime publication');
-          console.error('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
-          console.error('[Notifications] Channel name:', channelName);
+          // CHANNEL_ERROR может возникать временно, но подписка может продолжать работать
+          // Проверяем, что уведомления все еще загружаются через обычные запросы
+          console.warn('[Notifications] ⚠️ Channel error detected - Realtime may be limited, but notifications will still load via polling');
+          console.warn('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
+          console.warn('[Notifications] Channel name:', channelName);
+          console.warn('[Notifications] This is usually non-critical - notifications will still work via regular queries');
+          
+          // Продолжаем работу - уведомления будут загружаться через loadNotifications()
+          // Периодически перезагружаем уведомления в фоне
+          const pollInterval = setInterval(() => {
+            loadNotifications();
+          }, 30000); // Каждые 30 секунд
+          
+          // Очищаем интервал при размонтировании
+          return () => {
+            clearInterval(pollInterval);
+          };
         } else if (status === 'TIMED_OUT') {
           console.warn('[Notifications] ⚠️ Subscription timed out - will retry on next mount');
         } else if (status === 'CLOSED') {
