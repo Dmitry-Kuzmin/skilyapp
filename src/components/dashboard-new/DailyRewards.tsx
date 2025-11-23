@@ -17,6 +17,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [showNewWeek, setShowNewWeek] = useState(false);
   const [celebrationType, setCelebrationType] = useState<CelebrationType>('supernova'); // Можно менять тип
+  const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('fanfare');
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
@@ -104,6 +105,20 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
   };
 
+  // Функция для смены типа звука (только в dev режиме)
+  const handleChangeSound = () => {
+    if (process.env.NODE_ENV === 'development') {
+      const sounds: Array<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'> = [
+        'default', 'fanfare', 'bells', 'synth', 'orchestral', 'pop'
+      ];
+      const currentIndex = sounds.indexOf(celebrationSoundType);
+      const nextIndex = (currentIndex + 1) % sounds.length;
+      setCelebrationSoundType(sounds[nextIndex]);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 5000);
+    }
+  };
+
   return (
     <div className="h-full min-h-[360px] bg-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
       
@@ -113,6 +128,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         show={showCelebration}
         duration={5000}
         withSound={true}
+        soundType={celebrationSoundType}
         fullScreen={true}
         message="🏆 Неделя завершена!"
       />
@@ -312,6 +328,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             title={`Сменить анимацию (текущая: ${celebrationType})`}
           >
             🎨 {celebrationType}
+          </button>
+          <button
+            onClick={handleChangeSound}
+            className="px-2 py-1 text-[10px] bg-green-500/20 text-green-300 rounded border border-green-500/30 hover:bg-green-500/30 transition-colors"
+            title={`Сменить звук (текущий: ${celebrationSoundType})`}
+          >
+            🔊 {celebrationSoundType}
           </button>
         </div>
       )}

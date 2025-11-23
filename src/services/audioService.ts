@@ -388,6 +388,7 @@ export const playLevelUpSound = () => {
   });
 };
 
+// Вариант 1: Триумфальный аккорд (текущий)
 export const playCelebrationSound = () => {
   playSound((ctx, t) => {
     const masterGain = ctx.createGain();
@@ -433,6 +434,241 @@ export const playCelebrationSound = () => {
       gain.connect(masterGain);
       osc.start(startTime);
       osc.stop(startTime + 0.8);
+    });
+  });
+};
+
+// Вариант 2: Фанфары (восходящая мелодия)
+export const playCelebrationSoundFanfare = () => {
+  playSound((ctx, t) => {
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.25;
+    masterGain.connect(ctx.destination);
+
+    // Восходящая мелодия фанфар
+    const fanfareNotes = [523.25, 659.25, 783.99, 987.77, 1174.66, 1318.51, 1567.98]; // C, E, G, B, D, E, G
+    
+    fanfareNotes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 3000;
+      
+      const startTime = t + i * 0.08;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.12, startTime + 0.03);
+      gain.gain.linearRampToValueAtTime(0.08, startTime + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    });
+  });
+};
+
+// Вариант 3: Звон колоколов (торжественный)
+export const playCelebrationSoundBells = () => {
+  playSound((ctx, t) => {
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.2;
+    masterGain.connect(ctx.destination);
+
+    // Колокольный звон
+    const bellFreqs = [523.25, 659.25, 783.99, 1046.5, 1318.51]; // C, E, G, C, E
+    
+    bellFreqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = freq * 2;
+      filter.Q.value = 5;
+      
+      const startTime = t + i * 0.1;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.15, startTime + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.5);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 1.5);
+    });
+  });
+};
+
+// Вариант 4: Электронный синтезатор (современный)
+export const playCelebrationSoundSynth = () => {
+  playSound((ctx, t) => {
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.2;
+    masterGain.connect(ctx.destination);
+
+    // Электронная мелодия
+    const synthNotes = [
+      { freq: 440, time: 0 },    // A
+      { freq: 554.37, time: 0.1 }, // C#
+      { freq: 659.25, time: 0.2 }, // E
+      { freq: 880, time: 0.3 },     // A
+      { freq: 1108.73, time: 0.4 }, // C#
+      { freq: 1318.51, time: 0.5 }, // E
+    ];
+    
+    synthNotes.forEach((note, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(2000, t + note.time);
+      filter.frequency.exponentialRampToValueAtTime(8000, t + note.time + 0.2);
+      filter.frequency.exponentialRampToValueAtTime(2000, t + note.time + 0.4);
+      
+      const startTime = t + note.time;
+      osc.frequency.setValueAtTime(note.freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+      gain.gain.linearRampToValueAtTime(0.05, startTime + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.6);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 0.6);
+    });
+  });
+};
+
+// Вариант 5: Оркестровый финал (эпичный)
+export const playCelebrationSoundOrchestral = () => {
+  playSound((ctx, t) => {
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.18;
+    masterGain.connect(ctx.destination);
+
+    // Низкие ноты (басы)
+    const bassFreqs = [261.63, 329.63, 392.00]; // C, E, G
+    bassFreqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 500;
+      
+      const startTime = t + i * 0.15;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.12, startTime + 0.2);
+      gain.gain.linearRampToValueAtTime(0.08, startTime + 1);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 2);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 2);
+    });
+
+    // Средние ноты (мелодия)
+    const melodyFreqs = [523.25, 659.25, 783.99, 987.77, 1174.66]; // C, E, G, B, D
+    melodyFreqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      
+      const startTime = t + 0.2 + i * 0.1;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+      gain.gain.linearRampToValueAtTime(0.06, startTime + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 1.2);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 1.2);
+    });
+
+    // Высокие ноты (финал)
+    const highFreqs = [1318.51, 1567.98, 1975.53, 2637.02]; // E, G, B, E
+    highFreqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      
+      const startTime = t + 0.6 + i * 0.08;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.08, startTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.8);
+
+      osc.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 0.8);
+    });
+  });
+};
+
+// Вариант 6: Поп-конфетти (веселый, короткий)
+export const playCelebrationSoundPop = () => {
+  playSound((ctx, t) => {
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.25;
+    masterGain.connect(ctx.destination);
+
+    // Быстрые веселые ноты
+    const popNotes = [
+      { freq: 523.25, time: 0 },   // C
+      { freq: 659.25, time: 0.05 }, // E
+      { freq: 783.99, time: 0.1 },  // G
+      { freq: 1046.5, time: 0.15 }, // C
+      { freq: 1318.51, time: 0.2 }, // E
+      { freq: 1567.98, time: 0.25 }, // G
+    ];
+    
+    popNotes.forEach((note) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 4000;
+      
+      const startTime = t + note.time;
+      osc.frequency.setValueAtTime(note.freq, startTime);
+      
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.12, startTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      osc.start(startTime);
+      osc.stop(startTime + 0.15);
     });
   });
 };

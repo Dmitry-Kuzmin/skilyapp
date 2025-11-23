@@ -2,7 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { Trophy, Sparkles, Star, Award, Zap, Crown, Flame } from 'lucide-react';
-import { playLevelUpSound, playSuccessSound, playCelebrationSound } from '@/services/audioService';
+import { 
+  playLevelUpSound, 
+  playSuccessSound, 
+  playCelebrationSound,
+  playCelebrationSoundFanfare,
+  playCelebrationSoundBells,
+  playCelebrationSoundSynth,
+  playCelebrationSoundOrchestral,
+  playCelebrationSoundPop
+} from '@/services/audioService';
 import { sounds } from '@/lib/sounds';
 
 export type CelebrationType = 
@@ -26,12 +35,21 @@ export type CelebrationType =
   | 'phoenix'
   | 'supernova';
 
+export type CelebrationSoundType = 
+  | 'default'      // Триумфальный аккорд
+  | 'fanfare'      // Фанфары
+  | 'bells'        // Колокола
+  | 'synth'        // Электронный синтезатор
+  | 'orchestral'   // Оркестровый финал
+  | 'pop';         // Поп-конфетти
+
 interface CelebrationAnimationsProps {
   type: CelebrationType;
   show: boolean;
   onComplete?: () => void;
   duration?: number;
   withSound?: boolean;
+  soundType?: CelebrationSoundType;
   fullScreen?: boolean;
   message?: string;
 }
@@ -55,6 +73,7 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
   onComplete,
   duration = 5000, // Увеличено до 5 секунд
   withSound = true,
+  soundType = 'fanfare', // По умолчанию фанфары
   fullScreen = true
 }) => {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
@@ -73,14 +92,36 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
   // Звуковые эффекты
   useEffect(() => {
     if (show && withSound) {
-      // Разные звуки для разных типов анимаций
+      // Выбираем звук по soundType
+      switch (soundType) {
+        case 'fanfare':
+          playCelebrationSoundFanfare();
+          break;
+        case 'bells':
+          playCelebrationSoundBells();
+          break;
+        case 'synth':
+          playCelebrationSoundSynth();
+          break;
+        case 'orchestral':
+          playCelebrationSoundOrchestral();
+          break;
+        case 'pop':
+          playCelebrationSoundPop();
+          break;
+        case 'default':
+        default:
+          playCelebrationSound();
+          break;
+      }
+
+      // Дополнительные звуки для особых анимаций
       switch (type) {
         case 'victory-fanfare':
         case 'champion':
         case 'trophy':
         case 'supernova':
           sounds.victory();
-          playCelebrationSound();
           playLevelUpSound();
           break;
         case 'fireworks':
@@ -88,22 +129,19 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
         case 'explosion':
         case 'phoenix':
           sounds.confetti();
-          playCelebrationSound();
           playSuccessSound();
           break;
         case 'galaxy':
         case 'cosmic':
         case 'rainbow':
-          playCelebrationSound();
           sounds.victory();
           break;
         default:
-          playCelebrationSound();
           sounds.victory();
           playSuccessSound();
       }
     }
-  }, [show, withSound, type]);
+  }, [show, withSound, type, soundType]);
 
   useEffect(() => {
     if (show && onComplete) {
