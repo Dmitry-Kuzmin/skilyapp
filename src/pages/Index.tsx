@@ -81,10 +81,11 @@ const Index = () => {
         return;
       }
       
-      // Вычисляем новый стрик (до 90 дней)
+      // Вычисляем новый стрик (без ограничения, циклический расчет)
       let newStreak = 1;
       if (dailyBonus.last_claimed_date === yesterday) {
-        newStreak = Math.min((dailyBonus.current_streak || 0) + 1, 90);
+        // Продолжаем streak (без ограничения)
+        newStreak = (dailyBonus.current_streak || 0) + 1;
       } else if (dailyBonus.last_claimed_date === today) {
         // Уже получено сегодня
         toast({
@@ -95,8 +96,13 @@ const Index = () => {
         return;
       }
 
-      // Получаем награду текущего дня
-      const currentReward = dashboardData.weeklyRewards.find(r => r.day_number === newStreak);
+      // Циклический расчет: день недели (1-7)
+      // Если streak кратен 7, то день 7, иначе остаток от деления
+      const weekDay = newStreak % 7 || 7;
+      const weekNumber = Math.ceil(newStreak / 7);
+
+      // Получаем награду по дню недели (циклический)
+      const currentReward = dashboardData.weeklyRewards.find(r => r.day_number === weekDay);
       if (!currentReward) {
         console.error('[handleClaimBonus] Reward not found for streak:', newStreak);
         throw new Error('Reward not found');
@@ -193,9 +199,15 @@ const Index = () => {
       invalidateCache();
 
       // Показываем успешное сообщение сразу
+      const rewardText = [];
+      if (currentReward.reward.xp > 0) rewardText.push(`+${currentReward.reward.xp} XP`);
+      if (currentReward.reward.coins > 0) rewardText.push(`+${currentReward.reward.coins} монет`);
+      if (currentReward.reward.boost) rewardText.push('Boost активирован!');
+      if (currentReward.reward.badge) rewardText.push('Бейдж получен!');
+
       toast({
         title: "🎉 Награда получена!",
-        description: `+${currentReward.reward.xp || 0} XP${currentReward.reward.coins > 0 ? `, +${currentReward.reward.coins} монет` : ""}`,
+        description: rewardText.join(', '),
       });
 
       // Обновляем данные в фоне (не блокируем UI)
@@ -203,37 +215,13 @@ const Index = () => {
         console.error('[handleClaimBonus] Error refreshing dashboard:', err);
       });
 
-      // Специальные уведомления для вех
-      if (newStreak === 7) {
+      // Специальное уведомление для дня 7 (завершение недели)
+      if (weekDay === 7) {
         setTimeout(() => {
           toast({
-            title: "🏆 Недельный герой!",
-            description: "Первая неделя позади! Так держать!",
+            title: "🏆 Неделя завершена!",
+            description: `Неделя ${weekNumber} завершена! Начинается новая! Общий streak: ${newStreak} дней`,
             duration: 5000,
-          });
-        }, 2000);
-      } else if (newStreak === 30) {
-        setTimeout(() => {
-          toast({
-            title: "🔥 Месяц подряд!",
-            description: "Невероятная настойчивость! Продолжай в том же духе!",
-            duration: 5000,
-          });
-        }, 2000);
-      } else if (newStreak === 60) {
-        setTimeout(() => {
-          toast({
-            title: "⭐ Два месяца!",
-            description: "Ты неостановим! Осталось совсем немного!",
-            duration: 5000,
-          });
-        }, 2000);
-      } else if (newStreak === 90) {
-        setTimeout(() => {
-          toast({
-            title: "🏆 ЖЕЛЕЗНАЯ ВОЛЯ!",
-            description: "90 дней подряд! Ты настоящий чемпион!",
-            duration: 7000,
           });
         }, 2000);
       }

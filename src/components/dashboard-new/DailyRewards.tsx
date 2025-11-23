@@ -24,7 +24,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
   };
 
-  const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference } = useMemo(() => {
+  const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
     // Если стрик 0, то прогресс 0
     // Если стрик кратен 7 (7, 14, 21...), то прогресс 7 (неделя завершена)
@@ -34,12 +34,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     const r = 50;
     const circ = 2 * Math.PI * r;
     const offset = circ - (pp / 100) * circ;
+    const wn = currentStreak === 0 ? 0 : Math.ceil(currentStreak / 7);
+    const wd = currentStreak === 0 ? 0 : (currentStreak % 7 || 7);
     return { 
       weeklyProgress: wp, 
       progressPercent: pp, 
       strokeDashoffset: offset,
       radius: r,
-      circumference: circ
+      circumference: circ,
+      weekNumber: wn,
+      weekDay: wd
     };
   }, [currentStreak]);
 
@@ -55,7 +59,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       <div className="relative z-10 flex justify-between items-start">
         <div>
            <h3 className="font-bold text-lg tracking-tight text-slate-100">Ежедневная серия</h3>
-           <p className="text-xs text-slate-400 font-medium mt-0.5">Уровень: Платформа</p>
+           {weekNumber > 0 && (
+             <p className="text-xs text-slate-400 font-medium mt-0.5">Неделя {weekNumber}</p>
+           )}
         </div>
         <div className="w-10 h-10 rounded-xl bg-slate-800/80 backdrop-blur-sm flex items-center justify-center border border-slate-700 shadow-lg">
            <Award size={20} className="text-yellow-400" />
@@ -104,6 +110,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             <Flame className={`w-8 h-8 mb-2 ${hasClaimedToday ? 'text-orange-500 fill-orange-500' : 'text-slate-600'} transition-colors`} />
             <span className="text-4xl font-bold text-white tracking-tighter leading-none">{currentStreak}</span>
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-1">Дней</span>
+            {weekDay > 0 && weekNumber > 0 && (
+              <span className="text-[9px] text-slate-400 mt-0.5">Неделя {weekNumber}, день {weekDay}</span>
+            )}
           </div>
         </div>
       </div>
@@ -143,7 +152,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
-             {isClaiming ? 'Обработка...' : 'Получить бонус'}
+             {isClaiming ? 'Обработка...' : weekDay === 7 ? '🎉 Завершить неделю!' : 'Получить бонус'}
           </span>
         )}
       </button>
