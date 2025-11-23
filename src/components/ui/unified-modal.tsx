@@ -8,7 +8,7 @@ import { useModalRoute } from "@/hooks/useModalRoute";
 
 interface UnifiedModalProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void; // Сделали опциональным для безопасности
   children: React.ReactNode;
   title?: string;
   hideCloseButton?: boolean;
@@ -80,7 +80,9 @@ export function UnifiedModal({
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
       // Обновляем prop (основной источник истины)
-      onOpenChange(state);
+      if (typeof onOpenChange === 'function') {
+        onOpenChange(state);
+      }
       
       // Синхронизируем URL (если используется)
       if (modalRouteKey && route) {
@@ -104,7 +106,12 @@ export function UnifiedModal({
     // Синхронизируем prop с URL только если open не задан явно
     if (route.isOpen !== open) {
       isSyncingRef.current = true;
-      onOpenChange(route.isOpen);
+      // Проверяем, что onOpenChange является функцией перед вызовом
+      if (typeof onOpenChange === 'function') {
+        onOpenChange(route.isOpen);
+      } else {
+        console.warn('[UnifiedModal] onOpenChange is not a function:', typeof onOpenChange, onOpenChange);
+      }
       // Сбрасываем флаг после следующего тика
       requestAnimationFrame(() => {
         isSyncingRef.current = false;
