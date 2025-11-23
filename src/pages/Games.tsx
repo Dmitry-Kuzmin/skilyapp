@@ -325,14 +325,14 @@ const Games = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.4 }}
                   className={`
-                  ${isFeatured ? 'md:col-span-1 lg:col-span-2 lg:row-span-2' : 'md:col-span-1 lg:col-span-1'}
-                  relative overflow - hidden rounded - 3xl p - 6 md: p - 8 cursor - pointer group
-bg - gradient - to - br ${game.gradient}
-shadow - 2xl hover: shadow - 3xl
-transition - all duration - 500
-hover: scale - [1.02] active: scale - [0.98]
-                  border border - white / 10
-  `}
+                    ${isFeatured ? 'md:col-span-1 lg:col-span-2 lg:row-span-2' : 'md:col-span-1 lg:col-span-1'}
+                    relative overflow-hidden rounded-3xl p-6 md:p-8 cursor-pointer group
+                    bg-gradient-to-br ${game.gradient}
+                    shadow-2xl hover:shadow-3xl
+                    transition-all duration-500
+                    hover:scale-[1.02] active:scale-[0.98]
+                    border border-white/10
+                  `}
                   onClick={() => {
                     if (game.premium && !isPremium) {
                       setPaywallOpen(true);
@@ -366,13 +366,13 @@ hover: scale - [1.02] active: scale - [0.98]
                       <div className="flex items-start justify-between gap-4">
                         <div className={`
                         ${isFeatured ? 'w-16 h-16 md:w-20 md:h-20' : 'w-14 h-14'}
-flex - shrink - 0 rounded - 2xl bg - white / 20 backdrop - blur - sm border border - white / 30
-                        flex items - center justify - center
-group - hover: scale - 110 group - hover: rotate - 6
-transition - all duration - 500
-shadow - xl
-  `}>
-                          <Icon className={`${isFeatured ? 'w-8 h-8 md:w-10 md:h-10' : 'w-7 h-7'} text - white`} />
+                        flex-shrink-0 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30
+                        flex items-center justify-center
+                        group-hover:scale-110 group-hover:rotate-6
+                        transition-all duration-500
+                        shadow-xl
+                      `}>
+                          <Icon className={`${isFeatured ? 'w-8 h-8 md:w-10 md:h-10' : 'w-7 h-7'} text-white`} />
                         </div>
 
                         <Badge
@@ -387,17 +387,17 @@ shadow - xl
                       <div className="space-y-2">
                         <h3 className={`
                         ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}
-font - black text - white tracking - tight
-group - hover: text - white / 90
-transition - colors duration - 300
-  `}>
+                        font-black text-white tracking-tight
+                        group-hover:text-white/90
+                        transition-colors duration-300
+                      `}>
                           {game.title}
                         </h3>
                         <p className={`
                         ${isFeatured ? 'text-base' : 'text-sm'}
-text - white / 80 font - medium
+                        text-white/80 font-medium
                         ${isFeatured ? 'line-clamp-3' : 'line-clamp-2'}
-`}>
+                      `}>
                           {game.description}
                         </p>
                       </div>
@@ -407,16 +407,16 @@ text - white / 80 font - medium
                     <div className="mt-6">
                       <Button
                         className={`
-w - full
-bg - white / 20 hover: bg - white / 30
-backdrop - blur - sm
-border - 2 border - white / 40 hover: border - white / 60
-text - white font - bold
-shadow - xl hover: shadow - 2xl
-transition - all duration - 300
-group - hover: scale - 105
+                        w-full 
+                        bg-white/20 hover:bg-white/30 
+                        backdrop-blur-sm 
+                        border-2 border-white/40 hover:border-white/60
+                        text-white font-bold
+                        shadow-xl hover:shadow-2xl
+                        transition-all duration-300
+                        group-hover:scale-105
                         ${isFeatured ? 'py-6 text-base' : 'py-5 text-sm'}
-`}
+                      `}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (game.premium && !isPremium) {
@@ -509,8 +509,8 @@ group - hover: scale - 105
                   >
                     <div className="flex items-center justify-center gap-2 mb-3">
                       <div className={`w-4 h-4 rounded-full ${stats.averageResult >= 80 ? 'bg-emerald-500' :
-                          stats.averageResult >= 60 ? 'bg-yellow-500' :
-                            'bg-red-500'
+                        stats.averageResult >= 60 ? 'bg-yellow-500' :
+                          'bg-red-500'
                         }`} />
                       <motion.p
                         key={stats.averageResult}
@@ -518,8 +518,8 @@ group - hover: scale - 105
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 200 }}
                         className={`text-4xl font-black ${stats.averageResult >= 80 ? 'text-emerald-400' :
-                            stats.averageResult >= 60 ? 'text-yellow-400' :
-                              'text-red-400'
+                          stats.averageResult >= 60 ? 'text-yellow-400' :
+                            'text-red-400'
                           }`}
                       >
                         {stats.averageResult}%
