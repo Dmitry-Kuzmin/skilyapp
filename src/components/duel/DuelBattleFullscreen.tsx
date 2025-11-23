@@ -1147,7 +1147,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         await syncPlayers();
       }
 
-      // CRITICAL FIX: Show waiting screen IMMEDIATELY when finishing
+      // IMPROVED: Check if both players finished before showing waiting screen
       if (currentIndex >= questions.length - 1) {
         // Prevent duplicate calls
         if (isFinishingRef.current) {
@@ -1156,13 +1156,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
 
         isFinishingRef.current = true;
-        console.log('[DuelBattleFullscreen] ✅ Last question answered - showing waiting screen immediately');
+        console.log('[DuelBattleFullscreen] ✅ Last question answered - checking duel status');
 
         setHasFinishedMyQuestions(true);
-        setIsWaitingForOpponent(true);
-        toast.info('⏳ Ты закончил первым! Ожидание соперника...', { duration: 4000 });
+        // DON'T show waiting screen yet - wait for finishDuel response
+        // If both players finished, we'll go straight to results
+        // If opponent still playing, finishDuel will show waiting screen
 
-        // Call finishDuel in background WITHOUT blocking UI
+        // Call finishDuel to check if both players finished
         finishDuel();
       } else {
         // Normal transition to next question
@@ -1265,22 +1266,26 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         console.log('[DuelBattleFullscreen] Timeout - Server combo:', serverCombo);
       }
 
-      // CRITICAL FIX: Show waiting screen IMMEDIATELY when finishing (same as handleAnswer)
+      // IMPROVED: Check if both players finished before showing waiting screen (same as handleAnswer)
       if (currentIndex >= questions.length - 1) {
+        // Prevent duplicate calls
         if (isFinishingRef.current) {
           console.log('[DuelBattleFullscreen] Already finishing, skipping');
           return;
         }
 
         isFinishingRef.current = true;
-        console.log('[DuelBattleFullscreen] ✅ Last question timeout - showing waiting screen immediately');
+        console.log('[DuelBattleFullscreen] ✅ Last question timeout - checking duel status');
 
         setHasFinishedMyQuestions(true);
-        setIsWaitingForOpponent(true);
-        toast.info('⏳ Ты закончил первым! Ожидание соперника...', { duration: 4000 });
+        // DON'T show waiting screen yet - wait for finishDuel response
+        // If both players finished, we'll go straight to results
+        // If opponent still playing, finishDuel will show waiting screen
 
+        // Call finishDuel to check if both players finished
         finishDuel();
       } else {
+        // Normal transition to next question
         setTimeout(() => {
           setCurrentIndex(prev => prev + 1);
           setIsAnswered(false);
@@ -1346,10 +1351,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           onDuelFinished();
         }, 500);
       } else {
-        // IMPROVED: Don't set waiting state again - it's already set
-        console.log('[DuelBattleFullscreen] ⏳ Waiting for opponent (already on waiting screen)');
-        // setIsWaitingForOpponent(true); // ← REMOVED (already set)
-        // toast.info(...); // ← REMOVED (already shown)
+        // IMPROVED: Show waiting screen ONLY if opponent hasn't finished yet
+        console.log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
+        setIsWaitingForOpponent(true);
+        toast.info('⏳ Ожидание соперника...', { duration: 4000 });
       }
     } catch (error) {
       console.error('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
