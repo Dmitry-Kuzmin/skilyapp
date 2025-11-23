@@ -251,6 +251,50 @@ export function DuelWaitingReplay({
     }
   }, [realtimeState.opponentScore]);
 
+  // FALLBACK: Poll opponent score for Telegram WebApp (Realtime may not work reliably)
+  useEffect(() => {
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+
+    if (!isTelegram || isDuelFinished) {
+      return; // Only for Telegram WebApp and while duel is active
+    }
+
+    console.log('[DuelWaitingReplay] 🔄 Starting fallback score polling for Telegram WebApp');
+
+    const pollOpponentScore = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('duel-manager', {
+          body: {
+            action: 'get_players',
+            duel_id: duelId,
+            profile_id: profileId
+          }
+        });
+
+        if (error) {
+          console.error('[DuelWaitingReplay] Fallback score poll error:', error);
+          return;
+        }
+
+        if (data?.players) {
+          const opponent = data.players.find((p: any) => p.user_id !== profileId);
+          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
+            console.log('[DuelWaitingReplay] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
+            setOpponentScore(opponent.score);
+          }
+        }
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Fallback score poll exception:', error);
+      }
+    };
+
+    // Poll immediately and then every 2 seconds
+    pollOpponentScore();
+    const interval = setInterval(pollOpponentScore, 2000);
+
+    return () => clearInterval(interval);
+  }, [duelId, profileId, isDuelFinished, opponentScore]);
+
   // Максимальное время ожидания - 2 минуты
   useEffect(() => {
     if (isDuelFinished || !duelId) return;
