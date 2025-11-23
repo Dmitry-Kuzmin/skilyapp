@@ -269,14 +269,14 @@ const Tests = () => {
   return (
     <Layout>
       <div className={cn(
-        "min-h-screen transition-colors duration-500",
+        "min-h-screen w-full transition-colors duration-500 flex flex-col",
         styleVariant === "dashboard" ? "bg-[#0B1120]" :
-          styleVariant === "bento" ? "bg-[#000000]" :
+          styleVariant === "bento" ? "bg-[#09090b]" : // Slightly lighter than pure black for better contrast
             "bg-gradient-to-b from-background via-background/95 to-background/90"
       )}>
 
         {/* Style Toggle */}
-        <div className="fixed top-20 right-4 z-50 flex items-center gap-1 bg-black/40 backdrop-blur-md p-1.5 rounded-full border border-white/10">
+        <div className="fixed top-20 right-4 z-50 flex items-center gap-1 bg-black/40 backdrop-blur-md p-1.5 rounded-full border border-white/10 shadow-2xl">
           <button
             onClick={() => setStyleVariant("classic")}
             className={cn("p-2 rounded-full transition-all", styleVariant === "classic" ? "bg-white/20 text-white" : "text-white/40 hover:text-white")}

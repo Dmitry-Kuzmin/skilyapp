@@ -156,13 +156,13 @@ export const BentoTestsView = ({
                 </div>
 
                 {/* BENTO GRID */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[600px]">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 auto-rows-min">
 
                     {/* COLUMN 1: Main Actions (4 cols) */}
-                    <div className="md:col-span-4 flex flex-col gap-6 h-full">
+                    <div className="lg:col-span-4 flex flex-col gap-6">
                         {/* Random Test - Hero Card */}
                         <BentoCard
-                            className="flex-1 group"
+                            className="group min-h-[320px] lg:h-[380px]"
                             onClick={() => handleStartTest(`/test/practice?count=${randomQuestionCount}`)}
                             gradient="linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)"
                         >
@@ -178,11 +178,11 @@ export const BentoTestsView = ({
 
                                 <div>
                                     <h3 className="text-3xl font-bold text-white mb-2">Случайный тест</h3>
-                                    <p className="text-white/70 mb-6">
+                                    <p className="text-white/70 mb-6 text-sm lg:text-base">
                                         Быстрая проверка знаний на случайных вопросах.
                                     </p>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
                                         {[10, 20, 30].map(count => (
                                             <button
                                                 key={count}
@@ -213,7 +213,7 @@ export const BentoTestsView = ({
 
                         {/* Exam Card */}
                         <BentoCard
-                            className="h-[200px] group bg-[#1c1c1e]"
+                            className="min-h-[180px] lg:h-[200px] group bg-[#1c1c1e]"
                             onClick={() => handleStartTest("/test/exam")}
                         >
                             <div className="flex items-center justify-between mb-4">
@@ -237,62 +237,54 @@ export const BentoTestsView = ({
                     </div>
 
                     {/* COLUMN 2: Modes Grid (4 cols) */}
-                    <div className="md:col-span-4 grid grid-cols-2 gap-6 h-full">
+                    <div className="lg:col-span-4 grid grid-cols-2 gap-6 h-full content-start">
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023]"
+                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
                             onClick={() => handleStartTest("/test/practice?mode=blitz&count=20&timer=300")}
                         >
-                            <div className="h-full flex flex-col justify-between">
-                                <Zap className="w-8 h-8 text-amber-400" />
-                                <div>
-                                    <div className="text-lg font-bold text-white">Блиц</div>
-                                    <div className="text-xs text-white/40 mt-1">20 вопросов • 5 мин</div>
-                                </div>
+                            <Zap className="w-8 h-8 text-amber-400" />
+                            <div>
+                                <div className="text-lg font-bold text-white">Блиц</div>
+                                <div className="text-xs text-white/40 mt-1">20 вопросов • 5 мин</div>
                             </div>
                         </BentoCard>
 
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023]"
+                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
                             onClick={() => handleStartTest("/test/practice?mode=marathon")}
                         >
-                            <div className="h-full flex flex-col justify-between">
-                                <Flame className="w-8 h-8 text-red-500" />
-                                <div>
-                                    <div className="text-lg font-bold text-white">Марафон</div>
-                                    <div className="text-xs text-white/40 mt-1">До первой ошибки</div>
-                                </div>
+                            <Flame className="w-8 h-8 text-red-500" />
+                            <div>
+                                <div className="text-lg font-bold text-white">Марафон</div>
+                                <div className="text-xs text-white/40 mt-1">До первой ошибки</div>
                             </div>
                         </BentoCard>
 
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023]"
+                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
                             onClick={() => handleStartTest("/test/challenge-bank")}
                         >
-                            <div className="h-full flex flex-col justify-between">
-                                <History className="w-8 h-8 text-purple-400" />
-                                <div>
-                                    <div className="text-lg font-bold text-white">Ошибки</div>
-                                    <div className="text-xs text-white/40 mt-1">{challengeBankCount} вопросов</div>
-                                </div>
+                            <History className="w-8 h-8 text-purple-400" />
+                            <div>
+                                <div className="text-lg font-bold text-white">Ошибки</div>
+                                <div className="text-xs text-white/40 mt-1">{challengeBankCount} вопросов</div>
                             </div>
                         </BentoCard>
 
                         <BentoCard
-                            className="bg-[#18181b] hover:bg-[#202023]"
+                            className="bg-[#18181b] hover:bg-[#202023] aspect-square flex flex-col justify-between"
                             onClick={() => handleStartTest("/test/hardest")}
                         >
-                            <div className="h-full flex flex-col justify-between">
-                                <AlertTriangle className="w-8 h-8 text-orange-400" />
-                                <div>
-                                    <div className="text-lg font-bold text-white">Сложные</div>
-                                    <div className="text-xs text-white/40 mt-1">ТОП-50 трудных</div>
-                                </div>
+                            <AlertTriangle className="w-8 h-8 text-orange-400" />
+                            <div>
+                                <div className="text-lg font-bold text-white">Сложные</div>
+                                <div className="text-xs text-white/40 mt-1">ТОП-50 трудных</div>
                             </div>
                         </BentoCard>
                     </div>
 
                     {/* COLUMN 3: Topics List (4 cols) */}
-                    <div className="md:col-span-4 h-full">
+                    <div className="lg:col-span-4 h-full min-h-[500px] lg:h-[604px]">
                         <BentoCard className="h-full flex flex-col p-0 bg-[#121214] overflow-hidden">
                             <div className="p-6 pb-4 border-b border-white/5 bg-[#121214] z-20">
                                 <div className="flex items-center justify-between">
