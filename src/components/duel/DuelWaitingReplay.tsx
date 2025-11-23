@@ -295,6 +295,59 @@ export function DuelWaitingReplay({
     return () => clearInterval(interval);
   }, [duelId, profileId, isDuelFinished, opponentScore]);
 
+  // CRITICAL FALLBACK: Poll duel status for Telegram WebApp (Realtime may not trigger duelFinished)
+  useEffect(() => {
+    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
+
+    if (!isTelegram || isDuelFinished) {
+      return; // Only for Telegram WebApp and while duel is active
+    }
+
+    console.log('[DuelWaitingReplay] 🔄 Starting fallback duel status polling for Telegram WebApp');
+
+    const pollDuelStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', duelId)
+          .single();
+
+        if (error) {
+          console.error('[DuelWaitingReplay] Fallback status poll error:', error);
+          return;
+        }
+
+        if (data?.status === 'finished' && !isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] 🔄 Fallback: Duel finished detected, transitioning to results');
+          isDuelFinishedRef.current = true;
+          setIsDuelFinished(true);
+
+          try {
+            sounds.victory();
+          } catch (err) {
+            console.warn('[DuelWaitingReplay] Error playing victory sound:', err);
+          }
+
+          toast.success('🏁 Дуэль завершена!', {
+            description: 'Переход к результатам...',
+            duration: 1500,
+          });
+
+          safeCallOnDuelFinished();
+        }
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Fallback status poll exception:', error);
+      }
+    };
+
+    // Poll immediately and then every 2 seconds
+    pollDuelStatus();
+    const interval = setInterval(pollDuelStatus, 2000);
+
+    return () => clearInterval(interval);
+  }, [duelId, isDuelFinished, safeCallOnDuelFinished]);
+
   // Максимальное время ожидания - 2 минуты
   useEffect(() => {
     if (isDuelFinished || !duelId) return;
