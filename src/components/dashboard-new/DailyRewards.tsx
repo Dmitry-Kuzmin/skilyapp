@@ -175,7 +175,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-red-500/20 rounded-[2.5rem] pointer-events-none"
         />
       )}
-
+      
       {/* Subtle Grid Background */}
       <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity" 
            style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
@@ -342,7 +342,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             title={`Сменить звук (текущий: ${celebrationSoundType})`}
           >
             🔊 {celebrationSoundType}
-          </button>
+      </button>
         </div>
       )}
     </div>

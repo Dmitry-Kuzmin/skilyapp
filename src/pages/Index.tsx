@@ -152,13 +152,13 @@ const Index = () => {
 
       if (Object.keys(updateData).length > 0) {
         const { error: updateError } = await supabase
-          .from('profiles')
+        .from('profiles')
           .update(updateData)
-          .eq('id', profileId);
+        .eq('id', profileId);
 
         if (updateError) {
           console.error('[handleClaimBonus] Error updating profile:', updateError);
-          // Не прерываем выполнение, продолжаем
+        // Не прерываем выполнение, продолжаем
         }
       }
 
@@ -168,24 +168,24 @@ const Index = () => {
         // УБРАНО: coins-earn - монеты теперь начисляются напрямую из daily_bonus_def
         // УБРАНО: duel-pass-xp - используем новую систему season-sp вместо старой
         supabase.functions.invoke('season-sp', {
-          body: { 
-            user_id: profileId, 
-            source_type: 'daily_login',
-            metadata: { streak_days: newStreak }
-          },
+        body: { 
+          user_id: profileId, 
+          source_type: 'daily_login',
+          metadata: { streak_days: newStreak }
+        },
         }).then(({ data: spData }) => {
           // Если был level up в Duel Pass, показываем уведомление
           if (spData?.level_up) {
             supabase.functions.invoke('assistant-suggest', {
-              body: { trigger: 'duel_pass_level_up' },
+          body: { trigger: 'duel_pass_level_up' },
             }).then(({ data: suggestion }) => {
-              const message = suggestion?.suggestion?.message;
-              if (message) {
-                toast({
-                  title: "Duel Pass",
-                  description: message,
-                });
-              }
+        const message = suggestion?.suggestion?.message;
+        if (message) {
+          toast({
+            title: "Duel Pass",
+            description: message,
+          });
+        }
             }).catch(err => {
               console.warn('[handleClaimBonus] assistant-suggest error:', err);
             });

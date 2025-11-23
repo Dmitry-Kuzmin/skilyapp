@@ -32,9 +32,9 @@ interface DashboardProps {
   };
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({
-  stats,
-  onStartQuiz,
+export const Dashboard: React.FC<DashboardProps> = ({ 
+  stats, 
+  onStartQuiz, 
   onClaimReward,
   hasClaimedToday,
   onGetPremium,
@@ -45,7 +45,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
   const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
-
+  
   const handleStartQuiz = () => {
     playClickSound();
     onStartQuiz();
@@ -64,11 +64,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white">
       <div className="max-w-[1370px] mx-auto space-y-6">
-
+        
         {/* Header */}
         <div className="mb-6 animate-fade-in">
           <div className="flex items-center justify-between mb-3">
-            <div className="text-2xl font-bold text-white">DGT Prep</div>
+           <div className="text-2xl font-bold text-white">DGT Prep</div>
             {/* Quick Settings Button - только иконка */}
             <button
               onClick={() => {
@@ -98,14 +98,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 Licencia B
               </span>
             </div>
-          </div>
+           </div>
         </div>
 
         {/* BENTO GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
-
+          
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
-          <div
+          <div 
             onMouseEnter={playHoverSound}
             className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
             style={{
@@ -113,7 +113,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             }}
           >
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
-
+            
             <div className="relative z-10 flex flex-col h-full justify-between">
               {/* Top section: Level badge */}
               <div className="flex justify-between items-start mb-6">
@@ -130,26 +130,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     Привет, Пилот!
                   </h2>
                   <p className="text-white/90 font-medium text-base md:text-lg leading-relaxed max-w-md">
-                    Твоя эффективность составляет <strong>{stats.averageScore}%</strong>.
-                    {stats.averageScore >= 75
-                      ? ' Датчики показывают, что ты готов к новой сессии.'
+                    Твоя эффективность составляет <strong>{stats.averageScore}%</strong>. 
+                    {stats.averageScore >= 75 
+                      ? ' Датчики показывают, что ты готов к новой сессии.' 
                       : stats.averageScore >= 50
-                        ? ' Продолжай тренироваться для лучшего результата.'
-                        : ' Рекомендуем пройти больше тестов для улучшения готовности.'}
+                      ? ' Продолжай тренироваться для лучшего результата.'
+                      : ' Рекомендуем пройти больше тестов для улучшения готовности.'}
                   </p>
                 </div>
 
                 {/* START Button */}
-                <button
+                <button 
                   onClick={handleStartQuiz}
                   className="group relative w-36 h-36 md:w-40 md:h-40 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
                 >
                   {/* Glow effect */}
                   <div className="absolute inset-[-20%] rounded-full opacity-50 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-white/30 blur-xl"></div>
-
+                  
                   {/* White circle background */}
                   <div className="absolute inset-0 rounded-full bg-white shadow-[0_20px_50px_rgba(255,255,255,0.3)]"></div>
-
+                  
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
                     <Power size={32} className="text-indigo-600 mb-2 drop-shadow-lg" />
@@ -246,39 +246,39 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           {/* 2. DAILY REWARDS (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
-            <DailyRewards
-              currentStreak={stats.currentStreak}
-              hasClaimedToday={hasClaimedToday}
-              onClaim={onClaimReward}
+            <DailyRewards 
+              currentStreak={stats.currentStreak} 
+              hasClaimedToday={hasClaimedToday} 
+              onClaim={onClaimReward} 
             />
           </div>
 
           {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
-            <SkilyChat />
+             <SkilyChat />
           </div>
 
           {/* 4. EXAM READINESS (Col: 1, Row: 1) - расширяется до 2 колонок */}
           <div className={`transition-all duration-500 ease-in-out ${examReadinessExpanded
-              ? 'md:col-span-2 lg:col-span-2 lg:row-span-2'
+              ? 'md:col-span-2 lg:col-span-2 lg:row-span-2' 
               : 'md:col-span-1 lg:col-span-1'
-            }`}>
-            <ExamReadiness
-              averageScore={stats.averageScore}
-              testsCompleted={stats.testsCompleted}
-              status={readinessStatus?.status}
-              statusText={readinessStatus?.statusText}
-              shortText={readinessStatus?.shortText}
-              description={readinessStatus?.description}
-              profileId={profileId}
-              onStartTest={onStartQuiz}
-              onExpandedChange={handleExamReadinessExpanded}
-            />
+          }`}>
+             <ExamReadiness 
+               averageScore={stats.averageScore}
+               testsCompleted={stats.testsCompleted}
+               status={readinessStatus?.status}
+               statusText={readinessStatus?.statusText}
+               shortText={readinessStatus?.shortText}
+               description={readinessStatus?.description}
+               profileId={profileId}
+               onStartTest={onStartQuiz}
+               onExpandedChange={handleExamReadinessExpanded}
+             />
           </div>
 
           {/* 5. PREMIUM CARD (Col: 1, Row: 1) - сдвигается вниз при расширении ExamReadiness */}
           <div className="md:col-span-1 lg:col-span-1 transition-all duration-500 ease-in-out">
-            <PremiumCard onGetPremium={onGetPremium} />
+             <PremiumCard onGetPremium={onGetPremium} />
           </div>
 
           {/* 6. DUEL PASS INFO (Col: 4, Row: 1) */}
