@@ -880,6 +880,76 @@ export default function Duel() {
                         {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
                             <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in">
 
+                                {/* Hero Section - Premium */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="relative overflow-hidden rounded-3xl border px-6 py-10 md:px-10 md:py-12 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 border-violet-500/30 shadow-[0_0_60px_rgba(139,92,246,0.5)]"
+                                >
+                                    {/* Noise texture */}
+                                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+
+                                    {/* Glow effect */}
+                                    <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl -z-10" />
+
+                                    <div className="relative z-10">
+                                        {/* Icon + Title */}
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+                                            <motion.div
+                                                whileHover={{ scale: 1.05, rotate: 5 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="p-3 md:p-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl"
+                                            >
+                                                <Swords className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                                            </motion.div>
+                                            <div>
+                                                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">Дуэль</h1>
+                                                <p className="text-base md:text-lg text-white/90 font-medium mt-1">Сразись с соперником за монеты</p>
+                                            </div>
+                                        </div>
+
+                                        {/* User stats */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                            {/* Total Duels */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                            >
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Swords className="w-5 h-5 text-white/70" />
+                                                    <span className="text-sm text-white/70 font-medium">Всего дуэлей</span>
+                                                </div>
+                                                <div className="text-4xl font-black text-white">0</div>
+                                            </motion.div>
+
+                                            {/* Wins */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                            >
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Trophy className="w-5 h-5 text-yellow-300" />
+                                                    <span className="text-sm text-white/70 font-medium">Побед</span>
+                                                </div>
+                                                <div className="text-4xl font-black text-white">0</div>
+                                            </motion.div>
+
+                                            {/* Coins Balance */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                            >
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <Coins className="w-5 h-5 text-amber-300" />
+                                                    <span className="text-sm text-white/70 font-medium">Монет</span>
+                                                </div>
+                                                <div className="text-4xl font-black text-white">{userCoins}</div>
+                                            </motion.div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
                                 {/* УБРАНО: Countdown Overlay - дуэль начинается сразу без задержки */}
 
                                 {/* Unified Action Card - Premium Design */}
@@ -894,28 +964,31 @@ export default function Duel() {
 
                                         <div className={`grid ${createdCode ? 'md:grid-cols-1' : 'md:grid-cols-2'} divide-y md:divide-y-0 ${createdCode ? '' : 'md:divide-x'} divide-border/30`}>
                                             {/* Create Duel Section - Premium */}
-                                            <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/80 dark:from-emerald-950/20 dark:via-teal-950/15 dark:to-cyan-950/20 overflow-hidden">
+                                            <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/20 dark:via-purple-950/15 dark:to-indigo-950/20 overflow-hidden">
+                                                {/* Noise texture */}
+                                                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+
                                                 {/* Animated background pattern */}
                                                 <div className="absolute inset-0 opacity-5 dark:opacity-10">
-                                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(16,185,129)_1px,transparent_0)] [background-size:24px_24px]" />
+                                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:24px_24px]" />
                                                 </div>
 
                                                 {/* Gradient overlay */}
-                                                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-400/20 to-teal-500/20 rounded-full blur-3xl -z-10" />
+                                                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-violet-400/20 to-purple-500/20 rounded-full blur-3xl -z-10" />
 
                                                 <div className="relative space-y-5 sm:space-y-6">
                                                     <div className="flex items-start sm:items-center gap-4 sm:gap-5">
                                                         <motion.div
                                                             whileHover={{ scale: 1.1, rotate: 5 }}
                                                             whileTap={{ scale: 0.95 }}
-                                                            className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 flex items-center justify-center shadow-xl shadow-emerald-500/40 flex-shrink-0 ring-4 ring-emerald-500/20"
+                                                            className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-violet-500/40 flex-shrink-0 ring-4 ring-violet-500/20"
                                                         >
                                                             {/* Shine effect */}
                                                             <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
                                                             <Swords className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
                                                         </motion.div>
                                                         <div className="min-w-0 flex-1">
-                                                            <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                                                            <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-violet-700 to-purple-700 dark:from-violet-400 dark:to-purple-400 bg-clip-text text-transparent">
                                                                 Создать дуэль
                                                             </h3>
                                                             <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
@@ -1126,7 +1199,7 @@ export default function Duel() {
                                                                         size="lg"
                                                                         onClick={() => handleActionClick(() => handleInlineCreate())}
                                                                         disabled={isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
-                                                                        className="w-full h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-700 text-white shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
+                                                                        className="w-full h-12 text-sm sm:text-base font-black rounded-2xl bg-gradient-to-r from-violet-500 via-purple-600 to-indigo-600 hover:from-violet-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-2xl shadow-violet-500/40 hover:shadow-violet-500/50 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
                                                                     >
                                                                         {/* Shine effect on hover */}
                                                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -1205,14 +1278,14 @@ export default function Duel() {
                                                                     <motion.div
                                                                         animate={{ rotate: [0, 5, -5, 0] }}
                                                                         transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                                                                        className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 rounded-3xl flex items-center justify-center shadow-xl shadow-emerald-500/50 ring-4 ring-emerald-500/20 relative"
+                                                                        className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-xl shadow-violet-500/50 ring-4 ring-violet-500/20 relative"
                                                                     >
                                                                         {/* Pulse effect */}
                                                                         <div className="absolute inset-0 rounded-3xl bg-emerald-500/30 animate-ping" />
                                                                         <Users className="h-10 w-10 sm:h-12 sm:w-12 text-white relative z-10" />
                                                                     </motion.div>
                                                                     <div className="space-y-2">
-                                                                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                                                                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                                                                             Ожидание соперника
                                                                         </h3>
                                                                         <p className="text-base sm:text-lg text-muted-foreground/80 font-medium">Поделитесь кодом с другом</p>
@@ -1227,7 +1300,7 @@ export default function Duel() {
                                                                     className="relative"
                                                                 >
                                                                     {/* Enhanced glow effect */}
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/40 via-teal-500/40 to-cyan-500/40 blur-3xl opacity-70 rounded-3xl animate-pulse" />
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500/40 via-purple-500/40 to-indigo-500/40 blur-3xl opacity-70 rounded-3xl animate-pulse" />
                                                                     <motion.div
                                                                         animate={{
                                                                             boxShadow: [
@@ -1237,14 +1310,14 @@ export default function Duel() {
                                                                             ],
                                                                         }}
                                                                         transition={{ duration: 3, repeat: Infinity }}
-                                                                        className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-emerald-500/50 ring-4 ring-emerald-500/10"
+                                                                        className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-violet-500/50 ring-4 ring-violet-500/10"
                                                                     >
                                                                         <motion.div
                                                                             key={createdCode}
                                                                             initial={{ scale: 1.2, opacity: 0, rotateY: 180 }}
                                                                             animate={{ scale: 1, opacity: 1, rotateY: 0 }}
                                                                             transition={{ duration: 0.6, type: "spring" }}
-                                                                            className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent text-center drop-shadow-lg"
+                                                                            className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center drop-shadow-lg"
                                                                         >
                                                                             {createdCode}
                                                                         </motion.div>
@@ -1292,7 +1365,7 @@ export default function Duel() {
                                                                             <Button
                                                                                 onClick={handleShare}
                                                                                 size="lg"
-                                                                                className="w-full h-12 sm:h-14 text-sm sm:text-base font-black bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-700 text-white shadow-xl hover:shadow-2xl transition-all relative overflow-hidden group"
+                                                                                className="w-full h-12 sm:h-14 text-sm sm:text-base font-black bg-gradient-to-r from-violet-500 via-purple-600 to-indigo-600 hover:from-violet-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transition-all relative overflow-hidden group"
                                                                             >
                                                                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                                                                                 <Share2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 relative z-10" />
@@ -1328,7 +1401,7 @@ export default function Duel() {
                                                                         initial={{ scale: 0, rotate: -180 }}
                                                                         animate={{ scale: 1, rotate: 0 }}
                                                                         transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                                                                        className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 dark:from-emerald-500/15 dark:to-teal-500/15 px-5 sm:px-7 py-3 sm:py-4 rounded-2xl border-2 border-emerald-500/40 shadow-lg backdrop-blur-sm"
+                                                                        className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-violet-500/25 to-purple-500/25 dark:from-violet-500/15 dark:to-purple-500/15 px-5 sm:px-7 py-3 sm:py-4 rounded-2xl border-2 border-violet-500/40 shadow-lg backdrop-blur-sm"
                                                                     >
                                                                         <div className="p-2 rounded-xl bg-emerald-500/20">
                                                                             <Users className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
@@ -1521,8 +1594,8 @@ export default function Duel() {
                                                                                 animate={{ scale: 1 }}
                                                                                 transition={{ delay: i * 0.1, type: "spring" }}
                                                                                 className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${i < joinCode.length
-                                                                                        ? 'bg-gradient-to-r from-amber-500 to-orange-600 w-8 sm:w-10 shadow-lg shadow-amber-500/50'
-                                                                                        : 'bg-amber-200/50 dark:bg-amber-900/30 w-2 sm:w-2.5'
+                                                                                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 w-8 sm:w-10 shadow-lg shadow-amber-500/50'
+                                                                                    : 'bg-amber-200/50 dark:bg-amber-900/30 w-2 sm:w-2.5'
                                                                                     }`}
                                                                             />
                                                                         ))}
@@ -1546,14 +1619,14 @@ export default function Duel() {
                                                                         exit={{ opacity: 0, height: 0 }}
                                                                         transition={{ delay: 0.2 }}
                                                                         className={`p-4 sm:p-5 rounded-2xl border-2 ${userCoins >= joinTotalRequired
-                                                                                ? 'bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border-amber-500/40'
-                                                                                : 'bg-gradient-to-br from-red-100/60 via-red-50/40 to-red-100/60 dark:from-red-950/30 dark:via-red-950/20 dark:to-red-950/30 border-red-500/40'
+                                                                            ? 'bg-gradient-to-br from-amber-100/60 via-orange-100/40 to-yellow-100/60 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/30 border-amber-500/40'
+                                                                            : 'bg-gradient-to-br from-red-100/60 via-red-50/40 to-red-100/60 dark:from-red-950/30 dark:via-red-950/20 dark:to-red-950/30 border-red-500/40'
                                                                             } backdrop-blur-sm shadow-lg`}
                                                                     >
                                                                         <div className="flex items-start gap-3 sm:gap-4">
                                                                             <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ring-2 ${userCoins >= duelPreview.bet_amount
-                                                                                    ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/30 ring-amber-500/20'
-                                                                                    : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-500/30 ring-red-500/20'
+                                                                                ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/30 ring-amber-500/20'
+                                                                                : 'bg-gradient-to-br from-red-500 to-red-600 shadow-red-500/30 ring-red-500/20'
                                                                                 }`}>
                                                                                 <Coins className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                                                                             </div>
