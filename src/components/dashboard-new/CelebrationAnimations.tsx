@@ -807,7 +807,8 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
           x: Math.cos(angle) * radius + (randomOffset - 0.35) * 200,
           y: Math.sin(angle) * radius + (randomOffset - 0.35) * 200 - 200,
           hue: 15 + (i % 50),
-          delay: 0.5 + (i * 0.012),
+          // Синхронизируем с трансформацией иконки: искры начинают появляться когда иконка достигает scale 2
+          delay: 0.6 + (i * 0.01), // Начинаем чуть позже начала трансформации иконки
         };
       });
 
@@ -826,15 +827,15 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
             style={{ willChange: 'transform, opacity' }}
             initial={{ scale: 0.3, opacity: 1, y: 0 }}
             animate={{ 
-              scale: [0.3, 2, 3, 2.5],
-              opacity: [1, 1, 0.9, 0],
-              y: [0, -50, -100, -150],
-              rotate: [0, 180, 360, 540]
+              scale: [0.3, 1.5, 2.5, 3, 2.8, 0], // Увеличена длительность для синхронизации
+              opacity: [1, 1, 1, 0.9, 0.7, 0],
+              y: [0, -30, -60, -100, -130, -150],
+              rotate: [0, 90, 180, 270, 360, 450]
             }}
             transition={{ 
-              duration: 2,
+              duration: 2.5, // Увеличена длительность для синхронизации с искрами
               ease: [0.4, 0, 0.2, 1],
-              times: [0, 0.3, 0.7, 1]
+              times: [0, 0.2, 0.4, 0.6, 0.8, 1]
             }}
           >
             <Flame className="w-8 h-8 text-orange-500 fill-orange-500" style={{ filter: 'drop-shadow(0 0 30px rgba(251,146,60,1))' }} />
@@ -856,8 +857,8 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
               }}
               initial={{ scale: 0, opacity: 0, x: 0, y: 0 }}
               animate={{
-                scale: [0, 2, 1.2, 0],
-                opacity: [0, 1, 1, 0],
+                scale: [0, 0.5, 2, 1.5, 0], // Искры начинают появляться когда иконка растет
+                opacity: [0, 0.3, 1, 1, 0],
                 x: particle.x,
                 y: particle.y,
               }}
@@ -893,8 +894,8 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
                   rotate: [angle * (180 / Math.PI), angle * (180 / Math.PI) + 60, angle * (180 / Math.PI) + 120],
                 }}
                 transition={{
-                  duration: 3,
-                  delay: 1 + wingIndex * 0.15,
+                  duration: 3.5, // Синхронизировано с искрами
+                  delay: 0.8 + wingIndex * 0.12, // Начинаются после начала разлета искр
                   ease: 'easeOut',
                 }}
               />
@@ -907,13 +908,13 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
             style={{ willChange: 'transform, opacity' }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
-              scale: [0, 1.5, 2, 1.8, 0],
-              opacity: [0, 1, 0.9, 0.7, 0],
-              rotate: [0, 180, 360]
+              scale: [0, 1.2, 1.8, 2, 1.5, 0],
+              opacity: [0, 0.8, 1, 0.9, 0.6, 0],
+              rotate: [0, 90, 180, 270, 360]
             }}
             transition={{ 
-              duration: 3,
-              delay: 1.5,
+              duration: 3.5, // Синхронизировано с общей анимацией
+              delay: 1.8, // Появляется когда маленькая иконка почти исчезла
               ease: 'easeOut'
             }}
           >
