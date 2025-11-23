@@ -27,6 +27,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
   const { profileId } = useUserContext();
   const [notifications, setNotifications] = useState<DuelNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [realtimeError, setRealtimeError] = useState(false);
   const showToasts = options?.showToasts ?? true;
   const playSounds = options?.playSounds ?? true;
 
@@ -178,16 +179,8 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           console.warn('[Notifications] Channel name:', channelName);
           console.warn('[Notifications] This is usually non-critical - notifications will still work via regular queries');
           
-          // Продолжаем работу - уведомления будут загружаться через loadNotifications()
-          // Периодически перезагружаем уведомления в фоне
-          const pollInterval = setInterval(() => {
-            loadNotifications();
-          }, 30000); // Каждые 30 секунд
-          
-          // Очищаем интервал при размонтировании
-          return () => {
-            clearInterval(pollInterval);
-          };
+          // Устанавливаем флаг ошибки для включения polling
+          setRealtimeError(true);
         } else if (status === 'TIMED_OUT') {
           console.warn('[Notifications] ⚠️ Subscription timed out - will retry on next mount');
         } else if (status === 'CLOSED') {
