@@ -1,18 +1,10 @@
-# Игнорируемые файлы для Cursor (ускоряет работу)
-node_modules/
-.git/
-dist/
-build/
+# Большие файлы и кэш
+data/pdf/*.pdf
+*.pdf
+node_modules/.vite
+.vite
+dist
+.cache
 *.log
+logs/
 .DS_Store
-*.cache
-.vscode/
-.idea/
-coverage/
-*.tsbuildinfo
-.next/
-out/
-.turbo/
-.cache/
-
-
