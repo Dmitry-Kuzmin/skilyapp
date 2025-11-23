@@ -1636,7 +1636,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             : 'mb-3 md:mb-4' // Обычный отступ для браузера
           }`}>
           {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
-          <div className={`flex items-center gap-2 md:gap-3 min-w-0 ${isTelegramMobile ? 'flex-1 justify-center' : ''}`}>
+          <div className={`flex items-center gap-2 md:gap-3 min-w-0 flex-wrap ${isTelegramMobile ? 'flex-1 justify-center' : ''}`}>
             {/* My Score */}
             <motion.div
               className="flex items-center gap-2 md:gap-3 group"
@@ -1769,21 +1769,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               </div>
             </motion.div>
 
-            {/* Компактные индикаторы банка и награды - только для браузера */}
+            {/* Компактные индикаторы банка и награды - адаптивные */}
             {betInfo && safeArea?.platform !== 'telegram' && (
-              <div className="flex items-center gap-2.5 ml-4">
+              <div className="flex items-center gap-2.5 ml-2 md:ml-4 flex-wrap">
                 {/* Банк - компактный индикатор */}
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-400/20">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-400/20 whitespace-nowrap">
                   <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400 whitespace-nowrap">
+                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
                     {betInfo.totalBank.toLocaleString('ru-RU')}
                   </span>
                 </div>
 
                 {/* SP награда - компактный индикатор */}
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/15 border border-blue-400/20">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/15 border border-blue-400/20 whitespace-nowrap">
                   <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <span className="text-xs font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">
+                  <span className="text-xs font-bold text-blue-700 dark:text-blue-400">
                     +{seasonBonusDisplay}
                   </span>
                 </div>
