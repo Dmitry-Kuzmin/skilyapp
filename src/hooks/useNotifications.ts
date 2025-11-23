@@ -162,9 +162,19 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
           console.log('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
+          // Сбрасываем флаг ошибки при успешной подписке
+          setRealtimeError(false);
         } else if (err) {
-          // Логируем только серьезные ошибки (не mismatch, так как RLS политика исправлена)
-          if (!err?.message?.includes('mismatch') && !err?.message?.includes('bindings')) {
+          // Ошибки могут приходить вместе с CHANNEL_ERROR
+          // Проверяем, не является ли это CHANNEL_ERROR
+          if (status === 'CHANNEL_ERROR' || err?.message?.includes('channel') || err?.message?.includes('RLS')) {
+            console.warn('[Notifications] ⚠️ Channel error (non-critical):', err?.message || 'Unknown error');
+            console.warn('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
+            console.warn('[Notifications] Channel name:', channelName);
+            console.warn('[Notifications] Notifications will continue to work via polling');
+            setRealtimeError(true);
+          } else if (!err?.message?.includes('mismatch') && !err?.message?.includes('bindings')) {
+            // Логируем только серьезные ошибки (не mismatch, не channel errors)
             console.error('[Notifications] ❌ Realtime subscription error:', err);
             console.error('[Notifications] Error message:', err?.message);
           } else {
