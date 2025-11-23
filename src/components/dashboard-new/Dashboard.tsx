@@ -158,31 +158,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </button>
               </div>
 
-              {/* Bottom section: Stats blocks - улучшенный премиальный дизайн */}
-              <div className="flex items-center gap-2.5 sm:gap-3">
+              {/* Bottom section: Stats blocks - компактный улучшенный дизайн */}
+              <div className="flex items-stretch gap-2 sm:gap-2.5">
                 {/* XP Card */}
                 <button
                   onClick={() => handleStatClick('xp')}
-                  className="group relative flex-1 flex items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-yellow-500/15 via-orange-500/10 to-yellow-600/15 backdrop-blur-xl border-2 border-yellow-400/40 px-3.5 sm:px-4 py-3 sm:py-3.5 hover:border-yellow-300/60 hover:shadow-2xl hover:shadow-yellow-500/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-yellow-500/12 via-orange-500/8 to-yellow-600/12 backdrop-blur-sm border border-yellow-400/30 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:border-yellow-300/50 hover:shadow-lg hover:shadow-yellow-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden"
                 >
-                  {/* Animated background glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-orange-500/15 to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -inset-1 bg-gradient-to-br from-yellow-400/30 to-orange-500/30 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/15 via-orange-500/10 to-yellow-500/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Shimmer effect - только при hover */}
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-                  <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 w-full">
-                    <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-yellow-400/30 via-orange-500/25 to-yellow-500/30 border-2 border-yellow-400/50 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 flex-shrink-0 shadow-xl shadow-yellow-500/30">
-                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 to-orange-500/40 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-200 relative z-10 drop-shadow-lg group-hover:drop-shadow-xl" />
-                      {/* Pulse effect */}
-                      <div className="absolute inset-0 rounded-2xl bg-yellow-400/20 animate-ping opacity-0 group-hover:opacity-100" />
+                  <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 w-full min-w-0">
+                    {/* Icon container - компактный */}
+                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-yellow-400/25 via-orange-500/20 to-yellow-500/25 border border-yellow-400/40 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-yellow-500/20">
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-200 relative z-10" />
                     </div>
+                    
+                    {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] sm:text-[11px] text-yellow-200/90 font-extrabold uppercase tracking-wider leading-tight mb-1">Опыт</div>
-                      <div className="text-lg sm:text-xl font-black text-white leading-tight group-hover:text-yellow-50 transition-colors duration-300 tracking-tight">
-                        {stats.xp || 0} <span className="text-sm sm:text-base font-bold text-yellow-300/80">XP</span>
+                      <div className="text-[9px] sm:text-[10px] text-yellow-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">Опыт</div>
+                      <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-yellow-50 transition-colors duration-200">
+                        {stats.xp || 0} <span className="text-xs sm:text-sm font-bold text-yellow-300/70">XP</span>
                       </div>
                     </div>
                   </div>
@@ -191,25 +190,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* Tests Card */}
                 <button
                   onClick={() => handleStatClick('tests')}
-                  className="group relative flex-1 flex items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-blue-600/15 backdrop-blur-xl border-2 border-blue-400/40 px-3.5 sm:px-4 py-3 sm:py-3.5 hover:border-blue-300/60 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500/12 via-indigo-500/8 to-blue-600/12 backdrop-blur-sm border border-blue-400/30 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden"
                 >
-                  {/* Animated background glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-indigo-500/15 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -inset-1 bg-gradient-to-br from-blue-400/30 to-indigo-500/30 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-blue-500/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Shimmer effect - только при hover */}
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-                  <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 w-full">
-                    <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-400/30 via-indigo-500/25 to-blue-500/30 border-2 border-blue-400/50 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 flex-shrink-0 shadow-xl shadow-blue-500/30">
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-400/40 to-indigo-500/40 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-200 relative z-10 drop-shadow-lg group-hover:drop-shadow-xl" />
-                      {/* Pulse effect */}
-                      <div className="absolute inset-0 rounded-2xl bg-blue-400/20 animate-ping opacity-0 group-hover:opacity-100" />
+                  <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 w-full min-w-0">
+                    {/* Icon container - компактный */}
+                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-blue-400/25 via-indigo-500/20 to-blue-500/25 border border-blue-400/40 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-blue-500/20">
+                      <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-200 relative z-10" />
                     </div>
+                    
+                    {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] sm:text-[11px] text-blue-200/90 font-extrabold uppercase tracking-wider leading-tight mb-1">Тестов</div>
-                      <div className="text-lg sm:text-xl font-black text-white leading-tight group-hover:text-blue-50 transition-colors duration-300 tracking-tight">
+                      <div className="text-[9px] sm:text-[10px] text-blue-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">Тестов</div>
+                      <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-blue-50 transition-colors duration-200">
                         {stats.testsCompleted}
                       </div>
                     </div>
@@ -219,25 +217,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* Coins Card */}
                 <button
                   onClick={() => handleStatClick('coins')}
-                  className="group relative flex-1 flex items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-amber-600/15 backdrop-blur-xl border-2 border-amber-400/40 px-3.5 sm:px-4 py-3 sm:py-3.5 hover:border-amber-300/60 hover:shadow-2xl hover:shadow-amber-500/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 cursor-pointer overflow-hidden"
+                  className="group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500/12 via-yellow-500/8 to-amber-600/12 backdrop-blur-sm border border-amber-400/30 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:border-amber-300/50 hover:shadow-lg hover:shadow-amber-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden"
                 >
-                  {/* Animated background glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute -inset-1 bg-gradient-to-br from-amber-400/30 to-yellow-500/30 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-amber-500/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* Shimmer effect - только при hover */}
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-                  <div className="relative z-10 flex items-center gap-2.5 sm:gap-3 w-full">
-                    <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400/30 via-yellow-500/25 to-amber-500/30 border-2 border-amber-400/50 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 flex-shrink-0 shadow-xl shadow-amber-500/30">
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-400/40 to-yellow-500/40 rounded-2xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                      <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-amber-200 relative z-10 drop-shadow-lg group-hover:drop-shadow-xl" />
-                      {/* Pulse effect */}
-                      <div className="absolute inset-0 rounded-2xl bg-amber-400/20 animate-ping opacity-0 group-hover:opacity-100" />
+                  <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 w-full min-w-0">
+                    {/* Icon container - компактный */}
+                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-amber-400/25 via-yellow-500/20 to-amber-500/25 border border-amber-400/40 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-amber-500/20">
+                      <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-amber-200 relative z-10" />
                     </div>
+                    
+                    {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] sm:text-[11px] text-amber-200/90 font-extrabold uppercase tracking-wider leading-tight mb-1">Монеты</div>
-                      <div className="text-lg sm:text-xl font-black text-white leading-tight group-hover:text-amber-50 transition-colors duration-300 tracking-tight">
+                      <div className="text-[9px] sm:text-[10px] text-amber-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">Монеты</div>
+                      <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-amber-50 transition-colors duration-200">
                         {stats.coins}
                       </div>
                     </div>

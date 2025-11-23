@@ -38,7 +38,7 @@ export function DuelWidget({
   const isTelegram = typeof window !== 'undefined' && (window as any).Telegram?.WebApp;
 
   // Increase top padding for Telegram to avoid overlap with status bar
-  const topClass = isTelegram ? 'top-20' : 'top-4';
+  const topClass = isTelegram ? 'top-14' : 'top-4';
 
   return (
     <motion.div

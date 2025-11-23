@@ -891,21 +891,41 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     });
   }, [safeArea.platform, safeArea.top, safeArea.contentTop, safeArea.left, safeArea.right, safeArea.bottom, safeArea.contentBottom]);
 
-  // Timer countdown
+  // Timer logic with timestamp fix
+  const questionStartTimeRef = useRef<number | null>(null);
+
   useEffect(() => {
-    if (isAnswered || timeLeft <= 0) return;
+    if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
+      return;
+    }
+
+    // Set start time if not set
+    if (!questionStartTimeRef.current) {
+      questionStartTimeRef.current = Date.now();
+    }
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        const newTime = Math.max(0, prev - 100);
-        if (newTime === 0) handleTimeout();
-        return newTime;
-      });
-    }, 100);
+      if (questionStartTimeRef.current) {
+        const elapsed = Date.now() - questionStartTimeRef.current;
+        const newTimeLeft = Math.max(0, 60000 - elapsed);
+
+        setTimeLeft(newTimeLeft);
+
+        if (newTimeLeft <= 0) {
+          clearInterval(timer);
+          handleTimeout();
+        }
+      }
+    }, 100); // Update more frequently for smoothness
 
     return () => clearInterval(timer);
-  }, [timeLeft, isAnswered]);
+  }, [currentIndex, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, questions.length]);
 
+  // Reset start time when question changes
+  useEffect(() => {
+    questionStartTimeRef.current = null;
+    setTimeLeft(60000);
+  }, [currentIndex]);
   // Reset translation when moving to next question
   useEffect(() => {
     setTranslationLanguage(null);

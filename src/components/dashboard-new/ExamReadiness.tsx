@@ -338,9 +338,9 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
            </div>
            
            {/* Split View: Levels (Left) + Analytics (Right) - простой адаптивный layout */}
-           <div className="flex-1 flex flex-col lg:flex-row gap-4 md:gap-6 min-h-0 overflow-hidden">
+           <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-6 min-h-0 overflow-hidden">
              {/* Left Side: Levels - фиксированные пропорции */}
-             <div className="flex flex-col w-full lg:w-[45%] lg:min-w-[300px] lg:max-w-[400px] flex-shrink-0">
+             <div className="flex flex-col w-full xl:w-[45%] xl:min-w-[300px] xl:max-w-[400px]">
                <div className="mb-3">
                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">NIVELES DE VUELO</h4>
                </div>
@@ -438,12 +438,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
              </div>
              
              {/* Right Side: Analytics - фиксированные пропорции */}
-             <div className="flex flex-col flex-1 min-h-0 w-full lg:min-w-0 lg:flex-shrink">
-               <div className="mb-3 flex-shrink-0">
+             <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
+               <div className="mb-3">
                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">TELEMETRÍA AVANZADA</h4>
                </div>
-               <div className="flex-1 min-h-0 overflow-y-auto">
-                 <AnalyticsPanel
+               <AnalyticsPanel
                  trend={analytics?.trend || null}
                  consistency={analytics?.consistency || null}
                  timeToPass={analytics?.timeToPass || null}
@@ -454,7 +453,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                  loading={analyticsLoading}
                  showHeader={false}
                />
-               </div>
              </div>
            </div>
          </div>

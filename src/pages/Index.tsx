@@ -20,10 +20,8 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { WelcomeOverlay } from "@/components/dashboard-new/WelcomeOverlay";
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
-import { DuelPassSeasonModal } from "@/components/monetization/DuelPassSeasonModal";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { useModalRoute } from "@/hooks/useModalRoute";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
@@ -33,7 +31,6 @@ const Index = () => {
   const navigate = useNavigate();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const duelPassRoute = useModalRoute('duel-pass-season');
   
   // Показываем прелоадер только при первом открытии приложения
   const [showWelcome, setShowWelcome] = useState(() => {
@@ -136,56 +133,59 @@ const Index = () => {
         throw bonusUpdateError;
       }
 
-      // Обновляем XP сразу (без ожидания Edge Functions)
-      const { error: xpError } = await supabase
-        .from('profiles')
-        .update({
-          xp: (dashboardData.profile.xp || 0) + (currentReward.reward.xp || 0),
-        })
-        .eq('id', profileId);
+      // Обновляем XP и монеты сразу (без ожидания Edge Functions)
+      const updateData: { xp?: number; coins?: number } = {};
+      
+      if (currentReward.reward.xp && currentReward.reward.xp > 0) {
+        updateData.xp = (dashboardData.profile.xp || 0) + currentReward.reward.xp;
+      }
+      
+      if (currentReward.reward.coins && currentReward.reward.coins > 0) {
+        updateData.coins = (dashboardData.profile.coins || 0) + currentReward.reward.coins;
+      }
 
-      if (xpError) {
-        console.error('[handleClaimBonus] Error updating XP:', xpError);
-        // Не прерываем выполнение, продолжаем
+      if (Object.keys(updateData).length > 0) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update(updateData)
+          .eq('id', profileId);
+
+        if (updateError) {
+          console.error('[handleClaimBonus] Error updating profile:', updateError);
+          // Не прерываем выполнение, продолжаем
+        }
       }
 
       // Вызываем Edge Functions асинхронно (без ожидания - они могут быть медленными)
       // Продолжаем выполнение даже если функции не ответили
       Promise.allSettled([
-        supabase.functions.invoke('coins-earn', {
-        body: { user_id: profileId, reward_type: 'daily_login' },
-        }).catch(err => {
-          console.warn('[handleClaimBonus] coins-earn error (non-blocking):', err);
-        }),
+        // УБРАНО: coins-earn - монеты теперь начисляются напрямую из daily_bonus_def
+        // УБРАНО: duel-pass-xp - используем новую систему season-sp вместо старой
         supabase.functions.invoke('season-sp', {
-        body: { 
-          user_id: profileId, 
-          source_type: 'daily_login',
-          metadata: { streak_days: newStreak }
-        },
-        }).catch(err => {
-          console.warn('[handleClaimBonus] season-sp error (non-blocking):', err);
-        }),
-        supabase.functions.invoke('duel-pass-xp', {
-        body: { user_id: profileId, source_type: 'daily_login' },
-        }).then(({ data: xpData }) => {
-      if (xpData?.level_up) {
+          body: { 
+            user_id: profileId, 
+            source_type: 'daily_login',
+            metadata: { streak_days: newStreak }
+          },
+        }).then(({ data: spData }) => {
+          // Если был level up в Duel Pass, показываем уведомление
+          if (spData?.level_up) {
             supabase.functions.invoke('assistant-suggest', {
-          body: { trigger: 'duel_pass_level_up' },
+              body: { trigger: 'duel_pass_level_up' },
             }).then(({ data: suggestion }) => {
-        const message = suggestion?.suggestion?.message;
-        if (message) {
-          toast({
-            title: "Duel Pass",
-            description: message,
-          });
-        }
+              const message = suggestion?.suggestion?.message;
+              if (message) {
+                toast({
+                  title: "Duel Pass",
+                  description: message,
+                });
+              }
             }).catch(err => {
               console.warn('[handleClaimBonus] assistant-suggest error:', err);
             });
           }
         }).catch(err => {
-          console.warn('[handleClaimBonus] duel-pass-xp error (non-blocking):', err);
+          console.warn('[handleClaimBonus] season-sp error (non-blocking):', err);
         }),
       ]);
 
@@ -364,16 +364,6 @@ const Index = () => {
           } : undefined}
         />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-        <DuelPassSeasonModal 
-          open={duelPassRoute.isOpen} 
-          onOpenChange={(open) => {
-            if (open) {
-              duelPassRoute.openModal();
-            } else {
-              duelPassRoute.closeModal();
-            }
-          }} 
-        />
       </div>
     </>
   );
