@@ -12,20 +12,21 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
   // Вычисляем отступ сверху с учетом safe area для Telegram
   // Учитываем высоту нативной навигации Telegram (кнопка Назад и т.д.)
-  const TELEGRAM_NAV_HEIGHT = 110; // Высота встроенной навигации Telegram WebApp
-  const topOffset = isTelegram 
-    ? safeArea.top + safeArea.contentTop + TELEGRAM_NAV_HEIGHT + 16
+  const TELEGRAM_NAV_HEIGHT = 50; // Уменьшено с 110, так как было слишком много
+  const topOffset = isTelegram
+    ? safeArea.top + safeArea.contentTop + TELEGRAM_NAV_HEIGHT
     : 16;
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
-      position="top-right"
+      position={isTelegram ? "top-center" : "top-right"}
+      richColors
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg font-medium",
           description: "group-[.toast]:text-muted-foreground",
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
@@ -33,7 +34,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={{
         top: `${topOffset}px`,
-        right: `${safeArea.right + 16}px`,
+        // Для top-center right не нужен, но оставим для совместимости если позиция изменится
+        right: isTelegram ? 'auto' : `${safeArea.right + 16}px`,
       }}
       {...props}
     />

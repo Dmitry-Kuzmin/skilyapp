@@ -502,9 +502,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     const timeoutId = setTimeout(() => {
       if (!isAnswered && timeLeft < 30000) {
         // Игрок не ответил за 30 секунд - предупреждение
-        toast.warning('Время истекает!', {
-          description: 'Ответьте быстрее, иначе будет засчитано как пропуск',
-          duration: 5000
+        toast.warning('⏰ Поторопись! Осталось 10 секунд!', {
+          duration: 3000,
+          className: "font-bold border-red-500/50 bg-red-500/10 text-red-500"
         });
       }
     }, 30000);
@@ -598,7 +598,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             console.log('[DuelBattleFullscreen] ✅ Opponent finished all questions, transitioning to results');
             isVerifyingRef.current = false; // Reset before transition
             sounds.victory();
-            toast.success('🏁 Соперник закончил! Смотрите результаты', { duration: 3000 });
+            toast.info('🏁 Соперник финишировал! Подводим итоги...', { duration: 3000 });
             setTimeout(() => {
               onDuelFinished();
             }, 1000);
@@ -712,7 +712,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
               }
 
-              toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+              toast.info('🏁 Финиш! Подводим итоги...', { duration: 2000 });
               onDuelFinished();
             }
           } catch (error) {
@@ -983,7 +983,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         sounds.boostHint(); // Используем звук подсказки для перевода
         setTranslationLanguage(language);
         const langName = language === 'ru' ? 'русский' : 'английский';
-        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 3000 });
+        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 2000 });
       }
 
       // Проверяем, что вопросы загружены и текущий вопрос существует
@@ -1364,7 +1364,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // Hide waiting screen and go to results
         setIsWaitingForOpponent(false);
         sounds.victory();
-        toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+        toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
 
         setTimeout(() => {
           console.log('[DuelBattleFullscreen] 🚀 Transitioning to results');
@@ -1374,7 +1374,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // IMPROVED: Show waiting screen ONLY if opponent hasn't finished yet
         console.log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
         setIsWaitingForOpponent(true);
-        toast.info('⏳ Ожидание соперника...', { duration: 4000 });
+        toast.info('⏳ Ждём соперника...', { duration: 3000 });
       }
     } catch (error) {
       console.error('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
