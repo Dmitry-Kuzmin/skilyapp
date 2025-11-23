@@ -34,13 +34,19 @@ export function DuelWidget({
   const displayMyName = truncateName(myName, 10);
   const displayOpponentName = truncateName(opponentName, 10);
 
+  // Detect if running in Telegram WebApp
+  const isTelegram = typeof window !== 'undefined' && (window as any).Telegram?.WebApp;
+
+  // Increase top padding for Telegram to avoid overlap with status bar
+  const topClass = isTelegram ? 'top-20' : 'top-4';
+
   return (
     <motion.div
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: -100, opacity: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4"
+      className={`fixed ${topClass} left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4`}
     >
       <Card className="p-4 bg-gradient-to-br from-card via-card to-primary/5 border-2 border-primary/30 shadow-2xl backdrop-blur-xl">
         <div className="space-y-3">
