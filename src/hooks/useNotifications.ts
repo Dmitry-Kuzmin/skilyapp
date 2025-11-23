@@ -253,6 +253,20 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     setUnreadCount(0);
   };
 
+  // Fallback: периодическая загрузка уведомлений при ошибке Realtime
+  useEffect(() => {
+    if (!profileId || !realtimeError) return;
+
+    console.log('[useNotifications] Starting fallback polling due to Realtime error');
+    const pollInterval = setInterval(() => {
+      loadNotifications();
+    }, 30000); // Каждые 30 секунд
+
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [profileId, realtimeError, loadNotifications]);
+
   return {
     notifications,
     unreadCount,
