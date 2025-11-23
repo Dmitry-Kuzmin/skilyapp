@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Flame, Award, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Confetti from 'react-confetti';
+import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
 import { playClickSound, playSuccessSound } from '@/services/audioService';
 
 interface DailyRewardsProps {
@@ -12,8 +12,9 @@ interface DailyRewardsProps {
 
 export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasClaimedToday, onClaim }) => {
   const [isClaiming, setIsClaiming] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const [showNewWeek, setShowNewWeek] = useState(false);
+  const [celebrationType, setCelebrationType] = useState<CelebrationType>('fireworks'); // Можно менять тип
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
@@ -57,10 +58,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     playClickSound();
     setIsClaiming(true);
     
-    // Если день 7 - показываем конфетти
+    // Если день 7 - показываем анимацию поздравления
     if (weekDay === 7) {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
     }
     
     try {
@@ -74,27 +75,34 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   // Функция для тестирования анимаций (только в dev режиме)
   const handleTestAnimations = () => {
     if (process.env.NODE_ENV === 'development') {
-      setShowConfetti(true);
+      setShowCelebration(true);
       setTimeout(() => {
-        setShowConfetti(false);
+        setShowCelebration(false);
       }, 3000);
+    }
+  };
+
+  // Функция для смены типа анимации (только в dev режиме)
+  const handleChangeAnimation = () => {
+    if (process.env.NODE_ENV === 'development') {
+      const types: CelebrationType[] = ['confetti', 'fireworks', 'stars', 'burst', 'sparkles', 'trophy', 'gradient', 'particles'];
+      const currentIndex = types.indexOf(celebrationType);
+      const nextIndex = (currentIndex + 1) % types.length;
+      setCelebrationType(types[nextIndex]);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
     }
   };
 
   return (
     <div className="h-full min-h-[360px] bg-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
       
-      {/* Confetti для дня 7 */}
-      {showConfetti && typeof window !== 'undefined' && (
-        <Confetti
-          width={window.innerWidth}
-          height={window.innerHeight}
-          recycle={false}
-          numberOfPieces={200}
-          gravity={0.3}
-          style={{ position: 'fixed', top: 0, left: 0, zIndex: 9999 }}
-        />
-      )}
+      {/* Анимация поздравления для дня 7 */}
+      <CelebrationAnimations
+        type={celebrationType}
+        show={showCelebration}
+        duration={3000}
+      />
 
       {/* Плашка "Следующая неделя началась" */}
       <AnimatePresence>
@@ -266,15 +274,24 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         )}
       </motion.button>
 
-      {/* Кнопка тестирования анимаций (только в dev режиме) */}
+      {/* Кнопки тестирования анимаций (только в dev режиме) */}
       {process.env.NODE_ENV === 'development' && (
-        <button
-          onClick={handleTestAnimations}
-          className="absolute bottom-2 right-2 z-20 px-2 py-1 text-[10px] bg-blue-500/20 text-blue-300 rounded border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
-          title="Тест анимаций"
-        >
-          🧪 Тест
-        </button>
+        <div className="absolute bottom-2 right-2 z-20 flex flex-col gap-1">
+          <button
+            onClick={handleTestAnimations}
+            className="px-2 py-1 text-[10px] bg-blue-500/20 text-blue-300 rounded border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
+            title="Тест текущей анимации"
+          >
+            🧪 Тест
+          </button>
+          <button
+            onClick={handleChangeAnimation}
+            className="px-2 py-1 text-[10px] bg-purple-500/20 text-purple-300 rounded border border-purple-500/30 hover:bg-purple-500/30 transition-colors"
+            title={`Сменить анимацию (текущая: ${celebrationType})`}
+          >
+            🎨 {celebrationType}
+          </button>
+        </div>
       )}
     </div>
   );
