@@ -187,8 +187,8 @@ export function CosmeticsCatalog() {
         .eq("user_id", profileId);
 
       if (userSkins) {
-        setOwnedSkins(new Set(userSkins.map((s) => s.skin_id)));
-        const activeSkin = userSkins.find((s) => s.is_active);
+        setOwnedSkins(new Set(userSkins.map((s: any) => s.skin_id)));
+        const activeSkin = userSkins.find((s: any) => s.is_active);
         if (activeSkin) {
           setActiveSkinId(activeSkin.skin_id);
         }
@@ -201,10 +201,10 @@ export function CosmeticsCatalog() {
         .eq("user_id", profileId);
 
       if (userBadges) {
-        setOwnedBadges(new Set(userBadges.map((b) => b.badge_id)));
+        setOwnedBadges(new Set(userBadges.map((b: any) => b.badge_id)));
         const displayedBadges = userBadges
-          .filter((b) => b.is_displayed)
-          .map((b) => b.badge_id);
+          .filter((b: any) => b.is_displayed)
+          .map((b: any) => b.badge_id);
         setActiveBadgeIds(new Set(displayedBadges));
       }
 
@@ -226,7 +226,7 @@ export function CosmeticsCatalog() {
     if (!profileId) return;
 
     try {
-      const { error } = await supabase.rpc("activate_skin", {
+      const { error } = await supabase.rpc("activate_skin" as any, {
         p_user_id: profileId,
         p_skin_id: skinId,
       });
@@ -248,7 +248,7 @@ export function CosmeticsCatalog() {
     if (!profileId) return;
 
     try {
-      const { data, error } = await supabase.rpc("toggle_badge_display", {
+      const { data, error } = await supabase.rpc("toggle_badge_display" as any, {
         p_user_id: profileId,
         p_badge_id: badgeId,
         p_display: !currentDisplay,
@@ -316,7 +316,7 @@ export function CosmeticsCatalog() {
   };
 
   const handleBadgePreview = (badge: BadgeDefinition) => {
-    setPreviewBadges((prev) => {
+    setPreviewBadges((prev: PreviewBadge[]) => {
       // Если бейдж уже выбран, убираем его, иначе добавляем (максимум 3)
       const isSelected = prev.some((b) => b.id === badge.id);
       if (isSelected) {
@@ -334,7 +334,7 @@ export function CosmeticsCatalog() {
   };
 
   const handleStickerPreview = (sticker: StickerDefinition) => {
-    setPreviewSticker((prev) => (prev?.id === sticker.id ? null : (sticker as PreviewSticker)));
+    setPreviewSticker((prev: PreviewSticker | null) => (prev?.id === sticker.id ? null : (sticker as PreviewSticker)));
     // Сбрасываем другие превью
     setPreviewSkin(null);
     setPreviewBadges([]);
