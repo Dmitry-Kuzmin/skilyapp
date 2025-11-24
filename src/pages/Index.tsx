@@ -324,7 +324,7 @@ const Index = () => {
     );
   } else if (dashboardData) {
     pageContent = (
-      <>
+    <>
         <Dashboard
           stats={{
             averageScore: averageScore || dashboardData.stats.accuracy,
@@ -360,7 +360,7 @@ const Index = () => {
       <Layout hideNavigation={showWelcome}>
         <div className={`min-h-screen pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
           {pageContent}
-        </div>
+      </div>
       </Layout>
     </>
   );

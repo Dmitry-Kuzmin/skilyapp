@@ -5,7 +5,7 @@
 
 // Обновляем версию кэша при каждом деплое, чтобы очистить старые файлы
 // ОПТИМИЗАЦИЯ: Используем дату деплоя вместо timestamp для стабильности
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7'; // Обновлено: JS/CSS больше не обрабатываются через SW
 const CACHE_NAME = `skilyapp-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `skilyapp-static-${CACHE_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50 MB лимит кэша
@@ -142,12 +142,19 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Определяем тип ресурса для оптимальной стратегии кэширования
-  const isStaticAsset = url.pathname.match(/\.(js|css|html)$/);
+  const isStaticAsset = url.pathname.match(/\.(js|css|mjs)$/);
+  const isHTML = url.pathname.match(/\.html$/) || request.mode === 'navigate';
   const isImage = url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i);
   const isFont = url.pathname.match(/\.(woff2?|ttf|eot|otf)$/i);
   
+  // КРИТИЧНО: НЕ обрабатываем JS/CSS файлы через Service Worker
+  // Это гарантирует, что всегда загружается актуальная версия и нет проблем с белым экраном
+  if (isStaticAsset) {
+    return; // Пусть браузер обработает JS/CSS сам
+  }
+  
   // Стратегия кэширования:
-  // - JS/CSS: Network First (всегда проверяем сеть для актуальных версий)
+  // - JS/CSS: НЕ обрабатываем (браузер сам)
   // - Изображения/Шрифты: Cache First (быстрая загрузка из кэша)
   // - HTML: Network First с fallback на кэш
   
@@ -177,33 +184,33 @@ self.addEventListener('fetch', (event) => {
           }
         }
         
-        // Для JS/CSS и HTML используем Network First
-        try {
-          const response = await fetch(request, {
-            cache: isStaticAsset ? 'no-cache' : 'default',
-          });
-
-          // Кэшируем только успешные ответы (не JS/CSS для актуальности)
-          if (response && response.ok && response.status === 200 && !isStaticAsset) {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put(request, response.clone()).catch(() => {
-              // Игнорируем ошибки кэширования
+        // Для HTML используем Network First с fallback на кэш
+        if (isHTML) {
+          try {
+            const response = await fetch(request, {
+              cache: 'no-cache',
             });
-          }
 
-          return response;
-        } catch (error) {
-          console.warn('[SW] Network fetch failed:', request.url, error);
-          
-          // Fallback на кэш для не-JS/CSS файлов
-          if (!isStaticAsset) {
+            // Кэшируем только успешные ответы
+            if (response && response.ok && response.status === 200) {
+              const cache = await caches.open(CACHE_NAME);
+              cache.put(request, response.clone()).catch(() => {
+                // Игнорируем ошибки кэширования
+              });
+            }
+
+            return response;
+          } catch (error) {
+            console.warn('[SW] Network fetch failed for HTML:', request.url, error);
+            
+            // Fallback на кэш для HTML
             try {
               const cached = await caches.match(request);
               if (cached) {
                 return cached;
               }
               
-              // Для навигации возвращаем index.html
+              // Для навигации возвращаем index.html из кэша
               if (request.mode === 'navigate') {
                 const indexHtml = await caches.match('/index.html');
                 if (indexHtml) {
@@ -213,12 +220,14 @@ self.addEventListener('fetch', (event) => {
             } catch (cacheError) {
               console.warn('[SW] Cache fallback failed:', cacheError);
             }
+            
+            // Если все попытки не удались, пробрасываем запрос браузеру
+            return fetch(request);
           }
-          
-          // Если все попытки не удались, пробрасываем запрос браузеру
-          // Это предотвращает белый экран - браузер обработает запрос сам
-          return fetch(request);
         }
+        
+        // Для остальных файлов (не JS/CSS/HTML/Images/Fonts) пробрасываем браузеру
+        return fetch(request);
       } catch (error) {
         // В случае критической ошибки пробрасываем запрос браузеру
         // Это предотвращает белый экран из-за ошибок Service Worker

@@ -122,7 +122,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
 
     try {
       console.log('[DailyRewards] Calling onClaim...');
-      await onClaim();
+        await onClaim();
       console.log('[DailyRewards] onClaim completed successfully');
       playSuccessSound(); // Success sound
     } catch (error) {
