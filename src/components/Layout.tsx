@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect, useRef } from "react";
+import { ReactNode, useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
@@ -28,6 +28,42 @@ interface LayoutProps {
   children: ReactNode;
   hideNavigation?: boolean;
 }
+
+// ОПТИМИЗАЦИЯ: Мемоизированный компонент для NavLink элемента
+const NavItem = memo(({ item, currentPath }: { item: any; currentPath: string }) => {
+  const isDuel = item.isActiveDuel;
+  const isActive =
+    currentPath === item.href ||
+    currentPath.startsWith(`${item.href}/`) ||
+    (isDuel && currentPath.startsWith("/games/duel"));
+  const Icon = item.icon;
+  
+  return (
+    <NavLink
+      to={item.href}
+      className={cn(
+        "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 relative",
+        isActive
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground",
+        isDuel && "bg-gradient-to-b from-primary/10 to-blue-500/10"
+      )}
+      end={false}
+    >
+      <Icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
+      <span className="text-xs font-medium">{item.name}</span>
+      {isDuel && (
+        <motion.div
+          className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+    </NavLink>
+  );
+});
+
+NavItem.displayName = 'NavItem';
 
 const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   const location = useLocation();
@@ -101,7 +137,8 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   }, [isTelegramApp]);
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
-  const navigation = [
+  // ОПТИМИЗАЦИЯ: Мемоизируем navigation для предотвращения лишних ре-рендеров
+  const navigation = useMemo(() => [
     { name: t("home"), href: "/dashboard", icon: Home },
     { name: t("tests"), href: "/tests", icon: FileText },
     { name: t("learning"), href: "/learning", icon: BookOpen },
@@ -113,7 +150,7 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
           isActiveDuel: true 
         }
       : { name: t("games"), href: "/games", icon: Gamepad2 },
-  ];
+  ], [t, activeDuel]);
 
   // ОПТИМИЗАЦИЯ: Убрано логирование для уменьшения нагрузки (можно включить для отладки)
   // useEffect(() => {
@@ -129,18 +166,24 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   // }, [activeDuel]);
 
   // Определяем fullscreen режимы (тесты и игры) - navbar должен быть скрыт
-  const isFullscreenMode = 
+  // ОПТИМИЗАЦИЯ: Мемоизируем isFullscreenMode для предотвращения лишних вычислений
+  const isFullscreenMode = useMemo(() => 
     location.pathname.startsWith('/test/') || 
     location.pathname.includes('/duel') ||
     location.pathname.includes('/race-game') ||
     location.pathname.includes('/guess-the-sign') ||
     location.pathname.includes('/matching') ||
     location.pathname.includes('/four-variants') ||
-    location.pathname.includes('/road-race');
+    location.pathname.includes('/road-race'),
+    [location.pathname]
+  );
 
   // Scroll to top on route change
+  // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для плавного скролла без блокировки UI
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
   }, [location.pathname]);
 
   return (
@@ -300,36 +343,9 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
         )}
         
         <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
-          {navigation.map((item) => {
-            const isDuel = (item as any).isActiveDuel;
-            const isActive =
-              location.pathname === item.href ||
-              location.pathname.startsWith(`${item.href}/`) ||
-              (isDuel && location.pathname.startsWith("/games/duel"));
-            return (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 relative",
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground",
-                  (item as any).isActiveDuel && "bg-gradient-to-b from-primary/10 to-blue-500/10"
-                )}
-              >
-                <item.icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
-                <span className="text-xs font-medium">{item.name}</span>
-                {(item as any).isActiveDuel && (
-                  <motion.div
-                    className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                )}
-              </NavLink>
-            );
-          })}
+          {navigation.map((item) => (
+            <NavItem key={item.name} item={item} currentPath={location.pathname} />
+          ))}
           
           {/* Profile/Login Icon */}
           <div className="flex flex-col items-center gap-1 py-2 px-3">
