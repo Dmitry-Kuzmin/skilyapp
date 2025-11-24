@@ -189,7 +189,7 @@ export function CosmeticsCatalog() {
       if (userSkins) {
         setOwnedSkins(new Set(userSkins.map((s: any) => s.skin_id)));
         const activeSkin = userSkins.find((s: any) => s.is_active);
-        if (activeSkin) {
+        if (activeSkin && activeSkin.skin_id) {
           setActiveSkinId(activeSkin.skin_id);
         }
       }
@@ -215,7 +215,7 @@ export function CosmeticsCatalog() {
         .eq("user_id", profileId);
 
       if (userStickers) {
-        setOwnedStickers(new Set(userStickers.map((s) => s.sticker_id)));
+        setOwnedStickers(new Set(userStickers.map((s: any) => s.sticker_id)));
       }
     } catch (error) {
       console.error("Error loading owned items:", error);
@@ -316,25 +316,30 @@ export function CosmeticsCatalog() {
   };
 
   const handleBadgePreview = (badge: BadgeDefinition) => {
-    setPreviewBadges((prev: PreviewBadge[]) => {
-      // Если бейдж уже выбран, убираем его, иначе добавляем (максимум 3)
-      const isSelected = prev.some((b) => b.id === badge.id);
-      if (isSelected) {
-        return prev.filter((b) => b.id !== badge.id);
-      }
-      if (prev.length >= 3) {
+    const currentBadges = previewBadges;
+    // Если бейдж уже выбран, убираем его, иначе добавляем (максимум 3)
+    const isSelected = currentBadges.some((b) => b.id === badge.id);
+    if (isSelected) {
+      setPreviewBadges(currentBadges.filter((b) => b.id !== badge.id));
+    } else {
+      if (currentBadges.length >= 3) {
         // Убираем первый, добавляем новый
-        return [...prev.slice(1), badge as PreviewBadge];
+        setPreviewBadges([...currentBadges.slice(1), badge as PreviewBadge]);
+      } else {
+        setPreviewBadges([...currentBadges, badge as PreviewBadge]);
       }
-      return [...prev, badge as PreviewBadge];
-    });
+    }
     // Сбрасываем другие превью
     setPreviewSkin(null);
     setPreviewSticker(null);
   };
 
   const handleStickerPreview = (sticker: StickerDefinition) => {
-    setPreviewSticker((prev: PreviewSticker | null) => (prev?.id === sticker.id ? null : (sticker as PreviewSticker)));
+    if (previewSticker?.id === sticker.id) {
+      setPreviewSticker(null);
+    } else {
+      setPreviewSticker(sticker as PreviewSticker);
+    }
     // Сбрасываем другие превью
     setPreviewSkin(null);
     setPreviewBadges([]);
