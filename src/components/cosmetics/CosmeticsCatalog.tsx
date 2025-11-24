@@ -416,14 +416,14 @@ export function CosmeticsCatalog() {
                     )}
 
                     <div className="relative z-10 flex flex-col gap-2">
-                      {/* Превью скина - компактное */}
+                      {/* Превью скина - компактное с премиальными эффектами */}
                       <motion.div
                         className={cn(
                           "w-full aspect-square rounded-lg flex items-center justify-center text-3xl font-extrabold text-white relative overflow-hidden group/skin",
-                          "shadow-lg",
-                          skin.rarity === "legendary" && "shadow-yellow-500/50",
-                          skin.rarity === "epic" && "shadow-blue-500/50",
-                          skin.rarity === "rare" && "shadow-blue-500/50",
+                          skin.rarity === "legendary" && "shadow-[0_0_30px_rgba(234,179,8,0.6),0_0_60px_rgba(249,115,22,0.4)]",
+                          skin.rarity === "epic" && "shadow-[0_0_25px_rgba(59,130,246,0.5),0_0_50px_rgba(139,92,246,0.3)]",
+                          skin.rarity === "rare" && "shadow-[0_0_20px_rgba(59,130,246,0.4),0_0_40px_rgba(99,102,241,0.2)]",
+                          skin.rarity === "common" && "shadow-lg",
                           skin.metadata.animated && "animate-pulse"
                         )}
                         style={{
@@ -434,48 +434,223 @@ export function CosmeticsCatalog() {
                         whileHover={{ scale: 1.05 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
-                        {/* Эффект свечения */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/skin:opacity-100 transition-opacity duration-500" />
-                        
-                        {/* Частицы для легендарных */}
+                        {/* Анимированный градиентный фон для редких скинов */}
+                        {skin.rarity === "legendary" && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 via-orange-500/40 to-yellow-400/40 rounded-lg"
+                            animate={{
+                              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                            style={{
+                              backgroundSize: "200% 200%",
+                            }}
+                          />
+                        )}
+                        {skin.rarity === "epic" && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-lg"
+                            animate={{
+                              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                            }}
+                            transition={{
+                              duration: 4,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                            style={{
+                              backgroundSize: "200% 200%",
+                            }}
+                          />
+                        )}
+                        {skin.rarity === "rare" && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-cyan-400/20 to-blue-500/20 rounded-lg"
+                            animate={{
+                              opacity: [0.5, 0.8, 0.5],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        )}
+
+                        {/* Пульсирующее свечение для легендарных */}
+                        {skin.rarity === "legendary" && (
+                          <motion.div
+                            className="absolute inset-0 rounded-lg"
+                            animate={{
+                              boxShadow: [
+                                "0 0 20px rgba(234, 179, 8, 0.4), inset 0 0 20px rgba(249, 115, 22, 0.2)",
+                                "0 0 40px rgba(234, 179, 8, 0.8), inset 0 0 30px rgba(249, 115, 22, 0.4)",
+                                "0 0 20px rgba(234, 179, 8, 0.4), inset 0 0 20px rgba(249, 115, 22, 0.2)",
+                              ],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        )}
+
+                        {/* Вращающиеся частицы для легендарных */}
                         {skin.rarity === "legendary" && (
                           <>
-                            <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0s' }} />
-                            <div className="absolute top-3/4 right-1/4 w-1.5 h-1.5 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.3s' }} />
-                            <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-yellow-200 rounded-full animate-ping" style={{ animationDelay: '0.7s' }} />
+                            {[...Array(6)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full"
+                                style={{
+                                  left: "50%",
+                                  top: "50%",
+                                  originX: 0.5,
+                                  originY: 0.5,
+                                }}
+                                animate={{
+                                  rotate: 360,
+                                  x: [0, Math.cos((i * Math.PI) / 3) * 30, 0],
+                                  y: [0, Math.sin((i * Math.PI) / 3) * 30, 0],
+                                  opacity: [0.3, 1, 0.3],
+                                  scale: [0.8, 1.2, 0.8],
+                                }}
+                                transition={{
+                                  duration: 3,
+                                  repeat: Infinity,
+                                  delay: i * 0.2,
+                                  ease: "easeInOut",
+                                }}
+                              />
+                            ))}
                           </>
                         )}
+
+                        {/* Мерцающие частицы для эпических */}
+                        {skin.rarity === "epic" && (
+                          <>
+                            {[...Array(4)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="absolute w-1 h-1 bg-blue-300 rounded-full"
+                                style={{
+                                  left: `${20 + i * 20}%`,
+                                  top: `${20 + i * 15}%`,
+                                }}
+                                animate={{
+                                  opacity: [0, 1, 0],
+                                  scale: [0, 1.5, 0],
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  delay: i * 0.5,
+                                  ease: "easeInOut",
+                                }}
+                              />
+                            ))}
+                          </>
+                        )}
+
+                        {/* Эффект свечения при наведении */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/skin:opacity-100 transition-opacity duration-500" />
                         
                         {/* Эффекты - компактные */}
                         {skin.metadata.effect === "sparkle" && (
                           <>
-                            <Sparkles className="absolute top-1 right-1 w-4 h-4 animate-spin text-white/90 drop-shadow-lg" />
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            >
+                              <Sparkles className="absolute top-1 right-1 w-4 h-4 text-white/90 drop-shadow-lg" />
+                            </motion.div>
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(255,255,255,0.1)_100%)] animate-pulse" />
                           </>
                         )}
                         {skin.metadata.effect === "fire" && (
                           <>
-                            <Flame className="absolute top-1 right-1 w-4 h-4 text-orange-400 animate-bounce drop-shadow-lg" />
-                            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-orange-500/30 to-transparent" />
+                            <motion.div
+                              animate={{ y: [0, -4, 0] }}
+                              transition={{ duration: 1, repeat: Infinity }}
+                            >
+                              <Flame className="absolute top-1 right-1 w-4 h-4 text-orange-400 drop-shadow-lg" />
+                            </motion.div>
+                            <motion.div
+                              className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-orange-500/30 to-transparent"
+                              animate={{ opacity: [0.3, 0.6, 0.3] }}
+                              transition={{ duration: 1.5, repeat: Infinity }}
+                            />
                           </>
                         )}
                         {skin.metadata.effect === "shine" && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                            animate={{ x: ["-100%", "100%"] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                          />
                         )}
                         
-                        {/* Буква с тенью */}
-                        <span className="relative z-10 drop-shadow-lg">
+                        {/* Буква с усиленной тенью для редких */}
+                        <span className={cn(
+                          "relative z-10 drop-shadow-lg",
+                          skin.rarity === "legendary" && "drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]",
+                          skin.rarity === "epic" && "drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]",
+                          skin.rarity === "rare" && "drop-shadow-[0_0_6px_rgba(59,130,246,0.4)]"
+                        )}>
                           {skin.name_ru.charAt(0).toUpperCase()}
                         </span>
                         
-                        {/* Градиентная рамка */}
-                        <div className={cn(
-                          "absolute inset-0 rounded-lg border opacity-50",
-                          skin.rarity === "legendary" && "border-yellow-400/50",
-                          skin.rarity === "epic" && "border-blue-400/50",
-                          skin.rarity === "rare" && "border-blue-400/50",
-                          skin.rarity === "common" && "border-gray-400/50"
-                        )} />
+                        {/* Анимированная градиентная рамка */}
+                        {skin.rarity === "legendary" && (
+                          <motion.div
+                            className="absolute inset-0 rounded-lg border-2"
+                            style={{
+                              background: "linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)",
+                              backgroundSize: "200% 200%",
+                              WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                              WebkitMaskComposite: "xor",
+                              maskComposite: "exclude",
+                              border: "2px solid transparent",
+                            }}
+                            animate={{
+                              backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
+                          />
+                        )}
+                        {skin.rarity === "epic" && (
+                          <motion.div
+                            className="absolute inset-0 rounded-lg border-2 border-blue-400/70"
+                            animate={{
+                              opacity: [0.5, 1, 0.5],
+                              boxShadow: [
+                                "0 0 10px rgba(59, 130, 246, 0.3)",
+                                "0 0 20px rgba(139, 92, 246, 0.5)",
+                                "0 0 10px rgba(59, 130, 246, 0.3)",
+                              ],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        )}
+                        {skin.rarity === "rare" && (
+                          <div className="absolute inset-0 rounded-lg border border-blue-400/50 opacity-70" />
+                        )}
+                        {skin.rarity === "common" && (
+                          <div className="absolute inset-0 rounded-lg border border-gray-400/50 opacity-50" />
+                        )}
                       </motion.div>
 
                       {/* Информация - компактная */}
