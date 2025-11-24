@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings, Zap, FileText, Coins } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings, Zap, FileText, Coins, Gauge } from 'lucide-react';
 import { DailyRewards } from './DailyRewards';
 import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
@@ -7,6 +7,7 @@ import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
 import { ADASControlPanel } from './ADASControlPanel';
 import { CockpitSettingsPanel } from './CockpitSettingsPanel';
+import { UnifiedModal } from '@/components/ui/unified-modal';
 
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
@@ -47,6 +48,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
   const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
+  const [cockpitOpen, setCockpitOpen] = useState(false);
   
   const handleStartQuiz = () => {
     playClickSound();
@@ -99,6 +101,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 Licencia B
               </span>
             </div>
+            <button
+              onClick={() => {
+                playClickSound();
+                setCockpitOpen(true);
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-800/80 transition-all text-xs font-semibold text-slate-200"
+              aria-label="Панель пилота"
+            >
+              <Gauge className="w-3.5 h-3.5 text-emerald-300" />
+              Cockpit
+            </button>
            </div>
         </div>
 
@@ -290,17 +303,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* 6. COCKPIT SETTINGS PANEL */}
-          <div className="md:col-span-2 lg:col-span-2">
-            <CockpitSettingsPanel />
-          </div>
-
-          {/* 7. PREMIUM CARD */}
+          {/* 6. PREMIUM CARD */}
           <div className="md:col-span-1 lg:col-span-1 transition-all duration-500 ease-in-out">
              <PremiumCard onGetPremium={onGetPremium} />
           </div>
 
-          {/* 8. DUEL PASS INFO */}
+          {/* 7. DUEL PASS INFO */}
           <div className="md:col-span-2 lg:col-span-2">
             <DuelPassInfo />
           </div>
@@ -315,6 +323,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
         open={quickSettingsOpen}
         onOpenChange={setQuickSettingsOpen}
       />
+
+      <UnifiedModal
+        title="Панель пилота"
+        open={cockpitOpen}
+        onOpenChange={setCockpitOpen}
+        size="lg"
+      >
+        <div className="max-h-[75vh] overflow-y-auto">
+          <CockpitSettingsPanel />
+        </div>
+      </UnifiedModal>
     </div>
   );
 };
