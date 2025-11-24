@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { AIWidget } from '@/components/AIWidget';
 import { toast } from 'sonner';
 import { dispatchUserEvent } from '@/lib/notification-events';
+import { cn } from '@/lib/utils';
 
 interface DuelResultProps {
   duelId: string;
@@ -28,7 +29,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const [showAIWidget, setShowAIWidget] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
   const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
-  const rewardsAppliedRef = useRef(false); // Защита от двойного начисления
+  const rewardsAppliedRef = useRef(false);
   const notificationSentRef = useRef(false);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   useEffect(() => {
     if (results && profileId && !rewardsAppliedRef.current) {
-      rewardsAppliedRef.current = true; // Помечаем что начисление началось
+      rewardsAppliedRef.current = true;
 
       const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
       const metadata = {
@@ -48,22 +49,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         has_bet: (results.betAmount || 0) > 0
       };
 
-      // Apply rewards (SP and XP)
       const applyRewards = async () => {
         try {
           const { data: spData } = await supabase.functions.invoke('season-sp', {
-            body: {
-              user_id: profileId,
-              source_type: spSource,
-              metadata
-            },
+            body: { user_id: profileId, source_type: spSource, metadata },
           });
 
           const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });
 
-          // Update rewards with actual values
           if (spData && xpData) {
             setRewards(prev => prev ? {
               ...prev,
@@ -72,54 +67,25 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
             } : null);
           }
 
-          // Track challenges
           await supabase.functions.invoke('season-challenges-track', {
-            body: {
-              user_id: profileId,
-              source_type: spSource,
-              metadata
-            },
+            body: { user_id: profileId, source_type: spSource, metadata },
           });
 
-          // Check for level up
           if (xpData?.level_up) {
             const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
               body: { trigger: 'duel_pass_level_up' },
             });
             const message = suggestion?.suggestion?.message;
-            if (message) {
-              toast.info(message);
-            }
+            if (message) toast.info(message);
           }
         } catch (err) {
           console.error('[DuelResult] Error applying rewards:', err);
-          rewardsAppliedRef.current = false; // Сбрасываем при ошибке для возможности повтора
+          rewardsAppliedRef.current = false;
         }
       };
 
       applyRewards();
     }
-  }, [results, profileId, duelId]);
-
-  useEffect(() => {
-    if (!results || !profileId || notificationSentRef.current) return;
-    if (results.isDraw) return; // пока не отправляем уведомления о ничьей
-
-    notificationSentRef.current = true;
-
-    const eventType = results.isWinner ? 'duel_finished_win' : 'duel_finished_lose';
-    const payload = {
-      duel_id: duelId,
-      your_score: results.myScore,
-      opponent_score: results.opponentScore,
-      opponent_name: results.opponentName,
-      bet_amount: results.betAmount || 0,
-      personalized_comment: results.isWinner
-        ? 'Продолжай в том же духе — серия побед ждёт!'
-        : 'Возьми реванш, я подготовлю нового соперника.',
-    };
-
-    dispatchUserEvent(profileId, eventType, payload);
   }, [results, profileId, duelId]);
 
   useEffect(() => {
@@ -134,617 +100,411 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
-      // Load players, duel info, answers, and bet data
-      const [playersResponse, duelResponse, answersResponse, betResponse, betHistoryResponse] = await Promise.all([
-        supabase
-          .from('duel_players')
-          .select('*, profiles(first_name, username)')
-          .eq('duel_id', duelId),
-        supabase
-          .from('duels')
-          .select('bet_amount, bet_type, commission_taken, rematch_pot')
-          .eq('id', duelId)
-          .single(),
-        supabase
-          .from('duel_answers')
-          .select('*, duel_questions(question_snapshot)')
-          .eq('duel_id', duelId)
-          .order('created_at', { ascending: true }),
-        supabase
-          .from('duel_bets')
-          .select('*')
-          .eq('duel_id', duelId)
-          .maybeSingle(),
-        supabase
-          .from('duel_bet_history')
-          .select('*')
-          .eq('duel_id', duelId)
-          .maybeSingle()
-      ]);
+      const { data: duelData, error: duelError } = await supabase
+        .from('duels')
+        .select(`
+          *,
+          player1:profiles!duels_player1_id_fkey(id, username, avatar_url),
+          player2:profiles!duels_player2_id_fkey(id, username, avatar_url)
+        `)
+        .eq('id', duelId)
+        .single();
 
-      const players = playersResponse.data;
-      const duel = duelResponse.data;
-      const allAnswers = answersResponse.data;
-      const bet = betResponse.data;
-      const betHistory = betHistoryResponse.data;
+      if (duelError) throw duelError;
 
-      if (!players) return;
+      const isPlayer1 = duelData.player1_id === profileId;
+      const myScore = isPlayer1 ? duelData.player1_score : duelData.player2_score;
+      const opponentScore = isPlayer1 ? duelData.player2_score : duelData.player1_score;
+      const myCorrect = isPlayer1 ? duelData.player1_correct : duelData.player2_correct;
+      const opponentCorrect = isPlayer1 ? duelData.player2_correct : duelData.player1_correct;
+      const opponent = isPlayer1 ? duelData.player2 : duelData.player1;
 
-      const myPlayer = players.find(p => p.user_id === profileId);
-      const opponent = players.find(p => p.user_id !== profileId);
+      const isWinner = myScore > opponentScore;
+      const isDraw = myScore === opponentScore;
 
-      // Фильтруем мои ответы
-      const myPlayerAnswers = allAnswers?.filter((a: any) => a.player_id === myPlayer?.id) || [];
-      setMyAnswers(myPlayerAnswers);
-
-      const isWinner = myPlayer && opponent && myPlayer.score > opponent.score;
-      const isDraw = myPlayer && opponent && myPlayer.score === opponent.score;
-
-      // Cast profiles to access nested properties
-      const myProfile = myPlayer?.profiles as any;
-      const opponentProfile = opponent?.profiles as any;
-
-      // Calculate winnings if bet was placed
       let winnings = 0;
       let insuranceRefund = 0;
-      const betAmount = (duel as any)?.bet_amount || 0;
-
-      // Check if user had insurance
-      const isHost = myPlayer?.is_host;
-      const hadInsurance = isHost
-        ? bet?.host_insurance_enabled
-        : bet?.opponent_insurance_enabled;
-
-      if (betAmount > 0) {
+      if (duelData.bet_amount > 0) {
         if (isWinner) {
-          const totalPot = betAmount * 2;
-          winnings = totalPot;
-        } else if (!isWinner && !isDraw && hadInsurance) {
-          // Insurance refund for loser
-          const coverageRate = isHost
-            ? bet?.host_coverage_rate || 0.6
-            : bet?.opponent_coverage_rate || 0.6;
-          insuranceRefund = Math.ceil(betAmount * coverageRate);
-        } else if (isDraw && hadInsurance) {
-          // Full refund for draw with insurance
-          const premium = isHost
-            ? bet?.host_insurance_premium || 0
-            : bet?.opponent_insurance_premium || 0;
-          insuranceRefund = betAmount + premium;
+          winnings = duelData.bet_amount * 2;
+        } else if (isDraw) {
+          winnings = duelData.bet_amount;
+        }
+        if (!isWinner && !isDraw && duelData.insurance_used) {
+          insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
         }
       }
 
-      // Calculate expected rewards (will be applied in useEffect)
-      let expectedSP = 0;
-      let expectedXP = 0;
-      let bonusCoins = 0;
+      const bonusCoins = isWinner ? 10 : (isDraw ? 5 : 0);
+      setRewards({ sp: 0, xp: 0, bonusCoins, insuranceRefund });
 
-      // Calculate expected SP based on new system
-      if (isWinner) {
-        expectedXP = betAmount > 0 ? 40 : 30;
-        if (betAmount > 0) {
-          const riskMultiplier = betAmount >= 600 ? 4 : betAmount >= 300 ? 2.25 : betAmount >= 100 ? 1.25 : 1;
-          expectedSP = Math.round(20 * riskMultiplier);
-        } else {
-          expectedSP = 0; // No SP without bet
-        }
-      } else if (isDraw) {
-        expectedXP = 25;
-        expectedSP = betAmount > 0 ? 15 : 0;
-      } else {
-        expectedXP = 15;
-        expectedSP = (betAmount >= 100) ? 5 : 0;
-      }
+      const { data: answersData } = await supabase
+        .from('duel_answers')
+        .select('*, questions(*)')
+        .eq('duel_id', duelId)
+        .eq('user_id', profileId)
+        .order('created_at');
 
-      // Check for bonus coins from bet history
-      if (betHistory && isWinner) {
-        // Bonus coins are calculated server-side, we'll show them if available
-        bonusCoins = 0; // Will be updated from transactions if needed
-      }
-
-      setRewards({
-        sp: expectedSP,
-        xp: expectedXP,
-        bonusCoins,
-        insuranceRefund: insuranceRefund > 0 ? insuranceRefund : undefined
-      });
+      setMyAnswers(answersData || []);
 
       setResults({
-        myScore: myPlayer?.score || 0,
-        myCorrect: myPlayer?.correct_count || 0,
-        opponentScore: opponent?.score || 0,
-        opponentCorrect: opponent?.correct_count || 0,
-        opponentName: opponentProfile?.first_name || opponentProfile?.username || 'Соперник',
-        myName: myProfile?.first_name || myProfile?.username || 'Вы',
         isWinner,
         isDraw,
-        betAmount,
+        myScore,
+        opponentScore,
+        myCorrect,
+        opponentCorrect,
+        opponentName: opponent?.username || 'Соперник',
+        opponentAvatar: opponent?.avatar_url,
+        betAmount: duelData.bet_amount || 0,
         winnings,
-        rematchPot: (duel as any)?.rematch_pot || 0,
-        hadInsurance,
+        insuranceRefund,
+        insuranceUsed: duelData.insurance_used || false
       });
 
-      console.log('[DuelResult] Loaded results:', {
-        myScore: myPlayer?.score,
-        opponentScore: opponent?.score,
-        betAmount,
-        winnings,
-        isDraw,
-        rewards: { sp: actualSP, xp: actualXP, bonusCoins, insuranceRefund }
-      });
+      if (!notificationSentRef.current && opponent?.id) {
+        notificationSentRef.current = true;
+        dispatchUserEvent(opponent.id, 'duel_finished', {
+          duel_id: duelId,
+          opponent_score: myScore,
+          is_opponent_winner: isWinner
+        });
+      }
     } catch (error) {
-      console.error(error);
+      console.error('[DuelResult] Error loading results:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleShare = () => {
-    if (window.Telegram?.WebApp) {
-      const text = results.isWinner
-        ? `Победил в дуэли со счётом ${results.myScore}:${results.opponentScore}! 🏆`
-        : `Сыграл дуэль со счётом ${results.myScore}:${results.opponentScore}`;
-
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(text)}`;
-      (window.Telegram.WebApp as any).openTelegramLink?.(shareUrl);
-    }
+  const handleQuestionClick = (answer: any) => {
+    setSelectedQuestion(answer.questions);
+    setShowAIWidget(true);
   };
 
   if (loading || !results) {
-    return <div className="text-center p-8">Загрузка результатов...</div>;
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-muted-foreground">Подсчитываем результаты...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-background via-background to-primary/5 overflow-y-auto pt-16">
-      <div className="min-h-screen w-full max-w-2xl mx-auto px-3 py-4 pb-20 space-y-3 animate-fade-in">
-        {results.isWinner && typeof window !== 'undefined' && (
-          <Confetti
-            width={window.innerWidth}
-            height={window.innerHeight}
-            recycle={false}
-            numberOfPieces={300}
-            gravity={0.3}
-          />
-        )}
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/20 to-slate-950 overflow-y-auto pt-safe">
+      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6">
+        <AnimatePresence>
+          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} />}
+        </AnimatePresence>
 
+        {/* Header - Animated Result Status */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.5 }}
-          className="w-full"
+          initial={{ scale: 0.5, opacity: 0, y: -50 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
+          className="text-center space-y-4 relative"
         >
-          <Card className="p-4 text-center space-y-3 bg-gradient-to-br from-card via-card to-card/50 border-2 shadow-2xl">
-            <div>
-              {results.isWinner && (
-                <motion.div
-                  className="mb-3 sm:mb-4"
-                  animate={{
-                    rotate: [0, -10, 10, -10, 0],
-                    scale: [1, 1.1, 1, 1.1, 1]
-                  }}
-                  transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 2 }}
-                >
-                  <Trophy className="h-16 w-16 sm:h-20 sm:w-20 mx-auto text-yellow-500 drop-shadow-lg" />
-                </motion.div>
+          {/* Animated Trophy/Icon */}
+          <motion.div
+            animate={results.isWinner ? {
+              rotate: [0, -5, 5, -5, 0],
+              scale: [1, 1.1, 1, 1.05, 1]
+            } : {}}
+            transition={{ duration: 1, repeat: results.isWinner ? Infinity : 0, repeatDelay: 3 }}
+            className="relative inline-block"
+          >
+            {results.isWinner && (
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-3xl opacity-50 animate-pulse" />
+                <Trophy className="relative h-24 w-24 mx-auto text-yellow-400 drop-shadow-2xl" />
+              </div>
+            )}
+            {!results.isWinner && !results.isDraw && (
+              <div className="text-7xl opacity-80">😔</div>
+            )}
+            {results.isDraw && (
+              <div className="text-7xl opacity-80">🤝</div>
+            )}
+          </motion.div>
+
+          {/* Status Text */}
+          <div className="space-y-2">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className={cn(
+                "text-5xl md:text-6xl font-black tracking-tight",
+                results.isWinner && "bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 bg-clip-text text-transparent animate-shimmer",
+                results.isDraw && "text-blue-400",
+                !results.isWinner && !results.isDraw && "text-slate-400"
               )}
-              <motion.h2
-                className={`text-2xl font-bold mb-1 ${results.isWinner ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500' :
-                    results.isDraw ? 'text-blue-500' : 'text-muted-foreground'
-                  }`}
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                {results.isWinner ? '🏆 Победа!' : results.isDraw ? '🤝 Ничья!' : '😔 Поражение'}
-              </motion.h2>
-              <motion.p
-                className="text-muted-foreground text-sm"
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                {results.isWinner
-                  ? 'Отлично!'
-                  : results.isDraw
-                    ? 'Одинаковый результат'
-                    : 'В следующий раз получится!'}
-              </motion.p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <motion.div
-                className="bg-gradient-to-br from-primary/20 to-primary/5 p-3 rounded-xl border-2 border-primary/30 shadow-lg"
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <div className="text-4xl font-black mb-1 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  {results.myScore}
-                </div>
-                <div className="text-xs text-foreground font-bold mb-2">Ваш счёт</div>
-                <div className="flex items-center justify-center gap-1 bg-success/10 rounded-lg px-2 py-1">
-                  <Target className="w-3.5 h-3.5 text-success" />
-                  <span className="text-xs font-semibold text-success">
-                    {results.myCorrect}/10
-                  </span>
-                </div>
-                <div className="mt-1 text-[10px] text-muted-foreground">
-                  {((results.myCorrect / 10) * 100).toFixed(0)}%
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="bg-gradient-to-br from-muted/60 to-muted/30 p-3 rounded-xl border-2 border-muted/50 shadow-lg"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <div className="text-4xl font-black mb-1 text-foreground/80">{results.opponentScore}</div>
-                <div className="text-xs text-foreground/80 font-bold mb-2 truncate">{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-1 bg-orange-500/10 rounded-lg px-2 py-1">
-                  <Target className="w-3.5 h-3.5 text-orange-500" />
-                  <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
-                    {results.opponentCorrect}/10
-                  </span>
-                </div>
-                <div className="mt-1 text-[10px] text-muted-foreground">
-                  {((results.opponentCorrect / 10) * 100).toFixed(0)}%
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Betting results - Ultra Modern Design */}
-            {results.betAmount > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-                className={`relative overflow-hidden p-4 sm:p-5 rounded-2xl border-2 shadow-xl ${results.isWinner
-                    ? 'bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-amber-500/50'
-                    : results.isDraw
-                      ? 'bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-indigo-500/20 border-blue-500/50'
-                      : 'bg-gradient-to-br from-muted/20 via-muted/15 to-muted/10 border-muted/50'
-                  }`}
-              >
-                {/* Animated shimmer effect */}
-                <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent ${results.isWinner ? 'animate-pulse' : ''
-                  }`} />
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
-                    <motion.div
-                      animate={results.isWinner ? { rotate: [0, 360] } : {}}
-                      transition={results.isWinner ? { duration: 3, repeat: Infinity, ease: "linear" } : {}}
-                    >
-                      <Coins className={`h-6 w-6 ${results.isWinner ? 'text-amber-500' : results.isDraw ? 'text-blue-500' : 'text-muted-foreground'
-                        }`} />
-                    </motion.div>
-                    <h3 className={`font-black text-lg ${results.isWinner
-                        ? 'bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent'
-                        : results.isDraw
-                          ? 'bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent'
-                          : 'text-muted-foreground'
-                      }`}>
-                      {results.isWinner ? '💰 Выигрыш' : results.isDraw ? '🤝 Реванш' : '💸 Ставка'}
-                    </h3>
-                  </div>
-
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2">
-                      <span className="text-muted-foreground font-medium">Ваша ставка:</span>
-                      <span className="font-bold text-red-500">-{results.betAmount}</span>
-                    </div>
-
-                    {results.isWinner && (
-                      <>
-                        <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2">
-                          <span className="text-muted-foreground font-medium">Банк:</span>
-                          <span className="font-bold text-amber-600 dark:text-amber-400">{results.betAmount * 2}</span>
-                        </div>
-                        <div className="border-t-2 border-amber-500/30 my-3"></div>
-                        <motion.div
-                          className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg px-4 py-3 border-2 border-green-500/40"
-                          initial={{ scale: 0.95 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.8, type: "spring" }}
-                        >
-                          <span className="font-black text-lg text-green-600 dark:text-green-400">Выигрыш:</span>
-                          <span className="font-black text-2xl text-green-600 dark:text-green-400">+{results.winnings}</span>
-                        </motion.div>
-                      </>
-                    )}
-
-                    {results.isDraw && (
-                      <>
-                        <div className="flex justify-between items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2">
-                          <span className="text-muted-foreground font-medium">Возврат:</span>
-                          <span className="font-bold text-blue-600 dark:text-blue-400">+{results.betAmount}</span>
-                        </div>
-                        {results.hadInsurance && rewards?.insuranceRefund && (
-                          <div className="flex justify-between items-center bg-green-500/10 rounded-lg px-3 py-2 border border-green-500/30">
-                            <span className="text-muted-foreground font-medium flex items-center gap-1">
-                              <Shield className="w-3 h-3" /> Страховка:
-                            </span>
-                            <span className="font-bold text-green-600 dark:text-green-400">+{rewards.insuranceRefund - results.betAmount}</span>
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {!results.isWinner && !results.isDraw && (
-                      <>
-                        <div className="flex justify-between items-center bg-red-500/10 rounded-lg px-3 py-2 border border-red-500/30">
-                          <span className="text-muted-foreground font-medium">Проигрыш:</span>
-                          <span className="font-bold text-red-600 dark:text-red-400">-{results.betAmount}</span>
-                        </div>
-                        {results.hadInsurance && rewards?.insuranceRefund && (
-                          <motion.div
-                            className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg px-3 py-2 border-2 border-green-500/40"
-                            initial={{ scale: 0.95 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.8 }}
-                          >
-                            <span className="text-muted-foreground font-medium flex items-center gap-1">
-                              <Shield className="w-3 h-3 text-green-600" /> Возврат страховки:
-                            </span>
-                            <span className="font-bold text-green-600 dark:text-green-400">+{rewards.insuranceRefund}</span>
-                          </motion.div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Rewards Section - Ultra Modern Design */}
-            {rewards && (
-              <motion.div
-                className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 via-pink-500/10 to-orange-500/10 border-2 border-blue-500/30 rounded-2xl p-4 shadow-2xl"
-                initial={{ y: 20, opacity: 0, scale: 0.95 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                transition={{ delay: 0.7, type: "spring", stiffness: 200 }}
-              >
-                {/* Animated background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-pink-500/5 animate-pulse" />
-
-                <div className="relative z-10">
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Sparkles className="w-5 h-5 text-blue-500" />
-                    </motion.div>
-                    <h3 className="font-black text-base bg-gradient-to-r from-blue-600 via-pink-600 to-orange-600 dark:from-blue-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
-                      Награды
-                    </h3>
-                    <motion.div
-                      animate={{ rotate: [360, 0] }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Sparkles className="w-5 h-5 text-pink-500" />
-                    </motion.div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Season Points (SP) */}
-                    <motion.div
-                      className="relative group bg-gradient-to-br from-blue-500/20 to-pink-500/20 rounded-xl p-3 border-2 border-blue-500/40 shadow-lg overflow-hidden"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.8 }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative flex flex-col items-center gap-1">
-                        <Star className="w-5 h-5 text-blue-500 mb-1" />
-                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Season Points</span>
-                        <span className="text-xl font-black text-blue-700 dark:text-blue-300">
-                          +{rewards.sp}
-                        </span>
-                        {results.betAmount === 0 && (
-                          <span className="text-[10px] text-muted-foreground">Без ставки</span>
-                        )}
-                      </div>
-                    </motion.div>
-
-                    {/* XP */}
-                    <motion.div
-                      className="relative group bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-3 border-2 border-blue-500/40 shadow-lg overflow-hidden"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ delay: 0.85 }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative flex flex-col items-center gap-1">
-                        <Zap className="w-5 h-5 text-blue-500 mb-1" />
-                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Опыт</span>
-                        <span className="text-xl font-black text-blue-700 dark:text-blue-300">
-                          +{rewards.xp}
-                        </span>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Bonus Coins & Insurance */}
-                  {(rewards.bonusCoins > 0 || rewards.insuranceRefund) && (
-                    <motion.div
-                      className="mt-3 pt-3 border-t border-blue-500/20"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.9 }}
-                    >
-                      <div className="flex flex-col gap-2">
-                        {rewards.bonusCoins > 0 && (
-                          <div className="flex items-center justify-between bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-2 border border-yellow-500/30">
-                            <div className="flex items-center gap-2">
-                              <Gift className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                              <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-300">Бонус</span>
-                            </div>
-                            <span className="text-sm font-black text-yellow-700 dark:text-yellow-300">
-                              +{rewards.bonusCoins} монет
-                            </span>
-                          </div>
-                        )}
-                        {rewards.insuranceRefund && (
-                          <div className="flex items-center justify-between bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg p-2 border border-green-500/30">
-                            <div className="flex items-center gap-2">
-                              <Shield className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              <span className="text-xs font-semibold text-green-700 dark:text-green-300">Страховка</span>
-                            </div>
-                            <span className="text-sm font-black text-green-700 dark:text-green-300">
-                              +{rewards.insuranceRefund} монет
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Achievement Progress - компактная версия */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.7 }}
+              style={results.isWinner ? { backgroundSize: "200% 100%" } : {}}
             >
-              <Card className="bg-gradient-to-br from-blue-500/10 to-pink-500/10 border-blue-500/20 p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Award className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-xs">Прогресс до Мастера</div>
-                    <div className="text-[10px] text-muted-foreground">
-                      Ещё {10 - (results.myCorrect || 0)} побед
-                    </div>
-                  </div>
-                  <TrendingUp className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                </div>
-                <Progress value={(results.myCorrect || 0) * 10} className="h-2 bg-blue-500/20" />
-              </Card>
-            </motion.div>
-
-            {/* Обзор вопросов - компактная версия */}
-            <motion.div
+              {results.isWinner ? 'Победа!' : results.isDraw ? 'Ничья!' : 'Поражение'}
+            </motion.h1>
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 0.5 }}
+              className="text-slate-400 text-lg font-medium"
             >
-              <Accordion type="single" collapsible className="bg-card/50 rounded-xl border-2">
-                <AccordionItem value="questions" className="border-none">
-                  <AccordionTrigger className="px-4 py-2.5 hover:no-underline">
-                    <div className="flex items-center gap-2 font-bold text-sm">
-                      <span>📝</span>
-                      <span>Обзор вопросов</span>
-                      <span className="text-xs text-muted-foreground">({results.myCorrect}/{myAnswers.length})</span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-2 pb-3">
-                    <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
-                      {myAnswers.map((answer: any, index: number) => {
-                        const questionSnapshot = (answer.duel_questions as any)?.question_snapshot;
-                        const questionText = questionSnapshot?.question_ru || questionSnapshot?.question_es || 'Вопрос';
-                        const isCorrect = answer.is_correct;
+              {results.isWinner ? 'Отличная игра!' : results.isDraw ? 'Вы на равных' : 'Попробуй ещё раз!'}
+            </motion.p>
+          </div>
+        </motion.div>
 
-                        return (
-                          <div
-                            key={answer.id}
-                            className={`p-2 rounded-lg border ${isCorrect
-                                ? 'bg-success/5 border-success/20'
-                                : 'bg-destructive/5 border-destructive/20'
-                              }`}
-                          >
-                            <div className="flex items-start gap-2">
-                              {isCorrect ? (
-                                <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0 mt-0.5" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium line-clamp-2">{questionText.substring(0, 80)}...</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span className={`text-[10px] font-semibold ${isCorrect ? 'text-success' : 'text-destructive'}`}>
-                                    {isCorrect ? 'Правильно' : 'Неправильно'}
-                                  </span>
-                                  {questionSnapshot && (
-                                    <button
-                                      onClick={() => {
-                                        setSelectedQuestion(questionSnapshot);
-                                        setShowAIWidget(true);
-                                      }}
-                                      className="text-[10px] text-primary hover:underline"
-                                    >
-                                      Объяснить
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                              <span className="text-[10px] text-muted-foreground">+{answer.points_awarded || 0}</span>
+        {/* Score Cards - Modern Glass Design */}
+        <div className="grid grid-cols-2 gap-4">
+          <motion.div
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+            className="relative group"
+          >
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="relative bg-gradient-to-br from-blue-900/40 to-purple-900/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+              <div className="text-center space-y-3">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="text-6xl font-black bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent"
+                >
+                  {results.myScore}
+                </motion.div>
+                <div className="text-sm font-bold text-white/80">Вы</div>
+                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-bold text-white">{results.myCorrect}/10</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
+            className="relative group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-slate-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+              <div className="text-center space-y-3">
+                <div className="text-6xl font-black text-slate-300">
+                  {results.opponentScore}
+                </div>
+                <div className="text-sm font-bold text-slate-400 truncate px-2">{results.opponentName}</div>
+                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                  <Target className="w-4 h-4 text-orange-400" />
+                  <span className="text-sm font-bold text-white">{results.opponentCorrect}/10</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Rewards Section - Completely Redesigned */}
+        {rewards && (
+          <motion.div
+            initial={{ y: 30, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-pink-900/40 backdrop-blur-xl p-6"
+          >
+            {/* Animated background gradient */}
+            <motion.div
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50"
+              style={{ backgroundSize: "200% 200%" }}
+            />
+
+            <div className="relative z-10 space-y-5">
+              <div className="flex items-center justify-center gap-2">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sparkles className="w-6 h-6 text-purple-400" />
+                </motion.div>
+                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Награды
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Season Points */}
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20 text-center space-y-2"
+                >
+                  <Star className="w-8 h-8 text-blue-400 mx-auto fill-blue-400/20" />
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Season Points</div>
+                  <div className="text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent">
+                    +{rewards.sp}
+                  </div>
+                </motion.div>
+
+                {/* XP */}
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-purple-500/20 text-center space-y-2"
+                >
+                  <Zap className="w-8 h-8 text-purple-400 mx-auto fill-purple-400/20" />
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Опыт</div>
+                  <div className="text-3xl font-black bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                    +{rewards.xp}
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Betting Results */}
+        {results.betAmount > 0 && (
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden"
+          >
+            <div className="p-4 border-b border-white/10 bg-white/5 flex items-center gap-2">
+              <Coins className="w-5 h-5 text-amber-400" />
+              <h3 className="font-bold text-white">Ставка</h3>
+            </div>
+            <div className="p-5 space-y-3">
+              <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
+                <span className="text-slate-400 font-medium">Ваша ставка:</span>
+                <span className="font-bold text-red-400">-{results.betAmount}</span>
+              </div>
+
+              {results.isWinner && (
+                <motion.div
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 border border-green-500/30"
+                >
+                  <span className="font-bold text-green-400">Выигрыш:</span>
+                  <span className="font-black text-2xl text-green-400">+{results.winnings}</span>
+                </motion.div>
+              )}
+
+              {!results.isWinner && !results.isDraw && (
+                <div className="flex justify-between items-center bg-red-500/10 rounded-xl p-3 border border-red-500/20">
+                  <span className="font-bold text-red-400">Проигрыш:</span>
+                  <span className="font-black text-2xl text-red-400">-{results.betAmount}</span>
+                </div>
+              )}
+
+              {results.isDraw && (
+                <div className="flex justify-between items-center bg-blue-500/10 rounded-xl p-3 border border-blue-500/20">
+                  <span className="font-bold text-blue-400">Возврат:</span>
+                  <span className="font-black text-2xl text-blue-400">+{results.betAmount}</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Questions Review */}
+        {myAnswers.length > 0 && (
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden"
+          >
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="questions" className="border-none">
+                <AccordionTrigger className="px-5 py-4 hover:no-underline bg-white/5 border-b border-white/10">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-500/20 rounded-lg">
+                      <Trophy className="w-5 h-5 text-indigo-400" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-bold text-white">Обзор вопросов</h3>
+                      <p className="text-xs text-slate-400">{results.myCorrect} правильных из 10</p>
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-0 pb-0">
+                  <div className="divide-y divide-white/5">
+                    {myAnswers.map((answer, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleQuestionClick(answer)}
+                        className="p-4 hover:bg-white/5 cursor-pointer transition-colors group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            <div className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm",
+                              answer.is_correct ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                            )}>
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-white/90 line-clamp-2">{answer.questions?.question_ru}</p>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </motion.div>
+                          <div className="flex items-center gap-2">
+                            {answer.is_correct ? (
+                              <CheckCircle2 className="w-5 h-5 text-green-400" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-400" />
+                            )}
+                            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </motion.div>
+        )}
 
-            <motion.div
-              className="flex flex-col gap-2"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.9 }}
-            >
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => {
-                    haptics.buttonClick();
-                    onRematch();
-                  }}
-                  className="flex-1 h-11 text-sm font-bold"
-                  size="lg"
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Реванш
-                </Button>
-                <Button
-                  onClick={() => {
-                    haptics.buttonClick();
-                    handleShare();
-                  }}
-                  variant="outline"
-                  size="lg"
-                  className="h-11 px-4"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </div>
-              <Button
-                onClick={() => {
-                  haptics.buttonClick();
-                  onBackToMenu();
-                }}
-                variant="ghost"
-                className="w-full h-10 text-sm"
-                size="lg"
-              >
-                <Home className="mr-2 h-4 w-4" />
-                В меню
-              </Button>
-            </motion.div>
-          </Card>
+        {/* Action Buttons */}
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="grid grid-cols-2 gap-4 pt-4"
+        >
+          <Button
+            onClick={onRematch}
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-500/30"
+          >
+            <RotateCcw className="w-5 h-5 mr-2" />
+            Реванш
+          </Button>
+          <Button
+            onClick={onBackToMenu}
+            size="lg"
+            variant="outline"
+            className="border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold h-14 rounded-2xl backdrop-blur-sm"
+          >
+            <Home className="w-5 h-5 mr-2" />
+            В меню
+          </Button>
         </motion.div>
       </div>
 
-      {/* AI Widget для объяснения вопросов */}
+      {/* AI Widget */}
       {showAIWidget && selectedQuestion && (
         <AIWidget
-          questionText={selectedQuestion.question_ru || selectedQuestion.question_es || ''}
-          questionImage={selectedQuestion.image_url || null}
+          question={selectedQuestion}
           onClose={() => {
             setShowAIWidget(false);
             setSelectedQuestion(null);
