@@ -53,11 +53,15 @@ find . -name "*.tsbuildinfo" -delete
 
 ### 1. Настройте Cursor для меньшего использования ресурсов
 
-Создайте файл настроек Cursor:
+**ВАЖНО:** Выполните это ПОСЛЕ перезагрузки Mac!
+
+Создайте/обновите файл настроек Cursor:
 
 **Путь:** `~/Library/Application Support/Cursor/User/settings.json`
 
-Добавьте:
+**Или через Cursor:** `Cmd + ,` → найдите "settings.json" → "Edit in settings.json"
+
+Добавьте следующие настройки:
 
 ```json
 {
