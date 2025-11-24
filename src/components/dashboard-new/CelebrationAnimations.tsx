@@ -840,19 +840,20 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
             style={{ 
               left: `${anchorXPercent}%`,
               top: `${anchorYPercent}%`,
-              willChange: 'transform, opacity'
+              willChange: 'transform, opacity',
+              transformOrigin: 'center center'
             }}
-            initial={{ scale: 0.3, opacity: 1, y: 0 }}
+            initial={{ scale: 0.35, opacity: 1, y: 0, rotate: 0 }}
             animate={{ 
-              scale: [0.3, 1.5, 2.5, 3, 2.8, 0], // Увеличена длительность для синхронизации
-              opacity: [1, 1, 1, 0.9, 0.7, 0],
-              y: [0, -30, -60, -100, -130, -150],
-              rotate: [0, 90, 180, 270, 360, 450]
+              scale: [0.35, 1.2, 2, 3, 0],
+              opacity: [1, 1, 0.95, 0.75, 0],
+              y: [0, -35, -90, -160, -200],
+              rotate: 540
             }}
             transition={{ 
-              duration: 2.5, // Увеличена длительность для синхронизации с искрами
-              ease: [0.4, 0, 0.2, 1],
-              times: [0, 0.2, 0.4, 0.6, 0.8, 1]
+              duration: 2.8,
+              ease: 'easeInOut',
+              times: [0, 0.25, 0.55, 0.8, 1]
             }}
           >
             <Flame className="w-8 h-8 text-orange-500 fill-orange-500" style={{ filter: 'drop-shadow(0 0 30px rgba(251,146,60,1))' }} />
