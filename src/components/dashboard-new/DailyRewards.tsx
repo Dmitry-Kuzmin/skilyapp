@@ -89,14 +89,24 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     playClickSound();
     setIsClaiming(true);
     
-    // Если день 7 - показываем анимацию поздравления и модальное окно
-    if (weekDay === 7 && canPlayCelebration) {
-      setShowCelebration(true);
-      setTimeout(() => {
-        setShowCelebration(false);
-        setShowCelebrationModal(true);
-      }, celebrationDuration); // Сначала анимация, потом модальное окно
-    } else if (weekDay === 7 && !canPlayCelebration) {
+    // Показываем эффекты победы для всех дней
+    if (canPlayCelebration) {
+      // Для дня 7 - полная анимация с модальным окном
+      if (weekDay === 7) {
+        setShowCelebration(true);
+        setTimeout(() => {
+          setShowCelebration(false);
+          setShowCelebrationModal(true);
+        }, celebrationDuration);
+      } else {
+        // Для остальных дней - короткая анимация
+        setShowCelebration(true);
+        setTimeout(() => {
+          setShowCelebration(false);
+        }, celebrationMode === 'reduced' ? 2000 : 3000);
+      }
+    } else if (weekDay === 7) {
+      // Если анимации отключены, но день 7 - показываем только модальное окно
       setShowCelebration(false);
       setShowCelebrationModal(true);
     }
@@ -161,15 +171,15 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   return (
     <div className="h-full min-h-[360px] bg-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
       
-      {/* Анимация поздравления для дня 7 */}
+      {/* Анимация поздравления */}
       <CelebrationAnimations
-        type={celebrationType}
+        type={weekDay === 7 ? celebrationType : 'confetti'}
         show={showCelebration && canPlayCelebration}
         withSound={true}
-        soundType={celebrationSoundType}
-        fullScreen={true}
+        soundType={weekDay === 7 ? celebrationSoundType : 'default'}
+        fullScreen={weekDay === 7}
         anchorPosition={flameAnchorPosition || undefined}
-        message="🏆 Неделя завершена!"
+        message={weekDay === 7 ? "🏆 Неделя завершена!" : "🎉 Награда получена!"}
       />
 
       {/* Модальное окно с поздравлением */}
