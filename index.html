@@ -164,7 +164,6 @@
     </style>
     
     <!-- Preload критических ресурсов для ускорения загрузки -->
-    <link rel="modulepreload" href="/src/main.tsx" />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     
@@ -176,8 +175,15 @@
     <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
     <script src="https://telegram.org/js/telegram-widget.js?22" defer></script>
     
-    <!-- Development: Telegram WebApp Mock - загружаем асинхронно только на localhost -->
-    <script src="/telegram-mock.js" defer></script>
+    <!-- Development: Telegram WebApp Mock - загружаем только на localhost -->
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const script = document.createElement('script');
+        script.src = '/telegram-mock.js';
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    </script>
   </head>
 
   <body>
