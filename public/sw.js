@@ -76,29 +76,38 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Пропускаем запросы без URL или с пустым/некорректным URL
+  // КРИТИЧНО: Пропускаем запросы без URL или с пустым/некорректным URL
   if (!request.url || 
+      typeof request.url !== 'string' ||
       request.url.trim() === '' || 
       request.url === '.' || 
       request.url === './' ||
+      request.url === '/' ||
       request.url.startsWith('data:') ||
-      request.url.startsWith('blob:')) {
+      request.url.startsWith('blob:') ||
+      request.url.startsWith('chrome-extension:') ||
+      request.url.startsWith('moz-extension:')) {
+    // Не обрабатываем такие запросы - пусть браузер обработает сам
     return;
   }
   
   let url;
   try {
-    url = new URL(request.url);
+    url = new URL(request.url, self.location.origin);
   } catch (error) {
-    // Некорректный URL - пропускаем
+    // Некорректный URL - пропускаем, не обрабатываем
+    console.warn('[SW] Invalid URL:', request.url);
     return;
   }
 
-  // Пропускаем некорректные URL (пустые пути, только протокол и т.д.)
+  // КРИТИЧНО: Пропускаем некорректные URL (пустые пути, только протокол и т.д.)
   if (!url.pathname || 
       url.pathname === '' || 
       url.pathname === '.' || 
-      url.pathname === './') {
+      url.pathname === './' ||
+      url.pathname === '/' ||
+      url.pathname.length < 1) {
+    // Не обрабатываем такие запросы
     return;
   }
 
@@ -109,18 +118,26 @@ self.addEventListener('fetch', (event) => {
     url.protocol === 'chrome-extension:' ||
     url.protocol === 'moz-extension:' ||
     url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/supabase/')
+    url.pathname.startsWith('/supabase/') ||
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/__') ||
+    url.pathname.includes('vercel')
   ) {
-    return;
-  }
-
-  // Обрабатываем только запросы к нашему origin
-  if (url.origin !== self.location.origin) {
     return;
   }
 
   // Дополнительная проверка: пропускаем запросы с некорректными символами в пути
   if (url.pathname.includes('//') || url.pathname.includes('..')) {
+    return;
+  }
+
+  // КРИТИЧНО: Пропускаем запросы к внешним ресурсам ДО обработки
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Финальная проверка безопасности - если что-то не так, не обрабатываем
+  if (!request.url || !url.pathname || url.pathname.length < 1) {
     return;
   }
 
@@ -146,13 +163,16 @@ self.addEventListener('fetch', (event) => {
           // Если нет в кэше, загружаем из сети и кэшируем
           try {
             const response = await fetch(request);
-            if (response.ok && response.status === 200) {
+            if (response && response.ok && response.status === 200) {
               const cache = await caches.open(CACHE_NAME);
-              cache.put(request, response.clone());
+              cache.put(request, response.clone()).catch(() => {
+                // Игнорируем ошибки кэширования
+              });
             }
             return response;
           } catch (error) {
             // Тихая обработка ошибок - возвращаем пустой ответ
+            console.warn('[SW] Failed to fetch image/font:', request.url);
             return new Response('', { status: 404 });
           }
         }
@@ -164,41 +184,47 @@ self.addEventListener('fetch', (event) => {
           });
 
           // Кэшируем только успешные ответы (не JS/CSS для актуальности)
-          if (response.ok && response.status === 200 && !isStaticAsset) {
+          if (response && response.ok && response.status === 200 && !isStaticAsset) {
             const cache = await caches.open(CACHE_NAME);
-            cache.put(request, response.clone());
+            cache.put(request, response.clone()).catch(() => {
+              // Игнорируем ошибки кэширования
+            });
           }
 
           return response;
         } catch (error) {
+          console.warn('[SW] Network fetch failed:', request.url, error);
+          
           // Fallback на кэш для не-JS/CSS файлов
           if (!isStaticAsset) {
-            const cached = await caches.match(request);
-            if (cached) {
-              return cached;
-            }
-            
-            // Для навигации возвращаем index.html
-            if (request.mode === 'navigate') {
-              const indexHtml = await caches.match('/index.html');
-              if (indexHtml) {
-                return indexHtml;
+            try {
+              const cached = await caches.match(request);
+              if (cached) {
+                return cached;
               }
+              
+              // Для навигации возвращаем index.html
+              if (request.mode === 'navigate') {
+                const indexHtml = await caches.match('/index.html');
+                if (indexHtml) {
+                  return indexHtml;
+                }
+              }
+            } catch (cacheError) {
+              console.warn('[SW] Cache fallback failed:', cacheError);
             }
           }
           
-          // Если все попытки не удались, возвращаем ошибку
-          return new Response('Network error', { 
-            status: 408,
-            headers: { 'Content-Type': 'text/plain' }
-          });
+          // Если все попытки не удались, пробрасываем запрос браузеру
+          // Это предотвращает белый экран - браузер обработает запрос сам
+          return fetch(request);
         }
       } catch (error) {
-        // В случае критической ошибки возвращаем ошибку
-        return new Response('Service Worker error', { 
-          status: 500,
-          headers: { 'Content-Type': 'text/plain' }
-        });
+        // В случае критической ошибки пробрасываем запрос браузеру
+        // Это предотвращает белый экран из-за ошибок Service Worker
+        console.error('[SW] Critical error:', error);
+        // Пробрасываем запрос браузеру - он обработает его сам
+        return fetch(request);
       }
     })()
   );
