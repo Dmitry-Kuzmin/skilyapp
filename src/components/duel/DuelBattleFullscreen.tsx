@@ -667,6 +667,72 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished]);
 
+  // CRITICAL FALLBACK: Проверка статуса дуэли каждые 3 секунды (если Realtime не сработал)
+  useEffect(() => {
+    if (!isWaitingForOpponent || !hasFinishedMyQuestions || hasTransitionedRef.current) {
+      return;
+    }
+
+    console.log('[DuelBattleFullscreen] 🔄 Starting fallback status check (every 3 seconds)');
+
+    const checkDuelStatus = async () => {
+      if (hasTransitionedRef.current) {
+        return;
+      }
+
+      try {
+        const { data: duel, error } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', duelId)
+          .single();
+
+        if (error) {
+          console.error('[DuelBattleFullscreen] Error checking duel status:', error);
+          return;
+        }
+
+        if (!duel) {
+          console.warn('[DuelBattleFullscreen] Duel not found');
+          return;
+        }
+
+        // КРИТИЧНО: Если статус finished - переходим немедленно
+        if (duel.status === 'finished' && !hasTransitionedRef.current) {
+          console.log('[DuelBattleFullscreen] ✅✅✅ FALLBACK: Duel status is FINISHED! Transitioning NOW');
+          hasTransitionedRef.current = true;
+
+          try {
+            if (sounds?.victory) {
+              sounds.victory();
+            }
+          } catch (soundError) {
+            console.warn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
+          }
+
+          toast.success('🏁 Дуэль завершена!', { duration: 2000 });
+          onDuelFinished();
+        }
+      } catch (error) {
+        console.error('[DuelBattleFullscreen] Error in fallback check:', error);
+      }
+    };
+
+    // Проверяем сразу при монтировании
+    checkDuelStatus();
+
+    // Затем каждые 3 секунды
+    const interval = setInterval(() => {
+      if (!hasTransitionedRef.current) {
+        checkDuelStatus();
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [duelId, isWaitingForOpponent, hasFinishedMyQuestions, onDuelFinished]);
+
   // Обработка Telegram BackButton для дуэли
   useEffect(() => {
     if (!isTelegramMiniApp()) return;

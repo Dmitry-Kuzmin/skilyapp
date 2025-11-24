@@ -251,6 +251,91 @@ export function DuelWaitingReplay({
     }
   }, [realtimeState.opponentScore]);
 
+  // CRITICAL FALLBACK: Проверка статуса дуэли каждые 3 секунды (если Realtime не сработал)
+  useEffect(() => {
+    if (isDuelFinishedRef.current || isDuelFinished) {
+      return;
+    }
+
+    console.log('[DuelWaitingReplay] 🔄 Starting fallback status check (every 3 seconds)');
+
+    const checkDuelStatus = async () => {
+      if (isDuelFinishedRef.current) {
+        return;
+      }
+
+      try {
+        const { data: duel, error } = await supabase
+          .from('duels')
+          .select('status, num_questions')
+          .eq('id', duelId)
+          .single();
+
+        if (error) {
+          console.error('[DuelWaitingReplay] Error checking duel status:', error);
+          return;
+        }
+
+        if (!duel) {
+          console.warn('[DuelWaitingReplay] Duel not found');
+          return;
+        }
+
+        // КРИТИЧНО: Если статус finished - переходим немедленно
+        if (duel.status === 'finished' && !isDuelFinishedRef.current) {
+          console.log('[DuelWaitingReplay] ✅✅✅ FALLBACK: Duel status is FINISHED! Transitioning NOW');
+          isDuelFinishedRef.current = true;
+          setIsDuelFinished(true);
+          safeCallOnDuelFinished();
+          return;
+        }
+
+        // Дополнительная проверка: считаем ответы соперника
+        if (duel.status === 'active' && !isDuelFinishedRef.current) {
+          const { data: players } = await supabase
+            .from('duel_players')
+            .select('id, user_id')
+            .eq('duel_id', duelId);
+
+          if (players && players.length >= 2) {
+            const opponent = players.find((p: any) => p.user_id !== profileId);
+            if (opponent) {
+              const { count: opponentAnswersCount } = await supabase
+                .from('duel_answers')
+                .select('id', { count: 'exact', head: true })
+                .eq('player_id', opponent.id)
+                .eq('duel_id', duelId);
+
+              const opponentAnswers = opponentAnswersCount || 0;
+              if (opponentAnswers >= duel.num_questions && !isDuelFinishedRef.current) {
+                console.log('[DuelWaitingReplay] ✅✅✅ FALLBACK: Opponent finished all questions! Transitioning NOW');
+                isDuelFinishedRef.current = true;
+                setIsDuelFinished(true);
+                safeCallOnDuelFinished();
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[DuelWaitingReplay] Error in fallback check:', error);
+      }
+    };
+
+    // Проверяем сразу при монтировании
+    checkDuelStatus();
+
+    // Затем каждые 3 секунды
+    const interval = setInterval(() => {
+      if (!isDuelFinishedRef.current) {
+        checkDuelStatus();
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [duelId, profileId, isDuelFinished, safeCallOnDuelFinished]);
+
   // FALLBACK: Poll opponent score for Telegram WebApp (Realtime may not work reliably)
   useEffect(() => {
     const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
