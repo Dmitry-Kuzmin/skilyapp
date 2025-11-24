@@ -57,6 +57,13 @@ const Index = () => {
 
 
   const handleClaimBonus = async () => {
+    console.log('[handleClaimBonus] Called', { 
+      hasDailyBonus: !!dashboardData?.daily_bonus, 
+      profileId,
+      canClaim: dashboardData?.daily_bonus?.can_claim,
+      claimingBonus
+    });
+    
     if (!dashboardData?.daily_bonus || !profileId) {
       console.error('[handleClaimBonus] Missing data:', { 
         hasDailyBonus: !!dashboardData?.daily_bonus, 
@@ -74,13 +81,17 @@ const Index = () => {
       
       // Проверяем, можно ли получить награду
       if (!dailyBonus.can_claim) {
+        console.log('[handleClaimBonus] Already claimed today');
         toast({
           title: "Уже получено",
           description: "Сегодняшняя награда уже получена",
           variant: "default",
         });
+        setClaimingBonus(false);
         return;
       }
+      
+      console.log('[handleClaimBonus] Processing claim...');
       
       // Вычисляем новый стрик (без ограничения, циклический расчет)
       let newStreak = 1;
@@ -89,11 +100,13 @@ const Index = () => {
         newStreak = (dailyBonus.current_streak || 0) + 1;
       } else if (dailyBonus.last_claimed_date === today) {
         // Уже получено сегодня
+        console.log('[handleClaimBonus] Already claimed today (date check)');
         toast({
           title: "Уже получено",
           description: "Сегодняшняя награда уже получена",
           variant: "default",
         });
+        setClaimingBonus(false);
         return;
       }
 
@@ -198,6 +211,8 @@ const Index = () => {
 
       // Инвалидируем кэш и обновляем данные
       invalidateCache();
+      
+      console.log('[handleClaimBonus] Claim successful, streak:', newStreak, 'weekDay:', weekDay);
 
       // Показываем успешное сообщение сразу
       const rewardText = [];
@@ -342,7 +357,7 @@ const Index = () => {
       {showWelcome && isAuthenticated && (
         <WelcomeOverlay onComplete={handleWelcomeComplete} />
       )}
-      <Layout>
+      <Layout hideNavigation={showWelcome}>
         <div className={`min-h-screen pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
           {pageContent}
         </div>

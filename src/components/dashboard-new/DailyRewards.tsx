@@ -121,8 +121,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
 
     try {
+      console.log('[DailyRewards] Calling onClaim...');
       await onClaim();
+      console.log('[DailyRewards] onClaim completed successfully');
       playSuccessSound(); // Success sound
+    } catch (error) {
+      console.error('[DailyRewards] Error in onClaim:', error);
     } finally {
       setTimeout(() => setIsClaiming(false), 1000);
     }
@@ -179,7 +183,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       )}
 
       {/* Subtle Grid Background */}
-      <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity"
+      <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity pointer-events-none"
         style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
       </div>
 

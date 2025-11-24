@@ -817,12 +817,7 @@ async function buildStructuredCurriculumAsync(
     const leftoverSubtopics = topicSubtopics.filter((subtopic) => !matchedIds.has(subtopic.id));
     if (leftoverSubtopics.length > 0) {
       const additionalSection: StructuredCurriculumSection = {
-        title:
-          language === "es"
-            ? "Material adicional"
-            : language === "en"
-            ? "Additional material"
-            : "Дополнительные материалы",
+        title: t("learningMap.additionalMaterials"),
         items: leftoverSubtopics.map((subtopic) => {
           const localizedTitle =
             language === "es"

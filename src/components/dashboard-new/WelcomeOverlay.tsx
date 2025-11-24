@@ -38,12 +38,12 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
   if (isLaunched) {
     // Fade out state
     return (
-      <div className="fixed inset-0 z-50 bg-[#0f172a] transition-opacity duration-700 opacity-0 pointer-events-none"></div>
+      <div className="fixed inset-0 z-[9999] bg-[#0f172a] transition-opacity duration-700 opacity-0 pointer-events-none"></div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30">
+    <div className="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30">
       
       {/* Background Ambiance */}
       <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a]"></div>

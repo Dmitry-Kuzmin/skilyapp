@@ -24,136 +24,138 @@ import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
 import LearningMap from "./LearningMap";
 import { cn } from "@/lib/utils";
-
-const moduleResources = [
-  {
-    id: "dgt",
-    title: "Экзамены DGT",
-    description: "4000+ реальных вопросов по категориям A1, B, D с адаптивными подсказками",
-    icon: Car,
-    badge: "Обновление",
-    path: "/dgt-tests",
-    gradient: "from-blue-500/10 to-cyan-500/10",
-    iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  },
-  {
-    id: "signs",
-    title: "Дорожные знаки",
-    description: "Каталог знаков с примерами ситуаций и быстрым поиском",
-    icon: SignpostBig,
-    path: "/road-signs",
-    gradient: "from-orange-500/10 to-red-500/10",
-    iconBg: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-  },
-  {
-    id: "dictionary",
-    title: "Словарь терминов",
-    description: "Испанские термины ПДД с переводом и озвучкой",
-    icon: Languages,
-    path: "/dictionary",
-    gradient: "from-purple-500/10 to-pink-500/10",
-    iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-  },
-  {
-    id: "videos",
-    title: "Видеокурс",
-    description: "Серия коротких разборов самых сложных тем теории",
-    icon: Video,
-    premium: true,
-    comingSoon: true,
-    gradient: "from-yellow-500/10 to-amber-500/10",
-    iconBg: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
-  },
-];
-
-const supportResources = [
-  {
-    id: "guide",
-    title: "Справочник приложения",
-    description: "Как устроены уровни, XP, награды и подписки",
-    icon: BookMarked,
-    action: "/help",
-    color: "text-indigo-600 dark:text-indigo-400",
-    bg: "bg-indigo-500/10",
-  },
-  {
-    id: "support",
-    title: "Помощь и поддержка",
-    description: "FAQ, инструкции и быстрый выход на поддержку",
-    icon: LifeBuoy,
-    action: "/help",
-    color: "text-emerald-600 dark:text-emerald-400",
-    bg: "bg-emerald-500/10",
-  },
-];
-
-const blogHighlights = [
-  {
-    id: "map",
-    title: "Как использовать карту обучения, чтобы пройти теорию с первого раза",
-    tag: "гайд",
-    path: "/blog",
-    readTime: "5 мин",
-  },
-  {
-    id: "tests",
-    title: "5 привычек, которые ускоряют подготовку к экзамену DGT",
-    tag: "советы",
-    path: "/blog",
-    readTime: "7 мин",
-  },
-  {
-    id: "errors",
-    title: "Топ-10 ошибок на экзамене DGT",
-    tag: "статистика",
-    path: "/blog/top-10-oshibok-na-ekzamene-dgt",
-    readTime: "16 мин",
-  },
-];
-
-const ideaTiles = [
-  {
-    title: "Игры и дуэли",
-    description: "Разминай реакцию и внимательность, когда устал от теории",
-    icon: Gamepad2,
-    action: "/games",
-    gradient: "from-violet-500/10 to-purple-500/10",
-  },
-  {
-    title: "Банк челленджей",
-    description: "Собери подборки вопросов по слабым местам и делись с друзьями",
-    icon: Sparkles,
-    action: "/tests/challenge-bank",
-    gradient: "from-rose-500/10 to-pink-500/10",
-  },
-  {
-    title: "Последовательные тесты",
-    description: "Проходи тесты в правильном порядке, как на экзамене",
-    icon: Target,
-    action: "/tests/sequential",
-    gradient: "from-teal-500/10 to-cyan-500/10",
-  },
-];
-
-const quickActions = [
-  {
-    title: "Блог",
-    description: "Статьи, гайды и советы по подготовке",
-    icon: Newspaper,
-    action: "/blog",
-    count: "15+ статей",
-  },
-  {
-    title: "Справочник",
-    description: "Полная документация по приложению",
-    icon: HelpCircle,
-    action: "/help",
-    count: "Полный гайд",
-  },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Learning = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const moduleResources = [
+    {
+      id: "dgt",
+      title: t('learningPage.materials.dgtExams'),
+      description: t('learningPage.materials.dgtExamsDesc'),
+      icon: Car,
+      badge: t('learningPage.materials.updateBadge'),
+      path: "/dgt-tests",
+      gradient: "from-blue-500/10 to-cyan-500/10",
+      iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    },
+    {
+      id: "signs",
+      title: t('learningPage.materials.roadSigns'),
+      description: t('learningPage.materials.roadSignsDesc'),
+      icon: SignpostBig,
+      path: "/road-signs",
+      gradient: "from-orange-500/10 to-red-500/10",
+      iconBg: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+    },
+    {
+      id: "dictionary",
+      title: t('learningPage.materials.dictionary'),
+      description: t('learningPage.materials.dictionaryDesc'),
+      icon: Languages,
+      path: "/dictionary",
+      gradient: "from-purple-500/10 to-pink-500/10",
+      iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+    },
+    {
+      id: "videos",
+      title: t('learningPage.materials.videoCourse'),
+      description: t('learningPage.materials.videoCourseDesc'),
+      icon: Video,
+      premium: true,
+      comingSoon: true,
+      gradient: "from-yellow-500/10 to-amber-500/10",
+      iconBg: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
+    },
+  ];
+
+  const supportResources = [
+    {
+      id: "guide",
+      title: t('learningPage.support.appGuide'),
+      description: t('learningPage.support.appGuideDesc'),
+      icon: BookMarked,
+      action: "/help",
+      color: "text-indigo-600 dark:text-indigo-400",
+      bg: "bg-indigo-500/10",
+    },
+    {
+      id: "support",
+      title: t('learningPage.support.helpSupport'),
+      description: t('learningPage.support.helpSupportDesc'),
+      icon: LifeBuoy,
+      action: "/help",
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-500/10",
+    },
+  ];
+
+  const blogHighlights = [
+    {
+      id: "map",
+      title: t('learningPage.blog.mapGuide'),
+      tag: t('learningPage.blog.guides'),
+      path: "/blog",
+      readTime: "5 мин",
+    },
+    {
+      id: "tests",
+      title: t('learningPage.blog.habitsGuide'),
+      tag: t('learningPage.blog.tips'),
+      path: "/blog",
+      readTime: "7 мин",
+    },
+    {
+      id: "errors",
+      title: t('learningPage.blog.topErrors'),
+      tag: t('learningPage.blog.statistics'),
+      path: "/blog/top-10-oshibok-na-ekzamene-dgt",
+      readTime: "16 мин",
+    },
+  ];
+
+  const ideaTiles = [
+    {
+      title: t('learningPage.ideas.gamesDuels'),
+      description: t('learningPage.ideas.gamesDuelsDesc'),
+      icon: Gamepad2,
+      action: "/games",
+      gradient: "from-violet-500/10 to-purple-500/10",
+    },
+    {
+      title: t('learningPage.ideas.challengeBank'),
+      description: t('learningPage.ideas.challengeBankDesc'),
+      icon: Sparkles,
+      action: "/tests/challenge-bank",
+      gradient: "from-rose-500/10 to-pink-500/10",
+    },
+    {
+      title: t('learningPage.ideas.sequentialTests'),
+      description: t('learningPage.ideas.sequentialTestsDesc'),
+      icon: Target,
+      action: "/tests/sequential",
+      gradient: "from-teal-500/10 to-cyan-500/10",
+    },
+  ];
+
+  const quickActions = [
+    {
+      title: t('learningPage.quickActions.blog'),
+      description: t('learningPage.quickActions.blogDesc'),
+      icon: Newspaper,
+      action: "/blog",
+      count: t('learningPage.blog.articles'),
+    },
+    {
+      title: t('learningPage.quickActions.guide'),
+      description: t('learningPage.quickActions.guideDesc'),
+      icon: HelpCircle,
+      action: "/help",
+      count: t('learningPage.blog.fullGuide'),
+    },
+  ];
 
   return (
     <Layout>
@@ -164,16 +166,16 @@ const Learning = () => {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-gradient-to-r from-primary/5 to-secondary/5 px-4 py-1.5 w-fit text-xs uppercase tracking-[0.2em] text-primary font-medium shadow-sm">
                 <Sparkles className="w-3 h-3" />
-                <span>Обучение</span>
+                <span>{t('learningPage.badge')}</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                <span>Карта + ресурсы</span>
+                <span>{t('learningPage.badgeSubtext')}</span>
               </div>
               <div className="space-y-2">
                 <h1 className="text-3xl lg:text-5xl font-bold text-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  Карта обучения и все материалы
+                  {t('learningPage.title')}
                 </h1>
                 <p className="text-muted-foreground text-base lg:text-lg max-w-2xl leading-relaxed">
-                  Строй маршрут, подключай справочники, словари и дополнительные модули, не выходя из одной страницы.
+                  {t('learningPage.subtitle')}
                 </p>
               </div>
             </div>
@@ -190,13 +192,13 @@ const Learning = () => {
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
-                    Материалы
+                    {t('learningPage.materials.title')}
                   </p>
                   <h3 className="text-lg font-bold mt-1 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                    Быстрый доступ
+                    {t('learningPage.materials.quickAccess')}
                   </h3>
                 </div>
-                <Badge variant="secondary" className="animate-pulse">+ новые</Badge>
+                <Badge variant="secondary" className="animate-pulse">{t('learningPage.materials.newBadge')}</Badge>
               </div>
 
               <div className="space-y-2.5">
@@ -238,7 +240,7 @@ const Learning = () => {
                             )}
                             {resource.comingSoon && (
                               <Badge variant="outline" className="text-[10px] uppercase tracking-wide whitespace-nowrap">
-                                Скоро
+                                {t('learningPage.materials.comingSoon')}
                               </Badge>
                             )}
                           </div>
@@ -262,9 +264,9 @@ const Learning = () => {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
-                    Справка
+                    {t('learningPage.support.title')}
                   </p>
-                  <h3 className="text-lg font-bold">Помощь и гайды</h3>
+                  <h3 className="text-lg font-bold">{t('learningPage.support.helpAndGuides')}</h3>
                 </div>
               </div>
               <div className="space-y-2.5">
@@ -298,8 +300,8 @@ const Learning = () => {
                   <Newspaper className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">Блог</p>
-                  <h3 className="text-lg font-bold leading-tight">Свежие материалы</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">{t('learningPage.blog.title')}</p>
+                  <h3 className="text-lg font-bold leading-tight">{t('learningPage.blog.freshMaterials')}</h3>
                 </div>
               </div>
               <div className="space-y-3">
@@ -320,7 +322,7 @@ const Learning = () => {
                     </div>
                     <p className="text-sm font-semibold leading-snug mb-2 group-hover:text-primary transition-colors">{post.title}</p>
                     <div className="flex items-center gap-1 text-primary text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                      Читать
+                      {t('learningPage.blog.readMore')}
                       <ArrowRight className="w-3 h-3" />
                     </div>
                   </button>
@@ -331,7 +333,7 @@ const Learning = () => {
                   className="w-full mt-2"
                   onClick={() => navigate("/blog")}
                 >
-                  Все статьи
+                  {t('learningPage.blog.allArticles')}
                 </Button>
               </div>
             </Card>
@@ -343,8 +345,8 @@ const Learning = () => {
                   <Sparkles className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">Идеи</p>
-                  <h3 className="text-lg font-bold">Экспресс-режимы</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">{t('learningPage.ideas.title')}</p>
+                  <h3 className="text-lg font-bold">{t('learningPage.ideas.expressModes')}</h3>
                 </div>
               </div>
               <div className="space-y-2.5">
@@ -378,8 +380,8 @@ const Learning = () => {
                   <Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">Быстро</p>
-                  <h3 className="text-lg font-bold">Дополнительно</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">{t('learningPage.quickActions.title')}</p>
+                  <h3 className="text-lg font-bold">{t('learningPage.quickActions.additional')}</h3>
                 </div>
               </div>
               <div className="space-y-2">

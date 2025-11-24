@@ -26,9 +26,10 @@ import { useNotifications } from "@/hooks/useNotifications";
 
 interface LayoutProps {
   children: ReactNode;
+  hideNavigation?: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, platform, isAuthenticated, logout } = useUserContext();
@@ -151,11 +152,12 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
       
-      {/* Top Navigation for Desktop - Hide in Telegram */}
-      <header className={cn(
-        "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50 overflow-x-hidden w-full",
-        isTelegramApp ? "hidden" : "hidden md:block"
-      )}>
+      {/* Top Navigation for Desktop - Hide in Telegram or when hideNavigation */}
+      {!hideNavigation && (
+        <header className={cn(
+          "border-b border-border/50 backdrop-blur-xl bg-card/30 sticky top-0 z-50 overflow-x-hidden w-full",
+          isTelegramApp ? "hidden" : "hidden md:block"
+        )}>
         <div className="container mx-auto px-4 max-w-[1370px]">
           <div className="flex items-center justify-between h-16 min-w-0">
             <NavLink
@@ -254,9 +256,10 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
       </header>
+      )}
 
       {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
-      {isAuthenticated && !isTelegramApp && (
+      {!hideNavigation && isAuthenticated && !isTelegramApp && (
         <div className="hidden md:flex lg:hidden border-b border-border/50 backdrop-blur-xl bg-card/20 sticky top-16 z-40">
           <div className="container mx-auto px-4 py-2">
             <div className="flex items-center justify-end w-full gap-2">
@@ -279,12 +282,13 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Footer */}
       <Footer />
 
-      {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) */}
-      <nav className={cn(
-        "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-        "flex flex-col md:hidden",
-        isFullscreenMode && "!hidden"
-      )}>
+      {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) или при hideNavigation */}
+      {!hideNavigation && (
+        <nav className={cn(
+          "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
+          "flex flex-col md:hidden",
+          isFullscreenMode && "!hidden"
+        )}>
         {/* Mobile Wallet Widget - компактная версия для мобильных */}
         {isAuthenticated && (
           <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
@@ -346,6 +350,7 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
       </nav>
+      )}
 
       {/* Settings Drawer */}
       <SettingsDrawer open={settingsOpen} onOpenChange={setSettingsOpen} />
