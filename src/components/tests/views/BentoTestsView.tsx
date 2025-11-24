@@ -159,7 +159,6 @@ export const BentoTestsView = ({
                     {/* Hero Card - Random Test */}
                     <div className="lg:col-span-5 order-1">
                         <BentoCard
-                            onClick={() => handleStartTest(`/test/practice?count=${randomQuestionCount}`)}
                             accentColor="from-indigo-500/20 via-purple-500/20 to-pink-500/20"
                             className="h-full min-h-[280px] max-h-[320px] p-5 md:p-7"
                         >
