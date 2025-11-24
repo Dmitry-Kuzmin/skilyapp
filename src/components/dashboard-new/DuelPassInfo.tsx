@@ -136,7 +136,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
   return (
     <div
       onClick={handleClick}
-      className={`${className} ${containerClass} rounded-[2.5rem] p-6 shadow-lg border flex flex-col gap-4 backdrop-blur-sm cursor-pointer transition-all duration-300 group`}
+      className={`${className} ${containerClass} rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-lg border flex flex-col gap-3 backdrop-blur-sm cursor-pointer transition-all duration-300 group`}
     >
       {/* Header */}
       <div className="flex items-center justify-between">

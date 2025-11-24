@@ -122,11 +122,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className={`min-h-screen ${pageBgClass} p-6 md:p-10 font-sans pb-24`}>
-      <div className="max-w-[1370px] mx-auto space-y-6">
+    <div className={`h-full ${pageBgClass} p-4 md:p-6 font-sans overflow-y-auto`}>
+      <div className="max-w-[1370px] mx-auto space-y-3 md:space-y-4 h-full flex flex-col">
         
         {/* Header */}
-        <div className="mb-6 animate-fade-in">
+        <div className="mb-2 md:mb-3 flex-shrink-0 animate-fade-in">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Online Status Badge */}
             <div className={onlineBadgeClass}>
@@ -165,12 +165,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5 animate-slide-up flex-1 min-h-0 auto-rows-fr">
           
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
           <div 
             onMouseEnter={playHoverSound}
-            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
+            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-2xl md:rounded-[2rem] text-white p-4 md:p-6 lg:p-8 flex flex-col justify-between shadow-2xl group"
             style={{
               background: heroBackground,
             }}
@@ -190,12 +190,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Middle section: Greeting and content */}
-              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-8 mb-6">
+              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 mb-4 md:mb-6">
                 <div className="flex-1">
-                  <h2 className={`text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-4 ${heroHeadingClass}`}>
+                  <h2 className={`text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight mb-2 md:mb-3 ${heroHeadingClass}`}>
                     {t('dashboard.heroGreeting')}
                   </h2>
-                  <p className={`${heroBodyTextClass} font-medium text-base md:text-lg leading-relaxed max-w-md`}>
+                  <p className={`${heroBodyTextClass} font-medium text-sm md:text-base leading-relaxed max-w-md`}>
                     {t('dashboard.heroEfficiencyPrefix')} <strong className="text-white">{stats.averageScore}%</strong>.{' '}
                     {t(heroStatusKey)}
                   </p>

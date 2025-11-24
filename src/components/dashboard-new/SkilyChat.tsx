@@ -42,7 +42,7 @@ export const SkilyChat = React.memo(() => {
       {/* COMPACT WIDGET */}
       <div 
         onClick={handleExpand}
-        className={`h-full bg-slate-800/80 backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border border-slate-700 flex flex-col justify-between group hover:border-slate-600 transition-all cursor-pointer relative overflow-hidden ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`h-full bg-slate-800/80 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-4 md:p-6 shadow-lg border border-slate-700 flex flex-col justify-between group hover:border-slate-600 transition-all cursor-pointer relative overflow-hidden ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 

@@ -169,7 +169,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   };
 
   return (
-    <div className="h-full min-h-[360px] bg-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
+    <div className="h-full bg-[#0B1120] rounded-2xl md:rounded-[2rem] p-4 md:p-6 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
       
       {/* Анимация поздравления */}
       <CelebrationAnimations
@@ -214,7 +214,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           initial={{ opacity: 0 }}
           animate={{ opacity: [0.1, 0.2, 0.1] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-red-500/20 rounded-[2.5rem] pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-red-500/20 rounded-2xl md:rounded-[2rem] pointer-events-none"
         />
       )}
       

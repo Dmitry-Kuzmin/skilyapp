@@ -328,7 +328,7 @@ const Index = () => {
         <WelcomeOverlay onComplete={handleWelcomeComplete} />
       )}
       
-      <div className={`min-h-screen ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+      <div className={`h-screen overflow-hidden ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
         <Dashboard
           stats={{
             averageScore: averageScore || dashboardData.stats.accuracy,
