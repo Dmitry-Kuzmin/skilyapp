@@ -277,8 +277,8 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                <Skeleton className="h-10 w-10 rounded-full" />
              ) : (
                <div className="relative">
-                 {/* Premium animated border - вращающийся градиент */}
-                 {isPremium && (
+                 {/* Premium animated border - вращающийся градиент - скрываем если есть previewSkin */}
+                 {isPremium && !previewSkin && (
                    <div 
                      className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
                      style={{
@@ -291,7 +291,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                  )}
                  <Avatar className={cn(
                    "h-10 w-10 transition-all cursor-pointer relative z-10",
-                   isPremium 
+                   isPremium && !previewSkin
                      ? "ring-0 animate-premium-glow" 
                      : "ring-2 ring-border hover:ring-primary",
                    previewSkin && previewSkin.rarity === "legendary" && "ring-2 ring-yellow-400/50 shadow-yellow-500/30",
@@ -445,7 +445,10 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                   <MailOpen className="w-2.5 h-2.5" />
                 </div>
               ) : (
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
+                // Индикатор онлайн - скрываем если есть previewBadges
+                previewBadges.length === 0 && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
+                )
               )
             )}
           </button>
@@ -465,8 +468,8 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
               className="w-full flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-0"
             >
               <div className="relative">
-                {/* Premium animated border - вращающийся градиент */}
-                {isPremium && (
+                {/* Premium animated border - вращающийся градиент - скрываем если есть previewSkin */}
+                {isPremium && !previewSkin && (
                   <div 
                     className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
                     style={{
@@ -477,10 +480,10 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                     <div className="absolute inset-0.5 rounded-full bg-background" />
                   </div>
                 )}
-                <Avatar className={cn(
-                  "h-10 w-10 relative z-10",
-                  isPremium ? "ring-0 animate-premium-glow" : ""
-                )}>
+                 <Avatar className={cn(
+                   "h-10 w-10 relative z-10",
+                   isPremium && !previewSkin ? "ring-0 animate-premium-glow" : ""
+                 )}>
                   {(() => {
                     const photoUrl = profile?.photo_url || user?.photo_url;
                     if (photoUrl) {
@@ -501,9 +504,9 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                   <AvatarFallback 
                     className={cn(
                       "text-white font-bold text-sm relative z-10",
-                      isPremium && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
+                      isPremium && !previewSkin && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
                     )}
-                    style={!isPremium ? { backgroundColor: avatarColor } : undefined}
+                    style={!isPremium || previewSkin ? { backgroundColor: previewSkin ? undefined : avatarColor } : undefined}
                   >
                     {initials}
                   </AvatarFallback>
