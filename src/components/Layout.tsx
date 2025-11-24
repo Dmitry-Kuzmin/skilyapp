@@ -49,7 +49,7 @@ const Layout = ({ children }: LayoutProps) => {
   useEffect(() => {
     // Проверяем наличие Telegram WebApp дополнительно
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
-    const shouldApplyPadding = isTelegramApp || hasTelegramWebApp;
+    const shouldApplyPadding = isTelegramApp;
     
     console.log('[Layout] isTelegramApp:', isTelegramApp, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
     

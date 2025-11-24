@@ -129,7 +129,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className={`min-h-screen ${pageBgClass} p-6 md:p-10 font-sans pb-24`}>
+    <div className={`min-h-screen ${pageBgClass} px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-24 font-sans`}>
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}

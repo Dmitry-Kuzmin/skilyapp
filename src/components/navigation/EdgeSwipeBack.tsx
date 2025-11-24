@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
 
-// EdgeSwipeBack component handles left-edge swipe gesture to navigate back.
-// It is enabled for Telegram Mini App users and mobile screens, except on the root path.
+const EDGE_ZONE_PX = 16;
+
 export const EdgeSwipeBack: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,14 +28,14 @@ export const EdgeSwipeBack: React.FC = () => {
   const isRoot = location.pathname === "/";
   if (!enabled || isRoot) return null;
 
+  const shouldHandle = location.pathname.includes("/duel") || isTelegramMiniApp();
+  if (!shouldHandle) return null;
+
   const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
     const t = e.touches[0];
-    // Проверяем, что касание началось в левой части экрана (первые 24px)
-    if (t.clientX <= 24) {
+    if (t.clientX <= EDGE_ZONE_PX) {
       startRef.current = { x: t.clientX, y: t.clientY, active: true };
-      e.stopPropagation(); // Останавливаем всплытие, чтобы не конфликтовать с другими элементами
-      e.preventDefault(); // Предотвращаем стандартное поведение
-      console.log('[EdgeSwipeBack] Touch started at:', t.clientX, t.clientY);
+      e.stopPropagation();
     }
   };
 
@@ -44,16 +44,12 @@ export const EdgeSwipeBack: React.FC = () => {
     const t = e.touches[0];
     const dx = t.clientX - startRef.current.x;
     const dy = Math.abs(t.clientY - startRef.current.y);
-    // Улучшенная логика: свайп вправо (dx > 60) с небольшим вертикальным отклонением
     if (dx > 60 && dy < 50) {
       startRef.current.active = false;
-      e.preventDefault(); // Предотвращаем конфликты с другими жестами
-      e.stopPropagation(); // Останавливаем всплытие события
-      
-      // Специальная обработка для дуэли
-      if (location.pathname.includes('/duel') || location.pathname.includes('/games/duel')) {
-        console.log('[EdgeSwipeBack] Exiting duel via swipe');
-        navigate('/games');
+      e.preventDefault();
+      e.stopPropagation();
+      if (location.pathname.includes("/duel") || location.pathname.includes("/games/duel")) {
+        navigate("/games");
       } else {
         navigate(-1);
       }
@@ -70,14 +66,12 @@ export const EdgeSwipeBack: React.FC = () => {
         position: "fixed",
         top: 0,
         left: 0,
-        width: 24,
+        width: EDGE_ZONE_PX,
         height: "100vh",
-        zIndex: 999999, // Максимальный z-index чтобы быть выше ВСЕХ элементов, включая дуэль
-        touchAction: "none", // Полный контроль над touch событиями
+        zIndex: 1000,
+        touchAction: "pan-y",
         background: "transparent",
-        pointerEvents: "auto", // Убеждаемся, что элемент может получать события
-        // Убеждаемся, что элемент не блокируется другими
-        isolation: "isolate", // Создаём новый stacking context
+        pointerEvents: "auto",
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

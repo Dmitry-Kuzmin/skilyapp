@@ -22,6 +22,7 @@ import { Dashboard } from "@/components/dashboard-new/Dashboard";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import Layout from "@/components/Layout";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
@@ -264,34 +265,25 @@ const Index = () => {
   
   const hasClaimedToday = dashboardData?.daily_bonus.can_claim === false;
 
-  // Show loading state
-  if (loading && !dashboardData) {
-  return (
-    <>
-        {showWelcome && isAuthenticated && (
-          <WelcomeOverlay onComplete={handleWelcomeComplete} />
-        )}
-        <div className={`min-h-screen ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
-          <DashboardSkeleton />
-        </div>
-      </>
-    );
-  }
+  let pageContent: React.ReactNode = null;
 
-  // Show error state
-  if (error) {
+  if (loading && !dashboardData) {
+    pageContent = <DashboardSkeleton />;
+  } else if (error) {
     console.error('[Index] Dashboard error:', error);
-    return (
-      <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold mb-4">Ошибка загрузки</h2>
-          <p className="text-slate-400 mb-2">{error.message}</p>
+    pageContent = (
+      <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-3xl border border-slate-800">
+        <div className="text-center max-w-md space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">Ошибка загрузки</h2>
+            <p className="text-slate-400">{error.message}</p>
+          </div>
           {error.message.includes('RLS') && (
-            <p className="text-xs text-yellow-400 mb-4">
+            <p className="text-xs text-yellow-400">
               Возможна проблема с правами доступа. Проверьте RLS политики в Supabase.
             </p>
           )}
-          <div className="flex gap-2 justify-center">
+          <div className="flex flex-wrap gap-2 justify-center">
             <button
               onClick={() => refreshDashboard(true)}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
@@ -315,20 +307,9 @@ const Index = () => {
         </div>
       </div>
     );
-  }
-
-  // Show dashboard
-  if (!dashboardData) {
-    return null;
-  }
-
-              return (
-    <>
-      {showWelcome && isAuthenticated && (
-        <WelcomeOverlay onComplete={handleWelcomeComplete} />
-      )}
-      
-      <div className={`min-h-screen ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+  } else if (dashboardData) {
+    pageContent = (
+      <>
         <Dashboard
           stats={{
             averageScore: averageScore || dashboardData.stats.accuracy,
@@ -352,7 +333,20 @@ const Index = () => {
           } : undefined}
         />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-      </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {showWelcome && isAuthenticated && (
+        <WelcomeOverlay onComplete={handleWelcomeComplete} />
+      )}
+      <Layout>
+        <div className={`min-h-screen pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+          {pageContent}
+        </div>
+      </Layout>
     </>
   );
 };

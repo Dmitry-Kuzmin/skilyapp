@@ -153,15 +153,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   const hasInitializedRef = useRef(false);
   const { unreadCount } = notificationsApi;
   const hasUnreadNotifications = unreadCount > 0;
-  const [shouldPrioritizeNotifications, setShouldPrioritizeNotifications] = useState(false);
-
-  useEffect(() => {
-    if (unreadCount > 0) {
-      setShouldPrioritizeNotifications(true);
-    } else {
-      setShouldPrioritizeNotifications(false);
-    }
-  }, [unreadCount]);
+  
 
   // Загружаем профиль сразу при монтировании для загрузки аватара в header
   useEffect(() => {
@@ -280,15 +272,6 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
             type="button"
             className="relative group z-10"
             style={{ pointerEvents: 'auto' }}
-            onClick={(event) => {
-              if (hasUnreadNotifications && shouldPrioritizeNotifications) {
-                event.preventDefault();
-                event.stopPropagation();
-                onOpenNotifications?.();
-                setOpen(false);
-                setShouldPrioritizeNotifications(false);
-              }
-            }}
           >
              {showSkeleton && loading ? (
                <Skeleton className="h-10 w-10 rounded-full" />
