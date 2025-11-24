@@ -266,7 +266,7 @@ export function UnifiedModal({
           className={cn(className)}
           autoAccessibility={false}
         >
-          <DialogHeader className={showTitleBar ? "px-6 pt-6 pb-4 border-b border-border/50" : "sr-only"}>
+          <DialogHeader className={showTitleBar ? "px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4 border-b border-border/50" : "sr-only"}>
             <DialogTitle className={title ? undefined : "sr-only"}>
               {title || "Модальное окно"}
             </DialogTitle>
@@ -276,7 +276,7 @@ export function UnifiedModal({
           </DialogHeader>
           <div
             className={cn(
-              "flex-1 overflow-y-auto px-6 py-4 scrollbar-none",
+              "flex-1 overflow-y-auto px-4 md:px-6 py-3 md:py-4 scrollbar-none",
               contentClassName
             )}
           >
