@@ -4,9 +4,11 @@
  */
 
 // Обновляем версию кэша при каждом деплое, чтобы очистить старые файлы
-const CACHE_VERSION = 'v2-' + Date.now();
+// ОПТИМИЗАЦИЯ: Используем дату деплоя вместо timestamp для стабильности
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `skilyapp-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `skilyapp-static-${CACHE_VERSION}`;
+const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50 MB лимит кэша
 
 // Ресурсы для кэширования при установке
 const STATIC_ASSETS = [
@@ -35,17 +37,30 @@ self.addEventListener('activate', (event) => {
   console.log('[SW] Activating Service Worker...');
   
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Удаляем ВСЕ старые кэши (более агрессивная очистка)
-          if (!cacheName.includes(CACHE_VERSION)) {
-            console.log('[SW] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Удаляем старые кэши
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            // Удаляем ВСЕ старые кэши (более агрессивная очистка)
+            if (!cacheName.includes(CACHE_VERSION)) {
+              console.log('[SW] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // ОПТИМИЗАЦИЯ: Очищаем кэш если он превышает лимит
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const keys = await cache.keys();
+        if (keys.length > 100) { // Если больше 100 файлов в кэше
+          // Удаляем старые файлы (первые 20%)
+          const toDelete = keys.slice(0, Math.floor(keys.length * 0.2));
+          await Promise.all(toDelete.map(key => cache.delete(key)));
+          console.log('[SW] Cleaned up old cache entries:', toDelete.length);
+        }
+      })
+    ])
   );
   
   // Берем контроль над всеми страницами
@@ -66,48 +81,70 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Стратегия: Network First с проверкой версии
-  // Для JS/CSS файлов всегда проверяем сеть (не используем кэш для старых версий)
+  // Определяем тип ресурса для оптимальной стратегии кэширования
   const isStaticAsset = url.pathname.match(/\.(js|css|html)$/);
+  const isImage = url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i);
+  const isFont = url.pathname.match(/\.(woff2?|ttf|eot|otf)$/i);
+  
+  // Стратегия кэширования:
+  // - JS/CSS: Network First (всегда проверяем сеть для актуальных версий)
+  // - Изображения/Шрифты: Cache First (быстрая загрузка из кэша)
+  // - HTML: Network First с fallback на кэш
   
   event.respondWith(
-    fetch(request, {
-      // Добавляем заголовок для предотвращения кэширования старых версий
-      cache: isStaticAsset ? 'no-cache' : 'default',
-      headers: {
-        'Cache-Control': 'no-cache'
+    (async () => {
+      // Для изображений и шрифтов используем Cache First
+      if (isImage || isFont) {
+        const cached = await caches.match(request);
+        if (cached) {
+          return cached;
+        }
+        // Если нет в кэше, загружаем из сети и кэшируем
+        try {
+          const response = await fetch(request);
+          if (response.status === 200) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+          }
+          return response;
+        } catch (error) {
+          return new Response('Network error', { status: 408 });
+        }
       }
-    })
-      .then((response) => {
-        // Клонируем ответ для кэширования
-        const responseToCache = response.clone();
-
-        // Кэшируем только успешные ответы (не кэшируем JS/CSS агрессивно)
+      
+      // Для JS/CSS и HTML используем Network First
+      try {
+        const response = await fetch(request, {
+          cache: isStaticAsset ? 'no-cache' : 'default',
+        });
+        
+        // Кэшируем только успешные ответы (не JS/CSS для актуальности)
         if (response.status === 200 && !isStaticAsset) {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-          });
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, response.clone());
         }
-
+        
         return response;
-      })
-      .catch(() => {
-        // Если сеть недоступна, используем кэш только для не-JS/CSS файлов
+      } catch (error) {
+        // Fallback на кэш для не-JS/CSS файлов
         if (!isStaticAsset) {
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
+          const cached = await caches.match(request);
+          if (cached) {
+            return cached;
+          }
+          
+          // Для навигации возвращаем index.html
+          if (request.mode === 'navigate') {
+            const indexHtml = await caches.match('/index.html');
+            if (indexHtml) {
+              return indexHtml;
             }
-            
-            // Если нет в кэше, возвращаем offline страницу
-            if (request.mode === 'navigate') {
-              return caches.match('/index.html');
-            }
-          });
+          }
         }
-        // Для JS/CSS файлов не используем кэш при ошибке сети
+        
         return new Response('Network error', { status: 408 });
-      })
+      }
+    })()
   );
 });
 

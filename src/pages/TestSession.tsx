@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUserContext } from "@/contexts/UserContext";
 import { Clock, CheckCircle2, XCircle, Languages, Lightbulb, ChevronLeft, ChevronRight, Grid3x3, X, AlertTriangle, Bot, MessageCircle, Bookmark, BookmarkCheck, MoreVertical, Trophy } from "lucide-react";
@@ -51,7 +51,8 @@ type Answer = {
 };
 
 // Компонент для отображения изображения вопроса с обработкой ошибок
-const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: string; compact?: boolean }) => {
+// ОПТИМИЗАЦИЯ: Мемоизирован для предотвращения лишних ререндеров
+const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: string; compact?: boolean }) => {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,7 +67,9 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
       const url = getImageUrl(imageUrl);
       
       if (!url) {
-        console.warn(`[TestSession] Could not generate URL for image: ${imageUrl}`);
+        if (import.meta.env.DEV) {
+          console.warn(`[TestSession] Could not generate URL for image: ${imageUrl}`);
+        }
         setHasError(true);
         setIsLoading(false);
         return;
@@ -83,7 +86,9 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
       }
 
       // Загружаем изображение для определения размеров
+      // ОПТИМИЗАЦИЯ: Используем async decoding для неблокирующей загрузки
       const img = new Image();
+      img.decoding = 'async';
       img.onload = () => {
         const aspectRatio = img.width / img.height;
         setImageAspectRatio(aspectRatio);
@@ -91,7 +96,9 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
         setIsLoading(false);
       };
       img.onerror = () => {
-        console.error(`[TestSession] Failed to load image: ${url}`);
+        if (import.meta.env.DEV) {
+          console.error(`[TestSession] Failed to load image: ${url}`);
+        }
         setHasError(true);
         setIsLoading(false);
       };
@@ -135,8 +142,12 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
             alt="Вопрос" 
             className="w-full h-auto object-cover block"
             loading="lazy"
+            decoding="async"
+            fetchPriority="auto"
             onError={() => {
-              console.error(`[TestSession] Failed to load image: ${imageSrc}`);
+              if (import.meta.env.DEV) {
+                console.error(`[TestSession] Failed to load image: ${imageSrc}`);
+              }
               setHasError(true);
             }}
             style={{
@@ -148,7 +159,7 @@ const QuestionImageComponent = ({ imageUrl, compact = false }: { imageUrl: strin
       </div>
     </>
   );
-};
+});
 
 const TestSession = () => {
   const params = useParams();

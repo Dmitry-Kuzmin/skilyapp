@@ -48,7 +48,17 @@ export default defineConfig(({ mode }) => {
   build: {
     minify: 'esbuild', // Используем esbuild (быстрее чем terser)
     target: 'es2015',
+    // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
+    cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
+    cssMinify: true, // Минифицируем CSS
+    sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
     rollupOptions: {
+      // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking
+      treeshake: {
+        moduleSideEffects: false, // Агрессивное tree-shaking
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false,
+      },
       output: {
         manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
@@ -141,11 +151,20 @@ export default defineConfig(({ mode }) => {
       },
     },
     chunkSizeWarningLimit: 1000,
+    // ОПТИМИЗАЦИЯ: Показываем сжатый размер для анализа
+    reportCompressedSize: true,
   },
   optimizeDeps: {
     esbuildOptions: {
       jsx: 'automatic',
     },
+    // ОПТИМИЗАЦИЯ: Предварительная оптимизация зависимостей
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@tanstack/react-query',
+    ],
   },
   };
 });

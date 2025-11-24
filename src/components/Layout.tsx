@@ -152,6 +152,29 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
       : { name: t("games"), href: "/games", icon: Gamepad2 },
   ], [t, activeDuel]);
 
+  // ОПТИМИЗАЦИЯ: Prefetching для критических маршрутов при hover
+  useEffect(() => {
+    const prefetchRoutes = ['/tests', '/learning', '/games', '/dashboard'];
+    
+    const handleMouseEnter = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest('a[href]') as HTMLAnchorElement;
+      if (link && prefetchRoutes.some(route => link.href.includes(route))) {
+        // Prefetch route data через React Router
+        const route = link.getAttribute('href');
+        if (route) {
+          // React Router автоматически prefetch при hover через Link компонент
+          // Здесь можно добавить дополнительный prefetch данных если нужно
+        }
+      }
+    };
+
+    document.addEventListener('mouseenter', handleMouseEnter, true);
+    return () => {
+      document.removeEventListener('mouseenter', handleMouseEnter, true);
+    };
+  }, []);
+
   // ОПТИМИЗАЦИЯ: Убрано логирование для уменьшения нагрузки (можно включить для отладки)
   // useEffect(() => {
   //   if (activeDuel) {

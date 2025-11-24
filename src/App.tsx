@@ -79,13 +79,20 @@ const Article = lazy(() => import("./pages/Article"));
 
 const App = () => {
   // Создаем QueryClient один раз с useMemo для оптимизации
+  // ОПТИМИЗАЦИЯ: Улучшенные настройки кэширования для снижения нагрузки на Supabase
   const queryClient = useMemo(() => new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 60 * 1000, // 1 минута
-        cacheTime: 5 * 60 * 1000, // 5 минут
-        refetchOnWindowFocus: false,
-        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими дольше
+        gcTime: 10 * 60 * 1000, // 10 минут (было cacheTime, переименовано в v5)
+        refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе окна
+        refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
+        refetchOnReconnect: true, // Перезапрашиваем только при восстановлении соединения
+        retry: 1, // Минимум повторных попыток
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Экспоненциальная задержка
+      },
+      mutations: {
+        retry: 1, // Минимум повторных попыток для мутаций
       },
     },
   }), []);

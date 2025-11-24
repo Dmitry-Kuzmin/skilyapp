@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,7 @@ const getSignTypeBadgeColor = (type: string) => {
   }
 };
 
-export const RoadSignCard = ({ sign }: RoadSignCardProps) => {
+export const RoadSignCard = memo(({ sign }: RoadSignCardProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -46,6 +47,9 @@ export const RoadSignCard = ({ sign }: RoadSignCardProps) => {
                 src={sign.image_url} 
                 alt={sign.name_es}
                 className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
+                fetchPriority="auto"
               />
             </div>
 
@@ -97,6 +101,8 @@ export const RoadSignCard = ({ sign }: RoadSignCardProps) => {
                 src={sign.image_url} 
                 alt={sign.name_es}
                 className="w-full h-auto max-h-80 object-contain relative z-10 drop-shadow-2xl"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>
@@ -162,4 +168,4 @@ export const RoadSignCard = ({ sign }: RoadSignCardProps) => {
       </DialogContent>
     </Dialog>
   );
-};
+});

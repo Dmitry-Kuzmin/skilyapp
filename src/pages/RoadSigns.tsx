@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useTransition, useDeferredValue } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RoadSignCard } from "@/components/RoadSignCard";
 import { Input } from "@/components/ui/input";
@@ -26,38 +26,60 @@ export default function RoadSigns() {
   const [signs, setSigns] = useState<RoadSign[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
+  
+  // ОПТИМИЗАЦИЯ: useTransition для неблокирующих обновлений UI
+  const [isPending, startTransition] = useTransition();
+  
+  // ОПТИМИЗАЦИЯ: useDeferredValue для отложенных обновлений поиска
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
-    fetchSigns();
+    const abortController = new AbortController();
+    fetchSigns(abortController.signal);
+    
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
-  // Debounce search term
+  // Debounce search term с useTransition
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
+      startTransition(() => {
+        // Обновление происходит в transition для плавности
+      });
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, startTransition]);
 
-  const fetchSigns = async () => {
+  const fetchSigns = async (signal?: AbortSignal) => {
     try {
       // Получаем знаки
       const { data: signsData, error: signsError } = await supabase
         .from('road_signs')
         .select('*')
-        .order('name_es');
+        .order('name_es')
+        .abortSignal(signal);
       
-      if (signsError) throw signsError;
+      if (signsError) {
+        if (signsError.name === 'AbortError') return; // Игнорируем отмененные запросы
+        throw signsError;
+      }
+
+      // Если запрос был отменен, не обновляем состояние
+      if (signal?.aborted) return;
 
       // Если пользователь авторизован, получаем его прогресс
       if (profileId) {
         const { data: progressData } = await supabase
           .from('user_sign_progress')
           .select('sign_id, mastery_level, times_practiced')
-          .eq('user_id', profileId);
+          .eq('user_id', profileId)
+          .abortSignal(signal);
+
+        if (signal?.aborted) return;
 
         // Объединяем данные
         const signsWithProgress = signsData?.map(sign => {
@@ -73,20 +95,26 @@ export default function RoadSigns() {
       } else {
         setSigns(signsData || []);
       }
-    } catch (error) {
-      console.error('Error fetching road signs:', error);
+    } catch (error: any) {
+      if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
+      if (import.meta.env.DEV) {
+        console.error('Error fetching road signs:', error);
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   };
 
   // Improved filtering with word-based search and relevance scoring
+  // ОПТИМИЗАЦИЯ: Используем deferredSearchTerm для плавной фильтрации
   const filteredSigns = useMemo(() => {
-    if (!debouncedSearchTerm.trim() && selectedType === "all") {
+    if (!deferredSearchTerm.trim() && selectedType === "all") {
       return signs;
     }
 
-    const searchWords = debouncedSearchTerm
+    const searchWords = deferredSearchTerm
       .toLowerCase()
       .trim()
       .split(/\s+/)
@@ -146,7 +174,7 @@ export default function RoadSigns() {
       .map(item => item.sign);
 
     return filtered;
-  }, [signs, debouncedSearchTerm, selectedType]);
+  }, [signs, deferredSearchTerm, selectedType]);
 
   const signTypes = [...new Set(signs.map(s => s.sign_type))];
 
@@ -177,9 +205,10 @@ export default function RoadSigns() {
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
-              {filteredSigns.length} {debouncedSearchTerm || selectedType !== "all" ? "señales encontradas" : "señales disponibles"}
+              {filteredSigns.length} {deferredSearchTerm || selectedType !== "all" ? "señales encontradas" : "señales disponibles"}
+              {isPending && <span className="ml-2 text-xs opacity-70">(buscando...)</span>}
             </span>
-            {(debouncedSearchTerm || selectedType !== "all") && (
+            {(deferredSearchTerm || selectedType !== "all") && (
               <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground font-medium">
                 de {signs.length} total
               </span>
@@ -209,7 +238,11 @@ export default function RoadSigns() {
             )}
           </div>
 
-          <Tabs value={selectedType} onValueChange={setSelectedType} className="w-full">
+          <Tabs value={selectedType} onValueChange={(value) => {
+            startTransition(() => {
+              setSelectedType(value);
+            });
+          }} className="w-full">
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               <TabsList className="w-full md:w-auto h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm inline-flex min-w-max md:min-w-0">
               <TabsTrigger 

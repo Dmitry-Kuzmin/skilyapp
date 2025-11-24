@@ -71,6 +71,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
 
   useEffect(() => {
     logLearningMap("[LearningMap] Loading map, language:", language);
+    const abortController = new AbortController();
     let usedCache = false;
     if (typeof window !== "undefined") {
       const cached = window.localStorage.getItem(topicsCacheKey);
@@ -81,7 +82,9 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
             setTopics(parsed);
             // Не сбрасываем loading сразу - дадим skeleton показаться минимум 300ms для лучшего UX
             setTimeout(() => {
-              setLoading(false);
+              if (!abortController.signal.aborted) {
+                setLoading(false);
+              }
             }, 300);
             usedCache = true;
             logLearningMap("[LearningMap] Applied cached topics:", parsed.length);
@@ -91,7 +94,11 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
         }
       }
     }
-    loadLearningMap({ silent: usedCache });
+    loadLearningMap({ silent: usedCache, signal: abortController.signal });
+    
+    return () => {
+      abortController.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, topicsCacheKey]);
 
@@ -160,8 +167,9 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
     }
   };
 
-  const loadLearningMap = async (options?: { silent?: boolean }) => {
+  const loadLearningMap = async (options?: { silent?: boolean; signal?: AbortSignal }) => {
     const silent = options?.silent ?? false;
+    const signal = options?.signal;
     try {
       logLearningMap("[LearningMap] Starting to load topics from Supabase...");
       setError(null);
@@ -172,7 +180,8 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
         .from("topics")
         .select("*, subtopics(*)")
         .order("order_index", { ascending: true })
-        .limit(50);
+        .limit(50)
+        .abortSignal(signal);
 
       logLearningMap(
         "[LearningMap] Topics loaded:",
@@ -181,7 +190,13 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
         topicsError
       );
 
-      if (topicsError) throw topicsError;
+      if (topicsError) {
+        if (topicsError.name === 'AbortError') return; // Игнорируем отмененные запросы
+        throw topicsError;
+      }
+
+      // Если запрос был отменен, не обновляем состояние
+      if (signal?.aborted) return;
 
       const topicsList: TopicWithSubtopics[] = (topicsData || []).map((t: any) => ({
         id: t.id,
@@ -209,6 +224,9 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
         ),
       }));
 
+      // Если запрос был отменен, не обновляем состояние
+      if (signal?.aborted) return;
+
       logLearningMap("[LearningMap] Topics processed:", topicsList.length);
       setTopics(topicsList);
       if (typeof window !== "undefined") {
@@ -221,16 +239,25 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       // Минимальная задержка для показа skeleton (если не silent режим)
       if (!silent) {
         setTimeout(() => {
-          setLoading(false);
+          if (!signal?.aborted) {
+            setLoading(false);
+          }
         }, 500);
       } else {
-        setLoading(false);
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
       }
       logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
-      console.error("[LearningMap] Error loading learning map:", error);
-      setError(error.message || t("learningMap.errors.generic"));
-      setLoading(false);
+      if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
+      if (import.meta.env.DEV) {
+        console.error("[LearningMap] Error loading learning map:", error);
+      }
+      if (!signal?.aborted) {
+        setError(error.message || t("learningMap.errors.generic"));
+        setLoading(false);
+      }
       logLearningMap("[LearningMap] Error state set, loading:", false);
     }
   };
@@ -504,7 +531,8 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
               logLearningMap("[LearningMap] Retry button clicked");
               setError(null);
               setLoading(true);
-              loadLearningMap();
+              const abortController = new AbortController();
+              loadLearningMap({ signal: abortController.signal });
             }}
           >
             {t("learningMap.errors.retry")}

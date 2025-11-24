@@ -388,6 +388,26 @@ All colors MUST be HSL.
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    
+    /* Оптимизация шрифтов - предотвращает блокировку рендеринга */
+    font-display: swap;
+  }
+  
+  /* Оптимизация загрузки шрифтов для всех @font-face */
+  @font-face {
+    font-display: swap;
+  }
+  
+  /* ОПТИМИЗАЦИЯ: Reduce motion для пользователей с предпочтениями */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   body.dark {
@@ -439,46 +459,56 @@ All colors MUST be HSL.
 
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    /* Оптимизация GPU ускорения */
+    will-change: opacity;
   }
 
   .animate-bounce-slow {
     animation: bounce 2s infinite;
+    /* Оптимизация GPU ускорения */
+    will-change: transform;
+    transform: translateZ(0);
   }
 
   .animate-fade-in {
     animation: fadeIn 0.8s ease-out forwards;
     opacity: 0;
+    /* Оптимизация GPU ускорения */
+    will-change: opacity, transform;
+    transform: translateZ(0);
   }
 
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(30px) translateZ(0);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) translateZ(0);
     }
   }
 
   .animate-slide-up {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(40px) translateZ(0);
     animation: slideUp 0.9s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    /* Оптимизация GPU ускорения */
+    will-change: opacity, transform;
   }
 
   @keyframes slideUp {
     0% {
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(40px) translateZ(0);
     }
     60% {
       opacity: 1;
-      transform: translateY(-6px);
+      transform: translateY(-6px) translateZ(0);
     }
     100% {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) translateZ(0);
     }
   }
 
@@ -585,16 +615,21 @@ All colors MUST be HSL.
     @apply bg-card border border-border/50 rounded-2xl;
     box-shadow: var(--shadow-lg);
     transition: all var(--duration-normal) var(--ease-smooth);
+    /* Оптимизация: изоляция компонента для улучшения производительности */
+    contain: layout style paint;
   }
 
   .card-elevated:hover {
     box-shadow: var(--shadow-xl);
-    transform: translateY(-2px);
+    transform: translateY(-2px) translateZ(0);
+    will-change: transform, box-shadow;
   }
 
   .card-glass {
     @apply bg-card/80 backdrop-blur-md border border-border/50 rounded-2xl;
     box-shadow: var(--shadow-lg);
+    /* Оптимизация: изоляция компонента */
+    contain: layout style paint;
   }
 
   /* Design System: Button Enhancements */

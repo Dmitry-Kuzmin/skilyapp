@@ -25,37 +25,48 @@ export default function Dictionary() {
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  
+  // ОПТИМИЗАЦИЯ: useTransition для неблокирующих обновлений UI
+  const [isPending, startTransition] = useTransition();
+  
+  // ОПТИМИЗАЦИЯ: useDeferredValue для отложенных обновлений поиска
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
-    fetchTerms();
+    const abortController = new AbortController();
+    fetchTerms(abortController.signal);
+    
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
-  // Debounce search term
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  const fetchTerms = async () => {
+  const fetchTerms = async (signal?: AbortSignal) => {
     try {
       // Получаем термины
       const { data: termsData, error: termsError } = await supabase
         .from('language_terms')
         .select('*')
-        .order('term_es');
+        .order('term_es')
+        .abortSignal(signal);
       
-      if (termsError) throw termsError;
+      if (termsError) {
+        if (termsError.name === 'AbortError') return; // Игнорируем отмененные запросы
+        throw termsError;
+      }
+
+      // Если запрос был отменен, не обновляем состояние
+      if (signal?.aborted) return;
 
       // Если пользователь авторизован, получаем его прогресс
       if (profileId) {
         const { data: progressData } = await supabase
           .from('user_term_progress')
           .select('term_id, mastery_level, times_practiced')
-          .eq('user_id', profileId);
+          .eq('user_id', profileId)
+          .abortSignal(signal);
+
+        if (signal?.aborted) return;
 
         // Объединяем данные
         const termsWithProgress = termsData?.map(term => {
@@ -71,20 +82,26 @@ export default function Dictionary() {
       } else {
         setTerms(termsData || []);
       }
-    } catch (error) {
-      console.error('Error fetching language terms:', error);
+    } catch (error: any) {
+      if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
+      if (import.meta.env.DEV) {
+        console.error('Error fetching language terms:', error);
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   };
 
   // Improved filtering with word-based search and relevance scoring
+  // ОПТИМИЗАЦИЯ: Используем deferredSearchTerm для плавной фильтрации
   const filteredTerms = useMemo(() => {
-    if (!debouncedSearchTerm.trim()) {
+    if (!deferredSearchTerm.trim()) {
       return terms;
     }
 
-    const searchWords = debouncedSearchTerm
+    const searchWords = deferredSearchTerm
       .toLowerCase()
       .trim()
       .split(/\s+/)
@@ -130,7 +147,7 @@ export default function Dictionary() {
       .map(item => item.term);
 
     return filtered;
-  }, [terms, debouncedSearchTerm]);
+  }, [terms, deferredSearchTerm]);
 
   if (loading) {
     return (
@@ -159,7 +176,8 @@ export default function Dictionary() {
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <span className="px-3 py-1 rounded-full bg-success/10 text-success font-medium">
-              {filteredTerms.length} {debouncedSearchTerm ? "términos encontrados" : "términos disponibles"}
+              {filteredTerms.length} {deferredSearchTerm ? "términos encontrados" : "términos disponibles"}
+              {isPending && <span className="ml-2 text-xs opacity-70">(buscando...)</span>}
             </span>
             {debouncedSearchTerm && (
               <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground font-medium">
