@@ -112,6 +112,42 @@ const translations: Record<Language, Record<string, any>> = {
     
     // Other
     version: "v1.0.0 © 2025 Sdadim",
+    dashboard: {
+      onlineStatus: "Система онлайн",
+      licenseStatus: "Лицензия B",
+      cockpitButton: "Панель пилота",
+      heroGreeting: "Привет, Пилот!",
+      heroEfficiencyPrefix: "Твоя эффективность составляет",
+      heroStatus: {
+        ready: "Датчики показывают, что ты готов к новой сессии.",
+        progress: "Продолжай тренироваться для лучшего результата.",
+        start: "Рекомендуем пройти больше тестов для улучшения готовности.",
+      },
+      stats: {
+        xp: "Опыт",
+        tests: "Тестов",
+        coins: "Монеты",
+      },
+      startButton: "Старт",
+    },
+    dashboard: {
+      onlineStatus: "Sistema en línea",
+      licenseStatus: "Licencia B",
+      cockpitButton: "Cabina",
+      heroGreeting: "¡Hola, piloto!",
+      heroEfficiencyPrefix: "Tu eficiencia es",
+      heroStatus: {
+        ready: "Los sensores indican que estás listo para la nueva sesión.",
+        progress: "Sigue entrenando para subir la puntuación.",
+        start: "Haz más tests para aumentar tu preparación.",
+      },
+      stats: {
+        xp: "Experiencia",
+        tests: "Tests",
+        coins: "Monedas",
+      },
+      startButton: "Comenzar",
+    },
     online: "En línea",
     xpProgress: "XP hasta siguiente nivel",
     
@@ -692,6 +728,24 @@ const translations: Record<Language, Record<string, any>> = {
     version: "v1.0.0 © 2025 Sdadim",
     online: "Online",
     xpProgress: "XP to next level",
+    dashboard: {
+      onlineStatus: "System online",
+      licenseStatus: "License B",
+      cockpitButton: "Cockpit",
+      heroGreeting: "Welcome, Pilot!",
+      heroEfficiencyPrefix: "Your efficiency is",
+      heroStatus: {
+        ready: "Sensors show you're ready for the next session.",
+        progress: "Keep training to push the score higher.",
+        start: "Run more tests to boost your readiness.",
+      },
+      stats: {
+        xp: "XP",
+        tests: "Tests",
+        coins: "Coins",
+      },
+      startButton: "Start",
+    },
     
     // Tests Page
     practiceTests: "Practice Tests",

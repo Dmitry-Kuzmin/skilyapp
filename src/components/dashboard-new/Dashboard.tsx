@@ -11,6 +11,8 @@ import { UnifiedModal } from '@/components/ui/unified-modal';
 
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from 'next-themes';
 
 interface DashboardProps {
   stats: {
@@ -49,6 +51,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
   const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   const [cockpitOpen, setCockpitOpen] = useState(false);
+  const { t } = useLanguage();
+  const { resolvedTheme } = useTheme();
+  const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
+  const pageBgClass = isDarkTheme ? 'bg-[#0f172a] text-white' : 'bg-slate-100 text-slate-900';
+  const heroBackground = isDarkTheme
+    ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)'
+    : 'linear-gradient(135deg, #93c5fd 0%, #c4b5fd 50%, #fbcfe8 100%)';
+  const heroNoiseOpacity = isDarkTheme ? 'opacity-20' : 'opacity-10';
+  const heroStatusKey =
+    stats.averageScore >= 75
+      ? 'dashboard.heroStatus.ready'
+      : stats.averageScore >= 50
+      ? 'dashboard.heroStatus.progress'
+      : 'dashboard.heroStatus.start';
   
   const handleStartQuiz = () => {
     playClickSound();
@@ -66,7 +82,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white">
+    <div className={`min-h-screen ${pageBgClass} p-6 md:p-10 font-sans pb-24`}>
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
@@ -91,14 +107,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
                 <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
               </div>
-              <span className="text-xs font-semibold text-emerald-300">Sistema en línea</span>
+              <span className="text-xs font-semibold text-emerald-300">{t('dashboard.onlineStatus')}</span>
             </div>
 
             {/* License Badge */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
               <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
               <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
-                Licencia B
+                {t('dashboard.licenseStatus')}
               </span>
             </div>
             <button
@@ -107,10 +123,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 setCockpitOpen(true);
               }}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-800/80 transition-all text-xs font-semibold text-slate-200"
-              aria-label="Панель пилота"
+              aria-label={t('dashboard.cockpitButton')}
             >
               <Gauge className="w-3.5 h-3.5 text-emerald-300" />
-              Cockpit
+              {t('dashboard.cockpitButton')}
             </button>
            </div>
         </div>
@@ -123,10 +139,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             onMouseEnter={playHoverSound}
             className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
             style={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
+              background: heroBackground,
             }}
           >
-            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+            <div className={`absolute inset-0 ${heroNoiseOpacity}`} style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
             
             <div className="relative z-10 flex flex-col h-full justify-between">
               {/* Top section: Level badge */}
@@ -141,15 +157,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-8 mb-6">
                 <div className="flex-1">
                   <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-4 text-white">
-                    Привет, Пилот!
+                    {t('dashboard.heroGreeting')}
                   </h2>
                   <p className="text-white/90 font-medium text-base md:text-lg leading-relaxed max-w-md">
-                    Твоя эффективность составляет <strong>{stats.averageScore}%</strong>. 
-                    {stats.averageScore >= 75 
-                      ? ' Датчики показывают, что ты готов к новой сессии.' 
-                      : stats.averageScore >= 50
-                      ? ' Продолжай тренироваться для лучшего результата.'
-                      : ' Рекомендуем пройти больше тестов для улучшения готовности.'}
+                    {t('dashboard.heroEfficiencyPrefix')} <strong>{stats.averageScore}%</strong>.{' '}
+                    {t(heroStatusKey)}
                   </p>
                 </div>
 
@@ -167,7 +179,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
                     <Power size={32} className="text-indigo-600 mb-2 drop-shadow-lg" />
-                    <span className="text-indigo-600 font-bold text-sm tracking-wider uppercase">START</span>
+                    <span className="text-indigo-600 font-bold text-sm tracking-wider uppercase">
+                      {t('dashboard.startButton')}
+                    </span>
                   </div>
                 </button>
               </div>
@@ -193,7 +207,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] sm:text-[10px] text-yellow-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">Опыт</div>
+                      <div className="text-[9px] sm:text-[10px] text-yellow-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">
+                        {t('dashboard.stats.xp')}
+                      </div>
                       <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-yellow-50 transition-colors duration-200">
                         {stats.xp || 0} <span className="text-xs sm:text-sm font-bold text-yellow-300/70">XP</span>
                       </div>
@@ -220,7 +236,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] sm:text-[10px] text-blue-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">Тестов</div>
+                      <div className="text-[9px] sm:text-[10px] text-blue-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">
+                        {t('dashboard.stats.tests')}
+                      </div>
                       <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-blue-50 transition-colors duration-200">
                         {stats.testsCompleted}
                       </div>
@@ -247,7 +265,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] sm:text-[10px] text-amber-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">Монеты</div>
+                      <div className="text-[9px] sm:text-[10px] text-amber-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">
+                        {t('dashboard.stats.coins')}
+                      </div>
                       <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-amber-50 transition-colors duration-200">
                         {stats.coins}
                       </div>
