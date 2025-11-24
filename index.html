@@ -189,28 +189,69 @@
   <body>
     <div id="root"></div>
     <!-- КРИТИЧНО: Очистка старых Service Workers для диагностики белого экрана -->
+    <!-- Выполняем асинхронно, не блокируя загрузку основного скрипта -->
     <script>
-      // Очищаем все Service Workers при загрузке страницы
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(var registration of registrations) {
-            registration.unregister().then(function(success) {
-              console.log('[SW Cleanup] Unregistered:', success);
-            });
-          }
+      // Выполняем очистку после загрузки DOM, не блокируя основной скрипт
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          cleanupServiceWorkers();
         });
-        // Очищаем кэш
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            for (let name of names) {
-              caches.delete(name).then(function(success) {
-                console.log('[SW Cleanup] Cache deleted:', name, success);
+      } else {
+        // DOM уже загружен, выполняем сразу
+        cleanupServiceWorkers();
+      }
+      
+      function cleanupServiceWorkers() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(var registration of registrations) {
+              registration.unregister().then(function(success) {
+                console.log('[SW Cleanup] Unregistered:', success);
               });
             }
           });
+          // Очищаем кэш
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (let name of names) {
+                caches.delete(name).then(function(success) {
+                  console.log('[SW Cleanup] Cache deleted:', name, success);
+                });
+              }
+            });
+          }
         }
       }
     </script>
+    <!-- КРИТИЧНО: Логирование перед загрузкой модуля -->
+    <script>
+      console.log('[HTML] ✅ Script execution started', {
+        timestamp: new Date().toISOString(),
+        readyState: document.readyState,
+        location: window.location.href,
+      });
+      
+      // Проверяем, что модули поддерживаются
+      if (typeof import !== 'undefined') {
+        console.log('[HTML] ✅ ES modules supported');
+      } else {
+        console.error('[HTML] ❌ ES modules NOT supported!');
+      }
+      
+      // Отслеживаем ошибки загрузки модулей
+      window.addEventListener('error', function(e) {
+        if (e.filename && e.filename.includes('main')) {
+          console.error('[HTML] ❌ Module load error:', {
+            message: e.message,
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno,
+            error: e.error,
+          });
+        }
+      }, true);
+    </script>
+    <!-- КРИТИЧНО: Основной скрипт приложения - должен загружаться первым -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

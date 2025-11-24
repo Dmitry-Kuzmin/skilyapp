@@ -53,9 +53,11 @@ export default defineConfig(({ mode }) => {
     cssMinify: true, // Минифицируем CSS
     sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
     rollupOptions: {
-      // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking
+      // КРИТИЧНО: Явно указываем entry point
+      input: 'index.html',
+      // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking (ослаблено для предотвращения удаления кода)
       treeshake: {
-        moduleSideEffects: false, // Агрессивное tree-shaking
+        moduleSideEffects: 'no-external', // Разрешаем side effects для внутренних модулей
         propertyReadSideEffects: false,
         tryCatchDeoptimization: false,
       },

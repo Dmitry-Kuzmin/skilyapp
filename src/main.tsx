@@ -10,6 +10,14 @@ import "./index.css";
 import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
 
+// КРИТИЧНО: Логирование сразу после импортов для диагностики
+console.log('[Main] ✅ Script loaded and imports completed', {
+  timestamp: new Date().toISOString(),
+  userAgent: navigator.userAgent.substring(0, 50),
+  location: window.location.href,
+  readyState: document.readyState,
+});
+
 // Инициализация Telegram WebApp теперь происходит в useInitTelegram hook в App.tsx
 // Это гарантирует правильный порядок инициализации
 
