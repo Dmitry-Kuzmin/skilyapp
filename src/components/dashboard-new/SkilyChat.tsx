@@ -42,13 +42,13 @@ export const SkilyChat = React.memo(() => {
       {/* COMPACT WIDGET */}
       <div 
         onClick={handleExpand}
-        className={`h-full bg-slate-800/80 backdrop-blur-md rounded-2xl md:rounded-[2rem] p-4 md:p-6 shadow-lg border border-slate-700 flex flex-col justify-between group hover:border-slate-600 transition-all cursor-pointer relative overflow-hidden ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={`h-full bg-slate-800/80 backdrop-blur-md rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg border border-slate-700 flex flex-col justify-between group hover:border-slate-600 transition-all cursor-pointer relative overflow-hidden ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
         <div className="flex flex-col items-center justify-center flex-1 relative z-10">
-          <div className="mb-8 transition-transform group-hover:scale-110 duration-700">
-             <div className="relative w-36 h-36 flex items-center justify-center">
+          <div className="mb-4 md:mb-6 transition-transform group-hover:scale-110 duration-700">
+             <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center">
                <div className="absolute inset-0 rounded-full border-2 border-indigo-500 opacity-60 border-t-transparent border-b-transparent shadow-[0_0_20px_rgba(99,102,241,0.4)] animate-spin-slow"></div>
                <div className="absolute inset-2 rounded-full border-2 border-purple-500 opacity-60 border-l-transparent border-r-transparent animate-spin-slow" style={{ animationDirection: 'reverse' }}></div>
                <div className="absolute inset-4 rounded-full border border-slate-400 opacity-30 animate-spin-slow"></div>
@@ -56,8 +56,8 @@ export const SkilyChat = React.memo(() => {
           </div>
 
           <div className="text-center">
-             <h3 className="font-bold text-white text-xl tracking-tight">AI Помощник</h3>
-             <p className="text-xs text-slate-400 mt-2 font-medium">Интеллектуальный ассистент</p>
+             <h3 className="font-bold text-white text-base md:text-lg tracking-tight">AI Помощник</h3>
+             <p className="text-[10px] md:text-xs text-slate-400 mt-1 md:mt-1.5 font-medium">Интеллектуальный ассистент</p>
           </div>
         </div>
 

@@ -122,11 +122,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className={`h-full ${pageBgClass} p-4 md:p-6 font-sans overflow-y-auto`}>
-      <div className="max-w-[1370px] mx-auto space-y-3 md:space-y-4 h-full flex flex-col">
+    <div className={`h-full ${pageBgClass} p-3 md:p-4 font-sans overflow-hidden`}>
+      <div className="max-w-[1370px] mx-auto space-y-2 md:space-y-3 h-full flex flex-col">
         
         {/* Header */}
-        <div className="mb-2 md:mb-3 flex-shrink-0 animate-fade-in">
+        <div className="mb-1.5 md:mb-2 flex-shrink-0 animate-fade-in">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Online Status Badge */}
             <div className={onlineBadgeClass}>
@@ -165,12 +165,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5 animate-slide-up flex-1 min-h-0 auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 animate-slide-up flex-1 min-h-0 auto-rows-fr">
           
           {/* 1. HERO CARD (Col: 2, Row: 2) */}
           <div 
             onMouseEnter={playHoverSound}
-            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-2xl md:rounded-[2rem] text-white p-4 md:p-6 lg:p-8 flex flex-col justify-between shadow-2xl group"
+            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-xl md:rounded-2xl text-white p-3 md:p-4 lg:p-5 flex flex-col justify-between shadow-2xl group"
             style={{
               background: heroBackground,
             }}
@@ -190,12 +190,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Middle section: Greeting and content */}
-              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6 mb-4 md:mb-6">
+              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 mb-2 md:mb-3">
                 <div className="flex-1">
-                  <h2 className={`text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight mb-2 md:mb-3 ${heroHeadingClass}`}>
+                  <h2 className={`text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight mb-1.5 md:mb-2 ${heroHeadingClass}`}>
                     {t('dashboard.heroGreeting')}
                   </h2>
-                  <p className={`${heroBodyTextClass} font-medium text-sm md:text-base leading-relaxed max-w-md`}>
+                  <p className={`${heroBodyTextClass} font-medium text-xs md:text-sm leading-relaxed max-w-md`}>
                     {t('dashboard.heroEfficiencyPrefix')} <strong className="text-white">{stats.averageScore}%</strong>.{' '}
                     {t(heroStatusKey)}
                   </p>
@@ -204,7 +204,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* START Button */}
                 <button 
                   onClick={handleStartQuiz}
-                  className="group relative w-36 h-36 md:w-40 md:h-40 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
+                  className="group relative w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
                 >
                   {/* Glow effect - улучшенный */}
                   <div className="absolute inset-[-20%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
@@ -214,8 +214,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
-                    <Power size={32} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-2 drop-shadow-lg`} />
-                    <span className={`${statStartButtonText} font-bold text-sm tracking-wider uppercase`}>
+                    <Power size={24} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-1 drop-shadow-lg`} />
+                    <span className={`${statStartButtonText} font-bold text-[10px] md:text-xs tracking-wider uppercase`}>
                       {t('dashboard.startButton')}
                     </span>
                   </div>

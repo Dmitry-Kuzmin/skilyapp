@@ -136,7 +136,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
   return (
     <div
       onClick={handleClick}
-      className={`${className} ${containerClass} rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-lg border flex flex-col gap-3 backdrop-blur-sm cursor-pointer transition-all duration-300 group`}
+      className={`${className} ${containerClass} rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg border flex flex-col gap-2 md:gap-3 backdrop-blur-sm cursor-pointer transition-all duration-300 group`}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -158,7 +158,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold ${textPrimaryClass}`}>Уровень {duelPassData.level}</span>
+            <span className={`text-xl md:text-2xl font-bold ${textPrimaryClass}`}>Уровень {duelPassData.level}</span>
             <span className={`text-sm ${textSecondaryClass}`}>/ 30</span>
           </div>
           <div className={`flex items-center gap-1 text-xs ${textSecondaryClass}`}>

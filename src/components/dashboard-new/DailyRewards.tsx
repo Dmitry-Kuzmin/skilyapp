@@ -169,7 +169,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   };
 
   return (
-    <div className="h-full bg-[#0B1120] rounded-2xl md:rounded-[2rem] p-4 md:p-6 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
+    <div className="h-full bg-[#0B1120] rounded-xl md:rounded-2xl p-3 md:p-4 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
       
       {/* Анимация поздравления */}
       <CelebrationAnimations
@@ -226,7 +226,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       {/* Header */}
       <div className="relative z-10 flex justify-between items-start">
         <div>
-           <h3 className="font-bold text-lg tracking-tight text-slate-100">Ежедневная серия</h3>
+           <h3 className="font-bold text-sm md:text-base tracking-tight text-slate-100">Ежедневная серия</h3>
           {weekNumber > 0 && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
@@ -263,8 +263,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       </div>
 
       {/* Main Gauge */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-6">
-        <div className="relative w-40 h-40">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-2 md:py-4">
+        <div className="relative w-28 h-28 md:w-32 md:h-32">
           {/* Glow Behind */}
           <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-[40px]"></div>
           
@@ -308,16 +308,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               animate={isDay7 && !hasClaimedToday ? { scale: [1, 1.15, 1], rotate: [0, 10, -10, 0] } : {}}
               transition={{ duration: 2, repeat: isDay7 && !hasClaimedToday ? Infinity : 0 }}
             >
-              <Flame className={`w-8 h-8 mb-2 ${hasClaimedToday ? 'text-orange-500 fill-orange-500' : isDay7 ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'} transition-colors`} />
+              <Flame className={`w-5 h-5 md:w-6 md:h-6 mb-1 ${hasClaimedToday ? 'text-orange-500 fill-orange-500' : isDay7 ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'} transition-colors`} />
             </motion.div>
-            <span className="text-4xl font-bold text-white tracking-tighter leading-none">{currentStreak}</span>
-            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-1">Дней</span>
+            <span className="text-2xl md:text-3xl font-bold text-white tracking-tighter leading-none">{currentStreak}</span>
+            <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-0.5">Дней</span>
           </div>
         </div>
       </div>
 
       {/* Week Days Dots */}
-      <div className="relative z-10 flex justify-between gap-2 mb-6 px-2">
+      <div className="relative z-10 flex justify-between gap-1.5 mb-3 md:mb-4 px-2">
          {[1, 2, 3, 4, 5, 6, 7].map((day) => {
            const isCompleted = day < weeklyProgress || (day === weeklyProgress && hasClaimedToday);
            const isActive = day === weeklyProgress && !hasClaimedToday;
@@ -347,7 +347,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           ]
         } : {}}
         transition={{ duration: 2, repeat: isDay7 && !hasClaimedToday ? Infinity : 0 }}
-        className={`relative z-10 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-300 overflow-hidden group/btn ${
+        className={`relative z-10 w-full py-2.5 md:py-3 rounded-xl font-bold text-[10px] md:text-xs tracking-[0.2em] uppercase transition-all duration-300 overflow-hidden group/btn ${
           hasClaimedToday 
             ? 'bg-slate-800/50 text-slate-500 cursor-default border border-slate-700' 
             : isDay7

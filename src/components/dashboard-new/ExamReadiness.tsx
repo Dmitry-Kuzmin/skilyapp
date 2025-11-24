@@ -261,34 +261,34 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     : 'bg-gradient-to-b from-indigo-500/10 to-transparent';
 
   return (
-    <div className={`h-full ${containerClass} backdrop-blur-md rounded-2xl md:rounded-[2rem] p-4 md:p-6 shadow-lg border flex flex-col relative overflow-hidden group transition-all duration-500 ${
+    <div className={`h-full ${containerClass} backdrop-blur-md rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg border flex flex-col relative overflow-hidden group transition-all duration-500 ${
       showLevels ? 'items-start justify-start' : 'items-center justify-center'
     }`}>
        {/* Hover overlay effect */}
        <div className={`absolute inset-0 ${hoverOverlayClass} opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}></div>
        
        {/* Header with Info Icon */}
-       <div className="absolute top-6 right-6 z-20">
+       <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
          <button
            onClick={toggleLevels}
-           className={`w-8 h-8 rounded-full ${infoButtonClass} border flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
+           className={`w-6 h-6 md:w-7 md:h-7 rounded-full ${infoButtonClass} border flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
          >
            {showLevels ? (
-             <X size={16} className={infoIconClass} />
+             <X size={14} className={infoIconClass} />
            ) : (
-             <Info size={16} className={infoIconClass} />
+             <Info size={14} className={infoIconClass} />
            )}
          </button>
        </div>
 
        {/* Main Content - Gauge */}
        <div className={`relative w-full transition-all duration-500 ${showLevels ? 'opacity-0 scale-95 -translate-y-4 pointer-events-none' : 'opacity-100 scale-100 translate-y-0 pointer-events-auto'}`}>
-         <div className="text-center mb-6 relative z-10">
-           <h3 className={`font-bold ${textPrimaryClass} mb-1`}>Probabilidad</h3>
-           <p className={`text-xs ${textSecondaryClass}`}>AI PREDICTION</p>
+         <div className="text-center mb-3 md:mb-4 relative z-10">
+           <h3 className={`font-bold ${textPrimaryClass} mb-0.5 text-sm md:text-base`}>Probabilidad</h3>
+           <p className={`text-[10px] md:text-xs ${textSecondaryClass}`}>AI PREDICTION</p>
          </div>
 
-         <div className="relative w-48 h-48 mx-auto flex items-center justify-center mb-4">
+         <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto flex items-center justify-center mb-2 md:mb-3">
             {/* Outer Radar Circles */}
             <div className={`absolute inset-0 rounded-full border ${radarCircleClass}`}></div>
             <div className={`absolute inset-4 rounded-full border ${radarCircleClass}`}></div>
@@ -318,8 +318,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                )}
             </svg>
 
-            <div className="absolute flex flex-col items-center justify-center px-2 w-full max-w-[160px]">
-               <span className={`text-4xl font-extrabold tracking-tighter ${textColor} mb-1.5`}>
+            <div className="absolute flex flex-col items-center justify-center px-2 w-full max-w-[120px] md:max-w-[140px]">
+               <span className={`text-2xl md:text-3xl font-extrabold tracking-tighter ${textColor} mb-1`}>
                  {score}%
                </span>
                <div 
@@ -338,11 +338,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
          </div>
 
          {/* Кнопка или текст для нового пользователя */}
-         <div className="relative z-10 w-full flex flex-col gap-2">
+         <div className="relative z-10 w-full flex flex-col gap-1.5 md:gap-2">
            {hasNoData ? (
              <button
                onClick={handleStartTest}
-               className={`w-full py-3 px-4 rounded-xl ${isDarkTheme ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20`}
+               className={`w-full py-2 md:py-2.5 px-3 md:px-4 rounded-lg md:rounded-xl ${isDarkTheme ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white text-xs md:text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20`}
              >
                Пройти первый тест
              </button>
