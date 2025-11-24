@@ -5,6 +5,7 @@ class SoundManager {
   private sounds: { [key: string]: HTMLAudioElement } = {};
   private enabled: boolean = true;
   private audioContext: AudioContext | null = null;
+  private unlocked: boolean = false;
 
   constructor() {
     // Initialize audio context on first user interaction
@@ -28,6 +29,28 @@ class SoundManager {
     return this.audioContext;
   }
 
+  // Check if audio context is unlocked
+  isUnlocked(): boolean {
+    return this.unlocked || (this.audioContext?.state === 'running' ?? false);
+  }
+
+  // Force unlock audio context (for Telegram WebApp)
+  forceUnlock(): void {
+    const ctx = this.ensureAudioContext();
+    if (!ctx) return;
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        this.unlocked = true;
+        console.log('[SoundManager] AudioContext unlocked');
+      }).catch((e) => {
+        console.warn('[SoundManager] Failed to unlock AudioContext:', e);
+      });
+    } else {
+      this.unlocked = true;
+    }
+  }
+
   // Play a modern UI sound with envelope
   private playSound(
     frequency: number = 800,
@@ -40,6 +63,11 @@ class SoundManager {
 
     const audioContext = this.ensureAudioContext();
     if (!audioContext) return;
+
+    // Auto-unlock if suspended
+    if (audioContext.state === 'suspended') {
+      this.forceUnlock();
+    }
 
     try {
       const oscillator = audioContext.createOscillator();

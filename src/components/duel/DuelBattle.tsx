@@ -659,8 +659,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                   />
                 )}
               </div>
-              <div className="flex-1">
-                <p className="text-xs font-medium text-muted-foreground mb-0.5">{myName}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[100px] md:max-w-none" title={myName}>{myName}</p>
                 <motion.p 
                   key={myScore}
                   className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
@@ -706,8 +706,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               whileHover={{ scale: 1.02 }}
               animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
-              <div className="flex-1 text-right">
-                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[120px] ml-auto" title={opponentName}>
+              <div className="flex-1 text-right min-w-0">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[100px] md:max-w-[120px] ml-auto" title={opponentName}>
                   {opponentName}
                 </p>
                 <motion.p 

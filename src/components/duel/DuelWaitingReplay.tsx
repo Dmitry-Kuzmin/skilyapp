@@ -1392,7 +1392,7 @@ export function DuelWaitingReplay({
             <div>
               <h2 className="text-2xl font-bold mb-2">Вы закончили первым!</h2>
               <p className="text-muted-foreground">
-                Ожидание ответа от <span className="font-semibold text-foreground">{opponentName}</span>
+                Ожидание ответа от <span className="font-semibold text-foreground truncate max-w-[150px] md:max-w-none inline-block" title={opponentName}>{opponentName}</span>
               </p>
 
               {/* Индикатор статуса соперника */}
@@ -1427,8 +1427,8 @@ export function DuelWaitingReplay({
                 </motion.div>
               </div>
               <div className="text-xl font-bold text-muted-foreground/40">VS</div>
-              <div className="text-center">
-                <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wide">{opponentName}</div>
+              <div className="text-center min-w-0">
+                <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wide truncate max-w-[100px] md:max-w-none mx-auto" title={opponentName}>{opponentName}</div>
                 <motion.div
                   className="text-3xl font-black text-secondary"
                   key={opponentScore}
@@ -1489,7 +1489,7 @@ export function DuelWaitingReplay({
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Zap className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium text-muted-foreground">
+                      <span className="text-sm font-medium text-muted-foreground truncate max-w-[120px] md:max-w-none" title={opponentName !== 'Соперник' ? opponentName : ''}>
                         Ход игры {opponentName !== 'Соперник' ? opponentName : ''}
                       </span>
                     </div>

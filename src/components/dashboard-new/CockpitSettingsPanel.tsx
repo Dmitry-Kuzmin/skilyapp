@@ -33,19 +33,19 @@ const Section: React.FC<{
     <div className={`rounded-xl border ${sectionBgClass} p-3 backdrop-blur-sm relative overflow-hidden`}>
       <div className={`absolute inset-0 bg-gradient-to-br ${sectionOverlayClass} to-transparent opacity-40 pointer-events-none`} />
       <div className="relative z-10 space-y-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
           <div className={`w-7 h-7 rounded-lg ${iconBgClass} flex items-center justify-center flex-shrink-0`}>
-            {icon}
-          </div>
+          {icon}
+        </div>
           <div className="min-w-0">
             <p className={`text-xs font-semibold ${titleClass}`}>{title}</p>
             {description && <p className={`text-[10px] ${descClass} leading-tight`}>{description}</p>}
           </div>
         </div>
-        <div>{children}</div>
-      </div>
+      <div>{children}</div>
     </div>
-  );
+  </div>
+);
 };
 
 const PillButton: React.FC<{
@@ -84,15 +84,15 @@ export const CockpitSettingsPanel: React.FC = () => {
 
       <div className="relative z-10 p-4 md:p-5 w-full flex flex-col">
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
-          <div>
+        <div>
             <p className={`text-[9px] uppercase tracking-[0.3em] ${textSecondaryClass}`}>Cockpit</p>
             <h3 className={`text-lg md:text-xl font-semibold ${textPrimaryClass} mt-0.5`}>Настройки пилота</h3>
-          </div>
+        </div>
           <div className={`px-2.5 py-1 rounded-full border ${isDarkTheme ? 'border-white/10 text-white/80' : 'border-slate-200/60 text-slate-700'} text-[10px] flex items-center gap-1.5`}>
             <Gauge className={`w-3.5 h-3.5 ${isDarkTheme ? 'text-emerald-300' : 'text-emerald-600'}`} />
-            Custom
-          </div>
+          Custom
         </div>
+      </div>
 
         <div className="grid gap-3 overflow-y-auto">
         <Section title="Язык" icon={<Languages className={`w-3.5 h-3.5 ${isDarkTheme ? 'text-cyan-300' : 'text-cyan-600'}`} />} description="Интерфейс и обучение" isDarkTheme={isDarkTheme}>

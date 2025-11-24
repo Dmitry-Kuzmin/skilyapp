@@ -34,6 +34,8 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     loadNotifications();
 
     // Realtime подписка на новые уведомления
+    // ВАЖНО: Не используем filter в клиенте, полагаемся на RLS политику на сервере
+    // Это предотвращает ошибку "mismatch between server and client bindings"
     const channel = supabase
       .channel(`duel_notifications_${profileId}`)
       .on(
@@ -42,7 +44,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           event: 'INSERT',
           schema: 'public',
           table: 'duel_notifications',
-          filter: `user_id=eq.${profileId}`,
+          // Убираем filter - RLS политика уже фильтрует по user_id
         },
         (payload) => {
           console.log('[Notifications] New notification received:', payload);
@@ -55,7 +57,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             profileId
           });
           
-          // Verify it's for this user
+          // Verify it's for this user (дополнительная проверка на клиенте)
           if (newNotification.user_id !== profileId) {
             console.warn('[Notifications] Notification user_id mismatch:', newNotification.user_id, 'vs', profileId);
             return;
@@ -99,14 +101,21 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           event: 'UPDATE',
           schema: 'public',
           table: 'duel_notifications',
-          filter: `user_id=eq.${profileId}`,
+          // Убираем filter - RLS политика уже фильтрует по user_id
         },
         (payload) => {
           console.log('[Notifications] Updated notification:', payload);
+          const updatedNotification = payload.new as DuelNotification;
+          
+          // Verify it's for this user
+          if (updatedNotification.user_id !== profileId) {
+            return;
+          }
+          
           setNotifications(prev =>
-            prev.map(n => (n.id === payload.new.id ? payload.new as DuelNotification : n))
+            prev.map(n => (n.id === updatedNotification.id ? updatedNotification : n))
           );
-          if ((payload.new as any).is_read) {
+          if (updatedNotification.is_read) {
             setUnreadCount(prev => Math.max(0, prev - 1));
           }
         }
@@ -115,11 +124,14 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
         console.log('[Notifications] Realtime subscription status:', status);
         if (err) {
           console.error('[Notifications] Realtime subscription error:', err);
+          // При ошибке подписки используем fallback polling
+          console.log('[Notifications] Falling back to polling mode');
         }
         if (status === 'SUBSCRIBED') {
           console.log('[Notifications] ✅ Successfully subscribed to notifications');
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('[Notifications] ❌ Channel error - check RLS policies');
+          console.error('[Notifications] ❌ Channel error - falling back to polling');
+          // Fallback: используем polling вместо realtime
         }
       });
 

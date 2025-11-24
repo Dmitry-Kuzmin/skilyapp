@@ -299,7 +299,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 <div className="text-6xl font-black text-slate-300">
                   {results.opponentScore}
                 </div>
-                <div className="text-sm font-bold text-slate-400 truncate px-2">{results.opponentName}</div>
+                <div className="text-sm font-bold text-slate-400 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
                 <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
                   <Target className="w-4 h-4 text-orange-400" />
                   <span className="text-sm font-bold text-white">{results.opponentCorrect}/10</span>

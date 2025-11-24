@@ -950,7 +950,7 @@ const TestSession = () => {
     return () => clearTimeout(timeoutId);
   }, [currentIndex, questions, loading]);
 
-  useEffect(() => {
+useEffect(() => {
     if ((mode === "exam" || mode === "blitz") && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
@@ -2466,6 +2466,15 @@ const TestSession = () => {
         isVisible={showChallengeBankNotification}
         onClose={() => setShowChallengeBankNotification(false)}
       />
+
+      {/* Account Watermark - защита от передачи аккаунтов */}
+      <AccountWatermark variant="default" />
+    </Layout>
+  );
+};
+
+export default TestSession;
+
 
       {/* Account Watermark - защита от передачи аккаунтов */}
       <AccountWatermark variant="default" />

@@ -129,6 +129,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   const seasonBonusDisplay = betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0;
 
   const hydrateQuestions = useCallback((questionList: any[]) => {
+    console.log('[DuelBattleFullscreen] 💧 Hydrating questions:', { 
+      count: questionList?.length || 0,
+      firstQuestion: questionList?.[0] ? {
+        id: questionList[0].id,
+        question_id: questionList[0].question_id,
+        hasCorrectOptions: !!questionList[0].correct_option_ids
+      } : null
+    });
     setQuestions(questionList);
 
     const savedState = localStorage.getItem('active_duel_state');
@@ -213,7 +221,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     try {
       isLoadingRef.current = true;
       setLoading(true);
+      console.log('[DuelBattleFullscreen] 🔄 Loading questions...', { duelId, profileId });
       const questionList = await fetchQuestions();
+      console.log('[DuelBattleFullscreen] ✅ Questions loaded:', { count: questionList?.length || 0, questions: questionList });
       hydrateQuestions(questionList);
     } catch (error) {
       console.error('[DuelBattleFullscreen] Failed to load questions:', error);
@@ -1044,7 +1054,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
 
     const question = questions[currentIndex];
-    const isCorrect = question.correct_option_ids.includes(optionId);
+    
+    // Проверяем, что вопрос существует и имеет необходимые поля
+    if (!question || !question.id) {
+      console.error('[DuelBattleFullscreen] Invalid question:', { question, currentIndex, questionsLength: questions.length });
+      toast.error('Ошибка: вопрос не найден');
+      return;
+    }
+
+    const isCorrect = question.correct_option_ids?.includes(optionId) ?? false;
+
+    console.log('[DuelBattleFullscreen] Submitting answer:', {
+      questionId: question.id,
+      optionId,
+      timeLeft,
+      timeTaken: 60000 - timeLeft,
+      isCorrect
+    });
 
     try {
       // Retry логика с экспоненциальной задержкой для submit_answer
@@ -1059,15 +1085,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
           });
 
+          const requestBody = {
+            action: 'submit_answer',
+            duel_id: duelId,
+            profile_id: profileId,
+            duel_question_id: question.id,
+            selected_option_id: optionId,
+            time_taken_ms: Math.max(0, Math.min(60000, 60000 - timeLeft)),
+          };
+
+          console.log('[DuelBattleFullscreen] Request body:', requestBody);
+
           const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'submit_answer',
-              duel_id: duelId,
-              profile_id: profileId,
-              duel_question_id: question.id,
-              selected_option_id: optionId,
-              time_taken_ms: 60000 - timeLeft,
-            },
+            body: requestBody,
           });
 
           const result = await Promise.race([invokePromise, timeoutPromise]) as any;
@@ -1075,7 +1105,12 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
           if (resultError) {
             lastError = resultError;
-            console.warn(`[DuelBattleFullscreen] ⚠️ Submit answer attempt ${attempt + 1} failed:`, resultError?.message);
+            console.warn(`[DuelBattleFullscreen] ⚠️ Submit answer attempt ${attempt + 1} failed:`, {
+              message: resultError?.message,
+              status: resultError?.status,
+              error: resultError,
+              requestBody
+            });
 
             // Если это не последняя попытка, ждем перед повтором
             if (attempt < maxRetries - 1) {
@@ -1168,7 +1203,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
 
       // IMPROVED: Check if both players finished before showing waiting screen
-      if (currentIndex >= questions.length - 1) {
+      const isLastQuestion = currentIndex >= questions.length - 1;
+      console.log('[DuelBattleFullscreen] Answer submitted:', {
+        currentIndex,
+        questionsLength: questions.length,
+        isLastQuestion,
+        willTransition: !isLastQuestion
+      });
+
+      if (isLastQuestion) {
         // Prevent duplicate calls
         if (isFinishingRef.current) {
           console.log('[DuelBattleFullscreen] Already finishing, skipping');
@@ -1187,8 +1230,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         finishDuel();
       } else {
         // Normal transition to next question
+        console.log('[DuelBattleFullscreen] Transitioning to next question in 1500ms');
         setTimeout(() => {
-          setCurrentIndex(prev => prev + 1);
+          console.log('[DuelBattleFullscreen] Executing transition to next question');
+          setCurrentIndex(prev => {
+            const nextIndex = prev + 1;
+            console.log('[DuelBattleFullscreen] Moving from index', prev, 'to', nextIndex);
+            return nextIndex;
+          });
           setIsAnswered(false);
           setSelectedAnswer(null);
           setTimeLeft(60000);
@@ -1287,7 +1336,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
 
       // IMPROVED: Check if both players finished before showing waiting screen (same as handleAnswer)
-      if (currentIndex >= questions.length - 1) {
+      const isLastQuestion = currentIndex >= questions.length - 1;
+      console.log('[DuelBattleFullscreen] Timeout occurred:', {
+        currentIndex,
+        questionsLength: questions.length,
+        isLastQuestion,
+        willTransition: !isLastQuestion
+      });
+
+      if (isLastQuestion) {
         // Prevent duplicate calls
         if (isFinishingRef.current) {
           console.log('[DuelBattleFullscreen] Already finishing, skipping');
@@ -1306,8 +1363,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         finishDuel();
       } else {
         // Normal transition to next question
+        console.log('[DuelBattleFullscreen] Transitioning to next question after timeout in 1500ms');
         setTimeout(() => {
-          setCurrentIndex(prev => prev + 1);
+          console.log('[DuelBattleFullscreen] Executing timeout transition to next question');
+          setCurrentIndex(prev => {
+            const nextIndex = prev + 1;
+            console.log('[DuelBattleFullscreen] Moving from index', prev, 'to', nextIndex);
+            return nextIndex;
+          });
           setIsAnswered(false);
           setSelectedAnswer(null);
           setTimeLeft(60000);
@@ -1688,11 +1751,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                   </div>
                 )}
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <p className="text-xs font-medium text-muted-foreground">{myName}</p>
+                  <p className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-none" title={myName}>{myName}</p>
                   {myInsuranceActive && (
-                    <Shield className="w-3 h-3 text-green-600 dark:text-green-400" title={`Страховка: ${myCoverageDisplay}%`} />
+                    <Shield className="w-3 h-3 text-green-600 dark:text-green-400 shrink-0" title={`Страховка: ${myCoverageDisplay}%`} />
                   )}
                 </div>
                 <motion.div
@@ -1715,13 +1778,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               whileHover={{ scale: 1.02 }}
               animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
-              <div className="flex-1 text-right">
+              <div className="flex-1 text-right min-w-0">
                 <div className="flex items-center justify-end gap-1.5 mb-0.5">
                   {opponentInsuranceActive && (
-                    <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" title={`Страховка: ${opponentCoverageDisplay}%`} />
+                    <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" title={`Страховка: ${opponentCoverageDisplay}%`} />
                   )}
                   <p
-                    className="text-xs font-medium text-muted-foreground truncate max-w-[120px]"
+                    className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-[120px]"
                     title={opponentName}
                     key={`opponent-name-${opponentName}`}
                   >

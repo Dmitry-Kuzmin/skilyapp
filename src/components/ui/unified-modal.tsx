@@ -297,11 +297,11 @@ export function UnifiedModal({
           <DialogHeader className="px-4 md:px-6 pt-4 md:pt-5 pb-3 border-b border-border/50">
             <DialogTitle>
               {title}
-            </DialogTitle>
-            <DialogDescription className="sr-only">
-              Содержимое модального окна
-            </DialogDescription>
-          </DialogHeader>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Содержимое модального окна
+          </DialogDescription>
+        </DialogHeader>
         )}
         <div
           className={cn(
