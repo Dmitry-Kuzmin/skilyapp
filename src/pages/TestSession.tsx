@@ -2474,5 +2474,3 @@ useEffect(() => {
 };
 
 export default TestSession;
-
-export default TestSession;
