@@ -113,24 +113,6 @@ const translations: Record<Language, Record<string, any>> = {
     // Other
     version: "v1.0.0 © 2025 Sdadim",
     dashboard: {
-      onlineStatus: "Система онлайн",
-      licenseStatus: "Лицензия B",
-      cockpitButton: "Панель пилота",
-      heroGreeting: "Привет, Пилот!",
-      heroEfficiencyPrefix: "Твоя эффективность составляет",
-      heroStatus: {
-        ready: "Датчики показывают, что ты готов к новой сессии.",
-        progress: "Продолжай тренироваться для лучшего результата.",
-        start: "Рекомендуем пройти больше тестов для улучшения готовности.",
-      },
-      stats: {
-        xp: "Опыт",
-        tests: "Тестов",
-        coins: "Монеты",
-      },
-      startButton: "Старт",
-    },
-    dashboard: {
       onlineStatus: "Sistema en línea",
       licenseStatus: "Licencia B",
       cockpitButton: "Cabina",

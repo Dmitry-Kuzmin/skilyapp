@@ -2475,11 +2475,4 @@ useEffect(() => {
 
 export default TestSession;
 
-
-      {/* Account Watermark - защита от передачи аккаунтов */}
-      <AccountWatermark variant="default" />
-    </Layout>
-  );
-};
-
 export default TestSession;
