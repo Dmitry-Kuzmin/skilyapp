@@ -178,6 +178,15 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
     [location.pathname]
   );
 
+  // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
+  const handleOpenNotifications = useCallback(() => {
+    setNotificationsOpen(true);
+  }, []);
+
+  const handleOpenAuth = useCallback(() => {
+    setAuthModalOpen(true);
+  }, []);
+
   // Scroll to top on route change
   // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для плавного скролла без блокировки UI
   useEffect(() => {
@@ -352,11 +361,11 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
             {isAuthenticated ? (
               <UserProfilePopover
                 notificationsApi={notificationsApi}
-                onOpenNotifications={() => setNotificationsOpen(true)}
+                onOpenNotifications={handleOpenNotifications}
               />
             ) : (
               <button
-                onClick={() => setAuthModalOpen(true)}
+                onClick={handleOpenAuth}
                 className="flex flex-col items-center gap-1 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
               >
                 <LogIn className="w-6 h-6" />
