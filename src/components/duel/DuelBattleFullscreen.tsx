@@ -220,23 +220,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId]);
 
-  const syncBoostInventory = useCallback(async () => {
-    try {
-      const inventory = await fetchBoostInventory();
-      setBoosts(inventory.filter((item) => item.quantity > 0));
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] Error syncing boosts:', error);
-    }
-  }, [fetchBoostInventory]);
-
-  const syncBetInfo = useCallback(async () => {
-    try {
-      const info = await fetchBetInfo();
-      setBetInfo(info);
-    } catch (error) {
-      console.error('[DuelBattleFullscreen] Error syncing bet info:', error);
-    }
-  }, [fetchBetInfo]);
+  // ОПТИМИЗАЦИЯ: Используем хук для синхронизации данных
+  const { syncBoostInventory, syncBetInfo } = useDuelSync({
+    fetchBoostInventory,
+    fetchBetInfo,
+    setBoosts,
+    setBetInfo,
+  });
 
   const syncPlayers = useCallback(async () => {
     try {

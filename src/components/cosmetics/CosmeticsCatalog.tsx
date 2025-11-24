@@ -508,39 +508,21 @@ export function CosmeticsCatalog() {
                         {/* Кнопки - компактные */}
                         <div className="flex gap-1.5 mt-1.5">
                           {!isOwned ? (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 h-7 text-xs px-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (skin.is_premium && !isPremium) {
-                                    navigate("/premium");
-                                  } else {
-                                    navigate("/duel-pass");
-                                  }
-                                }}
-                              >
-                                <Lock className="w-2.5 h-2.5 mr-1" />
-                                Получить
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant={previewSkin?.id === skin.id ? "default" : "secondary"}
-                                className={cn(
-                                  "h-7 text-xs px-2",
-                                  previewSkin?.id === skin.id && "bg-primary"
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSkinPreview(skin);
-                                }}
-                              >
-                                <Eye className="w-2.5 h-2.5 mr-1" />
-                                Примерить
-                              </Button>
-                            </>
+                            <Button
+                              size="sm"
+                              variant={previewSkin?.id === skin.id ? "default" : "secondary"}
+                              className={cn(
+                                "w-full h-7 text-xs px-2",
+                                previewSkin?.id === skin.id && "bg-primary"
+                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSkinPreview(skin);
+                              }}
+                            >
+                              <Eye className="w-2.5 h-2.5 mr-1" />
+                              Примерить
+                            </Button>
                           ) : (
                             <>
                               {isActive ? (
@@ -746,41 +728,21 @@ export function CosmeticsCatalog() {
                         {/* Кнопки - компактные */}
                         <div className="flex gap-1.5 mt-1.5">
                           {!isOwned ? (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="flex-1 h-7 text-xs px-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (badge.is_premium && !isPremium) {
-                                    navigate("/premium");
-                                  } else if (badge.category === "seasonal") {
-                                    navigate("/duel-pass");
-                                  } else {
-                                    navigate("/achievements");
-                                  }
-                                }}
-                              >
-                                <Lock className="w-2.5 h-2.5 mr-1" />
-                                Получить
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant={previewBadges.some((b) => b.id === badge.id) ? "default" : "secondary"}
-                                className={cn(
-                                  "h-7 text-xs px-2",
-                                  previewBadges.some((b) => b.id === badge.id) && "bg-primary"
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleBadgePreview(badge);
-                                }}
-                              >
-                                <Eye className="w-2.5 h-2.5 mr-1" />
-                                Примерить
-                              </Button>
-                            </>
+                            <Button
+                              size="sm"
+                              variant={previewBadges.some((b) => b.id === badge.id) ? "default" : "secondary"}
+                              className={cn(
+                                "w-full h-7 text-xs px-2",
+                                previewBadges.some((b) => b.id === badge.id) && "bg-primary"
+                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleBadgePreview(badge);
+                              }}
+                            >
+                              <Eye className="w-2.5 h-2.5 mr-1" />
+                              Примерить
+                            </Button>
                           ) : (
                             <>
                               {isActive ? (
