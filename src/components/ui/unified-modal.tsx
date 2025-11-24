@@ -22,6 +22,7 @@ interface UnifiedModalProps {
   contentClassName?: string;
   showHandle?: boolean;
   modalRouteKey?: string;
+  fullscreen?: boolean; // Полноэкранный режим с залитым фоном
 }
 
 /**
@@ -50,6 +51,7 @@ export function UnifiedModal({
   contentClassName,
   showHandle = true,
   modalRouteKey,
+  fullscreen = false,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
   
@@ -255,7 +257,38 @@ export function UnifiedModal({
     );
   }
 
-  // На десктопе используем обычный Dialog (центрированный)
+  // На десктопе используем обычный Dialog (центрированный) или полноэкранный режим
+  if (fullscreen) {
+    return (
+      <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
+        <DialogContent 
+          className={cn(
+            "fixed inset-0 max-w-none max-h-none w-full h-full p-0 flex flex-col rounded-none border-none bg-background",
+            className
+          )}
+          autoAccessibility={false}
+        >
+          <DialogHeader className={showTitleBar ? "px-6 pt-6 pb-4 border-b border-border/50" : "sr-only"}>
+            <DialogTitle className={title ? undefined : "sr-only"}>
+              {title || "Модальное окно"}
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              Содержимое модального окна
+            </DialogDescription>
+          </DialogHeader>
+          <div
+            className={cn(
+              "flex-1 overflow-y-auto px-6 py-4 scrollbar-none",
+              contentClassName
+            )}
+          >
+            {renderContent}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
       <DialogContent 

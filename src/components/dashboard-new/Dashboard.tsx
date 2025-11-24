@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Settings, Zap, FileText, Coins, Gauge } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Zap, FileText, Coins, Gauge } from 'lucide-react';
 import { DailyRewards } from './DailyRewards';
 import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
@@ -8,7 +8,6 @@ import { DuelPassInfo } from './DuelPassInfo';
 import { CockpitSettingsPanel } from './CockpitSettingsPanel';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 
-import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
@@ -48,7 +47,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
-  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
   const [cockpitOpen, setCockpitOpen] = useState(false);
   const { t } = useLanguage();
   const { resolvedTheme } = useTheme();
@@ -61,12 +59,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const heroShadowClass = isDarkTheme
     ? 'shadow-2xl shadow-purple-900/30'
     : 'shadow-[0_32px_80px_rgba(139,92,246,0.25)]';
-  const quickSettingsButtonClass = isDarkTheme
-    ? 'flex-shrink-0 w-10 h-10 rounded-xl bg-slate-800/60 hover:bg-slate-700/70 border border-slate-700/60 hover:border-indigo-400/60 transition-all group flex items-center justify-center backdrop-blur-sm'
-    : 'flex-shrink-0 w-10 h-10 rounded-xl bg-white/90 border border-slate-200/80 shadow-[0_18px_40px_rgba(15,23,42,0.12)] hover:border-indigo-300 hover:shadow-indigo-100/50 transition-all group flex items-center justify-center backdrop-blur-sm';
-  const quickSettingsIconClass = isDarkTheme
-    ? 'w-5 h-5 text-slate-300 group-hover:text-indigo-300 group-hover:rotate-90 transition-all duration-300'
-    : 'w-5 h-5 text-slate-600 group-hover:text-indigo-500 group-hover:rotate-90 transition-all duration-300';
   const onlineBadgeClass = isDarkTheme
     ? 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/25 to-emerald-600/25 border border-emerald-400/40 backdrop-blur-sm shadow-lg shadow-emerald-500/20'
     : 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-emerald-200/80 shadow-[0_12px_34px_rgba(16,185,129,0.25)] backdrop-blur-sm';
@@ -135,19 +127,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         {/* Header */}
         <div className="mb-6 animate-fade-in">
-          <div className="flex items-center justify-end gap-3 mb-3">
-            {/* Quick Settings Button - только иконка */}
-            <button
-              onClick={() => {
-                playClickSound();
-                setQuickSettingsOpen(true);
-              }}
-              className={quickSettingsButtonClass}
-              aria-label="Настройки"
-            >
-              <Settings className={quickSettingsIconClass} />
-            </button>
-          </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Online Status Badge */}
             <div className={onlineBadgeClass}>
@@ -382,21 +361,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 
 
-      {/* Quick Settings Panel */}
-      <QuickSettingsPanel
-        open={quickSettingsOpen}
-        onOpenChange={setQuickSettingsOpen}
-      />
-
       <UnifiedModal
         title="Панель пилота"
         open={cockpitOpen}
         onOpenChange={setCockpitOpen}
-        size="lg"
+        fullscreen={true}
       >
-        <div className="max-h-[75vh] overflow-y-auto">
-          <CockpitSettingsPanel />
-        </div>
+        <CockpitSettingsPanel />
       </UnifiedModal>
     </div>
   );

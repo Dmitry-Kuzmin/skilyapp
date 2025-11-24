@@ -1967,7 +1967,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const value = helpCenterTranslations[language][key];
       return typeof value === 'string' ? applyParams(value, params) : key;
     }
-
+    
     // Then check language overrides (for partial locales)
     const overrideValue = resolveFromObject(languageOverrides[language], key);
     if (typeof overrideValue === 'string') {

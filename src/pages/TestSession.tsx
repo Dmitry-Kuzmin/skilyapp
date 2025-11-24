@@ -950,7 +950,7 @@ const TestSession = () => {
     return () => clearTimeout(timeoutId);
   }, [currentIndex, questions, loading]);
 
-useEffect(() => {
+  useEffect(() => {
     if ((mode === "exam" || mode === "blitz") && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
