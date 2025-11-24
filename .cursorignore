@@ -8,3 +8,27 @@ dist
 *.log
 logs/
 .DS_Store
+
+# TypeScript build info
+*.tsbuildinfo
+**/tsconfig.tsbuildinfo
+
+# Git
+.git/
+.gitignore
+
+# Node modules (частично)
+node_modules/**/*.map
+node_modules/**/*.d.ts.map
+node_modules/**/dist-types
+
+# Supabase
+supabase/.temp
+supabase/.branches
+
+# Временные файлы
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
