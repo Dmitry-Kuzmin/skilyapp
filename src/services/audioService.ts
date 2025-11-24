@@ -128,14 +128,20 @@ const ensureAudioReady = async (): Promise<AudioContext | null> => {
   const ctx = getAudioContext();
   if (!ctx) return null;
   
-  // Try to unlock if needed
+  // Если контекст suspended и еще не разблокирован, тихо возвращаем null
+  // Не показываем предупреждения для hover звуков до первого взаимодействия
+  if (ctx.state === 'suspended' && !isUnlocked) {
+    return null;
+  }
+  
+  // Try to unlock if needed (только если уже был разблокирован ранее)
   if (!isUnlocked || ctx.state === 'suspended') {
     await unlockAudioContext();
   }
   
   // Double check state
   if (ctx.state === 'suspended') {
-    audioWarn('AudioContext все еще suspended');
+    // Тихая проверка - не показываем предупреждение для hover звуков
     return null;
   }
   
@@ -143,14 +149,15 @@ const ensureAudioReady = async (): Promise<AudioContext | null> => {
 };
 
 // Play sound with error handling
-const playSound = async (soundFunction: (ctx: AudioContext, t: number) => void) => {
+const playSound = async (soundFunction: (ctx: AudioContext, t: number) => void, silent = false) => {
   if (isAudioMuted) {
-    audioLog('🔇 Sound suppressed (muted)');
+    if (!silent) audioLog('🔇 Sound suppressed (muted)');
     return;
   }
   const ctx = await ensureAudioReady();
   if (!ctx) {
-    audioWarn('AudioContext не готов к воспроизведению');
+    // Тихая проверка для hover звуков - не показываем предупреждения
+    if (!silent) audioWarn('AudioContext не готов к воспроизведению');
     return;
   }
   
@@ -158,7 +165,8 @@ const playSound = async (soundFunction: (ctx: AudioContext, t: number) => void) 
     const t = ctx.currentTime;
     soundFunction(ctx, t);
   } catch (e) {
-    audioWarn('Ошибка воспроизведения звука:', e);
+    // Тихая обработка ошибок для hover звуков
+    if (!silent) audioWarn('Ошибка воспроизведения звука:', e);
   }
 };
 
@@ -255,6 +263,7 @@ export const playClickSound = () => {
 };
 
 export const playHoverSound = () => {
+  // Тихая обработка для hover звуков - не показываем предупреждения если AudioContext еще не разблокирован
   playSound((ctx, t) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -270,7 +279,7 @@ export const playHoverSound = () => {
     gain.connect(ctx.destination);
     osc.start(t);
     osc.stop(t + 0.1);
-  });
+  }, true); // silent = true для hover звуков
 };
 
 export const playTabSwitchSound = () => {
