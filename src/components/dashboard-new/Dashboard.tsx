@@ -56,6 +56,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const pageBgClass = isDarkTheme ? 'bg-[#0f172a] text-white' : 'bg-slate-100 text-slate-900';
   const heroBackground = isDarkTheme
+  const quickSettingsButtonClass = isDarkTheme
+    ? 'flex-shrink-0 w-10 h-10 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group flex items-center justify-center'
+    : 'flex-shrink-0 w-10 h-10 rounded-xl bg-white/80 hover:bg-white border border-slate-200 hover:border-indigo-300 shadow-sm transition-all group flex items-center justify-center';
+  const quickSettingsIconClass = isDarkTheme
+    ? 'w-5 h-5 text-slate-400 group-hover:text-indigo-400 group-hover:rotate-90 transition-all duration-300'
+    : 'w-5 h-5 text-slate-500 group-hover:text-indigo-500 group-hover:rotate-90 transition-all duration-300';
+  const onlineBadgeClass = isDarkTheme
+    ? 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10'
+    : 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-200 to-emerald-100 border border-emerald-300 text-emerald-800 shadow-sm';
+  const licenseBadgeClass = isDarkTheme
+    ? 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300'
+    : 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 border border-indigo-200 text-indigo-700 shadow-sm';
+  const cockpitButtonClass = isDarkTheme
+    ? 'flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-800/80 transition-all text-xs font-semibold text-slate-200'
+    : 'flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 transition-all text-xs font-semibold text-slate-600 shadow-sm';
+  const statValueClass = isDarkTheme ? 'text-base sm:text-lg font-black text-white' : 'text-base sm:text-lg font-black text-slate-900';
+  const statLabelBase = 'text-[9px] sm:text-[10px] font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1';
+  const statStartButtonText = isDarkTheme ? 'text-indigo-600' : 'text-purple-600';
+  const onlineTextClass = isDarkTheme ? 'text-emerald-300' : 'text-emerald-800';
     ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)'
     : 'linear-gradient(135deg, #93c5fd 0%, #c4b5fd 50%, #fbcfe8 100%)';
   const heroNoiseOpacity = isDarkTheme ? 'opacity-20' : 'opacity-10';
@@ -94,26 +113,32 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 playClickSound();
                 setQuickSettingsOpen(true);
               }}
-              className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-indigo-500/50 transition-all group flex items-center justify-center"
+              className={quickSettingsButtonClass}
               aria-label="Настройки"
             >
-              <Settings className="w-5 h-5 text-slate-400 group-hover:text-indigo-400 group-hover:rotate-90 transition-all duration-300" />
+              <Settings className={quickSettingsIconClass} />
             </button>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Online Status Badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
+            <div className={onlineBadgeClass}>
               <div className="relative">
                 <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
                 <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
               </div>
-              <span className="text-xs font-semibold text-emerald-300">{t('dashboard.onlineStatus')}</span>
+              <span className={`text-xs font-semibold ${onlineTextClass}`}>{t('dashboard.onlineStatus')}</span>
             </div>
 
             {/* License Badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-sm group hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+            <div className={licenseBadgeClass}>
               <Car className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent">
+              <span
+                className={
+                  isDarkTheme
+                    ? 'text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent'
+                    : 'text-xs font-bold text-indigo-600'
+                }
+              >
                 {t('dashboard.licenseStatus')}
               </span>
             </div>
@@ -122,7 +147,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 playClickSound();
                 setCockpitOpen(true);
               }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/60 hover:border-emerald-400/50 hover:bg-slate-800/80 transition-all text-xs font-semibold text-slate-200"
+              className={cockpitButtonClass}
               aria-label={t('dashboard.cockpitButton')}
             >
               <Gauge className="w-3.5 h-3.5 text-emerald-300" />
@@ -179,7 +204,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
                     <Power size={32} className="text-indigo-600 mb-2 drop-shadow-lg" />
-                    <span className="text-indigo-600 font-bold text-sm tracking-wider uppercase">
+                    <span className={`${statStartButtonText} font-bold text-sm tracking-wider uppercase`}>
                       {t('dashboard.startButton')}
                     </span>
                   </div>
@@ -207,10 +232,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] sm:text-[10px] text-yellow-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">
+                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-yellow-200/80' : 'text-yellow-700/80'}`}>
                         {t('dashboard.stats.xp')}
                       </div>
-                      <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-yellow-50 transition-colors duration-200">
+                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-yellow-50' : 'group-hover:text-yellow-700'} transition-colors duration-200`}>
                         {stats.xp || 0} <span className="text-xs sm:text-sm font-bold text-yellow-300/70">XP</span>
                       </div>
                     </div>
@@ -236,10 +261,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] sm:text-[10px] text-blue-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">
+                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-blue-200/80' : 'text-blue-700/80'}`}>
                         {t('dashboard.stats.tests')}
                       </div>
-                      <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-blue-50 transition-colors duration-200">
+                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-blue-50' : 'group-hover:text-blue-700'} transition-colors duration-200`}>
                         {stats.testsCompleted}
                       </div>
                     </div>
@@ -265,10 +290,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     
                     {/* Text content - компактный */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-[9px] sm:text-[10px] text-amber-200/80 font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1">
+                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-amber-200/80' : 'text-amber-700/80'}`}>
                         {t('dashboard.stats.coins')}
                       </div>
-                      <div className="text-base sm:text-lg font-black text-white leading-tight group-hover:text-amber-50 transition-colors duration-200">
+                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-amber-50' : 'group-hover:text-amber-700'} transition-colors duration-200`}>
                         {stats.coins}
                       </div>
                     </div>
