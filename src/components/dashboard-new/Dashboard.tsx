@@ -9,6 +9,7 @@ const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default:
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
 const CockpitSettingsPanel = lazy(() => import('./CockpitSettingsPanel').then(m => ({ default: m.CockpitSettingsPanel })));
+const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
@@ -18,6 +19,7 @@ const ComponentSkeleton = () => (
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
+import { useModalRoute } from '@/hooks/useModalRoute';
 
 interface DashboardProps {
   stats: {
@@ -389,7 +391,28 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <CockpitSettingsPanel />
         </Suspense>
       </UnifiedModal>
+
+      {/* Duel Pass Season Modal */}
+      <Suspense fallback={null}>
+        <DuelPassSeasonModalWrapper />
+      </Suspense>
     </div>
+  );
+};
+
+// Wrapper component для DuelPassSeasonModal с useModalRoute
+const DuelPassSeasonModalWrapper = () => {
+  const { isOpen, closeModal } = useModalRoute('duel-pass-season');
+  
+  return (
+    <DuelPassSeasonModal 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) {
+          closeModal();
+        }
+      }} 
+    />
   );
 };
 
