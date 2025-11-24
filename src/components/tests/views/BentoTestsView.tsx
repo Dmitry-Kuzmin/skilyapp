@@ -43,29 +43,37 @@ const BentoCard = ({
     const isDark = theme === "dark";
 
     return (
-        <div
+        <motion.div
             onClick={onClick}
+            whileHover={{ scale: 1.02, y: -4 }}
+            whileTap={{ scale: 0.98 }}
             className={cn(
                 "group relative overflow-hidden rounded-3xl border transition-all duration-300",
                 isDark
-                    ? "bg-[#1a1a1d] border-white/10 hover:border-white/20"
-                    : "bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md",
+                    ? "bg-gradient-to-br from-[#1a1a1d] to-[#1f1f23] border-white/10 hover:border-white/30 shadow-xl hover:shadow-2xl"
+                    : "bg-white border-gray-200 hover:border-gray-400 shadow-lg hover:shadow-2xl",
                 onClick && "cursor-pointer",
                 className
             )}
             style={{ willChange: 'transform' }}
         >
-            {/* Gradient overlay on hover */}
+            {/* Animated gradient overlay */}
             <div className={cn(
                 "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
                 accentColor
             )} />
+            
+            {/* Glow effect on hover */}
+            <div className={cn(
+                "absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl",
+                accentColor.replace('/20', '/40')
+            )} />
 
             {/* Content */}
-            <div className="relative z-10">
+            <div className="relative z-10 h-full">
                 {children}
             </div>
-        </div>
+        </motion.div>
     );
 };
 
@@ -142,52 +150,66 @@ export const BentoTestsView = ({
                     <div className="lg:col-span-5 order-1">
                         <BentoCard
                             onClick={() => handleStartTest(`/test/practice?count=${randomQuestionCount}`)}
-                            accentColor="from-indigo-500/20 to-purple-500/20"
-                            className="h-full min-h-[340px] p-6 md:p-8"
+                            accentColor="from-indigo-500/20 via-purple-500/20 to-pink-500/20"
+                            className="h-full min-h-[280px] max-h-[320px] p-5 md:p-7"
                         >
                             <div className="h-full flex flex-col justify-between">
-                                <div className="flex items-start justify-between mb-6">
-                                    <div className={cn(
-                                        "p-3 md:p-4 rounded-2xl backdrop-blur-md",
-                                        isDark ? "bg-white/10" : "bg-gray-100"
-                                    )}>
-                                        <Shuffle className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
-                                    </div>
+                                <div className="flex items-start justify-between mb-4">
+                                    <motion.div 
+                                        whileHover={{ rotate: 180, scale: 1.1 }}
+                                        transition={{ duration: 0.3 }}
+                                        className={cn(
+                                            "p-3 md:p-4 rounded-2xl backdrop-blur-md shadow-lg",
+                                            isDark ? "bg-gradient-to-br from-indigo-500/30 to-purple-500/30" : "bg-gradient-to-br from-indigo-100 to-purple-100"
+                                        )}
+                                    >
+                                        <Shuffle className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-indigo-700")} />
+                                    </motion.div>
                                     <Badge className={cn(
-                                        "font-bold px-3 py-1",
-                                        isDark ? "bg-white/10 text-white border-white/20" : "bg-gray-900 text-white"
+                                        "font-bold px-3 py-1.5 animate-pulse",
+                                        isDark ? "bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-lg shadow-red-500/50" : "bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-lg"
                                     )}>
                                         HOT
                                     </Badge>
                                 </div>
 
-                                <div className="space-y-4 md:space-y-6">
+                                <div className="space-y-4">
                                     <div>
-                                        <h2 className={cn("text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight", isDark ? "text-white" : "text-gray-900")}>
+                                        <h2 className={cn("text-2xl sm:text-3xl md:text-3xl font-black mb-2 leading-tight bg-gradient-to-r bg-clip-text text-transparent", 
+                                            isDark 
+                                                ? "from-indigo-300 via-purple-300 to-pink-300" 
+                                                : "from-indigo-600 via-purple-600 to-pink-600"
+                                        )}>
                                             Случайный тест
                                         </h2>
-                                        <p className={cn("text-sm md:text-base", isDark ? "text-white/70" : "text-gray-600")}>
+                                        <p className={cn("text-xs md:text-sm leading-relaxed", isDark ? "text-white/70" : "text-gray-600")}>
                                             Быстрая проверка знаний на случайных вопросах из всех тем
                                         </p>
                                     </div>
 
-                                    <div className="flex gap-2 md:gap-3">
+                                    <div className="flex gap-2">
                                         {[10, 20, 30].map((count) => (
-                                            <button
+                                            <motion.button
                                                 key={count}
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setRandomQuestionCount(count);
                                                 }}
                                                 className={cn(
-                                                    "px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-bold text-sm md:text-lg transition-all",
+                                                    "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
                                                     randomQuestionCount === count
-                                                        ? (isDark ? "bg-white text-black shadow-lg" : "bg-gray-900 text-white shadow-lg")
-                                                        : (isDark ? "bg-white/10 text-white hover:bg-white/20" : "bg-gray-100 text-gray-700 hover:bg-gray-200")
+                                                        ? (isDark 
+                                                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
+                                                            : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
+                                                        : (isDark 
+                                                            ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
+                                                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
                                                 )}
                                             >
                                                 {count}
-                                            </button>
+                                            </motion.button>
                                         ))}
                                     </div>
                                 </div>
@@ -196,91 +218,142 @@ export const BentoTestsView = ({
                     </div>
 
                     {/* Right Column */}
-                    <div className="lg:col-span-7 space-y-4 md:space-y-6 order-2">
+                    <div className="lg:col-span-7 space-y-3 md:space-y-4 order-2">
                         {/* Exam Card */}
                         <BentoCard
                             onClick={() => handleStartTest("/test/exam")}
-                            accentColor="from-emerald-500/20 to-teal-500/20"
-                            className="p-5 md:p-6"
+                            accentColor="from-emerald-500/20 via-teal-500/20 to-cyan-500/20"
+                            className="h-[140px] md:h-[160px] p-4 md:p-5"
                         >
-                            <div className="flex items-start justify-between mb-4">
-                                <div className={cn(
-                                    "p-3 rounded-xl backdrop-blur-sm",
-                                    isDark ? "bg-white/10" : "bg-gray-100"
-                                )}>
-                                    <Clock className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-gray-700")} />
+                            <div className="h-full flex flex-col justify-between">
+                                <div className="flex items-start justify-between">
+                                    <motion.div 
+                                        whileHover={{ rotate: 12, scale: 1.1 }}
+                                        className={cn(
+                                            "p-2.5 md:p-3 rounded-xl backdrop-blur-sm shadow-md",
+                                            isDark ? "bg-gradient-to-br from-emerald-500/30 to-teal-500/30" : "bg-gradient-to-br from-emerald-100 to-teal-100"
+                                        )}
+                                    >
+                                        <Clock className={cn("w-4 h-4 md:w-5 md:h-5", isDark ? "text-white" : "text-emerald-700")} />
+                                    </motion.div>
+                                    <div className="flex gap-1.5 md:gap-2">
+                                        <Badge variant="outline" className={cn(
+                                            "text-xs px-2 py-0.5 font-semibold",
+                                            isDark ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-emerald-300 bg-emerald-50 text-emerald-700"
+                                        )}>30 мин</Badge>
+                                        <Badge variant="outline" className={cn(
+                                            "text-xs px-2 py-0.5 font-semibold",
+                                            isDark ? "border-red-500/30 bg-red-500/10 text-red-300" : "border-red-300 bg-red-50 text-red-700"
+                                        )}>Hard</Badge>
+                                    </div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <Badge variant="outline" className={cn(
-                                        isDark ? "border-white/20 bg-white/5 text-white" : "border-gray-300 bg-gray-50 text-gray-700"
-                                    )}>30 мин</Badge>
-                                    <Badge variant="outline" className={cn(
-                                        isDark ? "border-white/20 bg-white/5 text-white" : "border-gray-300 bg-gray-50 text-gray-700"
-                                    )}>Hard</Badge>
+                                <div>
+                                    <h3 className={cn("text-lg md:text-xl font-black mb-1 bg-gradient-to-r bg-clip-text text-transparent", 
+                                        isDark ? "from-emerald-300 to-teal-300" : "from-emerald-600 to-teal-600"
+                                    )}>
+                                        Экзамен DGT
+                                    </h3>
+                                    <p className={cn("text-xs leading-tight", isDark ? "text-white/70" : "text-gray-600")}>
+                                        Полная симуляция официального экзамена
+                                    </p>
                                 </div>
                             </div>
-                            <h3 className={cn("text-xl md:text-2xl font-bold mb-2", isDark ? "text-white" : "text-gray-900")}>
-                                Экзамен DGT
-                            </h3>
-                            <p className={cn("text-sm", isDark ? "text-white/70" : "text-gray-600")}>
-                                Полная симуляция официального экзамена
-                            </p>
                         </BentoCard>
 
                         {/* Quick Modes Grid */}
-                        <div className="grid grid-cols-2 gap-3 md:gap-4">
+                        <div className="grid grid-cols-2 gap-3">
                             <BentoCard
                                 onClick={() => handleStartTest("/test/blitz?count=20&timer=300")}
-                                accentColor="from-orange-500/20 to-amber-500/20"
-                                className="aspect-square p-4 md:p-5"
+                                accentColor="from-orange-500/20 via-amber-500/20 to-yellow-500/20"
+                                className="h-[140px] md:h-[160px] p-4 md:p-5"
                             >
                                 <div className="h-full flex flex-col justify-between">
-                                    <Zap className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
+                                    <motion.div
+                                        whileHover={{ rotate: -12, scale: 1.1 }}
+                                        className={cn(
+                                            "p-2.5 md:p-3 rounded-xl w-fit shadow-md",
+                                            isDark ? "bg-gradient-to-br from-orange-500/30 to-amber-500/30" : "bg-gradient-to-br from-orange-100 to-amber-100"
+                                        )}
+                                    >
+                                        <Zap className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-orange-700")} />
+                                    </motion.div>
                                     <div>
-                                        <div className={cn("text-lg md:text-xl font-bold", isDark ? "text-white" : "text-gray-900")}>Блиц</div>
-                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>5 минут · 20 вопросов</div>
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                            isDark ? "from-orange-300 to-amber-300" : "from-orange-600 to-amber-600"
+                                        )}>Блиц</div>
+                                        <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>5 мин · 20 вопросов</div>
                                     </div>
                                 </div>
                             </BentoCard>
 
                             <BentoCard
                                 onClick={() => handleStartTest("/test/mastery")}
-                                accentColor="from-pink-500/20 to-rose-500/20"
-                                className="aspect-square p-4 md:p-5"
+                                accentColor="from-pink-500/20 via-rose-500/20 to-red-500/20"
+                                className="h-[140px] md:h-[160px] p-4 md:p-5"
                             >
                                 <div className="h-full flex flex-col justify-between">
-                                    <Flame className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
+                                    <motion.div
+                                        whileHover={{ rotate: 12, scale: 1.1 }}
+                                        className={cn(
+                                            "p-2.5 md:p-3 rounded-xl w-fit shadow-md",
+                                            isDark ? "bg-gradient-to-br from-pink-500/30 to-rose-500/30" : "bg-gradient-to-br from-pink-100 to-rose-100"
+                                        )}
+                                    >
+                                        <Flame className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-pink-700")} />
+                                    </motion.div>
                                     <div>
-                                        <div className={cn("text-lg md:text-xl font-bold", isDark ? "text-white" : "text-gray-900")}>Марафон</div>
-                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>Пока не ответишь идеально</div>
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                            isDark ? "from-pink-300 to-rose-300" : "from-pink-600 to-rose-600"
+                                        )}>Марафон</div>
+                                        <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>Пока не ответишь идеально</div>
                                     </div>
                                 </div>
                             </BentoCard>
 
                             <BentoCard
                                 onClick={() => handleStartTest("/test/challenge-bank")}
-                                accentColor="from-purple-500/20 to-violet-500/20"
-                                className="aspect-square p-4 md:p-5"
+                                accentColor="from-purple-500/20 via-violet-500/20 to-indigo-500/20"
+                                className="h-[140px] md:h-[160px] p-4 md:p-5"
                             >
                                 <div className="h-full flex flex-col justify-between">
-                                    <History className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
+                                    <motion.div
+                                        whileHover={{ rotate: -12, scale: 1.1 }}
+                                        className={cn(
+                                            "p-2.5 md:p-3 rounded-xl w-fit shadow-md",
+                                            isDark ? "bg-gradient-to-br from-purple-500/30 to-violet-500/30" : "bg-gradient-to-br from-purple-100 to-violet-100"
+                                        )}
+                                    >
+                                        <History className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-purple-700")} />
+                                    </motion.div>
                                     <div>
-                                        <div className={cn("text-lg md:text-xl font-bold", isDark ? "text-white" : "text-gray-900")}>Ошибки</div>
-                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>{challengeBankCount}</div>
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                            isDark ? "from-purple-300 to-violet-300" : "from-purple-600 to-violet-600"
+                                        )}>Ошибки</div>
+                                        <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>{challengeBankCount} вопросов</div>
                                     </div>
                                 </div>
                             </BentoCard>
 
                             <BentoCard
                                 onClick={() => handleStartTest("/test/hardest")}
-                                accentColor="from-slate-500/20 to-gray-500/20"
-                                className="aspect-square p-4 md:p-5"
+                                accentColor="from-slate-500/20 via-gray-500/20 to-zinc-500/20"
+                                className="h-[140px] md:h-[160px] p-4 md:p-5"
                             >
                                 <div className="h-full flex flex-col justify-between">
-                                    <AlertTriangle className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
+                                    <motion.div
+                                        whileHover={{ rotate: 12, scale: 1.1 }}
+                                        className={cn(
+                                            "p-2.5 md:p-3 rounded-xl w-fit shadow-md",
+                                            isDark ? "bg-gradient-to-br from-slate-500/30 to-gray-500/30" : "bg-gradient-to-br from-slate-100 to-gray-100"
+                                        )}
+                                    >
+                                        <AlertTriangle className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-slate-700")} />
+                                    </motion.div>
                                     <div>
-                                        <div className={cn("text-lg md:text-xl font-bold", isDark ? "text-white" : "text-gray-900")}>Сложные</div>
-                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>ТОП-50</div>
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                            isDark ? "from-slate-300 to-gray-300" : "from-slate-600 to-gray-600"
+                                        )}>Сложные</div>
+                                        <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>ТОП-50</div>
                                     </div>
                                 </div>
                             </BentoCard>
