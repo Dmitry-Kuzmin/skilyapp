@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import {
     BookOpen, Shuffle, Zap, Flame,
     History, AlertTriangle, Clock,
-    ChevronRight, Trophy, Sparkles, Target, BarChart3
+    ChevronRight, Trophy, Sparkles, Target, BarChart3, Play, ArrowRight
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -197,30 +197,52 @@ export const BentoTestsView = ({
                                         </p>
                                     </div>
 
-                                    <div className="flex gap-2">
-                                        {[10, 20, 30].map((count) => (
-                                            <motion.button
-                                                key={count}
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setRandomQuestionCount(count);
-                                                }}
-                                                className={cn(
-                                                    "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
-                                                    randomQuestionCount === count
-                                                        ? (isDark 
-                                                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
-                                                            : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
-                                                        : (isDark 
-                                                            ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
-                                                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
-                                                )}
-                                            >
-                                                {count}
-                                            </motion.button>
-                                        ))}
+                                    <div className="space-y-3">
+                                        <div className="flex gap-2">
+                                            {[10, 20, 30].map((count) => (
+                                                <motion.button
+                                                    key={count}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setRandomQuestionCount(count);
+                                                    }}
+                                                    className={cn(
+                                                        "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
+                                                        randomQuestionCount === count
+                                                            ? (isDark 
+                                                                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
+                                                                : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
+                                                            : (isDark 
+                                                                ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
+                                                                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
+                                                    )}
+                                                >
+                                                    {count}
+                                                </motion.button>
+                                            ))}
+                                        </div>
+                                        
+                                        {/* Start Button */}
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleStartTest(`/test/practice?count=${randomQuestionCount}`);
+                                            }}
+                                            className={cn(
+                                                "w-full flex items-center justify-center gap-2 px-4 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all shadow-lg",
+                                                isDark
+                                                    ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white hover:shadow-xl hover:shadow-indigo-500/50"
+                                                    : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:shadow-xl"
+                                            )}
+                                        >
+                                            <Play className="w-4 h-4 md:w-5 md:h-5 fill-white" />
+                                            <span>Начать тест</span>
+                                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                                        </motion.button>
                                     </div>
                                 </div>
                             </div>
