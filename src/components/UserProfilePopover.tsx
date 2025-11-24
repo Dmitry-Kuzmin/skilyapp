@@ -445,8 +445,8 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                   <MailOpen className="w-2.5 h-2.5" />
                 </div>
               ) : (
-                // Индикатор онлайн - скрываем если есть previewBadges
-                previewBadges.length === 0 && (
+                // Индикатор онлайн - скрываем если есть previewBadges или previewSticker
+                previewBadges.length === 0 && !previewSticker && (
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
                 )
               )

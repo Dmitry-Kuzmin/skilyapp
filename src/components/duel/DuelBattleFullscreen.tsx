@@ -9,7 +9,7 @@ const log = (...args: any[]) => {
 const logError = (...args: any[]) => {
   if (isDev) console.error(...args);
 };
-import { X, Clock, Zap, Flame, Shield, Users, Trophy, Swords, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe, Coins } from 'lucide-react';
+import { X, Zap, Flame, Shield, Users, Trophy, Swords, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +34,7 @@ import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { useDuelData } from '@/hooks/useDuelData';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
+import { DuelTimer } from './DuelTimer';
 
 const duelRiskMultiplierPreview = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -1774,22 +1775,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               />
             }
             customLeftContent={
-              <motion.div
-                className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border shrink-0 ${timeLeft < 10000 ? 'border-destructive' : 'border-border'
-                  }`}
-                animate={{
-                  scale: timeLeft < 10000 ? [1, 1.05, 1] : 1,
-                  boxShadow: timeLeft < 10000
-                    ? ['0 0 0px rgba(239, 68, 68, 0)', '0 0 8px rgba(239, 68, 68, 0.5)', '0 0 0px rgba(239, 68, 68, 0)']
-                    : '0 0 0px rgba(0, 0, 0, 0)'
-                }}
-                transition={{ duration: 0.5, repeat: timeLeft < 10000 ? Infinity : 0 }}
-              >
-                <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                <span className={`font-mono font-bold text-xs md:text-sm ${timeLeft < 10000 ? 'text-destructive' : ''}`}>
-                  {formatTime(timeLeft)}
-                </span>
-              </motion.div>
+              <DuelTimer timeLeft={timeLeft} formatTime={formatTime} />
             }
           />
         </div>
