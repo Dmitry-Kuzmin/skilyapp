@@ -755,18 +755,36 @@ export default function Duel() {
         // Immediate check
         checkStatus();
 
-        // Then check every 500ms
-        const interval = setInterval(() => {
+        // ОПТИМИЗАЦИЯ: Используем requestIdleCallback для некритических проверок
+        // Увеличиваем интервал до 1000ms для уменьшения нагрузки на основной поток
+        const scheduleNextCheck = () => {
             if (checkCount >= MAX_CHECKS || !isActive) {
-                clearInterval(interval);
                 return;
             }
-            checkStatus();
-        }, 500);
+            
+            // Используем requestIdleCallback если доступен, иначе setTimeout
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    if (isActive && checkCount < MAX_CHECKS) {
+                        checkStatus();
+                        setTimeout(scheduleNextCheck, 1000);
+                    }
+                }, { timeout: 1000 });
+            } else {
+                setTimeout(() => {
+                    if (isActive && checkCount < MAX_CHECKS) {
+                        checkStatus();
+                        scheduleNextCheck();
+                    }
+                }, 1000);
+            }
+        };
+        
+        const interval = setTimeout(scheduleNextCheck, 1000);
 
         return () => {
             isActive = false;
-            clearInterval(interval);
+            clearTimeout(interval);
         };
     }, [duelId, createdCode, profileId]);
 
@@ -885,7 +903,7 @@ export default function Duel() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5 }}
-                                    className="relative overflow-hidden rounded-3xl border px-6 py-10 md:px-10 md:py-12 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 border-violet-500/30 shadow-[0_0_60px_rgba(139,92,246,0.5)]"
+                                    className="relative overflow-hidden rounded-3xl border px-4 py-6 md:px-10 md:py-12 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 border-violet-500/30 shadow-[0_0_60px_rgba(139,92,246,0.5)]"
                                 >
                                     {/* Noise texture */}
                                     <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
@@ -895,56 +913,56 @@ export default function Duel() {
 
                                     <div className="relative z-10">
                                         {/* Icon + Title */}
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6 md:gap-4 md:mb-8">
                                             <motion.div
                                                 whileHover={{ scale: 1.05, rotate: 5 }}
                                                 whileTap={{ scale: 0.95 }}
-                                                className="p-3 md:p-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl"
+                                                className="p-2.5 md:p-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl"
                                             >
-                                                <Swords className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                                                <Swords className="w-7 h-7 md:w-10 md:h-10 text-white" />
                                             </motion.div>
                                             <div>
-                                                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">Дуэль</h1>
-                                                <p className="text-base md:text-lg text-white/90 font-medium mt-1">Сразись с соперником за монеты</p>
+                                                <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">Дуэль</h1>
+                                                <p className="text-sm md:text-lg text-white/90 font-medium mt-1">Сразись с соперником за монеты</p>
                                             </div>
                                         </div>
 
                                         {/* User stats */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                                             {/* Total Duels */}
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                                className="p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
                                             >
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Swords className="w-5 h-5 text-white/70" />
                                                     <span className="text-sm text-white/70 font-medium">Всего дуэлей</span>
                                                 </div>
-                                                <div className="text-4xl font-black text-white">0</div>
+                                                <div className="text-3xl md:text-4xl font-black text-white">0</div>
                                             </motion.div>
 
                                             {/* Wins */}
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                                className="p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
                                             >
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Trophy className="w-5 h-5 text-yellow-300" />
                                                     <span className="text-sm text-white/70 font-medium">Побед</span>
                                                 </div>
-                                                <div className="text-4xl font-black text-white">0</div>
+                                                <div className="text-3xl md:text-4xl font-black text-white">0</div>
                                             </motion.div>
 
                                             {/* Coins Balance */}
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                                className="p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
                                             >
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <Coins className="w-5 h-5 text-amber-300" />
                                                     <span className="text-sm text-white/70 font-medium">Монет</span>
                                                 </div>
-                                                <div className="text-4xl font-black text-white">{userCoins}</div>
+                                                <div className="text-3xl md:text-4xl font-black text-white">{userCoins}</div>
                                             </motion.div>
                                         </div>
                                     </div>
