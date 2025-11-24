@@ -182,10 +182,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             
             <div className="relative z-10 flex flex-col h-full justify-between">
               {/* Top section: Level badge */}
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
-                  <Star size={16} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
-                  <span className="text-sm font-bold text-white drop-shadow-sm">Уровень {stats.level || 1}</span>
+              <div className="flex justify-between items-start mb-2 md:mb-3">
+                <div className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
+                  <Star size={12} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
+                  <span className="text-xs md:text-sm font-bold text-white drop-shadow-sm">Уровень {stats.level || 1}</span>
                 </div>
               </div>
 
