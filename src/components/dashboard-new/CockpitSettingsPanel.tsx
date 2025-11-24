@@ -3,6 +3,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { useCockpitSettings } from '@/hooks/useCockpitSettings';
 import { Languages, Palette, Volume2, Sparkles, Gauge, Shield, Bell } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 const Section: React.FC<{ 
   title: string; 
@@ -228,6 +229,7 @@ export const CockpitSettingsPanel: React.FC = () => {
             </div>
           </div>
         </Section>
+        </div>
       </div>
     </div>
   );
