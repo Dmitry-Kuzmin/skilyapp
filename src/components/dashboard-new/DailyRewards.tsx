@@ -263,8 +263,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       </div>
 
       {/* Main Gauge */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-2 md:py-4">
-        <div className="relative w-28 h-28 md:w-32 md:h-32">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-1 md:py-2">
+        <div className="relative w-24 h-24 md:w-28 md:h-28">
           {/* Glow Behind */}
           <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-[40px]"></div>
           
@@ -308,10 +308,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               animate={isDay7 && !hasClaimedToday ? { scale: [1, 1.15, 1], rotate: [0, 10, -10, 0] } : {}}
               transition={{ duration: 2, repeat: isDay7 && !hasClaimedToday ? Infinity : 0 }}
             >
-              <Flame className={`w-5 h-5 md:w-6 md:h-6 mb-1 ${hasClaimedToday ? 'text-orange-500 fill-orange-500' : isDay7 ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'} transition-colors`} />
+              <Flame className={`w-4 h-4 md:w-5 md:h-5 mb-0.5 ${hasClaimedToday ? 'text-orange-500 fill-orange-500' : isDay7 ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'} transition-colors`} />
             </motion.div>
-            <span className="text-2xl md:text-3xl font-bold text-white tracking-tighter leading-none">{currentStreak}</span>
-            <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-0.5">Дней</span>
+            <span className="text-xl md:text-2xl font-bold text-white tracking-tighter leading-none">{currentStreak}</span>
+            <span className="text-[8px] md:text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-0.5">Дней</span>
           </div>
         </div>
       </div>

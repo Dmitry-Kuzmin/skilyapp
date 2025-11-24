@@ -165,12 +165,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 animate-slide-up flex-1 min-h-0 auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 animate-slide-up flex-1 min-h-0" style={{ gridTemplateRows: 'repeat(2, minmax(0, 1fr))' }}>
           
-          {/* 1. HERO CARD (Col: 2, Row: 2) */}
+          {/* 1. HERO CARD (Col: 2, Row: 1) */}
           <div 
             onMouseEnter={playHoverSound}
-            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-xl md:rounded-2xl text-white p-3 md:p-4 lg:p-5 flex flex-col justify-between shadow-2xl group"
+            className="md:col-span-2 lg:col-span-2 lg:row-span-1 relative overflow-hidden rounded-xl md:rounded-2xl text-white p-2.5 md:p-3 lg:p-4 flex flex-col justify-between shadow-2xl group"
             style={{
               background: heroBackground,
             }}
@@ -190,12 +190,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Middle section: Greeting and content */}
-              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4 mb-2 md:mb-3">
-                <div className="flex-1">
-                  <h2 className={`text-xl md:text-2xl lg:text-3xl font-bold leading-tight tracking-tight mb-1.5 md:mb-2 ${heroHeadingClass}`}>
+              <div className="flex-1 flex flex-row justify-between items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
+                <div className="flex-1 min-w-0">
+                  <h2 className={`text-lg md:text-xl lg:text-2xl font-bold leading-tight tracking-tight mb-1 ${heroHeadingClass}`}>
                     {t('dashboard.heroGreeting')}
                   </h2>
-                  <p className={`${heroBodyTextClass} font-medium text-xs md:text-sm leading-relaxed max-w-md`}>
+                  <p className={`${heroBodyTextClass} font-medium text-[10px] md:text-xs leading-tight max-w-md`}>
                     {t('dashboard.heroEfficiencyPrefix')} <strong className="text-white">{stats.averageScore}%</strong>.{' '}
                     {t(heroStatusKey)}
                   </p>
@@ -204,7 +204,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* START Button */}
                 <button 
                   onClick={handleStartQuiz}
-                  className="group relative w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
+                  className="group relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
                 >
                   {/* Glow effect - улучшенный */}
                   <div className="absolute inset-[-20%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
@@ -214,8 +214,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
-                    <Power size={24} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-1 drop-shadow-lg`} />
-                    <span className={`${statStartButtonText} font-bold text-[10px] md:text-xs tracking-wider uppercase`}>
+                    <Power size={20} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-0.5 drop-shadow-lg`} />
+                    <span className={`${statStartButtonText} font-bold text-[9px] md:text-[10px] tracking-wider uppercase leading-tight`}>
                       {t('dashboard.startButton')}
                     </span>
                   </div>
@@ -223,7 +223,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Bottom section: Stats blocks - компактный улучшенный дизайн */}
-              <div className="flex items-stretch gap-2 sm:gap-2.5">
+              <div className="flex items-stretch gap-1.5 sm:gap-2">
                 {/* XP Card */}
                 <button
                   onClick={() => handleStatClick('xp')}
@@ -314,8 +314,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          {/* 2. DAILY REWARDS (Col: 1, Row: 2) */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
+          {/* 2. DAILY REWARDS (Col: 1, Row: 1) */}
+          <div className="md:col-span-1 lg:col-span-1 lg:row-span-1">
             <DailyRewards 
               currentStreak={stats.currentStreak} 
               hasClaimedToday={hasClaimedToday} 
@@ -323,8 +323,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
+          {/* 3. SKILY CHAT (Col: 1, Row: 1) */}
+          <div className="md:col-span-1 lg:col-span-1 lg:row-span-1">
              <SkilyChat />
           </div>
 

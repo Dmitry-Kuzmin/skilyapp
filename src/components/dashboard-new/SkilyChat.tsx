@@ -47,8 +47,8 @@ export const SkilyChat = React.memo(() => {
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
         <div className="flex flex-col items-center justify-center flex-1 relative z-10">
-          <div className="mb-4 md:mb-6 transition-transform group-hover:scale-110 duration-700">
-             <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center">
+          <div className="mb-2 md:mb-3 transition-transform group-hover:scale-110 duration-700">
+             <div className="relative w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
                <div className="absolute inset-0 rounded-full border-2 border-indigo-500 opacity-60 border-t-transparent border-b-transparent shadow-[0_0_20px_rgba(99,102,241,0.4)] animate-spin-slow"></div>
                <div className="absolute inset-2 rounded-full border-2 border-purple-500 opacity-60 border-l-transparent border-r-transparent animate-spin-slow" style={{ animationDirection: 'reverse' }}></div>
                <div className="absolute inset-4 rounded-full border border-slate-400 opacity-30 animate-spin-slow"></div>
