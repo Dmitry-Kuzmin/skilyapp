@@ -423,9 +423,9 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                      ))}
                    </div>
                  )}
-                 {/* Стикер рядом с аватаром */}
+                 {/* Стикер рядом с аватаром - только смайлик без фона */}
                  {previewSticker && (
-                   <div className="absolute -top-1 -left-1 w-6 h-6 rounded-lg flex items-center justify-center text-lg shadow-lg z-20 bg-background/80 backdrop-blur-sm">
+                   <div className="absolute -top-1 -left-1 flex items-center justify-center text-2xl z-20 drop-shadow-lg">
                      {previewSticker.metadata.emoji || "😊"}
                    </div>
                  )}
