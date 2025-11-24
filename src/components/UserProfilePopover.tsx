@@ -429,8 +429,8 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                      {previewSticker.metadata.emoji || "😊"}
                    </div>
                  )}
-                 {/* Premium Crown Icon - только если не skeleton */}
-                 {!showSkeleton && isPremium && (
+                 {/* Premium Crown Icon - только если не skeleton и нет previewSkin */}
+                 {!showSkeleton && isPremium && !previewSkin && (
                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
                      <Crown className="w-2.5 h-2.5 text-white fill-white drop-shadow-md" />
                      {/* Анимированное свечение вокруг короны */}
@@ -508,8 +508,8 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                {/* Premium Crown Icon в попапе */}
-                {isPremium && (
+                {/* Premium Crown Icon в попапе - скрываем если есть previewSkin */}
+                {isPremium && !previewSkin && (
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
                     <Crown className="w-2.5 h-2.5 text-white fill-white relative z-10 drop-shadow-md" />
                     {/* Анимированное свечение вокруг короны */}

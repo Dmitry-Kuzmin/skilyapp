@@ -1,6 +1,18 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
+
+// ОПТИМИЗАЦИЯ: Условное логирование только в development
+const isDev = process.env.NODE_ENV === 'development';
+const log = (...args: any[]) => {
+  if (isDev) console.log(...args);
+};
+const logError = (...args: any[]) => {
+  if (isDev) console.error(...args);
+};
+const logWarn = (...args: any[]) => {
+  if (isDev) console.warn(...args);
+};
 
 export interface DuelRealtimeState {
   opponentJoined: boolean;
@@ -42,14 +54,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     
     // Reload scores when myPlayerId becomes available
     if (myPlayerId && duelId) {
-      console.log('[useDuelRealtime] MyPlayerId set, reloading scores:', myPlayerId);
+      log('[useDuelRealtime] MyPlayerId set, reloading scores:', myPlayerId);
       supabase
         .from('duel_players')
         .select('id, score, correct_count')
         .eq('duel_id', duelId)
         .then(({ data, error }) => {
           if (error) {
-            console.error('[useDuelRealtime] Error reloading scores after myPlayerId set:', error);
+            logError('[useDuelRealtime] Error reloading scores after myPlayerId set:', error);
             return;
           }
           
@@ -61,7 +73,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               // Используем только если score не null/undefined, иначе сохраняем текущее значение
               const newScore = typeof myPlayer.score === 'number' ? myPlayer.score : undefined;
               if (newScore !== undefined) {
-                console.log('[useDuelRealtime] ✅ Reloaded myScore:', newScore);
+                log('[useDuelRealtime] ✅ Reloaded myScore:', newScore);
                 setState(prev => ({ ...prev, myScore: newScore }));
               }
             }
@@ -70,7 +82,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               const newScore = typeof opponent.score === 'number' ? opponent.score : undefined;
               const newCorrectCount = typeof opponent.correct_count === 'number' ? opponent.correct_count : undefined;
               if (newScore !== undefined || newCorrectCount !== undefined) {
-                console.log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore);
+                log('[useDuelRealtime] ✅ Reloaded opponentScore:', newScore);
                 setState(prev => ({ 
                   ...prev, 
                   opponentScore: newScore !== undefined ? newScore : prev.opponentScore,
@@ -86,7 +98,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   useEffect(() => {
     if (!duelId) return;
 
-    console.log('[useDuelRealtime] Initializing channel for duel:', duelId);
+    log('[useDuelRealtime] Initializing channel for duel:', duelId);
     const duelChannel = supabase.channel(`duel_${duelId}`);
 
     // Subscribe to duel changes
@@ -101,24 +113,14 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         },
         (payload) => {
           markEvent();
-          console.log('[useDuelRealtime] 🔥🔥🔥 Duel UPDATE event received!');
-          console.log('[useDuelRealtime] Payload:', payload);
-          console.log('[useDuelRealtime] Duel data:', payload.new);
           const duel = payload.new;
-          console.log('[useDuelRealtime] Duel status:', duel.status);
           
           if (duel.status === 'active') {
-            console.log('[useDuelRealtime] ✅ Duel started! Setting duelStarted=true');
-            setState(prev => ({ ...prev, duelStarted: true }));
+            log('[useDuelRealtime] ✅ Duel started!');
+            setState(prev => prev.duelStarted ? prev : { ...prev, duelStarted: true });
           } else if (duel.status === 'finished') {
-            console.log('[useDuelRealtime] ✅✅✅ Duel finished! Setting duelFinished=true');
-            setState(prev => {
-              console.log('[useDuelRealtime] Previous duelFinished:', prev.duelFinished);
-              return { ...prev, duelFinished: true };
-            });
-            console.log('[useDuelRealtime] State update dispatched for duelFinished=true');
-          } else {
-            console.log('[useDuelRealtime] ⚠️ Unexpected duel status:', duel.status);
+            log('[useDuelRealtime] ✅✅✅ Duel finished!');
+            setState(prev => prev.duelFinished ? prev : { ...prev, duelFinished: true });
           }
         }
       )
@@ -132,8 +134,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         },
         () => {
           markEvent();
-          console.log('[useDuelRealtime] Opponent joined!');
-          setState(prev => ({ ...prev, opponentJoined: true }));
+          log('[useDuelRealtime] Opponent joined!');
+          setState(prev => prev.opponentJoined ? prev : { ...prev, opponentJoined: true });
         }
       )
       .on(
@@ -149,70 +151,52 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           const updatedPlayer = payload.new as any;
           const currentMyPlayerId = myPlayerIdRef.current;
           
-          console.log('[useDuelRealtime] 🔔 Player UPDATE event:', {
-            updatedPlayerId: updatedPlayer.id,
-            updatedUserId: updatedPlayer.user_id,
-            myPlayerId: currentMyPlayerId,
-            score: updatedPlayer.score,
-            correctCount: updatedPlayer.correct_count,
-            isMyPlayer: updatedPlayer.id === currentMyPlayerId
-          });
-          
-          // If myPlayerId is set, use ID comparison (most reliable)
+          // ОПТИМИЗАЦИЯ: Батчим обновления состояния для предотвращения лишних ре-рендеров
           if (currentMyPlayerId) {
             if (updatedPlayer.id === currentMyPlayerId) {
               // Это обновление моего счета
               if (typeof updatedPlayer.score === 'number') {
-                console.log('[useDuelRealtime] ✅ Updating my score:', updatedPlayer.score);
-                setState(prev => ({ 
+                setState(prev => prev.myScore === updatedPlayer.score ? prev : { 
                   ...prev, 
                   myScore: updatedPlayer.score
-                }));
-              } else {
-                console.warn('[useDuelRealtime] ⚠️ My score is not a number:', updatedPlayer.score);
+                });
               }
             } else {
-              // Это обновление счета соперника
-              if (typeof updatedPlayer.score === 'number') {
-                console.log('[useDuelRealtime] ✅ Updating opponent score:', updatedPlayer.score);
-            setState(prev => ({ 
-              ...prev, 
-                  opponentScore: updatedPlayer.score,
-                  opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
-                    ? updatedPlayer.correct_count 
-                    : prev.opponentCorrectCount,
-                  opponentActivityStatus: updatedPlayer.activity_status || prev.opponentActivityStatus,
-                  opponentLastSeen: updatedPlayer.last_heartbeat_at 
-                    ? new Date(updatedPlayer.last_heartbeat_at) 
-                    : prev.opponentLastSeen
-            }));
-              } else {
-                console.warn('[useDuelRealtime] ⚠️ Opponent score is not a number:', updatedPlayer.score);
-              }
+              // Это обновление счета соперника - батчим все обновления в одно
+              const newOpponentScore = typeof updatedPlayer.score === 'number' ? updatedPlayer.score : undefined;
+              const newCorrectCount = typeof updatedPlayer.correct_count === 'number' ? updatedPlayer.correct_count : undefined;
+              const newActivityStatus = updatedPlayer.activity_status;
+              const newLastSeen = updatedPlayer.last_heartbeat_at ? new Date(updatedPlayer.last_heartbeat_at) : undefined;
               
-              // Обновляем статус активности даже если счет не изменился
-              if (updatedPlayer.activity_status) {
-                setState(prev => ({
+              setState(prev => {
+                // Проверяем, нужно ли обновление
+                const needsUpdate = 
+                  (newOpponentScore !== undefined && prev.opponentScore !== newOpponentScore) ||
+                  (newCorrectCount !== undefined && prev.opponentCorrectCount !== newCorrectCount) ||
+                  (newActivityStatus && prev.opponentActivityStatus !== newActivityStatus) ||
+                  (newLastSeen && (!prev.opponentLastSeen || prev.opponentLastSeen.getTime() !== newLastSeen.getTime()));
+                
+                if (!needsUpdate) return prev;
+                
+                return {
                   ...prev,
-                  opponentActivityStatus: updatedPlayer.activity_status,
-                  opponentLastSeen: updatedPlayer.last_heartbeat_at 
-                    ? new Date(updatedPlayer.last_heartbeat_at) 
-                    : prev.opponentLastSeen
-                }));
-              }
+                  opponentScore: newOpponentScore !== undefined ? newOpponentScore : prev.opponentScore,
+                  opponentCorrectCount: newCorrectCount !== undefined ? newCorrectCount : prev.opponentCorrectCount,
+                  opponentActivityStatus: newActivityStatus || prev.opponentActivityStatus,
+                  opponentLastSeen: newLastSeen || prev.opponentLastSeen
+                };
+              });
             }
           } else {
             // myPlayerId не установлен - обновляем opponentScore как fallback
-            console.warn('[useDuelRealtime] ⚠️ MyPlayerId not set, using fallback logic');
             if (typeof updatedPlayer.score === 'number') {
-              console.log('[useDuelRealtime] ✅ Updating score (fallback):', updatedPlayer.score);
-            setState(prev => ({ 
-              ...prev, 
+              setState(prev => prev.opponentScore === updatedPlayer.score ? prev : ({ 
+                ...prev, 
                 opponentScore: updatedPlayer.score,
                 opponentCorrectCount: typeof updatedPlayer.correct_count === 'number' 
                   ? updatedPlayer.correct_count 
                   : prev.opponentCorrectCount
-            }));
+              }));
             }
           }
         }
@@ -227,83 +211,62 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         },
         (payload) => {
           markEvent();
-          console.log('[useDuelRealtime] Answer received:', payload);
           
           // Проверяем, что это ответ соперника, а не мой
           const answerPlayerId = (payload.new as any)?.player_id;
           const currentMyPlayerId = myPlayerIdRef.current;
-          console.log('[useDuelRealtime] Answer from player:', answerPlayerId, 'My player ID:', currentMyPlayerId);
           
           if (answerPlayerId && currentMyPlayerId && answerPlayerId !== currentMyPlayerId) {
-            console.log('[useDuelRealtime] ✅ Opponent answered!');
             setState(prev => ({ ...prev, opponentAnswered: true, opponentAnswerData: payload.new }));
             
             // Reset after 1 second
             setTimeout(() => {
               setState(prev => ({ ...prev, opponentAnswered: false, opponentAnswerData: null }));
             }, 1000);
-          } else {
-            console.log('[useDuelRealtime] Own answer or myPlayerId not set, ignoring notification');
           }
         }
       )
       .subscribe((status) => {
-        console.log('[useDuelRealtime] Subscription status:', status);
         if (status === 'SUBSCRIBED') {
           setConnectionStatus('connected');
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          setConnectionStatus('error');
-        } else if (status === 'CLOSED') {
-          setConnectionStatus('connecting');
-        }
-        
-        if (status === 'SUBSCRIBED') {
-          console.log('[useDuelRealtime] Successfully subscribed, checking current duel status...');
           
           // Check current duel status immediately after subscription
           const checkStatus = async () => {
-            console.log('[useDuelRealtime] 🔍 Checking initial duel status...');
             const { data, error } = await supabase
             .from('duels')
             .select('status')
             .eq('id', duelId)
-              .maybeSingle();
+            .maybeSingle();
             
-              if (error) {
-              console.error('[useDuelRealtime] ❌ Error checking duel status:', error);
-              console.error('[useDuelRealtime] Error details:', JSON.stringify(error, null, 2));
-              } else if (!data) {
-              console.log('[useDuelRealtime] ⚠️ No duel data found (might be normal at start)');
-              } else {
-              console.log('[useDuelRealtime] ✅ Current duel status:', data.status);
-                if (data.status === 'active') {
-                console.log('[useDuelRealtime] ✅ Duel is already active! Setting duelStarted=true');
-                  setState(prev => ({ ...prev, duelStarted: true }));
-                } else if (data.status === 'finished') {
-                console.log('[useDuelRealtime] ✅✅✅ Duel is already finished! Setting duelFinished=true');
-                  setState(prev => ({ ...prev, duelFinished: true }));
-                }
+            if (error) {
+              logError('[useDuelRealtime] ❌ Error checking duel status:', error);
+            } else if (data) {
+              if (data.status === 'active') {
+                setState(prev => prev.duelStarted ? prev : { ...prev, duelStarted: true });
+              } else if (data.status === 'finished') {
+                setState(prev => prev.duelFinished ? prev : { ...prev, duelFinished: true });
               }
+            }
           };
           
           checkStatus();
-
-          // УБРАНО: Fallback периодическая проверка каждые 2 секунды
-          // Это создавало избыточную нагрузку на БД
-          // Realtime подписка должна работать надежно, если нет - проблема в конфигурации Supabase
-          // Если Realtime не работает, лучше показать ошибку пользователю, чем постоянно опрашивать БД
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setConnectionStatus('error');
+        } else if (status === 'CLOSED') {
+          setConnectionStatus('connecting');
         }
       });
 
     setChannel(duelChannel);
 
     return () => {
-      console.log('[useDuelRealtime] Cleaning up channel');
+      log('[useDuelRealtime] Cleaning up channel');
       supabase.removeChannel(duelChannel);
     };
   }, [duelId]);
 
-  const broadcast = (event: string, data: any) => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
+  const broadcast = useCallback((event: string, data: any) => {
     if (channel) {
       channel.send({
         type: 'broadcast',
@@ -311,7 +274,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         payload: data,
       });
     }
-  };
+  }, [channel]);
 
   return { state, broadcast, connectionStatus, lastEventAt };
 }

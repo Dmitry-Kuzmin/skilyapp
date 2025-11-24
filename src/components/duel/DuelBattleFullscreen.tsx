@@ -1,5 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// ОПТИМИЗАЦИЯ: Условное логирование только в development
+const isDev = process.env.NODE_ENV === 'development';
+const log = (...args: any[]) => {
+  if (isDev) console.log(...args);
+};
+const logError = (...args: any[]) => {
+  if (isDev) console.error(...args);
+};
 import { X, Clock, Zap, Flame, Shield, Users, Trophy, Swords, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -122,14 +131,30 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     coverageHost: number;
     coverageOpponent: number;
   } | null>(null);
-  const myInsuranceActive = betInfo ? (betInfo.isHost ? betInfo.hostInsurance : betInfo.opponentInsurance) : false;
-  const myCoverageDisplay = betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageHost : betInfo.coverageOpponent) || 0) * 100) : 0;
-  const opponentInsuranceActive = betInfo ? (betInfo.isHost ? betInfo.opponentInsurance : betInfo.hostInsurance) : false;
-  const opponentCoverageDisplay = betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageOpponent : betInfo.coverageHost) || 0) * 100) : 0;
-  const seasonBonusDisplay = betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0;
+  // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних пересчетов
+  const myInsuranceActive = useMemo(() => 
+    betInfo ? (betInfo.isHost ? betInfo.hostInsurance : betInfo.opponentInsurance) : false,
+    [betInfo]
+  );
+  const myCoverageDisplay = useMemo(() => 
+    betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageHost : betInfo.coverageOpponent) || 0) * 100) : 0,
+    [betInfo]
+  );
+  const opponentInsuranceActive = useMemo(() => 
+    betInfo ? (betInfo.isHost ? betInfo.opponentInsurance : betInfo.hostInsurance) : false,
+    [betInfo]
+  );
+  const opponentCoverageDisplay = useMemo(() => 
+    betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageOpponent : betInfo.coverageHost) || 0) * 100) : 0,
+    [betInfo]
+  );
+  const seasonBonusDisplay = useMemo(() => 
+    betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0,
+    [betInfo]
+  );
 
   const hydrateQuestions = useCallback((questionList: any[]) => {
-    console.log('[DuelBattleFullscreen] 💧 Hydrating questions:', { 
+    log('[DuelBattleFullscreen] 💧 Hydrating questions:', { 
       count: questionList?.length || 0,
       firstQuestion: questionList?.[0] ? {
         id: questionList[0].id,
@@ -208,25 +233,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         setOpponentPhotoUrl(getImageUrl(opponent.profiles.photo_url));
       }
     } catch (error) {
-      console.error('[DuelBattleFullscreen] Error syncing players:', error);
+      logError('[DuelBattleFullscreen] Error syncing players:', error);
     }
   }, [fetchPlayers, profileId]);
 
   const syncQuestions = useCallback(async () => {
     // ОПТИМИЗАЦИЯ: Предотвращаем повторные вызовы если уже идет загрузка
     if (isLoadingRef.current) {
-      console.log('[DuelBattleFullscreen] ⚠️ Questions already loading, skipping sync');
+      log('[DuelBattleFullscreen] ⚠️ Questions already loading, skipping sync');
       return;
     }
     try {
       isLoadingRef.current = true;
       setLoading(true);
-      console.log('[DuelBattleFullscreen] 🔄 Loading questions...', { duelId, profileId });
+      log('[DuelBattleFullscreen] 🔄 Loading questions...', { duelId, profileId });
       const questionList = await fetchQuestions();
-      console.log('[DuelBattleFullscreen] ✅ Questions loaded:', { count: questionList?.length || 0, questions: questionList });
+      log('[DuelBattleFullscreen] ✅ Questions loaded:', { count: questionList?.length || 0 });
       hydrateQuestions(questionList);
     } catch (error) {
-      console.error('[DuelBattleFullscreen] Failed to load questions:', error);
+      logError('[DuelBattleFullscreen] Failed to load questions:', error);
       toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
     } finally {
       isLoadingRef.current = false;
@@ -234,11 +259,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [fetchQuestions, hydrateQuestions]);
 
-  // Format time helper
-  const formatTime = (ms: number) => {
+  // ОПТИМИЗАЦИЯ: Мемоизируем formatTime
+  const formatTime = useCallback((ms: number) => {
     const seconds = Math.ceil(ms / 1000);
     return `${seconds}s`;
-  };
+  }, []);
 
   // Save settings to localStorage
   useEffect(() => {
@@ -269,7 +294,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       if (error && error.code !== 'PGRST116') throw error;
       setIsQuestionBookmarked(!!data);
     } catch (error) {
-      console.error('[DuelBattleFullscreen] Error checking bookmark:', error);
+      logError('[DuelBattleFullscreen] Error checking bookmark:', error);
     }
   }, [profileId, questions, currentIndex]);
 

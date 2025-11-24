@@ -544,8 +544,8 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
 
               <div className="w-full md:max-w-2xl space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-border bg-card px-4 py-5 flex items-center gap-4 shadow-sm">
-                    <div className="relative w-20 h-20">
+                  <div className="rounded-2xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5 flex items-center gap-3 sm:gap-4 shadow-sm">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                       <div
                         className="absolute inset-0 rounded-full"
                         style={{
@@ -553,31 +553,31 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
                         }}
                       />
                       <div className="absolute inset-[6px] rounded-full bg-background border border-white/30 dark:border-white/10" />
-                      <div className="relative z-10 flex items-center justify-center h-full text-2xl font-semibold text-foreground">
+                      <div className="relative z-10 flex items-center justify-center h-full text-lg sm:text-xl md:text-2xl font-semibold text-foreground">
                         {globalProgressPercent}%
                       </div>
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
                         {t("learningMap.stats.overallTitle")}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                         {t("learningMap.stats.overallAverage", { count: topics.length || 0 })}
                       </p>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-border bg-card px-4 py-5 space-y-3 shadow-sm">
-                    <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                  <div className="rounded-2xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5 space-y-2 sm:space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
                           {t("learningMap.stats.topicProgress")}
                         </p>
-                        <p className="text-lg font-semibold text-foreground">
+                        <p className="text-base sm:text-lg font-semibold text-foreground">
                           {Math.round(topicsCompletionPercent)}%
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-4 py-1 text-sm font-semibold text-primary">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 sm:px-4 py-1 text-xs sm:text-sm font-semibold text-primary shrink-0">
                         {completedTopicsCount}
                         <span className="text-muted-foreground">/ {topics.length || 0}</span>
                       </span>
@@ -605,7 +605,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
 
                 <Button
                   size="lg"
-                  className="w-full rounded-2xl justify-between gap-4 py-4"
+                  className="w-full rounded-2xl justify-between gap-2 sm:gap-4 py-3 sm:py-4 px-3 sm:px-4 flex-col sm:flex-row"
                   onClick={() => {
                     if (nextAction) {
                       handleSubtopicClick(nextAction.subtopicId);
@@ -614,16 +614,16 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
                     }
                   }}
                 >
-                  <div className="flex flex-col min-w-0 text-left">
-                    <span className="text-sm font-semibold text-primary-foreground/80">
+                  <div className="flex flex-col min-w-0 text-left flex-1 w-full sm:w-auto">
+                    <span className="text-xs sm:text-sm font-semibold text-primary-foreground/80">
                       {nextActionLabel}
                     </span>
-                    <span className="text-base font-semibold text-primary-foreground leading-snug line-clamp-2 break-words whitespace-normal">
+                    <span className="text-sm sm:text-base font-semibold text-primary-foreground leading-snug line-clamp-2 break-words whitespace-normal">
                       {nextActionDescription}
                     </span>
                   </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-primary-foreground shrink-0">
-                    <ArrowRight className="w-4 h-4" />
+                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/15 text-primary-foreground shrink-0 self-end sm:self-auto">
+                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                 </Button>
               </div>
