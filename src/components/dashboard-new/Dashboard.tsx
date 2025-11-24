@@ -6,6 +6,7 @@ import { ExamReadiness } from './ExamReadiness';
 import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
 import { ADASControlPanel } from './ADASControlPanel';
+import { CockpitSettingsPanel } from './CockpitSettingsPanel';
 
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
@@ -289,12 +290,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* 6. PREMIUM CARD */}
+          {/* 6. COCKPIT SETTINGS PANEL */}
+          <div className="md:col-span-2 lg:col-span-2">
+            <CockpitSettingsPanel />
+          </div>
+
+          {/* 7. PREMIUM CARD */}
           <div className="md:col-span-1 lg:col-span-1 transition-all duration-500 ease-in-out">
              <PremiumCard onGetPremium={onGetPremium} />
           </div>
 
-          {/* 7. DUEL PASS INFO */}
+          {/* 8. DUEL PASS INFO */}
           <div className="md:col-span-2 lg:col-span-2">
             <DuelPassInfo />
           </div>

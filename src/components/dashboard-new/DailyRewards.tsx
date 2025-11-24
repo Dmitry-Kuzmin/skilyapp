@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
 import { CelebrationModal } from './CelebrationModal';
 import { playClickSound, playSuccessSound } from '@/services/audioService';
+import { useCockpitSettings } from '@/hooks/useCockpitSettings';
 
 interface DailyRewardsProps {
   currentStreak: number;
@@ -20,6 +21,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
   const flameAnchorRef = useRef<HTMLDivElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
+  const { settings: cockpitSettings } = useCockpitSettings();
+  const celebrationMode = cockpitSettings.animationMode;
+  const canPlayCelebration = celebrationMode !== 'off';
+  const celebrationDuration = celebrationMode === 'reduced' ? 4500 : 8000;
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
@@ -85,14 +90,15 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     setIsClaiming(true);
     
     // Если день 7 - показываем анимацию поздравления и модальное окно
-    if (weekDay === 7) {
+    if (weekDay === 7 && canPlayCelebration) {
       setShowCelebration(true);
-      // Phoenix анимация длится 8 секунд
-      const animationDuration = 8000;
       setTimeout(() => {
         setShowCelebration(false);
         setShowCelebrationModal(true);
-      }, animationDuration); // Сначала анимация, потом модальное окно
+      }, celebrationDuration); // Сначала анимация, потом модальное окно
+    } else if (weekDay === 7 && !canPlayCelebration) {
+      setShowCelebration(false);
+      setShowCelebrationModal(true);
     }
     
     try {
@@ -105,12 +111,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
 
   // Функция для тестирования анимаций (только в dev режиме)
   const handleTestAnimations = () => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && canPlayCelebration) {
       setShowCelebration(true);
-      const animationDuration = 8000; // Phoenix длится 8 секунд
       setTimeout(() => {
         setShowCelebration(false);
-      }, animationDuration);
+      }, celebrationDuration);
     }
   };
 
@@ -127,17 +132,21 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       const nextIndex = (currentIndex + 1) % types.length;
       const newType = types[nextIndex];
       setCelebrationType(newType);
-      setShowCelebration(true);
+      if (canPlayCelebration) {
+        setShowCelebration(true);
+      }
       const animationDuration = newType === 'supernova' ? 10000 : 
                                 newType === 'confetti' ? 3000 : 
-                                newType === 'phoenix' ? 8000 : 7000;
-      setTimeout(() => setShowCelebration(false), animationDuration);
+                                newType === 'phoenix' ? celebrationDuration : 7000;
+      if (canPlayCelebration) {
+        setTimeout(() => setShowCelebration(false), animationDuration);
+      }
     }
   };
 
   // Функция для смены типа звука (только в dev режиме)
   const handleChangeSound = () => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' && canPlayCelebration) {
       const sounds: Array<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'> = [
         'default', 'fanfare', 'bells', 'synth', 'orchestral', 'pop'
       ];
@@ -145,7 +154,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       const nextIndex = (currentIndex + 1) % sounds.length;
       setCelebrationSoundType(sounds[nextIndex]);
       setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 5000);
+      setTimeout(() => setShowCelebration(false), celebrationDuration);
     }
   };
 
@@ -155,7 +164,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       {/* Анимация поздравления для дня 7 */}
       <CelebrationAnimations
         type={celebrationType}
-        show={showCelebration}
+        show={showCelebration && canPlayCelebration}
         withSound={true}
         soundType={celebrationSoundType}
         fullScreen={true}

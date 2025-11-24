@@ -20,6 +20,14 @@ const audioWarn = (...args: any[]) => {
   }
 };
 
+// Audio Preferences
+let isAudioMuted = false;
+
+export const setAudioMuted = (muted: boolean) => {
+  isAudioMuted = muted;
+  audioLog(muted ? '🔇 Audio muted' : '🔊 Audio unmuted');
+};
+
 // Single AudioContext instance
 let audioContext: AudioContext | null = null;
 let isUnlocked = false;
@@ -136,6 +144,10 @@ const ensureAudioReady = async (): Promise<AudioContext | null> => {
 
 // Play sound with error handling
 const playSound = async (soundFunction: (ctx: AudioContext, t: number) => void) => {
+  if (isAudioMuted) {
+    audioLog('🔇 Sound suppressed (muted)');
+    return;
+  }
   const ctx = await ensureAudioReady();
   if (!ctx) {
     audioWarn('AudioContext не готов к воспроизведению');
