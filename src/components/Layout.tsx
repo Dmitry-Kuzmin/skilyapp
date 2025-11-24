@@ -157,8 +157,10 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
     const prefetchRoutes = ['/tests', '/learning', '/games', '/dashboard'];
     
     const handleMouseEnter = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const link = target.closest('a[href]') as HTMLAnchorElement;
+      const target = e.target;
+      // Проверяем, что target является элементом с методом closest
+      if (!target || typeof (target as any).closest !== 'function') return;
+      const link = (target as HTMLElement).closest('a[href]') as HTMLAnchorElement;
       if (link && prefetchRoutes.some(route => link.href.includes(route))) {
         // Prefetch route data через React Router
         const route = link.getAttribute('href');

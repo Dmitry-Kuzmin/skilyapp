@@ -23,6 +23,28 @@ const duelPassCache: Record<string, {
 }> = {};
 const DUEL_PASS_CACHE_DURATION = 30000; // 30 секунд
 
+// Глобальный флаг для предотвращения параллельных запросов
+let isLoadingInProgress = false;
+
+// ОПТИМИЗАЦИЯ: Условное логирование только в development
+const isDev = process.env.NODE_ENV === 'development';
+const logWarn = (...args: any[]) => {
+  if (isDev) console.warn(...args);
+};
+const logError = (...args: any[]) => {
+  if (isDev) console.error(...args);
+};
+
+// Проверка на CORS ошибку
+const isCorsError = (error: any): boolean => {
+  if (!error) return false;
+  const message = error.message || String(error);
+  return message.includes('access control') || 
+         message.includes('CORS') || 
+         message.includes('Load failed') ||
+         message.includes('Failed to fetch');
+};
+
 export function WalletWidget({ className }: WalletWidgetProps) {
   const { profileId } = useUserContext();
   const { balance, loading: coinsLoading } = useCoins();
@@ -38,6 +60,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   useEffect(() => {
     if (!profileId) {
       setShowSkeleton(false);
+      setDuelPassLoading(false);
       return;
     }
 
@@ -56,15 +79,26 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       return;
     }
 
+    // Предотвращаем параллельные запросы
+    if (isLoadingInProgress) {
+      return;
+    }
+
     // Задержка перед показом skeleton для предотвращения мигания
     if (!hasInitializedRef.current) {
-    setShowSkeleton(true);
-      skeletonTimeout = setTimeout(() => {
       setShowSkeleton(true);
-    }, 100);
+      skeletonTimeout = setTimeout(() => {
+        setShowSkeleton(true);
+      }, 100);
     }
 
     const loadDuelPass = async () => {
+      // Предотвращаем параллельные запросы
+      if (isLoadingInProgress) {
+        return;
+      }
+      isLoadingInProgress = true;
+
       try {
         setDuelPassLoading(true);
         
@@ -78,9 +112,24 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             .order("level", { ascending: true })
         ]);
 
-        if (seasonResult.status === 'rejected' || !seasonResult.value.data || seasonResult.value.data.length === 0) {
-          console.warn('[WalletWidget] No active season found');
+        // Обработка ошибок CORS более gracefully
+        if (seasonResult.status === 'rejected') {
+          const error = seasonResult.reason;
+          if (isCorsError(error)) {
+            // CORS ошибки не логируем как warnings в production
+            logWarn('[WalletWidget] CORS error loading season (likely auth issue)');
+          } else {
+            logWarn('[WalletWidget] Error loading season:', error);
+          }
           setDuelPassLoading(false);
+          isLoadingInProgress = false;
+          return;
+        }
+
+        if (!seasonResult.value.data || seasonResult.value.data.length === 0) {
+          logWarn('[WalletWidget] No active season found');
+          setDuelPassLoading(false);
+          isLoadingInProgress = false;
           return;
         }
 
@@ -100,9 +149,22 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             p_season_id: activeSeason.id,
           });
 
-        if (progressError || !progressData || progressData.length === 0) {
-          console.warn('[WalletWidget] Error loading season progress:', progressError);
+        if (progressError) {
+          if (isCorsError(progressError)) {
+            // CORS ошибки не логируем как warnings в production
+            logWarn('[WalletWidget] CORS error loading season progress (likely auth issue)');
+          } else {
+            logWarn('[WalletWidget] Error loading season progress:', progressError);
+          }
           setDuelPassLoading(false);
+          isLoadingInProgress = false;
+          return;
+        }
+
+        if (!progressData || progressData.length === 0) {
+          logWarn('[WalletWidget] No season progress data');
+          setDuelPassLoading(false);
+          isLoadingInProgress = false;
           return;
         }
 
@@ -170,10 +232,16 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           };
         }
       } catch (error) {
-        console.error('[WalletWidget] Error loading Duel Pass data:', error);
+        if (isCorsError(error)) {
+          // CORS ошибки не логируем как errors в production
+          logWarn('[WalletWidget] CORS error loading Duel Pass data (likely auth issue)');
+        } else {
+          logError('[WalletWidget] Error loading Duel Pass data:', error);
+        }
       } finally {
         setDuelPassLoading(false);
         hasInitializedRef.current = true;
+        isLoadingInProgress = false;
       }
     };
 
@@ -185,8 +253,9 @@ export function WalletWidget({ className }: WalletWidgetProps) {
     return () => {
       if (skeletonTimeout) clearTimeout(skeletonTimeout);
       clearInterval(interval);
+      isLoadingInProgress = false;
     };
-  }, [profileId, coinsLoading]);
+  }, [profileId]); // УБРАНА зависимость от coinsLoading - она не нужна для загрузки duel pass
 
   // Скрываем skeleton когда все загружено
   useEffect(() => {

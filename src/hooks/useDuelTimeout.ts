@@ -34,6 +34,7 @@ export function useDuelTimeout({
   profileId,
   questions,
   currentIndex,
+  isAnswered,
   setMyScore,
   setCombo,
   setIsAnswered,

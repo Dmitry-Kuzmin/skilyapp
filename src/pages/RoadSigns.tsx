@@ -98,11 +98,11 @@ export default function RoadSigns() {
     } catch (error: any) {
       if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
       if (import.meta.env.DEV) {
-        console.error('Error fetching road signs:', error);
+      console.error('Error fetching road signs:', error);
       }
     } finally {
       if (!signal?.aborted) {
-        setLoading(false);
+      setLoading(false);
       }
     }
   };

@@ -68,7 +68,7 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
       
       if (!url) {
         if (import.meta.env.DEV) {
-          console.warn(`[TestSession] Could not generate URL for image: ${imageUrl}`);
+        console.warn(`[TestSession] Could not generate URL for image: ${imageUrl}`);
         }
         setHasError(true);
         setIsLoading(false);
@@ -97,7 +97,7 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
       };
       img.onerror = () => {
         if (import.meta.env.DEV) {
-          console.error(`[TestSession] Failed to load image: ${url}`);
+        console.error(`[TestSession] Failed to load image: ${url}`);
         }
         setHasError(true);
         setIsLoading(false);
@@ -146,7 +146,7 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
             fetchPriority="auto"
             onError={() => {
               if (import.meta.env.DEV) {
-                console.error(`[TestSession] Failed to load image: ${imageSrc}`);
+              console.error(`[TestSession] Failed to load image: ${imageSrc}`);
               }
               setHasError(true);
             }}

@@ -83,7 +83,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
             // Не сбрасываем loading сразу - дадим skeleton показаться минимум 300ms для лучшего UX
             setTimeout(() => {
               if (!abortController.signal.aborted) {
-                setLoading(false);
+              setLoading(false);
               }
             }, 300);
             usedCache = true;
@@ -240,23 +240,23 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       if (!silent) {
         setTimeout(() => {
           if (!signal?.aborted) {
-            setLoading(false);
+          setLoading(false);
           }
         }, 500);
       } else {
         if (!signal?.aborted) {
-          setLoading(false);
+        setLoading(false);
         }
       }
       logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
       if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
       if (import.meta.env.DEV) {
-        console.error("[LearningMap] Error loading learning map:", error);
+      console.error("[LearningMap] Error loading learning map:", error);
       }
       if (!signal?.aborted) {
-        setError(error.message || t("learningMap.errors.generic"));
-        setLoading(false);
+      setError(error.message || t("learningMap.errors.generic"));
+      setLoading(false);
       }
       logLearningMap("[LearningMap] Error state set, loading:", false);
     }
