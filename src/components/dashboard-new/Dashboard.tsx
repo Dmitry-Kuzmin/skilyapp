@@ -122,11 +122,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className={`h-full ${pageBgClass} p-3 md:p-4 font-sans overflow-hidden`}>
-      <div className="max-w-[1370px] mx-auto space-y-2 md:space-y-3 h-full flex flex-col">
+    <div className={`min-h-screen ${pageBgClass} p-6 md:p-10 font-sans pb-24`}>
+      <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
-        <div className="mb-1.5 md:mb-2 flex-shrink-0 animate-fade-in">
+        <div className="mb-6 animate-fade-in">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Online Status Badge */}
             <div className={onlineBadgeClass}>
@@ -165,12 +165,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 animate-slide-up flex-1 min-h-0" style={{ gridTemplateRows: 'repeat(2, minmax(0, 1fr))' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
           
-          {/* 1. HERO CARD (Col: 2, Row: 1) */}
+          {/* 1. HERO CARD (Col: 2, Row: 2) */}
           <div 
             onMouseEnter={playHoverSound}
-            className="md:col-span-2 lg:col-span-2 lg:row-span-1 relative overflow-hidden rounded-xl md:rounded-2xl text-white p-2.5 md:p-3 lg:p-4 flex flex-col justify-between shadow-2xl group"
+            className="md:col-span-2 lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-[2.5rem] text-white p-8 md:p-10 flex flex-col justify-between shadow-2xl group"
             style={{
               background: heroBackground,
             }}
@@ -182,20 +182,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
             
             <div className="relative z-10 flex flex-col h-full justify-between">
               {/* Top section: Level badge */}
-              <div className="flex justify-between items-start mb-2 md:mb-3">
-                <div className="flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
-                  <Star size={12} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
-                  <span className="text-xs md:text-sm font-bold text-white drop-shadow-sm">Уровень {stats.level || 1}</span>
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
+                  <Star size={16} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
+                  <span className="text-sm font-bold text-white drop-shadow-sm">Уровень {stats.level || 1}</span>
                 </div>
               </div>
 
               {/* Middle section: Greeting and content */}
-              <div className="flex-1 flex flex-row justify-between items-center gap-2 md:gap-3 mb-1.5 md:mb-2">
-                <div className="flex-1 min-w-0">
-                  <h2 className={`text-lg md:text-xl lg:text-2xl font-bold leading-tight tracking-tight mb-1 ${heroHeadingClass}`}>
+              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-8 mb-6">
+                <div className="flex-1">
+                  <h2 className={`text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-4 ${heroHeadingClass}`}>
                     {t('dashboard.heroGreeting')}
                   </h2>
-                  <p className={`${heroBodyTextClass} font-medium text-[10px] md:text-xs leading-tight max-w-md`}>
+                  <p className={`${heroBodyTextClass} font-medium text-base md:text-lg leading-relaxed max-w-md`}>
                     {t('dashboard.heroEfficiencyPrefix')} <strong className="text-white">{stats.averageScore}%</strong>.{' '}
                     {t(heroStatusKey)}
                   </p>
@@ -204,7 +204,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 {/* START Button */}
                 <button 
                   onClick={handleStartQuiz}
-                  className="group relative w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
+                  className="group relative w-36 h-36 md:w-40 md:h-40 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
                 >
                   {/* Glow effect - улучшенный */}
                   <div className="absolute inset-[-20%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
@@ -214,8 +214,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
-                    <Power size={20} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-0.5 drop-shadow-lg`} />
-                    <span className={`${statStartButtonText} font-bold text-[9px] md:text-[10px] tracking-wider uppercase leading-tight`}>
+                    <Power size={32} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-2 drop-shadow-lg`} />
+                    <span className={`${statStartButtonText} font-bold text-sm tracking-wider uppercase`}>
                       {t('dashboard.startButton')}
                     </span>
                   </div>
@@ -223,7 +223,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Bottom section: Stats blocks - компактный улучшенный дизайн */}
-              <div className="flex items-stretch gap-1.5 sm:gap-2">
+              <div className="flex items-stretch gap-2 sm:gap-2.5">
                 {/* XP Card */}
                 <button
                   onClick={() => handleStatClick('xp')}
@@ -314,8 +314,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
 
-          {/* 2. DAILY REWARDS (Col: 1, Row: 1) */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-1">
+          {/* 2. DAILY REWARDS (Col: 1, Row: 2) */}
+          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
             <DailyRewards 
               currentStreak={stats.currentStreak} 
               hasClaimedToday={hasClaimedToday} 
@@ -323,8 +323,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* 3. SKILY CHAT (Col: 1, Row: 1) */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-1">
+          {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
+          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
              <SkilyChat />
           </div>
 
