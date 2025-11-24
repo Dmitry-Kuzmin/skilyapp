@@ -1,141 +1,23 @@
 // Modern sound library for duel game effects
 // Using Web Audio API for lightweight, modern sound effects
-const isClient = typeof window !== "undefined";
-const isTelegramAudioEnv = isClient && !!(window as any).Telegram?.WebApp;
-const enableAudioDebug =
-  import.meta.env.VITE_DEBUG_AUDIO === "true" ||
-  (import.meta.env.DEV && import.meta.env.VITE_DEBUG_ALL === "true");
-const shouldLogAudio = isTelegramAudioEnv || enableAudioDebug;
-const audioLog = (...args: any[]) => {
-  if (shouldLogAudio) {
-    console.debug(...args);
-  }
-};
-const audioWarn = (...args: any[]) => {
-  if (shouldLogAudio) {
-    console.warn(...args);
-  }
-};
-const audioError = (...args: any[]) => {
-  if (shouldLogAudio) {
-    console.error(...args);
-  }
-};
 
 class SoundManager {
   private sounds: { [key: string]: HTMLAudioElement } = {};
   private enabled: boolean = true;
   private audioContext: AudioContext | null = null;
-  private unlocked: boolean = false;
 
   constructor() {
     // Initialize audio context on first user interaction
-    if (isClient) {
-      // Проверяем, запущено ли приложение в Telegram WebApp
-      audioLog("[SoundManager] 🎵 Инициализация SoundManager:", {
-        isTelegram: isTelegramAudioEnv,
-        platform: isTelegramAudioEnv ? window.Telegram?.WebApp?.platform : "web",
-        userAgent: navigator.userAgent,
-      });
-
-      if (isTelegramAudioEnv) {
-        this.initAudioContext();
-      }
-      // Автоматическая разблокировка при первом взаимодействии пользователя
-      this.setupAutoUnlock();
+    if (typeof window !== 'undefined') {
+      this.initAudioContext();
     }
   }
 
   private initAudioContext() {
     try {
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      audioLog("[SoundManager] ✅ AudioContext создан");
     } catch (e) {
-      audioWarn("[SoundManager] ⚠️ Audio context initialization failed:", e);
-    }
-  }
-
-  // Автоматическая разблокировка при первом взаимодействии пользователя
-  private setupAutoUnlock() {
-    // Список событий для разблокировки
-    const unlockEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
-    
-    const unlockAudio = (event?: Event) => {
-      if (this.unlocked) return;
-      
-      // Логируем событие разблокировки
-      audioLog('[SoundManager] 🔓 Попытка разблокировки AudioContext через событие:', event?.type || 'unknown');
-      
-      const unlocked = this.unlockAudio();
-      if (unlocked) {
-        audioLog('[SoundManager] ✅ AudioContext успешно разблокирован');
-      } else {
-        audioWarn('[SoundManager] ⚠️ Не удалось разблокировать AudioContext');
-      }
-    };
-
-    // Добавляем слушатели для разблокировки
-    // Используем capture phase для более раннего перехвата событий
-    unlockEvents.forEach(event => {
-      document.addEventListener(event, unlockAudio, { once: true, passive: true, capture: true });
-      // Также добавляем на window для надежности
-      window.addEventListener(event, unlockAudio, { once: true, passive: true, capture: true });
-    });
-
-    audioLog('[SoundManager] 🔓 Автоматическая разблокировка настроена для событий:', unlockEvents);
-  }
-
-  // Разблокировка AudioContext через пользовательский жест
-  public unlockAudio(): boolean {
-    if (this.unlocked) {
-      audioLog('[SoundManager] ✅ Audio уже разблокирован');
-      return true;
-    }
-
-    const audioContext = this.ensureAudioContext();
-    if (!audioContext) {
-      audioWarn('[SoundManager] ⚠️ AudioContext не создан');
-      return false;
-    }
-
-    audioLog('[SoundManager] 🔍 Состояние AudioContext перед разблокировкой:', {
-      state: audioContext.state,
-      sampleRate: audioContext.sampleRate,
-      destination: audioContext.destination,
-    });
-
-    try {
-      // Проверяем состояние контекста
-      if (audioContext.state === 'suspended') {
-        audioLog('[SoundManager] 🔄 AudioContext в состоянии suspended, пробуем возобновить...');
-        // Пробуем возобновить контекст
-        audioContext.resume().then(() => {
-          audioLog('[SoundManager] ✅ AudioContext возобновлен, состояние:', audioContext.state);
-          this.unlocked = true;
-        }).catch((e) => {
-          audioWarn('[SoundManager] ⚠️ Не удалось возобновить AudioContext:', e);
-        });
-      }
-
-      // Разблокируем через воспроизведение тихого звука
-      // Это критически важно для Telegram WebApp
-      const buffer = audioContext.createBuffer(1, 1, 22050);
-      const source = audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioContext.destination);
-      source.start(0);
-
-      this.unlocked = true;
-      audioLog('[SoundManager] 🔓 Audio разблокирован через пользовательский жест, состояние:', audioContext.state);
-      return true;
-    } catch (e) {
-      audioWarn('[SoundManager] ⚠️ Не удалось разблокировать Audio:', e);
-      audioError('[SoundManager] Детали ошибки:', {
-        error: e,
-        audioContextState: audioContext.state,
-        audioContextExists: !!audioContext,
-      });
-      return false;
+      console.warn('Audio context initialization failed:', e);
     }
   }
 
@@ -143,18 +25,6 @@ class SoundManager {
     if (!this.audioContext) {
       this.initAudioContext();
     }
-    
-    // Если контекст в состоянии suspended, пробуем возобновить
-    if (this.audioContext && this.audioContext.state === 'suspended') {
-      audioLog('[SoundManager] 🔄 AudioContext в состоянии suspended, пробуем возобновить...');
-      this.audioContext.resume().then(() => {
-        audioLog('[SoundManager] ✅ AudioContext возобновлен, состояние:', this.audioContext?.state);
-        this.unlocked = true;
-      }).catch((e) => {
-        audioWarn('[SoundManager] ⚠️ Не удалось возобновить AudioContext:', e);
-      });
-    }
-    
     return this.audioContext;
   }
 
@@ -169,17 +39,7 @@ class SoundManager {
     if (!this.enabled) return;
 
     const audioContext = this.ensureAudioContext();
-    if (!audioContext) {
-      audioWarn('[SoundManager] ⚠️ AudioContext недоступен');
-      return;
-    }
-
-    // Если контекст заблокирован, пробуем разблокировать
-    // КРИТИЧЕСКИ ВАЖНО для Telegram WebApp: проверяем и unlocked, и состояние suspended
-    if (!this.unlocked || audioContext.state === 'suspended') {
-      audioLog('[SoundManager] 🔓 Попытка разблокировки AudioContext перед воспроизведением звука');
-      this.unlockAudio();
-    }
+    if (!audioContext) return;
 
     try {
       const oscillator = audioContext.createOscillator();
@@ -207,11 +67,7 @@ class SoundManager {
       oscillator.start(now);
       oscillator.stop(now + duration);
     } catch (e) {
-      audioWarn('[SoundManager] ⚠️ Audio playback failed:', e);
-      // Если ошибка из-за блокировки, пробуем разблокировать
-      if (!this.unlocked) {
-        this.unlockAudio();
-      }
+      console.warn('Audio playback failed:', e);
     }
   }
 
@@ -219,17 +75,7 @@ class SoundManager {
   private playClick(frequency: number = 1000, volume: number = 0.1) {
     if (!this.enabled) return;
     const audioContext = this.ensureAudioContext();
-    if (!audioContext) {
-      audioWarn('[SoundManager] ⚠️ AudioContext недоступен');
-      return;
-    }
-
-    // Если контекст заблокирован, пробуем разблокировать
-    // КРИТИЧЕСКИ ВАЖНО для Telegram WebApp: проверяем и unlocked, и состояние suspended
-    if (!this.unlocked || audioContext.state === 'suspended') {
-      audioLog('[SoundManager] 🔓 Попытка разблокировки AudioContext перед воспроизведением звука');
-      this.unlockAudio();
-    }
+    if (!audioContext) return;
 
     try {
       const oscillator = audioContext.createOscillator();
@@ -250,11 +96,7 @@ class SoundManager {
       oscillator.start(now);
       oscillator.stop(now + 0.05);
     } catch (e) {
-      audioWarn('[SoundManager] ⚠️ Audio playback failed:', e);
-      // Если ошибка из-за блокировки, пробуем разблокировать
-      if (!this.unlocked) {
-        this.unlockAudio();
-      }
+      console.warn('Audio playback failed:', e);
     }
   }
 
@@ -286,11 +128,7 @@ class SoundManager {
       oscillator.start(now);
       oscillator.stop(now + 0.08);
     } catch (e) {
-      audioWarn('[SoundManager] ⚠️ Audio playback failed:', e);
-      // Если ошибка из-за блокировки, пробуем разблокировать
-      if (!this.unlocked) {
-        this.unlockAudio();
-      }
+      console.warn('Audio playback failed:', e);
     }
   }
 
@@ -298,17 +136,7 @@ class SoundManager {
   private playSuccess(volume: number = 0.15) {
     if (!this.enabled) return;
     const audioContext = this.ensureAudioContext();
-    if (!audioContext) {
-      audioWarn('[SoundManager] ⚠️ AudioContext недоступен');
-      return;
-    }
-
-    // Если контекст заблокирован, пробуем разблокировать
-    // КРИТИЧЕСКИ ВАЖНО для Telegram WebApp: проверяем и unlocked, и состояние suspended
-    if (!this.unlocked || audioContext.state === 'suspended') {
-      audioLog('[SoundManager] 🔓 Попытка разблокировки AudioContext перед воспроизведением звука');
-      this.unlockAudio();
-    }
+    if (!audioContext) return;
 
     try {
       const now = audioContext.currentTime;
@@ -334,11 +162,7 @@ class SoundManager {
         oscillator.stop(now + delay + 0.15);
       });
     } catch (e) {
-      audioWarn('[SoundManager] ⚠️ Audio playback failed:', e);
-      // Если ошибка из-за блокировки, пробуем разблокировать
-      if (!this.unlocked) {
-        this.unlockAudio();
-      }
+      console.warn('Audio playback failed:', e);
     }
   }
 
@@ -346,17 +170,7 @@ class SoundManager {
   private playError(volume: number = 0.1) {
     if (!this.enabled) return;
     const audioContext = this.ensureAudioContext();
-    if (!audioContext) {
-      audioWarn('[SoundManager] ⚠️ AudioContext недоступен');
-      return;
-    }
-
-    // Если контекст заблокирован, пробуем разблокировать
-    // КРИТИЧЕСКИ ВАЖНО для Telegram WebApp: проверяем и unlocked, и состояние suspended
-    if (!this.unlocked || audioContext.state === 'suspended') {
-      audioLog('[SoundManager] 🔓 Попытка разблокировки AudioContext перед воспроизведением звука');
-      this.unlockAudio();
-    }
+    if (!audioContext) return;
 
     try {
       const oscillator = audioContext.createOscillator();
@@ -377,11 +191,7 @@ class SoundManager {
       oscillator.start(now);
       oscillator.stop(now + 0.12);
     } catch (e) {
-      audioWarn('[SoundManager] ⚠️ Audio playback failed:', e);
-      // Если ошибка из-за блокировки, пробуем разблокировать
-      if (!this.unlocked) {
-        this.unlockAudio();
-      }
+      console.warn('Audio playback failed:', e);
     }
   }
 
@@ -491,43 +301,13 @@ class SoundManager {
     this.playClick(600, 0.06);
   }
 
-  // Card flip sound
-  flip() {
-    this.playClick(700, 0.08);
-  }
-
-  // Generic click sound (public method for cockpit)
-  click(frequency: number = 1000, volume: number = 0.1) {
-    this.playClick(frequency, volume);
-  }
-
-  // Success/Error aliases for consistency
-  success() {
-    this.correctAnswer();
-  }
-
-  error() {
-    this.wrongAnswer();
-  }
-
   // Enable/disable sounds
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
-    audioLog(`[SoundManager] ${enabled ? '✅' : '❌'} Звуки ${enabled ? 'включены' : 'выключены'}`);
   }
 
   isEnabled() {
     return this.enabled;
-  }
-
-  // Проверка состояния разблокировки
-  isUnlocked() {
-    return this.unlocked;
-  }
-
-  // Принудительная разблокировка (для кнопки "Включить звуки")
-  forceUnlock() {
-    return this.unlockAudio();
   }
 }
 

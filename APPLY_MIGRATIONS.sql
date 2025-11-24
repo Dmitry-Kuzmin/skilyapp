@@ -32,4 +32,3 @@ CREATE POLICY "Users can view their own notifications"
 -- 3. Убеждаемся, что realtime включен для таблицы
 ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS duel_notifications;
 
-

@@ -1,19 +1,15 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Progress } from '@/components/ui/progress';
-import { AIWidget } from '@/components/AIWidget';
-import { toast } from 'sonner';
-import { dispatchUserEvent } from '@/lib/notification-events';
-import { cn } from '@/lib/utils';
 
 interface DuelResultProps {
   duelId: string;
@@ -25,68 +21,37 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const { profileId } = useUserContext();
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [myAnswers, setMyAnswers] = useState<any[]>([]);
-  const [showAIWidget, setShowAIWidget] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
-  const [rewards, setRewards] = useState<{ sp: number; xp: number; bonusCoins: number; insuranceRefund?: number } | null>(null);
-  const rewardsAppliedRef = useRef(false);
-  const notificationSentRef = useRef(false);
 
   useEffect(() => {
     loadResults();
   }, [duelId]);
 
   useEffect(() => {
-    if (results && profileId && !rewardsAppliedRef.current) {
-      rewardsAppliedRef.current = true;
-
-      const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
-      const metadata = {
-        duel_id: duelId,
-        is_winner: results.isWinner,
-        is_draw: results.isDraw,
-        bet_amount: results.betAmount || 0,
-        has_bet: (results.betAmount || 0) > 0
-      };
-
-      const applyRewards = async () => {
-        try {
-          const { data: spData } = await supabase.functions.invoke('season-sp', {
-            body: { user_id: profileId, source_type: spSource, metadata },
-          });
-
-          const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
-            body: { user_id: profileId, source_type: spSource, metadata },
-          });
-
-          if (spData && xpData) {
-            setRewards(prev => prev ? {
-              ...prev,
-              sp: spData.sp_added || prev.sp,
-              xp: xpData.xp_added || prev.xp
-            } : null);
-          }
-
-          await supabase.functions.invoke('season-challenges-track', {
-            body: { user_id: profileId, source_type: spSource, metadata },
-          });
-
-          if (xpData?.level_up) {
-            const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
-              body: { trigger: 'duel_pass_level_up' },
-            });
-            const message = suggestion?.suggestion?.message;
-            if (message) toast.info(message);
-          }
-        } catch (err) {
-          console.error('[DuelResult] Error applying rewards:', err);
-          rewardsAppliedRef.current = false;
-        }
-      };
-
-      applyRewards();
+    if (results && profileId) {
+      // Начисляем монеты после загрузки результатов
+      const coinsEarned = results.isWinner ? 50 : results.isDraw ? 25 : 15;
+      updateCoins(coinsEarned);
     }
-  }, [results, profileId, duelId]);
+  }, [results, profileId]);
+
+  const updateCoins = async (amount: number) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('coins')
+        .eq('id', profileId)
+        .single();
+
+      if (profile) {
+        await supabase
+          .from('profiles')
+          .update({ coins: (profile.coins || 0) + amount })
+          .eq('id', profileId);
+      }
+    } catch (error) {
+      console.error('Ошибка начисления монет:', error);
+    }
+  };
 
   useEffect(() => {
     if (results?.isWinner) {
@@ -100,417 +65,304 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
-      const { data: duelData, error: duelError } = await supabase
-        .from('duels')
-        .select(`
-          *,
-          player1:profiles!duels_player1_id_fkey(id, username, avatar_url),
-          player2:profiles!duels_player2_id_fkey(id, username, avatar_url)
-        `)
-        .eq('id', duelId)
-        .single();
+      const { data: players } = await supabase
+        .from('duel_players')
+        .select('*, profiles(first_name, username)')
+        .eq('duel_id', duelId);
 
-      if (duelError) throw duelError;
+      if (!players) return;
 
-      const isPlayer1 = duelData.player1_id === profileId;
-      const myScore = isPlayer1 ? duelData.player1_score : duelData.player2_score;
-      const opponentScore = isPlayer1 ? duelData.player2_score : duelData.player1_score;
-      const myCorrect = isPlayer1 ? duelData.player1_correct : duelData.player2_correct;
-      const opponentCorrect = isPlayer1 ? duelData.player2_correct : duelData.player1_correct;
-      const opponent = isPlayer1 ? duelData.player2 : duelData.player1;
+      const myPlayer = players.find(p => p.user_id === profileId);
+      const opponent = players.find(p => p.user_id !== profileId);
 
-      const isWinner = myScore > opponentScore;
-      const isDraw = myScore === opponentScore;
+      const isWinner = myPlayer && opponent && myPlayer.score > opponent.score;
+      const isDraw = myPlayer && opponent && myPlayer.score === opponent.score;
 
-      let winnings = 0;
-      let insuranceRefund = 0;
-      if (duelData.bet_amount > 0) {
-        if (isWinner) {
-          winnings = duelData.bet_amount * 2;
-        } else if (isDraw) {
-          winnings = duelData.bet_amount;
-        }
-        if (!isWinner && !isDraw && duelData.insurance_used) {
-          insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
-        }
-      }
-
-      const bonusCoins = isWinner ? 10 : (isDraw ? 5 : 0);
-      setRewards({ sp: 0, xp: 0, bonusCoins, insuranceRefund });
-
-      const { data: answersData } = await supabase
-        .from('duel_answers')
-        .select('*, questions(*)')
-        .eq('duel_id', duelId)
-        .eq('user_id', profileId)
-        .order('created_at');
-
-      setMyAnswers(answersData || []);
-
+      // Cast profiles to access nested properties
+      const myProfile = myPlayer?.profiles as any;
+      const opponentProfile = opponent?.profiles as any;
+      
       setResults({
+        myScore: myPlayer?.score || 0,
+        myCorrect: myPlayer?.correct_count || 0,
+        opponentScore: opponent?.score || 0,
+        opponentCorrect: opponent?.correct_count || 0,
+        opponentName: opponentProfile?.first_name || opponentProfile?.username || 'Соперник',
+        myName: myProfile?.first_name || myProfile?.username || 'Вы',
         isWinner,
         isDraw,
-        myScore,
-        opponentScore,
-        myCorrect,
-        opponentCorrect,
-        opponentName: opponent?.username || 'Соперник',
-        opponentAvatar: opponent?.avatar_url,
-        betAmount: duelData.bet_amount || 0,
-        winnings,
-        insuranceRefund,
-        insuranceUsed: duelData.insurance_used || false
       });
-
-      if (!notificationSentRef.current && opponent?.id) {
-        notificationSentRef.current = true;
-        dispatchUserEvent(opponent.id, 'duel_finished', {
-          duel_id: duelId,
-          opponent_score: myScore,
-          is_opponent_winner: isWinner
-        });
-      }
+      
+      console.log('[DuelResult] Loaded results:', {
+        myScore: myPlayer?.score,
+        opponentScore: opponent?.score,
+        myCorrect: myPlayer?.correct_count,
+        opponentCorrect: opponent?.correct_count,
+        myName: myProfile?.first_name || myProfile?.username,
+        opponentName: opponentProfile?.first_name || opponentProfile?.username
+      });
     } catch (error) {
-      console.error('[DuelResult] Error loading results:', error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuestionClick = (answer: any) => {
-    setSelectedQuestion(answer.questions);
-    setShowAIWidget(true);
+  const handleShare = () => {
+    if (window.Telegram?.WebApp) {
+      const text = results.isWinner 
+        ? `Победил в дуэли со счётом ${results.myScore}:${results.opponentScore}! 🏆`
+        : `Сыграл дуэль со счётом ${results.myScore}:${results.opponentScore}`;
+      
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(text)}`;
+      (window.Telegram.WebApp as any).openTelegramLink?.(shareUrl);
+    }
   };
 
   if (loading || !results) {
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-foreground">Подсчитываем результаты...</p>
-        </div>
-      </div>
-    );
+    return <div className="text-center p-8">Загрузка результатов...</div>;
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/20 to-slate-950 overflow-y-auto pt-safe">
-      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6">
-        <AnimatePresence>
-          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} />}
-        </AnimatePresence>
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+      {results.isWinner && typeof window !== 'undefined' && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
+          numberOfPieces={500}
+          gravity={0.3}
+        />
+      )}
 
-        {/* Header - Animated Result Status */}
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0, y: -50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
-          className="text-center space-y-4 relative"
-        >
-          {/* Animated Trophy/Icon */}
-          <motion.div
-            animate={results.isWinner ? {
-              rotate: [0, -5, 5, -5, 0],
-              scale: [1, 1.1, 1, 1.05, 1]
-            } : {}}
-            transition={{ duration: 1, repeat: results.isWinner ? Infinity : 0, repeatDelay: 3 }}
-            className="relative inline-block"
-          >
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", duration: 0.5 }}
+      >
+        <Card className="p-8 text-center space-y-6 bg-gradient-to-br from-card via-card to-card/50 border-2 shadow-2xl">
+          <div>
             {results.isWinner && (
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-3xl opacity-50 animate-pulse" />
-                <Trophy className="relative h-24 w-24 mx-auto text-yellow-400 drop-shadow-2xl" />
-              </div>
+              <motion.div 
+                className="mb-4"
+                animate={{ 
+                  rotate: [0, -10, 10, -10, 0],
+                  scale: [1, 1.1, 1, 1.1, 1]
+                }}
+                transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 2 }}
+              >
+                <Trophy className="h-20 w-20 mx-auto text-yellow-500 drop-shadow-lg" />
+              </motion.div>
             )}
-            {!results.isWinner && !results.isDraw && (
-              <div className="text-7xl opacity-80">😔</div>
-            )}
-            {results.isDraw && (
-              <div className="text-7xl opacity-80">🤝</div>
-            )}
-          </motion.div>
-
-          {/* Status Text */}
-          <div className="space-y-2">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            <motion.h2 
+              className={`text-4xl font-bold mb-2 ${
+                results.isWinner ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500' :
+                results.isDraw ? 'text-blue-500' : 'text-muted-foreground'
+              }`}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              {results.isWinner ? '🏆 Победа!' : results.isDraw ? '🤝 Ничья!' : '😔 Поражение'}
+            </motion.h2>
+            <motion.p 
+              className="text-muted-foreground text-lg"
+              initial={{ y: -10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className={cn(
-                "text-5xl md:text-6xl font-black tracking-tight",
-                results.isWinner && "bg-gradient-to-r from-yellow-300 via-orange-400 to-yellow-300 bg-clip-text text-transparent animate-shimmer",
-                results.isDraw && "text-blue-400",
-                !results.isWinner && !results.isDraw && "text-slate-400"
-              )}
-              style={results.isWinner ? { backgroundSize: "200% 100%" } : {}}
             >
-              {results.isWinner ? 'Победа!' : results.isDraw ? 'Ничья!' : 'Поражение'}
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-slate-400 text-lg font-medium"
-            >
-              {results.isWinner ? 'Отличная игра!' : results.isDraw ? 'Вы на равных' : 'Попробуй ещё раз!'}
+              {results.isWinner 
+                ? 'Отличная работа! Вы победили!'
+                : results.isDraw
+                ? 'Вы оба показали одинаковый результат'
+                : 'В следующий раз повезёт больше!'}
             </motion.p>
           </div>
-        </motion.div>
 
-        {/* Score Cards - Modern Glass Design */}
-        <div className="grid grid-cols-2 gap-4">
-          <motion.div
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
-            className="relative group"
-          >
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            <div className="relative bg-gradient-to-br from-blue-900/40 to-purple-900/40 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-              <div className="text-center space-y-3">
-                <motion.div
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-6xl font-black bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent"
-                >
-                  {results.myScore}
-                </motion.div>
-                <div className="text-sm font-bold text-white/80">Вы</div>
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span className="text-sm font-bold text-white">{results.myCorrect}/10</span>
-                </div>
+          <div className="grid grid-cols-2 gap-4">
+            <motion.div 
+              className="bg-gradient-to-br from-primary/20 to-primary/5 p-8 rounded-xl border-2 border-primary/30 shadow-lg backdrop-blur-sm"
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="text-6xl font-black mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                {results.myScore}
               </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
-            className="relative group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-500/20 to-slate-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-              <div className="text-center space-y-3">
-                <div className="text-6xl font-black text-slate-300">
-                  {results.opponentScore}
-                </div>
-                <div className="text-sm font-bold text-slate-400 truncate px-2">{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-                  <Target className="w-4 h-4 text-orange-400" />
-                  <span className="text-sm font-bold text-white">{results.opponentCorrect}/10</span>
-                </div>
+              <div className="text-base text-foreground font-bold mb-3">Ваш счёт</div>
+              <div className="flex items-center justify-center gap-2 bg-success/10 rounded-lg px-3 py-2">
+                <Target className="w-5 h-5 text-success" />
+                <span className="text-sm font-semibold text-success">
+                  {results.myCorrect}/10 правильных
+                </span>
               </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Rewards Section - Completely Redesigned */}
-        {rewards && (
-          <motion.div
-            initial={{ y: 30, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-pink-900/40 backdrop-blur-xl p-6"
-          >
-            {/* Animated background gradient */}
-            <motion.div
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50"
-              style={{ backgroundSize: "200% 200%" }}
-            />
-
-            <div className="relative z-10 space-y-5">
-              <div className="flex items-center justify-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="w-6 h-6 text-purple-400" />
-                </motion.div>
-                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Награды
-                </h3>
+              <div className="mt-3 text-xs text-muted-foreground">
+                Точность: {((results.myCorrect / 10) * 100).toFixed(0)}%
               </div>
+            </motion.div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {/* Season Points */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20 text-center space-y-2"
-                >
-                  <Star className="w-8 h-8 text-blue-400 mx-auto fill-blue-400/20" />
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Season Points</div>
-                  <div className="text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-600 bg-clip-text text-transparent">
-                    +{rewards.sp}
-                  </div>
-                </motion.div>
-
-                {/* XP */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-purple-500/20 text-center space-y-2"
-                >
-                  <Zap className="w-8 h-8 text-purple-400 mx-auto fill-purple-400/20" />
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Опыт</div>
-                  <div className="text-3xl font-black bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">
-                    +{rewards.xp}
-                  </div>
-                </motion.div>
+            <motion.div 
+              className="bg-gradient-to-br from-muted/60 to-muted/30 p-8 rounded-xl border-2 border-muted/50 shadow-lg backdrop-blur-sm"
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="text-6xl font-black mb-3 text-foreground/80">{results.opponentScore}</div>
+              <div className="text-base text-foreground/80 font-bold mb-3">{results.opponentName}</div>
+              <div className="flex items-center justify-center gap-2 bg-orange-500/10 rounded-lg px-3 py-2">
+                <Target className="w-5 h-5 text-orange-500" />
+                <span className="text-sm font-semibold text-orange-600 dark:text-orange-400">
+                  {results.opponentCorrect}/10 правильных
+                </span>
               </div>
-            </div>
-          </motion.div>
-        )}
+              <div className="mt-3 text-xs text-muted-foreground">
+                Точность: {((results.opponentCorrect / 10) * 100).toFixed(0)}%
+              </div>
+            </motion.div>
+          </div>
 
-        {/* Betting Results */}
-        {results.betAmount > 0 && (
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
+          <motion.div 
+            className="bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-2 border-yellow-500/30 rounded-xl p-6 shadow-lg backdrop-blur-sm"
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden"
           >
-            <div className="p-4 border-b border-white/10 bg-white/5 flex items-center gap-2">
-              <Coins className="w-5 h-5 text-amber-400" />
-              <h3 className="font-bold text-white">Ставка</h3>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Sparkles className="w-6 h-6 text-yellow-500" />
+              <h3 className="font-black text-xl bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
+                Награды получены
+              </h3>
+              <Sparkles className="w-6 h-6 text-yellow-500" />
             </div>
-            <div className="p-5 space-y-3">
-              <div className="flex justify-between items-center bg-white/5 rounded-xl p-3">
-                <span className="text-slate-400 font-medium">Ваша ставка:</span>
-                <span className="font-bold text-red-400">-{results.betAmount}</span>
+            <div className="grid grid-cols-2 gap-4 text-lg">
+              <div className="flex items-center justify-center gap-2 bg-blue-500/10 rounded-lg p-3 border border-blue-500/20">
+                <Zap className="w-6 h-6 text-blue-500" />
+                <span className="font-bold text-blue-600 dark:text-blue-400">
+                  +{Math.round(results.myScore / 20) + (results.isWinner ? 25 : 10)} XP
+                </span>
               </div>
-
-              {results.isWinner && (
-                <motion.div
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 border border-green-500/30"
-                >
-                  <span className="font-bold text-green-400">Выигрыш:</span>
-                  <span className="font-black text-2xl text-green-400">+{results.winnings}</span>
-                </motion.div>
-              )}
-
-              {!results.isWinner && !results.isDraw && (
-                <div className="flex justify-between items-center bg-red-500/10 rounded-xl p-3 border border-red-500/20">
-                  <span className="font-bold text-red-400">Проигрыш:</span>
-                  <span className="font-black text-2xl text-red-400">-{results.betAmount}</span>
-                </div>
-              )}
-
-              {results.isDraw && (
-                <div className="flex justify-between items-center bg-blue-500/10 rounded-xl p-3 border border-blue-500/20">
-                  <span className="font-bold text-blue-400">Возврат:</span>
-                  <span className="font-black text-2xl text-blue-400">+{results.betAmount}</span>
-                </div>
-              )}
+              <div className="flex items-center justify-center gap-2 bg-yellow-500/10 rounded-lg p-3 border border-yellow-500/20">
+                <span className="text-2xl">💰</span>
+                <span className="font-bold text-yellow-600 dark:text-yellow-400">
+                  +{results.isWinner ? 50 : results.isDraw ? 25 : 15} монет
+                </span>
+              </div>
             </div>
           </motion.div>
-        )}
 
-        {/* Questions Review */}
-        {myAnswers.length > 0 && (
+          {/* Achievement Progress */}
           <motion.div
-            initial={{ y: 30, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7 }}
-            className="bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden"
           >
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="questions" className="border-none">
-                <AccordionTrigger className="px-5 py-4 hover:no-underline bg-white/5 border-b border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500/20 rounded-lg">
-                      <Trophy className="w-5 h-5 text-indigo-400" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-bold text-white">Обзор вопросов</h3>
-                      <p className="text-xs text-slate-400">{results.myCorrect} правильных из 10</p>
-                    </div>
+            <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <Award className="w-6 h-6 text-purple-500" />
+                <div className="flex-1">
+                  <div className="font-bold text-base">Прогресс до Мастера</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Ещё {10 - (results.myCorrect || 0)} побед до нового ранга
+                  </div>
+                </div>
+                <TrendingUp className="w-5 h-5 text-purple-500" />
+              </div>
+              <Progress value={(results.myCorrect || 0) * 10} className="h-3 bg-purple-500/20" />
+            </Card>
+          </motion.div>
+
+          {/* Detailed Statistics */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Accordion type="single" collapsible className="bg-card/50 backdrop-blur-sm rounded-xl border-2">
+              <AccordionItem value="stats" className="border-none">
+                <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                  <div className="flex items-center gap-2 font-bold text-base">
+                    <span>📊</span>
+                    <span>Подробная статистика</span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-0 pb-0">
-                  <div className="divide-y divide-white/5">
-                    {myAnswers.map((answer, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => handleQuestionClick(answer)}
-                        className="p-4 hover:bg-white/5 cursor-pointer transition-colors group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm",
-                              answer.is_correct ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
-                            )}>
-                              {idx + 1}
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm text-white/90 line-clamp-2">{answer.questions?.question_ru}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {answer.is_correct ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-400" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-400" />
-                            )}
-                            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                <AccordionContent className="px-6 pb-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-muted-foreground">Правильных ответов:</span>
+                      <span className="font-bold text-lg text-success">{results.myCorrect}/10</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-muted-foreground">Точность:</span>
+                      <span className="font-bold text-lg text-primary">
+                        {((results.myCorrect / 10) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-muted-foreground">Набрано очков:</span>
+                      <span className="font-bold text-lg">{results.myScore}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-muted-foreground">Разница:</span>
+                      <span className={`font-bold text-lg ${results.myScore > results.opponentScore ? 'text-success' : 'text-destructive'}`}>
+                        {results.myScore > results.opponentScore ? '+' : ''}{results.myScore - results.opponentScore}
+                      </span>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </motion.div>
-        )}
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="grid grid-cols-2 gap-4 pt-4"
-        >
-          <Button
-            onClick={onRematch}
-            size="lg"
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-500/30"
+          <motion.div 
+            className="flex gap-3"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.9 }}
           >
-            <RotateCcw className="w-5 h-5 mr-2" />
-            Реванш
-          </Button>
-          <Button
-            onClick={onBackToMenu}
-            size="lg"
-            variant="outline"
-            className="border-white/20 bg-white/5 hover:bg-white/10 text-white font-bold h-14 rounded-2xl backdrop-blur-sm"
-          >
-            <Home className="w-5 h-5 mr-2" />
-            В меню
-          </Button>
-        </motion.div>
-      </div>
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                onRematch();
+              }} 
+              className="flex-1 h-14 text-lg font-bold" 
+              size="lg"
+            >
+              <RotateCcw className="mr-2 h-6 w-6" />
+              Реванш
+            </Button>
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                handleShare();
+              }} 
+              variant="outline" 
+              size="lg" 
+              className="h-14 px-6"
+            >
+              <Share2 className="h-6 w-6" />
+            </Button>
+          </motion.div>
 
-      {/* AI Widget */}
-      {showAIWidget && selectedQuestion && (
-        <AIWidget
-          question={selectedQuestion}
-          onClose={() => {
-            setShowAIWidget(false);
-            setSelectedQuestion(null);
-          }}
-        />
-      )}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0 }}
+          >
+            <Button 
+              onClick={() => {
+                haptics.buttonClick();
+                onBackToMenu();
+              }} 
+              variant="ghost" 
+              className="w-full h-12 text-base" 
+              size="lg"
+            >
+              <Home className="mr-2 h-5 w-5" />
+              В меню
+            </Button>
+          </motion.div>
+        </Card>
+      </motion.div>
     </div>
   );
 }

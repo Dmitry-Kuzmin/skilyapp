@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect, ReactNode } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Check, CheckCheck, Swords, Clock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, Check, CheckCheck, Swords, Clock, Zap } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useUserContext } from '@/contexts/UserContext';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
@@ -12,59 +12,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { NotificationIcon } from './NotificationIcon';
-import { ReminderConnectModal } from '@/components/notifications/ReminderConnectModal';
-
-type NotificationsApi = ReturnType<typeof useNotifications>;
-
-interface NotificationsPanelProps {
-  notificationsApi?: NotificationsApi;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  renderTrigger?: boolean;
-  trigger?: ReactNode;
-}
 
 type NotificationFilter = 'all' | 'duels' | 'reminders' | 'system';
 
-export function NotificationsPanel({
-  notificationsApi,
-  open,
-  onOpenChange,
-  renderTrigger = true,
-  trigger,
-}: NotificationsPanelProps) {
+export function NotificationsPanel() {
   const { profileId } = useUserContext();
-  const api = notificationsApi ?? useNotifications();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = api;
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [filter, setFilter] = useState<NotificationFilter>('all');
-  const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
-  const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
-
-  const toggleNotificationExpansion = (notificationId: string) => {
-    setExpandedNotifications(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(notificationId)) {
-        newSet.delete(notificationId);
-      } else {
-        newSet.add(notificationId);
-      }
-      return newSet;
-    });
-  };
-
-  // Calculate if message should be truncated (more than 3 lines)
-  const shouldTruncate = (message: string): boolean => {
-    // Approximate: ~50 characters per line, so 3 lines = ~150 characters
-    // But we need to account for word wrapping, so we'll use a more accurate method
-    const lines = message.split('\n');
-    if (lines.length > 3) return true;
-    // Check if any line is too long (more than ~60 chars will likely wrap)
-    const hasLongLine = lines.some(line => line.length > 60);
-    if (hasLongLine && message.length > 150) return true;
-    return message.length > 180; // Safe threshold for 3 lines
-  };
 
   // Debug logging
   useEffect(() => {
@@ -76,22 +31,21 @@ export function NotificationsPanel({
   }, [notifications, unreadCount, profileId]);
 
   // Filter notifications by type
-  // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
-  // Show only results (finish, timeout)
-  const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
-  
   const filteredNotifications = useMemo(() => {
-    // First, filter out progress notifications (always hide them)
-    const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
-    
-    if (filter === 'all') return notificationsWithoutProgress;
+    if (filter === 'all') return notifications;
     
     const typeMap: Record<string, NotificationFilter> = {
+      'start': 'duels',
+      'progress': 'duels',
+      'boost': 'duels',
       'finish': 'duels',
       'timeout': 'duels',
+      'opponent_ahead': 'duels',
+      'opponent_behind': 'duels',
+      'reminder': 'reminders',
     };
 
-    return notificationsWithoutProgress.filter(n => {
+    return notifications.filter(n => {
       const category = typeMap[n.type] || 'system';
       return category === filter;
     });
@@ -150,35 +104,18 @@ export function NotificationsPanel({
     }
   };
 
-  // Всегда предоставляем onOpenChange для Sheet, даже если он не передан извне
-  const handleSheetOpenChange = (newOpen: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(newOpen);
-    }
-  };
-
-  const sheetProps = typeof open === "boolean" && onOpenChange
-    ? { open, onOpenChange: handleSheetOpenChange }
-    : { onOpenChange: handleSheetOpenChange };
-
-  const defaultTrigger = (
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 min-w-4 p-0 flex items-center justify-center text-[10px] font-semibold bg-red-500/85 border-none text-white">
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 border-none">
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </Button>
-  );
-
-  return (
-    <Sheet {...sheetProps}>
-      {renderTrigger && (
-        <SheetTrigger asChild>
-          {trigger ?? defaultTrigger}
       </SheetTrigger>
-      )}
       <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
         <SheetHeader className="p-6 pb-4 border-b">
           <div className="flex items-center justify-between mb-4">
@@ -239,16 +176,6 @@ export function NotificationsPanel({
                     ? 'Пока нет уведомлений' 
                     : `Нет уведомлений в категории "${filter}"`}
                 </p>
-                {filter === 'reminders' && (
-                  <Button
-                    onClick={() => setReminderModalOpen(true)}
-                    className="mt-4"
-                    size="sm"
-                  >
-                    <Clock className="w-4 h-4 mr-2" />
-                    Настроить напоминания
-                  </Button>
-                )}
               </motion.div>
             ) : (
               <motion.div
@@ -281,8 +208,8 @@ export function NotificationsPanel({
                           transition={{ delay: index * 0.03 }}
                           onClick={() => handleNotificationClick(notification)}
                           className={cn(
-                            "p-4 rounded-xl border-2 cursor-pointer transition-all w-full max-w-full overflow-hidden",
-                            "hover:shadow-md",
+                            "p-4 rounded-xl border-2 cursor-pointer transition-all",
+                            "hover:shadow-md hover:scale-[1.02]",
                             notification.is_read
                               ? 'bg-background/50 border-border/50 opacity-60'
                               : 'bg-primary/5 border-primary/30 hover:bg-primary/10 hover:border-primary/50'
@@ -291,26 +218,18 @@ export function NotificationsPanel({
                           <div className="flex items-start gap-3">
                             {notification.icon && (
                               <div className={cn(
-                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
+                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 text-xl",
                                 notification.is_read 
                                   ? 'bg-muted/50' 
                                   : 'bg-primary/20 shadow-sm'
                               )}>
-                                <NotificationIcon 
-                                  iconName={notification.icon} 
-                                  className={cn(
-                                    notification.is_read 
-                                      ? 'text-muted-foreground' 
-                                      : 'text-primary'
-                                  )}
-                                  size={24}
-                                />
+                                {notification.icon}
                               </div>
                             )}
-                            <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2 mb-1">
                                 <h4 className={cn(
-                                  "font-bold text-sm line-clamp-1 break-words overflow-wrap-anywhere",
+                                  "font-bold text-sm line-clamp-1",
                                   !notification.is_read && "text-foreground"
                                 )}>
                                   {notification.title}
@@ -319,45 +238,9 @@ export function NotificationsPanel({
                                   <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 animate-pulse" />
                                 )}
                               </div>
-                              <div className="mb-2 max-w-full overflow-hidden">
-                                {shouldTruncate(notification.message) && !expandedNotifications.has(notification.id) ? (
-                                  <>
-                                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed break-all">
-                                      {notification.message}
-                                    </p>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleNotificationExpansion(notification.id);
-                                      }}
-                                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                                    >
-                                      <ChevronDown className="h-3 w-3" />
-                                      Развернуть сообщение
-                                    </button>
-                                  </>
-                                ) : shouldTruncate(notification.message) && expandedNotifications.has(notification.id) ? (
-                                  <>
-                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
-                                      {notification.message}
-                                    </p>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleNotificationExpansion(notification.id);
-                                      }}
-                                      className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-                                    >
-                                      <ChevronUp className="h-3 w-3" />
-                                      Свернуть сообщение
-                                    </button>
-                                  </>
-                                ) : (
-                                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed break-all">
-                                    {notification.message}
-                                  </p>
-                                )}
-                              </div>
+                              <p className="text-sm text-muted-foreground line-clamp-2 mb-2 leading-relaxed">
+                                {notification.message}
+                              </p>
                               <div className="flex items-center justify-between">
                                 <p className="text-xs text-muted-foreground">
                                   {formatDistanceToNow(new Date(notification.created_at), {
@@ -391,9 +274,6 @@ export function NotificationsPanel({
           </AnimatePresence>
         </ScrollArea>
       </SheetContent>
-      
-      {/* Reminder Connect Modal */}
-      <ReminderConnectModal open={reminderModalOpen} onOpenChange={setReminderModalOpen} />
     </Sheet>
   );
 }

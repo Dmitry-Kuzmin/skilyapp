@@ -1,10 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
-import { useDuelData } from '@/hooks/useDuelData';
 import { BoostButton } from './BoostButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { sounds } from '@/lib/sounds';
@@ -12,7 +10,7 @@ import { haptics } from '@/lib/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
-import { Swords, Timer, Zap, Trophy, WifiOff, Wifi, Flame } from 'lucide-react';
+import { Swords, Timer, Zap, Trophy, WifiOff, Wifi } from 'lucide-react';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
 
 interface DuelBattleProps {
@@ -22,7 +20,6 @@ interface DuelBattleProps {
 
 export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const { profileId } = useUserContext();
-  const { fetchQuestions, fetchPlayers, fetchBoostInventory } = useDuelData(duelId, profileId);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const { state } = useDuelRealtime(duelId, myPlayerId);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -34,14 +31,13 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [answered, setAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [boosts, setBoosts] = useState({ fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0, translate: 0 });
+  const [boosts, setBoosts] = useState({ fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 });
   const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
   const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
   const [hintText, setHintText] = useState('');
   const [showHint, setShowHint] = useState(false);
   const [skipCount, setSkipCount] = useState(0);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
-  const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const prevOpponentScore = useRef(opponentScore);
   const lastOpponentActivityRef = useRef(Date.now());
@@ -49,64 +45,11 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
 
-  const syncBoostInventory = useCallback(async () => {
-    try {
-      const inventory = await fetchBoostInventory();
-      const boostMap: Record<string, number> = {
-        fifty_fifty: 0,
-        time_extend: 0,
-        hint: 0,
-        skip: 0,
-        translate: 0,
-      };
-      inventory.forEach((item) => {
-        if (item.boost_type in boostMap) {
-          boostMap[item.boost_type] = item.quantity;
-        }
-      });
-      setBoosts(boostMap);
-    } catch (error) {
-      console.error('[DuelBattle] Error syncing boosts:', error);
-    }
-  }, [fetchBoostInventory]);
-
   useEffect(() => {
-    if (!duelId) return;
-    let isMounted = true;
-
-    const loadData = async () => {
-      try {
-        const questionsData = await fetchQuestions();
-        if (isMounted) {
-          setQuestions(questionsData);
-        }
-      } catch (error) {
-        console.error('[DuelBattle] Failed to load questions:', error);
-        toast.error('Не удалось загрузить вопросы');
-      }
-
-      try {
-        const players = await fetchPlayers();
-        if (isMounted && players) {
-          setMyPlayerId(players.myPlayerId);
-          setMyScore(players.myScore);
-          setOpponentScore(players.opponentScore);
-          setMyName(players.myName);
-          setOpponentName(players.opponentName);
-        }
-      } catch (error) {
-        console.error('[DuelBattle] Failed to load player data:', error);
-      }
-
-      await syncBoostInventory();
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [duelId, fetchPlayers, fetchQuestions, syncBoostInventory]);
+    loadQuestions();
+    loadScores();
+    loadBoosts();
+  }, [duelId]);
 
   useEffect(() => {
     if (!questions.length) return;
@@ -118,7 +61,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     setHiddenOptions([]);
     setUsedBoosts([]);
     setShowCorrectAnswer(false);
-    setTranslationLanguage(null); // Сбрасываем перевод при переходе к следующему вопросу
   }, [currentIndex]);
 
   useEffect(() => {
@@ -127,32 +69,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
   }, [state.duelFinished]);
 
-  // Sync opponent score from realtime - ALWAYS update when state changes
-  useEffect(() => {
-    if (typeof state.opponentScore === 'number') {
-      if (state.opponentScore !== opponentScore) {
-        console.log('[DuelBattle] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
-        setOpponentScore(state.opponentScore);
-      }
-    }
-  }, [state.opponentScore]);
-
-  // Sync my score from realtime - ALWAYS update when state changes
-  useEffect(() => {
-    if (typeof state.myScore === 'number') {
-      if (state.myScore !== myScore) {
-        console.log('[DuelBattle] ✅ Updating my score from realtime:', state.myScore, '(was:', myScore, ')');
-        setMyScore(state.myScore);
-      }
-    }
-  }, [state.myScore]);
-
-  // УБРАНО: Периодическое обновление счета каждые 2 секунды
-  // useDuelRealtime уже обновляет счет через Realtime подписку мгновенно
-  // Это избыточно и создает лишнюю нагрузку на БД и сеть
-
-  useEffect(() => {
-    const handleOnline = () => {
       setIsOnline(true);
       toast.success('Соединение восстановлено', {
         description: 'Можете продолжать игру',
@@ -240,17 +156,98 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     return () => clearInterval(timer);
   }, [answered, currentIndex]);
 
+  const loadQuestions = async () => {
+    try {
+      console.log('[DuelBattle] Loading questions via edge function');
+      
+      // Use edge function to load questions (bypasses RLS issues)
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'get_questions',
+          duel_id: duelId,
+          profile_id: profileId
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.questions && data.questions.length > 0) {
+        console.log('[DuelBattle] Loaded', data.questions.length, 'questions');
+        setQuestions(data.questions);
+      } else {
+        console.warn('[DuelBattle] No questions found');
+        toast.error('Вопросы не найдены');
+      }
+    } catch (error) {
+      console.error('[DuelBattle] Error loading questions:', error);
+      toast.error('Не удалось загрузить вопросы');
+    }
+  };
+
+  const loadScores = async () => {
+    try {
+      const { data } = await supabase
+        .from('duel_players')
+        .select('*, profiles(first_name, username)')
+        .eq('duel_id', duelId);
+
+      if (data && data.length > 0) {
+        const myPlayer = data.find(p => p.user_id === profileId);
+        const opponent = data.find(p => p.user_id !== profileId);
+        
+        // Сохраняем ID моего игрока для фильтрации realtime событий
+        if (myPlayer?.id) {
+          setMyPlayerId(myPlayer.id);
+        }
+        
+        // Load player names
+        const myProfile = myPlayer?.profiles as any;
+        const opponentProfile = opponent?.profiles as any;
+        setMyName(myProfile?.first_name || myProfile?.username || 'Ты');
+        setOpponentName(opponentProfile?.first_name || opponentProfile?.username || 'Соперник');
+        
+        setMyScore(myPlayer?.score || 0);
+        // Initial opponent score - realtime will update it
+        setOpponentScore(opponent?.score || 0);
+      }
+    } catch (error) {
+      console.error('Error loading scores:', error);
+    }
+  };
+
+  const loadBoosts = async () => {
+    if (!profileId) return;
+    
+    try {
+      const { data } = await supabase
+        .from('boost_inventory')
+        .select('boost_type, quantity')
+        .eq('user_id', profileId);
+
+      if (data) {
+        const boostMap: any = { fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 };
+        data.forEach(item => {
+          if (item.boost_type in boostMap) {
+            boostMap[item.boost_type] = item.quantity;
+          }
+        });
+        setBoosts(boostMap);
+      }
+    } catch (error) {
+      console.error('Error loading boosts:', error);
+    }
+  };
+
   // ============================================================================
   // CRITICAL: USE SERVER-PROVIDED BOOST EFFECTS ONLY
   // ============================================================================
   // All boost logic is calculated on server
   // Client only displays effects from server response
   // ============================================================================
-  const handleUseBoost = async (type: string, language?: 'ru' | 'en') => {
+  const handleUseBoost = async (type: string) => {
     if (usedBoosts.includes(type) || answered) return;
 
     try {
-      // Для translate бустера язык передается в метаданных
       const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'use_boost',
@@ -258,7 +255,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           duel_id: duelId,
           duel_question_id: currentQuestion.id,
           boost_type: type,
-          language: language, // Для translate бустера
         },
       });
 
@@ -293,17 +289,10 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
             finishDuel();
           }
         }, 1000);
-      } else if (type === 'translate' && language) {
-        sounds.boostHint(); // Используем звук подсказки для перевода
-        haptics.boostActivated();
-        setTranslationLanguage(language);
-        const langName = language === 'ru' ? 'русский' : 'английский';
-        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 3000 });
       }
 
       setUsedBoosts(prev => [...prev, type]);
       setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof prev] - 1) }));
-      await syncBoostInventory();
     } catch (error: any) {
       toast.error(error.message || 'Ошибка использования буста', { duration: 4000 });
     }
@@ -321,19 +310,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     const timeTaken = 60000 - timeLeft;
 
     try {
-      // Retry логика с экспоненциальной задержкой для submit_answer
-      const maxRetries = 3;
-      let data: any = null;
-      let lastError: any = null;
-      
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          // Таймаут 20 секунд на запрос (меньше чем для загрузки вопросов, т.к. это критично)
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
-          });
-
-          const invokePromise = supabase.functions.invoke('duel-manager', {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
           profile_id: profileId,
@@ -344,51 +321,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         },
       });
 
-          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
-          const { data: resultData, error: resultError } = result;
-
-          if (resultError) {
-            lastError = resultError;
-            console.warn(`[DuelBattle] ⚠️ Submit answer attempt ${attempt + 1} failed:`, resultError?.message);
-            
-            // Если это не последняя попытка, ждем перед повтором
-            if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
-              console.log(`[DuelBattle] ⏳ Retrying submit_answer in ${delay}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw resultError;
-          }
-
-          // Успешно получили ответ
-          data = resultData;
-          console.log(`[DuelBattle] ✅ Submit answer successful (attempt ${attempt + 1})`);
-          break; // Выходим из цикла retry
-          
-        } catch (attemptError: any) {
-          lastError = attemptError;
-          console.warn(`[DuelBattle] ⚠️ Submit answer attempt ${attempt + 1} exception:`, attemptError?.message);
-          
-          // Если это не последняя попытка, ждем перед повтором
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            console.log(`[DuelBattle] ⏳ Retrying submit_answer in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            // Все попытки не удались - показываем ошибку, но продолжаем игру
-            console.error('[DuelBattle] ❌ All submit_answer attempts failed, continuing anyway');
-            toast.error('Не удалось сохранить ответ, но игра продолжается');
-            // Продолжаем выполнение без данных от сервера
-            data = null;
-          }
-        }
-      }
-
-      if (lastError && !data) {
-        // Если все попытки не удались, продолжаем игру без обновления счета
-        console.warn('[DuelBattle] ⚠️ Continuing without server response');
-      }
+      if (error) throw error;
 
       // ============================================================================
       // CRITICAL: USE SERVER-PROVIDED SCORE ONLY
@@ -434,7 +367,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
       }
 
-      // Всегда переходим к следующему вопросу, даже если сервер не ответил
       setTimeout(() => {
         if (currentIndex < questions.length - 1) {
           setCurrentIndex(currentIndex + 1);
@@ -443,16 +375,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
       }, 2500);
     } catch (error: any) {
-      console.error('[DuelBattle] Error submitting answer:', error);
       toast.error(error.message || 'Ошибка отправки ответа');
-      // Даже при ошибке продолжаем игру
-      setTimeout(() => {
-        if (currentIndex < questions.length - 1) {
-          setCurrentIndex(currentIndex + 1);
-        } else {
-          finishDuel();
-        }
-      }, 2500);
     }
   };
 
@@ -476,17 +399,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }
 
     try {
-      // Retry логика с экспоненциальной задержкой для timeout
-      const maxRetries = 3;
-      let data: any = null;
-      
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
-          });
-
-          const invokePromise = supabase.functions.invoke('duel-manager', {
+      const { data } = await supabase.functions.invoke('duel-manager', {
         body: {
           action: 'submit_answer',
           profile_id: profileId,
@@ -497,33 +410,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           is_timeout: true,
         },
       });
-
-          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
-          const { data: resultData, error: resultError } = result;
-
-          if (resultError) {
-            if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-              console.log(`[DuelBattle] ⏳ Retrying timeout submit in ${delay}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw resultError;
-          }
-
-          data = resultData;
-          console.log(`[DuelBattle] ✅ Timeout submit successful (attempt ${attempt + 1})`);
-          break;
-        } catch (attemptError: any) {
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            console.warn('[DuelBattle] ⚠️ Timeout submit failed, continuing anyway');
-            data = null;
-          }
-        }
-      }
 
       if (data) {
         // Update score and combo from server
@@ -536,13 +422,13 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         console.log('[DuelBattle] Timeout - Server combo:', serverCombo);
         
         if (penaltyPoints < 0) {
-        setMyScore(prev => Math.max(0, prev + penaltyPoints));
+          setMyScore(prev => Math.max(0, prev + penaltyPoints));
         }
       }
 
       toast.info(`⏭️ Вопрос пропущен (${newSkipCount}/3)`);
     } catch (error) {
-      console.error('[DuelBattle] Error submitting timeout:', error);
+      console.error('Error submitting timeout:', error);
     }
 
     setTimeout(() => {
@@ -684,7 +570,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 </div>
                 <div className="relative w-24 h-2 bg-muted/50 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-primary via-blue-500 to-pink-500 rounded-full shadow-sm"
+                    className="h-full bg-gradient-to-r from-primary via-purple-500 to-pink-500 rounded-full shadow-sm"
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
                     transition={{ type: "spring", stiffness: 100, damping: 20 }}
@@ -707,8 +593,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
               <div className="flex-1 text-right">
-                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[120px] ml-auto" title={opponentName}>
-                  {opponentName}
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[100px]" title={opponentName}>
+                  {opponentName.length > 12 ? opponentName.substring(0, 10) + '..' : opponentName}
                 </p>
                 <motion.p 
                   key={opponentScore}
@@ -751,6 +637,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
             <div className="flex items-center gap-1.5">
               <BoostButton
                 type="fifty_fifty"
+                icon="⚡"
                 name="50/50"
                 available={boosts.fifty_fifty}
                 onUse={handleUseBoost}
@@ -758,6 +645,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="time_extend"
+                icon="⏱️"
                 name="+30s"
                 available={boosts.time_extend}
                 onUse={handleUseBoost}
@@ -765,6 +653,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="hint"
+                icon="💡"
                 name="Hint"
                 available={boosts.hint}
                 onUse={handleUseBoost}
@@ -772,17 +661,11 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               />
               <BoostButton
                 type="skip"
+                icon="⏭️"
                 name="Skip"
                 available={boosts.skip}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('skip')}
-              />
-              <BoostButton
-                type="translate"
-                name="Translate"
-                available={boosts.translate}
-                onUse={handleUseBoost}
-                disabled={usedBoosts.includes('translate')}
               />
             </div>
 
@@ -800,27 +683,12 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               )}
               {combo > 1 && (
                 <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: 180 }}
-                  className="relative"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="px-2 py-1 rounded-md bg-gradient-to-r from-gold to-yellow-600 text-gold-foreground text-xs font-bold flex items-center gap-1"
                 >
-                  <Badge className="bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 border-none text-white px-2 py-1 text-xs font-bold shadow-lg shadow-orange-500/50 flex items-center gap-1">
-                    <Flame className="w-3 h-3 animate-pulse" />
+                  <Zap className="w-3 h-3" />
                   x{combo}
-                  </Badge>
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
-                    animate={{
-                      scale: [1, 1.5, 0],
-                      opacity: [1, 0.5, 0],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatDelay: 0.5,
-                    }}
-                  />
                 </motion.div>
               )}
               {skipCount > 0 && (
@@ -840,14 +708,14 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         transition={{ duration: 0.3 }}
       >
         <Card className="p-8 shadow-xl border-2">
-          {snapshot.image_url && getImageUrl(snapshot.image_url) && (
+          {snapshot.image_url && (
             <motion.div 
               className="mb-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               <img
-                src={getImageUrl(snapshot.image_url) || ''}
+                src={snapshot.image_url}
                 alt="Question"
                 className="max-w-md mx-auto rounded-lg shadow-md"
               />
@@ -855,11 +723,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
           )}
 
           <h2 className="text-2xl font-bold mb-8 text-center leading-relaxed">
-            {translationLanguage === 'ru' && snapshot.question_ru
-              ? snapshot.question_ru
-              : translationLanguage === 'en' && snapshot.question_en
-              ? snapshot.question_en
-              : snapshot.question_es}
+            {snapshot.question_es}
           </h2>
 
           <div className="space-y-4">
@@ -903,13 +767,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                       <span className="font-bold mr-4 text-xl">
                         {String.fromCharCode(65 + option.position)}
                       </span>
-                      <span className="flex-1">
-                        {translationLanguage === 'ru' && option.text_ru
-                          ? option.text_ru
-                          : translationLanguage === 'en' && option.text_en
-                          ? option.text_en
-                          : option.text_es}
-                      </span>
+                      <span className="flex-1">{option.text_es}</span>
                       {showResult && isCorrectOption && <span className="text-2xl ml-2">✓</span>}
                       {showResult && !isCorrectOption && isSelected && <span className="text-2xl ml-2">✗</span>}
                     </Button>

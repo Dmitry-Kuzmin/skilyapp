@@ -63,4 +63,3 @@ supabase functions deploy duel-manager
    - Откройте: https://supabase.com/dashboard/project/ijijcrucqqnnjbkclqhb/functions/duel-manager/logs
    - Проверьте, что нет ошибок
 
-
