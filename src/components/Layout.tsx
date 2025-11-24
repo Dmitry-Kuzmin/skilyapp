@@ -42,19 +42,26 @@ const NavItem = memo(({ item, currentPath }: { item: any; currentPath: string })
     <NavLink
       to={item.href}
       className={cn(
-        "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-all duration-300 relative",
+        "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors duration-150 relative",
+        // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors для мгновенной отзывчивости
         isActive
           ? "bg-primary/10 text-primary"
           : "text-muted-foreground",
         isDuel && "bg-gradient-to-b from-primary/10 to-blue-500/10"
       )}
       end={false}
+      style={{ 
+        // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для лучшей отзывчивости
+        pointerEvents: 'auto',
+        touchAction: 'manipulation',
+        WebkitTapHighlightColor: 'transparent'
+      }}
     >
       <Icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
       <span className="text-xs font-medium">{item.name}</span>
       {isDuel && (
         <motion.div
-          className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"
+          className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full pointer-events-none"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
@@ -361,11 +368,18 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) или при hideNavigation */}
       {!hideNavigation && (
-        <nav className={cn(
-          "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
-          "flex flex-col md:hidden",
-          isFullscreenMode && "!hidden"
-        )}>
+        <nav 
+          className={cn(
+            "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-card/95 z-50",
+            "flex flex-col md:hidden",
+            isFullscreenMode && "!hidden"
+          )}
+          style={{
+            // ОПТИМИЗАЦИЯ: Явно указываем pointer-events для лучшей отзывчивости
+            pointerEvents: 'auto',
+            touchAction: 'manipulation'
+          }}
+        >
         {/* Mobile Wallet Widget - компактная версия для мобильных */}
         {isAuthenticated && (
           <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
@@ -391,7 +405,13 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
             ) : (
               <button
                 onClick={handleOpenAuth}
-                className="flex flex-col items-center gap-1 rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground"
+                className="flex flex-col items-center gap-1 rounded-lg transition-colors duration-150 text-muted-foreground hover:text-foreground"
+                style={{
+                  // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
+                  pointerEvents: 'auto',
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent'
+                }}
               >
                 <LogIn className="w-6 h-6" />
                 <span className="text-xs font-medium">{t('login')}</span>

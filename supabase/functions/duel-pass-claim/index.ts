@@ -280,12 +280,33 @@ serve(async (req) => {
       });
     }
 
-    await supabase.from("user_claimed_rewards").insert({
+    // ИСПРАВЛЕНИЕ БАГА: Обрабатываем возможную ошибку дубликата при вставке (race condition)
+    const { error: insertError } = await supabase.from("user_claimed_rewards").insert({
       user_id,
       season,
       level,
       is_premium,
     });
+
+    // ИСПРАВЛЕНИЕ БАГА: Если произошла ошибка дубликата (код 23505) - возвращаем 409
+    if (insertError) {
+      if (insertError.code === "23505") {
+        // UNIQUE constraint violation - награда уже получена (race condition)
+        return new Response(
+          JSON.stringify({ 
+            error: "Reward already claimed",
+            message: "Эта награда уже была получена" 
+          }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      // Другая ошибка
+      console.error("[duel-pass-claim] Error inserting claimed reward:", insertError);
+      return new Response(
+        JSON.stringify({ error: "Failed to save claimed reward", message: insertError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     return new Response(
       JSON.stringify({ success: true, reward: rewardPayload }),

@@ -61,6 +61,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
     if (!profileId) {
       setShowSkeleton(false);
       setDuelPassLoading(false);
+      setDuelPassData(null); // ИСПРАВЛЕНИЕ: Очищаем данные при отсутствии profileId
       return;
     }
 
@@ -79,14 +80,18 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       return;
     }
 
-    // Предотвращаем параллельные запросы
-    if (isLoadingInProgress) {
-      return;
+    // ИСПРАВЛЕНИЕ: Предотвращаем параллельные запросы, но разрешаем повторную попытку если была ошибка
+    if (isLoadingInProgress && !hasInitializedRef.current) {
+      // Если уже инициализировано, но isLoadingInProgress все еще true - сбрасываем флаг
+      if (hasInitializedRef.current) {
+        isLoadingInProgress = false;
+      } else {
+        return;
+      }
     }
 
-    // Задержка перед показом skeleton для предотвращения мигания
+    // ИСПРАВЛЕНИЕ: Задержка перед показом skeleton для предотвращения мигания
     if (!hasInitializedRef.current) {
-      setShowSkeleton(true);
       skeletonTimeout = setTimeout(() => {
         setShowSkeleton(true);
       }, 100);
@@ -122,6 +127,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             logWarn('[WalletWidget] Error loading season:', error);
           }
           setDuelPassLoading(false);
+          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
           isLoadingInProgress = false;
           return;
         }
@@ -129,6 +135,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         if (!seasonResult.value.data || seasonResult.value.data.length === 0) {
           logWarn('[WalletWidget] No active season found');
           setDuelPassLoading(false);
+          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии сезона
           isLoadingInProgress = false;
           return;
         }
@@ -157,6 +164,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             logWarn('[WalletWidget] Error loading season progress:', progressError);
           }
           setDuelPassLoading(false);
+          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
           isLoadingInProgress = false;
           return;
         }
@@ -164,6 +172,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         if (!progressData || progressData.length === 0) {
           logWarn('[WalletWidget] No season progress data');
           setDuelPassLoading(false);
+          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии данных
           isLoadingInProgress = false;
           return;
         }
@@ -238,10 +247,17 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         } else {
           logError('[WalletWidget] Error loading Duel Pass data:', error);
         }
+        // ИСПРАВЛЕНИЕ: При ошибке также скрываем skeleton
+        setShowSkeleton(false);
       } finally {
         setDuelPassLoading(false);
         hasInitializedRef.current = true;
         isLoadingInProgress = false;
+        // ИСПРАВЛЕНИЕ: Убеждаемся, что skeleton скрыт после завершения загрузки
+        // Используем setTimeout чтобы дать время для обновления состояния
+        setTimeout(() => {
+          setShowSkeleton(false);
+        }, 50);
       }
     };
 
@@ -257,15 +273,19 @@ export function WalletWidget({ className }: WalletWidgetProps) {
     };
   }, [profileId]); // УБРАНА зависимость от coinsLoading - она не нужна для загрузки duel pass
 
-  // Скрываем skeleton когда все загружено
+  // ИСПРАВЛЕНИЕ: Скрываем skeleton когда все загружено или при ошибке
   useEffect(() => {
-    if (!coinsLoading && !duelPassLoading) {
-      const hideTimeout = setTimeout(() => setShowSkeleton(false), 50);
+    // Если загрузка завершена (успешно или с ошибкой) - скрываем skeleton
+    if (!coinsLoading && !duelPassLoading && hasInitializedRef.current) {
+      const hideTimeout = setTimeout(() => {
+        setShowSkeleton(false);
+      }, 50);
       return () => clearTimeout(hideTimeout);
     }
   }, [coinsLoading, duelPassLoading]);
 
-  const isLoading = showSkeleton && (coinsLoading || duelPassLoading);
+  // ИСПРАВЛЕНИЕ: isLoading только если действительно загружается И skeleton должен показываться
+  const isLoading = (coinsLoading || duelPassLoading) && showSkeleton;
 
   return (
     <>
@@ -290,6 +310,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         )}
 
         {/* Duel Pass Skeleton/Content - улучшенная версия для мобильных с прогресс-баром и SP */}
+        {/* ИСПРАВЛЕНИЕ: Показываем skeleton только если еще загружается, иначе показываем контент или ничего */}
         {isLoading ? (
           <>
             <Skeleton className="h-8 w-24 rounded-lg sm:hidden" />

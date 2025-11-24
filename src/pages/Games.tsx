@@ -296,8 +296,21 @@ const Games = () => {
               className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10"
               style={{
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
+                // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
+                pointerEvents: 'auto',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent'
               }}
-              onClick={() => navigate('/games/duel')}
+              onClick={(e) => {
+                // ОПТИМИЗАЦИЯ: Предотвращаем двойные клики и улучшаем обработку
+                e.preventDefault();
+                e.stopPropagation();
+                navigate('/games/duel');
+              }}
+              onTouchStart={(e) => {
+                // ОПТИМИЗАЦИЯ: Обработка touch событий для мгновенной реакции
+                e.stopPropagation();
+              }}
             >
               {/* Noise texture */}
               <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
@@ -463,15 +476,28 @@ const Games = () => {
                         bg-slate-800/40 backdrop-blur-sm border border-slate-700/50
                         ${theme.border} hover:bg-slate-800/60
                         shadow-lg hover:shadow-xl ${theme.shadow}
-                        transition-all duration-300
+                        transition-colors duration-150
                         hover:-translate-y-1
                       `}
-                      onClick={() => {
+                      style={{
+                        // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
+                        pointerEvents: 'auto',
+                        touchAction: 'manipulation',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
+                      onClick={(e) => {
+                        // ОПТИМИЗАЦИЯ: Предотвращаем двойные клики и улучшаем обработку
+                        e.preventDefault();
+                        e.stopPropagation();
                         if (game.premium && !isPremium) {
                           setPaywallOpen(true);
                         } else if (game.route) {
                           navigate(game.route);
                         }
+                      }}
+                      onTouchStart={(e) => {
+                        // ОПТИМИЗАЦИЯ: Обработка touch событий для мгновенной реакции
+                        e.stopPropagation();
                       }}
                     >
                       {/* Subtle Gradient Background on Hover */}

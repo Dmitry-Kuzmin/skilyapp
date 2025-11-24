@@ -796,8 +796,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         clearTimeout(saveActiveDuelRef.current);
       }
 
-      // Устанавливаем новый таймер с debounce 2 секунды
-      saveActiveDuelRef.current = setTimeout(() => {
+      // ОПТИМИЗАЦИЯ: Используем requestIdleCallback для сохранения состояния
+      // Это предотвращает блокировку основного потока
+      const saveState = () => {
         const stateToSave = {
           duelId,
           duelCode,
@@ -815,6 +816,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           updateActiveDuel(stateToSave);
         } else {
           saveActiveDuel(stateToSave);
+        }
+      };
+
+      // Устанавливаем новый таймер с debounce 2 секунды
+      // Используем requestIdleCallback если доступен для некритического сохранения
+      saveActiveDuelRef.current = setTimeout(() => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(saveState, { timeout: 1000 });
+        } else {
+          saveState();
         }
       }, 2000); // Debounce 2 секунды
     }

@@ -33,14 +33,26 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
     loadQuestions();
   }, []);
 
+  // ОПТИМИЗАЦИЯ: Используем requestAnimationFrame для плавного обновления времени
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStats((prev) => ({
-        ...prev,
-        timeSpent: Math.floor((Date.now() - startTime) / 1000),
-      }));
-    }, 1000);
-    return () => clearInterval(interval);
+    let animationFrameId: number;
+    let lastUpdate = Date.now();
+    
+    const updateTime = () => {
+      const now = Date.now();
+      // Обновляем только если прошло >= 500ms (уменьшаем частоту обновлений)
+      if (now - lastUpdate >= 500) {
+        setStats((prev) => ({
+          ...prev,
+          timeSpent: Math.floor((now - startTime) / 1000),
+        }));
+        lastUpdate = now;
+      }
+      animationFrameId = requestAnimationFrame(updateTime);
+    };
+    
+    animationFrameId = requestAnimationFrame(updateTime);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [startTime]);
 
   const loadQuestions = async () => {

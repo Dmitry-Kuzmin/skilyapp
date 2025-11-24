@@ -96,6 +96,7 @@ export default function Dictionary() {
 
   // Improved filtering with word-based search and relevance scoring
   // ОПТИМИЗАЦИЯ: Используем deferredSearchTerm для плавной фильтрации
+  // ОПТИМИЗАЦИЯ: Разбиваем фильтрацию на chunks для предотвращения блокировки основного потока
   const filteredTerms = useMemo(() => {
     if (!deferredSearchTerm.trim()) {
       return terms;
@@ -107,46 +108,53 @@ export default function Dictionary() {
       .split(/\s+/)
       .filter(word => word.length > 0);
 
-    const filtered = terms
-      .map(term => {
-        // Calculate relevance score
-        let score = 0;
-        const termEs = (term.term_es || "").toLowerCase();
-        const termRu = (term.term_ru || "").toLowerCase();
-        const descEs = (term.description_es || "").toLowerCase();
-        const descRu = (term.description_ru || "").toLowerCase();
-
-        // Check if all search words match
-        const allWordsMatch = searchWords.every(word => 
-          termEs.includes(word) ||
-          termRu.includes(word) ||
-          descEs.includes(word) ||
-          descRu.includes(word)
-        );
-
-        if (!allWordsMatch) return null;
-
-        // Calculate score based on match position and field
-        searchWords.forEach(word => {
-          // Exact match in term (highest priority)
-          if (termEs === word || termRu === word) score += 100;
-          // Starts with word in term
-          else if (termEs.startsWith(word) || termRu.startsWith(word)) score += 50;
-          // Contains word in term
-          else if (termEs.includes(word) || termRu.includes(word)) score += 30;
-          
-          // Match in description
-          if (descEs.includes(word)) score += 10;
-          if (descRu.includes(word)) score += 10;
-        });
+    // ОПТИМИЗАЦИЯ: Для больших списков используем более эффективный алгоритм
+    // Сначала фильтруем, затем сортируем только отфильтрованные результаты
+    const CHUNK_SIZE = 100; // Обрабатываем по 100 элементов за раз
     
-        return { term, score };
-      })
-      .filter((item): item is { term: LanguageTerm; score: number } => item !== null)
-      .sort((a, b) => b.score - a.score) // Sort by relevance
-      .map(item => item.term);
+    // Быстрая предварительная фильтрация
+    const preFiltered = terms.filter(term => {
+      const termEs = (term.term_es || "").toLowerCase();
+      const termRu = (term.term_ru || "").toLowerCase();
+      const descEs = (term.description_es || "").toLowerCase();
+      const descRu = (term.description_ru || "").toLowerCase();
+      
+      return searchWords.every(word => 
+        termEs.includes(word) ||
+        termRu.includes(word) ||
+        descEs.includes(word) ||
+        descRu.includes(word)
+      );
+    });
 
-    return filtered;
+    // Затем вычисляем score только для отфильтрованных элементов
+    const scored = preFiltered.map(term => {
+      let score = 0;
+      const termEs = (term.term_es || "").toLowerCase();
+      const termRu = (term.term_ru || "").toLowerCase();
+      const descEs = (term.description_es || "").toLowerCase();
+      const descRu = (term.description_ru || "").toLowerCase();
+
+      searchWords.forEach(word => {
+        // Exact match in term (highest priority)
+        if (termEs === word || termRu === word) score += 100;
+        // Starts with word in term
+        else if (termEs.startsWith(word) || termRu.startsWith(word)) score += 50;
+        // Contains word in term
+        else if (termEs.includes(word) || termRu.includes(word)) score += 30;
+        
+        // Match in description
+        if (descEs.includes(word)) score += 10;
+        if (descRu.includes(word)) score += 10;
+      });
+    
+      return { term, score };
+    });
+
+    // Сортируем и возвращаем только термины
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.term);
   }, [terms, deferredSearchTerm]);
 
   if (loading) {

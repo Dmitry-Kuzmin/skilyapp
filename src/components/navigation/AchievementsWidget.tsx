@@ -98,6 +98,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
               data: fallback,
               timestamp: Date.now(),
             };
+            // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
+            setShowSkeleton(false);
           }
           return;
         }
@@ -111,6 +113,8 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
             data: fallback,
             timestamp: Date.now(),
           };
+          // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии данных
+          setShowSkeleton(false);
           return;
         }
 

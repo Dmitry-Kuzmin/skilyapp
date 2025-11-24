@@ -322,6 +322,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set());
   const [claimedFreeRewards, setClaimedFreeRewards] = useState<Set<number>>(new Set());
   const [claimedPremiumRewards, setClaimedPremiumRewards] = useState<Set<number>>(new Set());
+  // ОПТИМИЗАЦИЯ: Отслеживаем уровни, которые сейчас получаются для предотвращения повторных кликов
+  const [claimingRewards, setClaimingRewards] = useState<Set<string>>(new Set());
   const showOnboarding = false;
   const [showPaywall, setShowPaywall] = useState(false);
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
@@ -758,32 +760,45 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   };
 
   const handleRewardClick = async (reward: any) => {
-    // console.log('[DuelPassSeasonModal] handleRewardClick:', {
-    //   level: reward.level,
-    //   hasFreeReward: !!reward.free_reward,
-    //   hasPremiumReward: !!reward.premium_reward,
-    //   isPremium,
-    //   freeClaimed: claimedFreeRewards.has(reward.level),
-    //   premiumClaimed: claimedPremiumRewards.has(reward.level)
-    // });
+    const level = reward.level;
+    
+    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получается ли уже награда для этого уровня
+    const freeKey = `${level}-free`;
+    const premiumKey = `${level}-premium`;
+    
+    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получены ли уже награды перед вызовом claimReward
+    const freeClaimed = claimedFreeRewards.has(level);
+    const premiumClaimed = claimedPremiumRewards.has(level);
+    
+    // ИСПРАВЛЕНИЕ БАГА: Если награда уже получена - не делаем ничего
+    if (freeClaimed && (!reward.premium_reward || premiumClaimed || !isPremium)) {
+      return;
+    }
+    
+    // ИСПРАВЛЕНИЕ БАГА: Если Premium награда уже получена и нет бесплатной - не делаем ничего
+    if (!reward.free_reward && premiumClaimed) {
+      return;
+    }
     
     // Если пользователь Premium и есть Premium награда - получаем Premium награду
-    if (isPremium && reward.premium_reward && !claimedPremiumRewards.has(reward.level)) {
+    if (isPremium && reward.premium_reward && !premiumClaimed) {
       // Сначала получаем бесплатную награду (если есть и еще не получена)
-      if (reward.free_reward && !claimedFreeRewards.has(reward.level)) {
-        await claimReward(reward.level, false);
+      if (reward.free_reward && !freeClaimed && !claimingRewards.has(freeKey)) {
+        await claimReward(level, false);
       }
       // Затем получаем Premium награду
-      await claimReward(reward.level, true);
-    } else if (reward.free_reward && !claimedFreeRewards.has(reward.level)) {
+      if (!claimingRewards.has(premiumKey)) {
+        await claimReward(level, true);
+      }
+    } else if (reward.free_reward && !freeClaimed && !claimingRewards.has(freeKey)) {
       // Если есть бесплатная награда и она не получена - получаем её
-      await claimReward(reward.level, false);
+      await claimReward(level, false);
       
       // Если есть Premium награда и пользователь Premium, но Premium еще не получена - получаем Premium
-      if (reward.premium_reward && isPremium && !claimedPremiumRewards.has(reward.level)) {
+      if (reward.premium_reward && isPremium && !premiumClaimed && !claimingRewards.has(premiumKey)) {
         // Небольшая задержка для показа анимации получения бесплатной награды
         setTimeout(async () => {
-          await claimReward(reward.level, true);
+          await claimReward(level, true);
         }, 500);
       } else if (reward.premium_reward && !isPremium) {
         // Если пользователь НЕ Premium - показываем модалку после получения бесплатной
@@ -794,20 +809,42 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           });
         }, 500);
       }
-    } else if (reward.premium_reward && !isPremium && !claimedPremiumRewards.has(reward.level)) {
+    } else if (reward.premium_reward && !isPremium && !premiumClaimed) {
       // Если есть только Premium награда и пользователь НЕ Premium - показываем модалку
       setPremiumRewardPreview({
         level: reward.level,
         premium_reward: reward.premium_reward,
       });
-    } else if (isPremium && reward.premium_reward && !claimedPremiumRewards.has(reward.level)) {
+    } else if (isPremium && reward.premium_reward && !premiumClaimed && !claimingRewards.has(premiumKey)) {
       // Если пользователь Premium и Premium награда не получена - получаем её
-      await claimReward(reward.level, true);
+      await claimReward(level, true);
     }
   };
 
   const claimReward = async (level: number, isPremiumReward: boolean = false) => {
     if (!profileId || !activeSeason) return;
+
+    // ИСПРАВЛЕНИЕ БАГА: Создаем уникальный ключ для отслеживания текущего запроса
+    const claimKey = `${level}-${isPremiumReward ? 'premium' : 'free'}`;
+    
+    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получается ли уже эта награда
+    if (claimingRewards.has(claimKey)) {
+      console.log(`[DuelPassSeasonModal] Reward ${claimKey} is already being claimed, skipping duplicate request`);
+      return;
+    }
+    
+    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получена ли уже награда локально
+    if (isPremiumReward && claimedPremiumRewards.has(level)) {
+      console.log(`[DuelPassSeasonModal] Premium reward for level ${level} already claimed locally`);
+      return;
+    }
+    if (!isPremiumReward && claimedFreeRewards.has(level)) {
+      console.log(`[DuelPassSeasonModal] Free reward for level ${level} already claimed locally`);
+      return;
+    }
+
+    // ИСПРАВЛЕНИЕ БАГА: Добавляем в список обрабатываемых наград
+    setClaimingRewards((prev) => new Set([...prev, claimKey]));
 
     try {
       const { data, error } = await supabaseClient.functions.invoke("duel-pass-claim", {
@@ -820,9 +857,19 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       });
 
       if (error) {
-        // Игнорируем ошибку 409 (уже получено) - это нормально при последовательном получении
+        // ИСПРАВЛЕНИЕ БАГА: При ошибке 409 (уже получено) обновляем локальное состояние
         if (error.status === 409 || error.statusCode === 409) {
-          // console.log(`[DuelPassSeasonModal] Reward already claimed for level ${level}, is_premium: ${isPremiumReward}`);
+          console.log(`[DuelPassSeasonModal] Reward already claimed for level ${level}, is_premium: ${isPremiumReward}, updating local state`);
+          // Обновляем локальное состояние, чтобы кнопка стала неактивной
+          if (isPremiumReward) {
+            setClaimedPremiumRewards((prev) => new Set([...prev, level]));
+            setClaimedRewards((prev) => new Set([...prev, level]));
+          } else {
+            setClaimedFreeRewards((prev) => new Set([...prev, level]));
+            setClaimedRewards((prev) => new Set([...prev, level]));
+          }
+          // Перезагружаем данные для синхронизации
+          loadSeasonData(true);
           return;
         }
         toast.error(dp("toasts.rewardError"), {
@@ -896,6 +943,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     } catch (err: any) {
       console.error("[DuelPassSeasonModal] Claim error", err);
       toast.error(dp("toasts.rewardError"));
+    } finally {
+      // ИСПРАВЛЕНИЕ БАГА: Удаляем из списка обрабатываемых наград в любом случае
+      setClaimingRewards((prev) => {
+        const next = new Set(prev);
+        next.delete(claimKey);
+        return next;
+      });
     }
   };
 
@@ -1890,6 +1944,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                 e.stopPropagation();
                                 handleRewardClick(reward);
                               }}
+                              disabled={
+                                // ИСПРАВЛЕНИЕ БАГА: Блокируем кнопку если награда уже получена или получается
+                                allClaimed ||
+                                claimingRewards.has(`${reward.level}-free`) ||
+                                claimingRewards.has(`${reward.level}-premium`) ||
+                                (hasFreeReward && freeClaimed && (!reward.premium_reward || premiumClaimed || !isPremium)) ||
+                                (!hasFreeReward && premiumClaimed)
+                              }
                               className={cn(
                                 "h-6 px-1.5 text-[9px] font-medium",
                                 // Если есть бесплатная награда и она не получена - обычная кнопка

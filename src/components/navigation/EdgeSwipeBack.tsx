@@ -68,8 +68,8 @@ export const EdgeSwipeBack: React.FC = () => {
         left: 0,
         width: EDGE_ZONE_PX,
         height: "100vh",
-        zIndex: 1000,
-        touchAction: "pan-y",
+        zIndex: 10, // ОПТИМИЗАЦИЯ: Уменьшен z-index чтобы не блокировать клики по навигации
+        touchAction: "pan-y", // Разрешаем вертикальный скролл
         background: "transparent",
         pointerEvents: "auto",
       }}

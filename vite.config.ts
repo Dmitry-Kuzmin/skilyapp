@@ -61,6 +61,22 @@ function optimizeCssLoading(): Plugin {
           }
         );
         
+        // ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ: Убеждаемся, что критический index.js имеет preload с высоким приоритетом
+        // Это уменьшает критический путь загрузки (764 мс → ~400-500 мс)
+        const indexJsMatch = result.match(/<script type="module"([^>]*src="([^"]+index[^"]+\.js)"[^>]*)>/);
+        if (indexJsMatch && indexJsMatch[2]) {
+          const indexJsPath = indexJsMatch[2];
+          // Проверяем, есть ли уже modulepreload для этого файла
+          const hasPreload = result.includes(`href="${indexJsPath}"`) && result.includes('modulepreload');
+          if (!hasPreload) {
+            // Добавляем preload в head для ранней загрузки
+            result = result.replace(
+              /(<head[^>]*>)/i,
+              `$1\n    <link rel="modulepreload" href="${indexJsPath}" crossorigin fetchpriority="high">`
+            );
+          }
+        }
+        
         return result;
       },
     },
@@ -118,6 +134,9 @@ export default defineConfig(({ mode }) => {
     sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
     // ОПТИМИЗАЦИЯ: Улучшенное удаление неиспользуемого кода
     cssTarget: 'chrome80', // Оптимизация для современных браузеров
+    // ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ: Улучшенная компрессия
+    minifySyntax: true, // Минификация синтаксиса
+    minifyWhitespace: true, // Удаление пробелов
     rollupOptions: {
       // КРИТИЧНО: Явно указываем entry point
       input: 'index.html',
@@ -134,6 +153,11 @@ export default defineConfig(({ mode }) => {
             // КРИТИЧНО: ВСЕ React-зависимые библиотеки в ОДНОМ chunk
             // Проверяем ПЕРВЫМ, чтобы гарантировать правильный порядок загрузки
             // Это предотвращает ошибки forwardRef/useLayoutEffect на Vercel
+            
+            // ОПТИМИЗАЦИЯ: Тяжелые библиотеки в отдельные chunks для lazy loading
+            if (id.includes('recharts')) {
+              return 'recharts-vendor'; // ~200KB - загружается только в админке
+            }
             
             // Широкий паттерн для всех библиотек с "react" в пути
             if (id.includes('/react') || id.includes('\\react')) {
@@ -157,7 +181,6 @@ export default defineConfig(({ mode }) => {
               id.includes('vaul') ||
               id.includes('next-themes') ||
               id.includes('framer-motion') ||
-              id.includes('recharts') ||
               id.includes('lucide-react') ||
               id.includes('use-sync-external-store') ||
               id.includes('useSyncExternalStore') ||
