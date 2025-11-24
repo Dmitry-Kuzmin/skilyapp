@@ -52,6 +52,7 @@ interface CelebrationAnimationsProps {
   soundType?: CelebrationSoundType;
   fullScreen?: boolean;
   message?: string;
+  anchorPosition?: { x: number; y: number };
 }
 
 /**
@@ -110,7 +111,8 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
   duration, // Если не указана, используем рекомендуемую
   withSound = true,
   soundType = 'fanfare', // По умолчанию фанфары
-  fullScreen = true
+  fullScreen = true,
+  anchorPosition
 }) => {
   // Используем рекомендуемую длительность, если не указана
   const finalDuration = duration || getRecommendedDuration(type);
@@ -796,7 +798,18 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
         </div>
       );
 
-    case 'phoenix':
+    case 'phoenix': {
+      const fallbackWidth =
+        windowSize.width || (typeof window !== 'undefined' ? window.innerWidth : 0) || 1;
+      const fallbackHeight =
+        windowSize.height || (typeof window !== 'undefined' ? window.innerHeight : 0) || 1;
+      const anchorXPercent = anchorPosition
+        ? (anchorPosition.x / fallbackWidth) * 100
+        : 50;
+      const anchorYPercent = anchorPosition
+        ? (anchorPosition.y / fallbackHeight) * 100
+        : 50;
+
       // Предвычисляем позиции частиц для оптимизации
       const particleCount = 180; // Уменьшено с 400 до 180
       const particles = Array.from({ length: particleCount }, (_, i) => {
@@ -823,8 +836,12 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
         >
           {/* Начальная иконка пламени - трансформируется из маленькой в большую */}
           <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{ willChange: 'transform, opacity' }}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ 
+              left: `${anchorXPercent}%`,
+              top: `${anchorYPercent}%`,
+              willChange: 'transform, opacity'
+            }}
             initial={{ scale: 0.3, opacity: 1, y: 0 }}
             animate={{ 
               scale: [0.3, 1.5, 2.5, 3, 2.8, 0], // Увеличена длительность для синхронизации
@@ -845,10 +862,10 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
           {particles.map((particle, i) => (
             <motion.div
               key={i}
-              className="absolute w-3 h-3 rounded-full"
+              className="absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
               style={{
-                left: '50%',
-                top: '50%',
+                left: `${anchorXPercent}%`,
+                top: `${anchorYPercent}%`,
                 background: `hsl(${particle.hue}, 100%, 60%)`,
                 willChange: 'transform, opacity',
                 transform: 'translateZ(0)', // GPU acceleration
@@ -877,8 +894,10 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
             return (
               <motion.div
                 key={`wing-${wingIndex}`}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
                 style={{
+                  left: `${anchorXPercent}%`,
+                  top: `${anchorYPercent}%`,
                   width: '180px',
                   height: '180px',
                   background: `radial-gradient(circle, hsla(${hue}, 100%, 60%, 0.6) 0%, transparent 70%)`,
@@ -904,8 +923,12 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
           
           {/* Финальное большое пламя в центре */}
           <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{ willChange: 'transform, opacity' }}
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={{ 
+              left: `${anchorXPercent}%`,
+              top: `${anchorYPercent}%`,
+              willChange: 'transform, opacity' 
+            }}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
               scale: [0, 1.2, 1.8, 2, 1.5, 0],
@@ -922,6 +945,7 @@ export const CelebrationAnimations: React.FC<CelebrationAnimationsProps> = ({
           </motion.div>
         </div>
       );
+    }
 
     case 'supernova':
       return (

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Flame, Award, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
@@ -18,6 +18,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [showNewWeek, setShowNewWeek] = useState(false);
   const [celebrationType, setCelebrationType] = useState<CelebrationType>('phoenix');
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
+  const flameAnchorRef = useRef<HTMLDivElement>(null);
+  const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
 
   const { weeklyProgress, progressPercent, strokeDashoffset, radius, circumference, weekNumber, weekDay, isDay7, isNewWeek } = useMemo(() => {
     // Вычисляем прогресс в текущей неделе (от 1 до 7)
@@ -54,6 +56,27 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       return () => clearTimeout(timer);
     }
   }, [isNewWeek, showNewWeek]);
+
+  // Синхронизируем координаты иконки огня с анимацией
+  useEffect(() => {
+    const updateAnchorPosition = () => {
+      if (!flameAnchorRef.current) return;
+      const rect = flameAnchorRef.current.getBoundingClientRect();
+      setFlameAnchorPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+    };
+
+    updateAnchorPosition();
+    window.addEventListener('resize', updateAnchorPosition);
+    window.addEventListener('scroll', updateAnchorPosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updateAnchorPosition);
+      window.removeEventListener('scroll', updateAnchorPosition, true);
+    };
+  }, []);
 
   const handleClaim = async () => {
     if (hasClaimedToday || isClaiming) return;
@@ -136,6 +159,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         withSound={true}
         soundType={celebrationSoundType}
         fullScreen={true}
+        anchorPosition={flameAnchorPosition || undefined}
         message="🏆 Неделя завершена!"
       />
 
@@ -184,26 +208,31 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       <div className="relative z-10 flex justify-between items-start">
         <div>
            <h3 className="font-bold text-lg tracking-tight text-slate-100">Ежедневная серия</h3>
-           {weekNumber > 0 && (
-             <motion.div
-               initial={{ opacity: 0, x: -10 }}
-               animate={{ opacity: 1, x: 0 }}
-               className="flex items-center gap-2 mt-1"
-             >
-               <span className="text-xs font-bold text-slate-400 bg-slate-800/50 px-2 py-0.5 rounded-md border border-slate-700">
-                 Неделя {weekNumber}
-               </span>
-               {isDay7 && (
-                 <motion.span
-                   animate={{ scale: [1, 1.1, 1] }}
-                   transition={{ duration: 1.5, repeat: Infinity }}
-                   className="text-xs font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-md border border-yellow-500/30"
-                 >
-                   🎉 Завершение!
-                 </motion.span>
-               )}
-             </motion.div>
-           )}
+          {weekNumber > 0 && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-2 mt-1 flex-wrap"
+            >
+              <span className="text-xs font-bold text-slate-400 bg-slate-800/50 px-2 py-0.5 rounded-md border border-slate-700">
+                Неделя {weekNumber}
+              </span>
+              {weekDay > 0 && weekDay < 7 && (
+                <span className="text-[10px] text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded-md border border-slate-800">
+                  До звания «Недельный герой» осталось {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
+                </span>
+              )}
+              {isDay7 && (
+                <motion.span
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="text-xs font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-md border border-yellow-500/30"
+                >
+                  🎉 Завершение!
+                </motion.span>
+              )}
+            </motion.div>
+          )}
         </div>
         <motion.div
           animate={isDay7 ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
@@ -252,7 +281,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             </defs>
           </svg>
           
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div
+            ref={flameAnchorRef}
+            className="absolute inset-0 flex flex-col items-center justify-center"
+          >
             <motion.div
               animate={isDay7 && !hasClaimedToday ? { scale: [1, 1.15, 1], rotate: [0, 10, -10, 0] } : {}}
               transition={{ duration: 2, repeat: isDay7 && !hasClaimedToday ? Infinity : 0 }}
@@ -261,9 +293,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             </motion.div>
             <span className="text-4xl font-bold text-white tracking-tighter leading-none">{currentStreak}</span>
             <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-1">Дней</span>
-            {weekDay > 0 && weekNumber > 0 && (
-              <span className="text-[9px] text-slate-400 mt-0.5">Неделя {weekNumber}, день {weekDay}</span>
-            )}
           </div>
         </div>
       </div>
