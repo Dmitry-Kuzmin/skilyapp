@@ -39,7 +39,7 @@ import { DuelScoreBoard } from './DuelScoreBoard';
 import { DuelBoostsPanel } from './DuelBoostsPanel';
 import { DuelQuestionCard } from './DuelQuestionCard';
 import { useDuelGameState } from '@/hooks/useDuelGameState';
-import { useDuelTimer } from '@/hooks/useDuelTimer';
+import { useDuelSync } from '@/hooks/useDuelSync';
 
 const duelRiskMultiplierPreview = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -1018,17 +1018,41 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     });
   }, [safeArea.platform, safeArea.top, safeArea.contentTop, safeArea.left, safeArea.right, safeArea.bottom, safeArea.contentBottom]);
 
-  // ОПТИМИЗАЦИЯ: Используем хук для логики таймера
-  const { formatTime: formatTimeFromHook } = useDuelTimer({
-    questions,
-    currentIndex,
-    isAnswered,
-    isWaitingForOpponent,
-    hasFinishedMyQuestions,
-    timeLeft,
-    setTimeLeft,
-    onTimeout: handleTimeout,
-  });
+  // Timer logic with timestamp fix
+  const questionStartTimeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
+      return;
+    }
+
+    // Set start time if not set
+    if (!questionStartTimeRef.current) {
+      questionStartTimeRef.current = Date.now();
+    }
+
+    const timer = setInterval(() => {
+      if (questionStartTimeRef.current) {
+        const elapsed = Date.now() - questionStartTimeRef.current;
+        const newTimeLeft = Math.max(0, 60000 - elapsed);
+
+        setTimeLeft(newTimeLeft);
+
+        if (newTimeLeft <= 0) {
+          clearInterval(timer);
+          handleTimeout();
+        }
+      }
+    }, 100); // Update more frequently for smoothness
+
+    return () => clearInterval(timer);
+  }, [currentIndex, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, questions.length]);
+
+  // Reset start time when question changes
+  useEffect(() => {
+    questionStartTimeRef.current = null;
+    setTimeLeft(60000);
+  }, [currentIndex]);
   // Reset translation when moving to next question
   useEffect(() => {
     setTranslationLanguage(null);
