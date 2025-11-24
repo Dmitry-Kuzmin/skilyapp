@@ -214,10 +214,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/20 to-slate-950 overflow-y-auto pt-safe">
-      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6">
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/20 to-slate-950 overflow-y-auto pt-safe z-40">
+      <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6 relative z-10">
         <AnimatePresence>
-          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} />}
+          {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }} />}
         </AnimatePresence>
 
         {/* Header - Animated Result Status */}
@@ -343,7 +343,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
               }}
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50"
+              className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-50 rounded-3xl overflow-hidden"
               style={{ backgroundSize: "200% 200%" }}
             />
 

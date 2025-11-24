@@ -85,9 +85,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     };
   }, []);
 
-  const handleClaim = async () => {
-    if (effectiveHasClaimed || isClaiming) return;
+  const handleClaim = async (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
+    if (effectiveHasClaimed || isClaiming) {
+      console.log('[DailyRewards] Claim blocked:', { effectiveHasClaimed, isClaiming });
+      return;
+    }
 
+    console.log('[DailyRewards] Claim started');
     playClickSound();
     setIsClaiming(true);
 
@@ -302,6 +309,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       <motion.button
         layout
         onClick={handleClaim}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleClaim(e as any);
+        }}
         disabled={effectiveHasClaimed || isClaiming}
         animate={isDay7 && !effectiveHasClaimed ? {
           boxShadow: [
@@ -311,7 +323,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           ]
         } : {}}
         transition={{ duration: 2, repeat: isDay7 && !effectiveHasClaimed ? Infinity : 0 }}
-        className={`relative z-10 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${effectiveHasClaimed
+        style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+        className={`relative z-50 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${effectiveHasClaimed
           ? 'bg-slate-800/50 text-emerald-400 cursor-default border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
           : isDay7
             ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:scale-[1.02] active:scale-95 shadow-[0_0_30px_rgba(251,191,36,0.3)]'

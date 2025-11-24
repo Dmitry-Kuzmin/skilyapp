@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Views
 import { BentoTestsView } from "@/components/tests/views/BentoTestsView";
@@ -25,6 +26,7 @@ const Tests = () => {
   const navigate = useNavigate();
   const { isAuthenticated, profileId } = useUserContext();
   const { isPremium } = usePremium();
+  const { language, t } = useLanguage();
 
   // State
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -59,23 +61,35 @@ const Tests = () => {
       const { data: dbTopics, error } = await supabase
         .from("topics")
         .select(`
-          id, number, title_ru, cover_image, 
+          id, number, title_ru, title_es, title_en, cover_image, 
           gradient_from, gradient_to, is_premium
         `)
         .order('number');
 
       if (error) throw error;
 
-      const topicsWithCounts = (dbTopics || []).map(topic => ({
-        id: topic.id,
-        number: topic.number,
-        name: topic.title_ru || `Тема ${topic.number}`,
-        questions: 40, // Placeholder
-        cover_image: topic.cover_image,
-        gradient_from: topic.gradient_from,
-        gradient_to: topic.gradient_to,
-        is_premium: topic.is_premium || false,
-      }));
+      const topicsWithCounts = (dbTopics || []).map(topic => {
+        // Выбираем название темы в зависимости от языка
+        let topicName = '';
+        if (language === 'es') {
+          topicName = topic.title_es || topic.title_ru || `Tema ${topic.number}`;
+        } else if (language === 'en') {
+          topicName = topic.title_en || topic.title_es || topic.title_ru || `Topic ${topic.number}`;
+        } else {
+          topicName = topic.title_ru || `Тема ${topic.number}`;
+        }
+
+        return {
+          id: topic.id,
+          number: topic.number,
+          name: topicName,
+          questions: 40, // Placeholder
+          cover_image: topic.cover_image,
+          gradient_from: topic.gradient_from,
+          gradient_to: topic.gradient_to,
+          is_premium: topic.is_premium || false,
+        };
+      });
 
       setTopics(topicsWithCounts);
     } catch (error) {
@@ -137,6 +151,7 @@ const Tests = () => {
         setRandomQuestionCount={setRandomQuestionCount}
         handleStartTest={handleStartTest}
         handleTopicClick={handleTopicClick}
+        t={t}
       />
     </Layout>
   );

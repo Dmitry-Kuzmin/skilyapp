@@ -10,6 +10,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { getImageUrl } from "@/utils/imageUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BentoTestsViewProps {
     topics: Array<{
@@ -28,6 +29,7 @@ interface BentoTestsViewProps {
     setRandomQuestionCount: (val: number) => void;
     handleStartTest: (path: string) => void;
     handleTopicClick: (id: string) => void;
+    t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 // --- Simplified Animation Variants (Performance Optimized) ---
@@ -118,7 +120,8 @@ export const BentoTestsView = ({
     randomQuestionCount,
     setRandomQuestionCount,
     handleStartTest,
-    handleTopicClick
+    handleTopicClick,
+    t
 }: BentoTestsViewProps) => {
     const { isPremium } = usePremium();
     const { theme } = useTheme();
@@ -139,18 +142,18 @@ export const BentoTestsView = ({
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
                         <h1 className={cn("text-3xl sm:text-4xl md:text-5xl font-bold mb-2 tracking-tight", isDark ? "text-white" : "text-gray-900")}>
-                            Центр тестирования
+                            {t('testsPage.title')}
                         </h1>
                         <p className={cn("text-sm sm:text-base md:text-lg", isDark ? "text-white/60" : "text-gray-600")}>
-                            Выбирайте режим и улучшайте свои навыки
+                            {t('testsPage.subtitle')}
                         </p>
                     </div>
 
                     <div className="flex flex-wrap gap-3">
-                        <StatBadge icon={Target} label="Точность" value={`${stats.accuracy}%`} color="bg-blue-500/20" />
-                        <StatBadge icon={BarChart3} label="Ответов" value={stats.totalAnswered} color="bg-emerald-500/20" />
-                        <StatBadge icon={AlertTriangle} label="Ошибок" value={stats.errors} color="bg-red-500/20" />
-                        <StatBadge icon={Trophy} label="Уровень" value="1" color="bg-amber-500/20" />
+                        <StatBadge icon={Target} label={t('testsPage.stats.accuracy')} value={`${stats.accuracy}%`} color="bg-blue-500/20" />
+                        <StatBadge icon={BarChart3} label={t('testsPage.stats.answered')} value={stats.totalAnswered} color="bg-emerald-500/20" />
+                        <StatBadge icon={AlertTriangle} label={t('testsPage.stats.errors')} value={stats.errors} color="bg-red-500/20" />
+                        <StatBadge icon={Trophy} label={t('testsPage.stats.level')} value="1" color="bg-amber-500/20" />
                     </div>
                 </div>
 
@@ -190,17 +193,17 @@ export const BentoTestsView = ({
                                                 ? "from-indigo-300 via-purple-300 to-pink-300" 
                                                 : "from-indigo-600 via-purple-600 to-pink-600"
                                         )}>
-                                            Случайный тест
+                                            {t('testsPage.randomTest')}
                                         </h2>
                                         <p className={cn("text-xs md:text-sm leading-relaxed", isDark ? "text-white/70" : "text-gray-600")}>
-                                            Выберите количество вопросов для быстрой проверки знаний
+                                            {t('testsPage.randomTestDesc')}
                                         </p>
                                     </div>
 
                                     <div className="space-y-3">
                                         <div>
                                             <p className={cn("text-xs mb-2 font-semibold", isDark ? "text-white/60" : "text-gray-500")}>
-                                                Количество вопросов:
+                                                {t('testsPage.questionCount')}
                                             </p>
                                             <div className="flex gap-2">
                                                 {[10, 20, 30].map((count) => (
@@ -252,7 +255,7 @@ export const BentoTestsView = ({
                                                     )}
                                                 >
                                                     <Play className="w-4 h-4 md:w-5 md:h-5 fill-white" />
-                                                    <span>Начать тест</span>
+                                                    <span>{t('testsPage.startButton')}</span>
                                                     <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
                                                 </motion.button>
                                             </motion.div>
@@ -297,10 +300,10 @@ export const BentoTestsView = ({
                                     <h3 className={cn("text-lg md:text-xl font-black mb-1 bg-gradient-to-r bg-clip-text text-transparent", 
                                         isDark ? "from-emerald-300 to-teal-300" : "from-emerald-600 to-teal-600"
                                     )}>
-                                        Экзамен DGT
+                                        {t('testsPage.exam')} DGT
                                     </h3>
                                     <p className={cn("text-xs leading-tight", isDark ? "text-white/70" : "text-gray-600")}>
-                                        Полная симуляция официального экзамена
+                                        {t('testsPage.examDesc')}
                                     </p>
                                 </div>
                             </div>
@@ -326,8 +329,8 @@ export const BentoTestsView = ({
                                     <div>
                                         <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
                                             isDark ? "from-orange-300 to-amber-300" : "from-orange-600 to-amber-600"
-                                        )}>Блиц</div>
-                                        <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>5 мин · 20 вопросов</div>
+                                        )}>{t('testsPage.blitz')}</div>
+                                        <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>{t('testsPage.blitzDesc')}</div>
                                     </div>
                                 </div>
                             </BentoCard>
@@ -350,8 +353,8 @@ export const BentoTestsView = ({
                                     <div>
                                         <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
                                             isDark ? "from-pink-300 to-rose-300" : "from-pink-600 to-rose-600"
-                                        )}>Марафон</div>
-                                        <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>Пока не ответишь идеально</div>
+                                        )}>{t('testsPage.marathon')}</div>
+                                        <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>{t('testsPage.marathonDesc')}</div>
                                     </div>
                                 </div>
                             </BentoCard>
@@ -374,8 +377,8 @@ export const BentoTestsView = ({
                                     <div>
                                         <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
                                             isDark ? "from-purple-300 to-violet-300" : "from-purple-600 to-violet-600"
-                                        )}>Ошибки</div>
-                                        <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>{challengeBankCount} вопросов</div>
+                                        )}>{t('testsPage.challengeBank')}</div>
+                                        <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>{t('testsPage.challengeBankDesc', { count: challengeBankCount })}</div>
                                     </div>
                                 </div>
                             </BentoCard>
@@ -398,8 +401,8 @@ export const BentoTestsView = ({
                                     <div>
                                         <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
                                             isDark ? "from-slate-300 to-gray-300" : "from-slate-600 to-gray-600"
-                                        )}>Сложные</div>
-                                        <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>ТОП-50</div>
+                                        )}>{t('testsPage.hardest')}</div>
+                                        <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>{t('testsPage.hardestDesc')}</div>
                                     </div>
                                 </div>
                             </BentoCard>
@@ -415,7 +418,7 @@ export const BentoTestsView = ({
                 >
                     <div className="flex items-center justify-between mb-4 md:mb-6">
                         <h3 className={cn("text-2xl md:text-3xl font-bold", isDark ? "text-white" : "text-gray-900")}>
-                            Темы курса
+                            {t('testsPage.topicsTitle')}
                         </h3>
                         <Badge className={cn(
                             "text-sm md:text-base px-3 md:px-4 py-1 md:py-2 font-bold",
@@ -528,7 +531,7 @@ export const BentoTestsView = ({
                                                         : (isDark ? "text-white/70" : "text-gray-600")
                                                 )}>
                                                     <BookOpen className="w-3 h-3" />
-                                                    <span>{topic.questions} вопросов</span>
+                                                    <span>{topic.questions} {t('testsPage.questions')}</span>
                                                 </div>
                                             )}
                                         </div>
