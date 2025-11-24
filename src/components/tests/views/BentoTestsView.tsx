@@ -109,10 +109,7 @@ export const BentoTestsView = ({
     const isDark = theme === "dark";
 
     return (
-        <div className={cn(
-            "w-full flex justify-center pt-8 pb-20 min-h-screen",
-            isDark ? "bg-[#09090b]" : "bg-gray-50"
-        )}>
+        <div className="w-full flex justify-center pt-8 pb-20 min-h-screen bg-background">
             <motion.div
                 variants={fadeIn}
                 initial="hidden"
@@ -233,7 +230,7 @@ export const BentoTestsView = ({
                         {/* Quick Modes Grid */}
                         <div className="grid grid-cols-2 gap-3 md:gap-4">
                             <BentoCard
-                                onClick={() => handleStartTest("/test/practice?mode=blitz&count=20&timer=300")}
+                                onClick={() => handleStartTest("/test/blitz?count=20&timer=300")}
                                 accentColor="from-orange-500/20 to-amber-500/20"
                                 className="aspect-square p-4 md:p-5"
                             >
@@ -241,13 +238,13 @@ export const BentoTestsView = ({
                                     <Zap className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
                                     <div>
                                         <div className={cn("text-lg md:text-xl font-bold", isDark ? "text-white" : "text-gray-900")}>Блиц</div>
-                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>5 минут</div>
+                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>5 минут · 20 вопросов</div>
                                     </div>
                                 </div>
                             </BentoCard>
 
                             <BentoCard
-                                onClick={() => handleStartTest("/test/practice?mode=marathon")}
+                                onClick={() => handleStartTest("/test/mastery")}
                                 accentColor="from-pink-500/20 to-rose-500/20"
                                 className="aspect-square p-4 md:p-5"
                             >
@@ -255,7 +252,7 @@ export const BentoTestsView = ({
                                     <Flame className={cn("w-6 h-6 md:w-7 md:h-7", isDark ? "text-white" : "text-gray-700")} />
                                     <div>
                                         <div className={cn("text-lg md:text-xl font-bold", isDark ? "text-white" : "text-gray-900")}>Марафон</div>
-                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>До ошибки</div>
+                                        <div className={cn("text-xs mt-1", isDark ? "text-white/60" : "text-gray-600")}>Пока не ответишь идеально</div>
                                     </div>
                                 </div>
                             </BentoCard>

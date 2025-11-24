@@ -81,7 +81,7 @@ export function UnifiedModal({
     (state: boolean) => {
       // Обновляем prop (основной источник истины)
       if (typeof onOpenChange === 'function') {
-        onOpenChange(state);
+      onOpenChange(state);
       }
       
       // Синхронизируем URL (если используется)
@@ -108,7 +108,7 @@ export function UnifiedModal({
       isSyncingRef.current = true;
       // Проверяем, что onOpenChange является функцией перед вызовом
       if (typeof onOpenChange === 'function') {
-        onOpenChange(route.isOpen);
+      onOpenChange(route.isOpen);
       } else {
         console.warn('[UnifiedModal] onOpenChange is not a function:', typeof onOpenChange, onOpenChange);
       }

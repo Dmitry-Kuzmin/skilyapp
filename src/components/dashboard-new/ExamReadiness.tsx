@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { getReadinessStatus } from '@/utils/examReadiness';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsPanel } from './AnalyticsPanel';
+import { useTheme } from 'next-themes';
 
 interface ExamReadinessProps {
   averageScore: number;
@@ -85,6 +86,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   onExpandedChange
 }) => {
   const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
+  const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const [showLevels, setShowLevels] = useState(false);
   
   const hasNoData = averageScore === 0 && testsCompleted === 0;
@@ -233,20 +236,47 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     onExpandedChange?.(newState);
   };
   
+  // Цветовые классы для светлой и темной темы
+  const containerClass = isDarkTheme
+    ? 'bg-slate-800/80 border-slate-700 hover:border-slate-600'
+    : 'bg-white/95 border-slate-200/80 hover:border-slate-300 shadow-[0_20px_45px_rgba(0,0,0,0.08)]';
+  const textPrimaryClass = isDarkTheme ? 'text-white' : 'text-slate-900';
+  const textSecondaryClass = isDarkTheme ? 'text-slate-400' : 'text-slate-600';
+  const textTertiaryClass = isDarkTheme ? 'text-slate-500' : 'text-slate-500';
+  const infoButtonClass = isDarkTheme
+    ? 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-indigo-500/50'
+    : 'bg-slate-100/80 hover:bg-slate-200 border-slate-200/60 hover:border-indigo-400/60';
+  const infoIconClass = isDarkTheme ? 'text-slate-300' : 'text-slate-600';
+  const radarCircleClass = isDarkTheme ? 'border-slate-700/50' : 'border-slate-300/60';
+  const radarLineClass = isDarkTheme ? 'from-indigo-500/10' : 'from-indigo-500/20';
+  const progressLineClass = isDarkTheme ? 'bg-slate-700/50' : 'bg-slate-300/60';
+  const levelDotBorderClass = isDarkTheme ? 'border-slate-700/30' : 'border-slate-300/50';
+  const levelDotBgClass = isDarkTheme ? 'bg-slate-600' : 'bg-slate-400';
+  const levelTitleClass = isDarkTheme ? 'text-slate-400' : 'text-slate-600';
+  const levelRangeClass = isDarkTheme ? 'text-slate-500' : 'text-slate-500';
+  const levelDescClass = isDarkTheme ? 'text-slate-400' : 'text-slate-600';
+  const sectionTitleClass = isDarkTheme ? 'text-slate-400' : 'text-slate-600';
+  const hoverOverlayClass = isDarkTheme 
+    ? 'bg-gradient-to-b from-indigo-500/5 to-transparent'
+    : 'bg-gradient-to-b from-indigo-500/10 to-transparent';
+
   return (
-    <div className={`h-full bg-slate-800/80 backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border border-slate-700 flex flex-col relative overflow-hidden group hover:border-slate-600 transition-all duration-500 ${
+    <div className={`h-full ${containerClass} backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border flex flex-col relative overflow-hidden group transition-all duration-500 ${
       showLevels ? 'items-start justify-start' : 'items-center justify-center'
     }`}>
+       {/* Hover overlay effect */}
+       <div className={`absolute inset-0 ${hoverOverlayClass} opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}></div>
+       
        {/* Header with Info Icon */}
        <div className="absolute top-6 right-6 z-20">
          <button
            onClick={toggleLevels}
-           className="w-8 h-8 rounded-full bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 hover:border-indigo-500/50 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+           className={`w-8 h-8 rounded-full ${infoButtonClass} border flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
          >
            {showLevels ? (
-             <X size={16} className="text-slate-300" />
+             <X size={16} className={infoIconClass} />
            ) : (
-             <Info size={16} className="text-slate-300" />
+             <Info size={16} className={infoIconClass} />
            )}
          </button>
        </div>
@@ -254,27 +284,27 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
        {/* Main Content - Gauge */}
        <div className={`relative w-full transition-all duration-500 ${showLevels ? 'opacity-0 scale-95 -translate-y-4 pointer-events-none' : 'opacity-100 scale-100 translate-y-0 pointer-events-auto'}`}>
          <div className="text-center mb-6 relative z-10">
-           <h3 className="font-bold text-white mb-1">Probabilidad</h3>
-           <p className="text-xs text-slate-400">AI PREDICTION</p>
+           <h3 className={`font-bold ${textPrimaryClass} mb-1`}>Probabilidad</h3>
+           <p className={`text-xs ${textSecondaryClass}`}>AI PREDICTION</p>
          </div>
 
          <div className="relative w-48 h-48 mx-auto flex items-center justify-center mb-4">
             {/* Outer Radar Circles */}
-            <div className="absolute inset-0 rounded-full border border-slate-700/50"></div>
-            <div className="absolute inset-4 rounded-full border border-slate-700/50"></div>
-            <div className="absolute inset-8 rounded-full border border-slate-700/50"></div>
+            <div className={`absolute inset-0 rounded-full border ${radarCircleClass}`}></div>
+            <div className={`absolute inset-4 rounded-full border ${radarCircleClass}`}></div>
+            <div className={`absolute inset-8 rounded-full border ${radarCircleClass}`}></div>
             
             {/* Scanning Radar Line */}
             {!hasNoData && (
               <>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-transparent to-indigo-500/10 animate-spin-slow"></div>
-                <div className="absolute top-1/2 left-1/2 w-[50%] h-[2px] bg-gradient-to-r from-transparent to-indigo-500 origin-left animate-spin-slow"></div>
+                <div className={`absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-transparent ${radarLineClass} animate-spin-slow`}></div>
+                <div className={`absolute top-1/2 left-1/2 w-[50%] h-[2px] bg-gradient-to-r from-transparent ${isDarkTheme ? 'to-indigo-500' : 'to-indigo-600'} origin-left animate-spin-slow`}></div>
               </>
             )}
 
             {/* The Gauge */}
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-               <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" strokeWidth="8" strokeLinecap="round" />
+               <circle cx="50" cy="50" r="45" fill="none" stroke={isDarkTheme ? "#1e293b" : "#e2e8f0"} strokeWidth="8" strokeLinecap="round" />
                {!hasNoData && (
                  <circle 
                    cx="50" cy="50" r="45" fill="none" 
@@ -312,16 +342,16 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
            {hasNoData ? (
              <button
                onClick={handleStartTest}
-               className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20"
+               className={`w-full py-3 px-4 rounded-xl ${isDarkTheme ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20`}
              >
                Пройти первый тест
              </button>
            ) : (
              <>
-               <p className="text-xs text-slate-500 text-center mt-2">
+               <p className={`text-xs ${textTertiaryClass} text-center mt-2`}>
                  {statusInfo.label}
                </p>
-               <p className="text-xs text-slate-500 text-center">
+               <p className={`text-xs ${textTertiaryClass} text-center`}>
                  Пройдено тестов: {testsCompleted}
                </p>
              </>
@@ -334,7 +364,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
          <div className="h-full flex flex-col overflow-y-auto">
            {/* Title */}
            <div className="mb-4 relative z-10 flex items-center justify-between flex-shrink-0">
-             <h3 className="font-bold text-white text-base sm:text-lg">TELEMETRÍA & PREDICCIÓN</h3>
+             <h3 className={`font-bold ${textPrimaryClass} text-base sm:text-lg`}>TELEMETRÍA & PREDICCIÓN</h3>
            </div>
            
            {/* Split View: Levels (Left) + Analytics (Right) - простой адаптивный layout */}
@@ -342,13 +372,13 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
              {/* Left Side: Levels - фиксированные пропорции */}
              <div className="flex flex-col w-full xl:w-[45%] xl:min-w-[300px] xl:max-w-[400px]">
                <div className="mb-3">
-                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">NIVELES DE VUELO</h4>
+                 <h4 className={`text-xs font-bold ${sectionTitleClass} uppercase tracking-wider`}>NIVELES DE VUELO</h4>
                </div>
 
                {/* Levels List with Progress Line */}
                <div className="flex-1 relative flex flex-col justify-between min-h-0 overflow-y-auto">
                  {/* Vertical Progress Line (background) */}
-                 <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-700/50"></div>
+                 <div className={`absolute left-4 top-0 bottom-0 w-0.5 ${progressLineClass}`}></div>
                  
                  {/* Active Progress Line (filled portion - только до активного уровня) */}
                  {!hasNoData && currentLevelIndex > 0 && (
@@ -382,8 +412,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                            <div
                              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${
                                isActive
-                                 ? 'bg-transparent border-orange-400 shadow-lg shadow-orange-500/50 scale-110'
-                                 : 'bg-transparent border-slate-700/30'
+                                 ? `bg-transparent border-orange-400 shadow-lg shadow-orange-500/50 scale-110`
+                                 : `bg-transparent ${levelDotBorderClass}`
                              }`}
                            >
                              {/* Inner dot */}
@@ -391,7 +421,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                                className={`rounded-full transition-all duration-500 ${
                                  isActive
                                    ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 bg-orange-500'
-                                   : 'w-2 h-2 sm:w-2.5 sm:h-2.5 bg-slate-600'
+                                   : `w-2 h-2 sm:w-2.5 sm:h-2.5 ${levelDotBgClass}`
                                }`}
                              />
                              
@@ -422,11 +452,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                              <span className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${level.titleColor}`}>
                                {level.title}
                              </span>
-                             <span className="text-[9px] sm:text-[10px] text-slate-500 font-medium">
+                             <span className={`text-[9px] sm:text-[10px] ${levelRangeClass} font-medium`}>
                                {level.range}
                              </span>
                            </div>
-                           <p className="text-[10px] sm:text-xs text-slate-400 leading-relaxed">
+                           <p className={`text-[10px] sm:text-xs ${levelDescClass} leading-relaxed`}>
                              {level.description}
                            </p>
                          </div>
@@ -440,7 +470,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
              {/* Right Side: Analytics - фиксированные пропорции */}
              <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
                <div className="mb-3">
-                 <h4 className="text-xs font-bold text-white uppercase tracking-wider">TELEMETRÍA AVANZADA</h4>
+                 <h4 className={`text-xs font-bold ${textPrimaryClass} uppercase tracking-wider`}>TELEMETRÍA AVANZADA</h4>
                </div>
                <AnalyticsPanel
                  trend={analytics?.trend || null}

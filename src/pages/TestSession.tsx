@@ -170,6 +170,8 @@ const TestSession = () => {
   
   // Получаем количество вопросов из URL
   const questionCount = parseInt(searchParams.get('count') || '30');
+  const blitzDuration = parseInt(searchParams.get('timer') || '300') || 300;
+  const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
   const [language, setLanguage] = useState<'ru' | 'es'>('es');
   const [showTranslation, setShowTranslation] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -177,7 +179,7 @@ const TestSession = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(mode === "exam" ? 30 * 60 : 0);
+  const [timeLeft, setTimeLeft] = useState(initialTimeBudget);
   const [loading, setLoading] = useState(true);
   const [showQuestionMap, setShowQuestionMap] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
@@ -948,8 +950,8 @@ const TestSession = () => {
     return () => clearTimeout(timeoutId);
   }, [currentIndex, questions, loading]);
 
-  useEffect(() => {
-    if (mode === "exam" && timeLeft > 0) {
+useEffect(() => {
+    if ((mode === "exam" || mode === "blitz") && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -1357,7 +1359,7 @@ const TestSession = () => {
     }
   };
 
-  const practiceLikeModes = ["practice", "mastery", "sequential", "module", "challenge-bank", "dgt"];
+  const practiceLikeModes = ["practice", "blitz", "mastery", "sequential", "module", "challenge-bank", "dgt"];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
 
   const handleAnswer = async (optionId?: string) => {
@@ -1585,7 +1587,11 @@ const TestSession = () => {
     
     const correctCount = answers.filter((a) => a.isCorrect).length;
     const score = Math.round((correctCount / Math.max(1, questions.length)) * 100);
-    const timeSpent = startTime > 0 ? Math.floor((Date.now() - startTime) / 1000) : (mode === "exam" ? 30 * 60 - timeLeft : 0);
+    const timeSpent = startTime > 0
+      ? Math.floor((Date.now() - startTime) / 1000)
+      : initialTimeBudget > 0
+        ? initialTimeBudget - timeLeft
+        : 0;
 
     try {
       // Если это sequential тест, обновляем прогресс через функцию
@@ -1640,6 +1646,8 @@ const TestSession = () => {
               ? "test_sequential"
               : mode === "exam"
               ? "test_exam"
+              : mode === "blitz"
+              ? "test_blitz"
               : mode === "module"
               ? "test_module"
               : "test_practice",
@@ -1761,7 +1769,8 @@ const TestSession = () => {
     : [];
 
   const handleClose = () => {
-    if (window.confirm("Вы уверены, что хотите выйти из экзамена? Ваш прогресс не будет сохранен.")) {
+    const modeLabel = mode === "exam" ? "экзамена" : mode === "blitz" ? "Blitz-теста" : "теста";
+    if (window.confirm(`Вы уверены, что хотите выйти из ${modeLabel}? Ваш прогресс не будет сохранен.`)) {
       navigate("/tests");
     }
   };
@@ -1816,8 +1825,8 @@ const TestSession = () => {
             }
             customLeftContent={
               <>
-                {/* Timer для экзамена */}
-            {mode === "exam" && (
+                {/* Timer для экзамена и блица */}
+                {(mode === "exam" || mode === "blitz") && (
                   <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-background/80 backdrop-blur-md border border-border/50 shadow-sm shrink-0">
                     <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${timeLeft < 300 ? "text-destructive" : "text-foreground/70"}`} />
                     <span className={`font-mono font-semibold text-xs sm:text-sm ${timeLeft < 300 ? "text-destructive" : "text-foreground"}`}>

@@ -175,13 +175,13 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
           
           if (isStillOpen) {
-            // Возвращаем на место с анимацией
-            contentRef.current.style.transform = '';
+          // Возвращаем на место с анимацией
+          contentRef.current.style.transform = '';
             contentRef.current.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
             
-            const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-            if (overlay) {
-              overlay.style.opacity = '0.8';
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay) {
+            overlay.style.opacity = '0.8';
               overlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
             }
           } else {
@@ -194,7 +194,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         // Восстанавливаем touchAction после небольшой задержки, чтобы анимация успела начаться
         setTimeout(() => {
           if (contentRef.current) {
-            contentRef.current.style.touchAction = '';
+        contentRef.current.style.touchAction = '';
           }
         }, 50);
       }

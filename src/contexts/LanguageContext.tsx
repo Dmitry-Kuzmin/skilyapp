@@ -1842,6 +1842,63 @@ const translations: Record<Language, Record<string, any>> = {
   },
 };
 
+const languageOverrides: Partial<Record<Language, Record<string, any>>> = {
+  ru: {
+    dashboard: {
+      onlineStatus: "Система онлайн",
+      licenseStatus: "Лицензия B",
+      cockpitButton: "Панель пилота",
+      heroGreeting: "Привет, пилот!",
+      heroEfficiencyPrefix: "Твоя эффективность составляет",
+      heroStatus: {
+        ready: "Датчики показывают, что ты готов к новой сессии.",
+        progress: "Продолжай тренироваться для лучшего результата.",
+        start: "Рекомендуем пройти больше тестов для улучшения готовности.",
+      },
+      stats: {
+        xp: "Опыт",
+        tests: "Тестов",
+        coins: "Монеты",
+      },
+      startButton: "Старт",
+    },
+  },
+  en: {
+    dashboard: {
+      onlineStatus: "System online",
+      licenseStatus: "License B",
+      cockpitButton: "Cockpit",
+      heroGreeting: "Welcome, Pilot!",
+      heroEfficiencyPrefix: "Your efficiency is",
+      heroStatus: {
+        ready: "Sensors show you're ready for the next session.",
+        progress: "Keep training to push the score higher.",
+        start: "Run more tests to boost your readiness.",
+      },
+      stats: {
+        xp: "XP",
+        tests: "Tests",
+        coins: "Coins",
+      },
+      startButton: "Start",
+    },
+  },
+};
+
+const resolveFromObject = (source: Record<string, any> | undefined, key: string): any => {
+  if (!source) return undefined;
+  const keys = key.split('.');
+  let value: any = source;
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k];
+    } else {
+      return undefined;
+    }
+  }
+  return value;
+};
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const { user, profileId } = useUserContext();
   const [language, setLanguageState] = useState<Language>(() => detectPreferredLanguage());
@@ -1910,20 +1967,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const value = helpCenterTranslations[language][key];
       return typeof value === 'string' ? applyParams(value, params) : key;
     }
-    
-    // Then try main translations (nested structure)
-    const keys = key.split('.');
-    let value: any = translations[language];
-    
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        return key;
-      }
+
+    // Then check language overrides (for partial locales)
+    const overrideValue = resolveFromObject(languageOverrides[language], key);
+    if (typeof overrideValue === 'string') {
+      return applyParams(overrideValue, params);
     }
     
-    return typeof value === 'string' ? applyParams(value, params) : key;
+    // Fallback to base translations (Spanish as base)
+    const baseTranslations = translations[language] || translations.es;
+    const resolved = resolveFromObject(baseTranslations, key);
+    return typeof resolved === 'string' ? applyParams(resolved, params) : key;
   };
 
   const applyParams = (text: string, params?: Record<string, string | number>): string => {
