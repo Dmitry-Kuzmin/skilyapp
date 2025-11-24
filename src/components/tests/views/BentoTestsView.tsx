@@ -210,6 +210,7 @@ export const BentoTestsView = ({
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setRandomQuestionCount(count);
+                                                            setHasSelectedCount(true);
                                                         }}
                                                         className={cn(
                                                             "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
@@ -229,7 +230,7 @@ export const BentoTestsView = ({
                                         </div>
                                         
                                         {/* Start Button - показываем только после выбора */}
-                                        {randomQuestionCount > 0 && (
+                                        {hasSelectedCount && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
