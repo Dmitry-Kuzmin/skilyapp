@@ -9,9 +9,19 @@ import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { getImageUrl } from "@/utils/imageUtils";
 
 interface BentoTestsViewProps {
-    topics: any[];
+    topics: Array<{
+        id: string;
+        number: number;
+        name: string;
+        questions: number;
+        cover_image?: string | null;
+        gradient_from?: string;
+        gradient_to?: string;
+        is_premium?: boolean;
+    }>;
     stats: any;
     challengeBankCount: number;
     randomQuestionCount: number;
@@ -380,53 +390,113 @@ export const BentoTestsView = ({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                        {topics.map((topic, i) => (
-                            <motion.div
-                                key={topic.id}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.03 }}
-                                onClick={() => handleTopicClick(topic.id)}
-                                className={cn(
-                                    "group relative overflow-hidden rounded-2xl p-4 md:p-5 cursor-pointer border transition-all",
-                                    hoveredTopic === topic.id
-                                        ? (isDark ? "bg-white/10 border-white/20" : "bg-gray-100 border-gray-300")
-                                        : (isDark ? "bg-[#1a1a1d] border-white/10 hover:bg-white/5" : "bg-white border-gray-200 hover:border-gray-300")
-                                )}
-                                onMouseEnter={() => setHoveredTopic(topic.id)}
-                                onMouseLeave={() => setHoveredTopic(null)}
-                            >
-                                {/* Gradient on hover */}
-                                <div className={cn(
-                                    "absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 transition-all duration-500",
-                                    hoveredTopic === topic.id && "from-blue-500/10 to-purple-500/10"
-                                )} />
-
-                                <div className="relative z-10 space-y-3">
-                                    <div className={cn(
-                                        "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-bold text-base md:text-lg transition-all",
+                        {topics.map((topic, i) => {
+                            const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
+                            const hasCoverImage = !!coverImageUrl;
+                            
+                            return (
+                                <motion.div
+                                    key={topic.id}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: i * 0.03 }}
+                                    whileHover={{ scale: 1.02, y: -4 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleTopicClick(topic.id)}
+                                    className={cn(
+                                        "group relative overflow-hidden rounded-2xl p-4 md:p-5 cursor-pointer border transition-all h-[160px] md:h-[180px]",
                                         hoveredTopic === topic.id
-                                            ? (isDark ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white" : "bg-gradient-to-br from-blue-500 to-purple-600 text-white")
-                                            : (isDark ? "bg-white/10 text-white" : "bg-gray-100 text-gray-700")
-                                    )}>
-                                        {topic.number}
-                                    </div>
-                                    <div className={cn(
-                                        "font-semibold text-sm line-clamp-2",
-                                        hoveredTopic === topic.id
-                                            ? (isDark ? "text-white" : "text-gray-900")
-                                            : (isDark ? "text-white/80" : "text-gray-700")
-                                    )}>
-                                        {topic.name}
-                                    </div>
-                                    {topic.is_premium && !isPremium && (
-                                        <div className="absolute top-3 right-3">
-                                            <Sparkles className={cn("w-4 h-4", isDark ? "text-amber-400" : "text-amber-500")} />
-                                        </div>
+                                            ? (isDark ? "border-white/30 shadow-xl" : "border-gray-400 shadow-xl")
+                                            : (isDark ? "border-white/10 hover:border-white/20" : "border-gray-200 hover:border-gray-300")
                                     )}
-                                </div>
-                            </motion.div>
-                        ))}
+                                    onMouseEnter={() => setHoveredTopic(topic.id)}
+                                    onMouseLeave={() => setHoveredTopic(null)}
+                                    style={{
+                                        backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        backgroundRepeat: 'no-repeat',
+                                    }}
+                                >
+                                    {/* Background gradient overlay for readability */}
+                                    <div className={cn(
+                                        "absolute inset-0 transition-all duration-500",
+                                        hasCoverImage
+                                            ? hoveredTopic === topic.id
+                                                ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70"
+                                                : "bg-gradient-to-br from-black/60 via-black/50 to-black/60"
+                                            : hoveredTopic === topic.id
+                                                ? (isDark ? "bg-white/10" : "bg-gray-100")
+                                                : (isDark ? "bg-[#1a1a1d]" : "bg-white")
+                                    )} />
+
+                                    {/* Accent gradient on hover */}
+                                    {!hasCoverImage && (
+                                        <div className={cn(
+                                            "absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 transition-all duration-500",
+                                            hoveredTopic === topic.id && "from-blue-500/20 to-purple-500/20"
+                                        )} />
+                                    )}
+
+                                    {/* Glow effect on hover */}
+                                    <div className={cn(
+                                        "absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-xl",
+                                        hasCoverImage 
+                                            ? "bg-gradient-to-br from-white/20 to-white/10"
+                                            : "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
+                                    )} />
+
+                                    <div className="relative z-10 h-full flex flex-col justify-between">
+                                        <div className="flex items-start justify-between">
+                                            <motion.div
+                                                whileHover={{ rotate: 12, scale: 1.1 }}
+                                                className={cn(
+                                                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-black text-base md:text-lg transition-all shadow-lg",
+                                                    hoveredTopic === topic.id
+                                                        ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white scale-110"
+                                                        : hasCoverImage
+                                                            ? "bg-white/20 backdrop-blur-md text-white border border-white/30"
+                                                            : (isDark ? "bg-white/10 text-white" : "bg-gray-100 text-gray-700")
+                                                )}
+                                            >
+                                                {topic.number}
+                                            </motion.div>
+                                            {topic.is_premium && !isPremium && (
+                                                <motion.div
+                                                    animate={{ rotate: [0, 10, -10, 0] }}
+                                                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                                >
+                                                    <Sparkles className={cn("w-5 h-5", "text-amber-400 drop-shadow-lg")} />
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                        
+                                        <div>
+                                            <div className={cn(
+                                                "font-black text-sm md:text-base line-clamp-2 leading-tight mb-1",
+                                                hasCoverImage
+                                                    ? "text-white drop-shadow-lg"
+                                                    : hoveredTopic === topic.id
+                                                        ? (isDark ? "text-white" : "text-gray-900")
+                                                        : (isDark ? "text-white/90" : "text-gray-800")
+                                            )}>
+                                                {topic.name}
+                                            </div>
+                                            {topic.questions > 0 && (
+                                                <div className={cn(
+                                                    "text-xs font-semibold",
+                                                    hasCoverImage
+                                                        ? "text-white/80"
+                                                        : (isDark ? "text-white/60" : "text-gray-600")
+                                                )}>
+                                                    {topic.questions} вопросов
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </motion.div>
             </motion.div>
