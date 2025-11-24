@@ -5,7 +5,7 @@
 
 // Обновляем версию кэша при каждом деплое, чтобы очистить старые файлы
 // ОПТИМИЗАЦИЯ: Используем дату деплоя вместо timestamp для стабильности
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = `skilyapp-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `skilyapp-static-${CACHE_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50 MB лимит кэша
@@ -39,16 +39,16 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     Promise.all([
       // Удаляем старые кэши
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            // Удаляем ВСЕ старые кэши (более агрессивная очистка)
-            if (!cacheName.includes(CACHE_VERSION)) {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          // Удаляем ВСЕ старые кэши (более агрессивная очистка)
+          if (!cacheName.includes(CACHE_VERSION)) {
+            console.log('[SW] Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
       }),
       // ОПТИМИЗАЦИЯ: Очищаем кэш если он превышает лимит
       caches.open(CACHE_NAME).then(async (cache) => {
@@ -76,115 +76,132 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Пропускаем запросы без URL или с пустым URL
-  if (!request.url || request.url.trim() === '' || request.url === '.') {
+  // Пропускаем запросы без URL или с пустым/некорректным URL
+  if (!request.url || 
+      request.url.trim() === '' || 
+      request.url === '.' || 
+      request.url === './' ||
+      request.url.startsWith('data:') ||
+      request.url.startsWith('blob:')) {
     return;
   }
   
+  let url;
   try {
-    const url = new URL(request.url);
+    url = new URL(request.url);
+  } catch (error) {
+    // Некорректный URL - пропускаем
+    return;
+  }
 
-    // Пропускаем некорректные URL (пустые пути, только протокол и т.д.)
-    if (!url.pathname || url.pathname === '' || url.pathname === '.') {
-      return;
-    }
+  // Пропускаем некорректные URL (пустые пути, только протокол и т.д.)
+  if (!url.pathname || 
+      url.pathname === '' || 
+      url.pathname === '.' || 
+      url.pathname === './') {
+    return;
+  }
 
-    // Пропускаем запросы к внешним ресурсам, API, data: URLs и blob: URLs
-    if (
-      url.protocol === 'data:' ||
-      url.protocol === 'blob:' ||
-      url.protocol === 'chrome-extension:' ||
-      url.protocol === 'moz-extension:' ||
-      url.pathname.startsWith('/api/') ||
-      url.pathname.startsWith('/supabase/')
-    ) {
-      return;
-    }
+  // Пропускаем запросы к внешним ресурсам, API, data: URLs и blob: URLs
+  if (
+    url.protocol === 'data:' ||
+    url.protocol === 'blob:' ||
+    url.protocol === 'chrome-extension:' ||
+    url.protocol === 'moz-extension:' ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/supabase/')
+  ) {
+    return;
+  }
 
-    // Обрабатываем только запросы к нашему origin
-    if (url.origin !== self.location.origin) {
-      return;
-    }
+  // Обрабатываем только запросы к нашему origin
+  if (url.origin !== self.location.origin) {
+    return;
+  }
 
-    // Определяем тип ресурса для оптимальной стратегии кэширования
-    const isStaticAsset = url.pathname.match(/\.(js|css|html)$/);
-    const isImage = url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i);
-    const isFont = url.pathname.match(/\.(woff2?|ttf|eot|otf)$/i);
-    
-    // Стратегия кэширования:
-    // - JS/CSS: Network First (всегда проверяем сеть для актуальных версий)
-    // - Изображения/Шрифты: Cache First (быстрая загрузка из кэша)
-    // - HTML: Network First с fallback на кэш
-    
-    event.respondWith(
-      (async () => {
+  // Дополнительная проверка: пропускаем запросы с некорректными символами в пути
+  if (url.pathname.includes('//') || url.pathname.includes('..')) {
+    return;
+  }
+
+  // Определяем тип ресурса для оптимальной стратегии кэширования
+  const isStaticAsset = url.pathname.match(/\.(js|css|html)$/);
+  const isImage = url.pathname.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i);
+  const isFont = url.pathname.match(/\.(woff2?|ttf|eot|otf)$/i);
+  
+  // Стратегия кэширования:
+  // - JS/CSS: Network First (всегда проверяем сеть для актуальных версий)
+  // - Изображения/Шрифты: Cache First (быстрая загрузка из кэша)
+  // - HTML: Network First с fallback на кэш
+  
+  event.respondWith(
+    (async () => {
+      try {
+        // Для изображений и шрифтов используем Cache First
+        if (isImage || isFont) {
+          const cached = await caches.match(request);
+          if (cached) {
+            return cached;
+          }
+          // Если нет в кэше, загружаем из сети и кэшируем
+          try {
+            const response = await fetch(request);
+            if (response.ok && response.status === 200) {
+              const cache = await caches.open(CACHE_NAME);
+              cache.put(request, response.clone());
+            }
+            return response;
+          } catch (error) {
+            // Тихая обработка ошибок - возвращаем пустой ответ
+            return new Response('', { status: 404 });
+          }
+        }
+        
+        // Для JS/CSS и HTML используем Network First
         try {
-          // Для изображений и шрифтов используем Cache First
-          if (isImage || isFont) {
+          const response = await fetch(request, {
+            cache: isStaticAsset ? 'no-cache' : 'default',
+          });
+
+          // Кэшируем только успешные ответы (не JS/CSS для актуальности)
+          if (response.ok && response.status === 200 && !isStaticAsset) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+          }
+
+          return response;
+        } catch (error) {
+          // Fallback на кэш для не-JS/CSS файлов
+          if (!isStaticAsset) {
             const cached = await caches.match(request);
             if (cached) {
               return cached;
             }
-            // Если нет в кэше, загружаем из сети и кэшируем
-            try {
-              const response = await fetch(request);
-              if (response.ok && response.status === 200) {
-                const cache = await caches.open(CACHE_NAME);
-                // Клонируем response перед кэшированием
-                cache.put(request, response.clone());
+            
+            // Для навигации возвращаем index.html
+            if (request.mode === 'navigate') {
+              const indexHtml = await caches.match('/index.html');
+              if (indexHtml) {
+                return indexHtml;
               }
-              return response;
-            } catch (error) {
-              // Тихая обработка ошибок для изображений/шрифтов
-              return fetch(request).catch(() => {
-                return new Response('', { status: 404 });
-              });
             }
           }
           
-          // Для JS/CSS и HTML используем Network First
-          try {
-            const response = await fetch(request, {
-              cache: isStaticAsset ? 'no-cache' : 'default',
-            });
-            
-            // Кэшируем только успешные ответы (не JS/CSS для актуальности)
-            if (response.ok && response.status === 200 && !isStaticAsset) {
-              const cache = await caches.open(CACHE_NAME);
-              cache.put(request, response.clone());
-            }
-            
-            return response;
-          } catch (error) {
-            // Fallback на кэш для не-JS/CSS файлов
-            if (!isStaticAsset) {
-              const cached = await caches.match(request);
-              if (cached) {
-                return cached;
-              }
-              
-              // Для навигации возвращаем index.html
-              if (request.mode === 'navigate') {
-                const indexHtml = await caches.match('/index.html');
-                if (indexHtml) {
-                  return indexHtml;
-                }
-              }
-            }
-            
-            // Если все попытки не удались, пробуем обычный fetch
-            return fetch(request);
-          }
-        } catch (error) {
-          // В случае критической ошибки просто пропускаем запрос через обычный fetch
-          return fetch(request);
+          // Если все попытки не удались, возвращаем ошибку
+          return new Response('Network error', { 
+            status: 408,
+            headers: { 'Content-Type': 'text/plain' }
+          });
         }
-      })()
-    );
-  } catch (error) {
-    // Если не удалось создать URL, просто пропускаем запрос
-    return;
-  }
+      } catch (error) {
+        // В случае критической ошибки возвращаем ошибку
+        return new Response('Service Worker error', { 
+          status: 500,
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      }
+    })()
+  );
 });
 
 // Обработка сообщений от клиента
