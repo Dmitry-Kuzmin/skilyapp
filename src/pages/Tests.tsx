@@ -123,7 +123,8 @@ const Tests = () => {
   };
 
   const handleTopicClick = (topicId: string) => {
-    navigate(`/topic/${topicId}`);
+    // Открываем тест по теме, а не учебник
+    handleStartTest(`/test/practice?topic=${topicId}&count=30`);
   };
 
   return (
