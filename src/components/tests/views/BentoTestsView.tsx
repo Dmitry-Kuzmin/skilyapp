@@ -123,6 +123,7 @@ export const BentoTestsView = ({
     const { isPremium } = usePremium();
     const { theme } = useTheme();
     const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
+    const [hasSelectedCount, setHasSelectedCount] = useState(false);
 
     const isDark = theme === "dark";
 
