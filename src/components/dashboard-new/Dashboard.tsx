@@ -5,6 +5,7 @@ import { SkilyChat } from './SkilyChat';
 import { ExamReadiness } from './ExamReadiness';
 import { PremiumCard } from './PremiumCard';
 import { DuelPassInfo } from './DuelPassInfo';
+import { ADASControlPanel } from './ADASControlPanel';
 
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
@@ -275,12 +276,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
              />
           </div>
 
-          {/* 5. PREMIUM CARD (Col: 1, Row: 1) - сдвигается вниз при расширении ExamReadiness */}
+          {/* 5. ADAS PANEL */}
+          <div className="md:col-span-1 lg:col-span-1">
+            <ADASControlPanel
+              stats={{
+                averageScore: stats.averageScore,
+                currentStreak: stats.currentStreak,
+                testsCompleted: stats.testsCompleted,
+                accuracy: stats.accuracy ?? stats.averageScore,
+              }}
+              readinessStatus={readinessStatus}
+            />
+          </div>
+
+          {/* 6. PREMIUM CARD */}
           <div className="md:col-span-1 lg:col-span-1 transition-all duration-500 ease-in-out">
              <PremiumCard onGetPremium={onGetPremium} />
           </div>
 
-          {/* 6. DUEL PASS INFO (Col: 4, Row: 1) */}
+          {/* 7. DUEL PASS INFO */}
           <div className="md:col-span-2 lg:col-span-2">
             <DuelPassInfo />
           </div>
