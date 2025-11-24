@@ -214,7 +214,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/20 to-slate-950 overflow-y-auto pt-safe z-40">
+    <div className="fixed inset-0 bg-background overflow-y-auto pt-safe z-40">
       <div className="min-h-screen w-full max-w-2xl mx-auto px-4 py-8 pb-24 space-y-6 relative z-10">
         <AnimatePresence>
           {results.isWinner && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.25} style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }} />}

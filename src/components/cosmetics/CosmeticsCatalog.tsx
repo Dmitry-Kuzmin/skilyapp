@@ -379,24 +379,26 @@ export function CosmeticsCatalog() {
               <p className="text-muted-foreground">Скины скоро появятся</p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {skins.map((skin, index) => {
               const isOwned = ownedSkins.has(skin.id);
               const rarity = rarityColors[skin.rarity];
               const obtainMethod = getObtainMethod(skin);
+              const isActive = activeSkinId === skin.id;
 
               return (
                 <motion.div
                   key={skin.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.03 }}
                 >
                   <Card
                     className={cn(
-                      "p-4 transition-all hover:shadow-lg relative overflow-hidden group",
+                      "p-2.5 transition-all hover:shadow-lg relative overflow-hidden group",
                       rarity.border,
-                      !isOwned && "opacity-75"
+                      !isOwned && "opacity-75",
+                      isActive && "ring-2 ring-green-500"
                     )}
                   >
                     {/* Градиентный фон для легендарных */}
@@ -404,22 +406,21 @@ export function CosmeticsCatalog() {
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-yellow-500/10 opacity-50" />
                     )}
 
-                    {/* Статус владения */}
+                    {/* Статус владения - компактный */}
                     {isOwned && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge className="bg-green-500 text-white border-none">
-                          <Check className="w-3 h-3 mr-1" />
-                          Получено
+                      <div className="absolute top-1.5 right-1.5 z-10">
+                        <Badge className="bg-green-500 text-white border-none text-[10px] px-1.5 py-0.5 h-5">
+                          <Check className="w-2.5 h-2.5 mr-0.5" />
                         </Badge>
                       </div>
                     )}
 
-                    <div className="relative z-10 flex flex-col gap-3">
-                      {/* Превью скина с улучшенным дизайном */}
+                    <div className="relative z-10 flex flex-col gap-2">
+                      {/* Превью скина - компактное */}
                       <motion.div
                         className={cn(
-                          "w-full aspect-square rounded-xl flex items-center justify-center text-6xl font-extrabold text-white relative overflow-hidden group/skin",
-                          "shadow-2xl",
+                          "w-full aspect-square rounded-lg flex items-center justify-center text-3xl font-extrabold text-white relative overflow-hidden group/skin",
+                          "shadow-lg",
                           skin.rarity === "legendary" && "shadow-yellow-500/50",
                           skin.rarity === "epic" && "shadow-blue-500/50",
                           skin.rarity === "rare" && "shadow-blue-500/50",
@@ -430,7 +431,7 @@ export function CosmeticsCatalog() {
                             ? `radial-gradient(circle at 30% 30%, ${skin.metadata.color}ff, ${skin.metadata.color}cc 40%, ${skin.metadata.color}88 100%)`
                             : "radial-gradient(circle at 30% 30%, #6366f1ff, #8b5cf6cc 40%, #6366f188 100%)",
                         }}
-                        whileHover={{ scale: 1.05, rotate: 2 }}
+                        whileHover={{ scale: 1.05 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
                         {/* Эффект свечения */}
@@ -445,16 +446,16 @@ export function CosmeticsCatalog() {
                           </>
                         )}
                         
-                        {/* Эффекты */}
+                        {/* Эффекты - компактные */}
                         {skin.metadata.effect === "sparkle" && (
                           <>
-                            <Sparkles className="absolute top-3 right-3 w-8 h-8 animate-spin text-white/90 drop-shadow-lg" />
+                            <Sparkles className="absolute top-1 right-1 w-4 h-4 animate-spin text-white/90 drop-shadow-lg" />
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(255,255,255,0.1)_100%)] animate-pulse" />
                           </>
                         )}
                         {skin.metadata.effect === "fire" && (
                           <>
-                            <Flame className="absolute top-3 right-3 w-8 h-8 text-orange-400 animate-bounce drop-shadow-lg" />
+                            <Flame className="absolute top-1 right-1 w-4 h-4 text-orange-400 animate-bounce drop-shadow-lg" />
                             <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-orange-500/30 to-transparent" />
                           </>
                         )}
@@ -463,13 +464,13 @@ export function CosmeticsCatalog() {
                         )}
                         
                         {/* Буква с тенью */}
-                        <span className="relative z-10 drop-shadow-2xl">
+                        <span className="relative z-10 drop-shadow-lg">
                           {skin.name_ru.charAt(0).toUpperCase()}
                         </span>
                         
                         {/* Градиентная рамка */}
                         <div className={cn(
-                          "absolute inset-0 rounded-xl border-2 opacity-50",
+                          "absolute inset-0 rounded-lg border opacity-50",
                           skin.rarity === "legendary" && "border-yellow-400/50",
                           skin.rarity === "epic" && "border-blue-400/50",
                           skin.rarity === "rare" && "border-blue-400/50",
@@ -477,44 +478,40 @@ export function CosmeticsCatalog() {
                         )} />
                       </motion.div>
 
-                      {/* Информация */}
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-base">{skin.name_ru}</h3>
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {skin.description_ru}
-                            </p>
+                      {/* Информация - компактная */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm leading-tight truncate">{skin.name_ru}</h3>
+                            <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                              <Badge
+                                variant="outline"
+                                className={cn("text-[10px] px-1.5 py-0 h-4", rarity.text, rarity.border, rarity.bg)}
+                              >
+                                {rarityLabels[skin.rarity]}
+                              </Badge>
+                              {skin.is_premium && (
+                                <Badge className="gradient-gold border-none text-[10px] px-1.5 py-0 h-4">
+                                  <Crown className="w-2.5 h-2.5 mr-0.5" />
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge
-                            variant="outline"
-                            className={cn("text-xs", rarity.text, rarity.border, rarity.bg)}
-                          >
-                            {rarityLabels[skin.rarity]}
-                          </Badge>
-                          {skin.is_premium && (
-                            <Badge className="gradient-gold border-none text-xs px-2 py-0">
-                              <Crown className="w-3 h-3 mr-1" />
-                              Premium
-                            </Badge>
-                          )}
+                        {/* Способ получения - компактный */}
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <obtainMethod.icon className={cn("w-3 h-3 flex-shrink-0", obtainMethod.color)} />
+                          <span className="truncate">{obtainMethod.text}</span>
                         </div>
 
-                        {/* Способ получения */}
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1 border-t border-border/50">
-                          <obtainMethod.icon className={cn("w-4 h-4", obtainMethod.color)} />
-                          <span>{obtainMethod.text}</span>
-                        </div>
-
-                        <div className="flex gap-2 mt-2">
+                        {/* Кнопки - компактные */}
+                        <div className="flex gap-1.5 mt-1.5">
                           {!isOwned ? (
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1"
+                              className="flex-1 h-7 text-xs px-2"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (skin.is_premium && !isPremium) {
@@ -524,32 +521,32 @@ export function CosmeticsCatalog() {
                                 }
                               }}
                             >
-                              <Lock className="w-3 h-3 mr-2" />
-                              Как получить?
+                              <Lock className="w-2.5 h-2.5 mr-1" />
+                              Получить
                             </Button>
                           ) : (
                             <>
-                              {activeSkinId === skin.id ? (
+                              {isActive ? (
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                  className="flex-1 h-7 text-xs px-2 bg-green-600 hover:bg-green-700"
                                   disabled
                                 >
-                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  <CheckCircle className="w-2.5 h-2.5 mr-1" />
                                   Активен
                                 </Button>
                               ) : (
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="flex-1"
+                                  className="flex-1 h-7 text-xs px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     activateSkin(skin.id);
                                   }}
                                 >
-                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  <CheckCircle className="w-2.5 h-2.5 mr-1" />
                                   Применить
                                 </Button>
                               )}
@@ -557,7 +554,7 @@ export function CosmeticsCatalog() {
                                 size="sm"
                                 variant={previewSkin?.id === skin.id ? "default" : "secondary"}
                                 className={cn(
-                                  "flex-1",
+                                  "flex-1 h-7 text-xs px-2",
                                   previewSkin?.id === skin.id && "bg-primary"
                                 )}
                                 onClick={(e) => {
@@ -565,8 +562,7 @@ export function CosmeticsCatalog() {
                                   handleSkinPreview(skin);
                                 }}
                               >
-                                <Eye className="w-3 h-3 mr-2" />
-                                {previewSkin?.id === skin.id ? "Выбрано" : "Примерить"}
+                                <Eye className="w-2.5 h-2.5" />
                               </Button>
                             </>
                           )}
@@ -589,24 +585,26 @@ export function CosmeticsCatalog() {
               <p className="text-muted-foreground">Бейджи скоро появятся</p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
               {badges.map((badge, index) => {
               const isOwned = ownedBadges.has(badge.id);
               const rarity = rarityColors[badge.rarity];
               const obtainMethod = getObtainMethod(badge);
+              const isActive = activeBadgeIds.has(badge.id);
 
               return (
                 <motion.div
                   key={badge.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.03 }}
                 >
                   <Card
                     className={cn(
-                      "p-4 transition-all hover:shadow-lg relative overflow-hidden group",
+                      "p-2.5 transition-all hover:shadow-lg relative overflow-hidden group",
                       rarity.border,
-                      !isOwned && "opacity-75"
+                      !isOwned && "opacity-75",
+                      isActive && "ring-2 ring-green-500"
                     )}
                   >
                     {/* Градиентный фон для легендарных */}
@@ -614,22 +612,21 @@ export function CosmeticsCatalog() {
                       <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-yellow-500/10 opacity-50" />
                     )}
 
-                    {/* Статус владения */}
+                    {/* Статус владения - компактный */}
                     {isOwned && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge className="bg-green-500 text-white border-none">
-                          <Check className="w-3 h-3 mr-1" />
-                          Получено
+                      <div className="absolute top-1.5 right-1.5 z-10">
+                        <Badge className="bg-green-500 text-white border-none text-[10px] px-1.5 py-0.5 h-5">
+                          <Check className="w-2.5 h-2.5 mr-0.5" />
                         </Badge>
                       </div>
                     )}
 
-                    <div className="relative z-10 flex flex-col gap-3">
-                      {/* Иконка бейджа с улучшенным дизайном */}
+                    <div className="relative z-10 flex flex-col gap-2">
+                      {/* Иконка бейджа - компактная */}
                       <motion.div
                         className={cn(
-                          "w-full aspect-square rounded-2xl flex items-center justify-center relative overflow-hidden group/badge",
-                          "shadow-xl",
+                          "w-full aspect-square rounded-lg flex items-center justify-center relative overflow-hidden group/badge",
+                          "shadow-lg",
                           badge.rarity === "legendary" && "bg-gradient-to-br from-yellow-500/20 via-orange-500/20 to-yellow-500/20 shadow-yellow-500/30",
                           badge.rarity === "epic" && "bg-gradient-to-br from-blue-500/20 via-pink-500/20 to-blue-500/20 shadow-blue-500/30",
                           badge.rarity === "rare" && "bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-blue-500/20 shadow-blue-500/30",
@@ -640,45 +637,45 @@ export function CosmeticsCatalog() {
                             ? `radial-gradient(circle at center, ${badge.metadata.color}30, ${badge.metadata.color}10)`
                             : undefined,
                         }}
-                        whileHover={{ scale: 1.08, rotate: 5 }}
+                        whileHover={{ scale: 1.05 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
                         {/* Металлический эффект */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0 group-hover/badge:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0 group-hover/badge:opacity-100 transition-opacity duration-500 rounded-lg" />
                         
-                        {/* Иконка с градиентом */}
+                        {/* Иконка с градиентом - компактная */}
                         <div className="relative z-10">
                           {badge.metadata.icon === "trophy" && (
                             <Trophy
                               className={cn(
-                                "w-24 h-24 drop-shadow-2xl",
+                                "w-12 h-12 drop-shadow-lg",
                                 badge.rarity === "legendary" && "text-yellow-400",
                                 badge.rarity === "epic" && "text-blue-400",
                                 badge.rarity === "rare" && "text-blue-400",
                                 badge.rarity === "common" && "text-gray-400"
                               )}
                               style={{
-                                filter: badge.metadata.color ? `drop-shadow(0 0 8px ${badge.metadata.color})` : undefined,
+                                filter: badge.metadata.color ? `drop-shadow(0 0 4px ${badge.metadata.color})` : undefined,
                               }}
                             />
                           )}
                           {badge.metadata.icon === "flame" && (
-                            <div className="text-7xl drop-shadow-2xl filter brightness-110">
+                            <div className="text-4xl drop-shadow-lg filter brightness-110">
                               🔥
                             </div>
                           )}
                           {badge.metadata.icon === "star" && (
-                            <div className="text-7xl drop-shadow-2xl filter brightness-110">
+                            <div className="text-4xl drop-shadow-lg filter brightness-110">
                               ⭐
                             </div>
                           )}
                           {badge.metadata.icon === "crown" && (
-                            <div className="text-7xl drop-shadow-2xl filter brightness-110">
+                            <div className="text-4xl drop-shadow-lg filter brightness-110">
                               👑
                             </div>
                           )}
                           {badge.metadata.icon === "calendar" && (
-                            <div className="text-7xl drop-shadow-2xl filter brightness-110">
+                            <div className="text-4xl drop-shadow-lg filter brightness-110">
                               📅
                             </div>
                           )}
@@ -687,68 +684,54 @@ export function CosmeticsCatalog() {
                         {/* Анимация для анимированных бейджей */}
                         {badge.metadata.animated && (
                           <>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-2xl" />
-                            <div className="absolute inset-0 animate-pulse bg-current opacity-10 rounded-2xl" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer rounded-lg" />
+                            <div className="absolute inset-0 animate-pulse bg-current opacity-10 rounded-lg" />
                           </>
                         )}
                         
                         {/* Свечение вокруг бейджа */}
                         <div className={cn(
-                          "absolute -inset-1 rounded-2xl opacity-0 group-hover/badge:opacity-100 transition-opacity duration-500 blur-sm",
+                          "absolute -inset-0.5 rounded-lg opacity-0 group-hover/badge:opacity-100 transition-opacity duration-500 blur-sm",
                           badge.rarity === "legendary" && "bg-yellow-400",
                           badge.rarity === "epic" && "bg-blue-400",
                           badge.rarity === "rare" && "bg-blue-400"
                         )} />
                       </motion.div>
 
-                      {/* Информация */}
-                      <div className="space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-base">{badge.name_ru}</h3>
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {badge.description_ru}
-                            </p>
+                      {/* Информация - компактная */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm leading-tight truncate">{badge.name_ru}</h3>
+                            <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                              <Badge
+                                variant="outline"
+                                className={cn("text-[10px] px-1.5 py-0 h-4", rarity.text, rarity.border, rarity.bg)}
+                              >
+                                {rarityLabels[badge.rarity]}
+                              </Badge>
+                              {badge.is_premium && (
+                                <Badge className="gradient-gold border-none text-[10px] px-1.5 py-0 h-4">
+                                  <Crown className="w-2.5 h-2.5 mr-0.5" />
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge
-                            variant="outline"
-                            className={cn("text-xs", rarity.text, rarity.border, rarity.bg)}
-                          >
-                            {rarityLabels[badge.rarity]}
-                          </Badge>
-                          {badge.category === "achievement" && (
-                            <Badge variant="outline" className="text-xs">
-                              Достижение
-                            </Badge>
-                          )}
-                          {badge.category === "seasonal" && (
-                            <Badge variant="outline" className="text-xs">
-                              Сезонный
-                            </Badge>
-                          )}
-                          {badge.is_premium && (
-                            <Badge className="gradient-gold border-none text-xs px-2 py-0">
-                              <Crown className="w-3 h-3 mr-1" />
-                              Premium
-                            </Badge>
-                          )}
+                        {/* Способ получения - компактный */}
+                        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                          <obtainMethod.icon className={cn("w-3 h-3 flex-shrink-0", obtainMethod.color)} />
+                          <span className="truncate">{obtainMethod.text}</span>
                         </div>
 
-                        {/* Способ получения */}
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1 border-t border-border/50">
-                          <obtainMethod.icon className={cn("w-4 h-4", obtainMethod.color)} />
-                          <span>{obtainMethod.text}</span>
-                        </div>
-
-                        <div className="flex gap-2 mt-2">
+                        {/* Кнопки - компактные */}
+                        <div className="flex gap-1.5 mt-1.5">
                           {!isOwned ? (
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1"
+                              className="flex-1 h-7 text-xs px-2"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (badge.is_premium && !isPremium) {
@@ -760,35 +743,35 @@ export function CosmeticsCatalog() {
                                 }
                               }}
                             >
-                              <Lock className="w-3 h-3 mr-2" />
-                              Как получить?
+                              <Lock className="w-2.5 h-2.5 mr-1" />
+                              Получить
                             </Button>
                           ) : (
                             <>
-                              {activeBadgeIds.has(badge.id) ? (
+                              {isActive ? (
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                  className="flex-1 h-7 text-xs px-2 bg-green-600 hover:bg-green-700"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     toggleBadgeDisplay(badge.id, true);
                                   }}
                                 >
-                                  <CheckCircle className="w-3 h-3 mr-2" />
-                                  Отображается
+                                  <CheckCircle className="w-2.5 h-2.5 mr-1" />
+                                  Активен
                                 </Button>
                               ) : (
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="flex-1"
+                                  className="flex-1 h-7 text-xs px-2"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     toggleBadgeDisplay(badge.id, false);
                                   }}
                                 >
-                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  <CheckCircle className="w-2.5 h-2.5 mr-1" />
                                   Применить
                                 </Button>
                               )}
@@ -796,7 +779,7 @@ export function CosmeticsCatalog() {
                                 size="sm"
                                 variant={previewBadges.some((b) => b.id === badge.id) ? "default" : "secondary"}
                                 className={cn(
-                                  "flex-1",
+                                  "flex-1 h-7 text-xs px-2",
                                   previewBadges.some((b) => b.id === badge.id) && "bg-primary"
                                 )}
                                 onClick={(e) => {
@@ -804,8 +787,7 @@ export function CosmeticsCatalog() {
                                   handleBadgePreview(badge);
                                 }}
                               >
-                                <Eye className="w-3 h-3 mr-2" />
-                                {previewBadges.some((b) => b.id === badge.id) ? "Убрать" : "Примерить"}
+                                <Eye className="w-2.5 h-2.5" />
                               </Button>
                             </>
                           )}
@@ -828,7 +810,7 @@ export function CosmeticsCatalog() {
               <p className="text-muted-foreground">Стикеры скоро появятся</p>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {stickers.map((sticker, index) => {
               const isOwned = ownedStickers.has(sticker.id);
               const rarity = rarityColors[sticker.rarity];
@@ -839,64 +821,59 @@ export function CosmeticsCatalog() {
                   key={sticker.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.03 }}
+                  transition={{ delay: index * 0.02 }}
                 >
                   <Card
                     className={cn(
-                      "p-4 transition-all hover:shadow-lg relative overflow-hidden group cursor-pointer",
+                      "p-2 transition-all hover:shadow-lg relative overflow-hidden group cursor-pointer",
                       rarity.border,
                       !isOwned && "opacity-75",
                       previewSticker?.id === sticker.id && "ring-2 ring-primary shadow-lg scale-[1.02]"
                     )}
                     onClick={() => handleStickerPreview(sticker)}
                   >
-                    {/* Статус владения */}
+                    {/* Статус владения - компактный */}
                     {isOwned && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge className="bg-green-500 text-white border-none text-xs">
-                          <Check className="w-2 h-2 mr-1" />
+                      <div className="absolute top-1 right-1 z-10">
+                        <Badge className="bg-green-500 text-white border-none text-[10px] px-1 py-0 h-4">
+                          <Check className="w-2 h-2" />
                         </Badge>
                       </div>
                     )}
 
-                    <div className="relative z-10 flex flex-col gap-3">
-                      {/* Стикер с улучшенным дизайном */}
+                    <div className="relative z-10 flex flex-col gap-1.5">
+                      {/* Стикер - компактный */}
                       <motion.div
                         className={cn(
-                          "w-full aspect-square rounded-2xl flex items-center justify-center relative overflow-hidden group/sticker",
-                          "shadow-lg",
+                          "w-full aspect-square rounded-lg flex items-center justify-center relative overflow-hidden group/sticker",
+                          "shadow-md",
                           sticker.rarity === "legendary" && "bg-gradient-to-br from-yellow-400/30 via-orange-400/30 to-yellow-400/30 shadow-yellow-500/40",
                           sticker.rarity === "epic" && "bg-gradient-to-br from-blue-400/30 via-pink-400/30 to-blue-400/30 shadow-blue-500/40",
                           sticker.rarity === "rare" && "bg-gradient-to-br from-blue-400/30 via-cyan-400/30 to-blue-400/30 shadow-blue-500/40",
                           sticker.rarity === "common" && "bg-gradient-to-br from-gray-300/30 via-gray-200/30 to-gray-300/30"
                         )}
-                        whileHover={{ scale: 1.15, rotate: 12 }}
+                        whileHover={{ scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >
                         {/* Градиентный фон */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/sticker:opacity-100 transition-opacity duration-500" />
                         
-                        {/* Эмодзи с эффектами */}
-                        <div className="relative z-10 text-8xl drop-shadow-2xl filter brightness-110 contrast-110">
+                        {/* Эмодзи - компактный */}
+                        <div className="relative z-10 text-4xl drop-shadow-lg filter brightness-110 contrast-110">
                           {sticker.metadata.emoji || "😊"}
                         </div>
                         
                         {/* Эффект частиц для редких стикеров */}
                         {sticker.rarity !== "common" && (
                           <>
-                            <div className="absolute top-2 left-2 w-1 h-1 bg-white rounded-full animate-ping opacity-75" style={{ animationDelay: '0s' }} />
-                            <div className="absolute bottom-2 right-2 w-1 h-1 bg-white rounded-full animate-ping opacity-75" style={{ animationDelay: '0.3s' }} />
+                            <div className="absolute top-1 left-1 w-0.5 h-0.5 bg-white rounded-full animate-ping opacity-75" style={{ animationDelay: '0s' }} />
+                            <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-white rounded-full animate-ping opacity-75" style={{ animationDelay: '0.3s' }} />
                           </>
-                        )}
-                        
-                        {/* Свечение для легендарных */}
-                        {sticker.rarity === "legendary" && (
-                          <div className="absolute -inset-1 bg-yellow-400/30 rounded-2xl blur-md opacity-0 group-hover/sticker:opacity-100 transition-opacity duration-500" />
                         )}
                         
                         {/* Рамка */}
                         <div className={cn(
-                          "absolute inset-0 rounded-2xl border-2 opacity-30",
+                          "absolute inset-0 rounded-lg border opacity-30",
                           sticker.rarity === "legendary" && "border-yellow-400",
                           sticker.rarity === "epic" && "border-blue-400",
                           sticker.rarity === "rare" && "border-blue-400",
@@ -904,40 +881,38 @@ export function CosmeticsCatalog() {
                         )} />
                       </motion.div>
 
-                      {/* Информация */}
-                      <div className="space-y-2">
-                        <div>
-                          <h3 className="font-semibold text-sm text-center">
-                            {sticker.name_ru}
-                          </h3>
-                        </div>
+                      {/* Информация - компактная */}
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-xs text-center truncate leading-tight">
+                          {sticker.name_ru}
+                        </h3>
 
-                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <div className="flex items-center justify-center gap-1 flex-wrap">
                           <Badge
                             variant="outline"
-                            className={cn("text-xs", rarity.text, rarity.border, rarity.bg)}
+                            className={cn("text-[10px] px-1 py-0 h-4", rarity.text, rarity.border, rarity.bg)}
                           >
                             {rarityLabels[sticker.rarity]}
                           </Badge>
                           {sticker.is_premium && (
-                            <Badge className="gradient-gold border-none text-xs px-1.5 py-0">
-                              <Crown className="w-2 h-2 mr-1" />
+                            <Badge className="gradient-gold border-none text-[10px] px-1 py-0 h-4">
+                              <Crown className="w-2 h-2" />
                             </Badge>
                           )}
                         </div>
 
-                        {/* Способ получения */}
-                        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground pt-1 border-t border-border/50">
-                          <obtainMethod.icon className={cn("w-3 h-3", obtainMethod.color)} />
-                          <span className="text-[10px]">{obtainMethod.text}</span>
+                        {/* Способ получения - компактный */}
+                        <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                          <obtainMethod.icon className={cn("w-2.5 h-2.5", obtainMethod.color)} />
+                          <span className="truncate">{obtainMethod.text}</span>
                         </div>
 
-                        {/* Кнопка примерки */}
+                        {/* Кнопка примерки - компактная */}
                         <Button
                           size="sm"
                           variant={previewSticker?.id === sticker.id ? "default" : "secondary"}
                           className={cn(
-                            "w-full mt-2",
+                            "w-full h-6 text-xs px-1.5 mt-1",
                             previewSticker?.id === sticker.id && "bg-primary"
                           )}
                           onClick={(e) => {
@@ -945,8 +920,7 @@ export function CosmeticsCatalog() {
                             handleStickerPreview(sticker);
                           }}
                         >
-                          <Eye className="w-3 h-3 mr-2" />
-                          {previewSticker?.id === sticker.id ? "Убрать" : "Примерить"}
+                          <Eye className="w-2.5 h-2.5" />
                         </Button>
                       </div>
                     </div>
