@@ -38,6 +38,7 @@ import { DuelTimer } from './DuelTimer';
 import { DuelScoreBoard } from './DuelScoreBoard';
 import { DuelBoostsPanel } from './DuelBoostsPanel';
 import { DuelQuestionCard } from './DuelQuestionCard';
+import { useDuelGameState } from '@/hooks/useDuelGameState';
 
 const duelRiskMultiplierPreview = (betAmount: number) => {
   if (!betAmount || betAmount <= 0) return 1;
@@ -76,32 +77,52 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Get safe area insets from Telegram WebApp API
   const safeArea = useSafeArea();
 
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60000);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [myScore, setMyScore] = useState(0);
-  const [opponentScore, setOpponentScore] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [boosts, setBoosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const isLoadingRef = useRef(false); // ОПТИМИЗАЦИЯ: Ref для предотвращения повторных вызовов
-  const [usedBoosts, setUsedBoosts] = useState<string[]>([]);
-  const [eliminatedOptions, setEliminatedOptions] = useState<string[]>([]);
-  const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
+  // ОПТИМИЗАЦИЯ: Используем хук для управления состоянием игры
+  const gameState = useDuelGameState();
+  const {
+    questions,
+    setQuestions,
+    currentIndex,
+    setCurrentIndex,
+    timeLeft,
+    setTimeLeft,
+    selectedAnswer,
+    setSelectedAnswer,
+    isAnswered,
+    setIsAnswered,
+    myScore,
+    setMyScore,
+    opponentScore,
+    setOpponentScore,
+    combo,
+    setCombo,
+    boosts,
+    setBoosts,
+    usedBoosts,
+    setUsedBoosts,
+    eliminatedOptions,
+    setEliminatedOptions,
+    translationLanguage,
+    setTranslationLanguage,
+    loading,
+    setLoading,
+    isLoadingRef,
+    isWaitingForOpponent,
+    setIsWaitingForOpponent,
+    hasFinishedMyQuestions,
+    setHasFinishedMyQuestions,
+    isFinishingRef,
+    isVerifyingRef,
+    hasTransitionedRef,
+  } = gameState;
+
   const [toastNotifications, setToastNotifications] = useState<Array<{
     id: string;
     title: string;
     message: string;
     icon?: string;
   }>>([]);
-  const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
-  const [hasFinishedMyQuestions, setHasFinishedMyQuestions] = useState(false);
-  const isFinishingRef = useRef(false); // CRITICAL FIX: Prevent duplicate finishDuel calls
   const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
-  const isVerifyingRef = useRef(false);
-  const hasTransitionedRef = useRef(false);
   const [myName, setMyName] = useState<string>('Ты');
   const [opponentName, setOpponentName] = useState<string>('Соперник');
   const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
@@ -1036,84 +1057,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setTranslationLanguage(null);
   }, [currentIndex]);
 
-  const handleBoostUse = async (boostType: string, language?: 'ru' | 'en') => {
-    // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
-    // Это гарантирует, что звуки будут работать в Telegram WebApp
-    if (!sounds.isUnlocked()) {
-      console.log('[DuelBattleFullscreen] 🔓 Разблокировка AudioContext при использовании буста');
-      sounds.forceUnlock();
-    }
-
-    if (usedBoosts.includes(boostType) || isAnswered) return;
-
-    const boost = boosts.find(b => b.boost_type === boostType);
-    if (!boost || boost.quantity <= 0) return;
-
-    setUsedBoosts(prev => [...prev, boostType]);
-
-    try {
-      if (boostType === 'fifty_fifty') {
-        sounds.boostFiftyFifty();
-        const question = questions[currentIndex];
-        const incorrectOptions = (question.question_snapshot.answer_options || [])
-          .filter((opt: any) => !question.correct_option_ids.includes(opt.id))
-          .map((opt: any) => opt.id);
-
-        const toEliminate = incorrectOptions.slice(0, 2);
-        setEliminatedOptions(toEliminate);
-      } else if (boostType === 'time_extend') {
-        sounds.boostTimeExtend();
-        // CRITICAL: Add +30s as specified in requirements, not +15s
-        setTimeLeft(prev => Math.min(prev + 30000, 60000));
-      } else if (boostType === 'hint') {
-        sounds.boostHint();
-        toast.info('💡 Подсказка: обратите внимание на детали!');
-      } else if (boostType === 'skip') {
-        sounds.boostSkip();
-        setIsAnswered(true);
-        setTimeout(() => {
-          if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-            setIsAnswered(false);
-            setSelectedAnswer(null);
-            setTimeLeft(60000);
-            setUsedBoosts([]);
-            setEliminatedOptions([]);
-            setTranslationLanguage(null); // Сбрасываем перевод при переходе к следующему вопросу
-          } else {
-            finishDuel();
-          }
-        }, 500);
-      } else if (boostType === 'translate' && language) {
-        sounds.boostHint(); // Используем звук подсказки для перевода
-        setTranslationLanguage(language);
-        const langName = language === 'ru' ? 'русский' : 'английский';
-        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 2000 });
-      }
-
-      // Проверяем, что вопросы загружены и текущий вопрос существует
-      if (!questions || questions.length === 0 || !questions[currentIndex]) {
-        console.error('[DuelBattleFullscreen] Cannot use boost: questions not loaded or invalid currentIndex');
-        toast.error('Вопросы не загружены');
-        return;
-      }
-
-      await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'use_boost',
-          duel_id: duelId,
-          profile_id: profileId,
-          duel_question_id: questions[currentIndex].id,
-          boost_type: boostType,
-          language: language, // Для translate бустера
-        },
-      });
-
-      await syncBoostInventory();
-    } catch (error) {
-      console.error('Error using boost:', error);
-    }
-  };
+  // ОПТИМИЗАЦИЯ: Мемоизируем функцию для сброса usedBoosts
+  const setUsedBoostsReset = useCallback(() => {
+    setUsedBoosts([]);
+  }, [setUsedBoosts]);
 
   const handleAnswer = async (optionId: string) => {
     // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом клике в игре
@@ -1543,6 +1490,101 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       // setHasFinishedMyQuestions(false); // ← REMOVED
     }
   };
+
+  // ОПТИМИЗАЦИЯ: Мемоизируем handleBoostUse с useCallback
+  const handleBoostUse = useCallback(async (boostType: string, language?: 'ru' | 'en') => {
+    // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
+    if (!sounds.isUnlocked()) {
+      sounds.forceUnlock();
+    }
+
+    if (usedBoosts.includes(boostType) || isAnswered) return;
+
+    const boost = boosts.find(b => b.boost_type === boostType);
+    if (!boost || boost.quantity <= 0) return;
+
+    setUsedBoosts(prev => [...prev, boostType]);
+
+    try {
+      if (boostType === 'fifty_fifty') {
+        sounds.boostFiftyFifty();
+        const question = questions[currentIndex];
+        const incorrectOptions = (question.question_snapshot.answer_options || [])
+          .filter((opt: any) => !question.correct_option_ids.includes(opt.id))
+          .map((opt: any) => opt.id);
+
+        const toEliminate = incorrectOptions.slice(0, 2);
+        setEliminatedOptions(toEliminate);
+      } else if (boostType === 'time_extend') {
+        sounds.boostTimeExtend();
+        setTimeLeft(prev => Math.min(prev + 30000, 60000));
+      } else if (boostType === 'hint') {
+        sounds.boostHint();
+        toast.info('💡 Подсказка: обратите внимание на детали!');
+      } else if (boostType === 'skip') {
+        sounds.boostSkip();
+        setIsAnswered(true);
+        setTimeout(() => {
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+            setIsAnswered(false);
+            setSelectedAnswer(null);
+            setTimeLeft(60000);
+            setUsedBoostsReset();
+            setEliminatedOptions([]);
+            setTranslationLanguage(null);
+          } else {
+            finishDuel();
+          }
+        }, 500);
+      } else if (boostType === 'translate' && language) {
+        sounds.boostHint();
+        setTranslationLanguage(language);
+        const langName = language === 'ru' ? 'русский' : 'английский';
+        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 2000 });
+      }
+
+      if (!questions || questions.length === 0 || !questions[currentIndex]) {
+        toast.error('Вопросы не загружены');
+        return;
+      }
+
+      await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'use_boost',
+          duel_id: duelId,
+          profile_id: profileId,
+          duel_question_id: questions[currentIndex].id,
+          boost_type: boostType,
+          language: language,
+        },
+      });
+
+      await syncBoostInventory();
+    } catch (error) {
+      logError('Error using boost:', error);
+      setUsedBoosts(prev => prev.filter(b => b !== boostType));
+      toast.error('Не удалось использовать буст');
+    }
+  }, [
+    usedBoosts,
+    isAnswered,
+    boosts,
+    questions,
+    currentIndex,
+    duelId,
+    profileId,
+    setUsedBoosts,
+    setEliminatedOptions,
+    setTimeLeft,
+    setTranslationLanguage,
+    setIsAnswered,
+    setCurrentIndex,
+    setSelectedAnswer,
+    setUsedBoostsReset,
+    syncBoostInventory,
+    finishDuel,
+  ]);
 
   // ============================================================================
   // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY

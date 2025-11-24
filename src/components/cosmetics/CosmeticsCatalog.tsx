@@ -17,13 +17,15 @@ import {
   Target,
   Calendar,
   Flame,
-  Eye
+  Eye,
+  CheckCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { usePremium } from "@/hooks/usePremium";
 import { useCosmeticsPreview, type PreviewSkin, type PreviewBadge, type PreviewSticker } from "@/contexts/CosmeticsPreviewContext";
+import { toast } from "sonner";
 
 interface SkinDefinition {
   id: string;
@@ -124,6 +126,8 @@ export function CosmeticsCatalog() {
   const [ownedSkins, setOwnedSkins] = useState<Set<string>>(new Set());
   const [ownedBadges, setOwnedBadges] = useState<Set<string>>(new Set());
   const [ownedStickers, setOwnedStickers] = useState<Set<string>>(new Set());
+  const [activeSkinId, setActiveSkinId] = useState<string | null>(null);
+  const [activeBadgeIds, setActiveBadgeIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadCatalog();
@@ -176,24 +180,32 @@ export function CosmeticsCatalog() {
     if (!profileId) return;
 
     try {
-      // Загружаем владеемые скины
+      // Загружаем владеемые скины и активный скин
       const { data: userSkins } = await supabase
         .from("user_skins")
-        .select("skin_id")
+        .select("skin_id, is_active")
         .eq("user_id", profileId);
 
       if (userSkins) {
         setOwnedSkins(new Set(userSkins.map((s) => s.skin_id)));
+        const activeSkin = userSkins.find((s) => s.is_active);
+        if (activeSkin) {
+          setActiveSkinId(activeSkin.skin_id);
+        }
       }
 
-      // Загружаем владеемые бейджи
+      // Загружаем владеемые бейджи и активные бейджи
       const { data: userBadges } = await supabase
         .from("user_badges")
-        .select("badge_id")
+        .select("badge_id, is_displayed")
         .eq("user_id", profileId);
 
       if (userBadges) {
         setOwnedBadges(new Set(userBadges.map((b) => b.badge_id)));
+        const displayedBadges = userBadges
+          .filter((b) => b.is_displayed)
+          .map((b) => b.badge_id);
+        setActiveBadgeIds(new Set(displayedBadges));
       }
 
       // Загружаем владеемые стикеры
@@ -207,6 +219,68 @@ export function CosmeticsCatalog() {
       }
     } catch (error) {
       console.error("Error loading owned items:", error);
+    }
+  };
+
+  const activateSkin = async (skinId: string) => {
+    if (!profileId) return;
+
+    try {
+      const { error } = await supabase.rpc("activate_skin", {
+        p_user_id: profileId,
+        p_skin_id: skinId,
+      });
+
+      if (error) throw error;
+
+      setActiveSkinId(skinId);
+      toast.success("Скин активирован!");
+      loadOwnedItems(); // Обновляем данные
+    } catch (error: any) {
+      console.error("Error activating skin:", error);
+      toast.error("Ошибка активации скина", {
+        description: error.message,
+      });
+    }
+  };
+
+  const toggleBadgeDisplay = async (badgeId: string, currentDisplay: boolean) => {
+    if (!profileId) return;
+
+    try {
+      const { data, error } = await supabase.rpc("toggle_badge_display", {
+        p_user_id: profileId,
+        p_badge_id: badgeId,
+        p_display: !currentDisplay,
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; message?: string };
+
+      if (!result.success) {
+        toast.error(result.message || "Ошибка");
+        return;
+      }
+
+      // Обновляем локальное состояние
+      setActiveBadgeIds((prev) => {
+        const newSet = new Set(prev);
+        if (!currentDisplay) {
+          newSet.add(badgeId);
+        } else {
+          newSet.delete(badgeId);
+        }
+        return newSet;
+      });
+
+      toast.success(currentDisplay ? "Бейдж скрыт" : "Бейдж отображается в профиле");
+      loadOwnedItems(); // Обновляем данные
+    } catch (error: any) {
+      console.error("Error toggling badge:", error);
+      toast.error("Ошибка", {
+        description: error.message,
+      });
     }
   };
 
@@ -436,7 +510,7 @@ export function CosmeticsCatalog() {
                         </div>
 
                         <div className="flex gap-2 mt-2">
-                          {!isOwned && (
+                          {!isOwned ? (
                             <Button
                               size="sm"
                               variant="outline"
@@ -453,22 +527,49 @@ export function CosmeticsCatalog() {
                               <Lock className="w-3 h-3 mr-2" />
                               Как получить?
                             </Button>
+                          ) : (
+                            <>
+                              {activeSkinId === skin.id ? (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                  disabled
+                                >
+                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  Активен
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="flex-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    activateSkin(skin.id);
+                                  }}
+                                >
+                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  Применить
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant={previewSkin?.id === skin.id ? "default" : "secondary"}
+                                className={cn(
+                                  "flex-1",
+                                  previewSkin?.id === skin.id && "bg-primary"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSkinPreview(skin);
+                                }}
+                              >
+                                <Eye className="w-3 h-3 mr-2" />
+                                {previewSkin?.id === skin.id ? "Выбрано" : "Примерить"}
+                              </Button>
+                            </>
                           )}
-                          <Button
-                            size="sm"
-                            variant={previewSkin?.id === skin.id ? "default" : "secondary"}
-                            className={cn(
-                              "flex-1",
-                              previewSkin?.id === skin.id && "bg-primary"
-                            )}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSkinPreview(skin);
-                            }}
-                          >
-                            <Eye className="w-3 h-3 mr-2" />
-                            {previewSkin?.id === skin.id ? "Выбрано" : "Примерить"}
-                          </Button>
                         </div>
                       </div>
                     </div>
@@ -643,7 +744,7 @@ export function CosmeticsCatalog() {
                         </div>
 
                         <div className="flex gap-2 mt-2">
-                          {!isOwned && (
+                          {!isOwned ? (
                             <Button
                               size="sm"
                               variant="outline"
@@ -662,22 +763,52 @@ export function CosmeticsCatalog() {
                               <Lock className="w-3 h-3 mr-2" />
                               Как получить?
                             </Button>
+                          ) : (
+                            <>
+                              {activeBadgeIds.has(badge.id) ? (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleBadgeDisplay(badge.id, true);
+                                  }}
+                                >
+                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  Отображается
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="flex-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleBadgeDisplay(badge.id, false);
+                                  }}
+                                >
+                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  Применить
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant={previewBadges.some((b) => b.id === badge.id) ? "default" : "secondary"}
+                                className={cn(
+                                  "flex-1",
+                                  previewBadges.some((b) => b.id === badge.id) && "bg-primary"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleBadgePreview(badge);
+                                }}
+                              >
+                                <Eye className="w-3 h-3 mr-2" />
+                                {previewBadges.some((b) => b.id === badge.id) ? "Убрать" : "Примерить"}
+                              </Button>
+                            </>
                           )}
-                          <Button
-                            size="sm"
-                            variant={previewBadges.some((b) => b.id === badge.id) ? "default" : "secondary"}
-                            className={cn(
-                              "flex-1",
-                              previewBadges.some((b) => b.id === badge.id) && "bg-primary"
-                            )}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleBadgePreview(badge);
-                            }}
-                          >
-                            <Eye className="w-3 h-3 mr-2" />
-                            {previewBadges.some((b) => b.id === badge.id) ? "Убрать" : "Примерить"}
-                          </Button>
                         </div>
                       </div>
                     </div>
