@@ -93,7 +93,16 @@ export function usePremium() {
         writeCachedPremium(profileId, resolvedState);
       }
     } catch (err) {
-      console.error("[usePremium] Failed to fetch status", err);
+      // Тихая обработка ошибок - используем кэш или дефолтные значения
+      // Не логируем в консоль, чтобы не засорять её в production
+      if (import.meta.env.DEV) {
+        console.warn("[usePremium] Failed to fetch status, using cache:", err);
+      }
+      // Пытаемся использовать кэш при ошибке
+      const cached = readCachedPremium(profileId);
+      if (cached) {
+        setState(cached);
+      }
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { UserProvider } from "./contexts/UserContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import App from "./App.tsx";
 import "./index.css";
+// Импортируем animations.css - Vite оптимизирует его автоматически
 import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
 

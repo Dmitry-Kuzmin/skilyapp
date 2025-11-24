@@ -152,133 +152,26 @@
     <link rel="preconnect" href="https://telegram.org" crossorigin />
     <link rel="dns-prefetch" href="https://telegram.org" />
     
-    <!-- Telegram WebApp Scripts -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://telegram.org/js/telegram-widget.js?22"></script>
+    <!-- Критический CSS inline для ускорения FCP -->
+    <style>
+      /* Критический CSS для первого рендера */
+      *{margin:0;padding:0;box-sizing:border-box}
+      html{overflow-x:hidden;width:100%}
+      body{min-height:100vh;margin:0;overflow-x:hidden;width:100%;max-width:100vw;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+      #root{min-height:100vh}
+      /* Loading state */
+      #root:empty::before{content:"";display:block;width:100%;height:100vh;background:#fff}
+    </style>
     
-    <!-- Development: Telegram WebApp Mock -->
-    <script>
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        // Инициализируем мок только на localhost
-        // Этот мок будет использоваться, если реальный Telegram WebApp не загружен
-        window.addEventListener('DOMContentLoaded', () => {
-          // Ждем немного, чтобы реальный Telegram скрипт успел загрузиться
-          setTimeout(() => {
-            if (!window.Telegram?.WebApp) {
-              console.log('[Mock] Real Telegram WebApp not found, initializing mock...');
-              window.Telegram = {
-                WebApp: {
-                  ready: () => {
-                    console.log('[Mock] Telegram WebApp ready');
-                  },
-                  expand: () => {
-                    console.log('[Mock] Telegram WebApp expanded');
-                  },
-                  close: () => {
-                    console.log('[Mock] Telegram WebApp close');
-                    if (confirm('Закрыть приложение?')) {
-                      window.close();
-                    }
-                  },
-                  initData: 'mock_init_data',
-                  initDataUnsafe: {
-                    user: {
-                      id: 123456789,
-                      first_name: 'Тестовый',
-                      last_name: 'Пользователь',
-                      username: 'test_user',
-                      language_code: 'ru',
-                      photo_url: 'https://via.placeholder.com/150'
-                    }
-                  },
-                  BackButton: {
-                    show: () => {
-                      console.log('[Mock] BackButton show');
-                      window.mockBackButtonVisible = true;
-                    },
-                    hide: () => {
-                      console.log('[Mock] BackButton hide');
-                      window.mockBackButtonVisible = false;
-                    },
-                    onClick: (callback) => {
-                      console.log('[Mock] BackButton onClick registered');
-                      window.mockBackButtonCallback = callback;
-                    },
-                    offClick: (callback) => {
-                      console.log('[Mock] BackButton offClick registered');
-                      window.mockBackButtonCallback = null;
-                    }
-                  },
-                  MainButton: {
-                    setText: (text) => {
-                      console.log('[Mock] MainButton setText:', text);
-                      window.mockMainButtonText = text;
-                    },
-                    show: () => {
-                      console.log('[Mock] MainButton show');
-                      window.mockMainButtonVisible = true;
-                    },
-                    hide: () => {
-                      console.log('[Mock] MainButton hide');
-                      window.mockMainButtonVisible = false;
-                    },
-                    onClick: (callback) => {
-                      console.log('[Mock] MainButton onClick registered');
-                      window.mockMainButtonCallback = callback;
-                    },
-                    offClick: (callback) => {
-                      console.log('[Mock] MainButton offClick registered');
-                      window.mockMainButtonCallback = null;
-                    },
-                    enable: () => {
-                      console.log('[Mock] MainButton enable');
-                      window.mockMainButtonEnabled = true;
-                    },
-                    disable: () => {
-                      console.log('[Mock] MainButton disable');
-                      window.mockMainButtonEnabled = false;
-                    }
-                  },
-                  HapticFeedback: {
-                    impactOccurred: (style) => {
-                      console.log('[Mock] HapticFeedback impactOccurred:', style);
-                    },
-                    notificationOccurred: (type) => {
-                      console.log('[Mock] HapticFeedback notificationOccurred:', type);
-                    },
-                    selectionChanged: () => {
-                      console.log('[Mock] HapticFeedback selectionChanged');
-                    }
-                  },
-                  isVersionAtLeast: (version) => {
-                    console.log('[Mock] isVersionAtLeast:', version);
-                    return true;
-                  },
-                  openTelegramLink: (url) => {
-                    console.log('[Mock] Open Telegram link:', url);
-                    window.open(url, '_blank');
-                  },
-                  version: '6.0',
-                  platform: 'web',
-                  colorScheme: 'light',
-                  themeParams: {
-                    bg_color: '#ffffff',
-                    text_color: '#000000',
-                    hint_color: '#999999',
-                    link_color: '#2481cc',
-                    button_color: '#2481cc',
-                    button_text_color: '#ffffff'
-                  }
-                }
-              };
-              console.log('[Mock] Telegram WebApp Mock initialized for localhost');
-            } else {
-              console.log('[Mock] Real Telegram WebApp detected, mock not needed');
-            }
-          }, 100);
-        });
-      }
-    </script>
+    <!-- Preload критических ресурсов -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+    
+    <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+    <script src="https://telegram.org/js/telegram-widget.js?22" defer></script>
+    
+    <!-- Development: Telegram WebApp Mock - загружаем асинхронно только на localhost -->
+    <script src="/telegram-mock.js" defer></script>
   </head>
 
   <body>
