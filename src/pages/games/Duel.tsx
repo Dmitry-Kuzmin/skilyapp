@@ -928,41 +928,41 @@ export default function Duel() {
                                         </div>
 
                                         {/* User stats */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                                        <div className="grid grid-cols-3 gap-2 md:gap-4">
                                             {/* Total Duels */}
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                                className="p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
                                             >
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Swords className="w-5 h-5 text-white/70" />
-                                                    <span className="text-sm text-white/70 font-medium">Всего дуэлей</span>
+                                                <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
+                                                    <Swords className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
+                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Всего дуэлей</span>
                                                 </div>
-                                                <div className="text-3xl md:text-4xl font-black text-white">0</div>
+                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">0</div>
                                             </motion.div>
 
                                             {/* Wins */}
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                                className="p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
                                             >
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Trophy className="w-5 h-5 text-yellow-300" />
-                                                    <span className="text-sm text-white/70 font-medium">Побед</span>
+                                                <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
+                                                    <Trophy className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
+                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Побед</span>
                                                 </div>
-                                                <div className="text-3xl md:text-4xl font-black text-white">0</div>
+                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">0</div>
                                             </motion.div>
 
                                             {/* Coins Balance */}
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
-                                                className="p-4 md:p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
+                                                className="p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
                                             >
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Coins className="w-5 h-5 text-amber-300" />
-                                                    <span className="text-sm text-white/70 font-medium">Монет</span>
+                                                <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
+                                                    <Coins className="w-4 h-4 md:w-5 md:h-5 text-amber-300" />
+                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Монет</span>
                                                 </div>
-                                                <div className="text-3xl md:text-4xl font-black text-white">{userCoins}</div>
+                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">{userCoins}</div>
                                             </motion.div>
                                         </div>
                                     </div>
