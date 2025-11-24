@@ -293,17 +293,19 @@ export function UnifiedModal({
         className={cn("max-w-4xl max-h-[90vh] p-0 flex flex-col", className)}
         autoAccessibility={false}
       >
-        <DialogHeader className={showTitleBar ? undefined : "sr-only"}>
-          <DialogTitle className={title ? undefined : "sr-only"}>
-            {title || "Модальное окно"}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            Содержимое модального окна
-          </DialogDescription>
-        </DialogHeader>
+        {showTitleBar && title && (
+          <DialogHeader className="px-4 md:px-6 pt-4 md:pt-5 pb-3 border-b border-border/50">
+            <DialogTitle>
+              {title}
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              Содержимое модального окна
+            </DialogDescription>
+          </DialogHeader>
+        )}
         <div
           className={cn(
-            "overflow-y-auto max-h-[calc(90vh-60px)] px-6 py-4 scrollbar-none",
+            "overflow-y-auto px-4 md:px-6 py-4 scrollbar-none flex-1 min-h-0",
             contentClassName
           )}
         >

@@ -82,8 +82,8 @@ export const CockpitSettingsPanel: React.FC = () => {
       <div className={`absolute inset-0 ${noiseOpacity}`} style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
       <div className={`absolute inset-0 bg-gradient-to-br ${isDarkTheme ? 'from-emerald-500/10 via-transparent to-blue-500/10' : 'from-emerald-500/5 via-transparent to-blue-500/5'} pointer-events-none`} />
 
-      <div className="relative z-10 p-4 md:p-6 h-full flex flex-col max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
+      <div className="relative z-10 p-4 md:p-5 w-full flex flex-col">
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <div>
             <p className={`text-[9px] uppercase tracking-[0.3em] ${textSecondaryClass}`}>Cockpit</p>
             <h3 className={`text-lg md:text-xl font-semibold ${textPrimaryClass} mt-0.5`}>Настройки пилота</h3>
@@ -94,7 +94,7 @@ export const CockpitSettingsPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid gap-3 flex-1 overflow-y-auto">
+        <div className="grid gap-3 overflow-y-auto">
         <Section title="Язык" icon={<Languages className={`w-3.5 h-3.5 ${isDarkTheme ? 'text-cyan-300' : 'text-cyan-600'}`} />} description="Интерфейс и обучение" isDarkTheme={isDarkTheme}>
           <div className="flex flex-wrap gap-1.5">
             {controls.languages.map((lang) => (

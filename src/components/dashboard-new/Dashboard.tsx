@@ -365,7 +365,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
         title="Панель пилота"
         open={cockpitOpen}
         onOpenChange={setCockpitOpen}
-        fullscreen={true}
+        className="max-w-3xl max-h-[85vh]"
+        contentClassName="max-h-[calc(85vh-80px)]"
       >
         <CockpitSettingsPanel />
       </UnifiedModal>
