@@ -31,7 +31,7 @@ class SoundManager {
 
   // Check if audio context is unlocked
   isUnlocked(): boolean {
-    return this.unlocked || (this.audioContext?.state === 'running' ?? false);
+    return this.unlocked || (this.audioContext?.state === 'running' || false);
   }
 
   // Force unlock audio context (for Telegram WebApp)

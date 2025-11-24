@@ -1,12 +1,19 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
 import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Car, Zap, FileText, Coins, Gauge } from 'lucide-react';
-import { DailyRewards } from './DailyRewards';
-import { SkilyChat } from './SkilyChat';
-import { ExamReadiness } from './ExamReadiness';
-import { PremiumCard } from './PremiumCard';
-import { DuelPassInfo } from './DuelPassInfo';
-import { CockpitSettingsPanel } from './CockpitSettingsPanel';
 import { UnifiedModal } from '@/components/ui/unified-modal';
+
+// Lazy load heavy dashboard components
+const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
+const SkilyChat = lazy(() => import('./SkilyChat').then(m => ({ default: m.SkilyChat })));
+const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
+const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
+const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
+const CockpitSettingsPanel = lazy(() => import('./CockpitSettingsPanel').then(m => ({ default: m.CockpitSettingsPanel })));
+
+// Fallback component for lazy loading
+const ComponentSkeleton = () => (
+  <div className="h-32 bg-slate-800/50 rounded-2xl animate-pulse" />
+);
 
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -316,16 +323,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           {/* 2. DAILY REWARDS (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
-            <DailyRewards 
-              currentStreak={stats.currentStreak} 
-              hasClaimedToday={hasClaimedToday} 
-              onClaim={onClaimReward} 
-            />
+            <Suspense fallback={<ComponentSkeleton />}>
+              <DailyRewards 
+                currentStreak={stats.currentStreak} 
+                hasClaimedToday={hasClaimedToday} 
+                onClaim={onClaimReward} 
+              />
+            </Suspense>
           </div>
 
           {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
-             <SkilyChat />
+            <Suspense fallback={<ComponentSkeleton />}>
+              <SkilyChat />
+            </Suspense>
           </div>
 
           {/* 4. EXAM READINESS (Col: 1, Row: 1) - расширяется до 2 колонок */}
@@ -333,27 +344,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
               ? 'md:col-span-2 lg:col-span-2 lg:row-span-2' 
               : 'md:col-span-1 lg:col-span-1'
           }`}>
-             <ExamReadiness 
-               averageScore={stats.averageScore}
-               testsCompleted={stats.testsCompleted}
-               status={readinessStatus?.status}
-               statusText={readinessStatus?.statusText}
-               shortText={readinessStatus?.shortText}
-               description={readinessStatus?.description}
-               profileId={profileId}
-               onStartTest={onStartQuiz}
-               onExpandedChange={handleExamReadinessExpanded}
-             />
+            <Suspense fallback={<ComponentSkeleton />}>
+              <ExamReadiness 
+                averageScore={stats.averageScore}
+                testsCompleted={stats.testsCompleted}
+                status={readinessStatus?.status}
+                statusText={readinessStatus?.statusText}
+                shortText={readinessStatus?.shortText}
+                description={readinessStatus?.description}
+                profileId={profileId}
+                onStartTest={onStartQuiz}
+                onExpandedChange={handleExamReadinessExpanded}
+              />
+            </Suspense>
           </div>
 
           {/* 5. PREMIUM CARD */}
           <div className="md:col-span-1 lg:col-span-1 transition-all duration-500 ease-in-out">
-             <PremiumCard onGetPremium={onGetPremium} />
+            <Suspense fallback={<ComponentSkeleton />}>
+              <PremiumCard onGetPremium={onGetPremium} />
+            </Suspense>
           </div>
 
           {/* 6. DUEL PASS INFO */}
           <div className="md:col-span-2 lg:col-span-2">
-            <DuelPassInfo />
+            <Suspense fallback={<ComponentSkeleton />}>
+              <DuelPassInfo />
+            </Suspense>
           </div>
 
         </div>
@@ -368,7 +385,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
         className="max-w-3xl max-h-[85vh]"
         contentClassName="max-h-[calc(85vh-80px)]"
       >
-        <CockpitSettingsPanel />
+        <Suspense fallback={<ComponentSkeleton />}>
+          <CockpitSettingsPanel />
+        </Suspense>
       </UnifiedModal>
     </div>
   );

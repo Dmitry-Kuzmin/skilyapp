@@ -1,16 +1,21 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
-import { ReferralWelcome } from "@/components/ReferralWelcome";
+
+// Lazy load UI components - только тяжелые компоненты
+// Легкие компоненты (Toaster, Sonner, TooltipProvider) оставляем синхронными для мгновенного отображения
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { PageLoader } from "@/components/PageLoader";
-import { DeepLinkHandler } from "@/components/DeepLinkHandler";
-import { CosmeticsPreviewProvider } from "@/contexts/CosmeticsPreviewContext";
-import { HallOfFameModal } from "@/components/HallOfFameModal";
-import { DuelPassLeaderboardModal } from "@/components/leaderboard/DuelPassLeaderboardModal";
+
+// Lazy load только тяжелые компоненты
+const ReferralWelcome = lazy(() => import("@/components/ReferralWelcome").then(m => ({ default: m.ReferralWelcome })));
+const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
+const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
+const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
+const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
 
 const Index = lazy(() => import("./pages/Index"));
 const LearningMap = lazy(() => import("./pages/LearningMap"));
@@ -72,9 +77,18 @@ const Inventory = lazy(() => import("./pages/Inventory"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Article = lazy(() => import("./pages/Article"));
 
-const queryClient = new QueryClient();
-
 const App = () => {
+  // Создаем QueryClient один раз с useMemo для оптимизации
+  const queryClient = useMemo(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000, // 1 минута
+        cacheTime: 5 * 60 * 1000, // 5 минут
+        refetchOnWindowFocus: false,
+        retry: 1,
+      },
+    },
+  }), []);
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
   
@@ -132,19 +146,24 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <CosmeticsPreviewProvider>
-          {/* Referral Welcome Screen */}
-          {showReferralWelcome && referralCode && (
-            <ReferralWelcome
-              referralCode={referralCode}
-              onAccept={handleAcceptReferral}
-              onDecline={handleDeclineReferral}
-            />
-          )}
-          
-          <BrowserRouter basename={basename}>
-            <DeepLinkHandler />
-            <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={null}>
+          <CosmeticsPreviewProvider>
+              {/* Referral Welcome Screen */}
+              {showReferralWelcome && referralCode && (
+                <Suspense fallback={null}>
+                  <ReferralWelcome
+                    referralCode={referralCode}
+                    onAccept={handleAcceptReferral}
+                    onDecline={handleDeclineReferral}
+                  />
+                </Suspense>
+              )}
+              
+              <BrowserRouter basename={basename}>
+                <Suspense fallback={null}>
+                  <DeepLinkHandler />
+                </Suspense>
+                <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Index />} />
@@ -198,12 +217,15 @@ const App = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-            </Suspense>
-            {/* Модалки, доступные на всех страницах */}
-            <HallOfFameModal />
-            <DuelPassLeaderboardModal />
-          </BrowserRouter>
-        </CosmeticsPreviewProvider>
+                </Suspense>
+                {/* Модалки, доступные на всех страницах */}
+                <Suspense fallback={null}>
+                  <HallOfFameModal />
+                  <DuelPassLeaderboardModal />
+                </Suspense>
+              </BrowserRouter>
+            </CosmeticsPreviewProvider>
+        </Suspense>
       </TooltipProvider>
     </QueryClientProvider>
   );
