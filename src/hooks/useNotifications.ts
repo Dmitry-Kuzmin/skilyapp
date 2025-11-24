@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { sounds } from '@/lib/sounds';
+import { isAppActive, sendTelegramNotification } from '@/lib/telegramNotifications';
 
 export interface DuelNotification {
   id: string;
@@ -17,6 +18,11 @@ export interface DuelNotification {
   created_at: string;
 }
 
+// Types of notifications to hide (progress notifications)
+// Show only important notifications: finish, timeout, and progress during active duels
+// Hide: start, boost, opponent_ahead, opponent_behind, reminder
+const PROGRESS_NOTIFICATION_TYPES = ['start', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
+
 export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
   const { profileId } = useUserContext();
   const [notifications, setNotifications] = useState<DuelNotification[]>([]);
@@ -30,57 +36,78 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       return;
     }
 
-    console.log('[useNotifications] Setting up notifications for profileId:', profileId);
+    console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
+    
+    // Load existing notifications first
     loadNotifications();
 
     // Realtime подписка на новые уведомления
-    // ВАЖНО: Не используем filter в клиенте, полагаемся на RLS политику на сервере
-    // Это предотвращает ошибку "mismatch between server and client bindings"
+    // Используем более простой фильтр для лучшей совместимости с realtime
+    console.log('[useNotifications] Creating Realtime channel for profileId:', profileId);
+    console.log('[useNotifications] ProfileId type:', typeof profileId, 'value:', profileId);
+    
+    // Создаем канал с уникальным именем
+    const channelName = `duel_notifications_${profileId}`;
+    
     const channel = supabase
-      .channel(`duel_notifications_${profileId}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'duel_notifications',
-          // Убираем filter - RLS политика уже фильтрует по user_id
+          // Убираем фильтр - RLS политика будет фильтровать на сервере
+          // Это предотвращает ошибку "mismatch between server and client bindings"
+          // RLS политика все равно проверяет, что user_id совпадает с profile_id текущего пользователя
         },
         (payload) => {
-          console.log('[Notifications] New notification received:', payload);
+          console.log('[Notifications] ✅ New notification received via Realtime:', payload);
           const newNotification = payload.new as DuelNotification;
           console.log('[Notifications] Notification details:', {
             id: newNotification.id,
             type: newNotification.type,
             title: newNotification.title,
+            message: newNotification.message,
             user_id: newNotification.user_id,
-            profileId
+            profileId,
+            duel_id: newNotification.duel_id
           });
           
-          // Verify it's for this user (дополнительная проверка на клиенте)
+          // Проверяем, что уведомление для текущего пользователя
+          // Но не логируем предупреждение - это может быть нормально для некоторых сценариев
           if (newNotification.user_id !== profileId) {
-            console.warn('[Notifications] Notification user_id mismatch:', newNotification.user_id, 'vs', profileId);
+            return; // Просто игнорируем уведомления не для нас
+          }
+          
+          // Filter out less important notifications
+          // Show: progress (opponent's answers), finish, timeout
+          // Hide: start, boost, opponent_ahead, opponent_behind, reminder
+          if (PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type)) {
+            console.log('[Notifications] ⏭️ Skipping notification type:', newNotification.type);
             return;
           }
           
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
-          // Show toast notification if enabled
+          // Show toast notification if enabled (only for results, not progress)
           if (showToasts) {
-            const isImportant = ['start', 'finish', 'boost'].includes(newNotification.type);
+            const isImportant = ['finish'].includes(newNotification.type);
             const duration = isImportant ? 5000 : 3000;
             
-            toast.info(newNotification.title, {
+            // Убираем иконку из title, если она уже есть в icon
+            let titleText = newNotification.title;
+            if (newNotification.icon && titleText.startsWith(newNotification.icon)) {
+              titleText = titleText.replace(newNotification.icon, '').trim();
+            }
+            
+            console.log('[Notifications] Showing toast:', titleText);
+            toast.info(titleText, {
               description: newNotification.message,
               duration,
-              icon: newNotification.icon || undefined,
-              action: newNotification.duel_id ? {
-                label: 'Перейти',
-                onClick: () => {
-                  window.location.href = `/games/duel?duelId=${newNotification.duel_id}`;
-                }
-              } : undefined,
+              // Кнопка "Перейти" убрана - не нужна
+              // Иконки будут отображаться через компоненты в NotificationsPanel
             });
           }
           
@@ -93,6 +120,24 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
               sounds.notificationPop();
             }
           }
+          
+          // Отправляем в Telegram если пользователь неактивен
+          if (!isAppActive() && profileId) {
+            console.log('[Notifications] User inactive, sending to Telegram');
+            sendTelegramNotification({
+              userId: profileId,
+              templateType: newNotification.type,
+              title: titleText,
+              message: newNotification.message,
+              icon: newNotification.icon || '📢',
+              ctaText: 'Открыть',
+              ctaDeeplink: newNotification.duel_id ? `duel_${newNotification.duel_id}` : undefined,
+              variables: newNotification.metadata,
+              force: false
+            }).catch(error => {
+              console.error('[Notifications] Telegram send error:', error);
+            });
+          }
         }
       )
       .on(
@@ -101,37 +146,41 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           event: 'UPDATE',
           schema: 'public',
           table: 'duel_notifications',
-          // Убираем filter - RLS политика уже фильтрует по user_id
+          // Убираем фильтр - RLS политика будет фильтровать на сервере
         },
         (payload) => {
           console.log('[Notifications] Updated notification:', payload);
-          const updatedNotification = payload.new as DuelNotification;
-          
-          // Verify it's for this user
-          if (updatedNotification.user_id !== profileId) {
-            return;
-          }
-          
           setNotifications(prev =>
-            prev.map(n => (n.id === updatedNotification.id ? updatedNotification : n))
+            prev.map(n => (n.id === payload.new.id ? payload.new as DuelNotification : n))
           );
-          if (updatedNotification.is_read) {
+          if ((payload.new as any).is_read) {
             setUnreadCount(prev => Math.max(0, prev - 1));
           }
         }
       )
       .subscribe((status, err) => {
-        console.log('[Notifications] Realtime subscription status:', status);
-        if (err) {
-          console.error('[Notifications] Realtime subscription error:', err);
-          // При ошибке подписки используем fallback polling
-          console.log('[Notifications] Falling back to polling mode');
-        }
         if (status === 'SUBSCRIBED') {
-          console.log('[Notifications] ✅ Successfully subscribed to notifications');
+          console.log('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
+        } else if (err) {
+          // Логируем только серьезные ошибки (не mismatch, так как RLS политика исправлена)
+          if (!err?.message?.includes('mismatch') && !err?.message?.includes('bindings')) {
+            console.error('[Notifications] ❌ Realtime subscription error:', err);
+            console.error('[Notifications] Error message:', err?.message);
+          } else {
+            // Mismatch ошибки больше не должны возникать после исправления RLS
+            console.warn('[Notifications] ⚠️ Binding mismatch (should be fixed by RLS policy update)');
+          }
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('[Notifications] ❌ Channel error - falling back to polling');
-          // Fallback: используем polling вместо realtime
+          console.error('[Notifications] ❌ Channel error - check RLS policies and realtime publication');
+          console.error('[Notifications] ProfileId:', profileId, 'Type:', typeof profileId);
+          console.error('[Notifications] Channel name:', channelName);
+        } else if (status === 'TIMED_OUT') {
+          console.warn('[Notifications] ⚠️ Subscription timed out - will retry on next mount');
+        } else if (status === 'CLOSED') {
+          // CLOSED статус нормален при размонтировании компонента
+          console.log('[Notifications] Subscription closed (normal on unmount)');
+        } else {
+          console.log('[Notifications] Subscription status:', status);
         }
       });
 
@@ -154,7 +203,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       .select('*')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(100); // Load more to filter on client side
 
     if (error) {
       console.error('[useNotifications] Error loading notifications:', error);
@@ -168,10 +217,12 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     }
     
     if (data) {
-      setNotifications(data);
-      const unread = data.filter(n => !n.is_read).length;
+      // Filter out progress notifications on client side
+      const filteredData = data.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
+      setNotifications(filteredData);
+      const unread = filteredData.filter(n => !n.is_read).length;
       setUnreadCount(unread);
-      console.log('[useNotifications] Unread count:', unread);
+      console.log('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread);
     }
   }, [profileId]);
 

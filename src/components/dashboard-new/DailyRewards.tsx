@@ -21,10 +21,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
   const flameAnchorRef = useRef<HTMLDivElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
-
-  // DEV: Force active state for testing
-  const [forceActive, setForceActive] = useState(false);
-  const effectiveHasClaimed = forceActive ? false : hasClaimedToday;
+  const effectiveHasClaimed = hasClaimedToday;
 
   const { settings: cockpitSettings } = useCockpitSettings();
   const celebrationMode = cockpitSettings.animationMode;
@@ -89,7 +86,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   }, []);
 
   const handleClaim = async () => {
-    if ((effectiveHasClaimed && !forceActive) || isClaiming) return;
+    if (effectiveHasClaimed || isClaiming) return;
 
     playClickSound();
     setIsClaiming(true);
@@ -117,65 +114,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
 
     try {
-      if (!forceActive) {
-        await onClaim();
-      } else {
-        // Fake delay for testing
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setForceActive(false); // Return to real state (claimed) -> triggers animation
-      }
+      await onClaim();
       playSuccessSound(); // Success sound
     } finally {
       setTimeout(() => setIsClaiming(false), 1000);
-    }
-  };
-
-  // Функция для тестирования анимаций (только в dev режиме)
-  const handleTestAnimations = () => {
-    if (process.env.NODE_ENV === 'development' && canPlayCelebration) {
-      setShowCelebration(true);
-      setTimeout(() => {
-        setShowCelebration(false);
-      }, celebrationDuration);
-    }
-  };
-
-  // Функция для смены типа анимации (только в dev режиме)
-  const handleChangeAnimation = () => {
-    if (process.env.NODE_ENV === 'development') {
-      const types: CelebrationType[] = [
-        'confetti', 'fireworks', 'stars', 'burst', 'sparkles', 'trophy',
-        'gradient', 'particles', 'mega-burst', 'galaxy', 'rainbow',
-        'champion', 'victory-fanfare', 'explosion', 'cosmic',
-        'golden-rain', 'diamond-shower', 'phoenix', 'supernova'
-      ];
-      const currentIndex = types.indexOf(celebrationType);
-      const nextIndex = (currentIndex + 1) % types.length;
-      const newType = types[nextIndex];
-      setCelebrationType(newType);
-      if (canPlayCelebration) {
-        setShowCelebration(true);
-      }
-      const animationDuration = newType === 'supernova' ? 10000 :
-        newType === 'confetti' ? 3000 :
-          newType === 'phoenix' ? celebrationDuration : 7000;
-      if (canPlayCelebration) {
-        setTimeout(() => setShowCelebration(false), animationDuration);
-      }
-    }
-  };
-
-  // Функция для смены типа звука (только в dev режиме)
-  const handleChangeSound = () => {
-    if (process.env.NODE_ENV === 'development' && canPlayCelebration) {
-      const sounds: Array<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'> = [
-        'default', 'fanfare', 'bells', 'synth', 'orchestral', 'pop'
-      ];
-      const currentIndex = sounds.indexOf(celebrationSoundType);
-      const nextIndex = (currentIndex + 1) % sounds.length;
-      setCelebrationSoundType(sounds[nextIndex]);
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), celebrationDuration);
     }
   };
 
@@ -360,7 +302,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       <motion.button
         layout
         onClick={handleClaim}
-        disabled={(effectiveHasClaimed && !forceActive) || isClaiming}
+        disabled={effectiveHasClaimed || isClaiming}
         animate={isDay7 && !effectiveHasClaimed ? {
           boxShadow: [
             '0 0 20px rgba(255,255,255,0.1)',
@@ -401,39 +343,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         </AnimatePresence>
       </motion.button>
 
-      {/* Кнопки тестирования анимаций (только в dev режиме) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute bottom-2 right-2 z-20 flex flex-col gap-1">
-          <button
-            onClick={() => setForceActive(!forceActive)}
-            className={`px-2 py-1 text-[10px] rounded border transition-colors ${forceActive ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-slate-700/50 text-slate-400 border-slate-600'}`}
-            title="Сбросить состояние для теста"
-          >
-            {forceActive ? '🔒 Сброс' : '🔓 Тест'}
-          </button>
-          <button
-            onClick={handleTestAnimations}
-            className="px-2 py-1 text-[10px] bg-blue-500/20 text-blue-300 rounded border border-blue-500/30 hover:bg-blue-500/30 transition-colors"
-            title="Тест текущей анимации"
-          >
-            🧪 Аним
-          </button>
-          <button
-            onClick={handleChangeAnimation}
-            className="px-2 py-1 text-[10px] bg-purple-500/20 text-purple-300 rounded border border-purple-500/30 hover:bg-purple-500/30 transition-colors"
-            title={`Сменить анимацию (текущая: ${celebrationType})`}
-          >
-            🎨 {celebrationType}
-          </button>
-          <button
-            onClick={handleChangeSound}
-            className="px-2 py-1 text-[10px] bg-green-500/20 text-green-300 rounded border border-green-500/30 hover:bg-green-500/30 transition-colors"
-            title={`Сменить звук (текущий: ${celebrationSoundType})`}
-          >
-            🔊 {celebrationSoundType}
-          </button>
-        </div>
-      )}
+      {/* Продакшен: тестовые кнопки удалены */}
     </div>
   );
 });
