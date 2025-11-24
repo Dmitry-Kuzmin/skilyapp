@@ -18,8 +18,6 @@ import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { WelcomeOverlay } from "@/components/dashboard-new/WelcomeOverlay";
-import { Dashboard } from "@/components/dashboard-new/Dashboard";
-import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
 
@@ -271,8 +269,8 @@ const Index = () => {
         {showWelcome && isAuthenticated && (
           <WelcomeOverlay onComplete={handleWelcomeComplete} />
         )}
-        <div className={`min-h-screen ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
-          <DashboardSkeleton />
+        <div className={`min-h-screen ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700 flex items-center justify-center`}>
+          <div className="text-slate-400">Загрузка...</div>
         </div>
       </>
     );
@@ -329,28 +327,7 @@ const Index = () => {
       )}
       
       <div className={`min-h-screen ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
-        <Dashboard
-          stats={{
-            averageScore: averageScore || dashboardData.stats.accuracy,
-            currentStreak: dashboardData.daily_bonus.current_streak || 0,
-            testsCompleted: dashboardData.stats.tests_completed || 0,
-            accuracy: accuracy,
-            coins: balance || dashboardData.profile.coins || 0,
-            xp: dashboardData.profile.xp || 0,
-            level: Math.floor((dashboardData.profile.xp || 0) / 5000) + 1 || 1,
-          }}
-          onStartQuiz={handleStartTest}
-          onClaimReward={handleClaimBonus}
-          hasClaimedToday={hasClaimedToday}
-          onGetPremium={() => setPaywallOpen(true)}
-          profileId={profileId}
-          readinessStatus={readiness ? {
-            status: readiness.status,
-            statusText: readiness.statusText,
-            shortText: readiness.shortText,
-            description: readiness.description,
-          } : undefined}
-        />
+        {/* Dashboard removed */}
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       </div>
     </>
