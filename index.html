@@ -151,25 +151,40 @@
     <!-- Preload критических ресурсов для ускорения загрузки -->
     <link rel="preconnect" href="https://telegram.org" crossorigin />
     <link rel="dns-prefetch" href="https://telegram.org" />
+    <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
+    <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
     
     <!-- Критический CSS inline для ускорения FCP -->
     <style>
       /* Критический CSS для первого рендера */
       *{margin:0;padding:0;box-sizing:border-box}
       html{overflow-x:hidden;width:100%}
-      body{min-height:100vh;margin:0;overflow-x:hidden;width:100%;max-width:100vw;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-      #root{min-height:100vh}
+      body{min-height:100vh;margin:0;overflow-x:hidden;width:100%;max-width:100vw;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;background:#fff;color:#000}
+      #root{min-height:100vh;position:relative}
       /* Loading state */
-      #root:empty::before{content:"";display:block;width:100%;height:100vh;background:#fff}
+      #root:empty::before{content:"";display:block;width:100%;height:100vh;background:#fff;position:absolute;top:0;left:0;z-index:9999}
+      /* Оптимизация для быстрого рендеринга */
+      img{max-width:100%;height:auto;display:block}
+      [hidden]{display:none!important}
+      /* Предотвращение layout shift */
+      svg{display:block;max-width:100%}
     </style>
+    <!-- Polyfill для неблокирующей загрузки CSS в старых браузерах -->
+    <script>
+      /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+      (function(w){"use strict";if(!w.loadCSS){w.loadCSS=function(){}}
+      var loadCSS=function(href,before,media){var doc=w.document;var ss=doc.createElement("link");var ref;if(before){ref=before}else{var refs=(doc.body||doc.getElementsByTagName("head")[0]).childNodes;ref=refs[refs.length-1]}
+      var sheets=doc.styleSheets;ss.rel="stylesheet";ss.href=href;ss.media="only x";function ready(cb){if(doc.body){return cb()}
+      setTimeout(function(){ready(cb)})}
+      ready(function(){ref.parentNode.insertBefore(ss,before?ref:ref.nextSibling)});var onloadcssdefined=function(cb){var resolvedHref=ss.href;var i=sheets.length;while(i--){if(sheets[i].href===resolvedHref){return cb()}}
+      setTimeout(function(){onloadcssdefined(cb)})};function onload(){ss.onload=null;ss.media=media||"all"}
+      if(ss.addEventListener){ss.addEventListener("load",onload)}ss.onloadcssdefined=onloadcssdefined;onloadcssdefined(onload);return ss}
+      w.loadCSS=loadCSS})(typeof global!=="undefined"?global:this);
+    </script>
     
     <!-- Preload критических ресурсов для ускорения загрузки -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    
-    <!-- ОПТИМИЗАЦИЯ: Preconnect для Supabase для ускорения API запросов -->
-    <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
-    <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
     
     <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
     <script src="https://telegram.org/js/telegram-web-app.js" defer></script>

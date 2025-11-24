@@ -3,6 +3,69 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
+import type { Plugin } from "vite";
+
+// Плагин для оптимизации загрузки CSS (неблокирующая загрузка)
+function optimizeCssLoading(): Plugin {
+  return {
+    name: "optimize-css-loading",
+    transformIndexHtml: {
+      order: "post", // Выполняем после того, как Vite инжектирует CSS
+      handler(html, ctx) {
+        let result = html;
+        
+        // Заменяем обычные CSS ссылки на preload с неблокирующей загрузкой
+        result = result.replace(
+          /<link([^>]*rel="stylesheet"([^>]*href="([^"]+\.css)"[^>]*))>/g,
+          (match, attrs, _, href) => {
+            // Пропускаем если уже есть preload или другие специальные атрибуты
+            if (match.includes('rel="preload"') || match.includes('media=') || match.includes('data-vite')) {
+              // Для Vite CSS используем preload с onload
+              if (match.includes('data-vite')) {
+                return `
+<link rel="preload" href="${href}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript>${match}</noscript>
+                `.trim();
+              }
+              return match;
+            }
+            // Создаем неблокирующую загрузку CSS через preload + onload
+            // Извлекаем все атрибуты кроме rel для noscript
+            const noscriptAttrs = attrs.replace(/rel="[^"]*"/g, '').trim();
+            return `
+<link rel="preload" href="${href}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="${href}"${noscriptAttrs ? ' ' + noscriptAttrs : ''}></noscript>
+            `.trim();
+          }
+        );
+        
+        // Добавляем preload для критических JS chunks (react-vendor и index)
+        // Находим все modulepreload ссылки и добавляем fetchpriority для критических
+        result = result.replace(
+          /<link rel="modulepreload"([^>]*href="([^"]+react-vendor[^"]+)"[^>]*)>/g,
+          (match, attrs, href) => {
+            if (!match.includes('fetchpriority')) {
+              return match.replace('>', ' fetchpriority="high">');
+            }
+            return match;
+          }
+        );
+        
+        result = result.replace(
+          /<link rel="modulepreload"([^>]*href="([^"]+index[^"]+)"[^>]*)>/g,
+          (match, attrs, href) => {
+            if (!match.includes('fetchpriority') && !href.includes('vendor')) {
+              return match.replace('>', ' fetchpriority="high">');
+            }
+            return match;
+          }
+        );
+        
+        return result;
+      },
+    },
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -11,6 +74,7 @@ export default defineConfig(({ mode }) => {
   const plugins = [
     react(),
     mode === "development" && componentTagger(),
+    mode === "production" && optimizeCssLoading(), // Только в production
     shouldAnalyze &&
       visualizer({
         filename: "dist/stats.html",
@@ -52,6 +116,8 @@ export default defineConfig(({ mode }) => {
     cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
     cssMinify: true, // Минифицируем CSS
     sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
+    // ОПТИМИЗАЦИЯ: Улучшенное удаление неиспользуемого кода
+    cssTarget: 'chrome80', // Оптимизация для современных браузеров
     rollupOptions: {
       // КРИТИЧНО: Явно указываем entry point
       input: 'index.html',
