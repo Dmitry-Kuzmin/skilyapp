@@ -100,24 +100,43 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
 
   const loadResults = async () => {
     try {
+      // Загружаем данные дуэли
       const { data: duelData, error: duelError } = await supabase
         .from('duels')
-        .select(`
-          *,
-          player1:profiles!duels_player1_id_fkey(id, username, avatar_url),
-          player2:profiles!duels_player2_id_fkey(id, username, avatar_url)
-        `)
+        .select('*')
         .eq('id', duelId)
         .single();
 
       if (duelError) throw duelError;
 
-      const isPlayer1 = duelData.player1_id === profileId;
-      const myScore = isPlayer1 ? duelData.player1_score : duelData.player2_score;
-      const opponentScore = isPlayer1 ? duelData.player2_score : duelData.player1_score;
-      const myCorrect = isPlayer1 ? duelData.player1_correct : duelData.player2_correct;
-      const opponentCorrect = isPlayer1 ? duelData.player2_correct : duelData.player1_correct;
-      const opponent = isPlayer1 ? duelData.player2 : duelData.player1;
+      // Загружаем игроков из таблицы duel_players
+      const { data: playersData, error: playersError } = await supabase
+        .from('duel_players')
+        .select(`
+          *,
+          profiles(id, username, first_name, photo_url)
+        `)
+        .eq('duel_id', duelId);
+
+      if (playersError) throw playersError;
+
+      if (!playersData || playersData.length < 2) {
+        throw new Error('Не найдены оба игрока');
+      }
+
+      // Находим моего игрока и соперника
+      const myPlayer = playersData.find((p: any) => p.user_id === profileId);
+      const opponentPlayer = playersData.find((p: any) => p.user_id !== profileId);
+
+      if (!myPlayer || !opponentPlayer) {
+        throw new Error('Не найден игрок или соперник');
+      }
+
+      const myScore = myPlayer.score || 0;
+      const opponentScore = opponentPlayer.score || 0;
+      const myCorrect = myPlayer.correct_count || 0;
+      const opponentCorrect = opponentPlayer.correct_count || 0;
+      const opponent = opponentPlayer.profiles || {};
 
       const isWinner = myScore > opponentScore;
       const isDraw = myScore === opponentScore;
@@ -138,11 +157,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
       const bonusCoins = isWinner ? 10 : (isDraw ? 5 : 0);
       setRewards({ sp: 0, xp: 0, bonusCoins, insuranceRefund });
 
+      // Загружаем ответы игрока (используем player_id вместо user_id)
       const { data: answersData } = await supabase
         .from('duel_answers')
-        .select('*, questions(*)')
+        .select('*, duel_questions(*)')
         .eq('duel_id', duelId)
-        .eq('user_id', profileId)
+        .eq('player_id', myPlayer.id)
         .order('created_at');
 
       setMyAnswers(answersData || []);
@@ -154,17 +174,17 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
         opponentScore,
         myCorrect,
         opponentCorrect,
-        opponentName: opponent?.username || 'Соперник',
-        opponentAvatar: opponent?.avatar_url,
+        opponentName: opponent?.username || opponent?.first_name || 'Соперник',
+        opponentAvatar: opponent?.photo_url,
         betAmount: duelData.bet_amount || 0,
         winnings,
         insuranceRefund,
         insuranceUsed: duelData.insurance_used || false
       });
 
-      if (!notificationSentRef.current && opponent?.id) {
+      if (!notificationSentRef.current && opponentPlayer.user_id) {
         notificationSentRef.current = true;
-        dispatchUserEvent(opponent.id, 'duel_finished', {
+        dispatchUserEvent(opponentPlayer.user_id, 'duel_finished', {
           duel_id: duelId,
           opponent_score: myScore,
           is_opponent_winner: isWinner
@@ -178,7 +198,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   };
 
   const handleQuestionClick = (answer: any) => {
-    setSelectedQuestion(answer.questions);
+    setSelectedQuestion(answer.duel_questions);
     setShowAIWidget(true);
   };
 
@@ -453,7 +473,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
                               {idx + 1}
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm text-white/90 line-clamp-2">{answer.questions?.question_ru}</p>
+                              <p className="text-sm text-white/90 line-clamp-2">
+                                {answer.duel_questions?.question_snapshot?.question_ru || 
+                                 answer.duel_questions?.question_ru || 
+                                 'Вопрос'}
+                              </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
