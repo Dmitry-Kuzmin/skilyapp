@@ -48,11 +48,6 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
       {/* Background Ambiance */}
       <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a]"></div>
       
-      {/* Header Logo */}
-      <div className="absolute top-10 left-0 right-0 flex justify-center opacity-90 scale-90 md:scale-100">
-        <div className="text-2xl font-bold text-white">DGT Prep</div>
-      </div>
-
       {/* ==================================================================
           MODE 1: MECHANICAL (Start Engine) 
          ================================================================== */}

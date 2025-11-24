@@ -67,8 +67,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         {/* Header */}
         <div className="mb-6 animate-fade-in">
-          <div className="flex items-center justify-between mb-3">
-           <div className="text-2xl font-bold text-white">DGT Prep</div>
+          <div className="flex items-center justify-end gap-3 mb-3">
             {/* Quick Settings Button - только иконка */}
             <button
               onClick={() => {
