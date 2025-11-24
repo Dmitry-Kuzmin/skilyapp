@@ -37,15 +37,49 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
   modalType?: ModalType;
   // Автоматически добавлять скрытые элементы доступности, если они не предоставлены
   autoAccessibility?: boolean;
+  fullscreen?: boolean; // Полноэкранный режим
 }
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, hideCloseButton = false, modalType = 'default', autoAccessibility = true, ...props }, ref) => {
+>(({ className, children, hideCloseButton = false, modalType = 'default', autoAccessibility = true, fullscreen = false, ...props }, ref) => {
   const isMobile = useIsMobile();
   const config = getModalConfig(modalType);
   const sizeConfig = isMobile ? config.mobile : config.desktop;
+
+  // Полноэкранный режим
+  if (fullscreen) {
+    return (
+      <DialogPortal>
+        <DialogOverlay />
+        <DialogPrimitive.Content
+          ref={ref}
+          className={cn(
+            "fixed inset-0 z-[2147483646] w-full h-full max-w-none max-h-none p-0 flex flex-col rounded-none border-none bg-background",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            className,
+          )}
+          {...props}
+        >
+          {autoAccessibility && (
+            <>
+              <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+            </>
+          )}
+          {children}
+          {!hideCloseButton && (
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          )}
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    );
+  }
 
   // На мобильных используем bottom sheet стиль
   if (isMobile) {

@@ -262,10 +262,8 @@ export function UnifiedModal({
     return (
       <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
         <DialogContent 
-          className={cn(
-            "fixed inset-0 max-w-none max-h-none w-full h-full p-0 flex flex-col rounded-none border-none bg-background",
-            className
-          )}
+          fullscreen={true}
+          className={cn(className)}
           autoAccessibility={false}
         >
           <DialogHeader className={showTitleBar ? "px-6 pt-6 pb-4 border-b border-border/50" : "sr-only"}>
