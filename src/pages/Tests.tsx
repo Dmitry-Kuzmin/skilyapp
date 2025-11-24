@@ -123,7 +123,7 @@ const Tests = () => {
   };
 
   const handleTopicClick = (topicId: string) => {
-    navigate(`/tests/topic/${topicId}`);
+    navigate(`/topic/${topicId}`);
   };
 
   return (

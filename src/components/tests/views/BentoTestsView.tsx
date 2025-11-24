@@ -192,56 +192,69 @@ export const BentoTestsView = ({
                                             Случайный тест
                                         </h2>
                                         <p className={cn("text-xs md:text-sm leading-relaxed", isDark ? "text-white/70" : "text-gray-600")}>
-                                            Быстрая проверка знаний на случайных вопросах из всех тем
+                                            Выберите количество вопросов для быстрой проверки знаний
                                         </p>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <div className="flex gap-2">
-                                            {[10, 20, 30].map((count) => (
-                                                <motion.button
-                                                    key={count}
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setRandomQuestionCount(count);
-                                                    }}
-                                                    className={cn(
-                                                        "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
-                                                        randomQuestionCount === count
-                                                            ? (isDark 
-                                                                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
-                                                                : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
-                                                            : (isDark 
-                                                                ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
-                                                                : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
-                                                    )}
-                                                >
-                                                    {count}
-                                                </motion.button>
-                                            ))}
+                                        <div>
+                                            <p className={cn("text-xs mb-2 font-semibold", isDark ? "text-white/60" : "text-gray-500")}>
+                                                Количество вопросов:
+                                            </p>
+                                            <div className="flex gap-2">
+                                                {[10, 20, 30].map((count) => (
+                                                    <motion.button
+                                                        key={count}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setRandomQuestionCount(count);
+                                                        }}
+                                                        className={cn(
+                                                            "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
+                                                            randomQuestionCount === count
+                                                                ? (isDark 
+                                                                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
+                                                                    : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
+                                                                : (isDark 
+                                                                    ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
+                                                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
+                                                        )}
+                                                    >
+                                                        {count}
+                                                    </motion.button>
+                                                ))}
+                                            </div>
                                         </div>
                                         
-                                        {/* Start Button */}
-                                        <motion.button
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleStartTest(`/test/practice?count=${randomQuestionCount}`);
-                                            }}
-                                            className={cn(
-                                                "w-full flex items-center justify-center gap-2 px-4 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all shadow-lg",
-                                                isDark
-                                                    ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white hover:shadow-xl hover:shadow-indigo-500/50"
-                                                    : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:shadow-xl"
-                                            )}
-                                        >
-                                            <Play className="w-4 h-4 md:w-5 md:h-5 fill-white" />
-                                            <span>Начать тест</span>
-                                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-                                        </motion.button>
+                                        {/* Start Button - показываем только после выбора */}
+                                        {randomQuestionCount > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                            >
+                                                <motion.button
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleStartTest(`/test/practice?count=${randomQuestionCount}`);
+                                                    }}
+                                                    className={cn(
+                                                        "w-full flex items-center justify-center gap-2 px-4 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all shadow-lg",
+                                                        isDark
+                                                            ? "bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white hover:shadow-xl hover:shadow-indigo-500/50"
+                                                            : "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:shadow-xl"
+                                                    )}
+                                                >
+                                                    <Play className="w-4 h-4 md:w-5 md:h-5 fill-white" />
+                                                    <span>Начать тест</span>
+                                                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                                                </motion.button>
+                                            </motion.div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -472,12 +485,12 @@ export const BentoTestsView = ({
                                             <motion.div
                                                 whileHover={{ rotate: 12, scale: 1.1 }}
                                                 className={cn(
-                                                    "w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center font-black text-base md:text-lg transition-all shadow-lg",
+                                                    "w-11 h-11 md:w-14 md:h-14 rounded-2xl flex items-center justify-center font-black text-lg md:text-xl transition-all shadow-xl",
                                                     hoveredTopic === topic.id
-                                                        ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white scale-110"
+                                                        ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white scale-110 ring-2 ring-white/50"
                                                         : hasCoverImage
-                                                            ? "bg-white/20 backdrop-blur-md text-white border border-white/30"
-                                                            : (isDark ? "bg-white/10 text-white" : "bg-gray-100 text-gray-700")
+                                                            ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40 shadow-lg"
+                                                            : (isDark ? "bg-gradient-to-br from-slate-700 to-slate-800 text-white border border-slate-600" : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800 border border-gray-300")
                                                 )}
                                             >
                                                 {topic.number}
@@ -486,31 +499,34 @@ export const BentoTestsView = ({
                                                 <motion.div
                                                     animate={{ rotate: [0, 10, -10, 0] }}
                                                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                                    className="relative"
                                                 >
                                                     <Sparkles className={cn("w-5 h-5", "text-amber-400 drop-shadow-lg")} />
+                                                    <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
                                                 </motion.div>
                                             )}
                                         </div>
                                         
-                                        <div>
+                                        <div className="space-y-1">
                                             <div className={cn(
-                                                "font-black text-sm md:text-base line-clamp-2 leading-tight mb-1",
+                                                "font-black text-base md:text-lg line-clamp-2 leading-tight",
                                                 hasCoverImage
                                                     ? "text-white drop-shadow-lg"
                                                     : hoveredTopic === topic.id
                                                         ? (isDark ? "text-white" : "text-gray-900")
-                                                        : (isDark ? "text-white/90" : "text-gray-800")
+                                                        : (isDark ? "text-white" : "text-gray-900")
                                             )}>
                                                 {topic.name}
                                             </div>
                                             {topic.questions > 0 && (
                                                 <div className={cn(
-                                                    "text-xs font-semibold",
+                                                    "text-xs md:text-sm font-bold flex items-center gap-1.5",
                                                     hasCoverImage
-                                                        ? "text-white/80"
-                                                        : (isDark ? "text-white/60" : "text-gray-600")
+                                                        ? "text-white/90"
+                                                        : (isDark ? "text-white/70" : "text-gray-600")
                                                 )}>
-                                                    {topic.questions} вопросов
+                                                    <BookOpen className="w-3 h-3" />
+                                                    <span>{topic.questions} вопросов</span>
                                                 </div>
                                             )}
                                         </div>
