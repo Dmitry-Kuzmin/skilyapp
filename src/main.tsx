@@ -9,6 +9,10 @@ import "./index.css";
 // Импортируем animations.css - Vite оптимизирует его автоматически
 import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
+import { initRollbar, reportError, reportWarning } from "./lib/rollbar";
+
+// Инициализируем Rollbar в начале приложения
+initRollbar();
 
 // КРИТИЧНО: Логирование сразу после импортов для диагностики
 console.log('[Main] ✅ Script loaded and imports completed', {
@@ -59,21 +63,55 @@ reportWebVitals((metric) => {
 
 // КРИТИЧНО: Обработка глобальных ошибок для диагностики белого экрана
 window.addEventListener('error', (event) => {
-  console.error('[Global Error]', {
+  const errorData = {
     message: event.message,
     filename: event.filename,
     lineno: event.lineno,
     colno: event.colno,
     error: event.error,
     stack: event.error?.stack,
-  });
+    url: window.location.href,
+  };
+  
+  console.error('[Global Error]', errorData);
+  
+  // Отправляем в Rollbar, если это реальная ошибка
+  if (event.error) {
+    reportError(event.error, {
+      type: 'uncaught_error',
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    });
+  } else {
+    // Если нет объекта error, отправляем как строку
+    reportError(event.message, {
+      type: 'uncaught_error',
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    });
+  }
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('[Unhandled Promise Rejection]', {
+  const errorData = {
     reason: event.reason,
     promise: event.promise,
     stack: event.reason?.stack,
+    url: window.location.href,
+  };
+  
+  console.error('[Unhandled Promise Rejection]', errorData);
+  
+  // Отправляем в Rollbar
+  const error = event.reason instanceof Error 
+    ? event.reason 
+    : new Error(String(event.reason));
+    
+  reportError(error, {
+    type: 'unhandled_promise_rejection',
+    reason: String(event.reason),
   });
 });
 

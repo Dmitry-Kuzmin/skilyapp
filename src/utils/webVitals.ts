@@ -3,6 +3,9 @@
  * Отслеживает производительность приложения
  */
 
+import { useEffect } from 'react';
+import { getRollbar, reportWarning } from '@/lib/rollbar';
+
 export interface WebVitalsMetric {
   name: string;
   value: number;
@@ -33,6 +36,27 @@ const sendToAnalytics = (metric: WebVitalsMetric) => {
       rating: metric.rating,
       url: window.location.href,
     });
+    
+    // Отправляем плохие метрики в Rollbar как предупреждение
+    if (metric.rating === 'poor') {
+      const rollbar = getRollbar();
+      if (rollbar) {
+        rollbar.info(`Web Vitals ${metric.name} is poor`, {
+          metric: metric.name,
+          value: metric.value,
+          rating: metric.rating,
+          url: window.location.href,
+          navigationType: metric.navigationType,
+        }, { level: 'warning' });
+      } else {
+        reportWarning(`Web Vitals ${metric.name} is poor: ${metric.value}ms`, {
+          metric: metric.name,
+          value: metric.value,
+          rating: metric.rating,
+          url: window.location.href,
+        });
+      }
+    }
   }
 };
 

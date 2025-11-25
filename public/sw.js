@@ -186,41 +186,41 @@ self.addEventListener('fetch', (event) => {
         
         // Для HTML используем Network First с fallback на кэш
         if (isHTML) {
-          try {
-            const response = await fetch(request, {
+        try {
+          const response = await fetch(request, {
               cache: 'no-cache',
-            });
+          });
 
             // Кэшируем только успешные ответы
             if (response && response.ok && response.status === 200) {
-              const cache = await caches.open(CACHE_NAME);
+            const cache = await caches.open(CACHE_NAME);
               cache.put(request, response.clone()).catch(() => {
                 // Игнорируем ошибки кэширования
               });
-            }
+          }
 
-            return response;
-          } catch (error) {
+          return response;
+        } catch (error) {
             console.warn('[SW] Network fetch failed for HTML:', request.url, error);
             
             // Fallback на кэш для HTML
             try {
-              const cached = await caches.match(request);
-              if (cached) {
-                return cached;
-              }
-              
-              // Для навигации возвращаем index.html из кэша
-              if (request.mode === 'navigate') {
-                const indexHtml = await caches.match('/index.html');
-                if (indexHtml) {
-                  return indexHtml;
-                }
-              }
-            } catch (cacheError) {
-              console.warn('[SW] Cache fallback failed:', cacheError);
+            const cached = await caches.match(request);
+            if (cached) {
+              return cached;
             }
             
+              // Для навигации возвращаем index.html из кэша
+            if (request.mode === 'navigate') {
+              const indexHtml = await caches.match('/index.html');
+              if (indexHtml) {
+                return indexHtml;
+              }
+            }
+            } catch (cacheError) {
+              console.warn('[SW] Cache fallback failed:', cacheError);
+          }
+          
             // Если все попытки не удались, пробрасываем запрос браузеру
             return fetch(request);
           }

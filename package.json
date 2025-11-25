@@ -96,6 +96,7 @@
     "react-router-dom": "^7.9.6",
     "recharts": "^2.15.0",
     "remark-gfm": "^4.0.1",
+    "rollbar": "^2.26.5",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
