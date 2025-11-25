@@ -75,7 +75,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     // Объединяем refs
     React.useImperativeHandle(ref, () => contentRef.current as any);
 
-    // Сбрасываем состояния свайпа при закрытии модалки другими способами
+    // Сбрасываем состояния свайпа при закрытии модалки другими способами (кнопка, клик вне, ESC)
     React.useEffect(() => {
       // Отслеживаем изменения через MutationObserver для data-state
       if (!contentRef.current || side !== "bottom") return;
@@ -84,13 +84,26 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         mutations.forEach((mutation) => {
           if (mutation.type === 'attributes' && mutation.attributeName === 'data-state') {
             const newState = contentRef.current?.getAttribute('data-state');
-            // Если модалка закрылась, сбрасываем все состояния свайпа
-            if (newState === 'closed' && (isDragging || startY !== null || currentY !== null)) {
+            // Если модалка закрылась, сбрасываем все состояния свайпа и кастомные стили
+            if (newState === 'closed') {
+              // Сбрасываем флаг закрытия
+              isClosingRef.current = false;
+              
+              // Убираем все кастомные стили, чтобы Radix UI мог правильно управлять анимацией
               if (contentRef.current) {
                 contentRef.current.style.transform = '';
                 contentRef.current.style.transition = '';
                 contentRef.current.style.touchAction = '';
               }
+              
+              // Восстанавливаем overlay
+              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+              if (overlay) {
+                overlay.style.opacity = '';
+                overlay.style.transition = '';
+              }
+              
+              // Сбрасываем состояния свайпа
               setStartY(null);
               setCurrentY(null);
               setIsDragging(false);
@@ -107,7 +120,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       return () => {
         observer.disconnect();
       };
-    }, [side, isDragging, startY, currentY]);
+    }, [side]);
 
     // Обработка свайпа для закрытия (только для bottom sheet)
     const handleTouchStart = (e: React.TouchEvent) => {
@@ -173,15 +186,27 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           if (isClosingRef.current) return;
           isClosingRef.current = true;
           
-          // Закрываем sheet через onOpenChange из props
-          // Radix UI автоматически обработает это через Sheet.Root
-          if (props.onOpenChange) {
-            // Сбрасываем transform перед закрытием, чтобы Radix UI мог правильно анимировать
-            contentRef.current.style.transform = '';
-            contentRef.current.style.transition = '';
-            // Вызываем закрытие
-            props.onOpenChange(false);
-          }
+          // Убираем кастомный transform, чтобы Radix UI мог правильно анимировать закрытие
+          // Используем requestAnimationFrame для синхронизации с браузером
+          requestAnimationFrame(() => {
+            if (contentRef.current) {
+              // Убираем inline стили, чтобы Radix UI мог управлять анимацией
+              contentRef.current.style.transform = '';
+              contentRef.current.style.transition = '';
+              
+              // Восстанавливаем overlay
+              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+              if (overlay) {
+                overlay.style.opacity = '';
+                overlay.style.transition = '';
+              }
+              
+              // Вызываем закрытие после того, как убрали кастомные стили
+              if (props.onOpenChange) {
+                props.onOpenChange(false);
+              }
+            }
+          });
           
           // Сбрасываем флаг после завершения анимации (200ms)
           setTimeout(() => {
@@ -193,19 +218,25 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
           
           if (isStillOpen) {
-          // Возвращаем на место с анимацией
-          contentRef.current.style.transform = '';
-            contentRef.current.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            
-          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-          if (overlay) {
-            overlay.style.opacity = '0.8';
-              overlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            }
+            // Возвращаем на место с анимацией
+            requestAnimationFrame(() => {
+              if (contentRef.current) {
+                contentRef.current.style.transform = '';
+                contentRef.current.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+              }
+              
+              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+              if (overlay) {
+                overlay.style.opacity = '0.8';
+                overlay.style.transition = 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+              }
+            });
           } else {
             // Если модалка уже закрыта, просто сбрасываем стили
-            contentRef.current.style.transform = '';
-            contentRef.current.style.transition = '';
+            if (contentRef.current) {
+              contentRef.current.style.transform = '';
+              contentRef.current.style.transition = '';
+            }
           }
         }
         
@@ -239,10 +270,10 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           }}
           style={{
             ...props.style,
-            // GPU ускорение для плавных анимаций
-            willChange: "transform",
-            // Плавный easing для анимаций закрытия/открытия
-            transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+            // GPU ускорение для плавных анимаций (только когда не перетаскиваем)
+            willChange: isDragging ? "transform" : "auto",
+            // Плавный easing для анимаций закрытия/открытия (только когда не перетаскиваем)
+            transition: isDragging ? undefined : "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
           }}
           {...props}
         >
