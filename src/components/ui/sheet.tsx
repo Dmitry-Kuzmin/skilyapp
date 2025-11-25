@@ -322,94 +322,85 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       
       if (shouldClose) {
         // Предотвращаем множественные вызовы закрытия
-        if (isClosingRef.current) return;
+        if (isClosingRef.current) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[Sheet] Already closing, ignoring duplicate close attempt');
+          }
+          return;
+        }
         isClosingRef.current = true;
         
-        // Убираем кастомные стили
-        if (contentRef.current) {
-          contentRef.current.style.transform = '';
-          contentRef.current.style.transition = '';
-        }
-        
-        // Восстанавливаем overlay
-        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-        if (overlay) {
-          overlay.style.opacity = '';
-          overlay.style.transition = '';
-        }
-        
-        // Пробуем несколько способов закрытия для надежности
-        
-        // Способ 1: Через props.onOpenChange (приоритетный способ - самый надежный)
-        if (props.onOpenChange) {
-          try {
-            // Вызываем сразу, синхронно
-            props.onOpenChange(false);
-            if (process.env.NODE_ENV === 'development') {
-              console.log('[Sheet] Method 1: onOpenChange(false) called directly');
-            }
-            // MutationObserver сбросит isClosingRef при закрытии, не нужно делать это здесь
-            return; // Выходим, так как закрытие должно произойти
-          } catch (error) {
-            console.error('[Sheet] Error calling onOpenChange:', error);
+        // КРИТИЧНО: Убираем ВСЕ кастомные стили СИНХРОННО перед закрытием
+        // Это нужно сделать до вызова onOpenChange, чтобы Radix UI мог управлять анимацией
+        requestAnimationFrame(() => {
+          if (contentRef.current) {
+            // Убираем все inline стили, которые могут конфликтовать с Radix UI
+            contentRef.current.style.transform = '';
+            contentRef.current.style.transition = '';
+            contentRef.current.style.touchAction = '';
           }
-        }
-        
-        // Способ 2: Найти и кликнуть на кнопку закрытия (резервный способ)
-        try {
-          const closeButton = contentRef.current?.querySelector('button[data-radix-dialog-close]') as HTMLElement;
-          if (closeButton) {
-            closeButton.click();
-            if (process.env.NODE_ENV === 'development') {
-              console.log('[Sheet] Method 2: Close button clicked');
-            }
-            // MutationObserver сбросит isClosingRef при закрытии, не нужно делать это здесь
-            return;
+          
+          // Восстанавливаем overlay - убираем все кастомные стили
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay) {
+            overlay.style.opacity = '';
+            overlay.style.transition = '';
           }
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('[Sheet] Method 2 failed:', error);
-          }
-        }
-        
-        // Способ 3: Найти Sheet Root через DOM и попытаться закрыть
-        setTimeout(() => {
-          try {
-            const sheetRoot = getSheetRoot();
-            if (sheetRoot) {
-              // Ищем все элементы с data-radix-dialog-close
-              const closeElements = sheetRoot.querySelectorAll('[data-radix-dialog-close]');
-              if (closeElements.length > 0) {
-                (closeElements[0] as HTMLElement).click();
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('[Sheet] Method 3: Found and clicked close element');
-                }
-                return;
-              }
-            }
-            
-            // Способ 4: Ищем кнопку закрытия в document (на случай если она вне SheetContent)
-            const globalCloseButton = document.querySelector('button[data-radix-dialog-close]') as HTMLElement;
-            if (globalCloseButton) {
-              globalCloseButton.click();
+          
+          // Теперь вызываем закрытие после того, как стили убраны
+          // Способ 1: Через props.onOpenChange (приоритетный способ)
+          if (props.onOpenChange) {
+            try {
+              props.onOpenChange(false);
               if (process.env.NODE_ENV === 'development') {
-                console.log('[Sheet] Method 4: Found global close button');
+                console.log('[Sheet] Method 1: onOpenChange(false) called after style cleanup');
               }
-              return;
+            } catch (error) {
+              console.error('[Sheet] Error calling onOpenChange:', error);
+              // Если ошибка, сбрасываем флаг
+              isClosingRef.current = false;
             }
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.log('[Sheet] Methods 3-4 failed:', error);
+          } else {
+            // Если нет onOpenChange, пробуем другие способы
+            try {
+              const closeButton = contentRef.current?.querySelector('button[data-radix-dialog-close]') as HTMLElement;
+              if (closeButton) {
+                closeButton.click();
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('[Sheet] Method 2: Close button clicked');
+                }
+              } else {
+                console.warn('[Sheet] No way to close modal - onOpenChange not provided and no close button found!');
+                isClosingRef.current = false;
+              }
+            } catch (error) {
+              console.error('[Sheet] Error closing modal:', error);
+              isClosingRef.current = false;
             }
           }
           
-          // Если ничего не сработало
-          if (!props.onOpenChange) {
-            console.warn('[Sheet] No way to close modal - onOpenChange not provided and no close button found!');
-            // Если не удалось закрыть, сбрасываем флаг вручную
-            isClosingRef.current = false;
-          }
-        }, 0);
+          // Принудительный сброс флага через 500ms на случай, если закрытие не произошло
+          setTimeout(() => {
+            if (isClosingRef.current) {
+              const isStillOpen = contentRef.current?.getAttribute('data-state') === 'open';
+              if (isStillOpen) {
+                console.warn('[Sheet] Modal still open after 500ms, forcing state reset');
+                // Принудительно убираем все стили и скрываем overlay
+                if (contentRef.current) {
+                  contentRef.current.style.transform = '';
+                  contentRef.current.style.transition = '';
+                  contentRef.current.style.touchAction = '';
+                }
+                const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+                if (overlay) {
+                  overlay.style.opacity = '0';
+                  overlay.style.pointerEvents = 'none';
+                }
+              }
+              isClosingRef.current = false;
+            }
+          }, 500);
+        });
       } else {
           // Instagram-стиль: возврат на место с spring animation
           const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
