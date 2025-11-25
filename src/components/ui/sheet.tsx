@@ -77,6 +77,23 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const lastTimeRef = React.useRef<number | null>(null);
     // Высота модалки для динамического порога
     const modalHeightRef = React.useRef<number | null>(null);
+    
+    // Пытаемся получить доступ к родительскому Sheet Root через контекст
+    // Radix UI Dialog использует внутренний контекст, но мы можем попробовать найти его через DOM
+    const getSheetRoot = React.useCallback(() => {
+      if (!contentRef.current) return null;
+      
+      // Ищем родительский элемент с data-radix-dialog-root
+      let element: HTMLElement | null = contentRef.current;
+      while (element && element !== document.body) {
+        if (element.hasAttribute('data-radix-dialog-root') || 
+            element.getAttribute('role') === 'dialog') {
+          return element;
+        }
+        element = element.parentElement;
+      }
+      return null;
+    }, []);
 
     // Объединяем refs
     React.useImperativeHandle(ref, () => contentRef.current as any);
@@ -241,7 +258,6 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       if (!contentRef.current) return;
       
       // Вычисляем расстояние свайпа напрямую из последней позиции пальца
-      // Это надежнее, чем полагаться на состояние currentY
       let dragDistance = currentY || 0;
       
       // Если есть событие touchEnd, вычисляем расстояние из него
@@ -250,55 +266,26 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         dragDistance = endY - startY;
       }
       
-      // Упрощенная логика: минимальный порог 60px (снижен для более легкого закрытия)
-      const minCloseThreshold = 60;
+      // Очень простой порог - если свайпнули больше 50px, закрываем
+      const shouldClose = dragDistance > 50;
       
-      // Определяем, нужно ли закрывать
-      let shouldClose = dragDistance > minCloseThreshold;
-      
-      // Если высота модалки известна, используем процентный порог
-      if (modalHeightRef.current) {
-        const percentThreshold = modalHeightRef.current * 0.15; // 15% высоты (снижено)
-        shouldClose = dragDistance > Math.max(minCloseThreshold, percentThreshold);
-        
-        // Если свайпнули больше 25% - точно закрываем
-        if (dragDistance > modalHeightRef.current * 0.25) {
-          shouldClose = true;
-        }
-      }
-      
-      // Учитываем скорость - быстрый свайп закрывает легче
-      if (Math.abs(velocityRef.current) > 0.15 && dragDistance > 40) {
-        shouldClose = true;
-      }
-      
-      // Отладочная информация (только в dev режиме)
+      // Отладочная информация
       if (process.env.NODE_ENV === 'development') {
         console.log('[Sheet] TouchEnd:', {
           dragDistance,
-          minCloseThreshold,
-          modalHeight: modalHeightRef.current,
-          velocity: velocityRef.current,
           shouldClose,
-          hasOnOpenChange: !!props.onOpenChange
+          hasOnOpenChange: !!props.onOpenChange,
+          currentY,
+          startY
         });
       }
       
       if (shouldClose) {
         // Предотвращаем множественные вызовы закрытия
-        if (isClosingRef.current) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('[Sheet] Already closing, skipping');
-          }
-          return;
-        }
+        if (isClosingRef.current) return;
         isClosingRef.current = true;
         
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[Sheet] Closing modal...');
-        }
-        
-        // Сразу убираем кастомные стили
+        // Убираем кастомные стили
         if (contentRef.current) {
           contentRef.current.style.transform = '';
           contentRef.current.style.transition = '';
@@ -311,22 +298,62 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           overlay.style.transition = '';
         }
         
-        // Вызываем закрытие сразу
+        // Пробуем несколько способов закрытия для надежности
+        
+        // Способ 1: Через props.onOpenChange (основной) - вызываем синхронно
         if (props.onOpenChange) {
-          // Вызываем синхронно для надежности
           try {
+            // Вызываем немедленно, без задержек
             props.onOpenChange(false);
             if (process.env.NODE_ENV === 'development') {
-              console.log('[Sheet] onOpenChange(false) called');
+              console.log('[Sheet] Method 1: onOpenChange(false) called directly');
             }
           } catch (error) {
             console.error('[Sheet] Error calling onOpenChange:', error);
           }
         } else {
-          console.warn('[Sheet] onOpenChange is not provided!');
+          console.warn('[Sheet] props.onOpenChange is not provided!');
         }
         
-        // Сбрасываем флаг после завершения анимации (200ms)
+        // Способ 2: Найти и кликнуть на кнопку закрытия (самый надежный способ)
+        setTimeout(() => {
+          try {
+            const closeButton = contentRef.current?.querySelector('button[data-radix-dialog-close]') as HTMLElement;
+            if (closeButton) {
+              closeButton.click();
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[Sheet] Method 2: Close button clicked');
+              }
+              return;
+            }
+          } catch (error) {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[Sheet] Method 2 failed:', error);
+            }
+          }
+          
+          // Способ 3: Найти Sheet Root и попытаться закрыть через него
+          const sheetRoot = getSheetRoot();
+          if (sheetRoot) {
+            try {
+              // Ищем все элементы с data-radix-dialog-close и кликаем на первый
+              const closeElements = sheetRoot.querySelectorAll('[data-radix-dialog-close]');
+              if (closeElements.length > 0) {
+                (closeElements[0] as HTMLElement).click();
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('[Sheet] Method 3: Found and clicked close element');
+                }
+                return;
+              }
+            } catch (error) {
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[Sheet] Method 3 failed:', error);
+              }
+            }
+          }
+        }, 0);
+        
+        // Сбрасываем флаг после завершения анимации
         setTimeout(() => {
           isClosingRef.current = false;
         }, 200);
