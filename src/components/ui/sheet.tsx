@@ -19,11 +19,18 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
+      "fixed inset-0 z-50 bg-black/80",
+      // Instagram-подобная анимация: синхронизированная с контентом для мобильных
+      "data-[state=open]:animate-in data-[state=closed]:animate-out",
+      "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      // Единая длительность для синхронизации (200ms)
+      "data-[state=open]:duration-200 data-[state=closed]:duration-200",
       className,
     )}
     style={{
       willChange: "opacity",
+      // Плавный easing как в Instagram
+      transition: "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1)",
     }}
     {...props}
     ref={ref}
@@ -32,7 +39,10 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-250",
+  "fixed z-50 gap-4 bg-background p-6 shadow-lg",
+  // Instagram-подобные анимации: синхронизированные с overlay
+  "data-[state=open]:animate-in data-[state=closed]:animate-out",
+  "data-[state=closed]:duration-200 data-[state=open]:duration-200",
   {
     variants: {
       side: {
@@ -62,6 +72,8 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const [startY, setStartY] = React.useState<number | null>(null);
     const [currentY, setCurrentY] = React.useState<number | null>(null);
     const [isDragging, setIsDragging] = React.useState(false);
+    // Защита от множественных вызовов закрытия
+    const isClosingRef = React.useRef(false);
 
     // Объединяем refs
     React.useImperativeHandle(ref, () => contentRef.current as any);
@@ -160,6 +172,10 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         const shouldClose = currentY && currentY > threshold;
         
         if (shouldClose) {
+          // Предотвращаем множественные вызовы закрытия
+          if (isClosingRef.current) return;
+          isClosingRef.current = true;
+          
           // Закрываем sheet через onOpenChange из props
           // Radix UI автоматически обработает это через Sheet.Root
           if (props.onOpenChange) {
@@ -169,6 +185,11 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             // Вызываем закрытие
             props.onOpenChange(false);
           }
+          
+          // Сбрасываем флаг после завершения анимации (200ms)
+          setTimeout(() => {
+            isClosingRef.current = false;
+          }, 200);
         } else {
           // Возвращаем на место с анимацией только если модалка еще открыта
           // Проверяем состояние через data-state атрибут
@@ -204,6 +225,19 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       setCurrentY(null);
       setIsDragging(false);
     };
+    
+    // Обработчик закрытия через другие способы (кнопка, клик вне)
+    const handleOpenChange = React.useCallback((open: boolean) => {
+      // Предотвращаем множественные вызовы
+      if (!open && isClosingRef.current) return;
+      if (!open) {
+        isClosingRef.current = true;
+        setTimeout(() => {
+          isClosingRef.current = false;
+        }, 200);
+      }
+      props.onOpenChange?.(open);
+    }, [props]);
 
     return (
       <SheetPortal>
@@ -214,10 +248,17 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onOpenAutoFocus={(e) => {
+            // Предотвращаем автофокус на первый элемент при открытии (может мешать свайпу)
+            e.preventDefault();
+            props.onOpenAutoFocus?.(e);
+          }}
           style={{
             ...props.style,
             // GPU ускорение для плавных анимаций
             willChange: "transform",
+            // Плавный easing для анимаций закрытия/открытия
+            transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
           }}
           {...props}
         >
