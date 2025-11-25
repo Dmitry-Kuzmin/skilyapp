@@ -40,65 +40,65 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     switch (day) {
       case 1: // День 1 - простые круги
         return {
-          count: 30,
+          count: 50,
           types: ['circle'] as const,
-          colors: ['hsl(200, 100%, 60%)', 'hsl(220, 100%, 60%)'],
+          colors: ['#3b82f6', '#60a5fa', '#93c5fd'], // Яркие синие
           speed: 1.0,
           pattern: 'radial'
         };
       case 2: // День 2 - звезды
         return {
-          count: 40,
+          count: 60,
           types: ['star'] as const,
-          colors: ['hsl(40, 100%, 60%)', 'hsl(60, 100%, 60%)'],
+          colors: ['#fbbf24', '#fcd34d', '#fde047'], // Яркие желтые
           speed: 1.2,
           pattern: 'spiral'
         };
       case 3: // День 3 - искры
         return {
-          count: 50,
+          count: 70,
           types: ['sparkle'] as const,
-          colors: ['hsl(280, 100%, 60%)', 'hsl(300, 100%, 60%)'],
+          colors: ['#a855f7', '#c084fc', '#d8b4fe'], // Яркие фиолетовые
           speed: 1.1,
           pattern: 'wave'
         };
       case 4: // День 4 - сердца
         return {
-          count: 35,
+          count: 55,
           types: ['heart'] as const,
-          colors: ['hsl(340, 100%, 60%)', 'hsl(0, 100%, 60%)'],
+          colors: ['#ef4444', '#f87171', '#fca5a5'], // Яркие красные
           speed: 1.3,
           pattern: 'radial'
         };
       case 5: // День 5 - алмазы
         return {
-          count: 45,
+          count: 65,
           types: ['diamond'] as const,
-          colors: ['hsl(180, 100%, 60%)', 'hsl(200, 100%, 60%)'],
+          colors: ['#06b6d4', '#22d3ee', '#67e8f9'], // Яркие голубые
           speed: 1.4,
           pattern: 'spiral'
         };
       case 6: // День 6 - огонь
         return {
-          count: 60,
+          count: 80,
           types: ['fire'] as const,
-          colors: ['hsl(15, 100%, 60%)', 'hsl(30, 100%, 60%)', 'hsl(45, 100%, 60%)'],
+          colors: ['#f97316', '#fb923c', '#fdba74'], // Яркие оранжевые
           speed: 1.5,
           pattern: 'burst'
         };
       case 7: // День 7 - мега-микс всех типов
         return {
-          count: 100,
+          count: 120,
           types: ['circle', 'star', 'sparkle', 'burst', 'heart', 'diamond', 'fire'] as const,
-          colors: ['hsl(0, 100%, 60%)', 'hsl(60, 100%, 60%)', 'hsl(120, 100%, 60%)', 'hsl(180, 100%, 60%)', 'hsl(240, 100%, 60%)', 'hsl(300, 100%, 60%)'],
+          colors: ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'], // Радуга
           speed: 1.8,
           pattern: 'explosion'
         };
       default:
         return {
-          count: 30,
+          count: 50,
           types: ['circle'] as const,
-          colors: ['hsl(200, 100%, 60%)'],
+          colors: ['#3b82f6', '#60a5fa'],
           speed: 1.0,
           pattern: 'radial'
         };
@@ -196,34 +196,34 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       const newParticles = Array.from({ length: config.count }, (_, i) => {
         const type = particleTypes[i % particleTypes.length];
         const angle = (i / config.count) * Math.PI * 2;
-        const baseDistance = 100;
+        const baseDistance = 150; // Увеличено расстояние для лучшей видимости
         let distance = baseDistance;
         
         // Разные паттерны для разных дней
         if (config.pattern === 'spiral') {
           const spiralFactor = (i / config.count) * 2;
-          distance = baseDistance + spiralFactor * 50;
+          distance = baseDistance + spiralFactor * 80;
         } else if (config.pattern === 'wave') {
-          const wave = Math.sin(angle * 3) * 40;
+          const wave = Math.sin(angle * 3) * 60;
           distance = baseDistance + wave;
         } else if (config.pattern === 'burst') {
-          distance = baseDistance + (i % 5) * 30;
+          distance = baseDistance + (i % 5) * 50;
         } else if (config.pattern === 'explosion') {
-          distance = baseDistance + Math.random() * 100;
+          distance = baseDistance + Math.random() * 150;
         } else {
-          distance = baseDistance + (i % 5) * 30;
+          distance = baseDistance + (i % 5) * 50;
         }
         
         const colorIndex = i % config.colors.length;
         const color = config.colors[colorIndex];
         
-        let size = 3;
-        if (type === 'star') size = 4;
-        else if (type === 'sparkle') size = 3;
-        else if (type === 'burst') size = 5;
-        else if (type === 'heart') size = 4;
-        else if (type === 'diamond') size = 4;
-        else if (type === 'fire') size = 5;
+        let size = 6; // Увеличено для лучшей видимости
+        if (type === 'star') size = 8;
+        else if (type === 'sparkle') size = 6;
+        else if (type === 'burst') size = 10;
+        else if (type === 'heart') size = 8;
+        else if (type === 'diamond') size = 8;
+        else if (type === 'fire') size = 10;
         
         return {
           id: Date.now() + i,
@@ -612,11 +612,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               >
                 <Heart 
                   style={{
-                    width: `${particle.size * 4}px`,
-                    height: `${particle.size * 4}px`,
+                    width: `${particle.size * 6}px`,
+                    height: `${particle.size * 6}px`,
                     color: particle.color,
                     fill: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 2}px ${particle.color})`,
+                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color}) drop-shadow(0 0 ${particle.size * 6}px ${particle.color}80)`,
                   }}
                 />
               </motion.div>
@@ -629,11 +629,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
-                  width: `${particle.size * 4}px`,
-                  height: `${particle.size * 4}px`,
+                  width: `${particle.size * 6}px`,
+                  height: `${particle.size * 6}px`,
                   clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
                   background: `linear-gradient(135deg, ${particle.color}, ${particle.color}80)`,
-                  boxShadow: `0 0 ${particle.size * 3}px ${particle.color}, 0 0 ${particle.size * 6}px ${particle.color}40`,
+                  boxShadow: `0 0 ${particle.size * 4}px ${particle.color}, 0 0 ${particle.size * 8}px ${particle.color}60, 0 0 ${particle.size * 12}px ${particle.color}40`,
                 }}
                 initial={{ 
                   scale: 0, 
@@ -687,11 +687,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               >
                 <Flame 
                   style={{
-                    width: `${particle.size * 4}px`,
-                    height: `${particle.size * 4}px`,
+                    width: `${particle.size * 6}px`,
+                    height: `${particle.size * 6}px`,
                     color: particle.color,
                     fill: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color})`,
+                    filter: `drop-shadow(0 0 ${particle.size * 4}px ${particle.color}) drop-shadow(0 0 ${particle.size * 8}px ${particle.color}80)`,
                   }}
                 />
               </motion.div>
@@ -727,11 +727,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               >
                 <Star 
                   style={{
-                    width: `${particle.size * 4}px`,
-                    height: `${particle.size * 4}px`,
+                    width: `${particle.size * 6}px`,
+                    height: `${particle.size * 6}px`,
                     color: particle.color,
                     fill: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 2}px ${particle.color})`,
+                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color}) drop-shadow(0 0 ${particle.size * 6}px ${particle.color}80)`,
                   }}
                 />
               </motion.div>
@@ -767,10 +767,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               >
                 <Sparkles 
                   style={{
-                    width: `${particle.size * 4}px`,
-                    height: `${particle.size * 4}px`,
+                    width: `${particle.size * 6}px`,
+                    height: `${particle.size * 6}px`,
                     color: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 2}px ${particle.color})`,
+                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color}) drop-shadow(0 0 ${particle.size * 6}px ${particle.color}80)`,
                   }}
                 />
               </motion.div>
@@ -783,12 +783,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
-                  width: `${particle.size * 4}px`,
-                  height: `${particle.size * 4}px`,
+                  width: `${particle.size * 6}px`,
+                  height: `${particle.size * 6}px`,
                   background: particle.type === 'burst' 
-                    ? `radial-gradient(circle, ${particle.color}, transparent)`
+                    ? `radial-gradient(circle, ${particle.color}, ${particle.color}80, transparent)`
                     : particle.color,
-                  boxShadow: `0 0 ${particle.size * 3}px ${particle.color}, 0 0 ${particle.size * 6}px ${particle.color}40`,
+                  boxShadow: `0 0 ${particle.size * 4}px ${particle.color}, 0 0 ${particle.size * 8}px ${particle.color}60, 0 0 ${particle.size * 12}px ${particle.color}40`,
                 }}
                 initial={{ 
                   scale: 0, 
