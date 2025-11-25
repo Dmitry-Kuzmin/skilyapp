@@ -27,81 +27,93 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     id: number; 
     x: number; 
     y: number; 
-    type: 'circle' | 'star' | 'sparkle' | 'burst' | 'heart' | 'diamond' | 'fire';
+    type: 'circle' | 'star' | 'sparkle' | 'burst' | 'heart' | 'diamond' | 'fire' | 'confetti';
     size: number;
     color: string;
     angle: number;
     distance: number;
+    vx?: number; // Скорость по X (для гравитации)
+    vy?: number; // Скорость по Y (для гравитации)
+    gravity?: number; // Гравитация
   }>>([]);
   const [testDayIndex, setTestDayIndex] = useState(1); // Для тестирования - переключаем дни по кругу
   const effectiveHasClaimed = hasClaimedToday;
 
   // Определяем тип анимации в зависимости от дня недели
+  // На основе HTML-файла с конфетти создаем 7 уникальных типов анимаций
   const getDayAnimationConfig = (day: number) => {
     switch (day) {
-      case 1: // День 1 - простые круги
+      case 1: // День 1 - Классическое конфетти (как в HTML) - разноцветные круги
         return {
-          count: 50,
-          types: ['circle'] as const,
-          colors: ['#3b82f6', '#60a5fa', '#93c5fd'], // Яркие синие
+          count: 100,
+          types: ['confetti'] as const,
+          colors: ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'], // Точные цвета из HTML
           speed: 1.0,
-          pattern: 'radial'
+          pattern: 'gravity', // Гравитация как в оригинале
+          gravity: 0.5
         };
-      case 2: // День 2 - звезды
-        return {
-          count: 60,
-          types: ['star'] as const,
-          colors: ['#fbbf24', '#fcd34d', '#fde047'], // Яркие желтые
-          speed: 1.2,
-          pattern: 'spiral'
-        };
-      case 3: // День 3 - искры
-        return {
-          count: 70,
-          types: ['sparkle'] as const,
-          colors: ['#a855f7', '#c084fc', '#d8b4fe'], // Яркие фиолетовые
-          speed: 1.1,
-          pattern: 'wave'
-        };
-      case 4: // День 4 - сердца
-        return {
-          count: 55,
-          types: ['heart'] as const,
-          colors: ['#ef4444', '#f87171', '#fca5a5'], // Яркие красные
-          speed: 1.3,
-          pattern: 'radial'
-        };
-      case 5: // День 5 - алмазы
-        return {
-          count: 65,
-          types: ['diamond'] as const,
-          colors: ['#06b6d4', '#22d3ee', '#67e8f9'], // Яркие голубые
-          speed: 1.4,
-          pattern: 'spiral'
-        };
-      case 6: // День 6 - огонь
+      case 2: // День 2 - Звездный дождь - звезды с гравитацией
         return {
           count: 80,
-          types: ['fire'] as const,
-          colors: ['#f97316', '#fb923c', '#fdba74'], // Яркие оранжевые
-          speed: 1.5,
-          pattern: 'burst'
+          types: ['star'] as const,
+          colors: ['#fbbf24', '#fcd34d', '#fde047', '#fef08a'], // Золотые звезды
+          speed: 1.2,
+          pattern: 'gravity',
+          gravity: 0.4
         };
-      case 7: // День 7 - мега-микс всех типов
+      case 3: // День 3 - Искрящийся фейерверк - искры с волновым движением
         return {
           count: 120,
-          types: ['circle', 'star', 'sparkle', 'burst', 'heart', 'diamond', 'fire'] as const,
-          colors: ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'], // Радуга
+          types: ['sparkle'] as const,
+          colors: ['#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff'], // Фиолетовые искры
+          speed: 1.3,
+          pattern: 'wave',
+          gravity: 0.3
+        };
+      case 4: // День 4 - Сердечный взрыв - сердца с пульсацией
+        return {
+          count: 90,
+          types: ['heart'] as const,
+          colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca'], // Красные сердца
+          speed: 1.4,
+          pattern: 'pulse',
+          gravity: 0.35
+        };
+      case 5: // День 5 - Алмазный дождь - алмазы со спиральным движением
+        return {
+          count: 70,
+          types: ['diamond'] as const,
+          colors: ['#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc'], // Голубые алмазы
+          speed: 1.5,
+          pattern: 'spiral',
+          gravity: 0.45
+        };
+      case 6: // День 6 - Огненный взрыв - огонь с хаотичным движением
+        return {
+          count: 110,
+          types: ['fire'] as const,
+          colors: ['#f97316', '#fb923c', '#fdba74', '#fed7aa'], // Оранжевый огонь
+          speed: 1.6,
+          pattern: 'chaos',
+          gravity: 0.25
+        };
+      case 7: // День 7 - Мега-конфетти - все типы с максимальным эффектом
+        return {
+          count: 150,
+          types: ['confetti', 'star', 'sparkle', 'heart', 'diamond', 'fire'] as const,
+          colors: ['#ff4d00', '#ffb700', '#2ECC71', '#ef4444', '#3b82f6', '#a855f7', '#f97316', '#ffffff'], // Полная радуга
           speed: 1.8,
-          pattern: 'explosion'
+          pattern: 'explosion',
+          gravity: 0.5
         };
       default:
         return {
-          count: 50,
-          types: ['circle'] as const,
-          colors: ['#3b82f6', '#60a5fa'],
+          count: 100,
+          types: ['confetti'] as const,
+          colors: ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'],
           speed: 1.0,
-          pattern: 'radial'
+          pattern: 'gravity',
+          gravity: 0.5
         };
     }
   };
@@ -205,16 +217,37 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         let distance = baseDistance;
         
         // Разные паттерны для разных дней
-        if (config.pattern === 'spiral') {
+        let vx = 0;
+        let vy = 0;
+        const gravity = config.gravity || 0.5;
+        
+        if (config.pattern === 'gravity') {
+          // Классическое конфетти с гравитацией (как в HTML)
+          vx = (Math.random() - 0.5) * 15;
+          vy = (Math.random() - 0.5) * 15 - 5; // Слегка вверх
+          distance = baseDistance + Math.random() * 100;
+        } else if (config.pattern === 'spiral') {
           const spiralFactor = (i / config.count) * 2;
           distance = baseDistance + spiralFactor * 80;
         } else if (config.pattern === 'wave') {
           const wave = Math.sin(angle * 3) * 60;
           distance = baseDistance + wave;
+        } else if (config.pattern === 'pulse') {
+          // Пульсирующее движение для сердец
+          distance = baseDistance + Math.sin(angle * 2) * 40;
+          vx = Math.cos(angle) * 8;
+          vy = Math.sin(angle) * 8 - 3;
+        } else if (config.pattern === 'chaos') {
+          // Хаотичное движение для огня
+          vx = (Math.random() - 0.5) * 20;
+          vy = (Math.random() - 0.5) * 20 - 8;
+          distance = baseDistance + Math.random() * 120;
         } else if (config.pattern === 'burst') {
           distance = baseDistance + (i % 5) * 50;
         } else if (config.pattern === 'explosion') {
           distance = baseDistance + Math.random() * 150;
+          vx = (Math.random() - 0.5) * 18;
+          vy = (Math.random() - 0.5) * 18 - 6;
         } else {
           distance = baseDistance + (i % 5) * 50;
         }
@@ -223,7 +256,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         const color = config.colors[colorIndex];
         
         let size = 6; // Увеличено для лучшей видимости
-        if (type === 'star') size = 8;
+        if (type === 'confetti') size = Math.random() * 8 + 4; // Разные размеры как в HTML
+        else if (type === 'star') size = 8;
         else if (type === 'sparkle') size = 6;
         else if (type === 'burst') size = 10;
         else if (type === 'heart') size = 8;
@@ -239,6 +273,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           color,
           angle,
           distance,
+          vx: config.pattern === 'gravity' || config.pattern === 'pulse' || config.pattern === 'chaos' || config.pattern === 'explosion' ? vx : undefined,
+          vy: config.pattern === 'gravity' || config.pattern === 'pulse' || config.pattern === 'chaos' || config.pattern === 'explosion' ? vy : undefined,
+          gravity: config.pattern === 'gravity' || config.pattern === 'pulse' || config.pattern === 'chaos' || config.pattern === 'explosion' ? gravity : undefined,
         };
       });
       console.log('[DailyRewards] Created', newParticles.length, 'particles');
@@ -545,7 +582,21 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           let y = 0;
           let rotation = 0;
           
-          if (particle.type === 'burst') {
+          // Если есть vx/vy - используем гравитационную анимацию
+          if (particle.vx !== undefined && particle.vy !== undefined && particle.gravity !== undefined) {
+            // Гравитационная анимация (как в HTML конфетти)
+            const duration = 2.5;
+            const finalVx = particle.vx * duration;
+            const finalVy = particle.vy * duration + (particle.gravity * duration * duration) / 2;
+            x = finalVx;
+            y = finalVy;
+            rotation = particle.angle * (180 / Math.PI) + (duration * 360);
+          } else if (particle.type === 'confetti') {
+            // Конфетти - радиальное разлетание
+            x = Math.cos(particle.angle) * particle.distance;
+            y = Math.sin(particle.angle) * particle.distance;
+            rotation = particle.angle * (180 / Math.PI) + 720;
+          } else if (particle.type === 'burst') {
             // Взрыв - радиальное разлетание
             x = Math.cos(particle.angle) * particle.distance;
             y = Math.sin(particle.angle) * particle.distance;
@@ -584,7 +635,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             y = Math.sin(particle.angle) * particle.distance;
           }
           
-          const baseDuration = particle.type === 'burst' ? 1.5 : particle.type === 'star' ? 1.8 : particle.type === 'fire' ? 1.6 : 1.3;
+          const baseDuration = particle.type === 'confetti' ? 2.5 : particle.type === 'burst' ? 1.5 : particle.type === 'star' ? 1.8 : particle.type === 'fire' ? 1.6 : 1.3;
           
           if (particle.type === 'heart') {
             return (
