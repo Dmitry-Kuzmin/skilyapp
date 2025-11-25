@@ -20,12 +20,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [celebrationType, setCelebrationType] = useState<CelebrationType>('phoenix');
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
   const flameAnchorRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
   const effectiveHasClaimed = hasClaimedToday;
-  
-  // Флаг для автоматического нажатия кнопки (для тестирования)
-  const [autoClickEnabled, setAutoClickEnabled] = useState(true);
 
   const { settings: cockpitSettings } = useCockpitSettings();
   const celebrationMode = cockpitSettings.animationMode;
@@ -89,19 +85,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     };
   }, []);
 
-  // Автоматическое нажатие кнопки для тестирования
-  useEffect(() => {
-    if (!autoClickEnabled || effectiveHasClaimed || isClaiming) return;
-
-    const interval = setInterval(() => {
-      if (buttonRef.current && !effectiveHasClaimed && !isClaiming) {
-        console.log('[DailyRewards] Auto-clicking button for testing');
-        buttonRef.current.click();
-      }
-    }, 3000); // Нажимаем каждые 3 секунды
-
-    return () => clearInterval(interval);
-  }, [autoClickEnabled, effectiveHasClaimed, isClaiming]);
 
   const handleClaim = async (e?: React.MouseEvent) => {
     e?.preventDefault();
@@ -152,32 +135,35 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
 
   return (
     <div className="h-full min-h-[360px] bg-gradient-to-br from-[#0B1120] via-[#0f172a] to-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-all duration-500">
-      {/* Улучшенное свечение фона */}
+      {/* Улучшенное свечение фона - усилено */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-red-500/5 pointer-events-none"
+        className="absolute inset-0 bg-gradient-to-br from-orange-500/15 via-red-500/10 to-orange-500/15 pointer-events-none"
         animate={{
-          opacity: [0.3, 0.5, 0.3],
+          opacity: [0.4, 0.7, 0.4],
         }}
         transition={{
-          duration: 4,
+          duration: 3,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
       
-      {/* Shimmer эффект на всей карточке */}
+      {/* Shimmer эффект на всей карточке - усилен */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none z-0"
         animate={{
           x: ['-100%', '200%'],
         }}
         transition={{
-          duration: 3,
+          duration: 2.5,
           repeat: Infinity,
-          repeatDelay: 2,
+          repeatDelay: 1.5,
           ease: "linear",
         }}
       />
+      
+      {/* Дополнительный градиентный overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-red-500/10 pointer-events-none" />
 
       {/* Анимация поздравления */}
       <CelebrationAnimations
@@ -273,28 +259,42 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       {/* Main Gauge */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-6">
         <div className="relative w-40 h-40">
-          {/* Улучшенное свечение с пульсацией */}
+          {/* Улучшенное свечение с пульсацией - усилено */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-red-500/15 to-orange-500/20 rounded-full blur-[50px]"
+            className="absolute inset-0 bg-gradient-to-br from-orange-500/30 via-red-500/25 to-orange-500/30 rounded-full blur-[60px]"
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
+              scale: [1, 1.3, 1],
+              opacity: [0.4, 0.7, 0.4],
             }}
             transition={{
-              duration: 3,
+              duration: 2.5,
               repeat: Infinity,
               ease: "easeInOut",
             }}
           />
           
-          {/* Дополнительное внешнее свечение */}
+          {/* Дополнительное внешнее свечение - усилено */}
           <motion.div
-            className="absolute -inset-4 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 rounded-full blur-[60px]"
+            className="absolute -inset-6 bg-gradient-to-br from-yellow-500/20 via-orange-500/15 to-red-500/20 rounded-full blur-[80px]"
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          
+          {/* Третье свечение для большей глубины */}
+          <motion.div
+            className="absolute -inset-8 bg-gradient-to-br from-yellow-400/15 via-orange-400/10 to-red-400/15 rounded-full blur-[100px]"
             animate={{
               opacity: [0.2, 0.4, 0.2],
             }}
             transition={{
-              duration: 2.5,
+              duration: 3,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -379,7 +379,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
 
       {/* Action Button */}
       <motion.button
-        ref={buttonRef}
         layout
         onClick={handleClaim}
         onTouchEnd={(e) => {
@@ -407,35 +406,49 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             : 'bg-gradient-to-r from-white via-slate-50 to-white text-slate-900 hover:scale-[1.02] active:scale-95 shadow-[0_0_25px_rgba(255,255,255,0.2)]'
           }`}
       >
-        {/* Shimmer эффект на кнопке */}
+        {/* Shimmer эффект на кнопке - усилен */}
         {!effectiveHasClaimed && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent z-10"
             animate={{
               x: ['-100%', '200%'],
             }}
             transition={{
-              duration: 2,
+              duration: 1.5,
               repeat: Infinity,
-              repeatDelay: 1,
+              repeatDelay: 0.8,
               ease: "linear",
             }}
           />
         )}
         
-        {/* Дополнительное свечение для дня 7 */}
+        {/* Дополнительное свечение для дня 7 - усилено */}
         {isDay7 && !effectiveHasClaimed && (
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 rounded-2xl blur-sm"
-            animate={{
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
+          <>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-orange-400/30 to-red-400/30 rounded-2xl blur-md"
+              animate={{
+                opacity: [0.4, 0.8, 0.4],
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-red-500/20 rounded-2xl blur-lg"
+              animate={{
+                opacity: [0.3, 0.6, 0.3],
+                scale: [1, 1.05, 1],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </>
         )}
         <AnimatePresence mode="wait">
           {effectiveHasClaimed ? (
