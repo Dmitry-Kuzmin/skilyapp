@@ -238,60 +238,64 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const handleTouchEnd = () => {
       if (side !== "bottom" || startY === null || !isDragging) return;
       
-      if (contentRef.current && modalHeightRef.current) {
-        // Instagram-стиль: динамический порог закрытия (25-30% высоты модалки)
-        // Но с минимальным и максимальным значениями для предсказуемости
-        const minThreshold = 100; // Минимум 100px
-        const maxThreshold = 200; // Максимум 200px
-        const dynamicThreshold = modalHeightRef.current * 0.25; // 25% высоты
-        const closeThreshold = Math.max(minThreshold, Math.min(maxThreshold, dynamicThreshold));
+      if (!contentRef.current) return;
+      
+      // Получаем текущее расстояние свайпа напрямую из состояния
+      const dragDistance = currentY || 0;
+      
+      // Упрощенная логика: если свайпнули больше 80px - закрываем
+      // Это работает для всех размеров модалок
+      const minCloseThreshold = 80; // Минимальный порог в пикселях
+      
+      // Также учитываем процент от высоты (если высота известна)
+      let shouldClose = dragDistance > minCloseThreshold;
+      
+      if (modalHeightRef.current) {
+        const percentThreshold = modalHeightRef.current * 0.2; // 20% высоты
+        shouldClose = dragDistance > Math.max(minCloseThreshold, percentThreshold);
         
-        // Учитываем инерцию: если скорость свайпа высокая, снижаем порог
-        const velocityThreshold = 0.3; // px/ms (снижен для более чувствительной инерции)
-        const hasHighVelocity = Math.abs(velocityRef.current) > velocityThreshold;
+        // Если свайпнули больше 30% - точно закрываем
+        if (dragDistance > modalHeightRef.current * 0.3) {
+          shouldClose = true;
+        }
         
-        // Решение о закрытии: либо превышен порог, либо высокая скорость
-        // Также закрываем если свайпнули больше 50% высоты (на всякий случай)
-        const dragDistance = currentY || 0;
-        const halfHeight = modalHeightRef.current * 0.5;
+        // Учитываем скорость - быстрый свайп закрывает легче
+        if (Math.abs(velocityRef.current) > 0.2 && dragDistance > 50) {
+          shouldClose = true;
+        }
+      }
+      
+      if (shouldClose) {
+        // Предотвращаем множественные вызовы закрытия
+        if (isClosingRef.current) return;
+        isClosingRef.current = true;
         
-        const shouldClose = dragDistance > 0 && (
-          dragDistance > closeThreshold || 
-          dragDistance > halfHeight || // Если свайпнули больше половины - точно закрываем
-          (hasHighVelocity && dragDistance > closeThreshold * 0.4 && velocityRef.current > 0)
-        );
+        // Сразу убираем кастомные стили
+        if (contentRef.current) {
+          contentRef.current.style.transform = '';
+          contentRef.current.style.transition = '';
+        }
         
-        if (shouldClose) {
-          // Предотвращаем множественные вызовы закрытия
-          if (isClosingRef.current) return;
-          isClosingRef.current = true;
-          
-          // Instagram-стиль: плавное закрытие с инерцией
-          requestAnimationFrame(() => {
-            if (contentRef.current) {
-              // Убираем inline стили, чтобы Radix UI мог управлять анимацией
-              contentRef.current.style.transform = '';
-              contentRef.current.style.transition = '';
-              
-              // Восстанавливаем overlay
-              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-              if (overlay) {
-                overlay.style.opacity = '';
-                overlay.style.transition = '';
-              }
-              
-              // Вызываем закрытие после того, как убрали кастомные стили
-              if (props.onOpenChange) {
-                props.onOpenChange(false);
-              }
-            }
-          });
-          
-          // Сбрасываем флаг после завершения анимации (200ms)
+        // Восстанавливаем overlay
+        const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+        if (overlay) {
+          overlay.style.opacity = '';
+          overlay.style.transition = '';
+        }
+        
+        // Вызываем закрытие сразу (без requestAnimationFrame для надежности)
+        if (props.onOpenChange) {
+          // Небольшая задержка чтобы стили успели сброситься
           setTimeout(() => {
-            isClosingRef.current = false;
-          }, 200);
-        } else {
+            props.onOpenChange(false);
+          }, 10);
+        }
+        
+        // Сбрасываем флаг после завершения анимации (200ms)
+        setTimeout(() => {
+          isClosingRef.current = false;
+        }, 200);
+      } else {
           // Instagram-стиль: возврат на место с spring animation
           const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
           
