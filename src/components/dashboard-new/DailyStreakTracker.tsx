@@ -53,26 +53,26 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
   }, []);
 
   // Confetti animation
-  const fireConfetti = useCallback(() => {
+  const fireConfetti = useCallback((startX?: number, startY?: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'];
     
-    // Используем сохраненную позицию клика или позицию кнопки как fallback
-    let startX: number;
-    let startY: number;
+    // Используем переданные координаты или позицию кнопки как fallback
+    let x: number;
+    let y: number;
     
-    if (clickPositionRef.current) {
-      startX = clickPositionRef.current.x;
-      startY = clickPositionRef.current.y;
+    if (startX !== undefined && startY !== undefined) {
+      x = startX;
+      y = startY;
     } else {
       // Fallback: используем позицию кнопки
       const button = buttonRef.current;
       if (!button) return;
       const buttonRect = button.getBoundingClientRect();
-      startX = buttonRect.left + buttonRect.width / 2;
-      startY = buttonRect.top + buttonRect.height / 2;
+      x = buttonRect.left + buttonRect.width / 2;
+      y = buttonRect.top + buttonRect.height / 2;
     }
 
     // Убеждаемся, что canvas имеет правильные размеры
@@ -83,8 +83,8 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
 
     for (let i = 0; i < 100; i++) {
       particlesRef.current.push({
-        x: startX,
-        y: startY,
+        x: x,
+        y: y,
         vx: (Math.random() - 0.5) * 15,
         vy: (Math.random() - 0.5) * 15 - 5,
         size: Math.random() * 8 + 2,
@@ -141,18 +141,15 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
   }, []);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const clickPositionRef = useRef<{ x: number; y: number } | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Сохраняем координаты клика для конфетти
+    // Получаем координаты центра кнопки относительно viewport
     const rect = e.currentTarget.getBoundingClientRect();
-    clickPositionRef.current = {
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
+    const clickX = rect.left + rect.width / 2;
+    const clickY = rect.top + rect.height / 2;
     
-    // Всегда запускаем конфетти для тестирования
-    fireConfetti();
+    // Всегда запускаем конфетти для тестирования с координатами клика
+    fireConfetti(clickX, clickY);
     // Вызываем onClaim только если еще не получили награду сегодня
     if (!hasClaimedToday) {
       onClaim();
