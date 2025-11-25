@@ -69,14 +69,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
     ? 'shadow-2xl shadow-purple-900/30'
     : 'shadow-[0_32px_80px_rgba(139,92,246,0.25)]';
   const onlineBadgeClass = isDarkTheme
-    ? 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/25 to-emerald-600/25 border border-emerald-400/40 backdrop-blur-sm shadow-lg shadow-emerald-500/20'
-    : 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-emerald-200/80 shadow-[0_12px_34px_rgba(16,185,129,0.25)] backdrop-blur-sm';
+    ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-emerald-500/25 to-emerald-600/25 border border-emerald-400/40 backdrop-blur-sm shadow-lg shadow-emerald-500/20'
+    : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-white/95 border border-emerald-200/80 shadow-[0_12px_34px_rgba(16,185,129,0.25)] backdrop-blur-sm';
   const licenseBadgeClass = isDarkTheme
-    ? 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/25 via-indigo-500/25 to-purple-500/25 border border-blue-400/40 backdrop-blur-sm group hover:border-blue-300/60 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300'
-    : 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-50/95 via-indigo-50/95 to-purple-50/95 border border-indigo-200/80 text-indigo-700 shadow-[0_12px_32px_rgba(99,102,241,0.25)] backdrop-blur-sm';
+    ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-blue-500/25 via-indigo-500/25 to-purple-500/25 border border-blue-400/40 backdrop-blur-sm group hover:border-blue-300/60 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300'
+    : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap bg-gradient-to-r from-blue-50/95 via-indigo-50/95 to-purple-50/95 border border-indigo-200/80 text-indigo-700 shadow-[0_12px_32px_rgba(99,102,241,0.25)] backdrop-blur-sm';
   const cockpitButtonClass = isDarkTheme
-    ? 'flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-700/70 bg-slate-900/70 hover:border-emerald-400/60 hover:bg-slate-800/90 transition-all text-xs font-semibold text-slate-200 backdrop-blur-sm'
-    : 'flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200/80 bg-gradient-to-r from-white/95 to-slate-50/95 hover:border-emerald-300 hover:bg-emerald-50/95 transition-all text-xs font-semibold text-slate-600 shadow-[0_10px_30px_rgba(148,163,184,0.3)] backdrop-blur-sm';
+    ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-700/70 bg-slate-900/70 hover:border-emerald-400/60 hover:bg-slate-800/90 transition-all text-[11px] sm:text-xs font-semibold text-slate-200 whitespace-nowrap backdrop-blur-sm'
+    : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-200/80 bg-gradient-to-r from-white/95 to-slate-50/95 hover:border-emerald-300 hover:bg-emerald-50/95 transition-all text-[11px] sm:text-xs font-semibold text-slate-600 whitespace-nowrap shadow-[0_10px_30px_rgba(148,163,184,0.3)] backdrop-blur-sm';
   const statValueClass = isDarkTheme ? 'text-base sm:text-lg font-black text-white' : 'text-base sm:text-lg font-black text-slate-900';
   const statLabelBase = 'text-[9px] sm:text-[10px] font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1';
   const statStartButtonText = isDarkTheme ? 'text-indigo-300' : 'text-purple-600';
@@ -136,14 +136,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         
         {/* Header */}
         <div className="mb-6 animate-fade-in">
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
             {/* Online Status Badge */}
             <div className={onlineBadgeClass}>
               <div className="relative">
                 <Circle className="w-2 h-2 text-emerald-400 fill-emerald-400" />
                 <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-75" />
               </div>
-              <span className={`text-xs font-semibold ${onlineTextClass}`}>{t('dashboard.onlineStatus')}</span>
+              <span className={`text-[11px] sm:text-xs font-semibold ${onlineTextClass}`}>{t('dashboard.onlineStatus')}</span>
             </div>
 
             {/* License Badge */}
@@ -152,8 +152,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <span
                 className={
                   isDarkTheme
-                    ? 'text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent'
-                    : 'text-xs font-bold text-indigo-600'
+                    ? 'text-[11px] sm:text-xs font-bold bg-gradient-to-r from-blue-300 to-indigo-300 bg-clip-text text-transparent'
+                    : 'text-[11px] sm:text-xs font-bold text-indigo-600'
                 }
               >
                 {t('dashboard.licenseStatus')}
