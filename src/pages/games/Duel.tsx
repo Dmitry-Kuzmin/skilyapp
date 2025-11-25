@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -132,6 +132,37 @@ export default function Duel() {
         }
     }, [betAmount]);
 
+    // Define handleDuelStarted early so it can be used in useEffect dependencies
+    const handleDuelStarted = useCallback((targetDuelId?: string) => {
+        const activeDuelId = targetDuelId || duelId;
+        console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
+
+        if (!activeDuelId) {
+            console.error('[Duel] ❌ Cannot start battle: no duelId');
+            return;
+        }
+
+        // Убеждаемся, что duelId установлен
+        if (targetDuelId && targetDuelId !== duelId) {
+            setDuelId(targetDuelId);
+        }
+
+        // Reset hidden state when starting new battle
+        setIsBattleHidden(false);
+
+        // Immediate state change
+        setMode('battle');
+
+        // Multiple retries for Telegram reliability
+        const retries = [50, 150, 300];
+        retries.forEach((delay, index) => {
+            setTimeout(() => {
+                console.log(`[Duel] Battle mode retry #${index + 1}`);
+                setMode('battle');
+            }, delay);
+        });
+    }, [duelId]);
+
     // Восстановление состояния активной дуэли при загрузке страницы
     useEffect(() => {
         // Ждем завершения проверки activeDuel и загрузки данных
@@ -245,7 +276,7 @@ export default function Duel() {
             checkDuelStatusAndRestore();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isChecking, activeDuel, searchParams, dataLoaded]);
+    }, [isChecking, activeDuel, searchParams, dataLoaded, handleDuelStarted]);
 
     useEffect(() => {
         // Показываем уведомления только после полной загрузки данных
@@ -333,35 +364,6 @@ export default function Duel() {
         }
     };
 
-    const handleDuelStarted = (targetDuelId?: string) => {
-        const activeDuelId = targetDuelId || duelId;
-        console.log('[Duel] ⚡ DUEL STARTED! Switching to battle mode. DuelId:', activeDuelId);
-
-        if (!activeDuelId) {
-            console.error('[Duel] ❌ Cannot start battle: no duelId');
-            return;
-        }
-
-        // Убеждаемся, что duelId установлен
-        if (targetDuelId && targetDuelId !== duelId) {
-            setDuelId(targetDuelId);
-        }
-
-        // Reset hidden state when starting new battle
-        setIsBattleHidden(false);
-
-        // Immediate state change
-        setMode('battle');
-
-        // Multiple retries for Telegram reliability
-        const retries = [50, 150, 300];
-        retries.forEach((delay, index) => {
-            setTimeout(() => {
-                console.log(`[Duel] Battle mode retry #${index + 1}`);
-                setMode('battle');
-            }, delay);
-        });
-    };
 
     // Handle widget expand - restore battle mode when widget is expanded
     // When widget is expanded, we need to restore battle mode
@@ -815,7 +817,7 @@ export default function Duel() {
             console.log('[Duel] ✅ Duel started signal from realtime! Starting battle immediately...');
             handleDuelStarted(duelId);
         }
-    }, [duelState.duelStarted, createdCode, duelId]);
+    }, [duelState.duelStarted, createdCode, duelId, handleDuelStarted]);
 
     // Показываем skeleton screen при начальной загрузке - ПОСЛЕ всех хуков!
     if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
