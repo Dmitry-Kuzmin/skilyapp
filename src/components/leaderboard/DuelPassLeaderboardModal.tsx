@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTheme } from "next-themes";
 
 interface LeaderboardEntry {
   user_id: string;
@@ -234,6 +235,23 @@ export function DuelPassLeaderboardModal() {
   const { profileId, user } = useUserContext();
   const { isOpen, closeModal } = useModalRoute('duel-pass-leaderboard');
   const { openModal: openHallOfFameModal } = useModalRoute('hall-of-fame');
+  const { resolvedTheme } = useTheme();
+  const theme = resolvedTheme ?? "dark";
+  const isLightTheme = theme === "light";
+  const rowBaseClass = useMemo(
+    () =>
+      isLightTheme
+        ? "border-b border-slate-200 bg-white/95 even:bg-white/90 text-slate-900 hover:bg-white"
+        : "border-b-0 bg-slate-900/40 even:bg-slate-900/30 text-white hover:bg-slate-800/60",
+    [isLightTheme]
+  );
+  const highlightedRowClass = useMemo(
+    () =>
+      isLightTheme
+        ? "bg-gradient-to-r from-primary/15 via-primary/5 to-white border-l-4 border-l-primary shadow-lg ring-1 ring-primary/15"
+        : "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-l-4 border-l-primary shadow-lg ring-1 ring-primary/20",
+    [isLightTheme]
+  );
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [userPositionData, setUserPositionData] = useState<UserPositionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1032,10 +1050,9 @@ export function DuelPassLeaderboardModal() {
                     <TableRow
                       key={leader.user_id}
                       className={cn(
-                        "border-b-0 bg-slate-900/40 even:bg-slate-900/30 transition-colors hover:bg-slate-800/60",
-                        "relative overflow-hidden",
-                        isCurrentUser &&
-                          "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-l-4 border-l-primary shadow-lg ring-1 ring-primary/20"
+                        rowBaseClass,
+                        "relative overflow-hidden transition-colors",
+                        isCurrentUser && highlightedRowClass
                       )}
                     >
                           <TableCell className="font-bold">
