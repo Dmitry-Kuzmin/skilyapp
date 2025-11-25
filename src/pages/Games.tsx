@@ -3,6 +3,7 @@ import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, C
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
 import { getStudiedTermsCount } from "@/lib/termProgress";
@@ -19,6 +20,19 @@ interface GamesStats {
   averageResult: number;
 }
 
+interface OnlinePlayer {
+  id: string;
+  name: string;
+  photoUrl: string | null;
+  initials: string;
+}
+
+const fallbackPlayers: OnlinePlayer[] = [
+  { id: "fallback-1", name: "Lola", photoUrl: null, initials: "LO" },
+  { id: "fallback-2", name: "David", photoUrl: null, initials: "DA" },
+  { id: "fallback-3", name: "Inés", photoUrl: null, initials: "IN" },
+];
+
 const Games = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
@@ -32,6 +46,7 @@ const Games = () => {
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
 
   useEffect(() => {
     if (profileId) {
@@ -44,6 +59,51 @@ const Games = () => {
       setIsLoadingStats(false);
     }
   }, [profileId]);
+
+  useEffect(() => {
+    loadOnlinePlayers();
+  }, []);
+
+  const loadOnlinePlayers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, first_name, username, photo_url, last_login')
+        .order('last_login', { ascending: false, nullsLast: true })
+        .limit(5);
+
+      if (error) {
+        console.error('Error loading online players:', error);
+        return;
+      }
+
+      if (!data) {
+        setOnlinePlayers([]);
+        return;
+      }
+
+      const formatted = data
+        .map((profile) => {
+          const displayName = profile.first_name || profile.username || 'Player';
+          return {
+            id: profile.id,
+            name: displayName,
+            photoUrl: profile.photo_url,
+            initials: displayName
+              .split(' ')
+              .map((part) => part.charAt(0))
+              .join('')
+              .slice(0, 2)
+              .toUpperCase() || 'PL',
+          } satisfies OnlinePlayer;
+        })
+        .slice(0, 3);
+
+      setOnlinePlayers(formatted);
+    } catch (error) {
+      console.error('Unexpected error loading online players:', error);
+    }
+  };
 
   // Обновляем статистику при возврате на страницу (visibility change)
   useEffect(() => {
@@ -348,12 +408,25 @@ const Games = () => {
 
                     <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
                       <div className="flex -space-x-3">
-                        {[1, 2, 3].map(i => (
-                          <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-300 to-purple-300 border-2 border-indigo-500 shadow-sm" />
+                        {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => (
+                          <Avatar
+                            key={player.id}
+                            className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-slate-900"
+                          >
+                            {player.photoUrl ? (
+                              <AvatarImage src={player.photoUrl} alt={player.name} />
+                            ) : (
+                              <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
+                                {player.initials}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
                         ))}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-white font-bold text-sm leading-none">124</span>
+                        <span className="text-white font-bold text-sm leading-none">
+                          {(onlinePlayers.length || 3) * 25}+
+                        </span>
                         <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Онлайн</span>
                       </div>
                     </div>
