@@ -78,6 +78,7 @@ export default function Duel() {
     const [betType, setBetType] = useState<'none' | 'fixed' | 'custom'>('none');
     const [betAmount, setBetAmount] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
+    const [duelStats, setDuelStats] = useState({ totalDuels: 0, wins: 0 });
     const [showShop, setShowShop] = useState(false);
     const lowCoinsPromptedRef = useRef(false);
     const [hostInsuranceEnabled, setHostInsuranceEnabled] = useState(false);
@@ -103,27 +104,46 @@ export default function Duel() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Load user coins
+    // Load user coins and duel stats
     useEffect(() => {
-        const loadCoins = async () => {
+        const loadData = async () => {
             if (!profileId) {
                 setDataLoaded(true);
                 return;
             }
 
-            const { data, error } = await supabase
+            // Load coins
+            const { data: coinsData, error: coinsError } = await supabase
                 .from('profiles')
                 .select('coins')
                 .eq('id', profileId)
                 .single();
 
-            if (!error && data) {
-                setUserCoins(data.coins || 0);
+            if (!coinsError && coinsData) {
+                setUserCoins(coinsData.coins || 0);
             }
+
+            // Load duel stats
+            const { data: statsData, error: statsError } = await supabase
+                .from('duel_stats')
+                .select('total_duels, wins')
+                .eq('user_id', profileId)
+                .maybeSingle();
+
+            if (!statsError && statsData) {
+                setDuelStats({
+                    totalDuels: statsData.total_duels || 0,
+                    wins: statsData.wins || 0,
+                });
+            } else if (statsError && statsError.code !== 'PGRST116') {
+                // PGRST116 = no rows returned, which is fine for new users
+                console.error('[Duel] Error loading duel stats:', statsError);
+            }
+
             setDataLoaded(true);
         };
 
-        loadCoins();
+        loadData();
     }, [profileId]);
 
     useEffect(() => {
@@ -940,7 +960,9 @@ export default function Duel() {
                                                     <Swords className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
                                                     <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Всего дуэлей</span>
                                                 </div>
-                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">0</div>
+                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">
+                                                    {dataLoaded ? duelStats.totalDuels : '—'}
+                                                </div>
                                             </motion.div>
 
                                             {/* Wins */}
@@ -952,7 +974,9 @@ export default function Duel() {
                                                     <Trophy className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
                                                     <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Побед</span>
                                                 </div>
-                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">0</div>
+                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">
+                                                    {dataLoaded ? duelStats.wins : '—'}
+                                                </div>
                                             </motion.div>
 
                                             {/* Coins Balance */}

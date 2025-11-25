@@ -798,14 +798,18 @@ All colors MUST be HSL.
     min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
 
   /* Основной контент - единая система отступов */
   .telegram-main-content {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
+    min-height: 0; /* Важно для flex-контейнеров - позволяет скроллиться */
     /* Отступ снизу для нижней навигации */
     padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
   }

@@ -77,8 +77,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const cockpitButtonClass = isDarkTheme
     ? 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-700/70 bg-slate-900/70 hover:border-emerald-400/60 hover:bg-slate-800/90 transition-all text-[11px] sm:text-xs font-semibold text-slate-200 whitespace-nowrap backdrop-blur-sm'
     : 'flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-200/80 bg-gradient-to-r from-white/95 to-slate-50/95 hover:border-emerald-300 hover:bg-emerald-50/95 transition-all text-[11px] sm:text-xs font-semibold text-slate-600 whitespace-nowrap shadow-[0_10px_30px_rgba(148,163,184,0.3)] backdrop-blur-sm';
-  const statValueClass = isDarkTheme ? 'text-base sm:text-lg font-black text-white' : 'text-base sm:text-lg font-black text-slate-900';
-  const statLabelBase = 'text-[9px] sm:text-[10px] font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1';
+  const statValueClass = isDarkTheme ? 'text-sm sm:text-base md:text-lg font-black text-white' : 'text-sm sm:text-base md:text-lg font-black text-slate-900';
+  const statLabelBase = 'text-[8px] xs:text-[9px] sm:text-[10px] font-bold uppercase tracking-wide leading-none mb-0.5 sm:mb-1';
   const statStartButtonText = isDarkTheme ? 'text-indigo-300' : 'text-purple-600';
   const onlineTextClass = isDarkTheme ? 'text-emerald-200' : 'text-emerald-700';
   // Улучшенная opacity для noise - лучше видимость текста
@@ -87,20 +87,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const heroBodyTextClass = isDarkTheme ? 'text-white/90' : 'text-slate-600';
   // Улучшенные цвета карточек с лучшим контрастом
   const xpCardClass = isDarkTheme
-    ? 'group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-yellow-500/15 via-orange-500/10 to-yellow-600/15 backdrop-blur-sm border border-yellow-400/40 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:border-yellow-300/60 hover:shadow-xl hover:shadow-yellow-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
-    : 'group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-2xl bg-white/95 border border-amber-100/90 px-3 py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(251,191,36,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
+    ? 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-gradient-to-br from-yellow-500/15 via-orange-500/10 to-yellow-600/15 backdrop-blur-sm border border-yellow-400/40 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 hover:border-yellow-300/60 hover:shadow-xl hover:shadow-yellow-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
+    : 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-white/95 border border-amber-100/90 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(251,191,36,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
   const xpOverlayClass = isDarkTheme
     ? 'absolute inset-0 bg-gradient-to-br from-yellow-500/20 via-orange-500/15 to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
     : 'absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-amber-100 opacity-70 group-hover:opacity-100 transition-opacity duration-300';
   const testsCardClass = isDarkTheme
-    ? 'group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-blue-600/15 backdrop-blur-sm border border-blue-400/40 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:border-blue-300/60 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
-    : 'group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-2xl bg-white/95 border border-blue-100/90 px-3 py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(59,130,246,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
+    ? 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-blue-600/15 backdrop-blur-sm border border-blue-400/40 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 hover:border-blue-300/60 hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
+    : 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-white/95 border border-blue-100/90 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(59,130,246,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
   const testsOverlayClass = isDarkTheme
     ? 'absolute inset-0 bg-gradient-to-br from-blue-500/20 via-indigo-500/15 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
     : 'absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-100 opacity-70 group-hover:opacity-100 transition-opacity duration-300';
   const coinsCardClass = isDarkTheme
-    ? 'group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-amber-600/15 backdrop-blur-sm border border-amber-400/40 px-2.5 sm:px-3 py-2 sm:py-2.5 hover:border-amber-300/60 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
-    : 'group relative flex-1 flex items-center gap-2 sm:gap-2.5 rounded-2xl bg-white/95 border border-amber-100/90 px-3 py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
+    ? 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-amber-600/15 backdrop-blur-sm border border-amber-400/40 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 hover:border-amber-300/60 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer overflow-hidden'
+    : 'group relative flex-1 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 rounded-lg xs:rounded-xl sm:rounded-2xl bg-white/95 border border-amber-100/90 px-2 xs:px-2.5 sm:px-3 py-1.5 xs:py-2 sm:py-2.5 shadow-[0_20px_45px_rgba(245,158,11,0.3)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden backdrop-blur-sm';
   const coinsOverlayClass = isDarkTheme
     ? 'absolute inset-0 bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300'
     : 'absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-amber-100 opacity-70 group-hover:opacity-100 transition-opacity duration-300';
@@ -131,7 +131,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className={`min-h-screen ${pageBgClass} px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-24 font-sans`}>
+    <div className={`w-full ${pageBgClass} px-4 sm:px-6 lg:px-10 pt-4 md:pt-6 pb-24 font-sans`}>
       <div className="max-w-[1370px] mx-auto space-y-6">
         
         {/* Header */}
@@ -232,7 +232,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
 
               {/* Bottom section: Stats blocks - компактный улучшенный дизайн */}
-              <div className="flex items-stretch gap-2 sm:gap-2.5">
+              <div className="flex items-stretch gap-1.5 xs:gap-2 sm:gap-2.5 md:gap-3">
                 {/* XP Card */}
                 <button
                   onClick={() => handleStatClick('xp')}
@@ -244,19 +244,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-                  <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 w-full min-w-0">
+                  <div className="relative z-10 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 w-full min-w-0">
                     {/* Icon container - компактный */}
-                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-yellow-400/30 via-orange-500/25 to-yellow-500/30 border border-yellow-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-yellow-500/25">
-                      <Zap className={`w-4 h-4 sm:w-5 sm:h-5 ${xpIconColor} relative z-10`} />
+                    <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-yellow-400/30 via-orange-500/25 to-yellow-500/30 border border-yellow-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-yellow-500/25">
+                      <Zap className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${xpIconColor} relative z-10`} />
                     </div>
                     
                     {/* Text content - компактный */}
-                    <div className="flex-1 min-w-0">
-                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-yellow-100/90' : 'text-yellow-700/90'}`}>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-yellow-100/90' : 'text-yellow-700/90'} truncate`}>
                         {t('dashboard.stats.xp')}
                       </div>
-                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-yellow-50' : 'group-hover:text-yellow-700'} transition-colors duration-200`}>
-                        {stats.xp || 0} <span className={`text-xs sm:text-sm font-bold ${isDarkTheme ? 'text-yellow-200/80' : 'text-yellow-600/80'}`}>XP</span>
+                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-yellow-50' : 'group-hover:text-yellow-700'} transition-colors duration-200 truncate`}>
+                        <span className="truncate block">{(stats.xp || 0).toLocaleString()}</span>
+                        <span className={`text-[9px] xs:text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-200/80' : 'text-yellow-600/80'}`}>XP</span>
                       </div>
                     </div>
                   </div>
@@ -273,19 +274,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-                  <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 w-full min-w-0">
+                  <div className="relative z-10 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 w-full min-w-0">
                     {/* Icon container - компактный */}
-                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-blue-400/30 via-indigo-500/25 to-blue-500/30 border border-blue-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-blue-500/25">
-                      <FileText className={`w-4 h-4 sm:w-5 sm:h-5 ${testsIconColor} relative z-10`} />
+                    <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-blue-400/30 via-indigo-500/25 to-blue-500/30 border border-blue-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-blue-500/25">
+                      <FileText className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${testsIconColor} relative z-10`} />
                     </div>
                     
                     {/* Text content - компактный */}
-                    <div className="flex-1 min-w-0">
-                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-blue-100/90' : 'text-blue-700/90'}`}>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-blue-100/90' : 'text-blue-700/90'} truncate`}>
                         {t('dashboard.stats.tests')}
                       </div>
-                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-blue-50' : 'group-hover:text-blue-700'} transition-colors duration-200`}>
-                        {stats.testsCompleted}
+                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-blue-50' : 'group-hover:text-blue-700'} transition-colors duration-200 truncate`}>
+                        {stats.testsCompleted.toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -302,19 +303,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {/* Shimmer effect - только при hover */}
                   <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 
-                  <div className="relative z-10 flex items-center gap-2 sm:gap-2.5 w-full min-w-0">
+                  <div className="relative z-10 flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 w-full min-w-0">
                     {/* Icon container - компактный */}
-                    <div className="relative w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-gradient-to-br from-amber-400/30 via-yellow-500/25 to-amber-500/30 border border-amber-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-amber-500/25">
-                      <Coins className={`w-4 h-4 sm:w-5 sm:h-5 ${coinsIconColor} relative z-10`} />
+                    <div className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg xs:rounded-xl bg-gradient-to-br from-amber-400/30 via-yellow-500/25 to-amber-500/30 border border-amber-400/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shadow-md shadow-amber-500/25">
+                      <Coins className={`w-3.5 h-3.5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 ${coinsIconColor} relative z-10`} />
                     </div>
                     
                     {/* Text content - компактный */}
-                    <div className="flex-1 min-w-0">
-                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-amber-100/90' : 'text-amber-700/90'}`}>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className={`${statLabelBase} ${isDarkTheme ? 'text-amber-100/90' : 'text-amber-700/90'} truncate`}>
                         {t('dashboard.stats.coins')}
                       </div>
-                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-amber-50' : 'group-hover:text-amber-700'} transition-colors duration-200`}>
-                        {stats.coins}
+                      <div className={`${statValueClass} leading-tight ${isDarkTheme ? 'group-hover:text-amber-50' : 'group-hover:text-amber-700'} transition-colors duration-200 truncate`}>
+                        {(stats.coins || 0).toLocaleString()}
                       </div>
                     </div>
                   </div>

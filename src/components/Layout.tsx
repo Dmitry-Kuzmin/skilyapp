@@ -247,7 +247,7 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   }, [location.pathname]);
 
   return (
-    <div className="telegram-app-container min-h-screen flex flex-col">
+    <div className="telegram-app-container flex flex-col">
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
       {/* Edge Swipe Back Area (Telegram/Mobile) */}

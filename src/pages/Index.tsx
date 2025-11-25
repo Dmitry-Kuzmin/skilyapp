@@ -215,11 +215,139 @@ const Index = () => {
       console.log('[handleClaimBonus] Claim successful, streak:', newStreak, 'weekDay:', weekDay);
 
       // Показываем успешное сообщение сразу
-      const rewardText = [];
+      const rewardText: string[] = [];
       if (currentReward.reward.xp > 0) rewardText.push(`+${currentReward.reward.xp} XP`);
       if (currentReward.reward.coins > 0) rewardText.push(`+${currentReward.reward.coins} монет`);
-      if (currentReward.reward.boost) rewardText.push('Boost активирован!');
-      if (currentReward.reward.badge) rewardText.push('Бейдж получен!');
+      
+      // Обработка рандомного лута (день 2, 3, 6)
+      let randomLootGranted = false;
+      if (currentReward.reward.random_loot) {
+        try {
+          const lootType = currentReward.reward.random_loot.type;
+          const lootPool = currentReward.reward.random_loot.pool || 'common';
+          
+          if (lootType === 'sticker') {
+            // Получаем рандомный стикер
+            const { data: stickerId, error: stickerError } = await supabase.rpc('get_random_sticker_from_pool', {
+              p_pool: lootPool
+            });
+            
+            if (stickerError) {
+              console.error('[handleClaimBonus] Error getting random sticker:', stickerError);
+            } else if (stickerId) {
+              const { data: lootResult, error: lootError } = await supabase.rpc('grant_random_loot', {
+                p_user_id: profileId,
+                p_loot_data: {
+                  type: 'sticker',
+                  id: stickerId,
+                  quantity: 1
+                }
+              });
+              
+              if (lootError) {
+                console.error('[handleClaimBonus] Error granting sticker:', lootError);
+              } else if (lootResult?.success) {
+                console.log('[handleClaimBonus] Sticker granted:', lootResult);
+                rewardText.push('🎁 Стикер получен!');
+                randomLootGranted = true;
+              } else {
+                console.warn('[handleClaimBonus] Sticker grant failed:', lootResult);
+              }
+            }
+          } else if (lootType === 'surprise') {
+            // Сюрпризный лут: 60% монеты (уже в награде), 40% косметика
+            const { data: lootData, error: lootDataError } = await supabase.rpc('get_random_loot', {
+              p_loot_type: 'surprise',
+              p_pool: lootPool
+            });
+            
+            if (lootDataError) {
+              console.error('[handleClaimBonus] Error getting random loot:', lootDataError);
+            } else if (lootData && lootData.type !== 'coins_only' && lootData.type !== 'none') {
+              const { data: lootResult, error: lootError } = await supabase.rpc('grant_random_loot', {
+                p_user_id: profileId,
+                p_loot_data: lootData
+              });
+              
+              if (lootError) {
+                console.error('[handleClaimBonus] Error granting surprise loot:', lootError);
+              } else if (lootResult?.success) {
+                console.log('[handleClaimBonus] Surprise loot granted:', lootResult);
+                randomLootGranted = true;
+                if (lootResult.type === 'sticker') {
+                  rewardText.push('🎁 Стикер получен!');
+                } else if (lootResult.type === 'skin') {
+                  rewardText.push('🎨 Скин получен!');
+                }
+              } else {
+                console.warn('[handleClaimBonus] Surprise loot grant failed:', lootResult);
+              }
+            }
+          }
+        } catch (lootError) {
+          console.error('[handleClaimBonus] Error granting random loot:', lootError);
+          // Не прерываем выполнение, но логируем ошибку
+        }
+      }
+
+      // Обработка Boost (день 4, 7)
+      if (currentReward.reward.boost) {
+        try {
+          // Даем Double SP boost (полезный для дуэлей)
+          const { data: boostData, error: boostError } = await supabase.rpc('modify_boost_inventory', {
+            p_user_id: profileId,
+            p_boost_type: 'double_sp',
+            p_change: 1
+          });
+          
+          if (boostError) {
+            console.error('[handleClaimBonus] Error granting boost:', boostError);
+            // Пробуем альтернативный способ - прямой insert через service role
+            // Но это не сработает из клиента, поэтому просто логируем
+          } else {
+            console.log('[handleClaimBonus] Boost granted: double_sp', boostData);
+            rewardText.push('⚡ Boost получен!');
+          }
+        } catch (boostError) {
+          console.error('[handleClaimBonus] Error granting boost:', boostError);
+        }
+      }
+
+      // Обработка сезонного бейджа (день 7)
+      if (currentReward.reward.badge === 'seasonal' && weekDay === 7) {
+        try {
+          const { data: badgeId, error: badgeIdError } = await supabase.rpc('get_seasonal_weekly_badge');
+          
+          if (badgeIdError) {
+            console.error('[handleClaimBonus] Error getting seasonal badge:', badgeIdError);
+          } else if (badgeId) {
+            const { data: badgeData, error: badgeError } = await supabase
+              .from('user_badges')
+              .insert({
+                user_id: profileId,
+                badge_id: badgeId,
+                is_displayed: false,
+                obtained_from: 'daily_bonus',
+                obtained_metadata: {
+                  week_number: weekNumber,
+                  streak: newStreak,
+                  obtained_at: new Date().toISOString()
+                }
+              })
+              .select();
+            
+            if (badgeError && badgeError.code !== '23505') {
+              // 23505 = unique violation (бейдж уже есть) - это нормально
+              console.error('[handleClaimBonus] Error granting badge:', badgeError);
+            } else {
+              console.log('[handleClaimBonus] Seasonal badge granted:', badgeId, badgeData);
+              rewardText.push('🏆 Сезонный бейдж получен!');
+            }
+          }
+        } catch (badgeError) {
+          console.error('[handleClaimBonus] Error granting badge:', badgeError);
+        }
+      }
 
       toast({
         title: "🎉 Награда получена!",
@@ -358,7 +486,7 @@ const Index = () => {
         <WelcomeOverlay onComplete={handleWelcomeComplete} />
       )}
       <Layout hideNavigation={showWelcome}>
-        <div className={`min-h-screen pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+        <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
           {pageContent}
       </div>
       </Layout>
