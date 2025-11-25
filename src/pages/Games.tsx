@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,16 @@ const Games = () => {
   const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
+
+  const baseOnlineCount = useMemo(() => {
+    return (onlinePlayers.length || 3) * 25;
+  }, [onlinePlayers.length]);
+
+  const displayOnlineCount = useMemo(() => {
+    const variations = [0, 5, 10, 15];
+    const randomOffset = variations[Math.floor(Math.random() * variations.length)];
+    return baseOnlineCount + randomOffset;
+  }, [baseOnlineCount]);
 
   useEffect(() => {
     if (profileId) {
@@ -424,9 +434,7 @@ const Games = () => {
                         ))}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-white font-bold text-sm leading-none">
-                          {(onlinePlayers.length || 3) * 25}+
-                        </span>
+                        <span className="text-white font-bold text-sm leading-none">{displayOnlineCount}+</span>
                         <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Онлайн</span>
                       </div>
                     </div>
