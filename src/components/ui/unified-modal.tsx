@@ -101,21 +101,49 @@ export function UnifiedModal({
   const isAnimatingRef = React.useRef(false);
   const lastStateRef = React.useRef<boolean | null>(null);
 
+  // КРИТИЧНО: Сбрасываем флаги при изменении resolvedOpen
+  React.useEffect(() => {
+    // При открытии модалки сбрасываем все флаги
+    if (resolvedOpen) {
+      isAnimatingRef.current = false;
+      lastStateRef.current = null;
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[UnifiedModal] Modal opened - flags reset');
+      }
+    }
+  }, [resolvedOpen]);
+
   // Улучшенный обработчик: предотвращаем множественные вызовы во время анимации
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
-      // Предотвращаем повторные вызовы с тем же состоянием
-      if (lastStateRef.current === state) {
+      // КРИТИЧНО: Если модалка открывается, сбрасываем флаги сразу
+      if (state) {
+        isAnimatingRef.current = false;
+        lastStateRef.current = null;
+      }
+
+      // Предотвращаем повторные вызовы с тем же состоянием только если это закрытие
+      // При открытии всегда разрешаем
+      if (!state && lastStateRef.current === state) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[UnifiedModal] Ignoring duplicate close call');
+        }
         return;
       }
 
-      // Предотвращаем вызовы во время анимации (200ms)
-      if (isAnimatingRef.current) {
+      // Предотвращаем вызовы во время анимации только при закрытии
+      // При открытии всегда разрешаем
+      if (!state && isAnimatingRef.current) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[UnifiedModal] Ignoring close call during animation');
+        }
         return;
       }
 
-      // Устанавливаем флаг анимации
-      isAnimatingRef.current = true;
+      // Устанавливаем флаг анимации только при закрытии
+      if (!state) {
+        isAnimatingRef.current = true;
+      }
       lastStateRef.current = state;
 
       // Обновляем prop (основной источник истины)
@@ -132,10 +160,12 @@ export function UnifiedModal({
         }
       }
 
-      // Сбрасываем флаг после завершения анимации (200ms)
-      setTimeout(() => {
-        isAnimatingRef.current = false;
-      }, 200);
+      // Сбрасываем флаг после завершения анимации (200ms) только при закрытии
+      if (!state) {
+        setTimeout(() => {
+          isAnimatingRef.current = false;
+        }, 200);
+      }
     },
     [modalRouteKey, route, onOpenChange]
   );
