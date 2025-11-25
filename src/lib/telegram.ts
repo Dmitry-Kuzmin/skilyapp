@@ -64,7 +64,17 @@ export const isTelegramMiniApp = () => {
 export const getTelegramUser = () => {
   const webApp = getTelegramWebApp();
   if (webApp?.initDataUnsafe?.user) {
-    return webApp.initDataUnsafe.user;
+    const user = webApp.initDataUnsafe.user;
+    
+    // КРИТИЧНО: Фильтруем mock-данные
+    // Mock имеет id = 123456789 и username = 'test_user'
+    const isMock = user.id === 123456789 && user.username === 'test_user';
+    if (isMock) {
+      console.log('[Telegram] Mock user detected in getTelegramUser, returning null');
+      return null;
+    }
+    
+    return user;
   }
   return null;
 };

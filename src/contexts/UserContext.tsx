@@ -108,16 +108,48 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
         logUserContext("[UserContext] Auth state changed:", event, newSession?.user?.email);
-        setSession(newSession);
-        setSupabaseUser(newSession?.user ?? null);
+        
+        // КРИТИЧНО: Если есть реальный пользователь из Supabase, очищаем Telegram mock-данные
+        if (newSession?.user) {
+          logUserContext("[UserContext] Real Supabase user detected, setting user and clearing Telegram mock");
+          setSession(newSession);
+          setSupabaseUser(newSession.user);
+          // Очищаем Telegram mock-данные, если они были установлены
+          setUser(prevUser => {
+            if (prevUser && (prevUser.id === 123456789 || prevUser.username === 'test_user')) {
+              logUserContext("[UserContext] Clearing Telegram mock user");
+              window.puzzleUser = null;
+              return null;
+            }
+            return prevUser;
+          });
+        } else {
+          setSession(newSession);
+          setSupabaseUser(newSession?.user ?? null);
+        }
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
       logUserContext("[UserContext] Existing session:", existingSession?.user?.email);
-      setSession(existingSession);
-      setSupabaseUser(existingSession?.user ?? null);
+      if (existingSession?.user) {
+        logUserContext("[UserContext] Real Supabase user found in existing session");
+        setSession(existingSession);
+        setSupabaseUser(existingSession.user);
+        // Очищаем Telegram mock-данные, если они были установлены
+        setUser(prevUser => {
+          if (prevUser && (prevUser.id === 123456789 || prevUser.username === 'test_user')) {
+            logUserContext("[UserContext] Clearing Telegram mock user on session check");
+            window.puzzleUser = null;
+            return null;
+          }
+          return prevUser;
+        });
+      } else {
+        setSession(existingSession);
+        setSupabaseUser(existingSession?.user ?? null);
+      }
     });
 
     return () => {
@@ -130,39 +162,91 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       logUserContext("[UserContext] Initializing...");
       
+      // КРИТИЧНО: Если уже есть реальный пользователь из Supabase, не используем Telegram mock
+      // Проверяем сессию Supabase перед инициализацией Telegram
+      const { data: { session: existingSession } } = await supabase.auth.getSession();
+      if (existingSession?.user) {
+        logUserContext("[UserContext] Real Supabase user found, skipping Telegram initialization");
+        setSupabaseUser(existingSession.user);
+        setSession(existingSession);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Проверяем, является ли Telegram WebApp моком
+      const isMockTelegram = window.Telegram?.WebApp?.initData === 'mock_init_data' ||
+                            window.Telegram?.WebApp?.initData?.startsWith('mock_') ||
+                            (window.Telegram?.WebApp?.initDataUnsafe?.user?.id === 123456789 && 
+                             window.Telegram?.WebApp?.initDataUnsafe?.user?.username === 'test_user');
+      
+      if (isMockTelegram) {
+        logUserContext("[UserContext] Mock Telegram detected, skipping initialization");
+        setIsLoading(false);
+        return;
+      }
+      
       // Multiple attempts to get Telegram user data
       let telegramUser = initTelegram();
       
       // Retry mechanism for Telegram WebApp initialization
-      if (!telegramUser && window.Telegram?.WebApp) {
+      if (!telegramUser && window.Telegram?.WebApp && !isMockTelegram) {
         logUserContext("[UserContext] First attempt failed, retrying...");
         await new Promise(resolve => setTimeout(resolve, 300));
         telegramUser = getTelegramUser();
         
+        // Проверяем, не мок ли это
+        if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
+          logUserContext("[UserContext] Mock user detected in retry, skipping");
+          telegramUser = null;
+        }
+        
         if (!telegramUser) {
           await new Promise(resolve => setTimeout(resolve, 500));
           telegramUser = getTelegramUser();
+          
+          // Проверяем, не мок ли это
+          if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
+            logUserContext("[UserContext] Mock user detected in retry, skipping");
+            telegramUser = null;
+          }
         }
         
         // Additional retry with longer delay
         if (!telegramUser) {
           await new Promise(resolve => setTimeout(resolve, 800));
           telegramUser = getTelegramUser();
+          
+          // Проверяем, не мок ли это
+          if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
+            logUserContext("[UserContext] Mock user detected in retry, skipping");
+            telegramUser = null;
+          }
         }
       }
       
-      // Fallback to window.puzzleUser or localStorage
+      // Fallback to window.puzzleUser or localStorage (только если не мок)
       if (!telegramUser) {
         logUserContext("[UserContext] Checking fallback sources...");
         if (window.puzzleUser) {
-          logUserContext("[UserContext] Using window.puzzleUser");
-          telegramUser = window.puzzleUser;
+          // Проверяем, не мок ли это
+          if (window.puzzleUser.id === 123456789 || window.puzzleUser.username === 'test_user') {
+            logUserContext("[UserContext] Mock user in window.puzzleUser, skipping");
+          } else {
+            logUserContext("[UserContext] Using window.puzzleUser");
+            telegramUser = window.puzzleUser;
+          }
         } else {
           const storedUserStr = localStorage.getItem('puzzle_user');
           if (storedUserStr) {
             try {
-              logUserContext("[UserContext] Using stored user from localStorage");
-              telegramUser = JSON.parse(storedUserStr);
+              const parsedUser = JSON.parse(storedUserStr);
+              // Проверяем, не мок ли это
+              if (parsedUser.id === 123456789 || parsedUser.username === 'test_user') {
+                logUserContext("[UserContext] Mock user in localStorage, skipping");
+              } else {
+                logUserContext("[UserContext] Using stored user from localStorage");
+                telegramUser = parsedUser;
+              }
             } catch (err) {
               console.error('[UserContext] Failed to parse stored user:', err);
             }
@@ -181,8 +265,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       setPlatform(detectedPlatform);
 
-      // Auto-login for Telegram Mini App with user data
-      if (telegramUser) {
+      // Auto-login for Telegram Mini App with user data (только если не мок)
+      if (telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') {
         logUserContext("[UserContext] Auto-logging in Telegram user:", telegramUser.first_name);
         
         // Set user immediately for instant UI feedback
