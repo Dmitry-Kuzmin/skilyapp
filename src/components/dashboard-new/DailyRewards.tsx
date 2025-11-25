@@ -20,8 +20,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [celebrationType, setCelebrationType] = useState<CelebrationType>('phoenix');
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
   const flameAnchorRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
   const effectiveHasClaimed = hasClaimedToday;
+  
+  // Флаг для автоматического нажатия кнопки (для тестирования)
+  const [autoClickEnabled, setAutoClickEnabled] = useState(true);
 
   const { settings: cockpitSettings } = useCockpitSettings();
   const celebrationMode = cockpitSettings.animationMode;
@@ -85,6 +89,20 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     };
   }, []);
 
+  // Автоматическое нажатие кнопки для тестирования
+  useEffect(() => {
+    if (!autoClickEnabled || effectiveHasClaimed || isClaiming) return;
+
+    const interval = setInterval(() => {
+      if (buttonRef.current && !effectiveHasClaimed && !isClaiming) {
+        console.log('[DailyRewards] Auto-clicking button for testing');
+        buttonRef.current.click();
+      }
+    }, 3000); // Нажимаем каждые 3 секунды
+
+    return () => clearInterval(interval);
+  }, [autoClickEnabled, effectiveHasClaimed, isClaiming]);
+
   const handleClaim = async (e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
@@ -133,7 +151,33 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   };
 
   return (
-    <div className="h-full min-h-[360px] bg-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-colors">
+    <div className="h-full min-h-[360px] bg-gradient-to-br from-[#0B1120] via-[#0f172a] to-[#0B1120] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-slate-800 group hover:border-slate-700 transition-all duration-500">
+      {/* Улучшенное свечение фона */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-red-500/5 pointer-events-none"
+        animate={{
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      
+      {/* Shimmer эффект на всей карточке */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"
+        animate={{
+          x: ['-100%', '200%'],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          repeatDelay: 2,
+          ease: "linear",
+        }}
+      />
 
       {/* Анимация поздравления */}
       <CelebrationAnimations
@@ -229,8 +273,32 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       {/* Main Gauge */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center py-6">
         <div className="relative w-40 h-40">
-          {/* Glow Behind */}
-          <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-[40px]"></div>
+          {/* Улучшенное свечение с пульсацией */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-red-500/15 to-orange-500/20 rounded-full blur-[50px]"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          
+          {/* Дополнительное внешнее свечение */}
+          <motion.div
+            className="absolute -inset-4 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 rounded-full blur-[60px]"
+            animate={{
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
 
           <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]" viewBox="0 0 120 120">
             {/* Track */}
@@ -311,6 +379,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
 
       {/* Action Button */}
       <motion.button
+        ref={buttonRef}
         layout
         onClick={handleClaim}
         onTouchEnd={(e) => {
@@ -322,19 +391,52 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         animate={isDay7 && !effectiveHasClaimed ? {
           boxShadow: [
             '0 0 20px rgba(255,255,255,0.1)',
-            '0 0 30px rgba(251, 191, 36, 0.4)',
+            '0 0 40px rgba(251, 191, 36, 0.6)',
             '0 0 20px rgba(255,255,255,0.1)'
-          ]
+          ],
+          scale: [1, 1.02, 1],
+        } : !effectiveHasClaimed ? {
+          scale: [1, 1.01, 1],
         } : {}}
-        transition={{ duration: 2, repeat: isDay7 && !effectiveHasClaimed ? Infinity : 0 }}
+        transition={{ duration: 2, repeat: !effectiveHasClaimed ? Infinity : 0 }}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         className={`relative z-50 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${effectiveHasClaimed
           ? 'bg-slate-800/50 text-emerald-400 cursor-default border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
           : isDay7
-            ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:scale-[1.02] active:scale-95 shadow-[0_0_30px_rgba(251,191,36,0.3)]'
-            : 'bg-white text-slate-900 hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]'
+            ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white hover:scale-[1.02] active:scale-95 shadow-[0_0_30px_rgba(251,191,36,0.4)]'
+            : 'bg-gradient-to-r from-white via-slate-50 to-white text-slate-900 hover:scale-[1.02] active:scale-95 shadow-[0_0_25px_rgba(255,255,255,0.2)]'
           }`}
       >
+        {/* Shimmer эффект на кнопке */}
+        {!effectiveHasClaimed && (
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            animate={{
+              x: ['-100%', '200%'],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatDelay: 1,
+              ease: "linear",
+            }}
+          />
+        )}
+        
+        {/* Дополнительное свечение для дня 7 */}
+        {isDay7 && !effectiveHasClaimed && (
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-red-400/20 rounded-2xl blur-sm"
+            animate={{
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        )}
         <AnimatePresence mode="wait">
           {effectiveHasClaimed ? (
             <motion.span
