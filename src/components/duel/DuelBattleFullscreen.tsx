@@ -188,6 +188,70 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setBetInfo,
   });
 
+  // ОПТИМИЗАЦИЯ: Мемоизируем функцию для перехода к следующему вопросу (должно быть выше useDuelGame)
+  const moveToNextQuestion = useCallback(() => {
+    setCurrentIndex(prev => prev + 1);
+    setIsAnswered(false);
+    setSelectedAnswer(null);
+    setTimeLeft(60000);
+    setUsedBoosts([]);
+    setEliminatedOptions([]);
+  }, [setCurrentIndex, setIsAnswered, setSelectedAnswer, setTimeLeft, setUsedBoosts, setEliminatedOptions]);
+
+  // ОПТИМИЗАЦИЯ: Мемоизируем finishDuel с useCallback (должно быть выше useDuelGame)
+  const finishDuel = useCallback(async () => {
+    log('[DuelBattleFullscreen] Finishing duel - I completed all questions');
+
+    // IMPROVED: Don't set hasFinishedMyQuestions here - it's already set when showing waiting screen
+    // setHasFinishedMyQuestions(true); // ← REMOVED (already set earlier)
+
+    // IMPROVED: Reduced delay from 500ms to 300ms
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    try {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
+      });
+
+      if (error) throw error;
+
+      log('[DuelBattleFullscreen] Finish duel response:', {
+        finished: data?.finished,
+        reason: data?.reason,
+        message: data?.message,
+        success: data?.success
+      });
+
+      // CRITICAL FIX: Only transition to results if both players finished
+      // Don't change waiting state if we're already waiting
+      if (data?.finished === true) {
+        log('[DuelBattleFullscreen] ✅ Both players finished, going to results');
+
+        // Hide waiting screen and go to results
+        setIsWaitingForOpponent(false);
+        sounds.victory();
+        toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
+
+        setTimeout(() => {
+          log('[DuelBattleFullscreen] 🚀 Transitioning to results');
+          onDuelFinished();
+        }, 500);
+      } else {
+        // IMPROVED: Show waiting screen ONLY if opponent hasn't finished yet
+        log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
+        setIsWaitingForOpponent(true);
+        toast.info('⏳ Ждём соперника...', { duration: 3000 });
+      }
+    } catch (error) {
+      logError('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
+      toast.error('Ошибка завершения дуэли');
+      // IMPROVED: Keep waiting state - don't reset on error
+      // Player stays on waiting screen, realtime will handle transition when opponent finishes
+      // setIsWaitingForOpponent(false); // ← REMOVED
+      // setHasFinishedMyQuestions(false); // ← REMOVED
+    }
+  }, [duelId, profileId, setIsWaitingForOpponent, onDuelFinished]);
+
   // ОПТИМИЗАЦИЯ: Используем хук для логики игры
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
     duelId,
@@ -907,70 +971,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       gapBetweenProgressAndContent: isTelegramMobile ? `${progressBarTop + PROGRESS_BAR_HEIGHT - contentTopPadding}px` : 'N/A',
     });
   }, [safeArea.platform, safeArea.top, safeArea.contentTop, totalTopPadding, progressBarTop, contentTopPadding, PROGRESS_BAR_HEIGHT, isTelegramMobile]);
-
-  // ОПТИМИЗАЦИЯ: Мемоизируем функцию для перехода к следующему вопросу (должно быть выше useDuelTimeout)
-  const moveToNextQuestion = useCallback(() => {
-    setCurrentIndex(prev => prev + 1);
-    setIsAnswered(false);
-    setSelectedAnswer(null);
-    setTimeLeft(60000);
-    setUsedBoosts([]);
-    setEliminatedOptions([]);
-  }, [setCurrentIndex, setIsAnswered, setSelectedAnswer, setTimeLeft, setUsedBoosts, setEliminatedOptions]);
-
-  // ОПТИМИЗАЦИЯ: Мемоизируем finishDuel с useCallback (должно быть выше, чтобы useDuelTimeout мог его использовать)
-  const finishDuel = useCallback(async () => {
-    log('[DuelBattleFullscreen] Finishing duel - I completed all questions');
-
-    // IMPROVED: Don't set hasFinishedMyQuestions here - it's already set when showing waiting screen
-    // setHasFinishedMyQuestions(true); // ← REMOVED (already set earlier)
-
-    // IMPROVED: Reduced delay from 500ms to 300ms
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
-      });
-
-      if (error) throw error;
-
-      log('[DuelBattleFullscreen] Finish duel response:', {
-        finished: data?.finished,
-        reason: data?.reason,
-        message: data?.message,
-        success: data?.success
-      });
-
-      // CRITICAL FIX: Only transition to results if both players finished
-      // Don't change waiting state if we're already waiting
-      if (data?.finished === true) {
-        log('[DuelBattleFullscreen] ✅ Both players finished, going to results');
-
-        // Hide waiting screen and go to results
-        setIsWaitingForOpponent(false);
-        sounds.victory();
-        toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
-
-        setTimeout(() => {
-          log('[DuelBattleFullscreen] 🚀 Transitioning to results');
-          onDuelFinished();
-        }, 500);
-      } else {
-        // IMPROVED: Show waiting screen ONLY if opponent hasn't finished yet
-        log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
-        setIsWaitingForOpponent(true);
-        toast.info('⏳ Ждём соперника...', { duration: 3000 });
-      }
-    } catch (error) {
-      logError('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
-      toast.error('Ошибка завершения дуэли');
-      // IMPROVED: Keep waiting state - don't reset on error
-      // Player stays on waiting screen, realtime will handle transition when opponent finishes
-      // setIsWaitingForOpponent(false); // ← REMOVED
-      // setHasFinishedMyQuestions(false); // ← REMOVED
-    }
-  }, [duelId, profileId, setIsWaitingForOpponent, onDuelFinished]);
 
   // ОПТИМИЗАЦИЯ: Используем хук для обработки таймаута (должно быть выше useEffect таймера)
   const { handleTimeout } = useDuelTimeout({
