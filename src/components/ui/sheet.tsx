@@ -339,6 +339,27 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       
       if (!contentRef.current) return;
       
+      // КРИТИЧНО: Проверяем, что модалка еще открыта
+      const currentState = contentRef.current.getAttribute('data-state');
+      if (currentState !== 'open') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Sheet] handleTouchEnd: Modal not open, state:', currentState);
+        }
+        // Сбрасываем состояния
+        setStartY(null);
+        setCurrentY(null);
+        setIsDragging(false);
+        return;
+      }
+      
+      // Если модалка уже закрывается, не обрабатываем
+      if (isClosingRef.current) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Sheet] handleTouchEnd: Modal is closing, ignoring');
+        }
+        return;
+      }
+      
       // Вычисляем расстояние свайпа напрямую из последней позиции пальца
       let dragDistance = currentY || 0;
       
