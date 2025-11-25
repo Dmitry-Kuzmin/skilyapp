@@ -632,19 +632,26 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
 
             <Separator />
 
-            {/* Edit Profile */}
+            {/* Notifications */}
             <button
               onClick={() => {
                 setOpen(false);
-                setProfileModalOpen(true);
+                onOpenNotifications?.();
               }}
-              className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+              className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm relative"
             >
               <div className="flex items-center gap-2">
-                <Pencil className="h-4 w-4 text-muted-foreground" />
-                <span>{t('editProfile')}</span>
+                <Bell className="h-4 w-4 text-muted-foreground" />
+                <span>{t('notifications') || 'Уведомления'}</span>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                {hasUnreadNotifications && (
+                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-semibold bg-red-500 text-white">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </div>
             </button>
 
 
