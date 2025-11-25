@@ -51,8 +51,9 @@ const BentoCard = ({
     onClick?: () => void;
     accentColor?: string;
 }) => {
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+    const { resolvedTheme } = useTheme();
+    // Используем ту же логику, что и в Dashboard для определения темной темы
+    const isDark = (resolvedTheme ?? 'dark') !== 'light';
 
     return (
         <motion.div
@@ -90,8 +91,8 @@ const BentoCard = ({
 };
 
 const StatBadge = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) => {
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+    const { resolvedTheme } = useTheme();
+    const isDark = (resolvedTheme ?? 'dark') !== 'light';
 
     return (
         <div className={cn(
@@ -124,11 +125,12 @@ export const BentoTestsView = ({
     t
 }: BentoTestsViewProps) => {
     const { isPremium } = usePremium();
-    const { theme } = useTheme();
+    const { resolvedTheme } = useTheme();
     const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
     const [hasSelectedCount, setHasSelectedCount] = useState(false);
 
-    const isDark = theme === "dark";
+    // Используем ту же логику, что и в Dashboard для определения темной темы
+    const isDark = (resolvedTheme ?? 'dark') !== 'light';
 
     return (
         <div className="w-full flex justify-center pt-8 pb-20 min-h-screen bg-background">
