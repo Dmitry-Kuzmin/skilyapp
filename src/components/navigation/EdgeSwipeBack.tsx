@@ -33,7 +33,9 @@ export const EdgeSwipeBack: React.FC = () => {
 
   const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
     const t = e.touches[0];
-    if (t.clientX <= EDGE_ZONE_PX) {
+    // КРИТИЧНО: Исключаем область навигации (нижние 100px экрана) из обработки жестов
+    const isInNavArea = t.clientY >= window.innerHeight - 100;
+    if (t.clientX <= EDGE_ZONE_PX && !isInNavArea) {
       startRef.current = { x: t.clientX, y: t.clientY, active: true };
       e.stopPropagation();
     }
@@ -67,7 +69,7 @@ export const EdgeSwipeBack: React.FC = () => {
         top: 0,
         left: 0,
         width: EDGE_ZONE_PX,
-        height: "100vh",
+        height: "calc(100vh - 100px)", // КРИТИЧНО: Исключаем нижние 100px (область навигации)
         zIndex: 10, // ОПТИМИЗАЦИЯ: Уменьшен z-index чтобы не блокировать клики по навигации
         touchAction: "pan-y", // Разрешаем вертикальный скролл
         background: "transparent",

@@ -139,3 +139,4 @@ rollbar.error(error, { context: errorInfo });
 - У вас уже есть Gemini/Groq (AI)
 - У вас уже есть GitHub (code review можно делать вручную)
 
+

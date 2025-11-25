@@ -30,7 +30,7 @@ interface LayoutProps {
 }
 
 // ОПТИМИЗАЦИЯ: Мемоизированный компонент для NavLink элемента
-const NavItem = memo(({ item, currentPath }: { item: any; currentPath: string }) => {
+const NavItem = memo(({ item, currentPath, navigate }: { item: any; currentPath: string; navigate: (path: string) => void }) => {
   const isDuel = item.isActiveDuel;
   const isActive =
     currentPath === item.href ||
@@ -38,9 +38,23 @@ const NavItem = memo(({ item, currentPath }: { item: any; currentPath: string })
     (isDuel && currentPath.startsWith("/games/duel"));
   const Icon = item.icon;
   
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // КРИТИЧНО: Явная обработка клика для мгновенного перехода без задержек
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(item.href);
+  };
+  
+  const handleTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
+    // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
+    e.stopPropagation();
+  };
+  
   return (
     <NavLink
       to={item.href}
+      onClick={handleClick}
+      onTouchStart={handleTouchStart}
       className={cn(
         "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors duration-150 relative",
         // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors для мгновенной отзывчивости
@@ -54,7 +68,9 @@ const NavItem = memo(({ item, currentPath }: { item: any; currentPath: string })
         // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для лучшей отзывчивости
         pointerEvents: 'auto',
         touchAction: 'manipulation',
-        WebkitTapHighlightColor: 'transparent'
+        WebkitTapHighlightColor: 'transparent',
+        position: 'relative',
+        zIndex: 50 // КРИТИЧНО: Высокий z-index чтобы быть выше EdgeSwipeBack
       }}
     >
       <Icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
@@ -392,7 +408,7 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
         
         <div className="grid grid-cols-5 gap-1 px-2 py-2 flex-shrink-0">
           {navigation.map((item) => (
-            <NavItem key={item.name} item={item} currentPath={location.pathname} />
+            <NavItem key={item.name} item={item} currentPath={location.pathname} navigate={navigate} />
           ))}
           
           {/* Profile/Login Icon */}
