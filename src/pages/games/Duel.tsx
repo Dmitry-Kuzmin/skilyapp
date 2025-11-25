@@ -1312,75 +1312,92 @@ export default function Duel() {
                                                                     </div>
                                                                 </div>
 
-                                                                {/* Code Display - Enhanced Premium */}
+                                                                {/* Code Display - улучшенный UI/UX с кликабельным блоком */}
                                                                 <motion.div
                                                                     initial={{ scale: 0.9, opacity: 0 }}
                                                                     animate={{ scale: 1, opacity: 1 }}
                                                                     transition={{ delay: 0.2, type: "spring" }}
                                                                     className="relative"
                                                                 >
-                                                                    {/* Enhanced glow effect */}
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500/40 via-purple-500/40 to-indigo-500/40 blur-3xl opacity-70 rounded-3xl animate-pulse" />
                                                                     <motion.div
-                                                                        animate={{
-                                                                            boxShadow: [
-                                                                                '0 0 30px rgba(16, 185, 129, 0.4)',
-                                                                                '0 0 60px rgba(20, 184, 166, 0.5)',
-                                                                                '0 0 30px rgba(16, 185, 129, 0.4)',
-                                                                            ],
+                                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                                        animate={{ opacity: 1, scale: 1 }}
+                                                                        transition={{ duration: 0.3 }}
+                                                                        className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-violet-500/50 ring-4 ring-violet-500/10 cursor-pointer group hover:border-violet-500/70 hover:ring-violet-500/20 transition-all duration-300 shadow-lg hover:shadow-xl"
+                                                                        onClick={handleCopyCode}
+                                                                        style={{
+                                                                            boxShadow: copied 
+                                                                                ? 'rgba(139, 92, 246, 0.4) 0px 0px 40px' 
+                                                                                : 'rgba(139, 92, 246, 0.1) 0px 0px 20px'
                                                                         }}
-                                                                        transition={{ duration: 3, repeat: Infinity }}
-                                                                        className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-violet-500/50 ring-4 ring-violet-500/10"
                                                                     >
+                                                                        {/* Dot pattern background */}
+                                                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:24px_24px] opacity-10 rounded-3xl" />
+                                                                        
+                                                                        {/* Code */}
                                                                         <motion.div
                                                                             key={createdCode}
                                                                             initial={{ scale: 1.2, opacity: 0, rotateY: 180 }}
                                                                             animate={{ scale: 1, opacity: 1, rotateY: 0 }}
                                                                             transition={{ duration: 0.6, type: "spring" }}
-                                                                            className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center drop-shadow-lg"
+                                                                            className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center drop-shadow-lg select-all relative z-10"
                                                                         >
                                                                             {createdCode}
                                                                         </motion.div>
-                                                                        <div className="flex items-center justify-center gap-3 text-sm sm:text-base text-muted-foreground font-bold uppercase tracking-widest">
-                                                                            <motion.div
-                                                                                animate={{ rotate: [0, 360] }}
-                                                                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                                                            >
-                                                                                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
-                                                                            </motion.div>
-                                                                            Код дуэли
-                                                                            <motion.div
-                                                                                animate={{ rotate: [360, 0] }}
-                                                                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                                                            >
-                                                                                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
-                                                                            </motion.div>
+                                                                        
+                                                                        {/* Label with copy indicator */}
+                                                                        <div className="flex items-center justify-center gap-2 relative z-10">
+                                                                            <AnimatePresence mode="wait">
+                                                                                {copied ? (
+                                                                                    <motion.div
+                                                                                        key="copied"
+                                                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                                                        animate={{ opacity: 1, scale: 1 }}
+                                                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                                                        className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400"
+                                                                                    >
+                                                                                        <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                                                        <span className="text-sm sm:text-base font-semibold">Скопировано!</span>
+                                                                                    </motion.div>
+                                                                                ) : (
+                                                                                    <motion.div
+                                                                                        key="default"
+                                                                                        initial={{ opacity: 0 }}
+                                                                                        animate={{ opacity: 1 }}
+                                                                                        exit={{ opacity: 0 }}
+                                                                                        className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground font-semibold uppercase tracking-widest"
+                                                                                    >
+                                                                                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 group-hover:text-violet-500 transition-colors" />
+                                                                                        <span className="group-hover:text-violet-500 transition-colors">Код дуэли</span>
+                                                                                        <Copy className="h-3 w-3 sm:h-4 sm:w-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                                    </motion.div>
+                                                                                )}
+                                                                            </AnimatePresence>
                                                                         </div>
+                                                                        
+                                                                        {/* Hint text */}
+                                                                        <AnimatePresence>
+                                                                            {!copied && (
+                                                                                <motion.p
+                                                                                    initial={{ opacity: 0 }}
+                                                                                    animate={{ opacity: 1 }}
+                                                                                    exit={{ opacity: 0 }}
+                                                                                    className="text-xs sm:text-sm text-muted-foreground text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                >
+                                                                                    Нажмите, чтобы скопировать
+                                                                                </motion.p>
+                                                                            )}
+                                                                        </AnimatePresence>
                                                                     </motion.div>
                                                                 </motion.div>
 
-                                                                {/* Action Buttons - Premium */}
-                                                                <div className="flex flex-col sm:flex-row gap-3 justify-center px-2">
-                                                                    <motion.div
-                                                                        whileHover={{ scale: 1.02, y: -2 }}
-                                                                        whileTap={{ scale: 0.98 }}
-                                                                        className="flex-1 max-w-xs mx-auto sm:mx-0"
-                                                                    >
-                                                                        <Button
-                                                                            onClick={handleCopyCode}
-                                                                            variant="outline"
-                                                                            size="lg"
-                                                                            className="w-full h-12 sm:h-14 text-sm sm:text-base font-black border-2 border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all shadow-lg hover:shadow-xl"
-                                                                        >
-                                                                            <Copy className="mr-2 h-5 w-5 sm:h-6 sm:w-6" />
-                                                                            Копировать код
-                                                                        </Button>
-                                                                    </motion.div>
-                                                                    {isTelegramUser && (
+                                                                {/* Action Buttons - убрана кнопка копирования, оставлена только кнопка поделиться */}
+                                                                {isTelegramUser && (
+                                                                    <div className="flex justify-center px-2">
                                                                         <motion.div
                                                                             whileHover={{ scale: 1.02, y: -2 }}
                                                                             whileTap={{ scale: 0.98 }}
-                                                                            className="flex-1 max-w-xs mx-auto sm:mx-0"
+                                                                            className="w-full max-w-xs"
                                                                         >
                                                                             <Button
                                                                                 onClick={handleShare}
@@ -1392,8 +1409,8 @@ export default function Duel() {
                                                                                 <span className="relative z-10">Поделиться</span>
                                                                             </Button>
                                                                         </motion.div>
-                                                                    )}
-                                                                </div>
+                                                                    </div>
+                                                                )}
 
                                                                 {/* Cancel Button */}
                                                                 {!duelState.opponentJoined && (
