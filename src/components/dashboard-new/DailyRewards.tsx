@@ -432,14 +432,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         style={{ backgroundImage: `linear-gradient(${gridColor} 1px, transparent 1px), linear-gradient(90deg, ${gridColor} 1px, transparent 1px)`, backgroundSize: '24px 24px' }}>
       </div>
 
-      {/* Header - в стиле уровней готовности */}
+      {/* Header - в стиле уровней готовности, компактный для десктопа */}
       <div className="relative z-10 flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl border ${
+            className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl border flex-shrink-0 ${
               isDay7 
                 ? isDarkTheme ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-yellow-100/80 border-yellow-300/60'
                 : isDarkTheme ? 'bg-orange-500/10 border-orange-500/20' : 'bg-orange-100/80 border-orange-300/60'
@@ -451,35 +451,33 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                 : isDarkTheme ? 'text-orange-400' : 'text-orange-600'
             }`} />
           </motion.div>
-          <div>
-            <h3 className={`font-bold text-lg sm:text-xl tracking-tight ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'}`}>
-              Ежедневная серия
-            </h3>
-            {weekNumber > 0 && (
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-2 mt-1 flex-wrap"
-              >
-                <span className={`text-xs font-bold ${badgeText} ${badgeBg} px-2 py-0.5 rounded-md border ${badgeBorder}`}>
-                  Неделя {weekNumber}
-                </span>
-                {weekDay > 0 && weekDay < 7 && (
-                  <span className={`text-[10px] ${badgeText} ${isDarkTheme ? 'bg-slate-900/60' : 'bg-slate-200/80'} px-2 py-0.5 rounded-md border ${isDarkTheme ? 'border-slate-800' : 'border-slate-300'}`}>
-                    До завершения: {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
+              <h3 className={`font-bold text-base sm:text-lg tracking-tight ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'} whitespace-nowrap`}>
+                Ежедневная серия
+              </h3>
+              {weekNumber > 0 && (
+                <>
+                  <span className={`text-[10px] sm:text-xs font-bold ${badgeText} ${badgeBg} px-1.5 sm:px-2 py-0.5 rounded-md border ${badgeBorder} whitespace-nowrap`}>
+                    Неделя {weekNumber}
                   </span>
-                )}
-                {isDay7 && (
-                  <motion.span
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className={`text-xs font-bold ${isDarkTheme ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 'text-yellow-600 bg-yellow-100/80 border-yellow-300'} px-2 py-0.5 rounded-md border`}
-                  >
-                    🎉 Завершение!
-                  </motion.span>
-                )}
-              </motion.div>
-            )}
+                  {weekDay > 0 && weekDay < 7 && (
+                    <span className={`text-[9px] sm:text-[10px] ${badgeText} ${isDarkTheme ? 'bg-slate-900/60' : 'bg-slate-200/80'} px-1.5 sm:px-2 py-0.5 rounded-md border ${isDarkTheme ? 'border-slate-800' : 'border-slate-300'} whitespace-nowrap hidden sm:inline`}>
+                      Осталось: {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
+                    </span>
+                  )}
+                  {isDay7 && (
+                    <motion.span
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className={`text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 'text-yellow-600 bg-yellow-100/80 border-yellow-300'} px-1.5 sm:px-2 py-0.5 rounded-md border whitespace-nowrap`}
+                    >
+                      🎉 Завершение!
+                    </motion.span>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
         
@@ -699,19 +697,21 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             
             {/* Контент панели */}
             <div className="relative z-10 flex flex-col h-full overflow-y-auto px-6 sm:px-8 py-6">
-              {/* Заголовок - упрощенный */}
-              <div className="mb-6">
-                <h2 className={`text-lg sm:text-xl font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'} mb-2`}>
-                  💡 О ежедневных наградах
-                </h2>
-                <p className={`text-xs sm:text-sm ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
+              {/* Заголовок - упрощенный, компактный для десктопа */}
+              <div className="mb-4 sm:mb-6">
+                <div className="flex items-start justify-between gap-4 mb-3 sm:mb-4">
+                  <h2 className={`text-lg sm:text-xl font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
+                    💡 О ежедневных наградах
+                  </h2>
+                </div>
+                <p className={`text-xs sm:text-sm ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'} hidden sm:block`}>
                   Каждый день ты получаешь награды за вход. Чем больше дней подряд, тем лучше награды!
                 </p>
               </div>
               
-              {/* Типы наград - компактные иконки */}
-              <div className="mb-6">
-                <div className="flex flex-wrap gap-3">
+              {/* Типы наград - компактные иконки, в одну строку на десктопе */}
+              <div className="mb-4 sm:mb-6">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -767,8 +767,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               </div>
               
               {/* Награды по дням */}
-              <div className="mt-6">
-                <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'} mb-3`}>
+              <div className="mt-4 sm:mt-6">
+                <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'} mb-2 sm:mb-3`}>
                   📅 Награды по дням
                 </h3>
                 {/* Награды по дням - компактный дизайн */}

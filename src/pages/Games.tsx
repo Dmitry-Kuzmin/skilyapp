@@ -47,16 +47,7 @@ const Games = () => {
   const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
-
-  const baseOnlineCount = useMemo(() => {
-    return (onlinePlayers.length || 3) * 25;
-  }, [onlinePlayers.length]);
-
-  const displayOnlineCount = useMemo(() => {
-    const variations = [0, 5, 10, 15];
-    const randomOffset = variations[Math.floor(Math.random() * variations.length)];
-    return baseOnlineCount + randomOffset;
-  }, [baseOnlineCount]);
+  const [onlineCount, setOnlineCount] = useState<number>(0);
 
   useEffect(() => {
     if (profileId) {
@@ -76,23 +67,58 @@ const Games = () => {
 
   const loadOnlinePlayers = async () => {
     try {
-      const { data, error } = await supabase
+      // Получаем текущее время минус 15 минут (считаем онлайн тех, кто был активен за последние 15 минут)
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      
+      // Загружаем онлайн игроков (активны за последние 15 минут)
+      const { data: onlineData, error: onlineError } = await supabase
         .from('profiles')
         .select('id, first_name, username, photo_url, last_login')
-        .order('last_login', { ascending: false, nullsLast: true })
-        .limit(5);
+        .gte('last_login', fifteenMinutesAgo)
+        .order('last_login', { ascending: false })
+        .limit(100); // Получаем больше для точного подсчета
 
-      if (error) {
-        console.error('Error loading online players:', error);
+      if (onlineError) {
+        console.error('Error loading online players:', onlineError);
+        // Fallback на старую логику при ошибке
+        const { data: fallbackData } = await supabase
+          .from('profiles')
+          .select('id, first_name, username, photo_url, last_login')
+          .order('last_login', { ascending: false, nullsLast: true })
+          .limit(5);
+        
+        if (fallbackData) {
+          const formatted = fallbackData
+            .map((profile) => {
+              const displayName = profile.first_name || profile.username || 'Player';
+              return {
+                id: profile.id,
+                name: displayName,
+                photoUrl: profile.photo_url,
+                initials: displayName
+                  .split(' ')
+                  .map((part) => part.charAt(0))
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase() || 'PL',
+              } satisfies OnlinePlayer;
+            })
+            .slice(0, 3);
+          setOnlinePlayers(formatted);
+          setOnlineCount(Math.max(formatted.length * 25, 50)); // Минимум 50
+        }
         return;
       }
 
-      if (!data) {
-        setOnlinePlayers([]);
-        return;
-      }
+      // Подсчитываем реальное количество онлайн
+      const actualOnlineCount = onlineData?.length || 0;
+      
+      // Устанавливаем реальный счетчик (минимум 10 для визуального эффекта)
+      setOnlineCount(Math.max(actualOnlineCount, 10));
 
-      const formatted = data
+      // Форматируем первых 3 для отображения аватаров
+      const formatted = (onlineData || [])
+        .slice(0, 3)
         .map((profile) => {
           const displayName = profile.first_name || profile.username || 'Player';
           return {
@@ -106,12 +132,14 @@ const Games = () => {
               .slice(0, 2)
               .toUpperCase() || 'PL',
           } satisfies OnlinePlayer;
-        })
-        .slice(0, 3);
+        });
 
-      setOnlinePlayers(formatted);
+      setOnlinePlayers(formatted.length > 0 ? formatted : fallbackPlayers);
     } catch (error) {
       console.error('Unexpected error loading online players:', error);
+      // Fallback на fallback players
+      setOnlinePlayers(fallbackPlayers);
+      setOnlineCount(75); // Fallback значение
     }
   };
 
@@ -423,18 +451,26 @@ const Games = () => {
                             key={player.id}
                             className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-slate-900"
                           >
-                            {player.photoUrl ? (
-                              <AvatarImage src={player.photoUrl} alt={player.name} />
-                            ) : (
-                              <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
-                                {player.initials}
-                              </AvatarFallback>
-                            )}
+                            {player.photoUrl && player.photoUrl.trim() !== '' ? (
+                              <AvatarImage 
+                                src={player.photoUrl} 
+                                alt={player.name}
+                                className="object-cover"
+                                onError={(e) => {
+                                  // Если изображение не загрузилось, скрываем его
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }}
+                              />
+                            ) : null}
+                            <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
+                              {player.initials}
+                            </AvatarFallback>
                           </Avatar>
                         ))}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-white font-bold text-sm leading-none">{displayOnlineCount}+</span>
+                        <span className="text-white font-bold text-sm leading-none">{onlineCount}+</span>
                         <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Онлайн</span>
                       </div>
                     </div>
