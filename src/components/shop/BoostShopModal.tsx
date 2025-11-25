@@ -907,15 +907,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 <span className="text-sm font-semibold">{coins}</span>
                 <History className="w-3 h-3 text-muted-foreground ml-0.5" />
               </button>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onOpenChange(false)}
-                className="h-8 w-8"
-              >
-                <X className="w-4 h-4" />
-              </Button>
             </div>
           </div>
         </div>

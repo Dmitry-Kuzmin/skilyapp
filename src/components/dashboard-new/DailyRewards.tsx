@@ -132,14 +132,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           y: centerY,
           vx: (Math.random() - 0.5) * 15,
           vy: (Math.random() - 0.5) * 15 - 5, // slightly upwards
-          size: Math.random() * 8 + 2,
+          size: Math.random() * 8 + 4, // Увеличено минимальное значение для видимости (4-12px)
           color: colors[Math.floor(Math.random() * colors.length)],
           gravity: gravity,
           life: 100,
         };
       });
       
-      console.log('[DailyRewards] Created', newParticles.length, 'confetti particles');
+      console.log('[DailyRewards] Created', newParticles.length, 'confetti particles at', centerX, centerY);
       setParticles(newParticles);
       
       // Удаляем частицы через 3 секунды (когда life закончится)
