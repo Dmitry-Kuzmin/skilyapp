@@ -90,8 +90,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     e?.preventDefault();
     e?.stopPropagation();
     
-    if (effectiveHasClaimed || isClaiming) {
-      console.log('[DailyRewards] Claim blocked:', { effectiveHasClaimed, isClaiming });
+    // Разрешаем повторное нажатие для тестирования
+    if (isClaiming) {
+      console.log('[DailyRewards] Claim blocked: already claiming');
       return;
     }
 
@@ -386,28 +387,28 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           e.stopPropagation();
           handleClaim(e as any);
         }}
-        disabled={effectiveHasClaimed || isClaiming}
-        animate={isDay7 && !effectiveHasClaimed ? {
+        disabled={isClaiming}
+        animate={isDay7 && !isClaiming ? {
           boxShadow: [
             '0 0 20px rgba(255,255,255,0.1)',
             '0 0 40px rgba(251, 191, 36, 0.6)',
             '0 0 20px rgba(255,255,255,0.1)'
           ],
           scale: [1, 1.02, 1],
-        } : !effectiveHasClaimed ? {
+        } : !isClaiming ? {
           scale: [1, 1.01, 1],
         } : {}}
-        transition={{ duration: 2, repeat: !effectiveHasClaimed ? Infinity : 0 }}
+        transition={{ duration: 2, repeat: !isClaiming ? Infinity : 0 }}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-        className={`relative z-50 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${effectiveHasClaimed
-          ? 'bg-slate-800/50 text-emerald-400 cursor-default border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+        className={`relative z-50 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${isClaiming
+          ? 'bg-slate-800/50 text-slate-400 cursor-wait border border-slate-700/20 shadow-[0_0_15px_rgba(148,163,184,0.1)]'
           : isDay7
             ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white hover:scale-[1.02] active:scale-95 shadow-[0_0_30px_rgba(251,191,36,0.4)]'
             : 'bg-gradient-to-r from-white via-slate-50 to-white text-slate-900 hover:scale-[1.02] active:scale-95 shadow-[0_0_25px_rgba(255,255,255,0.2)]'
           }`}
       >
         {/* Shimmer эффект на кнопке - усилен */}
-        {!effectiveHasClaimed && (
+        {!isClaiming && (
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent z-10"
             animate={{
@@ -423,7 +424,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         )}
         
         {/* Дополнительное свечение для дня 7 - усилено */}
-        {isDay7 && !effectiveHasClaimed && (
+        {isDay7 && !isClaiming && (
           <>
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-orange-400/30 to-red-400/30 rounded-2xl blur-md"
@@ -451,15 +452,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           </>
         )}
         <AnimatePresence mode="wait">
-          {effectiveHasClaimed ? (
+          {isClaiming ? (
             <motion.span
-              key="completed"
+              key="claiming"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center justify-center gap-2"
             >
-              <Check size={16} className="text-emerald-400" />
-              Миссия выполнена
+              Обработка...
             </motion.span>
           ) : (
             <motion.span
@@ -469,7 +469,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               exit={{ opacity: 0, y: 10 }}
               className="flex items-center justify-center gap-2"
             >
-              {isClaiming ? 'Обработка...' : weekDay === 7 ? '🎉 Завершить неделю!' : 'Получить бонус'}
+              {weekDay === 7 ? '🎉 Завершить неделю!' : 'Получить бонус'}
             </motion.span>
           )}
         </AnimatePresence>
