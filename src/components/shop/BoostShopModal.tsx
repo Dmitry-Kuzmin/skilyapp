@@ -123,7 +123,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       catalogKey: 'coins_pack_100',
       packageKey: 'coins_100',
       priceCoins: 100,
-      tagKey: 'boostShop.coins.tags.starter',
       descriptionKey: 'boostShop.coins.descriptions.starter',
       helperKey: 'boostShop.coins.helpers.starter',
     },
@@ -157,7 +156,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       catalogKey: 'coins_pack_3000',
       packageKey: 'coins_3000',
       priceCoins: 3500,
-      tagKey: 'boostShop.coins.tags.bestValue',
+      highlight: true,
       descriptionKey: 'boostShop.coins.descriptions.elite',
       helperKey: 'boostShop.coins.helpers.elite',
     },
@@ -1020,17 +1019,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
 
                 <div className="grid gap-3">
-                  {coinPacks.map((pack, idx, arr) => {
-                    const tagLabel = pack.tagKey ? t(pack.tagKey) : undefined;
-                    const isHighlighted = Boolean(tagLabel) || idx === arr.length - 1;
+                  {coinPacks.map((pack) => {
+                    const isHighlighted = Boolean(pack.highlight);
                     const pricePerCoin = pack.priceValue && pack.priceCoins
                       ? pack.priceValue / pack.priceCoins
                       : null;
                     const description = t(pack.descriptionKey ?? 'boostShop.coins.purpose');
                     const helperText = t(pack.helperKey ?? 'boostShop.coins.deliveryHint');
                     return (
-                      <Card
-                        key={idx}
+                    <Card
+                      key={idx}
                         className={`group relative overflow-hidden rounded-3xl border bg-slate-900/70 backdrop-blur-xl p-4 md:p-5 shadow-lg transition-transform duration-200 hover:-translate-y-1 ${
                           isHighlighted
                             ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
@@ -1038,34 +1036,29 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         }`}
                       >
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {tagLabel && (
-                          <Badge className="absolute left-4 top-4 text-[10px] bg-white/90 text-slate-900">
-                            {tagLabel}
-                          </Badge>
-                        )}
-                        <div className="flex flex-col gap-4">
-                          <div className="flex items-center gap-4">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-4">
                             <div className={`w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 ${
                               isHighlighted
                                 ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
                                 : 'bg-gradient-to-br from-slate-800 to-slate-900 text-yellow-300'
                             }`}>
-                              <Coins className="w-7 h-7" />
-                            </div>
-                            <div className="flex-1 min-w-0">
+                            <Coins className="w-7 h-7" />
+                          </div>
+                          <div className="flex-1 min-w-0">
                               <p className="text-xl font-bold text-white truncate">
-                                {t('boostShop.coins.packLabel', { amount: pack.amount })}
-                              </p>
+                              {t('boostShop.coins.packLabel', { amount: pack.amount })}
+                            </p>
                               <p className="text-xs text-muted-foreground">
                                 {description}
                               </p>
-                              {pack.bonus > 0 && (
+                            {pack.bonus > 0 && (
                                 <div className="flex items-center gap-1 text-xs mt-1 text-yellow-200">
                                   <Sparkles className="w-3 h-3" />
-                                  {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
+                                {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                                 </div>
-                              )}
-                            </div>
+                            )}
+                          </div>
                             <div className="text-right">
                               <span className="text-2xl font-black text-white">{pack.price}</span>
                               {pricePerCoin && (
@@ -1074,7 +1067,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 </p>
                               )}
                             </div>
-                          </div>
+                        </div>
 
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center text-xs text-muted-foreground gap-2">
@@ -1082,40 +1075,40 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               <span className="text-center">{helperText}</span>
                               <div className="h-px flex-1 bg-white/10" />
                             </div>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <Button
-                                size="sm"
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <Button
+                            size="sm"
                                 aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
-                                onClick={() => handleCoinPurchase(pack.catalogKey)}
+                            onClick={() => handleCoinPurchase(pack.catalogKey)}
                                 className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
-                                disabled={!profileId}
-                              >
+                            disabled={!profileId}
+                          >
                                 <ShoppingBag className="w-4 h-4 mr-2" />
-                                {t('boostShop.buttons.buy')}
-                              </Button>
-                              {showStarsPayment && (
-                                <StarsPaymentButton
-                                  packageKey={pack.packageKey}
-                                  priceCoins={pack.priceCoins}
-                                  onSuccess={() => {
-                                    loadData(); // Обновить баланс после успешной оплаты
-                                    toast({
-                                      title: t('boostShop.coins.successTitle'),
-                                      description: t('boostShop.coins.successDescription', { amount: pack.amount }),
-                                      duration: 5000,
-                                    });
-                                    setShowConfetti(true);
-                                    setTimeout(() => setShowConfetti(false), 3000);
-                                  }}
-                                  variant="outline"
-                                  size="sm"
+                            {t('boostShop.buttons.buy')}
+                          </Button>
+                          {showStarsPayment && (
+                            <StarsPaymentButton
+                              packageKey={pack.packageKey}
+                              priceCoins={pack.priceCoins}
+                              onSuccess={() => {
+                                loadData(); // Обновить баланс после успешной оплаты
+                                toast({
+                                  title: t('boostShop.coins.successTitle'),
+                                  description: t('boostShop.coins.successDescription', { amount: pack.amount }),
+                                  duration: 5000,
+                                });
+                                setShowConfetti(true);
+                                setTimeout(() => setShowConfetti(false), 3000);
+                              }}
+                              variant="outline"
+                              size="sm"
                                   className="w-full sm:flex-1 sm:min-w-[160px] border-white/20 text-white hover:bg-white/5"
-                                />
-                              )}
+                            />
+                          )}
                             </div>
-                          </div>
                         </div>
-                      </Card>
+                      </div>
+                    </Card>
                     );
                   })}
                 </div>

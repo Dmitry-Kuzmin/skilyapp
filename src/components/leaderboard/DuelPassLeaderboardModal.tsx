@@ -1029,20 +1029,20 @@ export function DuelPassLeaderboardModal() {
                       const position = leader.position || (pagination.page - 1) * pagination.page_size + index + 1;
 
                       return (
-                        <TableRow
-                          key={leader.user_id}
-                          className={cn(
-                            "relative overflow-hidden border-b border-white/5 transition-all duration-200 bg-gradient-to-r from-white/[0.008] via-white/[0.015] to-transparent hover:from-primary/10 hover:via-primary/5 hover:to-transparent",
-                            isCurrentUser && "from-primary/15 via-primary/10 to-transparent ring-1 ring-primary/30 shadow-[0_8px_30px_rgba(59,130,246,0.25)] text-primary-foreground"
-                          )}
-                        >
-                          <TableCell className="font-bold text-sm">
-                            <div className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-                              <span>{position}</span>
-                              {position <= 3 && (
-                                <Trophy className="w-4 h-4 text-yellow-500" />
-                              )}
-                            </div>
+                    <TableRow
+                      key={leader.user_id}
+                      className={cn(
+                        "border-b-0 bg-slate-900/40 even:bg-slate-900/30 transition-colors hover:bg-slate-800/60",
+                        "relative overflow-hidden",
+                        isCurrentUser &&
+                          "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-l-4 border-l-primary shadow-lg ring-1 ring-primary/20"
+                      )}
+                    >
+                          <TableCell className="font-bold">
+                            {position}
+                            {position <= 3 && (
+                              <Trophy className="w-4 h-4 inline-block ml-1 text-yellow-500" />
+                            )}
                           </TableCell>
                           <TableCell className="max-w-[200px] sm:max-w-[250px] md:max-w-none">
                             <div className="flex items-center gap-3 min-w-0">
