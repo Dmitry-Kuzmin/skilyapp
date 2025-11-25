@@ -865,6 +865,41 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                 }}
               />
             );
+          } else if (particle.type === 'confetti') {
+            // Конфетти - простые круги с гравитацией (как в HTML)
+            return (
+              <motion.div
+                key={particle.id}
+                className="fixed pointer-events-none rounded-full"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                  width: `${particle.size}px`,
+                  height: `${particle.size}px`,
+                  background: particle.color,
+                  boxShadow: `0 0 ${particle.size}px ${particle.color}80`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                }}
+                animate={{ 
+                  scale: [0, 1, 1, 0.5, 0],
+                  opacity: [1, 1, 1, 0.7, 0],
+                  x: x,
+                  y: y,
+                  rotate: rotation,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: baseDuration,
+                  ease: particle.vx !== undefined ? "linear" : "easeOut",
+                }}
+              />
+            );
           }
         })}
         </AnimatePresence>
