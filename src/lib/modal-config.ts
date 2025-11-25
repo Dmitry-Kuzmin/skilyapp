@@ -5,18 +5,25 @@
  * - Все модалки должны использовать эти настройки по умолчанию
  * - Skeleton анимация применяется автоматически при loading состоянии
  * - Фиксированная высота предотвращает изменение размера при загрузке
+ * 
+ * Размеры стандартизированы (кратно 80px) для единообразия:
+ * - small: 400px (5 * 80) - маленькие формы, подтверждения
+ * - medium: 560px (7 * 80) - стандартные модалки
+ * - large: 720px (9 * 80) - большие модалки с таблицами
+ * - xlarge: 880px (11 * 80) - очень большие (duelPass, leaderboard)
+ * - xxlarge: 1040px (13 * 80) - максимальные (админ панели)
  */
 
 export const MODAL_CONFIG = {
-  // Размеры для Desktop
+  // Размеры для Desktop (стандартизированы, кратно 80px)
   desktop: {
-    maxWidth: 'max-w-4xl',
-    maxHeight: 'max-h-[90vh]',
+    maxWidth: 'max-w-[720px]', // 9 * 80 = 720px (large)
+    maxHeight: 'max-h-[80vh]', // 75-80% высоты экрана
   },
   
   // Размеры для Mobile/Telegram
   mobile: {
-    maxHeight: 'max-h-[92vh]',
+    maxHeight: 'max-h-[85vh]', // 75-85% высоты экрана
   },
   
   // Общие настройки
@@ -32,34 +39,59 @@ export const MODAL_CONFIG = {
     autoRefreshInterval: 30000,
   },
   
-  // Настройки для разных типов модалок
+  // Настройки для разных типов модалок (размеры кратно 80px)
   types: {
+    // Маленькие формы, подтверждения, алерты
+    small: {
+      desktop: { maxWidth: 'max-w-[400px]', maxHeight: 'max-h-[75vh]' }, // 5 * 80 = 400px
+      mobile: { maxHeight: 'max-h-[80vh]' },
+    },
+    // Магазин, стандартные формы
     shop: {
-      desktop: { maxWidth: 'max-w-lg', maxHeight: 'max-h-[80vh]' },
+      desktop: { maxWidth: 'max-w-[560px]', maxHeight: 'max-h-[80vh]' }, // 7 * 80 = 560px
       mobile: { maxHeight: 'max-h-[85vh]' },
     },
-    duelPass: {
-      desktop: { maxWidth: 'max-w-5xl', maxHeight: 'max-h-[88vh]' },
-      mobile: { maxHeight: 'max-h-[90vh]' },
-    },
+    // Профиль, настройки
     profile: {
-      desktop: { maxWidth: 'max-w-2xl', maxHeight: 'max-h-[88vh]' },
+      desktop: { maxWidth: 'max-w-[720px]', maxHeight: 'max-h-[80vh]' }, // 9 * 80 = 720px
+      mobile: { maxHeight: 'max-h-[85vh]' },
+    },
+    // Duel Pass, Leaderboard - большие модалки
+    duelPass: {
+      desktop: { maxWidth: 'max-w-[880px]', maxHeight: 'max-h-[85vh]' }, // 11 * 80 = 880px
       mobile: { maxHeight: 'max-h-[90vh]' },
     },
-    default: {
-      desktop: { maxWidth: 'max-w-lg', maxHeight: 'max-h-[88vh]' },
+    // Админ панели, редакторы - максимальные
+    admin: {
+      desktop: { maxWidth: 'max-w-[1040px]', maxHeight: 'max-h-[90vh]' }, // 13 * 80 = 1040px
       mobile: { maxHeight: 'max-h-[90vh]' },
+    },
+    // Стандартная модалка по умолчанию
+    default: {
+      desktop: { maxWidth: 'max-w-[560px]', maxHeight: 'max-h-[80vh]' }, // 7 * 80 = 560px
+      mobile: { maxHeight: 'max-h-[85vh]' },
     },
   },
 } as const;
 
 /**
  * Тип модалки
+ * 
+ * Рекомендации по выбору размера:
+ * - small (400px): подтверждения, алерты, простые формы
+ * - shop (560px): магазин, стандартные формы с несколькими полями
+ * - profile (720px): профиль, настройки, формы с таблицами
+ * - duelPass (880px): большие модалки с большим количеством контента
+ * - admin (1040px): админ панели, редакторы, максимальные модалки
+ * - default (560px): стандартная модалка, если не уверены
  */
 export type ModalType = keyof typeof MODAL_CONFIG.types;
 
 /**
  * Получить конфигурацию для типа модалки
+ * 
+ * @param type - Тип модалки (small, shop, profile, duelPass, admin, default)
+ * @returns Конфигурация с размерами для desktop и mobile
  */
 export function getModalConfig(type: ModalType = 'default') {
   return MODAL_CONFIG.types[type] || MODAL_CONFIG.types.default;

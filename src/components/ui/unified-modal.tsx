@@ -5,6 +5,7 @@ import { ModalSkeleton, type ModalSkeletonVariant } from "@/components/ui/modal-
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalRoute } from "@/hooks/useModalRoute";
+import { useModalStack } from "@/hooks/useModalStack";
 
 interface UnifiedModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface UnifiedModalProps {
   showHandle?: boolean;
   modalRouteKey?: string;
   fullscreen?: boolean; // Полноэкранный режим с залитым фоном
+  preventClose?: boolean; // Предотвратить закрытие (клик вне, ESC) - полезно для форм с несохраненными данными
 }
 
 /**
@@ -52,6 +54,7 @@ export function UnifiedModal({
   showHandle = true,
   modalRouteKey,
   fullscreen = false,
+  preventClose = false,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
   
@@ -72,18 +75,45 @@ export function UnifiedModal({
     return false;
   }, [modalRouteKey, open, route?.isOpen]);
   
+  // Уникальный ID модалки для отслеживания в стеке
+  const modalId = React.useMemo(() => modalRouteKey || `modal-${Date.now()}-${Math.random()}`, [modalRouteKey]);
+  
+  // Отслеживаем модалку в стеке для предотвращения вложенности
+  const { isTopModal } = useModalStack(modalId, resolvedOpen, title || modalRouteKey);
+  
+  // Мемоизация контента для оптимизации производительности
+  // Мемоизация контента для оптимизации производительности
   const renderContent = React.useMemo(() => {
-    return loading
-      ? skeleton ?? <ModalSkeleton variant={skeletonVariant} />
-      : children;
+    if (loading) {
+      return skeleton ?? <ModalSkeleton variant={skeletonVariant} />;
+    }
+    return children;
   }, [loading, skeleton, skeletonVariant, children]);
   
-  // Упрощенный обработчик: обновляем prop и синхронизируем URL
+  // Ref для предотвращения множественных вызовов во время анимации
+  const isAnimatingRef = React.useRef(false);
+  const lastStateRef = React.useRef<boolean | null>(null);
+
+  // Улучшенный обработчик: предотвращаем множественные вызовы во время анимации
   const handleOpenChange = React.useCallback(
     (state: boolean) => {
+      // Предотвращаем повторные вызовы с тем же состоянием
+      if (lastStateRef.current === state) {
+        return;
+      }
+
+      // Предотвращаем вызовы во время анимации (200ms)
+      if (isAnimatingRef.current) {
+        return;
+      }
+
+      // Устанавливаем флаг анимации
+      isAnimatingRef.current = true;
+      lastStateRef.current = state;
+
       // Обновляем prop (основной источник истины)
       if (typeof onOpenChange === 'function') {
-      onOpenChange(state);
+        onOpenChange(state);
       }
       
       // Синхронизируем URL (если используется)
@@ -94,6 +124,11 @@ export function UnifiedModal({
           route.closeModal();
         }
       }
+
+      // Сбрасываем флаг после завершения анимации (200ms)
+      setTimeout(() => {
+        isAnimatingRef.current = false;
+      }, 200);
     },
     [modalRouteKey, route, onOpenChange]
   );
@@ -268,6 +303,7 @@ export function UnifiedModal({
           fullscreen={true}
           className={cn(className)}
           autoAccessibility={false}
+          preventClose={preventClose}
         >
           <DialogHeader className={showTitleBar ? "px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4 border-b border-border/50" : "sr-only"}>
             <DialogTitle>
@@ -299,6 +335,7 @@ export function UnifiedModal({
       <DialogContent 
         className={cn("max-w-4xl max-h-[90vh] p-0 flex flex-col", className)}
         autoAccessibility={false}
+        preventClose={preventClose}
       >
         <DialogHeader className={showTitleBar && title ? "px-4 md:px-6 pt-4 md:pt-5 pb-3 border-b border-border/50" : "sr-only"}>
           <DialogTitle>
