@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Flame, Award, Sparkles, Check, Star } from 'lucide-react';
+import { Flame, Award, Sparkles, Check, Star, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
 import { CelebrationModal } from './CelebrationModal';
@@ -27,13 +27,83 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     id: number; 
     x: number; 
     y: number; 
-    type: 'circle' | 'star' | 'sparkle' | 'burst';
+    type: 'circle' | 'star' | 'sparkle' | 'burst' | 'heart' | 'diamond' | 'fire';
     size: number;
     color: string;
     angle: number;
     distance: number;
   }>>([]);
   const effectiveHasClaimed = hasClaimedToday;
+
+  // Определяем тип анимации в зависимости от дня недели
+  const getDayAnimationConfig = (day: number) => {
+    switch (day) {
+      case 1: // День 1 - простые круги
+        return {
+          count: 30,
+          types: ['circle'] as const,
+          colors: ['hsl(200, 100%, 60%)', 'hsl(220, 100%, 60%)'],
+          speed: 1.0,
+          pattern: 'radial'
+        };
+      case 2: // День 2 - звезды
+        return {
+          count: 40,
+          types: ['star'] as const,
+          colors: ['hsl(40, 100%, 60%)', 'hsl(60, 100%, 60%)'],
+          speed: 1.2,
+          pattern: 'spiral'
+        };
+      case 3: // День 3 - искры
+        return {
+          count: 50,
+          types: ['sparkle'] as const,
+          colors: ['hsl(280, 100%, 60%)', 'hsl(300, 100%, 60%)'],
+          speed: 1.1,
+          pattern: 'wave'
+        };
+      case 4: // День 4 - сердца
+        return {
+          count: 35,
+          types: ['heart'] as const,
+          colors: ['hsl(340, 100%, 60%)', 'hsl(0, 100%, 60%)'],
+          speed: 1.3,
+          pattern: 'radial'
+        };
+      case 5: // День 5 - алмазы
+        return {
+          count: 45,
+          types: ['diamond'] as const,
+          colors: ['hsl(180, 100%, 60%)', 'hsl(200, 100%, 60%)'],
+          speed: 1.4,
+          pattern: 'spiral'
+        };
+      case 6: // День 6 - огонь
+        return {
+          count: 60,
+          types: ['fire'] as const,
+          colors: ['hsl(15, 100%, 60%)', 'hsl(30, 100%, 60%)', 'hsl(45, 100%, 60%)'],
+          speed: 1.5,
+          pattern: 'burst'
+        };
+      case 7: // День 7 - мега-микс всех типов
+        return {
+          count: 100,
+          types: ['circle', 'star', 'sparkle', 'burst', 'heart', 'diamond', 'fire'] as const,
+          colors: ['hsl(0, 100%, 60%)', 'hsl(60, 100%, 60%)', 'hsl(120, 100%, 60%)', 'hsl(180, 100%, 60%)', 'hsl(240, 100%, 60%)', 'hsl(300, 100%, 60%)'],
+          speed: 1.8,
+          pattern: 'explosion'
+        };
+      default:
+        return {
+          count: 30,
+          types: ['circle'] as const,
+          colors: ['hsl(200, 100%, 60%)'],
+          speed: 1.0,
+          pattern: 'radial'
+        };
+    }
+  };
 
   const { settings: cockpitSettings } = useCockpitSettings();
   const celebrationMode = cockpitSettings.animationMode;
@@ -113,21 +183,46 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     setIsClaiming(true);
     setShowReward(true); // Показываем overlay эффект сразу
 
-    // Создаем эффект разлетающихся частиц от кнопки
+    // Создаем эффект разлетающихся частиц от кнопки с уникальной анимацией для каждого дня
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       
-      // Создаем 80 частиц разных типов, разлетающихся от центра кнопки
-      const particleTypes: Array<'circle' | 'star' | 'sparkle' | 'burst'> = ['circle', 'star', 'sparkle', 'burst'];
-      const newParticles = Array.from({ length: 80 }, (_, i) => {
+      const config = getDayAnimationConfig(weekDay || 1);
+      const particleTypes = config.types;
+      
+      const newParticles = Array.from({ length: config.count }, (_, i) => {
         const type = particleTypes[i % particleTypes.length];
-        const angle = (i / 80) * Math.PI * 2;
-        const baseDistance = 120;
-        const distance = baseDistance + (i % 5) * 40 + Math.sin(i) * 30;
-        const hue = (i * 4.5) % 360;
-        const size = type === 'star' ? 4 : type === 'sparkle' ? 3 : type === 'burst' ? 5 : 3;
+        const angle = (i / config.count) * Math.PI * 2;
+        const baseDistance = 100;
+        let distance = baseDistance;
+        
+        // Разные паттерны для разных дней
+        if (config.pattern === 'spiral') {
+          const spiralFactor = (i / config.count) * 2;
+          distance = baseDistance + spiralFactor * 50;
+        } else if (config.pattern === 'wave') {
+          const wave = Math.sin(angle * 3) * 40;
+          distance = baseDistance + wave;
+        } else if (config.pattern === 'burst') {
+          distance = baseDistance + (i % 5) * 30;
+        } else if (config.pattern === 'explosion') {
+          distance = baseDistance + Math.random() * 100;
+        } else {
+          distance = baseDistance + (i % 5) * 30;
+        }
+        
+        const colorIndex = i % config.colors.length;
+        const color = config.colors[colorIndex];
+        
+        let size = 3;
+        if (type === 'star') size = 4;
+        else if (type === 'sparkle') size = 3;
+        else if (type === 'burst') size = 5;
+        else if (type === 'heart') size = 4;
+        else if (type === 'diamond') size = 4;
+        else if (type === 'fire') size = 5;
         
         return {
           id: Date.now() + i,
@@ -135,17 +230,17 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           y: centerY,
           type,
           size,
-          color: `hsl(${hue}, 100%, ${60 + (i % 3) * 10}%)`,
+          color,
           angle,
           distance,
         };
       });
       setParticles(newParticles);
       
-      // Удаляем частицы через 2 секунды
+      // Удаляем частицы через 2.5 секунды
       setTimeout(() => {
         setParticles([]);
-      }, 2000);
+      }, 2500);
     }
 
     // Показываем эффекты победы для всех дней
@@ -456,15 +551,147 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             x = Math.cos(particle.angle) * particle.distance + wave;
             y = Math.sin(particle.angle) * particle.distance + wave;
             rotation = particle.angle * (180 / Math.PI) * 2;
+          } else if (particle.type === 'heart') {
+            // Сердца - радиальное разлетание с пульсацией
+            x = Math.cos(particle.angle) * particle.distance;
+            y = Math.sin(particle.angle) * particle.distance;
+            rotation = particle.angle * (180 / Math.PI);
+          } else if (particle.type === 'diamond') {
+            // Алмазы - спиральная траектория
+            const spiralFactor = particle.distance * 0.25;
+            x = Math.cos(particle.angle + spiralFactor) * particle.distance;
+            y = Math.sin(particle.angle + spiralFactor) * particle.distance;
+            rotation = particle.angle * (180 / Math.PI) * 3;
+          } else if (particle.type === 'fire') {
+            // Огонь - радиальное разлетание с вариацией
+            const variation = Math.sin(particle.angle * 2) * 20;
+            x = Math.cos(particle.angle) * particle.distance + variation;
+            y = Math.sin(particle.angle) * particle.distance + variation;
+            rotation = particle.angle * (180 / Math.PI) * 1.5;
           } else {
             // Круги - стандартное разлетание
             x = Math.cos(particle.angle) * particle.distance;
             y = Math.sin(particle.angle) * particle.distance;
           }
           
-          const baseDuration = particle.type === 'burst' ? 1.5 : particle.type === 'star' ? 1.8 : 1.3;
+          const baseDuration = particle.type === 'burst' ? 1.5 : particle.type === 'star' ? 1.8 : particle.type === 'fire' ? 1.6 : 1.3;
           
-          if (particle.type === 'star') {
+          if (particle.type === 'heart') {
+            return (
+              <motion.div
+                key={particle.id}
+                className="absolute pointer-events-none z-[60]"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                }}
+                animate={{ 
+                  scale: [0, 1.3, 1, 0],
+                  opacity: [1, 1, 0.9, 0],
+                  x: x,
+                  y: y,
+                  rotate: rotation,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 1.4,
+                  ease: "easeOut",
+                }}
+              >
+                <Heart 
+                  style={{
+                    width: `${particle.size * 4}px`,
+                    height: `${particle.size * 4}px`,
+                    color: particle.color,
+                    fill: particle.color,
+                    filter: `drop-shadow(0 0 ${particle.size * 2}px ${particle.color})`,
+                  }}
+                />
+              </motion.div>
+            );
+          } else if (particle.type === 'diamond') {
+            return (
+              <motion.div
+                key={particle.id}
+                className="absolute pointer-events-none z-[60]"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                  width: `${particle.size * 4}px`,
+                  height: `${particle.size * 4}px`,
+                  clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                  background: `linear-gradient(135deg, ${particle.color}, ${particle.color}80)`,
+                  boxShadow: `0 0 ${particle.size * 3}px ${particle.color}, 0 0 ${particle.size * 6}px ${particle.color}40`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                }}
+                animate={{ 
+                  scale: [0, 1.4, 0],
+                  opacity: [1, 1, 0],
+                  x: x,
+                  y: y,
+                  rotate: 360,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeOut",
+                }}
+              />
+            );
+          } else if (particle.type === 'fire') {
+            return (
+              <motion.div
+                key={particle.id}
+                className="absolute pointer-events-none z-[60]"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                }}
+                animate={{ 
+                  scale: [0, 1.5, 1.2, 0],
+                  opacity: [1, 1, 0.8, 0],
+                  x: x,
+                  y: y,
+                  rotate: rotation,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: baseDuration,
+                  ease: "easeOut",
+                }}
+              >
+                <Flame 
+                  style={{
+                    width: `${particle.size * 4}px`,
+                    height: `${particle.size * 4}px`,
+                    color: particle.color,
+                    fill: particle.color,
+                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color})`,
+                  }}
+                />
+              </motion.div>
+            );
+          } else if (particle.type === 'star') {
             return (
               <motion.div
                 key={particle.id}
