@@ -226,19 +226,6 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       setIsDragging(false);
     };
     
-    // Обработчик закрытия через другие способы (кнопка, клик вне)
-    const handleOpenChange = React.useCallback((open: boolean) => {
-      // Предотвращаем множественные вызовы
-      if (!open && isClosingRef.current) return;
-      if (!open) {
-        isClosingRef.current = true;
-        setTimeout(() => {
-          isClosingRef.current = false;
-        }, 200);
-      }
-      props.onOpenChange?.(open);
-    }, [props]);
-
     return (
       <SheetPortal>
         <SheetOverlay />
