@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
@@ -21,7 +21,10 @@ export interface DuelNotification {
 // Types of notifications to hide (progress notifications)
 // Show only important notifications: finish, timeout, and progress during active duels
 // Hide: start, boost, opponent_ahead, opponent_behind, reminder
-const PROGRESS_NOTIFICATION_TYPES = ['start', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
+const MUTED_NOTIFICATION_TYPES = new Set(['start', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder']);
+const IMPORTANT_NOTIFICATION_TYPES = new Set(['finish', 'timeout']);
+const TOAST_RATE_LIMIT_MS = 4000;
+const TELEGRAM_RATE_LIMIT_MS = 60000;
 
 export function useNotifications(options?: { showToasts?: boolean; playSounds?: boolean }) {
   const { profileId } = useUserContext();
@@ -29,22 +32,42 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
   const [unreadCount, setUnreadCount] = useState(0);
   const showToasts = options?.showToasts ?? true;
   const playSounds = options?.playSounds ?? true;
+  const shouldDebugLog = useMemo(() => {
+    if (process.env.NODE_ENV !== 'production') return true;
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.localStorage?.getItem('debugNotifications') === '1';
+    } catch {
+      return false;
+    }
+  }, []);
+  const debugLog = useCallback(
+    (...args: unknown[]) => {
+      if (shouldDebugLog) {
+        console.log(...args);
+      }
+    },
+    [shouldDebugLog]
+  );
+  const deliveredNotificationIdsRef = useRef<Set<string>>(new Set());
+  const lastToastAtRef = useRef(0);
+  const lastTelegramAtRef = useRef(0);
 
   useEffect(() => {
     if (!profileId) {
-      console.log('[useNotifications] No profileId, skipping subscription');
+      debugLog('[useNotifications] No profileId, skipping subscription');
       return;
     }
 
-    console.log('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
+    debugLog('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
     
     // Load existing notifications first
     loadNotifications();
 
     // Realtime подписка на новые уведомления
     // Используем более простой фильтр для лучшей совместимости с realtime
-    console.log('[useNotifications] Creating Realtime channel for profileId:', profileId);
-    console.log('[useNotifications] ProfileId type:', typeof profileId, 'value:', profileId);
+    debugLog('[useNotifications] Creating Realtime channel for profileId:', profileId);
+    debugLog('[useNotifications] ProfileId type:', typeof profileId, 'value:', profileId);
     
     // Создаем канал с уникальным именем
     const channelName = `duel_notifications_${profileId}`;
@@ -62,9 +85,9 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           // RLS политика все равно проверяет, что user_id совпадает с profile_id текущего пользователя
         },
         (payload) => {
-          console.log('[Notifications] ✅ New notification received via Realtime:', payload);
+          debugLog('[Notifications] ✅ New notification received via Realtime:', payload);
           const newNotification = payload.new as DuelNotification;
-          console.log('[Notifications] Notification details:', {
+          debugLog('[Notifications] Notification details:', {
             id: newNotification.id,
             type: newNotification.type,
             title: newNotification.title,
@@ -83,10 +106,17 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           // Filter out less important notifications
           // Show: progress (opponent's answers), finish, timeout
           // Hide: start, boost, opponent_ahead, opponent_behind, reminder
-          if (PROGRESS_NOTIFICATION_TYPES.includes(newNotification.type)) {
-            console.log('[Notifications] ⏭️ Skipping notification type:', newNotification.type);
+          if (MUTED_NOTIFICATION_TYPES.has(newNotification.type)) {
+            debugLog('[Notifications] ⏭️ Skipping notification type:', newNotification.type);
             return;
           }
+          
+          const deliveredSet = deliveredNotificationIdsRef.current;
+          if (deliveredSet.has(newNotification.id)) {
+            debugLog('[Notifications] 🔁 Duplicate notification received, skipping:', newNotification.id);
+            return;
+          }
+          deliveredSet.add(newNotification.id);
           
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
@@ -102,15 +132,21 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           
           // Show toast notification if enabled (only for results, not progress)
           if (showToasts) {
-            const isImportant = ['finish'].includes(newNotification.type);
+            const now = Date.now();
+            const isImportant = IMPORTANT_NOTIFICATION_TYPES.has(newNotification.type);
             const duration = isImportant ? 5000 : 3000;
-            console.log('[Notifications] Showing toast:', normalizedTitle);
-            toast.info(normalizedTitle, {
-              description: newNotification.message,
-              duration,
-              // Кнопка "Перейти" убрана - не нужна
-              // Иконки будут отображаться через компоненты в NotificationsPanel
-            });
+            if (!isImportant && now - lastToastAtRef.current < TOAST_RATE_LIMIT_MS) {
+              debugLog('[Notifications] 🔇 Toast skipped due to rate limit');
+            } else {
+              lastToastAtRef.current = now;
+              debugLog('[Notifications] Showing toast:', normalizedTitle);
+              toast.info(normalizedTitle, {
+                description: newNotification.message,
+                duration,
+                // Кнопка "Перейти" убрана - не нужна
+                // Иконки будут отображаться через компоненты в NotificationsPanel
+              });
+            }
           }
           
           // Play sound if enabled
@@ -125,20 +161,26 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           
           // Отправляем в Telegram если пользователь неактивен
           if (!isAppActive() && profileId) {
-            console.log('[Notifications] User inactive, sending to Telegram');
-            sendTelegramNotification({
-              userId: profileId,
-              templateType: newNotification.type,
-              title: normalizedTitle,
-              message: newNotification.message,
-              icon: newNotification.icon || '📢',
-              ctaText: 'Открыть',
-              ctaDeeplink: newNotification.duel_id ? `duel_${newNotification.duel_id}` : undefined,
-              variables: newNotification.metadata,
-              force: false
-            }).catch(error => {
-              console.error('[Notifications] Telegram send error:', error);
-            });
+            const now = Date.now();
+            if (now - lastTelegramAtRef.current < TELEGRAM_RATE_LIMIT_MS) {
+              debugLog('[Notifications] 📵 Telegram notification throttled');
+            } else {
+              lastTelegramAtRef.current = now;
+              debugLog('[Notifications] User inactive, sending to Telegram');
+              sendTelegramNotification({
+                userId: profileId,
+                templateType: newNotification.type,
+                title: normalizedTitle,
+                message: newNotification.message,
+                icon: newNotification.icon || '📢',
+                ctaText: 'Открыть',
+                ctaDeeplink: newNotification.duel_id ? `duel_${newNotification.duel_id}` : undefined,
+                variables: newNotification.metadata,
+                force: false
+              }).catch(error => {
+                console.error('[Notifications] Telegram send error:', error);
+              });
+            }
           }
         }
       )
@@ -151,7 +193,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           // Убираем фильтр - RLS политика будет фильтровать на сервере
         },
         (payload) => {
-          console.log('[Notifications] Updated notification:', payload);
+          debugLog('[Notifications] Updated notification:', payload);
           setNotifications(prev =>
             prev.map(n => (n.id === payload.new.id ? payload.new as DuelNotification : n))
           );
@@ -162,7 +204,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       )
       .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
-          console.log('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
+          debugLog('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
         } else if (err) {
           // Логируем только серьезные ошибки (не mismatch, так как RLS политика исправлена)
           if (!err?.message?.includes('mismatch') && !err?.message?.includes('bindings')) {
@@ -180,25 +222,25 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           console.warn('[Notifications] ⚠️ Subscription timed out - will retry on next mount');
         } else if (status === 'CLOSED') {
           // CLOSED статус нормален при размонтировании компонента
-          console.log('[Notifications] Subscription closed (normal on unmount)');
+          debugLog('[Notifications] Subscription closed (normal on unmount)');
         } else {
-          console.log('[Notifications] Subscription status:', status);
+          debugLog('[Notifications] Subscription status:', status);
         }
       });
 
     return () => {
-      console.log('[useNotifications] Cleaning up notification subscription');
+      debugLog('[useNotifications] Cleaning up notification subscription');
       supabase.removeChannel(channel);
     };
-  }, [profileId, showToasts, playSounds]);
+  }, [profileId, showToasts, playSounds, debugLog]);
 
   const loadNotifications = useCallback(async () => {
     if (!profileId) {
-      console.log('[useNotifications] No profileId, skipping load');
+      debugLog('[useNotifications] No profileId, skipping load');
       return;
     }
 
-    console.log('[useNotifications] Loading notifications for profileId:', profileId);
+    debugLog('[useNotifications] Loading notifications for profileId:', profileId);
     
     const { data, error } = await supabase
       .from('duel_notifications')
@@ -213,20 +255,21 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       return;
     }
 
-    console.log('[useNotifications] Loaded notifications:', data?.length || 0);
+    debugLog('[useNotifications] Loaded notifications:', data?.length || 0);
     if (data && data.length > 0) {
-      console.log('[useNotifications] Sample notification:', data[0]);
+      debugLog('[useNotifications] Sample notification:', data[0]);
     }
     
     if (data) {
       // Filter out progress notifications on client side
-      const filteredData = data.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
+      const filteredData = data.filter(n => !MUTED_NOTIFICATION_TYPES.has(n.type));
+      deliveredNotificationIdsRef.current = new Set(filteredData.map((n) => n.id));
       setNotifications(filteredData);
       const unread = filteredData.filter(n => !n.is_read).length;
       setUnreadCount(unread);
-      console.log('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread);
+      debugLog('[useNotifications] Filtered notifications:', filteredData.length, 'Unread count:', unread);
     }
-  }, [profileId]);
+  }, [profileId, debugLog]);
 
   const markAsRead = async (notificationId: string) => {
     await supabase
