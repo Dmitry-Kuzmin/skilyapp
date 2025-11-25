@@ -19,7 +19,15 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
   weekNumber = 1,
 }) => {
   const { resolvedTheme } = useTheme();
+  // Используем ту же логику, что и в Dashboard
+  // resolvedTheme будет 'dark' или 'light' в зависимости от темы (включая системную)
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
+  
+  // Определяем классы для карточки
+  const cardClasses = isDarkTheme 
+    ? 'relative rounded-[40px] p-8 shadow-2xl overflow-hidden bg-[#0f1623] border border-[#1e293b]' 
+    : 'relative rounded-[40px] p-8 shadow-2xl overflow-hidden bg-white border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.1)]';
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Array<{
     x: number;
@@ -187,11 +195,7 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
       />
 
       {/* Card */}
-      <div className={`relative rounded-[40px] p-8 shadow-2xl overflow-hidden ${
-        isDarkTheme 
-          ? 'bg-[#0f1623] border border-[#1e293b]' 
-          : 'bg-white/95 border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.1)]'
-      }`}>
+      <div className={cardClasses}>
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
