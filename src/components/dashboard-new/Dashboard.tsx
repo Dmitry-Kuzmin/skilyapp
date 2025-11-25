@@ -4,7 +4,6 @@ import { UnifiedModal } from '@/components/ui/unified-modal';
 
 // Lazy load heavy dashboard components
 const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
-const DailyStreakTracker = lazy(() => import('./DailyStreakTracker').then(m => ({ default: m.DailyStreakTracker })));
 const SkilyChat = lazy(() => import('./SkilyChat').then(m => ({ default: m.SkilyChat })));
 const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
@@ -335,17 +334,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 2.5. DAILY STREAK TRACKER (Col: 1, Row: 2) */}
-          <div className="md:col-span-1 lg:col-span-1">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <DailyStreakTracker 
-                currentStreak={stats.currentStreak} 
-                hasClaimedToday={hasClaimedToday} 
-                onClaim={onClaimReward}
-                weekNumber={Math.ceil(stats.currentStreak / 7) || 1}
-              />
-            </Suspense>
-          </div>
 
           {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">

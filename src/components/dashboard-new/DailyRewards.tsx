@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Flame, Award, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
@@ -23,17 +23,21 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const flameAnchorRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
-  const [particles, setParticles] = useState<Array<{ 
-    id: number; 
-    x: number; 
-    y: number; 
-    vx: number; // Скорость по X
-    vy: number; // Скорость по Y
+  
+  // Canvas-based confetti
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<Array<{
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
     size: number;
     color: string;
-    gravity: number; // Гравитация
-    life: number; // Время жизни
+    life: number;
+    gravity: number;
   }>>([]);
+  const animationFrameRef = useRef<number | null>(null);
+  
   const effectiveHasClaimed = hasClaimedToday;
 
   const { settings: cockpitSettings } = useCockpitSettings();
@@ -77,6 +81,93 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     }
   }, [isNewWeek, showNewWeek]);
 
+  // Resize canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    return () => window.removeEventListener('resize', resizeCanvas);
+  }, []);
+
+  // Confetti animation
+  const fireConfetti = useCallback((startX: number, startY: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'];
+    
+    // Убеждаемся, что canvas имеет правильные размеры
+    if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    for (let i = 0; i < 100; i++) {
+      particlesRef.current.push({
+        x: startX,
+        y: startY,
+        vx: (Math.random() - 0.5) * 15,
+        vy: (Math.random() - 0.5) * 15 - 5,
+        size: Math.random() * 8 + 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 100,
+        gravity: 0.5,
+      });
+    }
+
+    animateConfetti();
+  }, []);
+
+  const animateConfetti = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    if (particlesRef.current.length === 0) {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < particlesRef.current.length; i++) {
+      const p = particlesRef.current[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.life--;
+      p.size *= 0.96;
+
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    particlesRef.current = particlesRef.current.filter((p) => p.life > 0);
+    animationFrameRef.current = requestAnimationFrame(animateConfetti);
+  }, []);
+
+  // Cleanup animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
   // Синхронизируем координаты иконки огня с анимацией
   useEffect(() => {
     const updateAnchorPosition = () => {
@@ -114,44 +205,18 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     setIsClaiming(true);
     setShowReward(true); // Показываем overlay эффект сразу
 
-    // Создаем эффект конфетти точно как в оригинальном файле
+    // Запускаем confetti из позиции кнопки
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      // Точные параметры из оригинального файла, но с увеличенной скоростью для большего разлета
-      const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'];
-      const particleCount = 100;
-      const gravity = 0.5;
-      
-      const newParticles = Array.from({ length: particleCount }, (_, i) => {
-        // Увеличиваем скорость для большего разлета - эффект должен покрывать весь блок и выходить за его пределы
-        const speedMultiplier = 4; // Увеличиваем в 4 раза для большего разлета
-        return {
-          id: Date.now() + i,
-          x: centerX,
-          y: centerY,
-          vx: (Math.random() - 0.5) * 20 * speedMultiplier, // Увеличена скорость и диапазон
-          vy: (Math.random() - 0.5) * 20 * speedMultiplier - 8, // slightly upwards, увеличенная скорость
-          size: Math.random() * 12 + 8, // Увеличено для лучшей видимости (8-20px)
-          color: colors[Math.floor(Math.random() * colors.length)],
-          gravity: gravity,
-          life: 100,
-        };
-      });
-      
-      console.log('[DailyRewards] Created', newParticles.length, 'confetti particles at', centerX, centerY);
-      console.log('[DailyRewards] First particle:', newParticles[0]);
-      setParticles(newParticles);
-      
-      // Удаляем частицы через 3 секунды (когда life закончится)
-      setTimeout(() => {
-        console.log('[DailyRewards] Removing particles');
-        setParticles([]);
-      }, 3000);
-    } else {
-      console.warn('[DailyRewards] buttonRef.current is null');
+      const clickX = rect.left + rect.width / 2;
+      const clickY = rect.top + rect.height / 2;
+      fireConfetti(clickX, clickY);
+    } else if (e?.currentTarget) {
+      // Fallback: используем координаты клика
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = rect.left + rect.width / 2;
+      const clickY = rect.top + rect.height / 2;
+      fireConfetti(clickX, clickY);
     }
 
     // Показываем эффекты победы для всех дней
@@ -225,6 +290,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       
       {/* Дополнительный градиентный overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-red-500/10 pointer-events-none" />
+
+      {/* Confetti Canvas - fixed position to cover entire viewport */}
+      <canvas
+        ref={canvasRef}
+        className="fixed top-0 left-0 pointer-events-none z-[100]"
+        style={{ width: '100vw', height: '100vh' }}
+      />
 
       {/* Анимация поздравления */}
       <CelebrationAnimations
@@ -438,66 +510,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         })}
       </div>
 
-      {/* Конфетти эффект - точно как в оригинальном файле */}
-      {particles.length > 0 && (
-        <div 
-          className="fixed inset-0 pointer-events-none" 
-          style={{ 
-            overflow: 'visible',
-            zIndex: 99999,
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }}
-        >
-          <AnimatePresence>
-            {particles.map((particle) => {
-              // Физика точно как в оригинале: x(t) = vx * t, y(t) = vy * t + 0.5 * gravity * t^2
-              // Увеличиваем длительность для большего разлета
-              const duration = 2.5; // Примерно 100 кадров при 60fps
-              const finalX = particle.vx * duration;
-              const finalY = particle.vy * duration + (particle.gravity * duration * duration) / 2;
-              
-              return (
-                <motion.div
-                  key={particle.id}
-                  className="fixed pointer-events-none rounded-full"
-                  style={{
-                    left: `${particle.x}px`,
-                    top: `${particle.y}px`,
-                    width: `${particle.size}px`,
-                    height: `${particle.size}px`,
-                    background: particle.color,
-                    boxShadow: `0 0 ${particle.size * 0.8}px ${particle.color}, 0 0 ${particle.size * 1.5}px ${particle.color}60`,
-                    willChange: 'transform',
-                    position: 'fixed',
-                    zIndex: 100000,
-                  }}
-                  initial={{ 
-                    scale: 0, 
-                    opacity: 1,
-                    x: 0,
-                    y: 0,
-                  }}
-                  animate={{ 
-                    scale: [0, 1, 1, 0.96, 0], // size уменьшается как в оригинале (size *= 0.96)
-                    opacity: [1, 1, 1, 0.8, 0], // life уменьшается
-                    x: finalX,
-                    y: finalY,
-                  }}
-                  exit={{ opacity: 0, scale: 0 }}
-                  transition={{
-                    duration: duration,
-                    ease: "linear", // Линейная анимация как в requestAnimationFrame
-                  }}
-                />
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      )}
 
       {/* Action Button */}
       <motion.button
