@@ -235,40 +235,68 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       }
     };
 
-    const handleTouchEnd = () => {
+    const handleTouchEnd = (e?: React.TouchEvent) => {
       if (side !== "bottom" || startY === null || !isDragging) return;
       
       if (!contentRef.current) return;
       
-      // Получаем текущее расстояние свайпа напрямую из состояния
-      const dragDistance = currentY || 0;
+      // Вычисляем расстояние свайпа напрямую из последней позиции пальца
+      // Это надежнее, чем полагаться на состояние currentY
+      let dragDistance = currentY || 0;
       
-      // Упрощенная логика: если свайпнули больше 80px - закрываем
-      // Это работает для всех размеров модалок
-      const minCloseThreshold = 80; // Минимальный порог в пикселях
+      // Если есть событие touchEnd, вычисляем расстояние из него
+      if (e && e.changedTouches && e.changedTouches.length > 0) {
+        const endY = e.changedTouches[0].clientY;
+        dragDistance = endY - startY;
+      }
       
-      // Также учитываем процент от высоты (если высота известна)
+      // Упрощенная логика: минимальный порог 60px (снижен для более легкого закрытия)
+      const minCloseThreshold = 60;
+      
+      // Определяем, нужно ли закрывать
       let shouldClose = dragDistance > minCloseThreshold;
       
+      // Если высота модалки известна, используем процентный порог
       if (modalHeightRef.current) {
-        const percentThreshold = modalHeightRef.current * 0.2; // 20% высоты
+        const percentThreshold = modalHeightRef.current * 0.15; // 15% высоты (снижено)
         shouldClose = dragDistance > Math.max(minCloseThreshold, percentThreshold);
         
-        // Если свайпнули больше 30% - точно закрываем
-        if (dragDistance > modalHeightRef.current * 0.3) {
-          shouldClose = true;
-        }
-        
-        // Учитываем скорость - быстрый свайп закрывает легче
-        if (Math.abs(velocityRef.current) > 0.2 && dragDistance > 50) {
+        // Если свайпнули больше 25% - точно закрываем
+        if (dragDistance > modalHeightRef.current * 0.25) {
           shouldClose = true;
         }
       }
       
+      // Учитываем скорость - быстрый свайп закрывает легче
+      if (Math.abs(velocityRef.current) > 0.15 && dragDistance > 40) {
+        shouldClose = true;
+      }
+      
+      // Отладочная информация (только в dev режиме)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Sheet] TouchEnd:', {
+          dragDistance,
+          minCloseThreshold,
+          modalHeight: modalHeightRef.current,
+          velocity: velocityRef.current,
+          shouldClose,
+          hasOnOpenChange: !!props.onOpenChange
+        });
+      }
+      
       if (shouldClose) {
         // Предотвращаем множественные вызовы закрытия
-        if (isClosingRef.current) return;
+        if (isClosingRef.current) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[Sheet] Already closing, skipping');
+          }
+          return;
+        }
         isClosingRef.current = true;
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Sheet] Closing modal...');
+        }
         
         // Сразу убираем кастомные стили
         if (contentRef.current) {
@@ -283,12 +311,19 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           overlay.style.transition = '';
         }
         
-        // Вызываем закрытие сразу (без requestAnimationFrame для надежности)
+        // Вызываем закрытие сразу
         if (props.onOpenChange) {
-          // Небольшая задержка чтобы стили успели сброситься
-          setTimeout(() => {
+          // Вызываем синхронно для надежности
+          try {
             props.onOpenChange(false);
-          }, 10);
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[Sheet] onOpenChange(false) called');
+            }
+          } catch (error) {
+            console.error('[Sheet] Error calling onOpenChange:', error);
+          }
+        } else {
+          console.warn('[Sheet] onOpenChange is not provided!');
         }
         
         // Сбрасываем флаг после завершения анимации (200ms)
@@ -348,7 +383,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           className={cn(sheetVariants({ side }), className)} 
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          onTouchEnd={(e) => handleTouchEnd(e)}
           onOpenAutoFocus={(e) => {
             // Предотвращаем автофокус на первый элемент при открытии (может мешать свайпу)
             e.preventDefault();
