@@ -142,19 +142,34 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               // Сбрасываем флаг закрытия
               isClosingRef.current = false;
               
-              // Убираем все кастомные стили, чтобы Radix UI мог правильно управлять анимацией
-              if (contentRef.current) {
-                contentRef.current.style.transform = '';
-                contentRef.current.style.transition = '';
-                contentRef.current.style.touchAction = '';
-              }
-              
-              // Восстанавливаем overlay
-              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-              if (overlay) {
-                overlay.style.opacity = '';
-                overlay.style.transition = '';
-              }
+              // КРИТИЧНО: Убираем ВСЕ кастомные стили принудительно
+              requestAnimationFrame(() => {
+                if (contentRef.current) {
+                  contentRef.current.style.transform = '';
+                  contentRef.current.style.transition = '';
+                  contentRef.current.style.touchAction = '';
+                  // Убираем любые другие возможные стили
+                  contentRef.current.style.opacity = '';
+                  contentRef.current.style.height = '';
+                  contentRef.current.style.maxHeight = '';
+                }
+                
+                // Принудительно скрываем overlay если он остался
+                const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+                if (overlay) {
+                  overlay.style.opacity = '';
+                  overlay.style.transition = '';
+                  overlay.style.pointerEvents = '';
+                  // Если overlay все еще видим, принудительно скрываем
+                  if (overlay.offsetParent !== null) {
+                    overlay.style.display = 'none';
+                    // Восстанавливаем через небольшую задержку для следующего открытия
+                    setTimeout(() => {
+                      overlay.style.display = '';
+                    }, 100);
+                  }
+                }
+              });
               
               // Сбрасываем состояния свайпа
               setStartY(null);
