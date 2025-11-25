@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { useModalStack } from "@/hooks/useModalStack";
+import { getModalConfig, type ModalType } from "@/lib/modal-config";
 
 interface UnifiedModalProps {
   open: boolean;
   onOpenChange?: (open: boolean) => void; // Сделали опциональным для безопасности
   children: React.ReactNode;
   title?: string;
+  modalType?: ModalType; // Тип модалки для определения размеров (small, shop, profile, duelPass, admin, default)
   hideCloseButton?: boolean;
   snapPoints?: string[];
   initialSnap?: number;
@@ -42,6 +44,7 @@ export function UnifiedModal({
   onOpenChange,
   children,
   title,
+  modalType = 'default',
   hideCloseButton = false,
   snapPoints = ['60vh', '92vh'],
   initialSnap = 0,
@@ -57,6 +60,10 @@ export function UnifiedModal({
   preventClose = false,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
+  
+  // Получаем конфигурацию размеров для типа модалки
+  const modalConfig = getModalConfig(modalType);
+  const sizeConfig = isMobile ? modalConfig.mobile : modalConfig.desktop;
   
   // Используем URL только если modalRouteKey задан
   const route = modalRouteKey ? useModalRoute(modalRouteKey) : null;
@@ -333,7 +340,14 @@ export function UnifiedModal({
   return (
     <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>
       <DialogContent 
-        className={cn("max-w-4xl max-h-[90vh] p-0 flex flex-col", className)}
+        modalType={modalType}
+        className={cn(
+          // Используем стандартизированные размеры из modal-config
+          sizeConfig.maxWidth || "max-w-[560px]",
+          sizeConfig.maxHeight || "max-h-[80vh]",
+          "p-0 flex flex-col",
+          className
+        )}
         autoAccessibility={false}
         preventClose={preventClose}
       >
