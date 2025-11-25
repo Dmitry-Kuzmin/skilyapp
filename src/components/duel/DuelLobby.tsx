@@ -221,76 +221,73 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
               <p className="text-muted-foreground text-sm">Поделитесь кодом с другом</p>
             </motion.div>
 
-          {/* Code Display - Compact */}
+          {/* Code Display - Improved with Copy Icon */}
           <div className="py-3">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2 }}
-              className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-violet-500/50 ring-2 ring-violet-500/10 cursor-pointer group hover:border-violet-500/70 hover:ring-violet-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/50 ring-2 ring-emerald-500/10 cursor-pointer group hover:border-emerald-500/70 hover:ring-emerald-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
               onClick={handleCopyCode}
               style={{
                 boxShadow: copied 
-                  ? 'rgba(139, 92, 246, 0.35) 0px 0px 30px' 
-                  : 'rgba(139, 92, 246, 0.08) 0px 0px 15px'
+                  ? 'rgba(16, 185, 129, 0.35) 0px 0px 30px' 
+                  : 'rgba(16, 185, 129, 0.08) 0px 0px 15px'
               }}
             >
-              {/* Dot pattern background */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:20px_20px] opacity-8 rounded-2xl" />
-              
-              {/* Code */}
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.2em] mb-3 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center select-all relative z-10"
-              >
-                {duelCode}
-              </motion.div>
-              
-              {/* Label with copy indicator */}
-              <div className="flex items-center justify-center gap-1.5 relative z-10">
-                <AnimatePresence mode="wait">
+              {/* Code with Copy Icon - рядом с кодом */}
+              <div className="flex items-center justify-center gap-3 mb-3 relative z-10">
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.2em] bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent select-all"
+                >
+                  {duelCode}
+                </motion.div>
+                <motion.div
+                  animate={{ scale: copied ? [1, 1.2, 1] : 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-shrink-0"
+                >
                   {copied ? (
-                    <motion.div
-                      key="copied"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      <span className="text-xs font-semibold">Скопировано!</span>
-                    </motion.div>
+                    <Check className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
                   ) : (
-                    <motion.div
-                      key="default"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-1 text-xs text-muted-foreground font-medium uppercase tracking-wide"
-                    >
-                      <Sparkles className="h-3 w-3 group-hover:text-violet-500 transition-colors" />
-                      <span className="group-hover:text-violet-500 transition-colors">Код дуэли</span>
-                      <Copy className="h-3 w-3 ml-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </motion.div>
+                    <Copy className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
                   )}
-                </AnimatePresence>
+                </motion.div>
               </div>
               
-              {/* Hint text */}
-              <AnimatePresence>
-                {!copied && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-xs text-muted-foreground/70 text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    Нажмите, чтобы скопировать
-                  </motion.p>
-                )}
-              </AnimatePresence>
+              {/* Label in border - рамка с текстом */}
+              <div className="relative z-10">
+                <div className="absolute inset-x-0 top-0 flex items-center justify-center">
+                  <div className="bg-background px-3">
+                    <AnimatePresence mode="wait">
+                      {copied ? (
+                        <motion.span
+                          key="copied"
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                        >
+                          Скопировано!
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="default"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="text-xs text-muted-foreground font-medium uppercase tracking-wide"
+                        >
+                          КОД ДУЭЛИ
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
 
@@ -302,7 +299,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center gap-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 dark:from-violet-500/10 dark:to-purple-500/10 px-4 py-2 rounded-xl border border-violet-500/30 backdrop-blur-sm"
+                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/10 dark:to-teal-500/10 px-4 py-2 rounded-xl border border-emerald-500/30 backdrop-blur-sm"
               >
                 <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <div className="flex items-baseline gap-1">
@@ -330,7 +327,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                 <Button
                   onClick={handleShare}
                   size="default"
-                  className="flex-1 h-10 text-sm font-semibold bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-white shadow-md hover:shadow-lg transition-all"
+                  className="flex-1 h-10 text-sm font-semibold bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-600 hover:via-teal-700 hover:to-cyan-700 text-white shadow-md hover:shadow-lg transition-all"
                 >
                   <Share2 className="mr-2 h-4 w-4" />
                   Поделиться
@@ -377,23 +374,6 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Loading when waiting - Compact */}
-          {!state.opponentJoined && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center justify-center gap-2 text-muted-foreground"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                <Zap className="h-3.5 w-3.5 text-violet-500" />
-              </motion.div>
-              <span className="text-xs font-medium">Ожидание соперника...</span>
-            </motion.div>
-          )}
         </Card>
         </motion.div>
       </div>
