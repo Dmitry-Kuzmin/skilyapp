@@ -1275,7 +1275,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </div>
         <div className="mt-2 flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-semibold sm:w-12 sm:h-12 w-11 h-11"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-xl font-semibold"
             style={{
               background: meta.color
                 ? `linear-gradient(135deg, ${withAlpha(meta.color, "66")}, ${withAlpha(meta.color, "22")})`

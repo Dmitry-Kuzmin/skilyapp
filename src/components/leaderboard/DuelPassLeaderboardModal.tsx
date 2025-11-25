@@ -564,7 +564,7 @@ export function DuelPassLeaderboardModal() {
 
           {/* Топ 3 - Премиум пьедестал (новая версия) */}
           {filteredLeaders.length >= 3 && !showMyPosition && (
-            <div className="relative">
+            <div className="relative pt-8 sm:pt-12">
               {/* Фон пьедестала */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent -z-10" />
               
@@ -636,12 +636,12 @@ export function DuelPassLeaderboardModal() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="relative px-2 w-full overflow-hidden">
+                                  <div className="relative px-2 w-full overflow-hidden flex justify-center">
                                     <h3 
-                                      className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]"
+                                      className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 w-full max-w-[150px] text-center mx-auto"
                                       style={{
-                                        maskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)',
-                                        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)'
+                                        maskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)'
                                       }}
                                     >
                                       {filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}
@@ -685,7 +685,7 @@ export function DuelPassLeaderboardModal() {
                       animate: { opacity: 1, y: 0, scale: 1 },
                       transition: { delay: 0.1, type: "spring", stiffness: 200, damping: 12 },
                     })}
-                    className="order-2 -mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
+                    className="order-2 -mt-2 sm:-mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
                   >
                     <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/80 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
                       {/* Золотой градиентный фон */}
@@ -820,12 +820,12 @@ export function DuelPassLeaderboardModal() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="relative px-2 w-full overflow-hidden">
+                                  <div className="relative px-2 w-full overflow-hidden flex justify-center">
                                     <h3 
-                                      className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent cursor-help line-clamp-1 max-w-[120px] sm:max-w-[140px] md:max-w-[160px]"
+                                      className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent cursor-help line-clamp-1 w-full max-w-[170px] text-center mx-auto"
                                       style={{
-                                        maskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)',
-                                        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)'
+                                        maskImage: 'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)'
                                       }}
                                     >
                                       {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
@@ -926,12 +926,12 @@ export function DuelPassLeaderboardModal() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <div className="relative px-2 w-full overflow-hidden">
+                                  <div className="relative px-2 w-full overflow-hidden flex justify-center">
                                     <h3 
-                                      className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 max-w-[100px] sm:max-w-[120px] md:max-w-[140px]"
+                                      className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 w-full max-w-[150px] text-center mx-auto"
                                       style={{
-                                        maskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)',
-                                        WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 20px), transparent 100%)'
+                                        maskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)',
+                                        WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)'
                                       }}
                                     >
                                       {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}

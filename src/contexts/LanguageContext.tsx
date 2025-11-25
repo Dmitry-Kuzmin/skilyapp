@@ -284,6 +284,18 @@ const translations: Record<Language, Record<string, any>> = {
           starter: "Ideal para empezar",
           bestValue: "Mejor oferta",
         },
+        descriptions: {
+          starter: "Recarga rápida para boosts de última hora",
+          grinder: "Ideal para duelos diarios y rachas",
+          pro: "Mantente listo durante sesiones largas",
+          elite: "Control total para torneos y skins premium",
+        },
+        helpers: {
+          starter: "Empieza pequeño y sube cuando quieras",
+          grinder: "Suficiente para probar cada boost y compartir",
+          pro: "Pack equilibrado para progresar toda la semana",
+          elite: "Desbloquea paquetes premium y cosméticos raros al instante",
+        },
       },
       premium: {
         title: "Suscripción Premium",
@@ -975,6 +987,18 @@ const translations: Record<Language, Record<string, any>> = {
           starter: "Starter pack",
           bestValue: "Best value",
         },
+        descriptions: {
+          starter: "Quick refill for last-minute boosts",
+          grinder: "Perfect for daily duels and streaks",
+          pro: "Stay ready for long study sessions",
+          elite: "Full control for tournaments and premium skins",
+        },
+        helpers: {
+          starter: "Start small and upgrade any time",
+          grinder: "Enough to test every boost and help friends",
+          pro: "Balanced pack for a full week of progress",
+          elite: "Unlock premium bundles and rare cosmetics instantly",
+        },
       },
       premium: {
         title: "Premium subscription",
@@ -1647,6 +1671,18 @@ const translations: Record<Language, Record<string, any>> = {
         tags: {
           starter: "Быстрый старт",
           bestValue: "Выгоднее всего",
+        },
+        descriptions: {
+          starter: "Быстрый заряд перед тестом или дуэлью",
+          grinder: "Идеален для ежедневных дуэлей и серий",
+          pro: "Хватает на полноценную неделю прогресса",
+          elite: "Полный контроль над турнирами и премиум-скинами",
+        },
+        helpers: {
+          starter: "Начни с малого — переходи на большие пакеты в любой момент",
+          grinder: "Хватит, чтобы попробовать каждый буст и поделиться с друзьями",
+          pro: "Сбалансированный пакет для стабильного роста",
+          elite: "Мгновенно открывай премиум-наборы и редкую косметику",
         },
       },
       premium: {

@@ -114,6 +114,55 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     return price ? `${description} - €${price}` : description;
   };
 
+  const coinPacks = [
+    {
+      amount: 100,
+      price: '€2.99',
+      priceValue: 2.99,
+      bonus: 0,
+      catalogKey: 'coins_pack_100',
+      packageKey: 'coins_100',
+      priceCoins: 100,
+      tagKey: 'boostShop.coins.tags.starter',
+      descriptionKey: 'boostShop.coins.descriptions.starter',
+      helperKey: 'boostShop.coins.helpers.starter',
+    },
+    {
+      amount: 500,
+      price: '€9.99',
+      priceValue: 9.99,
+      bonus: 50,
+      catalogKey: 'coins_pack_500',
+      packageKey: 'coins_500',
+      priceCoins: 550,
+      descriptionKey: 'boostShop.coins.descriptions.grinder',
+      helperKey: 'boostShop.coins.helpers.grinder',
+    },
+    {
+      amount: 1200,
+      price: '€19.99',
+      priceValue: 19.99,
+      bonus: 200,
+      catalogKey: 'coins_pack_1200',
+      packageKey: 'coins_1200',
+      priceCoins: 1400,
+      descriptionKey: 'boostShop.coins.descriptions.pro',
+      helperKey: 'boostShop.coins.helpers.pro',
+    },
+    {
+      amount: 3000,
+      price: '€39.99',
+      priceValue: 39.99,
+      bonus: 500,
+      catalogKey: 'coins_pack_3000',
+      packageKey: 'coins_3000',
+      priceCoins: 3500,
+      tagKey: 'boostShop.coins.tags.bestValue',
+      descriptionKey: 'boostShop.coins.descriptions.elite',
+      helperKey: 'boostShop.coins.helpers.elite',
+    },
+  ] as const;
+
   const hasLoadedRef = useRef(false);
   
   useEffect(() => {
@@ -971,16 +1020,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
 
                 <div className="grid gap-3">
-                  {[
-                    { amount: 100, price: '€2.99', priceValue: 2.99, bonus: 0, catalogKey: 'coins_pack_100', packageKey: 'coins_100', priceCoins: 100, tag: t('boostShop.coins.tags.starter') },
-                    { amount: 500, price: '€9.99', priceValue: 9.99, bonus: 50, catalogKey: 'coins_pack_500', packageKey: 'coins_500', priceCoins: 550 },
-                    { amount: 1200, price: '€19.99', priceValue: 19.99, bonus: 200, catalogKey: 'coins_pack_1200', packageKey: 'coins_1200', priceCoins: 1400 },
-                    { amount: 3000, price: '€39.99', priceValue: 39.99, bonus: 500, catalogKey: 'coins_pack_3000', packageKey: 'coins_3000', priceCoins: 3500, tag: t('boostShop.coins.tags.bestValue') },
-                  ].map((pack, idx, arr) => {
-                    const isHighlighted = pack.tag || idx === arr.length - 1;
+                  {coinPacks.map((pack, idx, arr) => {
+                    const tagLabel = pack.tagKey ? t(pack.tagKey) : undefined;
+                    const isHighlighted = Boolean(tagLabel) || idx === arr.length - 1;
                     const pricePerCoin = pack.priceValue && pack.priceCoins
                       ? pack.priceValue / pack.priceCoins
                       : null;
+                    const description = t(pack.descriptionKey ?? 'boostShop.coins.purpose');
+                    const helperText = t(pack.helperKey ?? 'boostShop.coins.deliveryHint');
                     return (
                       <Card
                         key={idx}
@@ -991,9 +1038,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         }`}
                       >
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {pack.tag && (
-                          <Badge className="absolute right-4 top-4 text-[10px] bg-white/90 text-slate-900">
-                            {pack.tag}
+                        {tagLabel && (
+                          <Badge className="absolute left-4 top-4 text-[10px] bg-white/90 text-slate-900">
+                            {tagLabel}
                           </Badge>
                         )}
                         <div className="flex flex-col gap-4">
@@ -1010,7 +1057,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 {t('boostShop.coins.packLabel', { amount: pack.amount })}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {t('boostShop.coins.purpose')}
+                                {description}
                               </p>
                               {pack.bonus > 0 && (
                                 <div className="flex items-center gap-1 text-xs mt-1 text-yellow-200">
@@ -1032,7 +1079,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center text-xs text-muted-foreground gap-2">
                               <div className="h-px flex-1 bg-white/10" />
-                              <span>{t('boostShop.coins.deliveryHint')}</span>
+                              <span className="text-center">{helperText}</span>
                               <div className="h-px flex-1 bg-white/10" />
                             </div>
                             <div className="flex flex-col sm:flex-row gap-2">
