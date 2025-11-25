@@ -1,53 +1,18 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Coins, Trophy } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCoins } from '@/hooks/useCoins';
-import { supabase } from '@/integrations/supabase/client';
-const supabaseClient = supabase as any;
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
 import { cn } from '@/lib/utils';
+import { useDuelPassData } from '@/hooks/useDuelPassData';
 
 interface WalletWidgetProps {
   className?: string;
 }
-
-// Глобальный кэш для данных сезона (не очищается при навигации)
-const duelPassCache: Record<string, { 
-  data: { level: number; xp: number; progress: number; spToNextLevel: number } | null;
-  seasonData: { name_ru?: string; days_remaining?: number; end_date?: string } | null;
-  timestamp: number;
-}> = {};
-const DUEL_PASS_CACHE_DURATION = 30000; // 30 секунд
-
-const DEFAULT_DUEL_PASS_DATA = Object.freeze({
-  level: 1,
-  xp: 0,
-  progress: 0,
-  spToNextLevel: 0,
-});
-
-// ОПТИМИЗАЦИЯ: Условное логирование только в development
-const isDev = process.env.NODE_ENV === 'development';
-const logWarn = (...args: any[]) => {
-  if (isDev) console.warn(...args);
-};
-const logError = (...args: any[]) => {
-  if (isDev) console.error(...args);
-};
-
-// Проверка на CORS ошибку
-const isCorsError = (error: any): boolean => {
-  if (!error) return false;
-  const message = error.message || String(error);
-  return message.includes('access control') || 
-         message.includes('CORS') || 
-         message.includes('Load failed') ||
-         message.includes('Failed to fetch');
-};
 
 export function WalletWidget({ className }: WalletWidgetProps) {
   const { profileId } = useUserContext();
@@ -55,255 +20,16 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { t } = useLanguage();
   const [shopOpen, setShopOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
-  const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number; spToNextLevel: number } | null>(() => ({
-    ...DEFAULT_DUEL_PASS_DATA,
-  }));
-  const [seasonData, setSeasonData] = useState<{ name_ru?: string; days_remaining?: number; end_date?: string } | null>(null);
-  const [duelPassLoading, setDuelPassLoading] = useState(true);
-  const [showSkeleton, setShowSkeleton] = useState(true);
-  const hasInitializedRef = useRef(false);
-  const duelPassRequestRef = useRef(false);
+  const { duelPassData, isPending: duelPassPending } = useDuelPassData(profileId);
 
-  const setFallbackDuelPassData = useCallback(() => {
-    setDuelPassData({
-      ...DEFAULT_DUEL_PASS_DATA,
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!profileId) {
-      setShowSkeleton(false);
-      setDuelPassLoading(false);
-      setDuelPassData(null); // ИСПРАВЛЕНИЕ: Очищаем данные при отсутствии profileId
-      hasInitializedRef.current = true;
-      return;
-    }
-
-    // Проверяем кэш перед загрузкой
-    const cached = duelPassCache[profileId];
-    const now = Date.now();
-    let skeletonTimeout: NodeJS.Timeout | null = null;
-    
-    if (cached && (now - cached.timestamp) < DUEL_PASS_CACHE_DURATION) {
-      setDuelPassData(cached.data);
-      setSeasonData(cached.seasonData);
-      setDuelPassLoading(false);
-      setShowSkeleton(false);
-      hasInitializedRef.current = true;
-      // Не загружаем заново, если кэш свежий
-      return;
-    }
-
-    // ИСПРАВЛЕНИЕ: Задержка перед показом skeleton для предотвращения мигания
-    if (!hasInitializedRef.current) {
-      skeletonTimeout = setTimeout(() => {
-        setShowSkeleton(true);
-      }, 100);
-    }
-
-    const loadDuelPass = async () => {
-      // Предотвращаем параллельные запросы
-      if (duelPassRequestRef.current) {
-        return;
-      }
-      duelPassRequestRef.current = true;
-
-      try {
-        setDuelPassLoading(true);
-        
-        // Оптимизация: параллельные запросы через Promise.all
-        const [seasonResult, rewardsResult] = await Promise.allSettled([
-          supabaseClient.rpc("get_active_season"),
-          // Получаем все награды сразу (они кэшируются на клиенте)
-          supabaseClient
-            .from("duel_pass_season_rewards")
-            .select("season_id, level, sp_required")
-            .order("level", { ascending: true })
-        ]);
-
-        // Обработка ошибок CORS более gracefully
-        if (seasonResult.status === 'rejected') {
-          const error = seasonResult.reason;
-          if (isCorsError(error)) {
-            // CORS ошибки не логируем как warnings в production
-            logWarn('[WalletWidget] CORS error loading season (likely auth issue)');
-          } else {
-            logWarn('[WalletWidget] Error loading season:', error);
-          }
-          setDuelPassLoading(false);
-          setFallbackDuelPassData();
-          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
-          duelPassRequestRef.current = false;
-          hasInitializedRef.current = true;
-          return;
-        }
-
-        if (!seasonResult.value.data || seasonResult.value.data.length === 0) {
-          logWarn('[WalletWidget] No active season found');
-          setDuelPassLoading(false);
-          setFallbackDuelPassData();
-          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии сезона
-          duelPassRequestRef.current = false;
-          hasInitializedRef.current = true;
-          return;
-        }
-
-        const activeSeason = seasonResult.value.data[0];
-        
-        // Сохраняем данные сезона для onboarding
-        setSeasonData({
-          name_ru: activeSeason.name_ru,
-          days_remaining: activeSeason.days_remaining,
-          end_date: activeSeason.end_date,
-        });
-        
-        // Получаем прогресс после получения сезона
-        const { data: progressData, error: progressError } = await supabaseClient
-          .rpc("get_or_create_season_progress", {
-            p_user_id: profileId,
-            p_season_id: activeSeason.id,
-          });
-
-        if (progressError) {
-          if (isCorsError(progressError)) {
-            // CORS ошибки не логируем как warnings в production
-            logWarn('[WalletWidget] CORS error loading season progress (likely auth issue)');
-          } else {
-            logWarn('[WalletWidget] Error loading season progress:', progressError);
-          }
-          setDuelPassLoading(false);
-          setFallbackDuelPassData();
-          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
-          duelPassRequestRef.current = false;
-          hasInitializedRef.current = true;
-          return;
-        }
-
-        if (!progressData || progressData.length === 0) {
-          logWarn('[WalletWidget] No season progress data');
-          setDuelPassLoading(false);
-          setFallbackDuelPassData();
-          setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии данных
-          duelPassRequestRef.current = false;
-          hasInitializedRef.current = true;
-          return;
-        }
-
-        const progress = progressData[0];
-        const currentSP = progress.season_points || 0;
-        const currentLevel = progress.level || 1;
-        
-        // Используем уже загруженные награды или фильтруем по season_id
-        const rewardsData = rewardsResult.status === 'fulfilled' && rewardsResult.value.data
-          ? rewardsResult.value.data.filter((r: any) => r.season_id === activeSeason.id)
-          : [];
-
-        if (rewardsData && rewardsData.length > 0) {
-          // Находим следующий уровень
-          const nextLevelReward = rewardsData.find((r: any) => r.level === currentLevel + 1);
-          const totalSPNeeded = rewardsData[rewardsData.length - 1]?.sp_required || 3000;
-          
-          // Рассчитываем прогресс до следующего уровня
-          const nextLevelSP = nextLevelReward?.sp_required || totalSPNeeded;
-          const spToNextLevel = Math.max(0, nextLevelSP - currentSP);
-          const spForCurrentLevel = currentLevel > 1 
-            ? (rewardsData.find((r: any) => r.level === currentLevel)?.sp_required || 0) - 
-              (rewardsData.find((r: any) => r.level === currentLevel - 1)?.sp_required || 0)
-            : nextLevelSP;
-          
-          const progressPercent = spForCurrentLevel > 0 
-            ? Math.min(((spForCurrentLevel - spToNextLevel) / spForCurrentLevel) * 100, 100)
-            : 0;
-
-          const duelPassDataValue = {
-            level: currentLevel,
-            xp: currentSP,
-            progress: Math.max(0, progressPercent),
-            spToNextLevel: spToNextLevel
-          };
-          setDuelPassData(duelPassDataValue);
-          // Сохраняем в кэш
-          duelPassCache[profileId] = {
-            data: duelPassDataValue,
-            seasonData: {
-              name_ru: activeSeason.name_ru,
-              days_remaining: activeSeason.days_remaining,
-              end_date: activeSeason.end_date,
-            },
-            timestamp: Date.now()
-          };
-        } else {
-          // Fallback если нет наград
-          const duelPassDataValue = {
-            level: currentLevel,
-            xp: currentSP,
-            progress: 0,
-            spToNextLevel: 0
-          };
-          setDuelPassData(duelPassDataValue);
-          // Сохраняем в кэш
-          duelPassCache[profileId] = {
-            data: duelPassDataValue,
-            seasonData: {
-              name_ru: activeSeason.name_ru,
-              days_remaining: activeSeason.days_remaining,
-              end_date: activeSeason.end_date,
-            },
-            timestamp: Date.now()
-          };
-        }
-      } catch (error) {
-        if (isCorsError(error)) {
-          // CORS ошибки не логируем как errors в production
-          logWarn('[WalletWidget] CORS error loading Duel Pass data (likely auth issue)');
-        } else {
-          logError('[WalletWidget] Error loading Duel Pass data:', error);
-        }
-        // ИСПРАВЛЕНИЕ: При ошибке также скрываем skeleton
-        setFallbackDuelPassData();
-        setShowSkeleton(false);
-      } finally {
-        setDuelPassLoading(false);
-        hasInitializedRef.current = true;
-        duelPassRequestRef.current = false;
-        // ИСПРАВЛЕНИЕ: Убеждаемся, что skeleton скрыт после завершения загрузки
-        // Используем setTimeout чтобы дать время для обновления состояния
-        setTimeout(() => {
-          setShowSkeleton(false);
-        }, 50);
-      }
-    };
-
-    loadDuelPass();
-    
-    // Обновляем каждые 30 секунд
-    const interval = setInterval(loadDuelPass, 30000);
-    
-    return () => {
-      if (skeletonTimeout) clearTimeout(skeletonTimeout);
-      clearInterval(interval);
-    };
-  }, [profileId]); // УБРАНА зависимость от coinsLoading - она не нужна для загрузки duel pass
-
-  // ИСПРАВЛЕНИЕ: Скрываем skeleton когда все загружено или при ошибке
-  useEffect(() => {
-    // Если загрузка завершена (успешно или с ошибкой) - скрываем skeleton
-    if (!coinsLoading && !duelPassLoading && hasInitializedRef.current) {
-      const hideTimeout = setTimeout(() => {
-        setShowSkeleton(false);
-      }, 50);
-      return () => clearTimeout(hideTimeout);
-    }
-  }, [coinsLoading, duelPassLoading]);
-
-  // ИСПРАВЛЕНИЕ: isLoading только если действительно загружается И skeleton должен показываться
-  const isLoading = (coinsLoading || duelPassLoading) && showSkeleton;
+  const showCoinsSkeleton = coinsLoading;
+  const showDuelPassSkeleton = duelPassPending;
 
   return (
     <>
       <div className={cn("flex items-center gap-1.5 md:gap-2", className)}>
         {/* Coins Skeleton/Content */}
-        {isLoading ? (
+        {showCoinsSkeleton ? (
           <Skeleton className="h-8 w-20 rounded-lg" />
         ) : (
           <Button
@@ -323,7 +49,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
 
         {/* Duel Pass Skeleton/Content - улучшенная версия для мобильных с прогресс-баром и SP */}
         {/* ИСПРАВЛЕНИЕ: Показываем skeleton только если еще загружается, иначе показываем контент или ничего */}
-        {isLoading ? (
+        {showDuelPassSkeleton ? (
           <>
             <Skeleton className="h-8 w-24 rounded-lg sm:hidden" />
             <Skeleton className="h-8 w-32 rounded-lg hidden sm:block" />
@@ -360,7 +86,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             </div>
           </button>
         ) : null}
-        {!isLoading && duelPassData && (
+        {!showDuelPassSkeleton && duelPassData && (
           <button
             onClick={() => {
               setDuelPassModalOpen(true);
