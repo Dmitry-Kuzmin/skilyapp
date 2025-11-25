@@ -241,15 +241,15 @@ export function DuelPassLeaderboardModal() {
   const rowBaseClass = useMemo(
     () =>
       isLightTheme
-        ? "border-b border-slate-200 bg-white/95 even:bg-white/90 text-slate-900 hover:bg-white"
-        : "border-b-0 bg-slate-900/40 even:bg-slate-900/30 text-white hover:bg-slate-800/60",
+        ? "border-b border-slate-200 !bg-white text-slate-900 hover:!bg-slate-50 [&:nth-child(even)]:!bg-slate-50/50 [&>td]:!bg-inherit"
+        : "border-b-0 !bg-slate-900/40 text-white hover:!bg-slate-800/60 [&:nth-child(even)]:!bg-slate-900/30 [&>td]:!bg-inherit",
     [isLightTheme]
   );
   const highlightedRowClass = useMemo(
     () =>
       isLightTheme
-        ? "bg-gradient-to-r from-primary/15 via-primary/5 to-white border-l-4 border-l-primary shadow-lg ring-1 ring-primary/15"
-        : "bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border-l-4 border-l-primary shadow-lg ring-1 ring-primary/20",
+        ? "!bg-primary/10 !border-l-4 !border-l-primary shadow-md [&>td]:!bg-primary/10 [&>td]:!border-0"
+        : "!bg-primary/20 !border-l-4 !border-l-primary shadow-md ring-1 ring-primary/20 [&>td]:!bg-primary/20 [&>td]:!border-0",
     [isLightTheme]
   );
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
