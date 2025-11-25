@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Coins, Trophy } from 'lucide-react';
@@ -23,8 +23,12 @@ const duelPassCache: Record<string, {
 }> = {};
 const DUEL_PASS_CACHE_DURATION = 30000; // 30 секунд
 
-// Глобальный флаг для предотвращения параллельных запросов
-let isLoadingInProgress = false;
+const DEFAULT_DUEL_PASS_DATA = Object.freeze({
+  level: 1,
+  xp: 0,
+  progress: 0,
+  spToNextLevel: 0,
+});
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = process.env.NODE_ENV === 'development';
@@ -51,17 +55,27 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { t } = useLanguage();
   const [shopOpen, setShopOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
-  const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number; spToNextLevel: number } | null>(null);
+  const [duelPassData, setDuelPassData] = useState<{ level: number; xp: number; progress: number; spToNextLevel: number } | null>(() => ({
+    ...DEFAULT_DUEL_PASS_DATA,
+  }));
   const [seasonData, setSeasonData] = useState<{ name_ru?: string; days_remaining?: number; end_date?: string } | null>(null);
   const [duelPassLoading, setDuelPassLoading] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
   const hasInitializedRef = useRef(false);
+  const duelPassRequestRef = useRef(false);
+
+  const setFallbackDuelPassData = useCallback(() => {
+    setDuelPassData({
+      ...DEFAULT_DUEL_PASS_DATA,
+    });
+  }, []);
 
   useEffect(() => {
     if (!profileId) {
       setShowSkeleton(false);
       setDuelPassLoading(false);
       setDuelPassData(null); // ИСПРАВЛЕНИЕ: Очищаем данные при отсутствии profileId
+      hasInitializedRef.current = true;
       return;
     }
 
@@ -80,16 +94,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       return;
     }
 
-    // ИСПРАВЛЕНИЕ: Предотвращаем параллельные запросы, но разрешаем повторную попытку если была ошибка
-    if (isLoadingInProgress && !hasInitializedRef.current) {
-      // Если уже инициализировано, но isLoadingInProgress все еще true - сбрасываем флаг
-      if (hasInitializedRef.current) {
-        isLoadingInProgress = false;
-      } else {
-        return;
-      }
-    }
-
     // ИСПРАВЛЕНИЕ: Задержка перед показом skeleton для предотвращения мигания
     if (!hasInitializedRef.current) {
       skeletonTimeout = setTimeout(() => {
@@ -99,10 +103,10 @@ export function WalletWidget({ className }: WalletWidgetProps) {
 
     const loadDuelPass = async () => {
       // Предотвращаем параллельные запросы
-      if (isLoadingInProgress) {
+      if (duelPassRequestRef.current) {
         return;
       }
-      isLoadingInProgress = true;
+      duelPassRequestRef.current = true;
 
       try {
         setDuelPassLoading(true);
@@ -127,16 +131,20 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             logWarn('[WalletWidget] Error loading season:', error);
           }
           setDuelPassLoading(false);
+          setFallbackDuelPassData();
           setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
-          isLoadingInProgress = false;
+          duelPassRequestRef.current = false;
+          hasInitializedRef.current = true;
           return;
         }
 
         if (!seasonResult.value.data || seasonResult.value.data.length === 0) {
           logWarn('[WalletWidget] No active season found');
           setDuelPassLoading(false);
+          setFallbackDuelPassData();
           setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии сезона
-          isLoadingInProgress = false;
+          duelPassRequestRef.current = false;
+          hasInitializedRef.current = true;
           return;
         }
 
@@ -164,16 +172,20 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             logWarn('[WalletWidget] Error loading season progress:', progressError);
           }
           setDuelPassLoading(false);
+          setFallbackDuelPassData();
           setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при ошибке
-          isLoadingInProgress = false;
+          duelPassRequestRef.current = false;
+          hasInitializedRef.current = true;
           return;
         }
 
         if (!progressData || progressData.length === 0) {
           logWarn('[WalletWidget] No season progress data');
           setDuelPassLoading(false);
+          setFallbackDuelPassData();
           setShowSkeleton(false); // ИСПРАВЛЕНИЕ: Явно скрываем skeleton при отсутствии данных
-          isLoadingInProgress = false;
+          duelPassRequestRef.current = false;
+          hasInitializedRef.current = true;
           return;
         }
 
@@ -248,11 +260,12 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           logError('[WalletWidget] Error loading Duel Pass data:', error);
         }
         // ИСПРАВЛЕНИЕ: При ошибке также скрываем skeleton
+        setFallbackDuelPassData();
         setShowSkeleton(false);
       } finally {
         setDuelPassLoading(false);
         hasInitializedRef.current = true;
-        isLoadingInProgress = false;
+        duelPassRequestRef.current = false;
         // ИСПРАВЛЕНИЕ: Убеждаемся, что skeleton скрыт после завершения загрузки
         // Используем setTimeout чтобы дать время для обновления состояния
         setTimeout(() => {

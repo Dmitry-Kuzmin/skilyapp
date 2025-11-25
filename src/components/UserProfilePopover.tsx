@@ -264,6 +264,36 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
     }
   };
 
+  const quickActions = [
+    {
+      key: 'invite',
+      icon: Gift,
+      label: t('profileMenu.invite'),
+      action: () => setReferralModalOpen(true),
+    },
+  ];
+
+  const supportLinks = [
+    {
+      key: 'legal',
+      icon: ScrollText,
+      label: t('profileMenu.legal'),
+      action: () => navigate('/terms'),
+    },
+    {
+      key: 'help',
+      icon: HelpCircle,
+      label: t('profileMenu.helpCenter'),
+      action: () => navigate('/help'),
+    },
+    {
+      key: 'blog',
+      icon: Newspaper,
+      label: t('profileMenu.blog'),
+      action: () => navigate('/blog'),
+    },
+  ];
+
   return (
     <>
       <Popover open={open} onOpenChange={setOpen}>
@@ -460,86 +490,98 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
         >
           <div className="p-4 space-y-4">
             {/* Header - кликабельный для редактирования */}
-            <button
-              onClick={() => {
-                setOpen(false);
-                setProfileModalOpen(true);
-              }}
-              className="w-full flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-0"
-            >
-              <div className="relative">
-                {/* Premium animated border - вращающийся градиент - скрываем если есть previewSkin */}
-                {isPremium && !previewSkin && (
-                  <div 
-                    className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)',
-                      backgroundSize: '200% 200%',
-                    }}
-                  >
-                    <div className="absolute inset-0.5 rounded-full bg-background" />
-                  </div>
-                )}
-                 <Avatar className={cn(
-                   "h-10 w-10 relative z-10",
-                   isPremium && !previewSkin ? "ring-0 animate-premium-glow" : ""
-                 )}>
-                  {(() => {
-                    const photoUrl = profile?.photo_url || user?.photo_url;
-                    if (photoUrl) {
-                      return (
-                        <AvatarImage 
-                          src={photoUrl}
-                          alt={profile?.first_name || user?.first_name || 'User'}
-                          className={isPremium ? "relative z-10" : ""}
-                          onError={(e) => {
-                            console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      );
-                    }
-                    return null;
-                  })()}
-                  <AvatarFallback 
-                    className={cn(
-                      "text-white font-bold text-sm relative z-10",
-                      isPremium && !previewSkin && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
-                    )}
-                    style={!isPremium || previewSkin ? { backgroundColor: previewSkin ? undefined : avatarColor } : undefined}
-                  >
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                {/* Premium Crown Icon в попапе - скрываем если есть previewSkin */}
-                {isPremium && !previewSkin && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
-                    <Crown className="w-2.5 h-2.5 text-white fill-white relative z-10 drop-shadow-md" />
-                    {/* Анимированное свечение вокруг короны */}
-                    <div className="absolute inset-0 rounded-full bg-yellow-400/40 animate-ping" style={{ animationDuration: '2s' }} />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-semibold text-sm truncate">
-                    {profile?.first_name || user?.first_name || 'User'}
-                  </h3>
-                  {isPremium && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200 text-[10px] font-semibold px-2 py-0.5">
-                      <Crown className="w-3 h-3" />
-                      {t('profileMenu.proBadge')}
-                    </span>
+            <div className="flex items-start gap-2">
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  setProfileModalOpen(true);
+                }}
+                className="flex-1 flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-0 text-left"
+              >
+                <div className="relative">
+                  {/* Premium animated border - вращающийся градиент - скрываем если есть previewSkin */}
+                  {isPremium && !previewSkin && (
+                    <div 
+                      className="absolute -inset-0.5 rounded-full animate-premium-rotate pointer-events-none"
+                      style={{
+                        background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #f97316, #ea580c, #f97316, #f59e0b, #fbbf24)',
+                        backgroundSize: '200% 200%',
+                      }}
+                    >
+                      <div className="absolute inset-0.5 rounded-full bg-background" />
+                    </div>
                   )}
-                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                  <Avatar className={cn(
+                    "h-10 w-10 relative z-10",
+                    isPremium && !previewSkin ? "ring-0 animate-premium-glow" : ""
+                  )}>
+                    {(() => {
+                      const photoUrl = profile?.photo_url || user?.photo_url;
+                      if (photoUrl) {
+                        return (
+                          <AvatarImage 
+                            src={photoUrl}
+                            alt={profile?.first_name || user?.first_name || 'User'}
+                            className={isPremium ? "relative z-10" : ""}
+                            onError={(e) => {
+                              console.warn('[UserProfilePopover] Avatar image failed to load:', photoUrl);
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        );
+                      }
+                      return null;
+                    })()}
+                    <AvatarFallback 
+                      className={cn(
+                        "text-white font-bold text-sm relative z-10",
+                        isPremium && !previewSkin && "bg-gradient-to-br from-yellow-500/90 to-orange-500/90"
+                      )}
+                      style={!isPremium || previewSkin ? { backgroundColor: previewSkin ? undefined : avatarColor } : undefined}
+                    >
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  {/* Premium Crown Icon в попапе - скрываем если есть previewSkin */}
+                  {isPremium && !previewSkin && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-background animate-crown-bounce z-20">
+                      <Crown className="w-2.5 h-2.5 text-white fill-white relative z-10 drop-shadow-md" />
+                      {/* Анимированное свечение вокруг короны */}
+                      <div className="absolute inset-0 rounded-full bg-yellow-400/40 animate-ping" style={{ animationDuration: '2s' }} />
+                    </div>
+                  )}
                 </div>
-                {supabaseUser?.email && (
-                  <p className="text-xs text-muted-foreground truncate">
-                    {supabaseUser.email}
-                  </p>
-                )}
-              </div>
-            </button>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-sm truncate">
+                      {profile?.first_name || user?.first_name || 'User'}
+                    </h3>
+                    {isPremium && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200 text-[10px] font-semibold px-2 py-0.5">
+                        <Crown className="w-3 h-3" />
+                        {t('profileMenu.proBadge')}
+                      </span>
+                    )}
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                  {supabaseUser?.email && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {supabaseUser.email}
+                    </p>
+                  )}
+                </div>
+              </button>
+              {!isMiniApp && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-destructive/40 text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-0"
+                  aria-label={t('logout') || 'Sign out'}
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              )}
+            </div>
 
             {/* XP Progress */}
             <div className="space-y-2">
@@ -608,32 +650,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
 
             {/* Quick Actions */}
             <div className="space-y-1">
-              {[
-                {
-                  key: 'help',
-                  icon: HelpCircle,
-                  label: t('profileMenu.helpCenter'),
-                  action: () => navigate('/help'),
-                },
-                {
-                  key: 'blog',
-                  icon: Newspaper,
-                  label: t('profileMenu.blog'),
-                  action: () => navigate('/blog'),
-                },
-                {
-                  key: 'legal',
-                  icon: ScrollText,
-                  label: t('profileMenu.legal'),
-                  action: () => navigate('/terms'),
-                },
-                {
-                  key: 'invite',
-                  icon: Gift,
-                  label: t('profileMenu.invite'),
-                  action: () => setReferralModalOpen(true),
-                },
-              ].map(({ key, icon: Icon, label, action, trailing }) => (
+              {quickActions.map(({ key, icon: Icon, label, action, trailing }) => (
                 <button
                   key={key}
                   type="button"
@@ -776,19 +793,27 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
               </DropdownMenu>
             </div>
 
-            {/* Sign Out - только для веб */}
-            {!isMiniApp && (
-              <>
-                <Separator />
+            <Separator />
+
+            <div className="space-y-1">
+              {supportLinks.map(({ key, icon: Icon, label, action, trailing }) => (
                 <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-destructive/10 transition-colors text-sm text-destructive"
+                  key={key}
+                  type="button"
+                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                  onClick={() => {
+                    setOpen(false);
+                    action();
+                  }}
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span>{t('logout') || 'Sign out'}</span>
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    <span>{label}</span>
+                  </div>
+                  {trailing ?? <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                 </button>
-              </>
-            )}
+              ))}
+            </div>
           </div>
         </PopoverContent>
       </Popover>
