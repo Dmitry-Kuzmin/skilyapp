@@ -321,7 +321,6 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               contentRef.current.style.transition = '';
             }
           }
-        }
         
         // Восстанавливаем touchAction после небольшой задержки
         setTimeout(() => {
