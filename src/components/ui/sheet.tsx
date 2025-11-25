@@ -301,14 +301,31 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         
         // Пробуем несколько способов закрытия для надежности
         
-        // Способ 1: Найти и кликнуть на кнопку закрытия (самый надежный способ)
-        // Ищем кнопку закрытия в самом SheetContent
+        // Способ 1: Через props.onOpenChange (приоритетный способ - самый надежный)
+        if (props.onOpenChange) {
+          try {
+            // Вызываем сразу, синхронно
+            props.onOpenChange(false);
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[Sheet] Method 1: onOpenChange(false) called directly');
+            }
+            // Сбрасываем флаг после завершения анимации
+            setTimeout(() => {
+              isClosingRef.current = false;
+            }, 200);
+            return; // Выходим, так как закрытие должно произойти
+          } catch (error) {
+            console.error('[Sheet] Error calling onOpenChange:', error);
+          }
+        }
+        
+        // Способ 2: Найти и кликнуть на кнопку закрытия (резервный способ)
         try {
           const closeButton = contentRef.current?.querySelector('button[data-radix-dialog-close]') as HTMLElement;
           if (closeButton) {
             closeButton.click();
             if (process.env.NODE_ENV === 'development') {
-              console.log('[Sheet] Method 1: Close button clicked');
+              console.log('[Sheet] Method 2: Close button clicked');
             }
             // Сбрасываем флаг после завершения анимации
             setTimeout(() => {
@@ -318,12 +335,11 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           }
         } catch (error) {
           if (process.env.NODE_ENV === 'development') {
-            console.log('[Sheet] Method 1 failed:', error);
+            console.log('[Sheet] Method 2 failed:', error);
           }
         }
         
-        // Способ 2: Найти Sheet Root через DOM и попытаться закрыть
-        // Ищем родительский Sheet Root и все элементы с data-radix-dialog-close
+        // Способ 3: Найти Sheet Root через DOM и попытаться закрыть
         setTimeout(() => {
           try {
             const sheetRoot = getSheetRoot();
@@ -333,38 +349,29 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               if (closeElements.length > 0) {
                 (closeElements[0] as HTMLElement).click();
                 if (process.env.NODE_ENV === 'development') {
-                  console.log('[Sheet] Method 2: Found and clicked close element');
+                  console.log('[Sheet] Method 3: Found and clicked close element');
                 }
                 return;
               }
             }
             
-            // Способ 3: Ищем кнопку закрытия в document (на случай если она вне SheetContent)
+            // Способ 4: Ищем кнопку закрытия в document (на случай если она вне SheetContent)
             const globalCloseButton = document.querySelector('button[data-radix-dialog-close]') as HTMLElement;
             if (globalCloseButton) {
               globalCloseButton.click();
               if (process.env.NODE_ENV === 'development') {
-                console.log('[Sheet] Method 3: Found global close button');
+                console.log('[Sheet] Method 4: Found global close button');
               }
               return;
             }
           } catch (error) {
             if (process.env.NODE_ENV === 'development') {
-              console.log('[Sheet] Methods 2-3 failed:', error);
+              console.log('[Sheet] Methods 3-4 failed:', error);
             }
           }
           
-          // Способ 4: Через props.onOpenChange (если он есть)
-          if (props.onOpenChange) {
-            try {
-              props.onOpenChange(false);
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[Sheet] Method 4: onOpenChange(false) called');
-              }
-            } catch (error) {
-              console.error('[Sheet] Error calling onOpenChange:', error);
-            }
-          } else {
+          // Если ничего не сработало
+          if (!props.onOpenChange) {
             console.warn('[Sheet] No way to close modal - onOpenChange not provided and no close button found!');
           }
         }, 0);
