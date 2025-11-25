@@ -111,7 +111,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             
             // Если модалка открылась, сбрасываем все состояния для нового сеанса
             if (newState === 'open') {
-              // Сбрасываем флаг закрытия
+              // КРИТИЧНО: Сбрасываем флаг закрытия СИНХРОННО
               isClosingRef.current = false;
               
               // Сбрасываем все состояния свайпа
@@ -125,15 +125,20 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               lastTimeRef.current = null;
               modalHeightRef.current = null;
               
-              // Убираем все кастомные стили
-              if (contentRef.current) {
-                contentRef.current.style.transform = '';
-                contentRef.current.style.transition = '';
-                contentRef.current.style.touchAction = '';
-              }
+              // Убираем все кастомные стили через requestAnimationFrame для гарантии
+              requestAnimationFrame(() => {
+                if (contentRef.current) {
+                  contentRef.current.style.transform = '';
+                  contentRef.current.style.transition = '';
+                  contentRef.current.style.touchAction = '';
+                  contentRef.current.style.opacity = '';
+                  contentRef.current.style.height = '';
+                  contentRef.current.style.maxHeight = '';
+                }
+              });
               
               if (process.env.NODE_ENV === 'development') {
-                console.log('[Sheet] Modal opened - all states reset');
+                console.log('[Sheet] Modal opened - all states reset, isClosingRef:', isClosingRef.current);
               }
             }
             
@@ -204,8 +209,22 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const handleTouchStart = (e: React.TouchEvent) => {
       if (side !== "bottom") return;
       
-      // Проверяем, что модалка открыта
-      if (contentRef.current && contentRef.current.getAttribute('data-state') !== 'open') {
+      // КРИТИЧНО: Проверяем, что модалка открыта и не закрывается
+      if (!contentRef.current) return;
+      
+      const currentState = contentRef.current.getAttribute('data-state');
+      if (currentState !== 'open') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Sheet] handleTouchStart: Modal not open, state:', currentState);
+        }
+        return;
+      }
+      
+      // Если модалка закрывается, не начинаем новый свайп
+      if (isClosingRef.current) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Sheet] handleTouchStart: Modal is closing, ignoring');
+        }
         return;
       }
       
@@ -260,9 +279,17 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const handleTouchMove = (e: React.TouchEvent) => {
       if (side !== "bottom" || startY === null || !isDragging) return;
       
-      // Проверяем, что модалка еще открыта
-      if (contentRef.current && contentRef.current.getAttribute('data-state') !== 'open') {
-        // Если модалка уже закрыта, прекращаем обработку
+      // КРИТИЧНО: Проверяем, что модалка еще открыта и не закрывается
+      if (!contentRef.current) {
+        setStartY(null);
+        setCurrentY(null);
+        setIsDragging(false);
+        return;
+      }
+      
+      const currentState = contentRef.current.getAttribute('data-state');
+      if (currentState !== 'open' || isClosingRef.current) {
+        // Если модалка уже закрыта или закрывается, прекращаем обработку
         setStartY(null);
         setCurrentY(null);
         setIsDragging(false);
