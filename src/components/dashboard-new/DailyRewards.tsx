@@ -27,96 +27,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     id: number; 
     x: number; 
     y: number; 
-    type: 'circle' | 'star' | 'sparkle' | 'burst' | 'heart' | 'diamond' | 'fire' | 'confetti';
+    vx: number; // Скорость по X
+    vy: number; // Скорость по Y
     size: number;
     color: string;
-    angle: number;
-    distance: number;
-    vx?: number; // Скорость по X (для гравитации)
-    vy?: number; // Скорость по Y (для гравитации)
-    gravity?: number; // Гравитация
+    gravity: number; // Гравитация
+    life: number; // Время жизни
   }>>([]);
-  const [testDayIndex, setTestDayIndex] = useState(1); // Для тестирования - переключаем дни по кругу
   const effectiveHasClaimed = hasClaimedToday;
-
-  // Определяем тип анимации в зависимости от дня недели
-  // На основе HTML-файла с конфетти создаем 7 уникальных типов анимаций
-  const getDayAnimationConfig = (day: number) => {
-    switch (day) {
-      case 1: // День 1 - Классическое конфетти (как в HTML) - разноцветные круги
-        return {
-          count: 100,
-          types: ['confetti'] as const,
-          colors: ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'], // Точные цвета из HTML
-          speed: 1.0,
-          pattern: 'gravity', // Гравитация как в оригинале
-          gravity: 0.5
-        };
-      case 2: // День 2 - Звездный дождь - звезды с гравитацией
-        return {
-          count: 80,
-          types: ['star'] as const,
-          colors: ['#fbbf24', '#fcd34d', '#fde047', '#fef08a'], // Золотые звезды
-          speed: 1.2,
-          pattern: 'gravity',
-          gravity: 0.4
-        };
-      case 3: // День 3 - Искрящийся фейерверк - искры с волновым движением
-        return {
-          count: 120,
-          types: ['sparkle'] as const,
-          colors: ['#a855f7', '#c084fc', '#d8b4fe', '#e9d5ff'], // Фиолетовые искры
-          speed: 1.3,
-          pattern: 'wave',
-          gravity: 0.3
-        };
-      case 4: // День 4 - Сердечный взрыв - сердца с пульсацией
-        return {
-          count: 90,
-          types: ['heart'] as const,
-          colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca'], // Красные сердца
-          speed: 1.4,
-          pattern: 'pulse',
-          gravity: 0.35
-        };
-      case 5: // День 5 - Алмазный дождь - алмазы со спиральным движением
-        return {
-          count: 70,
-          types: ['diamond'] as const,
-          colors: ['#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc'], // Голубые алмазы
-          speed: 1.5,
-          pattern: 'spiral',
-          gravity: 0.45
-        };
-      case 6: // День 6 - Огненный взрыв - огонь с хаотичным движением
-        return {
-          count: 110,
-          types: ['fire'] as const,
-          colors: ['#f97316', '#fb923c', '#fdba74', '#fed7aa'], // Оранжевый огонь
-          speed: 1.6,
-          pattern: 'chaos',
-          gravity: 0.25
-        };
-      case 7: // День 7 - Мега-конфетти - все типы с максимальным эффектом
-        return {
-          count: 150,
-          types: ['confetti', 'star', 'sparkle', 'heart', 'diamond', 'fire'] as const,
-          colors: ['#ff4d00', '#ffb700', '#2ECC71', '#ef4444', '#3b82f6', '#a855f7', '#f97316', '#ffffff'], // Полная радуга
-          speed: 1.8,
-          pattern: 'explosion',
-          gravity: 0.5
-        };
-      default:
-        return {
-          count: 100,
-          types: ['confetti'] as const,
-          colors: ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'],
-          speed: 1.0,
-          pattern: 'gravity',
-          gravity: 0.5
-        };
-    }
-  };
 
   const { settings: cockpitSettings } = useCockpitSettings();
   const celebrationMode = cockpitSettings.animationMode;
@@ -222,10 +140,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         const gravity = config.gravity || 0.5;
         
         if (config.pattern === 'gravity') {
-          // Классическое конфетти с гравитацией (как в HTML)
-          vx = (Math.random() - 0.5) * 15;
-          vy = (Math.random() - 0.5) * 15 - 5; // Слегка вверх
-          distance = baseDistance + Math.random() * 100;
+          // Классическое конфетти с гравитацией (как в HTML) - улучшенная версия
+          // Более реалистичная физика: начальная скорость вверх, затем падение
+          const angle = Math.random() * Math.PI * 2;
+          const speed = Math.random() * 12 + 8; // Скорость 8-20
+          vx = Math.cos(angle) * speed;
+          vy = Math.sin(angle) * speed - 8; // Начальная скорость вверх
+          distance = baseDistance + Math.random() * 150;
         } else if (config.pattern === 'spiral') {
           const spiralFactor = (i / config.count) * 2;
           distance = baseDistance + spiralFactor * 80;
@@ -245,9 +166,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         } else if (config.pattern === 'burst') {
           distance = baseDistance + (i % 5) * 50;
         } else if (config.pattern === 'explosion') {
-          distance = baseDistance + Math.random() * 150;
-          vx = (Math.random() - 0.5) * 18;
-          vy = (Math.random() - 0.5) * 18 - 6;
+          distance = baseDistance + Math.random() * 200;
+          // Более мощный взрыв с разными углами
+          const angle = (i / config.count) * Math.PI * 2;
+          const speed = Math.random() * 15 + 10;
+          vx = Math.cos(angle) * speed;
+          vy = Math.sin(angle) * speed - 10; // Начальная скорость вверх
         } else {
           distance = baseDistance + (i % 5) * 50;
         }
@@ -256,7 +180,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         const color = config.colors[colorIndex];
         
         let size = 6; // Увеличено для лучшей видимости
-        if (type === 'confetti') size = Math.random() * 8 + 4; // Разные размеры как в HTML
+        if (type === 'confetti') size = Math.random() * 10 + 5; // Разные размеры как в HTML (5-15px)
         else if (type === 'star') size = 8;
         else if (type === 'sparkle') size = 6;
         else if (type === 'burst') size = 10;
@@ -584,13 +508,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           
           // Если есть vx/vy - используем гравитационную анимацию
           if (particle.vx !== undefined && particle.vy !== undefined && particle.gravity !== undefined) {
-            // Гравитационная анимация (как в HTML конфетти)
+            // Гравитационная анимация (как в HTML конфетти) - улучшенная версия
             const duration = 2.5;
+            // Физика: x(t) = vx * t, y(t) = vy * t + 0.5 * gravity * t^2
             const finalVx = particle.vx * duration;
             const finalVy = particle.vy * duration + (particle.gravity * duration * duration) / 2;
             x = finalVx;
             y = finalVy;
-            rotation = particle.angle * (180 / Math.PI) + (duration * 360);
+            // Вращение зависит от скорости - быстрее частицы вращаются быстрее
+            const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
+            rotation = particle.angle * (180 / Math.PI) + (speed * duration * 2);
           } else if (particle.type === 'confetti') {
             // Конфетти - радиальное разлетание
             x = Math.cos(particle.angle) * particle.distance;
@@ -832,7 +759,17 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               </motion.div>
             );
           } else if (particle.type === 'confetti') {
-            // Конфетти - простые круги с гравитацией (как в HTML)
+            // Конфетти - простые круги с гравитацией (как в HTML) - улучшенная версия
+            // Более реалистичная физика падения с гравитацией
+            const duration = 2.5;
+            // Рассчитываем финальную позицию с учетом гравитации
+            // y(t) = y0 + vy*t + 0.5*gravity*t^2
+            // x(t) = x0 + vx*t
+            const finalX = particle.vx !== undefined ? particle.vx * duration : x;
+            const finalY = particle.vy !== undefined && particle.gravity !== undefined
+              ? particle.vy * duration + (particle.gravity * duration * duration) / 2
+              : y;
+            
             return (
               <motion.div
                 key={particle.id}
@@ -843,7 +780,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                   width: `${particle.size}px`,
                   height: `${particle.size}px`,
                   background: particle.color,
-                  boxShadow: `0 0 ${particle.size}px ${particle.color}80`,
+                  boxShadow: `0 0 ${particle.size * 0.5}px ${particle.color}80, 0 0 ${particle.size}px ${particle.color}40`,
                 }}
                 initial={{ 
                   scale: 0, 
@@ -853,15 +790,15 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                   rotate: 0,
                 }}
                 animate={{ 
-                  scale: [0, 1, 1, 0.5, 0],
-                  opacity: [1, 1, 1, 0.7, 0],
-                  x: x,
-                  y: y,
-                  rotate: rotation,
+                  scale: [0, 1, 1, 0.8, 0],
+                  opacity: [1, 1, 1, 0.8, 0],
+                  x: finalX,
+                  y: finalY,
+                  rotate: particle.vx !== undefined ? [0, 360, 720] : rotation,
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
-                  duration: baseDuration,
+                  duration: duration,
                   ease: particle.vx !== undefined ? "linear" : "easeOut",
                 }}
               />

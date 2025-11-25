@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Coins, Trophy } from 'lucide-react';
@@ -25,9 +25,23 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const showCoinsSkeleton = coinsLoading;
   const showDuelPassSkeleton = duelPassPending;
 
+  // КРИТИЧНО: Логирование для диагностики открытия модального окна
+  useEffect(() => {
+    if (shopOpen) {
+      console.log('[WalletWidget] Shop modal opened, shopOpen:', shopOpen);
+    }
+  }, [shopOpen]);
+
   return (
     <>
-      <div className={cn("flex items-center gap-1.5 md:gap-2", className)}>
+      <div 
+        className={cn("flex items-center gap-1.5 md:gap-2", className)}
+        style={{
+          pointerEvents: 'auto',
+          position: 'relative',
+          zIndex: 50 // КРИТИЧНО: Высокий z-index чтобы быть выше других элементов
+        }}
+      >
         {/* Coins Skeleton/Content */}
         {showCoinsSkeleton ? (
           <Skeleton className="h-8 w-20 rounded-lg" />
@@ -38,9 +52,25 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setShopOpen(true);
+              console.log('[WalletWidget] Shop button clicked, opening modal, current shopOpen:', shopOpen);
+              // КРИТИЧНО: Используем функциональное обновление для гарантии
+              setShopOpen((prev) => {
+                console.log('[WalletWidget] Setting shopOpen from', prev, 'to', true);
+                return true;
+              });
+            }}
+            onTouchStart={(e) => {
+              // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
+              e.stopPropagation();
             }}
             className="h-8 px-1.5 md:px-2 gap-1 md:gap-1.5 hover:bg-muted/50"
+            style={{
+              pointerEvents: 'auto',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent',
+              position: 'relative',
+              zIndex: 51 // КРИТИЧНО: Выше контейнера
+            }}
           >
             <Coins className="w-3.5 h-3.5 md:w-4 md:h-4 text-yellow-500" />
             <span className="text-xs md:text-sm font-semibold">{balance}</span>
