@@ -190,6 +190,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       const centerY = rect.top + rect.height / 2;
       
       const config = getDayAnimationConfig(weekDay || 1);
+      console.log('[DailyRewards] Creating particles for day', weekDay, 'config:', config);
       const particleTypes = config.types;
       
       const newParticles = Array.from({ length: config.count }, (_, i) => {
@@ -235,12 +236,15 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           distance,
         };
       });
+      console.log('[DailyRewards] Created', newParticles.length, 'particles');
       setParticles(newParticles);
       
       // Удаляем частицы через 2.5 секунды
       setTimeout(() => {
         setParticles([]);
       }, 2500);
+    } else {
+      console.warn('[DailyRewards] buttonRef.current is null');
     }
 
     // Показываем эффекты победы для всех дней
@@ -528,8 +532,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       </div>
 
       {/* Разлетающиеся частицы от кнопки - улучшенная версия */}
-      <AnimatePresence>
-        {particles.map((particle) => {
+      <div className="fixed inset-0 pointer-events-none z-[9999]">
+        <AnimatePresence>
+          {particles.map((particle) => {
           // Разные траектории для разных типов
           let x = 0;
           let y = 0;
@@ -580,7 +585,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             return (
               <motion.div
                 key={particle.id}
-                className="absolute pointer-events-none z-[60]"
+                className="fixed pointer-events-none"
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
@@ -655,7 +660,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             return (
               <motion.div
                 key={particle.id}
-                className="absolute pointer-events-none z-[60]"
+                className="fixed pointer-events-none"
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
@@ -695,7 +700,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             return (
               <motion.div
                 key={particle.id}
-                className="absolute pointer-events-none z-[60]"
+                className="fixed pointer-events-none"
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
@@ -735,7 +740,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             return (
               <motion.div
                 key={particle.id}
-                className="absolute pointer-events-none z-[60]"
+                className="fixed pointer-events-none"
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
@@ -774,7 +779,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             return (
               <motion.div
                 key={particle.id}
-                className={`absolute pointer-events-none z-[60] ${particle.type === 'burst' ? 'rounded-full' : 'rounded-full'}`}
+                className={`fixed pointer-events-none ${particle.type === 'burst' ? 'rounded-full' : 'rounded-full'}`}
                 style={{
                   left: `${particle.x}px`,
                   top: `${particle.y}px`,
@@ -806,7 +811,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             );
           }
         })}
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
 
       {/* Action Button */}
       <motion.button
