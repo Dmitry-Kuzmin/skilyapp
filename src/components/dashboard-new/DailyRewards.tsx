@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Flame, Award, Sparkles, Check } from 'lucide-react';
+import { Flame, Award, Sparkles, Check, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
 import { CelebrationModal } from './CelebrationModal';
@@ -23,7 +23,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const flameAnchorRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [particles, setParticles] = useState<Array<{ 
+    id: number; 
+    x: number; 
+    y: number; 
+    type: 'circle' | 'star' | 'sparkle' | 'burst';
+    size: number;
+    color: string;
+    angle: number;
+    distance: number;
+  }>>([]);
   const effectiveHasClaimed = hasClaimedToday;
 
   const { settings: cockpitSettings } = useCockpitSettings();
@@ -110,18 +119,33 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       
-      // Создаем 30 частиц, разлетающихся от центра кнопки
-      const newParticles = Array.from({ length: 30 }, (_, i) => ({
-        id: Date.now() + i,
-        x: centerX,
-        y: centerY,
-      }));
+      // Создаем 80 частиц разных типов, разлетающихся от центра кнопки
+      const particleTypes: Array<'circle' | 'star' | 'sparkle' | 'burst'> = ['circle', 'star', 'sparkle', 'burst'];
+      const newParticles = Array.from({ length: 80 }, (_, i) => {
+        const type = particleTypes[i % particleTypes.length];
+        const angle = (i / 80) * Math.PI * 2;
+        const baseDistance = 120;
+        const distance = baseDistance + (i % 5) * 40 + Math.sin(i) * 30;
+        const hue = (i * 4.5) % 360;
+        const size = type === 'star' ? 4 : type === 'sparkle' ? 3 : type === 'burst' ? 5 : 3;
+        
+        return {
+          id: Date.now() + i,
+          x: centerX,
+          y: centerY,
+          type,
+          size,
+          color: `hsl(${hue}, 100%, ${60 + (i % 3) * 10}%)`,
+          angle,
+          distance,
+        };
+      });
       setParticles(newParticles);
       
-      // Удаляем частицы через 1.5 секунды
+      // Удаляем частицы через 2 секунды
       setTimeout(() => {
         setParticles([]);
-      }, 1500);
+      }, 2000);
     }
 
     // Показываем эффекты победы для всех дней
@@ -408,43 +432,152 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         })}
       </div>
 
-      {/* Разлетающиеся частицы от кнопки */}
+      {/* Разлетающиеся частицы от кнопки - улучшенная версия */}
       <AnimatePresence>
         {particles.map((particle) => {
-          const angle = (particle.id % 30) * (360 / 30) * (Math.PI / 180);
-          const distance = 150 + (particle.id % 3) * 50;
-          const x = Math.cos(angle) * distance;
-          const y = Math.sin(angle) * distance;
+          // Разные траектории для разных типов
+          let x = 0;
+          let y = 0;
+          let rotation = 0;
           
-          return (
-            <motion.div
-              key={particle.id}
-              className="absolute w-3 h-3 rounded-full pointer-events-none z-[60]"
-              style={{
-                left: `${particle.x}px`,
-                top: `${particle.y}px`,
-                background: `hsl(${(particle.id * 12) % 360}, 100%, 60%)`,
-                boxShadow: `0 0 10px hsl(${(particle.id * 12) % 360}, 100%, 60%)`,
-              }}
-              initial={{ 
-                scale: 0, 
-                opacity: 1,
-                x: 0,
-                y: 0,
-              }}
-              animate={{ 
-                scale: [0, 1.5, 0],
-                opacity: [1, 1, 0],
-                x: x,
-                y: y,
-              }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: 1.2,
-                ease: "easeOut",
-              }}
-            />
-          );
+          if (particle.type === 'burst') {
+            // Взрыв - радиальное разлетание
+            x = Math.cos(particle.angle) * particle.distance;
+            y = Math.sin(particle.angle) * particle.distance;
+          } else if (particle.type === 'star') {
+            // Звезды - спиральная траектория
+            const spiralFactor = particle.distance * 0.3;
+            x = Math.cos(particle.angle + spiralFactor) * particle.distance;
+            y = Math.sin(particle.angle + spiralFactor) * particle.distance;
+            rotation = particle.angle * (180 / Math.PI) + 360;
+          } else if (particle.type === 'sparkle') {
+            // Искры - волновая траектория
+            const wave = Math.sin(particle.angle * 3) * 30;
+            x = Math.cos(particle.angle) * particle.distance + wave;
+            y = Math.sin(particle.angle) * particle.distance + wave;
+            rotation = particle.angle * (180 / Math.PI) * 2;
+          } else {
+            // Круги - стандартное разлетание
+            x = Math.cos(particle.angle) * particle.distance;
+            y = Math.sin(particle.angle) * particle.distance;
+          }
+          
+          const baseDuration = particle.type === 'burst' ? 1.5 : particle.type === 'star' ? 1.8 : 1.3;
+          
+          if (particle.type === 'star') {
+            return (
+              <motion.div
+                key={particle.id}
+                className="absolute pointer-events-none z-[60]"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                }}
+                animate={{ 
+                  scale: [0, 1.2, 0.8, 0],
+                  opacity: [1, 1, 0.8, 0],
+                  x: x,
+                  y: y,
+                  rotate: rotation,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: baseDuration,
+                  ease: "easeOut",
+                }}
+              >
+                <Star 
+                  style={{
+                    width: `${particle.size * 4}px`,
+                    height: `${particle.size * 4}px`,
+                    color: particle.color,
+                    fill: particle.color,
+                    filter: `drop-shadow(0 0 ${particle.size * 2}px ${particle.color})`,
+                  }}
+                />
+              </motion.div>
+            );
+          } else if (particle.type === 'sparkle') {
+            return (
+              <motion.div
+                key={particle.id}
+                className="absolute pointer-events-none z-[60]"
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  rotate: 0,
+                }}
+                animate={{ 
+                  scale: [0, 1.5, 0],
+                  opacity: [1, 1, 0],
+                  x: x,
+                  y: y,
+                  rotate: rotation,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: baseDuration,
+                  ease: "easeOut",
+                }}
+              >
+                <Sparkles 
+                  style={{
+                    width: `${particle.size * 4}px`,
+                    height: `${particle.size * 4}px`,
+                    color: particle.color,
+                    filter: `drop-shadow(0 0 ${particle.size * 2}px ${particle.color})`,
+                  }}
+                />
+              </motion.div>
+            );
+          } else {
+            return (
+              <motion.div
+                key={particle.id}
+                className={`absolute pointer-events-none z-[60] ${particle.type === 'burst' ? 'rounded-full' : 'rounded-full'}`}
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                  width: `${particle.size * 4}px`,
+                  height: `${particle.size * 4}px`,
+                  background: particle.type === 'burst' 
+                    ? `radial-gradient(circle, ${particle.color}, transparent)`
+                    : particle.color,
+                  boxShadow: `0 0 ${particle.size * 3}px ${particle.color}, 0 0 ${particle.size * 6}px ${particle.color}40`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                }}
+                animate={{ 
+                  scale: particle.type === 'burst' ? [0, 2, 3, 0] : [0, 1.5, 0],
+                  opacity: [1, 1, 0.8, 0],
+                  x: x,
+                  y: y,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: baseDuration,
+                  ease: "easeOut",
+                }}
+              />
+            );
+          }
         })}
       </AnimatePresence>
 
