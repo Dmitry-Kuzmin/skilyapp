@@ -91,19 +91,21 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
+          // Убираем иконку из title, если она дублирует icon
+          const normalizedTitle = (() => {
+            let title = newNotification.title;
+            if (newNotification.icon && title.startsWith(newNotification.icon)) {
+              title = title.replace(newNotification.icon, '').trim();
+            }
+            return title;
+          })();
+          
           // Show toast notification if enabled (only for results, not progress)
           if (showToasts) {
             const isImportant = ['finish'].includes(newNotification.type);
             const duration = isImportant ? 5000 : 3000;
-            
-            // Убираем иконку из title, если она уже есть в icon
-            let titleText = newNotification.title;
-            if (newNotification.icon && titleText.startsWith(newNotification.icon)) {
-              titleText = titleText.replace(newNotification.icon, '').trim();
-            }
-            
-            console.log('[Notifications] Showing toast:', titleText);
-            toast.info(titleText, {
+            console.log('[Notifications] Showing toast:', normalizedTitle);
+            toast.info(normalizedTitle, {
               description: newNotification.message,
               duration,
               // Кнопка "Перейти" убрана - не нужна
@@ -127,7 +129,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
             sendTelegramNotification({
               userId: profileId,
               templateType: newNotification.type,
-              title: titleText,
+              title: normalizedTitle,
               message: newNotification.message,
               icon: newNotification.icon || '📢',
               ctaText: 'Открыть',
