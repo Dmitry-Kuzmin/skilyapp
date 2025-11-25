@@ -181,45 +181,71 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-indigo-500/5 opacity-50 animate-pulse" />
             
-            {/* Connection status indicator - улучшенный */}
-            <div className="flex items-center justify-center gap-2 text-sm mb-2 relative z-10">
+            {/* Connection status - Compact */}
+            <div className="flex items-center justify-end mb-3 relative z-10">
               <motion.div
-                animate={{
-                  scale: connectionStatus === 'connected' ? [1, 1.2, 1] : 1,
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500 shadow-lg shadow-green-500/50' : 'bg-yellow-500'}`}
-              />
-              <span className="text-muted-foreground text-xs font-medium">
-                {connectionStatus === 'connected' ? 'Подключено' : 'Подключение...'}
-              </span>
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-1.5"
+              >
+                <motion.div
+                  animate={{
+                    scale: connectionStatus === 'connected' ? [1, 1.2, 1] : 1,
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                />
+                <span className="text-muted-foreground text-xs">
+                  {connectionStatus === 'connected' ? 'Подключено' : 'Подключение...'}
+                </span>
+              </motion.div>
             </div>
 
-            {/* Header - улучшенный */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-3 relative z-10"
-            >
+            {/* Header - Compact with Waiting Indicator */}
+            <div className="text-center space-y-2 relative z-10">
               <motion.div
-                animate={{
-                  rotate: [0, 5, -5, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  repeatDelay: 2,
-                }}
-                className="w-14 h-14 mx-auto bg-gradient-to-br from-primary via-blue-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                className="w-14 h-14 mx-auto bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 relative"
               >
-                <Users className="h-7 w-7 text-white" />
+                {/* Pulsing indicator for waiting */}
+                {!state.opponentJoined && (
+                  <motion.div
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute inset-0 rounded-2xl bg-emerald-500/30"
+                  />
+                )}
+                <Users className="h-7 w-7 text-white relative z-10" />
               </motion.div>
-              <h2 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-primary via-blue-500 to-pink-500 bg-clip-text text-transparent">
-                Ожидание соперника
-              </h2>
-              <p className="text-muted-foreground text-sm">Поделитесь кодом с другом</p>
-            </motion.div>
+              <div className="space-y-1">
+                <div className="flex items-center justify-center gap-2">
+                  <h2 className="text-xl md:text-2xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                    Ожидание соперника
+                  </h2>
+                  {!state.opponentJoined && (
+                    <motion.div
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="flex gap-0.5"
+                    >
+                      <span className="text-emerald-600">.</span>
+                      <motion.span
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                        className="text-emerald-600"
+                      >.</motion.span>
+                      <motion.span
+                        animate={{ opacity: [0.3, 1, 0.3] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                        className="text-emerald-600"
+                      >.</motion.span>
+                    </motion.div>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-xs">Поделитесь кодом с другом</p>
+              </div>
+            </div>
 
           {/* Code Display - Improved with Copy Icon */}
           <div className="py-3">
