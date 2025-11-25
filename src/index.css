@@ -810,13 +810,24 @@ All colors MUST be HSL.
     padding-bottom: calc(5rem + var(--app-safe-bottom) + var(--app-content-bottom));
   }
   
-  /* Верхний отступ ТОЛЬКО для Telegram WebApp */
+  /* Верхний отступ ТОЛЬКО для Telegram WebApp на МОБИЛЬНЫХ устройствах */
   /* Используем единую систему на основе Telegram WebApp API */
   /* Для мобильных: используем contentSafeAreaInset.top из Telegram API */
   /* Для десктопа: 0px (нет нативной панели Telegram) */
-  html.telegram-webapp .telegram-main-content,
-  body.telegram-webapp .telegram-main-content {
-    padding-top: calc(var(--app-safe-top) + var(--app-content-top)) !important;
+  /* КРИТИЧНО: Применяем только для мобильных (max-width: 768px) */
+  @media (max-width: 768px) {
+    html.telegram-webapp .telegram-main-content,
+    body.telegram-webapp .telegram-main-content {
+      padding-top: calc(var(--app-safe-top) + var(--app-content-top)) !important;
+    }
+  }
+  
+  /* КРИТИЧНО: Для десктопа (больше 768px) убираем отступы полностью */
+  @media (min-width: 769px) {
+    html.telegram-webapp .telegram-main-content,
+    body.telegram-webapp .telegram-main-content {
+      padding-top: 0 !important;
+    }
   }
 
   .app-bottom-nav {

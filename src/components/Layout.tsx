@@ -374,10 +374,11 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
       )}
 
       {/* Main Content with Safe Area Top Padding for Telegram Fullscreen */}
+      {/* КРИТИЧНО: Для десктопа явно убираем padding-top */}
       <main 
         ref={mainContentRef}
         className="telegram-main-content flex-1 bg-background"
-        style={{}}
+        style={isTelegramApp && !isMobile ? { paddingTop: '0px' } : {}}
       >
         {children}
       </main>
