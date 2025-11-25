@@ -33,6 +33,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     angle: number;
     distance: number;
   }>>([]);
+  const [testDayIndex, setTestDayIndex] = useState(1); // Для тестирования - переключаем дни по кругу
   const effectiveHasClaimed = hasClaimedToday;
 
   // Определяем тип анимации в зависимости от дня недели
@@ -183,65 +184,43 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     setIsClaiming(true);
     setShowReward(true); // Показываем overlay эффект сразу
 
-    // Создаем эффект разлетающихся частиц от кнопки - для тестирования показываем ВСЕ типы
+    // Создаем эффект разлетающихся частиц от кнопки с уникальной анимацией для каждого дня
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       
-      // Для тестирования: показываем все типы частиц одновременно
-      const allTypes: Array<'circle' | 'star' | 'sparkle' | 'burst' | 'heart' | 'diamond' | 'fire'> = 
-        ['circle', 'star', 'sparkle', 'burst', 'heart', 'diamond', 'fire'];
-      const allColors = [
-        '#3b82f6', '#60a5fa', // Синие
-        '#fbbf24', '#fcd34d', // Желтые
-        '#a855f7', '#c084fc', // Фиолетовые
-        '#ef4444', '#f87171', // Красные
-        '#06b6d4', '#22d3ee', // Голубые
-        '#f97316', '#fb923c', // Оранжевые
-        '#22c55e', '#10b981', // Зеленые
-      ];
+      // Для тестирования: переключаем дни по кругу при каждом нажатии
+      const testDay = testDayIndex;
+      setTestDayIndex((prev) => (prev >= 7 ? 1 : prev + 1)); // Переключаем на следующий день
       
-      const totalParticles = 150; // Больше частиц для тестирования
-      const particlesPerType = Math.floor(totalParticles / allTypes.length);
+      const config = getDayAnimationConfig(testDay);
+      console.log('[DailyRewards] Testing day', testDay, 'config:', config);
+      const particleTypes = config.types;
       
-      console.log('[DailyRewards] Creating ALL particle types for testing, total:', totalParticles);
-      const particleTypes = allTypes;
-      
-      const newParticles = Array.from({ length: totalParticles }, (_, i) => {
-        // Распределяем типы равномерно
-        const typeIndex = Math.floor(i / particlesPerType);
-        const type = particleTypes[typeIndex % particleTypes.length];
-        const angle = (i / totalParticles) * Math.PI * 2;
-        const baseDistance = 150;
-        
-        // Разные паттерны для разных типов
+      const newParticles = Array.from({ length: config.count }, (_, i) => {
+        const type = particleTypes[i % particleTypes.length];
+        const angle = (i / config.count) * Math.PI * 2;
+        const baseDistance = 150; // Увеличено расстояние для лучшей видимости
         let distance = baseDistance;
-        if (type === 'star' || type === 'diamond') {
-          // Спираль для звезд и алмазов
-          const spiralFactor = (i / totalParticles) * 2;
+        
+        // Разные паттерны для разных дней
+        if (config.pattern === 'spiral') {
+          const spiralFactor = (i / config.count) * 2;
           distance = baseDistance + spiralFactor * 80;
-        } else if (type === 'sparkle') {
-          // Волна для искр
+        } else if (config.pattern === 'wave') {
           const wave = Math.sin(angle * 3) * 60;
           distance = baseDistance + wave;
-        } else if (type === 'burst' || type === 'fire') {
-          // Взрыв для взрывов и огня
+        } else if (config.pattern === 'burst') {
           distance = baseDistance + (i % 5) * 50;
+        } else if (config.pattern === 'explosion') {
+          distance = baseDistance + Math.random() * 150;
         } else {
-          // Радиальное для остальных
           distance = baseDistance + (i % 5) * 50;
         }
         
-        // Цвета в зависимости от типа
-        let color = allColors[i % allColors.length];
-        if (type === 'circle') color = allColors[0]; // Синий
-        else if (type === 'star') color = allColors[2]; // Желтый
-        else if (type === 'sparkle') color = allColors[4]; // Фиолетовый
-        else if (type === 'heart') color = allColors[6]; // Красный
-        else if (type === 'diamond') color = allColors[8]; // Голубой
-        else if (type === 'fire') color = allColors[10]; // Оранжевый
-        else if (type === 'burst') color = allColors[12]; // Зеленый
+        const colorIndex = i % config.colors.length;
+        const color = config.colors[colorIndex];
         
         let size = 6; // Увеличено для лучшей видимости
         if (type === 'star') size = 8;
