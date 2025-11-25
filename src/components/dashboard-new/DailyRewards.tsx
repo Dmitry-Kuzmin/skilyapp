@@ -14,6 +14,7 @@ interface DailyRewardsProps {
 
 export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasClaimedToday, onClaim }) => {
   const [isClaiming, setIsClaiming] = useState(false);
+  const [showReward, setShowReward] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [showNewWeek, setShowNewWeek] = useState(false);
@@ -99,6 +100,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     console.log('[DailyRewards] Claim started');
     playClickSound();
     setIsClaiming(true);
+    setShowReward(true); // Показываем overlay эффект сразу
 
     // Показываем эффекты победы для всех дней
     if (canPlayCelebration) {
@@ -127,8 +129,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         await onClaim();
       console.log('[DailyRewards] onClaim completed successfully');
       playSuccessSound(); // Success sound
+      
+      // Держим overlay видимым 3 секунды
+      setTimeout(() => {
+        setShowReward(false);
+      }, 3000);
     } catch (error) {
       console.error('[DailyRewards] Error in onClaim:', error);
+      setShowReward(false);
     } finally {
       setTimeout(() => setIsClaiming(false), 1000);
     }
@@ -475,7 +483,64 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         </AnimatePresence>
       </motion.button>
 
-      {/* Продакшен: тестовые кнопки удалены */}
+      {/* Reward animation overlay - как в Ai-Studio-2 */}
+      <AnimatePresence>
+        {showReward && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-background/95 backdrop-blur-sm flex items-center justify-center z-50 rounded-[2.5rem]"
+          >
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              className="text-center space-y-4"
+            >
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 10, -10, 0]
+                }}
+                transition={{ 
+                  duration: 0.6,
+                  repeat: Infinity,
+                  repeatDelay: 0.3
+                }}
+                className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 flex items-center justify-center shadow-2xl shadow-orange-500/50"
+              >
+                <Flame className="w-10 h-10 text-white" fill="white" />
+              </motion.div>
+              <div>
+                <motion.h3
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-2xl font-bold mb-2 text-white"
+                >
+                  Награда получена! 🎉
+                </motion.h3>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="flex items-center justify-center gap-4 text-lg"
+                >
+                  <motion.span
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 0.5 }}
+                    className="text-orange-400 font-bold"
+                  >
+                    +{currentStreak} 🔥
+                  </motion.span>
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });
