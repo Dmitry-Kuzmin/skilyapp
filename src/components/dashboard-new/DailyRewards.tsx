@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Flame, Award, Sparkles, Check, Star, Heart } from 'lucide-react';
+import { Flame, Award, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
 import { CelebrationModal } from './CelebrationModal';
@@ -114,101 +114,38 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     setIsClaiming(true);
     setShowReward(true); // Показываем overlay эффект сразу
 
-    // Создаем эффект разлетающихся частиц от кнопки с уникальной анимацией для каждого дня
+    // Создаем эффект конфетти точно как в оригинальном файле
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       
-      // Для тестирования: переключаем дни по кругу при каждом нажатии
-      const testDay = testDayIndex;
-      setTestDayIndex((prev) => (prev >= 7 ? 1 : prev + 1)); // Переключаем на следующий день
+      // Точные параметры из оригинального файла
+      const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'];
+      const particleCount = 100;
+      const gravity = 0.5;
       
-      const config = getDayAnimationConfig(testDay);
-      console.log('[DailyRewards] Testing day', testDay, 'config:', config);
-      const particleTypes = config.types;
-      
-      const newParticles = Array.from({ length: config.count }, (_, i) => {
-        const type = particleTypes[i % particleTypes.length];
-        const angle = (i / config.count) * Math.PI * 2;
-        const baseDistance = 150; // Увеличено расстояние для лучшей видимости
-        let distance = baseDistance;
-        
-        // Разные паттерны для разных дней
-        let vx = 0;
-        let vy = 0;
-        const gravity = config.gravity || 0.5;
-        
-        if (config.pattern === 'gravity') {
-          // Классическое конфетти с гравитацией (как в HTML) - улучшенная версия
-          // Более реалистичная физика: начальная скорость вверх, затем падение
-          const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 12 + 8; // Скорость 8-20
-          vx = Math.cos(angle) * speed;
-          vy = Math.sin(angle) * speed - 8; // Начальная скорость вверх
-          distance = baseDistance + Math.random() * 150;
-        } else if (config.pattern === 'spiral') {
-          const spiralFactor = (i / config.count) * 2;
-          distance = baseDistance + spiralFactor * 80;
-        } else if (config.pattern === 'wave') {
-          const wave = Math.sin(angle * 3) * 60;
-          distance = baseDistance + wave;
-        } else if (config.pattern === 'pulse') {
-          // Пульсирующее движение для сердец
-          distance = baseDistance + Math.sin(angle * 2) * 40;
-          vx = Math.cos(angle) * 8;
-          vy = Math.sin(angle) * 8 - 3;
-        } else if (config.pattern === 'chaos') {
-          // Хаотичное движение для огня
-          vx = (Math.random() - 0.5) * 20;
-          vy = (Math.random() - 0.5) * 20 - 8;
-          distance = baseDistance + Math.random() * 120;
-        } else if (config.pattern === 'burst') {
-          distance = baseDistance + (i % 5) * 50;
-        } else if (config.pattern === 'explosion') {
-          distance = baseDistance + Math.random() * 200;
-          // Более мощный взрыв с разными углами
-          const angle = (i / config.count) * Math.PI * 2;
-          const speed = Math.random() * 15 + 10;
-          vx = Math.cos(angle) * speed;
-          vy = Math.sin(angle) * speed - 10; // Начальная скорость вверх
-        } else {
-          distance = baseDistance + (i % 5) * 50;
-        }
-        
-        const colorIndex = i % config.colors.length;
-        const color = config.colors[colorIndex];
-        
-        let size = 6; // Увеличено для лучшей видимости
-        if (type === 'confetti') size = Math.random() * 10 + 5; // Разные размеры как в HTML (5-15px)
-        else if (type === 'star') size = 8;
-        else if (type === 'sparkle') size = 6;
-        else if (type === 'burst') size = 10;
-        else if (type === 'heart') size = 8;
-        else if (type === 'diamond') size = 8;
-        else if (type === 'fire') size = 10;
-        
+      const newParticles = Array.from({ length: particleCount }, (_, i) => {
         return {
           id: Date.now() + i,
           x: centerX,
           y: centerY,
-          type,
-          size,
-          color,
-          angle,
-          distance,
-          vx: config.pattern === 'gravity' || config.pattern === 'pulse' || config.pattern === 'chaos' || config.pattern === 'explosion' ? vx : undefined,
-          vy: config.pattern === 'gravity' || config.pattern === 'pulse' || config.pattern === 'chaos' || config.pattern === 'explosion' ? vy : undefined,
-          gravity: config.pattern === 'gravity' || config.pattern === 'pulse' || config.pattern === 'chaos' || config.pattern === 'explosion' ? gravity : undefined,
+          vx: (Math.random() - 0.5) * 15,
+          vy: (Math.random() - 0.5) * 15 - 5, // slightly upwards
+          size: Math.random() * 8 + 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          gravity: gravity,
+          life: 100,
         };
       });
-      console.log('[DailyRewards] Created', newParticles.length, 'particles');
+      
+      console.log('[DailyRewards] Created', newParticles.length, 'confetti particles');
       setParticles(newParticles);
       
-      // Удаляем частицы через 2.5 секунды
+      // Удаляем частицы через 3 секунды (когда life закончится)
       setTimeout(() => {
         setParticles([]);
-      }, 2500);
+      }, 3000);
     } else {
       console.warn('[DailyRewards] buttonRef.current is null');
     }
@@ -497,278 +434,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         })}
       </div>
 
-      {/* Разлетающиеся частицы от кнопки - улучшенная версия */}
+      {/* Конфетти эффект - точно как в оригинальном файле */}
       <div className="fixed inset-0 pointer-events-none z-[9999]">
         <AnimatePresence>
           {particles.map((particle) => {
-          // Разные траектории для разных типов
-          let x = 0;
-          let y = 0;
-          let rotation = 0;
-          
-          // Если есть vx/vy - используем гравитационную анимацию
-          if (particle.vx !== undefined && particle.vy !== undefined && particle.gravity !== undefined) {
-            // Гравитационная анимация (как в HTML конфетти) - улучшенная версия
-            const duration = 2.5;
-            // Физика: x(t) = vx * t, y(t) = vy * t + 0.5 * gravity * t^2
-            const finalVx = particle.vx * duration;
-            const finalVy = particle.vy * duration + (particle.gravity * duration * duration) / 2;
-            x = finalVx;
-            y = finalVy;
-            // Вращение зависит от скорости - быстрее частицы вращаются быстрее
-            const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
-            rotation = particle.angle * (180 / Math.PI) + (speed * duration * 2);
-          } else if (particle.type === 'confetti') {
-            // Конфетти - радиальное разлетание
-            x = Math.cos(particle.angle) * particle.distance;
-            y = Math.sin(particle.angle) * particle.distance;
-            rotation = particle.angle * (180 / Math.PI) + 720;
-          } else if (particle.type === 'burst') {
-            // Взрыв - радиальное разлетание
-            x = Math.cos(particle.angle) * particle.distance;
-            y = Math.sin(particle.angle) * particle.distance;
-          } else if (particle.type === 'star') {
-            // Звезды - спиральная траектория
-            const spiralFactor = particle.distance * 0.3;
-            x = Math.cos(particle.angle + spiralFactor) * particle.distance;
-            y = Math.sin(particle.angle + spiralFactor) * particle.distance;
-            rotation = particle.angle * (180 / Math.PI) + 360;
-          } else if (particle.type === 'sparkle') {
-            // Искры - волновая траектория
-            const wave = Math.sin(particle.angle * 3) * 30;
-            x = Math.cos(particle.angle) * particle.distance + wave;
-            y = Math.sin(particle.angle) * particle.distance + wave;
-            rotation = particle.angle * (180 / Math.PI) * 2;
-          } else if (particle.type === 'heart') {
-            // Сердца - радиальное разлетание с пульсацией
-            x = Math.cos(particle.angle) * particle.distance;
-            y = Math.sin(particle.angle) * particle.distance;
-            rotation = particle.angle * (180 / Math.PI);
-          } else if (particle.type === 'diamond') {
-            // Алмазы - спиральная траектория
-            const spiralFactor = particle.distance * 0.25;
-            x = Math.cos(particle.angle + spiralFactor) * particle.distance;
-            y = Math.sin(particle.angle + spiralFactor) * particle.distance;
-            rotation = particle.angle * (180 / Math.PI) * 3;
-          } else if (particle.type === 'fire') {
-            // Огонь - радиальное разлетание с вариацией
-            const variation = Math.sin(particle.angle * 2) * 20;
-            x = Math.cos(particle.angle) * particle.distance + variation;
-            y = Math.sin(particle.angle) * particle.distance + variation;
-            rotation = particle.angle * (180 / Math.PI) * 1.5;
-          } else {
-            // Круги - стандартное разлетание
-            x = Math.cos(particle.angle) * particle.distance;
-            y = Math.sin(particle.angle) * particle.distance;
-          }
-          
-          const baseDuration = particle.type === 'confetti' ? 2.5 : particle.type === 'burst' ? 1.5 : particle.type === 'star' ? 1.8 : particle.type === 'fire' ? 1.6 : 1.3;
-          
-          if (particle.type === 'heart') {
-            return (
-              <motion.div
-                key={particle.id}
-                className="fixed pointer-events-none"
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  rotate: 0,
-                }}
-                animate={{ 
-                  scale: [0, 1.3, 1, 0],
-                  opacity: [1, 1, 0.9, 0],
-                  x: x,
-                  y: y,
-                  rotate: rotation,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: 1.4,
-                  ease: "easeOut",
-                }}
-              >
-                <Heart 
-                  style={{
-                    width: `${particle.size * 6}px`,
-                    height: `${particle.size * 6}px`,
-                    color: particle.color,
-                    fill: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color}) drop-shadow(0 0 ${particle.size * 6}px ${particle.color}80)`,
-                  }}
-                />
-              </motion.div>
-            );
-          } else if (particle.type === 'diamond') {
-            return (
-              <motion.div
-                key={particle.id}
-                className="absolute pointer-events-none z-[60]"
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                  width: `${particle.size * 6}px`,
-                  height: `${particle.size * 6}px`,
-                  clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-                  background: `linear-gradient(135deg, ${particle.color}, ${particle.color}80)`,
-                  boxShadow: `0 0 ${particle.size * 4}px ${particle.color}, 0 0 ${particle.size * 8}px ${particle.color}60, 0 0 ${particle.size * 12}px ${particle.color}40`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  rotate: 0,
-                }}
-                animate={{ 
-                  scale: [0, 1.4, 0],
-                  opacity: [1, 1, 0],
-                  x: x,
-                  y: y,
-                  rotate: 360,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: 1.5,
-                  ease: "easeOut",
-                }}
-              />
-            );
-          } else if (particle.type === 'fire') {
-            return (
-              <motion.div
-                key={particle.id}
-                className="fixed pointer-events-none"
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  rotate: 0,
-                }}
-                animate={{ 
-                  scale: [0, 1.5, 1.2, 0],
-                  opacity: [1, 1, 0.8, 0],
-                  x: x,
-                  y: y,
-                  rotate: rotation,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: baseDuration,
-                  ease: "easeOut",
-                }}
-              >
-                <Flame 
-                  style={{
-                    width: `${particle.size * 6}px`,
-                    height: `${particle.size * 6}px`,
-                    color: particle.color,
-                    fill: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 4}px ${particle.color}) drop-shadow(0 0 ${particle.size * 8}px ${particle.color}80)`,
-                  }}
-                />
-              </motion.div>
-            );
-          } else if (particle.type === 'star') {
-            return (
-              <motion.div
-                key={particle.id}
-                className="fixed pointer-events-none"
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  rotate: 0,
-                }}
-                animate={{ 
-                  scale: [0, 1.2, 0.8, 0],
-                  opacity: [1, 1, 0.8, 0],
-                  x: x,
-                  y: y,
-                  rotate: rotation,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: baseDuration,
-                  ease: "easeOut",
-                }}
-              >
-                <Star 
-                  style={{
-                    width: `${particle.size * 6}px`,
-                    height: `${particle.size * 6}px`,
-                    color: particle.color,
-                    fill: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color}) drop-shadow(0 0 ${particle.size * 6}px ${particle.color}80)`,
-                  }}
-                />
-              </motion.div>
-            );
-          } else if (particle.type === 'sparkle') {
-            return (
-              <motion.div
-                key={particle.id}
-                className="fixed pointer-events-none"
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                  rotate: 0,
-                }}
-                animate={{ 
-                  scale: [0, 1.5, 0],
-                  opacity: [1, 1, 0],
-                  x: x,
-                  y: y,
-                  rotate: rotation,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: baseDuration,
-                  ease: "easeOut",
-                }}
-              >
-                <Sparkles 
-                  style={{
-                    width: `${particle.size * 6}px`,
-                    height: `${particle.size * 6}px`,
-                    color: particle.color,
-                    filter: `drop-shadow(0 0 ${particle.size * 3}px ${particle.color}) drop-shadow(0 0 ${particle.size * 6}px ${particle.color}80)`,
-                  }}
-                />
-              </motion.div>
-            );
-          } else if (particle.type === 'confetti') {
-            // Конфетти - простые круги с гравитацией (как в HTML) - улучшенная версия
-            // Более реалистичная физика падения с гравитацией
-            const duration = 2.5;
-            // Рассчитываем финальную позицию с учетом гравитации
-            // y(t) = y0 + vy*t + 0.5*gravity*t^2
-            // x(t) = x0 + vx*t
-            const finalX = particle.vx !== undefined ? particle.vx * duration : x;
-            const finalY = particle.vy !== undefined && particle.gravity !== undefined
-              ? particle.vy * duration + (particle.gravity * duration * duration) / 2
-              : y;
+            // Физика точно как в оригинале: x(t) = vx * t, y(t) = vy * t + 0.5 * gravity * t^2
+            const duration = 2.5; // Примерно 100 кадров при 60fps
+            const finalX = particle.vx * duration;
+            const finalY = particle.vy * duration + (particle.gravity * duration * duration) / 2;
             
             return (
               <motion.div
@@ -780,65 +453,27 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                   width: `${particle.size}px`,
                   height: `${particle.size}px`,
                   background: particle.color,
-                  boxShadow: `0 0 ${particle.size * 0.5}px ${particle.color}80, 0 0 ${particle.size}px ${particle.color}40`,
                 }}
                 initial={{ 
                   scale: 0, 
                   opacity: 1,
                   x: 0,
                   y: 0,
-                  rotate: 0,
                 }}
                 animate={{ 
-                  scale: [0, 1, 1, 0.8, 0],
-                  opacity: [1, 1, 1, 0.8, 0],
+                  scale: [0, 1, 1, 0.96, 0], // size уменьшается как в оригинале (size *= 0.96)
+                  opacity: [1, 1, 1, 0.8, 0], // life уменьшается
                   x: finalX,
                   y: finalY,
-                  rotate: particle.vx !== undefined ? [0, 360, 720] : rotation,
                 }}
                 exit={{ opacity: 0 }}
                 transition={{
                   duration: duration,
-                  ease: particle.vx !== undefined ? "linear" : "easeOut",
+                  ease: "linear", // Линейная анимация как в requestAnimationFrame
                 }}
               />
             );
-          } else {
-            return (
-              <motion.div
-                key={particle.id}
-                className={`fixed pointer-events-none ${particle.type === 'burst' ? 'rounded-full' : 'rounded-full'}`}
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                  width: `${particle.size * 6}px`,
-                  height: `${particle.size * 6}px`,
-                  background: particle.type === 'burst' 
-                    ? `radial-gradient(circle, ${particle.color}, ${particle.color}80, transparent)`
-                    : particle.color,
-                  boxShadow: `0 0 ${particle.size * 4}px ${particle.color}, 0 0 ${particle.size * 8}px ${particle.color}60, 0 0 ${particle.size * 12}px ${particle.color}40`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                }}
-                animate={{ 
-                  scale: particle.type === 'burst' ? [0, 2, 3, 0] : [0, 1.5, 0],
-                  opacity: [1, 1, 0.8, 0],
-                  x: x,
-                  y: y,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: baseDuration,
-                  ease: "easeOut",
-                }}
-              />
-            );
-          }
-        })}
+          })}
         </AnimatePresence>
       </div>
 

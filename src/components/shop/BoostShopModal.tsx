@@ -1019,7 +1019,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
 
                 <div className="grid gap-3">
-                  {coinPacks.map((pack) => {
+                  {coinPacks.map((pack, idx) => {
                     const isHighlighted = Boolean(pack.highlight);
                     const pricePerCoin = pack.priceValue && pack.priceCoins
                       ? pack.priceValue / pack.priceCoins
