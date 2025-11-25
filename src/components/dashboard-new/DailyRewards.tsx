@@ -21,7 +21,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
   const [celebrationType, setCelebrationType] = useState<CelebrationType>('phoenix');
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
   const flameAnchorRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [flameAnchorPosition, setFlameAnchorPosition] = useState<{ x: number; y: number } | null>(null);
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const effectiveHasClaimed = hasClaimedToday;
 
   const { settings: cockpitSettings } = useCockpitSettings();
@@ -101,6 +103,26 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     playClickSound();
     setIsClaiming(true);
     setShowReward(true); // Показываем overlay эффект сразу
+
+    // Создаем эффект разлетающихся частиц от кнопки
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Создаем 30 частиц, разлетающихся от центра кнопки
+      const newParticles = Array.from({ length: 30 }, (_, i) => ({
+        id: Date.now() + i,
+        x: centerX,
+        y: centerY,
+      }));
+      setParticles(newParticles);
+      
+      // Удаляем частицы через 1.5 секунды
+      setTimeout(() => {
+        setParticles([]);
+      }, 1500);
+    }
 
     // Показываем эффекты победы для всех дней
     if (canPlayCelebration) {
@@ -386,8 +408,49 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         })}
       </div>
 
+      {/* Разлетающиеся частицы от кнопки */}
+      <AnimatePresence>
+        {particles.map((particle) => {
+          const angle = (particle.id % 30) * (360 / 30) * (Math.PI / 180);
+          const distance = 150 + (particle.id % 3) * 50;
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+          
+          return (
+            <motion.div
+              key={particle.id}
+              className="absolute w-3 h-3 rounded-full pointer-events-none z-[60]"
+              style={{
+                left: `${particle.x}px`,
+                top: `${particle.y}px`,
+                background: `hsl(${(particle.id * 12) % 360}, 100%, 60%)`,
+                boxShadow: `0 0 10px hsl(${(particle.id * 12) % 360}, 100%, 60%)`,
+              }}
+              initial={{ 
+                scale: 0, 
+                opacity: 1,
+                x: 0,
+                y: 0,
+              }}
+              animate={{ 
+                scale: [0, 1.5, 0],
+                opacity: [1, 1, 0],
+                x: x,
+                y: y,
+              }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 1.2,
+                ease: "easeOut",
+              }}
+            />
+          );
+        })}
+      </AnimatePresence>
+
       {/* Action Button */}
       <motion.button
+        ref={buttonRef}
         layout
         onClick={handleClaim}
         onTouchEnd={(e) => {
