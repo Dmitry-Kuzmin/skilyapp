@@ -18,10 +18,18 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
   hasClaimedToday,
   weekNumber = 1,
 }) => {
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, theme } = useTheme();
   // Используем ту же логику, что и в Dashboard
   // resolvedTheme будет 'dark' или 'light' в зависимости от темы (включая системную)
+  // Если theme === 'system', resolvedTheme будет 'dark' или 'light' в зависимости от системных настроек
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
+  
+  // Отладочный вывод (можно убрать после проверки)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DailyStreakTracker] Theme:', { theme, resolvedTheme, isDarkTheme });
+    }
+  }, [theme, resolvedTheme, isDarkTheme]);
   
   // Определяем классы для карточки
   const cardClasses = isDarkTheme 
