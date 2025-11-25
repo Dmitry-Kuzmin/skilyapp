@@ -282,7 +282,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
     return () => {
       if (skeletonTimeout) clearTimeout(skeletonTimeout);
       clearInterval(interval);
-      isLoadingInProgress = false;
     };
   }, [profileId]); // УБРАНА зависимость от coinsLoading - она не нужна для загрузки duel pass
 

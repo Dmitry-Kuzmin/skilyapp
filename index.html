@@ -250,7 +250,8 @@
       });
       
       // Проверяем, что модули поддерживаются
-      if (typeof import !== 'undefined') {
+      // Используем проверку через другие признаки поддержки ES модулей
+      if ('noModule' in HTMLScriptElement.prototype) {
         console.log('[HTML] ✅ ES modules supported');
       } else {
         console.error('[HTML] ❌ ES modules NOT supported!');
