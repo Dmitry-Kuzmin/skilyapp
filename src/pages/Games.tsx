@@ -330,28 +330,28 @@ const Games = () => {
                 </p>
               </div>
 
-              {/* Stats Badges - Style from Dashboard */}
-              <div className="flex items-center gap-3 flex-wrap">
+              {/* Stats Badges - Style from Dashboard - Always on one line */}
+              <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
                 {/* Games Played Badge */}
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 backdrop-blur-sm shadow-lg shadow-violet-500/10">
-                  <Trophy className="w-4 h-4 text-violet-400" />
-                  <span className="text-sm font-bold text-violet-100">
+                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 backdrop-blur-sm shadow-lg shadow-violet-500/10 flex-shrink-0 whitespace-nowrap">
+                  <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-violet-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-violet-100">
                     {stats.gamesPlayed} <span className="text-violet-300/70 font-normal">игр</span>
                   </span>
                 </div>
 
                 {/* Terms Badge */}
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
-                  <Brain className="w-4 h-4 text-emerald-400" />
-                  <span className="text-sm font-bold text-emerald-100">
+                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10 flex-shrink-0 whitespace-nowrap">
+                  <Brain className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-emerald-100">
                     {stats.studiedTerms} <span className="text-emerald-300/70 font-normal">терминов</span>
                   </span>
                 </div>
 
                 {/* Result Badge */}
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10">
-                  <TrendingUp className="w-4 h-4 text-amber-400" />
-                  <span className="text-sm font-bold text-amber-100">
+                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
+                  <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-amber-100">
                     {stats.averageResult}% <span className="text-amber-300/70 font-normal">рез.</span>
                   </span>
                 </div>

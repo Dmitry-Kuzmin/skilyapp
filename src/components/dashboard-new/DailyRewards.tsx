@@ -698,117 +698,81 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             <div className={`absolute inset-0 ${isDarkTheme ? 'bg-slate-900/98' : 'bg-white/98'} backdrop-blur-xl`} />
             
             {/* Контент панели */}
-            <div className="relative z-10 flex flex-col h-full overflow-y-auto">
-              {/* Заголовок */}
-              <div className={`sticky top-0 ${isDarkTheme ? 'bg-slate-900/95' : 'bg-white/95'} backdrop-blur-md border-b ${isDarkTheme ? 'border-slate-700/50' : 'border-slate-200/50'} px-6 sm:px-8 py-4 sm:py-5 z-20`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className={`text-xl sm:text-2xl font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'} mb-1`}>
-                      💡 О ежедневных наградах
-                    </h2>
-                    <p className={`text-sm ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-                      Каждый день ты получаешь награды за вход. Чем больше дней подряд, тем лучше награды!
-                    </p>
-                  </div>
+            <div className="relative z-10 flex flex-col h-full overflow-y-auto px-6 sm:px-8 py-6">
+              {/* Заголовок - упрощенный */}
+              <div className="mb-6">
+                <h2 className={`text-lg sm:text-xl font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'} mb-2`}>
+                  💡 О ежедневных наградах
+                </h2>
+                <p className={`text-xs sm:text-sm ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
+                  Каждый день ты получаешь награды за вход. Чем больше дней подряд, тем лучше награды!
+                </p>
+              </div>
+              
+              {/* Типы наград - компактные иконки */}
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-3">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDarkTheme ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-50 border border-purple-200'}`}
+                  >
+                    <Zap className={`w-4 h-4 ${isDarkTheme ? 'text-purple-400' : 'text-purple-600'}`} />
+                    <div>
+                      <div className={`text-xs font-semibold ${isDarkTheme ? 'text-purple-400' : 'text-purple-600'}`}>Boost</div>
+                      <div className={`text-[10px] ${isDarkTheme ? 'text-slate-500' : 'text-slate-600'}`}>×2 SP</div>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.15 }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDarkTheme ? 'bg-green-500/10 border border-green-500/20' : 'bg-green-50 border border-green-200'}`}
+                  >
+                    <Gift className={`w-4 h-4 ${isDarkTheme ? 'text-green-400' : 'text-green-600'}`} />
+                    <div>
+                      <div className={`text-xs font-semibold ${isDarkTheme ? 'text-green-400' : 'text-green-600'}`}>Стикеры</div>
+                      <div className={`text-[10px] ${isDarkTheme ? 'text-slate-500' : 'text-slate-600'}`}>Для дуэлей</div>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDarkTheme ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-blue-50 border border-blue-200'}`}
+                  >
+                    <Trophy className={`w-4 h-4 ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <div>
+                      <div className={`text-xs font-semibold ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'}`}>Бейджи</div>
+                      <div className={`text-[10px] ${isDarkTheme ? 'text-slate-500' : 'text-slate-600'}`}>Сезонные</div>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.25 }}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg ${isDarkTheme ? 'bg-yellow-500/10 border border-yellow-500/20' : 'bg-yellow-50 border border-yellow-200'}`}
+                  >
+                    <Sparkles className={`w-4 h-4 ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'}`} />
+                    <div>
+                      <div className={`text-xs font-semibold ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'}`}>Сюрприз</div>
+                      <div className={`text-[10px] ${isDarkTheme ? 'text-slate-500' : 'text-slate-600'}`}>Случайный лут</div>
+                    </div>
+                  </motion.div>
                 </div>
               </div>
               
-              {/* Основной контент */}
-              <div className="flex-1 px-6 sm:px-8 py-6 space-y-6">
-                {/* Типы наград - карточки */}
-                <div>
-                  <h3 className={`text-sm font-bold uppercase tracking-wider ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'} mb-4`}>
-                    Типы наград
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className={`p-4 rounded-xl border ${isDarkTheme ? 'bg-purple-500/10 border-purple-500/20' : 'bg-purple-50/80 border-purple-200/60'}`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${isDarkTheme ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
-                          <Zap className={`w-5 h-5 ${isDarkTheme ? 'text-purple-400' : 'text-purple-600'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className={`font-bold text-base ${isDarkTheme ? 'text-purple-400' : 'text-purple-600'} mb-1`}>
-                            Boost
-                          </div>
-                          <div className={`text-xs ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-                            Удваивает SP за дуэли
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15 }}
-                      className={`p-4 rounded-xl border ${isDarkTheme ? 'bg-green-500/10 border-green-500/20' : 'bg-green-50/80 border-green-200/60'}`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${isDarkTheme ? 'bg-green-500/20' : 'bg-green-100'}`}>
-                          <Gift className={`w-5 h-5 ${isDarkTheme ? 'text-green-400' : 'text-green-600'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className={`font-bold text-base ${isDarkTheme ? 'text-green-400' : 'text-green-600'} mb-1`}>
-                            Стикеры
-                          </div>
-                          <div className={`text-xs ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-                            Для использования в дуэлях
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className={`p-4 rounded-xl border ${isDarkTheme ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50/80 border-blue-200/60'}`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${isDarkTheme ? 'bg-blue-500/20' : 'bg-blue-100'}`}>
-                          <Trophy className={`w-5 h-5 ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className={`font-bold text-base ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'} mb-1`}>
-                            Бейджи
-                          </div>
-                          <div className={`text-xs ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-                            Сезонные коллекции
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                    
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 }}
-                      className={`p-4 rounded-xl border ${isDarkTheme ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-yellow-50/80 border-yellow-200/60'}`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg ${isDarkTheme ? 'bg-yellow-500/20' : 'bg-yellow-100'}`}>
-                          <Sparkles className={`w-5 h-5 ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className={`font-bold text-base ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} mb-1`}>
-                            Сюрприз
-                          </div>
-                          <div className={`text-xs ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-                            Случайный лут
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-                </div>
-                
-                  {/* Награды по дням */}
-                  <div className="space-y-3">
+              {/* Награды по дням */}
+              <div className="mt-6">
+                <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'} mb-3`}>
+                  📅 Награды по дням
+                </h3>
+                {/* Награды по дням - компактный дизайн */}
+                <div className="space-y-2">
                     {weeklyRewards.map((reward, idx) => {
                       const dayNum = reward.day_number;
                       const rewardData = reward.reward || {};
@@ -818,107 +782,96 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                       return (
                         <motion.div
                           key={dayNum}
-                          initial={{ opacity: 0, x: -20 }}
+                          initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 + idx * 0.05 }}
-                          className={`p-4 rounded-xl border transition-all ${
+                          transition={{ delay: 0.3 + idx * 0.03 }}
+                          className={`p-3 rounded-lg border transition-all ${
                             isCurrentDay && !effectiveHasClaimed
                               ? isDarkTheme
-                                ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 border-orange-500/50 shadow-lg shadow-orange-500/20'
-                                : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-400/60 shadow-lg shadow-orange-400/20'
+                                ? 'bg-orange-500/15 border-orange-500/40'
+                                : 'bg-orange-50 border-orange-300/60'
                               : isCompleted
                               ? isDarkTheme
-                                ? 'bg-slate-800/40 border-slate-700/50'
-                                : 'bg-slate-100/70 border-slate-300/50'
+                                ? 'bg-slate-800/30 border-slate-700/40'
+                                : 'bg-slate-100/60 border-slate-300/40'
                               : isDarkTheme
-                                ? 'bg-slate-800/20 border-slate-700/30 opacity-60'
-                                : 'bg-slate-50/50 border-slate-200/40 opacity-70'
+                                ? 'bg-slate-800/15 border-slate-700/25 opacity-50'
+                                : 'bg-slate-50/40 border-slate-200/30 opacity-60'
                           }`}
                         >
-                          <div className="flex items-start justify-between gap-3 mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg ${
+                          <div className="flex items-center justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
                                 isCurrentDay && !effectiveHasClaimed
                                   ? isDarkTheme ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-600'
                                   : isCompleted
-                                  ? isDarkTheme ? 'bg-slate-700/50 text-slate-400' : 'bg-slate-200 text-slate-600'
-                                  : isDarkTheme ? 'bg-slate-800/50 text-slate-500' : 'bg-slate-200/50 text-slate-400'
+                                  ? isDarkTheme ? 'bg-slate-700/40 text-slate-400' : 'bg-slate-200 text-slate-600'
+                                  : isDarkTheme ? 'bg-slate-800/40 text-slate-500' : 'bg-slate-200/50 text-slate-400'
                               }`}>
                                 {dayNum}
                               </div>
-                              <div>
-                                <div className={`font-bold text-base ${
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-semibold text-sm ${
                                   isCurrentDay && !effectiveHasClaimed
                                     ? isDarkTheme ? 'text-orange-400' : 'text-orange-600'
                                     : isCompleted
                                     ? isDarkTheme ? 'text-slate-300' : 'text-slate-700'
                                     : isDarkTheme ? 'text-slate-500' : 'text-slate-500'
                                 }`}>
-                                  День {dayNum}
-                                </div>
-                                <div className={`text-xs ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
                                   {reward.description}
                                 </div>
                               </div>
                             </div>
                             {isCurrentDay && !effectiveHasClaimed && (
-                              <span className={`text-xs px-2 py-1 rounded-lg font-semibold ${
+                              <span className={`text-[10px] px-2 py-0.5 rounded font-semibold whitespace-nowrap ${
                                 isDarkTheme
-                                  ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
-                                  : 'bg-orange-100 text-orange-600 border border-orange-300'
+                                  ? 'bg-orange-500/20 text-orange-400'
+                                  : 'bg-orange-100 text-orange-600'
                               }`}>
                                 Сегодня
                               </span>
                             )}
                           </div>
                           
-                          <div className="flex flex-wrap items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
                             {rewardData.xp > 0 && (
-                              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${
-                                isDarkTheme ? 'bg-orange-500/20 border border-orange-500/30' : 'bg-orange-100 border border-orange-200'
+                              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                                isDarkTheme ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-100 text-orange-600'
                               }`}>
-                                <TrendingUp className={`w-4 h-4 ${isDarkTheme ? 'text-orange-400' : 'text-orange-600'} flex-shrink-0`} />
-                                <span className={`text-sm font-semibold ${isDarkTheme ? 'text-orange-400' : 'text-orange-600'}`}>
-                                  +{rewardData.xp} XP
-                                </span>
+                                <TrendingUp className="w-3 h-3 flex-shrink-0" />
+                                <span className="font-semibold">+{rewardData.xp} XP</span>
                               </div>
                             )}
                             {rewardData.coins > 0 && (
-                              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${
-                                isDarkTheme ? 'bg-yellow-500/20 border border-yellow-500/30' : 'bg-yellow-100 border border-yellow-200'
+                              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                                isDarkTheme ? 'bg-yellow-500/15 text-yellow-400' : 'bg-yellow-100 text-yellow-600'
                               }`}>
-                                <Coins className={`w-4 h-4 ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} flex-shrink-0`} />
-                                <span className={`text-sm font-semibold ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'}`}>
-                                  +{rewardData.coins} 🪙
-                                </span>
+                                <Coins className="w-3 h-3 flex-shrink-0" />
+                                <span className="font-semibold">+{rewardData.coins} 🪙</span>
                               </div>
                             )}
                             {rewardData.boost && (
-                              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${
-                                isDarkTheme ? 'bg-purple-500/20 border border-purple-500/30' : 'bg-purple-100 border border-purple-200'
+                              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                                isDarkTheme ? 'bg-purple-500/15 text-purple-400' : 'bg-purple-100 text-purple-600'
                               }`}>
-                                <Zap className={`w-4 h-4 ${isDarkTheme ? 'text-purple-400' : 'text-purple-600'} flex-shrink-0`} />
-                                <span className={`text-sm font-semibold ${isDarkTheme ? 'text-purple-400' : 'text-purple-600'}`}>
-                                  Boost
-                                </span>
+                                <Zap className="w-3 h-3 flex-shrink-0" />
+                                <span className="font-semibold">Boost</span>
                               </div>
                             )}
                             {rewardData.badge && (
-                              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${
-                                isDarkTheme ? 'bg-blue-500/20 border border-blue-500/30' : 'bg-blue-100 border border-blue-200'
+                              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                                isDarkTheme ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-100 text-blue-600'
                               }`}>
-                                <Trophy className={`w-4 h-4 ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'} flex-shrink-0`} />
-                                <span className={`text-sm font-semibold ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'}`}>
-                                  Бейдж
-                                </span>
+                                <Trophy className="w-3 h-3 flex-shrink-0" />
+                                <span className="font-semibold">Бейдж</span>
                               </div>
                             )}
                             {rewardData.random_loot && (
-                              <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${
-                                isDarkTheme ? 'bg-green-500/20 border border-green-500/30' : 'bg-green-100 border border-green-200'
+                              <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
+                                isDarkTheme ? 'bg-green-500/15 text-green-400' : 'bg-green-100 text-green-600'
                               }`}>
-                                <Gift className={`w-4 h-4 ${isDarkTheme ? 'text-green-400' : 'text-green-600'} flex-shrink-0`} />
-                                <span className={`text-sm font-semibold ${isDarkTheme ? 'text-green-400' : 'text-green-600'}`}>
+                                <Gift className="w-3 h-3 flex-shrink-0" />
+                                <span className="font-semibold">
                                   {rewardData.random_loot.type === 'sticker' ? 'Стикер' : 'Сюрприз'}
                                 </span>
                               </div>
@@ -927,10 +880,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                         </motion.div>
                       );
                     })}
-                  </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
