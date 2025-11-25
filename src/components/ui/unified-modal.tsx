@@ -254,6 +254,7 @@ export function UnifiedModal({
         <SheetContent
           side="bottom"
           hideCloseButton={hideCloseButton}
+          onOpenChange={handleOpenChange}
           className={cn(
             "p-0 border-none bg-background rounded-t-[24px] flex flex-col shadow-[0_-16px_40px_rgba(15,23,42,0.25)]",
             // На мобильных всегда полная ширина, игнорируем max-w из className
