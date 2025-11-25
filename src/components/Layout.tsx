@@ -23,6 +23,7 @@ import { useSessionManager } from "@/hooks/useSessionManager";
 import { ReferralModal } from "./ReferralModal";
 import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: ReactNode;
@@ -99,19 +100,21 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
+  const isMobile = useIsMobile();
   const mainContentRef = useRef<HTMLElement>(null);
   const notificationsApi = useNotifications();
   
   // Управление сессиями (только 1 активная сессия одновременно)
   useSessionManager();
   
-  // Принудительно применяем отступы при изменении isTelegramApp или при монтировании
+  // КРИТИЧНО: Применяем отступы только для мобильных устройств в Telegram, не для десктопа
   useEffect(() => {
     // Проверяем наличие Telegram WebApp дополнительно
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
-    const shouldApplyPadding = isTelegramApp;
+    // КРИТИЧНО: Отступы применяются только если это Telegram И мобильное устройство
+    const shouldApplyPadding = isTelegramApp && isMobile;
     
-    console.log('[Layout] isTelegramApp:', isTelegramApp, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
+    console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
     
     if (mainContentRef.current && shouldApplyPadding) {
       const topInsetStr = getComputedStyle(document.documentElement)
@@ -134,13 +137,13 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
       });
     } else if (mainContentRef.current && !shouldApplyPadding) {
       mainContentRef.current.style.paddingTop = '0px';
-      console.log('[Layout] Removed padding-top (not Telegram)');
+      console.log('[Layout] Removed padding-top (not Telegram mobile)');
     }
-  }, [isTelegramApp, location.pathname]); // Также при изменении маршрута
+  }, [isTelegramApp, isMobile, location.pathname]); // Также при изменении маршрута или размера экрана
   
-  // Также применяем при изменении CSS переменных
+  // Также применяем при изменении CSS переменных (только для мобильных)
   useEffect(() => {
-    if (!isTelegramApp || !mainContentRef.current) return;
+    if (!isTelegramApp || !isMobile || !mainContentRef.current) return;
     
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {

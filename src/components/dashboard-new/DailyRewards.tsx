@@ -120,19 +120,21 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       
-      // Точные параметры из оригинального файла
+      // Точные параметры из оригинального файла, но с увеличенной скоростью для большего разлета
       const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'];
       const particleCount = 100;
       const gravity = 0.5;
       
       const newParticles = Array.from({ length: particleCount }, (_, i) => {
+        // Увеличиваем скорость для большего разлета - эффект должен покрывать весь блок и выходить за его пределы
+        const speedMultiplier = 4; // Увеличиваем в 4 раза для большего разлета
         return {
           id: Date.now() + i,
           x: centerX,
           y: centerY,
-          vx: (Math.random() - 0.5) * 15,
-          vy: (Math.random() - 0.5) * 15 - 5, // slightly upwards
-          size: Math.random() * 8 + 4, // Увеличено минимальное значение для видимости (4-12px)
+          vx: (Math.random() - 0.5) * 20 * speedMultiplier, // Увеличена скорость и диапазон
+          vy: (Math.random() - 0.5) * 20 * speedMultiplier - 8, // slightly upwards, увеличенная скорость
+          size: Math.random() * 12 + 8, // Увеличено для лучшей видимости (8-20px)
           color: colors[Math.floor(Math.random() * colors.length)],
           gravity: gravity,
           life: 100,
@@ -140,10 +142,12 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       });
       
       console.log('[DailyRewards] Created', newParticles.length, 'confetti particles at', centerX, centerY);
+      console.log('[DailyRewards] First particle:', newParticles[0]);
       setParticles(newParticles);
       
       // Удаляем частицы через 3 секунды (когда life закончится)
       setTimeout(() => {
+        console.log('[DailyRewards] Removing particles');
         setParticles([]);
       }, 3000);
     } else {
@@ -435,47 +439,65 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       </div>
 
       {/* Конфетти эффект - точно как в оригинальном файле */}
-      <div className="fixed inset-0 pointer-events-none z-[9999]">
-        <AnimatePresence>
-          {particles.map((particle) => {
-            // Физика точно как в оригинале: x(t) = vx * t, y(t) = vy * t + 0.5 * gravity * t^2
-            const duration = 2.5; // Примерно 100 кадров при 60fps
-            const finalX = particle.vx * duration;
-            const finalY = particle.vy * duration + (particle.gravity * duration * duration) / 2;
-            
-            return (
-              <motion.div
-                key={particle.id}
-                className="fixed pointer-events-none rounded-full"
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                  width: `${particle.size}px`,
-                  height: `${particle.size}px`,
-                  background: particle.color,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                }}
-                animate={{ 
-                  scale: [0, 1, 1, 0.96, 0], // size уменьшается как в оригинале (size *= 0.96)
-                  opacity: [1, 1, 1, 0.8, 0], // life уменьшается
-                  x: finalX,
-                  y: finalY,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: duration,
-                  ease: "linear", // Линейная анимация как в requestAnimationFrame
-                }}
-              />
-            );
-          })}
-        </AnimatePresence>
-      </div>
+      {particles.length > 0 && (
+        <div 
+          className="fixed inset-0 pointer-events-none" 
+          style={{ 
+            overflow: 'visible',
+            zIndex: 99999,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+        >
+          <AnimatePresence>
+            {particles.map((particle) => {
+              // Физика точно как в оригинале: x(t) = vx * t, y(t) = vy * t + 0.5 * gravity * t^2
+              // Увеличиваем длительность для большего разлета
+              const duration = 2.5; // Примерно 100 кадров при 60fps
+              const finalX = particle.vx * duration;
+              const finalY = particle.vy * duration + (particle.gravity * duration * duration) / 2;
+              
+              return (
+                <motion.div
+                  key={particle.id}
+                  className="fixed pointer-events-none rounded-full"
+                  style={{
+                    left: `${particle.x}px`,
+                    top: `${particle.y}px`,
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    background: particle.color,
+                    boxShadow: `0 0 ${particle.size * 0.8}px ${particle.color}, 0 0 ${particle.size * 1.5}px ${particle.color}60`,
+                    willChange: 'transform',
+                    position: 'fixed',
+                    zIndex: 100000,
+                  }}
+                  initial={{ 
+                    scale: 0, 
+                    opacity: 1,
+                    x: 0,
+                    y: 0,
+                  }}
+                  animate={{ 
+                    scale: [0, 1, 1, 0.96, 0], // size уменьшается как в оригинале (size *= 0.96)
+                    opacity: [1, 1, 1, 0.8, 0], // life уменьшается
+                    x: finalX,
+                    y: finalY,
+                  }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  transition={{
+                    duration: duration,
+                    ease: "linear", // Линейная анимация как в requestAnimationFrame
+                  }}
+                />
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Action Button */}
       <motion.button

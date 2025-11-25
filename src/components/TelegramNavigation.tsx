@@ -165,16 +165,24 @@ export const TelegramNavigation = () => {
         willApplyPadding: contentTop > 0 || contentBottom > 0,
       });
       
-      // Устанавливаем единую систему отступов
+      // КРИТИЧНО: Устанавливаем единую систему отступов
+      // Для десктопа всегда 0, для мобильных - значения из Telegram API
       document.documentElement.style.setProperty('--app-content-top', `${contentTop}px`);
       document.documentElement.style.setProperty('--app-content-bottom', `${contentBottom}px`);
       
-      // Также сохраняем для обратной совместимости (если нужно)
-      if (webApp.contentSafeAreaInset) {
+      // Также сохраняем для обратной совместимости
+      // КРИТИЧНО: Для десктопа устанавливаем 0, чтобы не было отступов
+      if (isMobile && webApp.contentSafeAreaInset) {
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${webApp.contentSafeAreaInset.top}px`);
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${webApp.contentSafeAreaInset.bottom}px`);
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${webApp.contentSafeAreaInset.left}px`);
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', `${webApp.contentSafeAreaInset.right}px`);
+      } else {
+        // КРИТИЧНО: Для десктопа устанавливаем 0, чтобы убрать отступы
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', '0px');
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', '0px');
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', '0px');
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', '0px');
       }
       
       // Добавляем класс на body/html для CSS селекторов
