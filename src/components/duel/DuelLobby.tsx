@@ -221,46 +221,46 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
               <p className="text-muted-foreground text-sm">Поделитесь кодом с другом</p>
             </motion.div>
 
-          {/* Code Display - улучшенный UI/UX с кликабельным блоком */}
-          <div className="py-4">
+          {/* Code Display - Compact */}
+          <div className="py-3">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-violet-500/50 ring-4 ring-violet-500/10 cursor-pointer group hover:border-violet-500/70 hover:ring-violet-500/20 transition-all duration-300 shadow-lg hover:shadow-xl"
+              transition={{ duration: 0.2 }}
+              className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-violet-500/50 ring-2 ring-violet-500/10 cursor-pointer group hover:border-violet-500/70 hover:ring-violet-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
               onClick={handleCopyCode}
               style={{
                 boxShadow: copied 
-                  ? 'rgba(139, 92, 246, 0.4) 0px 0px 40px' 
-                  : 'rgba(139, 92, 246, 0.1) 0px 0px 20px'
+                  ? 'rgba(139, 92, 246, 0.35) 0px 0px 30px' 
+                  : 'rgba(139, 92, 246, 0.08) 0px 0px 15px'
               }}
             >
               {/* Dot pattern background */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:24px_24px] opacity-10 rounded-3xl" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:20px_20px] opacity-8 rounded-2xl" />
               
               {/* Code */}
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center drop-shadow-lg select-all relative z-10"
+                className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.2em] mb-3 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center select-all relative z-10"
               >
                 {duelCode}
               </motion.div>
               
               {/* Label with copy indicator */}
-              <div className="flex items-center justify-center gap-2 relative z-10">
+              <div className="flex items-center justify-center gap-1.5 relative z-10">
                 <AnimatePresence mode="wait">
                   {copied ? (
                     <motion.div
                       key="copied"
-                      initial={{ opacity: 0, scale: 0.8 }}
+                      initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400"
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"
                     >
-                      <Check className="h-4 w-4" />
-                      <span className="text-sm font-semibold">Скопировано!</span>
+                      <Check className="h-3.5 w-3.5" />
+                      <span className="text-xs font-semibold">Скопировано!</span>
                     </motion.div>
                   ) : (
                     <motion.div
@@ -268,11 +268,11 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="flex items-center gap-1 text-xs text-muted-foreground font-semibold uppercase"
+                      className="flex items-center gap-1 text-xs text-muted-foreground font-medium uppercase tracking-wide"
                     >
                       <Sparkles className="h-3 w-3 group-hover:text-violet-500 transition-colors" />
                       <span className="group-hover:text-violet-500 transition-colors">Код дуэли</span>
-                      <Copy className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <Copy className="h-3 w-3 ml-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -285,7 +285,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="text-xs text-muted-foreground text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="text-xs text-muted-foreground/70 text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     Нажмите, чтобы скопировать
                   </motion.p>
@@ -294,106 +294,106 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
             </motion.div>
           </div>
 
-          {/* Action Buttons - убрана кнопка копирования, оставлена только кнопка поделиться */}
-          {platform === 'telegram' && (
-            <div className="flex flex-col gap-2 px-2">
-              <Button
-                onClick={handleShare}
-                size="lg"
-                className="w-full h-12 sm:h-14 text-sm sm:text-base font-black bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          {/* Stats & Actions - Compact */}
+          <div className="space-y-3 relative z-10">
+            {/* Stats */}
+            <div className="flex items-center justify-center gap-3">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center gap-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 dark:from-violet-500/10 dark:to-purple-500/10 px-4 py-2 rounded-xl border border-violet-500/30 backdrop-blur-sm"
               >
-                <Share2 className="mr-2 h-5 w-5" />
-                Поделиться
+                <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex items-baseline gap-1">
+                  <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">{state.opponentJoined ? '2' : '1'}</span>
+                  <span className="text-muted-foreground/50 text-sm">/</span>
+                  <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">2</span>
+                  <span className="text-xs text-muted-foreground ml-1">игроков</span>
+                </div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.25 }}
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 dark:from-blue-500/10 dark:to-indigo-500/10 px-4 py-2 rounded-xl border border-blue-500/30 backdrop-blur-sm"
+              >
+                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="font-mono font-black text-lg text-blue-700 dark:text-blue-300">{formattedTime}</span>
+              </motion.div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              {platform === 'telegram' && (
+                <Button
+                  onClick={handleShare}
+                  size="default"
+                  className="flex-1 h-10 text-sm font-semibold bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-white shadow-md hover:shadow-lg transition-all"
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Поделиться
+                </Button>
+              )}
+              
+              <Button
+                variant="ghost"
+                onClick={onCancel}
+                size="default"
+                className="flex-1 h-10 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Отменить
               </Button>
             </div>
-          )}
+          </div>
 
-          {/* Stats - улучшенный дизайн */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center justify-center gap-3 text-sm pt-2 relative z-10"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 backdrop-blur-sm"
-            >
-              <Users className="h-4 w-4 text-primary" />
-              <span className="font-bold text-sm">{state.opponentJoined ? '2/2' : '1/2'}</span>
-              <span className="text-muted-foreground text-xs">игроков</span>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 bg-blue-500/10 px-4 py-2 rounded-full border border-blue-500/20 backdrop-blur-sm"
-            >
-              <Clock className="h-4 w-4 text-blue-500" />
-              <span className="font-mono font-bold text-sm">{formattedTime}</span>
-            </motion.div>
-          </motion.div>
-
-          {/* Opponent Joined - улучшенная анимация */}
+          {/* Opponent Joined - Compact */}
           <AnimatePresence>
             {state.opponentJoined && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 rounded-xl p-4 relative z-10 shadow-lg shadow-green-500/20"
+                className="bg-gradient-to-r from-green-500/25 via-emerald-500/25 to-green-500/25 dark:from-green-500/15 dark:via-emerald-500/15 dark:to-green-500/15 border-2 border-green-500/50 rounded-xl p-4 shadow-lg shadow-green-500/20"
               >
                 <div className="flex items-center justify-center gap-2">
                   <motion.div
-                    animate={{ rotate: [0, 360] }}
+                    animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <Sparkles className="h-5 w-5 text-green-500" />
+                    <Sparkles className="h-4 w-4 text-green-500" />
                   </motion.div>
-                  <p className="text-green-500 font-black text-lg">Соперник найден!</p>
+                  <p className="text-green-700 dark:text-green-300 font-black text-lg">Соперник найден!</p>
                   <motion.div
-                    animate={{ rotate: [0, -360] }}
+                    animate={{ rotate: -360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <Sparkles className="h-5 w-5 text-green-500" />
+                    <Sparkles className="h-4 w-4 text-green-500" />
                   </motion.div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Loading when waiting - улучшенная анимация */}
+          {/* Loading when waiting - Compact */}
           {!state.opponentJoined && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center justify-center gap-2 text-muted-foreground relative z-10"
+              className="flex items-center justify-center gap-2 text-muted-foreground"
             >
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               >
-                <Zap className="h-4 w-4 text-violet-500" />
+                <Zap className="h-3.5 w-3.5 text-violet-500" />
               </motion.div>
-              <span className="text-sm font-medium">Ожидание соперника...</span>
+              <span className="text-xs font-medium">Ожидание соперника...</span>
             </motion.div>
           )}
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="relative z-10"
-          >
-            <Button
-              variant="ghost"
-              onClick={onCancel}
-              size="lg"
-              className="w-full h-12 hover:bg-destructive/10 hover:text-destructive text-sm font-semibold transition-colors"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Отменить дуэль
-            </Button>
-          </motion.div>
         </Card>
         </motion.div>
       </div>

@@ -1247,19 +1247,15 @@ export default function Duel() {
                                                         </>
                                                     ) : (
                                                         <>
-                                                            {/* Lobby State - Integrated */}
+                                                            {/* Lobby State - Compact & Improved */}
                                                             <motion.div
-                                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                                initial={{ opacity: 0, scale: 0.95 }}
                                                                 animate={{ opacity: 1, scale: 1 }}
-                                                                transition={{ duration: 0.5, type: "spring" }}
-                                                                className="space-y-5 sm:space-y-6"
+                                                                transition={{ duration: 0.3, type: "spring" }}
+                                                                className="space-y-4"
                                                             >
-                                                                {/* Back Button - Premium */}
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, x: -20 }}
-                                                                    animate={{ opacity: 1, x: 0 }}
-                                                                    className="flex items-center justify-start mb-2"
-                                                                >
+                                                                {/* Header with Back Button and Connection Status - Compact */}
+                                                                <div className="flex items-center justify-between mb-2">
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="sm"
@@ -1270,94 +1266,88 @@ export default function Duel() {
                                                                             setWaitTime(0);
                                                                             setConnectionStatus('checking');
                                                                         }}
-                                                                        className="text-muted-foreground hover:text-foreground hover:bg-emerald-500/10 hover:border-emerald-500/20 border border-transparent rounded-xl px-4 py-2 transition-all duration-200 group/back"
+                                                                        className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg px-3 py-1.5 h-auto"
                                                                     >
-                                                                        <ArrowLeft className="h-4 w-4 mr-2 group-hover/back:-translate-x-1 transition-transform duration-200" />
-                                                                        <span className="text-sm font-semibold">Назад</span>
+                                                                        <ArrowLeft className="h-4 w-4 mr-1.5" />
+                                                                        <span className="text-xs font-medium">Назад</span>
                                                                     </Button>
-                                                                </motion.div>
-
-                                                                {/* Connection status */}
-                                                                <motion.div
-                                                                    initial={{ opacity: 0 }}
-                                                                    animate={{ opacity: 1 }}
-                                                                    className="flex items-center justify-center gap-2 text-sm"
-                                                                >
-                                                                    <motion.div
-                                                                        className={`w-3 h-3 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
-                                                                        animate={connectionStatus === 'connected' ? {} : { scale: [1, 1.2, 1] }}
-                                                                        transition={{ duration: 1, repeat: Infinity }}
-                                                                    />
-                                                                    <span className="text-muted-foreground font-medium text-xs sm:text-sm">
-                                                                        {connectionStatus === 'connected' ? 'Подключено к серверу' : 'Подключение...'}
-                                                                    </span>
-                                                                </motion.div>
-
-                                                                {/* Header */}
-                                                                <div className="text-center space-y-4 sm:space-y-5">
-                                                                    <motion.div
-                                                                        animate={{ rotate: [0, 5, -5, 0] }}
-                                                                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                                                                        className="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center shadow-xl shadow-violet-500/50 ring-4 ring-violet-500/20 relative"
-                                                                    >
-                                                                        {/* Pulse effect */}
-                                                                        <div className="absolute inset-0 rounded-3xl bg-emerald-500/30 animate-ping" />
-                                                                        <Users className="h-10 w-10 sm:h-12 sm:w-12 text-white relative z-10" />
-                                                                    </motion.div>
-                                                                    <div className="space-y-2">
-                                                                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                                                                            Ожидание соперника
-                                                                        </h3>
-                                                                        <p className="text-base sm:text-lg text-muted-foreground/80 font-medium">Поделитесь кодом с другом</p>
+                                                                    
+                                                                    {/* Connection status - Compact */}
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <motion.div
+                                                                            className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                                                                            animate={connectionStatus === 'connected' ? {} : { scale: [1, 1.2, 1] }}
+                                                                            transition={{ duration: 1, repeat: Infinity }}
+                                                                        />
+                                                                        <span className="text-muted-foreground text-xs">
+                                                                            {connectionStatus === 'connected' ? 'Подключено' : 'Подключение...'}
+                                                                        </span>
                                                                     </div>
                                                                 </div>
 
-                                                                {/* Code Display - улучшенный UI/UX с кликабельным блоком */}
+                                                                {/* Compact Header */}
+                                                                <div className="text-center space-y-2">
+                                                                    <motion.div
+                                                                        animate={{ rotate: [0, 5, -5, 0] }}
+                                                                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                                                                        className="w-14 h-14 mx-auto bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/30 relative"
+                                                                    >
+                                                                        <Users className="h-7 w-7 text-white relative z-10" />
+                                                                    </motion.div>
+                                                                    <div className="space-y-1">
+                                                                        <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                                                                            Ожидание соперника
+                                                                        </h3>
+                                                                        <p className="text-sm text-muted-foreground">Поделитесь кодом с другом</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Code Display - Compact & Improved */}
                                                                 <motion.div
-                                                                    initial={{ scale: 0.9, opacity: 0 }}
+                                                                    initial={{ scale: 0.95, opacity: 0 }}
                                                                     animate={{ scale: 1, opacity: 1 }}
-                                                                    transition={{ delay: 0.2, type: "spring" }}
+                                                                    transition={{ delay: 0.1, type: "spring" }}
                                                                     className="relative"
                                                                 >
                                                                     <motion.div
-                                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                                        initial={{ opacity: 0, scale: 0.98 }}
                                                                         animate={{ opacity: 1, scale: 1 }}
-                                                                        transition={{ duration: 0.3 }}
-                                                                        className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-10 sm:p-12 rounded-3xl border-2 border-violet-500/50 ring-4 ring-violet-500/10 cursor-pointer group hover:border-violet-500/70 hover:ring-violet-500/20 transition-all duration-300 shadow-lg hover:shadow-xl"
+                                                                        transition={{ duration: 0.2 }}
+                                                                        className="relative bg-gradient-to-br from-white/95 via-violet-50/90 to-purple-50/90 dark:from-violet-950/50 dark:via-violet-950/40 dark:to-purple-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-violet-500/50 ring-2 ring-violet-500/10 cursor-pointer group hover:border-violet-500/70 hover:ring-violet-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
                                                                         onClick={handleCopyCode}
                                                                         style={{
                                                                             boxShadow: copied 
-                                                                                ? 'rgba(139, 92, 246, 0.4) 0px 0px 40px' 
-                                                                                : 'rgba(139, 92, 246, 0.1) 0px 0px 20px'
+                                                                                ? 'rgba(139, 92, 246, 0.35) 0px 0px 30px' 
+                                                                                : 'rgba(139, 92, 246, 0.08) 0px 0px 15px'
                                                                         }}
                                                                     >
-                                                                        {/* Dot pattern background */}
-                                                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:24px_24px] opacity-10 rounded-3xl" />
+                                                                        {/* Dot pattern background - более тонкий */}
+                                                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:20px_20px] opacity-8 rounded-2xl" />
                                                                         
-                                                                        {/* Code */}
+                                                                        {/* Code - более компактный */}
                                                                         <motion.div
                                                                             key={createdCode}
-                                                                            initial={{ scale: 1.2, opacity: 0, rotateY: 180 }}
-                                                                            animate={{ scale: 1, opacity: 1, rotateY: 0 }}
-                                                                            transition={{ duration: 0.6, type: "spring" }}
-                                                                            className="text-6xl sm:text-7xl md:text-8xl font-black tracking-[0.25em] mb-4 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center drop-shadow-lg select-all relative z-10"
+                                                                            initial={{ scale: 1.1, opacity: 0 }}
+                                                                            animate={{ scale: 1, opacity: 1 }}
+                                                                            transition={{ duration: 0.4, type: "spring" }}
+                                                                            className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.2em] mb-3 bg-gradient-to-r from-violet-700 via-purple-700 to-indigo-700 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent text-center select-all relative z-10"
                                                                         >
                                                                             {createdCode}
                                                                         </motion.div>
                                                                         
-                                                                        {/* Label with copy indicator */}
-                                                                        <div className="flex items-center justify-center gap-2 relative z-10">
+                                                                        {/* Label with copy indicator - компактный */}
+                                                                        <div className="flex items-center justify-center gap-1.5 relative z-10">
                                                                             <AnimatePresence mode="wait">
                                                                                 {copied ? (
                                                                                     <motion.div
                                                                                         key="copied"
-                                                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                                                        initial={{ opacity: 0, scale: 0.9 }}
                                                                                         animate={{ opacity: 1, scale: 1 }}
-                                                                                        exit={{ opacity: 0, scale: 0.8 }}
-                                                                                        className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400"
+                                                                                        exit={{ opacity: 0, scale: 0.9 }}
+                                                                                        className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"
                                                                                     >
-                                                                                        <Check className="h-4 w-4 sm:h-5 sm:w-5" />
-                                                                                        <span className="text-sm sm:text-base font-semibold">Скопировано!</span>
+                                                                                        <Check className="h-3.5 w-3.5" />
+                                                                                        <span className="text-xs font-semibold">Скопировано!</span>
                                                                                     </motion.div>
                                                                                 ) : (
                                                                                     <motion.div
@@ -1365,24 +1355,24 @@ export default function Duel() {
                                                                                         initial={{ opacity: 0 }}
                                                                                         animate={{ opacity: 1 }}
                                                                                         exit={{ opacity: 0 }}
-                                                                                        className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground font-semibold uppercase tracking-widest"
+                                                                                        className="flex items-center gap-1 text-xs text-muted-foreground font-medium uppercase tracking-wide"
                                                                                     >
-                                                                                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 group-hover:text-violet-500 transition-colors" />
+                                                                                        <Sparkles className="h-3 w-3 group-hover:text-violet-500 transition-colors" />
                                                                                         <span className="group-hover:text-violet-500 transition-colors">Код дуэли</span>
-                                                                                        <Copy className="h-3 w-3 sm:h-4 sm:w-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                                        <Copy className="h-3 w-3 ml-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                                                     </motion.div>
                                                                                 )}
                                                                             </AnimatePresence>
                                                                         </div>
                                                                         
-                                                                        {/* Hint text */}
+                                                                        {/* Hint text - более компактный */}
                                                                         <AnimatePresence>
                                                                             {!copied && (
                                                                                 <motion.p
                                                                                     initial={{ opacity: 0 }}
                                                                                     animate={{ opacity: 1 }}
                                                                                     exit={{ opacity: 0 }}
-                                                                                    className="text-xs sm:text-sm text-muted-foreground text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                    className="text-xs text-muted-foreground/70 text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
                                                                                 >
                                                                                     Нажмите, чтобы скопировать
                                                                                 </motion.p>
@@ -1391,114 +1381,92 @@ export default function Duel() {
                                                                     </motion.div>
                                                                 </motion.div>
 
-                                                                {/* Action Buttons - убрана кнопка копирования, оставлена только кнопка поделиться */}
-                                                                {isTelegramUser && (
-                                                                    <div className="flex justify-center px-2">
+                                                                {/* Stats & Actions - Compact Layout */}
+                                                                <div className="space-y-3">
+                                                                    {/* Stats - Compact */}
+                                                                    <div className="flex items-center justify-center gap-3">
                                                                         <motion.div
-                                                                            whileHover={{ scale: 1.02, y: -2 }}
-                                                                            whileTap={{ scale: 0.98 }}
-                                                                            className="w-full max-w-xs"
+                                                                            initial={{ scale: 0.9, opacity: 0 }}
+                                                                            animate={{ scale: 1, opacity: 1 }}
+                                                                            transition={{ delay: 0.2 }}
+                                                                            className="flex items-center gap-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 dark:from-violet-500/10 dark:to-purple-500/10 px-4 py-2 rounded-xl border border-violet-500/30 backdrop-blur-sm"
                                                                         >
-                                                                            <Button
-                                                                                onClick={handleShare}
-                                                                                size="lg"
-                                                                                className="w-full h-12 sm:h-14 text-sm sm:text-base font-black bg-gradient-to-r from-violet-500 via-purple-600 to-indigo-600 hover:from-violet-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transition-all relative overflow-hidden group"
-                                                                            >
-                                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                                                                                <Share2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 relative z-10" />
-                                                                                <span className="relative z-10">Поделиться</span>
-                                                                            </Button>
+                                                                            <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                                                            <div className="flex items-baseline gap-1">
+                                                                                <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">{duelState.opponentJoined ? '2' : '1'}</span>
+                                                                                <span className="text-muted-foreground/50 text-sm">/</span>
+                                                                                <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">2</span>
+                                                                                <span className="text-xs text-muted-foreground ml-1">игроков</span>
+                                                                            </div>
+                                                                        </motion.div>
+                                                                        
+                                                                        <motion.div
+                                                                            initial={{ scale: 0.9, opacity: 0 }}
+                                                                            animate={{ scale: 1, opacity: 1 }}
+                                                                            transition={{ delay: 0.25 }}
+                                                                            className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 dark:from-blue-500/10 dark:to-indigo-500/10 px-4 py-2 rounded-xl border border-blue-500/30 backdrop-blur-sm"
+                                                                        >
+                                                                            <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                            <span className="font-mono font-black text-lg text-blue-700 dark:text-blue-300">
+                                                                                {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
+                                                                            </span>
                                                                         </motion.div>
                                                                     </div>
-                                                                )}
 
-                                                                {/* Cancel Button */}
-                                                                {!duelState.opponentJoined && (
-                                                                    <motion.div
-                                                                        initial={{ opacity: 0, y: 10 }}
-                                                                        animate={{ opacity: 1, y: 0 }}
-                                                                        transition={{ delay: 0.5 }}
-                                                                        className="flex justify-center"
-                                                                    >
-                                                                        <Button
-                                                                            onClick={handleCancelDuel}
-                                                                            variant="ghost"
-                                                                            size="sm"
-                                                                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
-                                                                        >
-                                                                            <X className="mr-2 h-4 w-4" />
-                                                                            Отменить дуэль
-                                                                        </Button>
-                                                                    </motion.div>
-                                                                )}
-
-                                                                {/* Stats - Premium */}
-                                                                <div className="flex items-center justify-center gap-4 sm:gap-6 text-base pt-4">
-                                                                    <motion.div
-                                                                        initial={{ scale: 0, rotate: -180 }}
-                                                                        animate={{ scale: 1, rotate: 0 }}
-                                                                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                                                                        className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-violet-500/25 to-purple-500/25 dark:from-violet-500/15 dark:to-purple-500/15 px-5 sm:px-7 py-3 sm:py-4 rounded-2xl border-2 border-violet-500/40 shadow-lg backdrop-blur-sm"
-                                                                    >
-                                                                        <div className="p-2 rounded-xl bg-emerald-500/20">
-                                                                            <Users className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
-                                                                        </div>
-                                                                        <div className="flex items-baseline gap-1.5">
-                                                                            <span className="font-black text-xl sm:text-2xl text-emerald-700 dark:text-emerald-300">{duelState.opponentJoined ? '2' : '1'}</span>
-                                                                            <span className="text-muted-foreground/60 text-lg">/</span>
-                                                                            <span className="font-black text-xl sm:text-2xl text-emerald-700 dark:text-emerald-300">2</span>
-                                                                        </div>
-                                                                        <span className="text-muted-foreground text-xs sm:text-sm font-medium">игроков</span>
-                                                                    </motion.div>
-                                                                    <motion.div
-                                                                        initial={{ scale: 0, rotate: 180 }}
-                                                                        animate={{ scale: 1, rotate: 0 }}
-                                                                        transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                                                                        className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-500/25 to-cyan-500/25 dark:from-blue-500/15 dark:to-cyan-500/15 px-5 sm:px-7 py-3 sm:py-4 rounded-2xl border-2 border-blue-500/40 shadow-lg backdrop-blur-sm"
-                                                                    >
-                                                                        <div className="p-2 rounded-xl bg-blue-500/20">
-                                                                            <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" />
-                                                                        </div>
-                                                                        <span className="font-mono font-black text-xl sm:text-2xl text-blue-700 dark:text-blue-300">
-                                                                            {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
-                                                                        </span>
-                                                                    </motion.div>
+                                                                    {/* Action Buttons - Compact */}
+                                                                    <div className="flex flex-col sm:flex-row gap-2">
+                                                                        {isTelegramUser && (
+                                                                            <Button
+                                                                                onClick={handleShare}
+                                                                                size="default"
+                                                                                className="flex-1 h-10 text-sm font-semibold bg-gradient-to-r from-violet-500 via-purple-600 to-indigo-600 hover:from-violet-600 hover:via-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+                                                                            >
+                                                                                <Share2 className="mr-2 h-4 w-4" />
+                                                                                Поделиться
+                                                                            </Button>
+                                                                        )}
+                                                                        
+                                                                        {!duelState.opponentJoined && (
+                                                                            <Button
+                                                                                onClick={handleCancelDuel}
+                                                                                variant="ghost"
+                                                                                size="default"
+                                                                                className="flex-1 h-10 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
+                                                                            >
+                                                                                <X className="mr-2 h-4 w-4" />
+                                                                                Отменить
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
 
-                                                                {/* Opponent Joined Animation - Premium */}
+                                                                {/* Opponent Joined Animation - Compact */}
                                                                 <AnimatePresence>
                                                                     {duelState.opponentJoined && (
                                                                         <motion.div
-                                                                            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                                                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                                                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                                            exit={{ opacity: 0, scale: 0.8 }}
-                                                                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                                                            className="relative bg-gradient-to-r from-green-500/30 via-emerald-500/30 to-green-500/30 dark:from-green-500/20 dark:via-emerald-500/20 dark:to-green-500/20 border-2 border-green-500/60 rounded-3xl p-8 sm:p-10 shadow-2xl shadow-green-500/30 overflow-hidden"
+                                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                                            className="relative bg-gradient-to-r from-green-500/25 via-emerald-500/25 to-green-500/25 dark:from-green-500/15 dark:via-emerald-500/15 dark:to-green-500/15 border-2 border-green-500/50 rounded-xl p-4 shadow-lg shadow-green-500/20 overflow-hidden"
                                                                         >
-                                                                            {/* Animated background */}
-                                                                            <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-green-400/20 animate-pulse" />
-
-                                                                            <motion.div
-                                                                                animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-                                                                                transition={{ duration: 2, repeat: Infinity }}
-                                                                                className="flex items-center justify-center gap-4 mb-4 relative z-10"
-                                                                            >
+                                                                            <div className="flex items-center justify-center gap-2 relative z-10">
                                                                                 <motion.div
                                                                                     animate={{ rotate: 360 }}
-                                                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                                                                 >
-                                                                                    <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-green-500" />
+                                                                                    <Sparkles className="h-4 w-4 text-green-500" />
                                                                                 </motion.div>
-                                                                                <p className="text-green-700 dark:text-green-300 font-black text-2xl sm:text-3xl">
+                                                                                <p className="text-green-700 dark:text-green-300 font-black text-lg">
                                                                                     Соперник найден!
                                                                                 </p>
                                                                                 <motion.div
                                                                                     animate={{ rotate: -360 }}
-                                                                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                                                                 >
-                                                                                    <Sparkles className="h-7 w-7 sm:h-8 sm:w-8 text-green-500" />
+                                                                                    <Sparkles className="h-4 w-4 text-green-500" />
                                                                                 </motion.div>
-                                                                            </motion.div>
+                                                                            </div>
                                                                             <motion.p
                                                                                 initial={{ opacity: 0, y: 10 }}
                                                                                 animate={{ opacity: 1, y: 0 }}
