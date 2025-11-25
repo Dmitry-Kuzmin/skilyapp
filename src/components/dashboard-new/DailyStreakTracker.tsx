@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 interface DailyStreakTrackerProps {
   currentStreak: number;
@@ -17,6 +18,8 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
   hasClaimedToday,
   weekNumber = 1,
 }) => {
+  const { resolvedTheme } = useTheme();
+  const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Array<{
     x: number;
@@ -169,8 +172,8 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
         className="absolute inset-0 pointer-events-none opacity-30"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
+            linear-gradient(${isDarkTheme ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.05)'} 1px, transparent 1px),
+            linear-gradient(90deg, ${isDarkTheme ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.05)'} 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px',
         }}
@@ -184,16 +187,30 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
       />
 
       {/* Card */}
-      <div className="relative bg-[#0f1623] border border-[#1e293b] rounded-[40px] p-8 shadow-2xl overflow-hidden">
+      <div className={`relative rounded-[40px] p-8 shadow-2xl overflow-hidden ${
+        isDarkTheme 
+          ? 'bg-[#0f1623] border border-[#1e293b]' 
+          : 'bg-white/95 border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.1)]'
+      }`}>
         {/* Header */}
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h1 className="text-2xl font-bold mb-2 text-white">Ежедневная серия</h1>
-            <div className="inline-block bg-slate-800/50 border border-slate-700 rounded-full px-3 py-1 text-sm text-slate-300">
+            <h1 className={`text-2xl font-bold mb-2 ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
+              Ежедневная серия
+            </h1>
+            <div className={`inline-block rounded-full px-3 py-1 text-sm ${
+              isDarkTheme 
+                ? 'bg-slate-800/50 border border-slate-700 text-slate-300' 
+                : 'bg-slate-100/80 border border-slate-200 text-slate-600'
+            }`}>
               Неделя {weekNumber}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-slate-800/50 border border-slate-700 flex items-center justify-center text-yellow-400">
+          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+            isDarkTheme 
+              ? 'bg-slate-800/50 border border-slate-700 text-yellow-400' 
+              : 'bg-amber-50/80 border border-amber-200 text-amber-600'
+          }`}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2l-8 4v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"></path>
               <path d="M12 22V6"></path>
@@ -204,16 +221,24 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
         </div>
 
         {/* Info Box */}
-        <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-3 mb-8">
-          <p className="text-sm text-slate-400">
+        <div className={`rounded-xl p-3 mb-8 ${
+          isDarkTheme 
+            ? 'bg-slate-800/30 border border-slate-700/50' 
+            : 'bg-slate-50/80 border border-slate-200/60'
+        }`}>
+          <p className={`text-sm ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
             {remaining > 0 ? (
               <>
                 До звания «Недельный герой» осталось{' '}
-                <span className="text-white font-bold">{remaining}</span> {getDayWord(remaining)}
+                <span className={`font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
+                  {remaining}
+                </span> {getDayWord(remaining)}
               </>
             ) : (
               <>
-                <span className="text-yellow-400 font-bold">Поздравляем!</span> Вы — Недельный герой!
+                <span className={`font-bold ${isDarkTheme ? 'text-yellow-400' : 'text-amber-600'}`}>
+                  Поздравляем!
+                </span> Вы — Недельный герой!
               </>
             )}
           </p>
@@ -229,7 +254,7 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
               cy="60"
               r="54"
               fill="none"
-              stroke="#1e293b"
+              stroke={isDarkTheme ? '#1e293b' : '#e2e8f0'}
               strokeWidth="8"
               strokeLinecap="round"
             />
@@ -279,8 +304,12 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
                 <path d="M12 12c0 2-1 3-1 3s2-1 2-3-1-3-1-3z" fill="#ffb700" />
               </svg>
             </motion.div>
-            <div className="text-5xl font-bold leading-none mb-1 text-white">{progress}</div>
-            <div className="text-xs font-bold uppercase tracking-widest text-slate-500">дней</div>
+            <div className={`text-5xl font-bold leading-none mb-1 ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
+              {progress}
+            </div>
+            <div className={`text-xs font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-500' : 'text-slate-400'}`}>
+              дней
+            </div>
           </div>
         </div>
 
@@ -294,7 +323,9 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
                 className={`w-8 h-2 rounded-full transition-all duration-300 ${
                   isActive
                     ? 'bg-gradient-to-r from-[#ff4d00] to-[#ffb700] shadow-[0_0_10px_rgba(255,123,0,0.5)]'
-                    : 'bg-slate-700'
+                    : isDarkTheme 
+                      ? 'bg-slate-700' 
+                      : 'bg-slate-200'
                 }`}
               />
             );
@@ -307,7 +338,9 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
           onClick={handleClick}
           className={`w-full py-4 rounded-2xl border font-bold tracking-wide flex items-center justify-center gap-2 transition-all duration-300 ${
             hasClaimedToday
-              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500 hover:bg-emerald-500/20 active:scale-95'
+              ? isDarkTheme
+                ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500 hover:bg-emerald-500/20 active:scale-95'
+                : 'bg-emerald-50/80 border-emerald-300 text-emerald-700 hover:bg-emerald-100/80 active:scale-95'
               : 'bg-gradient-to-r from-[#ff4d00] to-[#ffb700] border-transparent text-white shadow-[0_4px_15px_rgba(255,123,0,0.3)] hover:brightness-110 active:scale-95'
           }`}
         >
