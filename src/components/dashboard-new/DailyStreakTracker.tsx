@@ -127,8 +127,10 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = () => {
+    // Всегда запускаем конфетти для тестирования
+    fireConfetti();
+    // Вызываем onClaim только если еще не получили награду сегодня
     if (!hasClaimedToday) {
-      fireConfetti();
       onClaim();
     }
   };
@@ -282,10 +284,9 @@ export const DailyStreakTracker: React.FC<DailyStreakTrackerProps> = ({
         <button
           ref={buttonRef}
           onClick={handleClick}
-          disabled={hasClaimedToday}
           className={`w-full py-4 rounded-2xl border font-bold tracking-wide flex items-center justify-center gap-2 transition-all duration-300 ${
             hasClaimedToday
-              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500 cursor-not-allowed'
+              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500 hover:bg-emerald-500/20 active:scale-95'
               : 'bg-gradient-to-r from-[#ff4d00] to-[#ffb700] border-transparent text-white shadow-[0_4px_15px_rgba(255,123,0,0.3)] hover:brightness-110 active:scale-95'
           }`}
         >
