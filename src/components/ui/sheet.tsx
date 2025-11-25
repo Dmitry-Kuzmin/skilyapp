@@ -240,16 +240,25 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       
       if (contentRef.current && modalHeightRef.current) {
         // Instagram-стиль: динамический порог закрытия (25-30% высоты модалки)
-        const closeThreshold = modalHeightRef.current * 0.28; // 28% высоты
+        // Но с минимальным и максимальным значениями для предсказуемости
+        const minThreshold = 100; // Минимум 100px
+        const maxThreshold = 200; // Максимум 200px
+        const dynamicThreshold = modalHeightRef.current * 0.25; // 25% высоты
+        const closeThreshold = Math.max(minThreshold, Math.min(maxThreshold, dynamicThreshold));
         
         // Учитываем инерцию: если скорость свайпа высокая, снижаем порог
-        const velocityThreshold = 0.5; // px/ms
+        const velocityThreshold = 0.3; // px/ms (снижен для более чувствительной инерции)
         const hasHighVelocity = Math.abs(velocityRef.current) > velocityThreshold;
         
         // Решение о закрытии: либо превышен порог, либо высокая скорость
-        const shouldClose = currentY && (
-          currentY > closeThreshold || 
-          (hasHighVelocity && currentY > closeThreshold * 0.5 && velocityRef.current > 0)
+        // Также закрываем если свайпнули больше 50% высоты (на всякий случай)
+        const dragDistance = currentY || 0;
+        const halfHeight = modalHeightRef.current * 0.5;
+        
+        const shouldClose = dragDistance > 0 && (
+          dragDistance > closeThreshold || 
+          dragDistance > halfHeight || // Если свайпнули больше половины - точно закрываем
+          (hasHighVelocity && dragDistance > closeThreshold * 0.4 && velocityRef.current > 0)
         );
         
         if (shouldClose) {
