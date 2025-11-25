@@ -831,40 +831,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                 />
               </motion.div>
             );
-          } else {
-            return (
-              <motion.div
-                key={particle.id}
-                className={`fixed pointer-events-none ${particle.type === 'burst' ? 'rounded-full' : 'rounded-full'}`}
-                style={{
-                  left: `${particle.x}px`,
-                  top: `${particle.y}px`,
-                  width: `${particle.size * 6}px`,
-                  height: `${particle.size * 6}px`,
-                  background: particle.type === 'burst' 
-                    ? `radial-gradient(circle, ${particle.color}, ${particle.color}80, transparent)`
-                    : particle.color,
-                  boxShadow: `0 0 ${particle.size * 4}px ${particle.color}, 0 0 ${particle.size * 8}px ${particle.color}60, 0 0 ${particle.size * 12}px ${particle.color}40`,
-                }}
-                initial={{ 
-                  scale: 0, 
-                  opacity: 1,
-                  x: 0,
-                  y: 0,
-                }}
-                animate={{ 
-                  scale: particle.type === 'burst' ? [0, 2, 3, 0] : [0, 1.5, 0],
-                  opacity: [1, 1, 0.8, 0],
-                  x: x,
-                  y: y,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: baseDuration,
-                  ease: "easeOut",
-                }}
-              />
-            );
           } else if (particle.type === 'confetti') {
             // Конфетти - простые круги с гравитацией (как в HTML)
             return (
@@ -897,6 +863,40 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                 transition={{
                   duration: baseDuration,
                   ease: particle.vx !== undefined ? "linear" : "easeOut",
+                }}
+              />
+            );
+          } else {
+            return (
+              <motion.div
+                key={particle.id}
+                className={`fixed pointer-events-none ${particle.type === 'burst' ? 'rounded-full' : 'rounded-full'}`}
+                style={{
+                  left: `${particle.x}px`,
+                  top: `${particle.y}px`,
+                  width: `${particle.size * 6}px`,
+                  height: `${particle.size * 6}px`,
+                  background: particle.type === 'burst' 
+                    ? `radial-gradient(circle, ${particle.color}, ${particle.color}80, transparent)`
+                    : particle.color,
+                  boxShadow: `0 0 ${particle.size * 4}px ${particle.color}, 0 0 ${particle.size * 8}px ${particle.color}60, 0 0 ${particle.size * 12}px ${particle.color}40`,
+                }}
+                initial={{ 
+                  scale: 0, 
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                }}
+                animate={{ 
+                  scale: particle.type === 'burst' ? [0, 2, 3, 0] : [0, 1.5, 0],
+                  opacity: [1, 1, 0.8, 0],
+                  x: x,
+                  y: y,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: baseDuration,
+                  ease: "easeOut",
                 }}
               />
             );
