@@ -276,6 +276,14 @@ const translations: Record<Language, Record<string, any>> = {
         premiumHint: "💡 Consigue más monedas con Premium",
         successTitle: "✅ Pago exitoso!",
         successDescription: "Recibiste {{amount}} monedas",
+        purpose: "Para boosts, duelos y entradas premium",
+        perCoin: "€{{price}} / moneda",
+        deliveryHint: "Entrega instantánea · Pagos seguros",
+        buyPackAria: "Comprar paquete de {{amount}} monedas",
+        tags: {
+          starter: "Ideal para empezar",
+          bestValue: "Mejor oferta",
+        },
       },
       premium: {
         title: "Suscripción Premium",
@@ -959,6 +967,14 @@ const translations: Record<Language, Record<string, any>> = {
         premiumHint: "💡 Get more coins with Premium",
         successTitle: "✅ Payment successful!",
         successDescription: "You received {{amount}} coins",
+        purpose: "For boosts, duels and premium entries",
+        perCoin: "€{{price}} / coin",
+        deliveryHint: "Instant delivery · Secure payments",
+        buyPackAria: "Buy {{amount}} coin pack",
+        tags: {
+          starter: "Starter pack",
+          bestValue: "Best value",
+        },
       },
       premium: {
         title: "Premium subscription",
@@ -1624,6 +1640,14 @@ const translations: Record<Language, Record<string, any>> = {
         premiumHint: "💡 Получайте больше монет с Premium",
         successTitle: "✅ Оплата успешна!",
         successDescription: "Вы получили {{amount}} монет",
+        purpose: "Для бустов, дуэлей и премиум-доступа",
+        perCoin: "€{{price}} за монету",
+        deliveryHint: "Мгновенное зачисление · Безопасная оплата",
+        buyPackAria: "Купить пакет на {{amount}} монет",
+        tags: {
+          starter: "Быстрый старт",
+          bestValue: "Выгоднее всего",
+        },
       },
       premium: {
         title: "Premium подписка",
