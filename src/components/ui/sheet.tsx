@@ -108,6 +108,35 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         mutations.forEach((mutation) => {
           if (mutation.type === 'attributes' && mutation.attributeName === 'data-state') {
             const newState = contentRef.current?.getAttribute('data-state');
+            
+            // Если модалка открылась, сбрасываем все состояния для нового сеанса
+            if (newState === 'open') {
+              // Сбрасываем флаг закрытия
+              isClosingRef.current = false;
+              
+              // Сбрасываем все состояния свайпа
+              setStartY(null);
+              setCurrentY(null);
+              setIsDragging(false);
+              
+              // Сбрасываем все refs
+              velocityRef.current = 0;
+              lastYRef.current = null;
+              lastTimeRef.current = null;
+              modalHeightRef.current = null;
+              
+              // Убираем все кастомные стили
+              if (contentRef.current) {
+                contentRef.current.style.transform = '';
+                contentRef.current.style.transition = '';
+                contentRef.current.style.touchAction = '';
+              }
+              
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[Sheet] Modal opened - all states reset');
+              }
+            }
+            
             // Если модалка закрылась, сбрасываем все состояния свайпа и кастомные стили
             if (newState === 'closed') {
               // Сбрасываем флаг закрытия
@@ -131,6 +160,16 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               setStartY(null);
               setCurrentY(null);
               setIsDragging(false);
+              
+              // Сбрасываем все refs
+              velocityRef.current = 0;
+              lastYRef.current = null;
+              lastTimeRef.current = null;
+              modalHeightRef.current = null;
+              
+              if (process.env.NODE_ENV === 'development') {
+                console.log('[Sheet] Modal closed - all states reset');
+              }
             }
           }
         });
@@ -309,10 +348,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             if (process.env.NODE_ENV === 'development') {
               console.log('[Sheet] Method 1: onOpenChange(false) called directly');
             }
-            // Сбрасываем флаг после завершения анимации
-            setTimeout(() => {
-              isClosingRef.current = false;
-            }, 200);
+            // MutationObserver сбросит isClosingRef при закрытии, не нужно делать это здесь
             return; // Выходим, так как закрытие должно произойти
           } catch (error) {
             console.error('[Sheet] Error calling onOpenChange:', error);
@@ -327,10 +363,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             if (process.env.NODE_ENV === 'development') {
               console.log('[Sheet] Method 2: Close button clicked');
             }
-            // Сбрасываем флаг после завершения анимации
-            setTimeout(() => {
-              isClosingRef.current = false;
-            }, 200);
+            // MutationObserver сбросит isClosingRef при закрытии, не нужно делать это здесь
             return;
           }
         } catch (error) {
@@ -373,13 +406,10 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           // Если ничего не сработало
           if (!props.onOpenChange) {
             console.warn('[Sheet] No way to close modal - onOpenChange not provided and no close button found!');
+            // Если не удалось закрыть, сбрасываем флаг вручную
+            isClosingRef.current = false;
           }
         }, 0);
-        
-        // Сбрасываем флаг после завершения анимации
-        setTimeout(() => {
-          isClosingRef.current = false;
-        }, 200);
       } else {
           // Instagram-стиль: возврат на место с spring animation
           const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
