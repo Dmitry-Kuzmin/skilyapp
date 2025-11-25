@@ -83,7 +83,8 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
                   {/* LED Indicator */}
                   <div className="w-16 h-2 rounded-full bg-black/80 mb-4 overflow-hidden border border-white/5 shadow-[inset_0_1px_3px_rgba(0,0,0,1)]">
                     <div 
-                      className={`h-full bg-gradient-to-r from-indigo-600 to-purple-400 shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all duration-[1500ms] ease-out ${isIgniting ? 'w-full' : 'w-0'}`}
+                      className={`h-full bg-gradient-to-r from-indigo-600 to-purple-400 shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all ease-out ${isIgniting ? 'w-full' : 'w-0'}`}
+                      style={{ transitionDuration: '1500ms' }}
                     ></div>
                   </div>
 
@@ -126,8 +127,8 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete }) =>
             className="group relative w-56 h-56 flex items-center justify-center cursor-pointer focus:outline-none"
           >
             {/* Rotating outer ring */}
-            <div className={`absolute inset-0 rounded-full border border-indigo-500/30 border-dashed transition-all duration-[2s] ${isIgniting ? 'animate-spin-slow border-emerald-500/50' : ''}`}></div>
-            <div className={`absolute inset-2 rounded-full border border-indigo-500/20 border-dotted transition-all duration-[3s] ${isIgniting ? 'animate-spin-slow border-emerald-500/30' : ''}`} style={{ animationDirection: 'reverse' }}></div>
+            <div className={`absolute inset-0 rounded-full border border-indigo-500/30 border-dashed transition-all ${isIgniting ? 'animate-spin-slow border-emerald-500/50' : ''}`} style={{ transitionDuration: '2s' }}></div>
+            <div className={`absolute inset-2 rounded-full border border-indigo-500/20 border-dotted transition-all ${isIgniting ? 'animate-spin-slow border-emerald-500/30' : ''}`} style={{ animationDirection: 'reverse', transitionDuration: '3s' }}></div>
 
             {/* Hexagon Glass Container */}
             <div className={`relative w-40 h-40 bg-slate-900/50 backdrop-blur-xl rounded-3xl border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.2)] flex items-center justify-center overflow-hidden transition-all duration-500 ${isIgniting ? 'border-emerald-500/50 bg-emerald-900/20 shadow-[0_0_50px_rgba(16,185,129,0.4)]' : 'group-hover:border-indigo-400/50 group-hover:shadow-[0_0_40px_rgba(99,102,241,0.4)]'}`}>

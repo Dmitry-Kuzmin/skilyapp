@@ -40,9 +40,10 @@ export const StartEngineButton: React.FC<StartEngineButtonProps> = ({
 
             <div className="w-16 h-2 rounded-full bg-black/80 mb-4 overflow-hidden border border-white/5 shadow-[inset_0_1px_3px_rgba(0,0,0,1)]">
               <div
-                className={`h-full bg-gradient-to-r from-indigo-600 to-purple-400 shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all duration-[1500ms] ease-out ${
+                className={`h-full bg-gradient-to-r from-indigo-600 to-purple-400 shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all ease-out ${
                   isIgniting ? "w-full" : "w-0"
                 }`}
+                style={{ transitionDuration: '1500ms' }}
               ></div>
             </div>
 
