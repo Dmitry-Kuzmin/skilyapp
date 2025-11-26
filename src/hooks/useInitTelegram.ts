@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isTelegramMobilePlatformName } from "@/lib/telegram";
 
 /**
  * Хук для инициализации Telegram WebApp
@@ -35,7 +36,7 @@ export function useInitTelegram() {
     
     const getPlatformInfo = () => {
       const platform = tg.platform || 'unknown';
-      const isMobilePlatform = platform === 'ios' || platform === 'android';
+      const isMobilePlatform = isTelegramMobilePlatformName(platform);
       return { platform, isMobilePlatform };
     };
 

@@ -10,7 +10,7 @@ import { SettingsDrawer } from "./SettingsDrawer";
 import { ProfileModal } from "./ProfileModal";
 import { AuthModal } from "./AuthModal";
 import { TelegramNavigation } from "./TelegramNavigation";
-import { isTelegramMiniApp } from "@/lib/telegram";
+import { isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
 import { NotificationsPanel } from "./NotificationsPanel";
 import { UserProfilePopover } from "./UserProfilePopover";
 import { TelegramSafeAreaDebug } from "./TelegramSafeAreaDebug";
@@ -118,7 +118,7 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
     const detectPlatform = () => {
       const platform = window.Telegram?.WebApp?.platform;
       if (platform) {
-        const isMobilePlatform = platform === 'ios' || platform === 'android';
+        const isMobilePlatform = isTelegramMobilePlatformName(platform);
         setIsTelegramMobilePlatform(isMobilePlatform);
       } else {
         setIsTelegramMobilePlatform(null);

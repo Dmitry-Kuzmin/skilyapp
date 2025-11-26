@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
+import { getTelegramWebApp, isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
 
 export const TelegramNavigation = () => {
   const location = useLocation();
@@ -99,7 +99,7 @@ export const TelegramNavigation = () => {
 
     const getPlatformInfo = () => {
       const platform = webApp.platform || 'unknown';
-      const isMobilePlatform = platform === 'ios' || platform === 'android';
+      const isMobilePlatform = isTelegramMobilePlatformName(platform);
       return { platform, isMobilePlatform };
     };
 

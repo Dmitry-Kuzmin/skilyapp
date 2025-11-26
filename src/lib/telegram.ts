@@ -5,6 +5,24 @@ export const getTelegramWebApp = () => {
   return null;
 };
 
+const normalizePlatform = (platform?: string | null) => (platform || '').toLowerCase();
+
+export const isTelegramMobilePlatformName = (platform?: string | null) => {
+  const normalized = normalizePlatform(platform);
+  return normalized.startsWith('ios') || normalized.startsWith('android');
+};
+
+export const isTelegramDesktopPlatformName = (platform?: string | null) => {
+  const normalized = normalizePlatform(platform);
+  return (
+    normalized === 'tdesktop' ||
+    normalized === 'macos' ||
+    normalized === 'windows' ||
+    normalized === 'linux' ||
+    normalized === 'web'
+  );
+};
+
 export const isTelegramMiniApp = () => {
   // Строгая проверка: только если действительно в Telegram Web App
   if (typeof window === 'undefined') return false;
