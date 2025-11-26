@@ -84,17 +84,19 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               {copy.controls.telegramApp}
             </button>
           </div>
-          <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-700/70 rounded-full px-3 py-1 text-[11px] uppercase tracking-widest text-slate-500">
-            {copy.controls.languageLabel}
-            <div className="flex gap-1">
+          <div className="flex items-center gap-2">
+            <span className="hidden md:inline text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500">
+              {copy.controls.languageLabel}
+            </span>
+            <div className="flex items-center bg-slate-900/70 border border-slate-800/70 rounded-full p-0.5 text-[11px] uppercase tracking-[0.2em] text-slate-400 shadow-[0_8px_30px_rgba(15,23,42,0.35)]">
               {LANGUAGE_OPTIONS.map((option) => (
                 <button
                   key={option.code}
                   onClick={() => handleLanguageChange(option.code)}
-                  className={`px-2 py-1 rounded-full text-xs font-semibold transition-all ${
+                  className={`min-w-[36px] px-2 py-1 rounded-full text-[10px] font-bold transition-all ${
                     option.code === language
-                      ? "bg-white text-slate-900"
-                      : "text-slate-300 hover:text-white"
+                      ? "bg-white text-slate-900 shadow-sm"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
                   {option.label}
@@ -117,7 +119,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           {copy.hero.badge}
         </div>
 
-        <h1 className="text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.9] animate-slide-up select-none drop-shadow-2xl text-balance">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight md:tracking-tighter mb-6 md:mb-8 leading-[1.05] sm:leading-[0.95] animate-slide-up select-none drop-shadow-2xl text-balance max-w-4xl">
           <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-400 block pb-2">
             {copy.hero.titleTop}
           </span>

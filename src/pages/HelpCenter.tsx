@@ -1409,12 +1409,14 @@ Premium подписка включает все преимущества, оп�
                         <div className="prose prose-gray dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold">
                           <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
                             {(() => {
+                              if (!subsection.content) return null;
                               const lines = subsection.content.split('\n');
                               const processedLines: JSX.Element[] = [];
                               let inTable = false;
                               let tableRows: string[] = [];
                               
                               lines.forEach((line, idx) => {
+                                if (!line) return;
                                 // Обработка таблиц
                                 if (line.includes('|') && line.trim().startsWith('|')) {
                                   const isSeparator = line.includes('---') || line.match(/^\|\s*:?-+:?\s*\|/);
@@ -1434,8 +1436,9 @@ Premium подписка включает все преимущества, оп�
                                     if (tableRows.length > 0) {
                                       // Первая строка - заголовок, остальные - данные
                                       const headerRow = tableRows[0];
+                                      if (!headerRow) return;
                                       const dataRows = tableRows.slice(1);
-                                      const headerCells = headerRow.split('|').filter(c => c.trim()).map(c => c.trim());
+                                      const headerCells = (headerRow || '').split('|').filter(c => c.trim()).map(c => c.trim());
                                       const colCount = headerCells.length;
                                       
                                       processedLines.push(
@@ -1454,7 +1457,8 @@ Premium подписка включает все преимущества, оп�
                                             </div>
                                             {/* Данные */}
                                             {dataRows.length > 0 ? dataRows.map((row, rowIdx) => {
-                                              const cells = row.split('|').filter(c => c.trim()).map(c => c.trim());
+                                              if (!row) return null;
+                                              const cells = (row || '').split('|').filter(c => c.trim()).map(c => c.trim());
                                               return (
                                                 <div key={rowIdx} className={cn(
                                                   "grid gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 last:border-b-0 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-200",
@@ -1525,10 +1529,10 @@ Premium подписка включает все преимущества, оп�
                                 }
                                 
                                 // Обычный текст
-                                if (line.trim()) {
+                                if (line && line.trim()) {
                                   processedLines.push(
                                     <p key={idx} className="mb-3 text-gray-700 dark:text-gray-300">
-                                      {line.split('**').map((part, partIdx) => 
+                                      {(line || '').split('**').map((part, partIdx) => 
                                         partIdx % 2 === 1 ? <strong key={partIdx} className="font-semibold text-gray-900 dark:text-gray-100">{part}</strong> : part
                                       )}
                                     </p>
