@@ -441,6 +441,7 @@ const translations: Record<Language, Record<string, any>> = {
       duelPassTooltipMobile: "Nivel Duel Pass {{level}} - {{xp}} SP",
       duelPassTooltipDesktop: "Nivel Duel Pass {{level}} - haz clic para ver la temporada",
       duelPassRewardReady: "¡Recompensa lista! Toca para reclamarla",
+      duelPassRewardCTA: "Reclamar",
     },
     duelPass: {
       title: "Duel Pass",
@@ -1145,6 +1146,7 @@ const translations: Record<Language, Record<string, any>> = {
       duelPassTooltipMobile: "Duel Pass level {{level}} - {{xp}} SP",
       duelPassTooltipDesktop: "Duel Pass level {{level}} - click to view the season",
       duelPassRewardReady: "Reward ready — tap to claim",
+      duelPassRewardCTA: "Claim",
     },
     duelPass: {
       title: "Duel Pass",
@@ -1831,6 +1833,7 @@ const translations: Record<Language, Record<string, any>> = {
       duelPassTooltipMobile: "Duel Pass уровень {{level}} - {{xp}} SP",
       duelPassTooltipDesktop: "Duel Pass уровень {{level}} - нажмите, чтобы открыть сезон",
       duelPassRewardReady: "Награда ждёт — нажми, чтобы забрать",
+      duelPassRewardCTA: "Забрать",
     },
     duelPass: {
       title: "Duel Pass",
