@@ -477,29 +477,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                   )}
                 </>
               )}
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-                onClick={() => setShowRewardsInfo(!showRewardsInfo)}
-                className={`w-8 h-8 rounded-full ${
-                  isDarkTheme
-                    ? 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-indigo-500/50'
-                    : 'bg-slate-100/80 hover:bg-slate-200 border-slate-200/60 hover:border-indigo-400/60'
-                } border flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
-              >
-                {showRewardsInfo ? (
-                  <X size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
-                ) : (
-                  <Info size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
-                )}
-              </motion.button>
-            </div>
-          </div>
-        </div>
-        
-        {/* placeholder for layout balance */}
-        <div className="hidden sm:block w-8" />
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -517,7 +494,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               <Info size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
             )}
           </motion.button>
+            </div>
         </div>
+        </div>
+        
       </div>
 
       {/* Main Gauge */}

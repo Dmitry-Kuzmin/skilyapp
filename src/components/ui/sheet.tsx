@@ -127,10 +127,10 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               
               // Убираем все кастомные стили через requestAnimationFrame для гарантии
               requestAnimationFrame(() => {
-                if (contentRef.current) {
-                  contentRef.current.style.transform = '';
-                  contentRef.current.style.transition = '';
-                  contentRef.current.style.touchAction = '';
+              if (contentRef.current) {
+                contentRef.current.style.transform = '';
+                contentRef.current.style.transition = '';
+                contentRef.current.style.touchAction = '';
                   contentRef.current.style.opacity = '';
                   contentRef.current.style.height = '';
                   contentRef.current.style.maxHeight = '';
@@ -263,14 +263,14 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       } else {
         // Если контент не скроллится или мы вверху - разрешаем свайп с любой точки верха
         if (touchY - rect.top < 100) { // Увеличиваем зону для лучшего UX
-          setStartY(touchY);
-          setIsDragging(true);
+        setStartY(touchY);
+        setIsDragging(true);
           velocityRef.current = 0;
           lastYRef.current = touchY;
           lastTimeRef.current = Date.now();
           
-          if (contentRef.current) {
-            contentRef.current.style.touchAction = 'pan-y';
+        if (contentRef.current) {
+          contentRef.current.style.touchAction = 'pan-y';
           }
         }
       }
@@ -418,7 +418,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           // Способ 1: Через props.onOpenChange (приоритетный способ)
           if (props.onOpenChange) {
             try {
-              props.onOpenChange(false);
+            props.onOpenChange(false);
               if (process.env.NODE_ENV === 'development') {
                 console.log('[Sheet] Method 1: onOpenChange(false) called after style cleanup');
               }
@@ -468,7 +468,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             }
           }, 500);
         });
-      } else {
+        } else {
           // Instagram-стиль: возврат на место с spring animation
           const isStillOpen = contentRef.current.getAttribute('data-state') === 'open';
           
@@ -476,29 +476,29 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             // Плавный возврат с easing (spring-like)
             requestAnimationFrame(() => {
               if (contentRef.current) {
-                contentRef.current.style.transform = '';
+          contentRef.current.style.transform = '';
                 // Используем spring-like easing для естественного возврата
                 contentRef.current.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
               }
-              
-              const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
-              if (overlay) {
-                overlay.style.opacity = '0.8';
+            
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          if (overlay) {
+            overlay.style.opacity = '0.8';
                 overlay.style.transition = 'opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-              }
+            }
             });
           } else {
             // Если модалка уже закрыта, просто сбрасываем стили
             if (contentRef.current) {
-              contentRef.current.style.transform = '';
-              contentRef.current.style.transition = '';
-            }
+            contentRef.current.style.transform = '';
+            contentRef.current.style.transition = '';
           }
+        }
         
         // Восстанавливаем touchAction после небольшой задержки
         setTimeout(() => {
           if (contentRef.current) {
-            contentRef.current.style.touchAction = '';
+        contentRef.current.style.touchAction = '';
           }
         }, 50);
       }
@@ -512,7 +512,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       lastTimeRef.current = null;
       modalHeightRef.current = null;
     };
-    
+
     return (
       <SheetPortal>
         <SheetOverlay />

@@ -146,7 +146,7 @@ const DialogContent = React.forwardRef<
         ref={ref}
         className={cn(
           // Базовые стили для dialog
-          "fixed left-[50%] top-[50%] z-[2147483646] grid w-full gap-4 border border-white/10 dark:border-white/6 bg-background/95 supports-[backdrop-filter]:backdrop-blur-2xl p-6 shadow-[0_35px_90px_rgba(2,6,23,0.65)] duration-200",
+          "fixed left-[50%] top-[50%] z-[2147483646] grid w-full gap-4 border bg-background p-6 shadow-lg duration-200",
           // Центрирование
           "translate-x-[-50%] translate-y-[-50%]",
           // Максимальная ширина
