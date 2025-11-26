@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowUpRight, Coins, Trophy, Sparkles } from 'lucide-react';
+import { Coins, Trophy, Sparkles } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCoins } from '@/hooks/useCoins';
@@ -32,7 +32,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         (isPremium && duelPassData.hasUnlockedPremiumReward))
   );
   const duelPassRewardLabel = hasClaimableReward ? t('wallet.duelPassRewardReady') : null;
-  const duelPassRewardCTA = hasClaimableReward ? t('wallet.duelPassRewardCTA') : null;
 
   const duelPassTooltipMobile = duelPassData
     ? [
@@ -64,27 +63,22 @@ export function WalletWidget({ className }: WalletWidgetProps) {
       "rounded-xl border transition-all duration-200",
       extra,
       hasClaimableReward
-        ? "bg-gradient-to-r from-amber-50/95 to-orange-50/80 text-foreground shadow-[0_8px_20px_rgba(251,191,36,0.25)] border-amber-200/70 dark:from-amber-500/20 dark:to-orange-500/15 dark:text-white dark:border-amber-400/50"
+        ? "bg-gradient-to-r from-amber-50/95 to-orange-50/85 text-foreground shadow-[0_8px_25px_rgba(251,191,36,0.35)] border-amber-200/80 dark:from-[#40320a] dark:via-[#2a1f08] dark:to-[#1f1606] dark:text-white dark:border-amber-400/40"
         : "bg-muted/30 hover:bg-muted/50 border-transparent dark:bg-slate-800/60 dark:hover:bg-slate-700/60"
     );
 
-  const ClaimIndicator = ({ position }: { position: "mobile" | "desktop" }) => {
-    if (!duelPassRewardCTA) return null;
-    return (
-      <span
-        aria-hidden="true"
-        className={cn(
-          "pointer-events-none absolute flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-[10px] font-semibold uppercase tracking-[0.08em] text-white shadow-lg ring-1 ring-amber-200/40 backdrop-blur",
-          position === "mobile"
-            ? "-top-3 right-2 px-2 py-0.5"
-            : "-top-3 right-3 px-2.5 py-0.5"
-        )}
-      >
-        <ArrowUpRight className="w-3 h-3" />
-        {duelPassRewardCTA}
-      </span>
-    );
-  };
+  const RewardBubble = ({ variant }: { variant: "mobile" | "desktop" }) => (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none absolute flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg ring-1 ring-amber-100/40",
+        variant === "mobile" ? "-top-2.5 -right-2" : "-top-2.5 -right-3"
+      )}
+    >
+      <span className="absolute inset-0 rounded-full bg-white/50 opacity-60 animate-ping" />
+      <Sparkles className="relative w-3 h-3 text-white" />
+    </span>
+  );
 
   return (
     <>
@@ -142,15 +136,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <div className="relative sm:hidden">
             {hasClaimableReward && (
               <>
-                <span className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-amber-300/70 shadow-[0_0_18px_rgba(251,191,36,0.3)] animate-pulse" />
-                <ClaimIndicator position="mobile" />
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 p-1 shadow-lg"
-                >
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-300/40 to-orange-400/40 animate-ping" />
-                  <Sparkles className="relative w-3 h-3 text-white" />
-                </span>
+                <span className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-amber-300/70 shadow-[0_0_18px_rgba(251,191,36,0.35)] animate-pulse" />
+                <RewardBubble variant="mobile" />
               </>
             )}
             <button
@@ -190,15 +177,8 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <div className="relative hidden sm:block">
             {hasClaimableReward && (
               <>
-                <span className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-amber-300/70 shadow-[0_0_22px_rgba(251,191,36,0.3)] animate-pulse" />
-                <ClaimIndicator position="desktop" />
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-1.5 py-0.5 shadow-lg"
-                >
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-300/40 to-orange-400/40 animate-ping" />
-                  <Sparkles className="relative w-3 h-3 text-white" />
-                </span>
+                <span className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-amber-300/70 shadow-[0_0_22px_rgba(251,191,36,0.35)] animate-pulse" />
+                <RewardBubble variant="desktop" />
               </>
             )}
             <button
