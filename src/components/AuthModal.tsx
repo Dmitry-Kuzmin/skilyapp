@@ -215,40 +215,65 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
       onOpenChange={handleOpenChange}
       title={isSignUp ? "Регистрация" : "Вход в систему"}
       showTitleBar={false}
-      className="sm:max-w-md !bg-[#050d21] !text-white !border !border-white/5 shadow-[0_30px_80px_rgba(5,13,33,0.85)]"
-      contentClassName="px-6 py-6 sm:px-8 sm:py-8"
+      className="sm:max-w-md !bg-transparent"
+      contentClassName="px-0 py-0"
       modalRouteKey="auth"
     >
-      <div className="space-y-6">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-indigo-500/20 via-transparent to-transparent shadow-[0_10px_30px_rgba(79,70,229,0.45)]">
-            <Crown className="w-7 h-7 text-indigo-200" />
+      <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#050d21]/95 p-6 sm:p-8 shadow-[0_30px_80px_rgba(5,13,33,0.85)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(79,70,229,0.35),_transparent_55%)] pointer-events-none"></div>
+        <div className="absolute inset-0 opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none"></div>
+        <div className="relative space-y-6">
+          <div className="flex flex-col gap-4 text-center">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-2xl border border-indigo-500/40 bg-indigo-900/20 shadow-[0_10px_30px_rgba(79,70,229,0.45)] backdrop-blur">
+              <Crown className="w-7 h-7 text-indigo-200" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-3xl font-black tracking-tight text-white">
+                {isSignUp ? "Регистрация" : "Вход в систему"}
+              </h2>
+              <p className="text-sm text-slate-400">
+                {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-3xl font-black tracking-tight text-white">
-              {isSignUp ? "Регистрация" : "Вход в систему"}
-            </h2>
-            <p className="text-sm text-slate-400">
-              {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
-            </p>
-          </div>
-        </div>
 
           {/* Telegram Login */}
-          <div className="space-y-2 rounded-2xl border border-white/5 bg-white/[0.02] p-4 backdrop-blur-sm">
-            <Label className="text-center block text-sm tracking-[0.35em] uppercase text-indigo-200">Войти через Telegram</Label>
-            <p className="text-sm text-slate-400 text-center">
-              Быстрый и безопасный способ входа
-            </p>
-            <div id="telegram-login-container" className="flex justify-center" />
+          <div className="rounded-3xl border border-[#279EDA]/60 bg-gradient-to-br from-[#1f3b6f] via-[#12213c] to-[#0a1526] p-5 shadow-[0_20px_50px_rgba(39,158,218,0.35)]">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#279EDA]/20 text-[#279EDA] shadow-inner shadow-[#279EDA]/40">
+                <svg width="20" height="20" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 120L220 30L185 210L20 120Z" fill="currentColor" opacity="0.5" />
+                  <path d="M20 120L220 30L90 150L20 120Z" fill="currentColor" />
+                </svg>
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#279EDA]/80">
+                    Telegram
+                  </p>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.3em] text-white/70">
+                    instant
+                  </span>
+                </div>
+                <p className="text-base font-semibold text-white">
+                  Быстрый и защищенный вход
+                </p>
+                <p className="text-sm text-white/70">
+                  Telegram Mini App авторизует вас за пару секунд. Ниже появится официальный виджет.
+                </p>
+                <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+                  <div id="telegram-login-container" className="flex justify-center" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Google Login */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full border-white/10 bg-white/5 text-white hover:bg-white/10"
-            onClick={async () => {
+        {/* Google Login */}
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-white/10 bg-white/5 text-white hover:bg-white/10"
+          onClick={async () => {
               try {
                 const { error } = await supabase.auth.signInWithOAuth({
                   provider: 'google',
@@ -323,7 +348,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             </div>
             <Button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_20px_40px_rgba(79,70,229,0.5)]"
+              className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 hover:opacity-90 text-white shadow-[0_20px_40px_rgba(79,70,229,0.5)]"
               size="lg"
               disabled={isLoading}
             >
@@ -340,6 +365,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               </button>
             </div>
           </form>
+        </div>
       </div>
     </UnifiedModal>
   );

@@ -307,8 +307,8 @@ export function UnifiedModal({
           }}
         >
           {shouldShowHandle && (
-            <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 bg-gradient-to-b from-background via-background/95 to-background/0 backdrop-blur-md border-b border-white/5">
-              <div className="w-12 h-1.5 rounded-full bg-foreground/20 shadow-[0_2px_6px_rgba(15,23,42,0.35)]" />
+            <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 select-none pointer-events-none">
+              <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
             </div>
           )}
           {title && showTitleBar && (
