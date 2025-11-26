@@ -307,32 +307,44 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </table>
           </div>
 
-          <div className="relative md:hidden p-4 space-y-4">
+          <div className="relative md:hidden p-4 space-y-5">
             {copy.comparison.rows.map((row) => (
               <div
                 key={row.feature}
-                className="bg-slate-900/60 border border-slate-800/70 rounded-2xl p-4 space-y-3"
+                className="relative rounded-3xl border border-white/5 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-5 shadow-[0_20px_50px_rgba(15,23,42,0.5)] overflow-hidden"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-                  {row.feature}
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-start gap-3">
-                    <XCircle size={16} className="text-rose-400 mt-0.5" />
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-rose-400">
-                        {copy.comparison.traditional}
-                      </p>
-                      <p className="text-slate-400 text-sm leading-snug">{row.traditional}</p>
-                    </div>
+                <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-indigo-500/15 to-transparent pointer-events-none"></div>
+                <div className="relative space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-slate-400">
+                      {row.feature}
+                    </p>
+                    <span className="rounded-full bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-white/70">
+                      сравнение
+                    </span>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle size={16} className="text-indigo-400 mt-0.5" />
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-400">
-                        {copy.comparison.skily}
-                      </p>
-                      <p className="text-white text-sm leading-snug">{row.skily}</p>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/15 text-rose-400">
+                        <XCircle size={16} />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-rose-300">
+                          {copy.comparison.traditional}
+                        </p>
+                        <p className="text-slate-300/90 text-sm leading-snug">{row.traditional}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 p-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/15 text-indigo-300">
+                        <CheckCircle size={16} />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-indigo-200">
+                          {copy.comparison.skily}
+                        </p>
+                        <p className="text-white text-sm leading-snug">{row.skily}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
