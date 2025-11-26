@@ -33,6 +33,21 @@ export function useInitTelegram() {
 
     log("[useInitTelegram] ✅ WebApp ready:", tg.isExpanded);
     
+    const getPlatformInfo = () => {
+      const platform = tg.platform || 'unknown';
+      const isMobilePlatform = platform === 'ios' || platform === 'android';
+      return { platform, isMobilePlatform };
+    };
+
+    const applyPlatformClasses = (isMobilePlatform: boolean) => {
+      document.documentElement.classList.add('telegram-webapp');
+      document.body.classList.add('telegram-webapp');
+      document.documentElement.classList.toggle('telegram-mobile-app', isMobilePlatform);
+      document.documentElement.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+      document.body.classList.toggle('telegram-mobile-app', isMobilePlatform);
+      document.body.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+    };
+
     // Функция для логирования всех safe area свойств
     const logSafeAreaProperties = (eventName?: string) => {
       log(`[useInitTelegram] 🧭 SafeArea${eventName ? ` (${eventName})` : ''}:`, {
@@ -67,6 +82,9 @@ export function useInitTelegram() {
 
     // Функция обновления safe areas и CSS переменных
     const updateSafeAreas = (eventName?: string) => {
+      const { platform, isMobilePlatform } = getPlatformInfo();
+      applyPlatformClasses(isMobilePlatform);
+
       // Используем прямые свойства, если они доступны
       const topInset = (tg as any).viewportSafeAreaInsetTop ?? tg.safeAreaInset?.top ?? 0;
       const bottomInset = (tg as any).viewportSafeAreaInsetBottom ?? tg.safeAreaInset?.bottom ?? 0;
@@ -86,18 +104,33 @@ export function useInitTelegram() {
         contentBottom,
         viewportHeight: tg.viewportHeight,
         viewportStableHeight: tg.viewportStableHeight,
+        platform,
+        isMobilePlatform,
       });
 
       // Логируем все доступные свойства для отладки
       logSafeAreaProperties(eventName);
 
       // Устанавливаем CSS переменные
-      document.documentElement.style.setProperty('--app-safe-top', `${topInset}px`);
-      document.documentElement.style.setProperty('--app-safe-bottom', `${bottomInset}px`);
-      document.documentElement.style.setProperty('--app-safe-left', `${leftInset}px`);
-      document.documentElement.style.setProperty('--app-safe-right', `${rightInset}px`);
-      document.documentElement.style.setProperty('--app-content-top', `${Math.round(contentTop / 2)}px`);
-      document.documentElement.style.setProperty('--app-content-bottom', `${Math.round(contentBottom / 2)}px`);
+      const safeTop = isMobilePlatform ? topInset : 0;
+      const safeBottom = isMobilePlatform ? bottomInset : 0;
+      const safeLeft = isMobilePlatform ? leftInset : 0;
+      const safeRight = isMobilePlatform ? rightInset : 0;
+      const contentTopValue = isMobilePlatform ? Math.round(contentTop / 2) : 0;
+      const contentBottomValue = isMobilePlatform ? Math.round(contentBottom / 2) : 0;
+
+      document.documentElement.style.setProperty('--app-safe-top', `${safeTop}px`);
+      document.documentElement.style.setProperty('--app-safe-bottom', `${safeBottom}px`);
+      document.documentElement.style.setProperty('--app-safe-left', `${safeLeft}px`);
+      document.documentElement.style.setProperty('--app-safe-right', `${safeRight}px`);
+      document.documentElement.style.setProperty('--app-content-top', `${contentTopValue}px`);
+      document.documentElement.style.setProperty('--app-content-bottom', `${contentBottomValue}px`);
+
+      // Для обратной совместимости (используется в Layout и стилях)
+      document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${isMobilePlatform ? tg.contentSafeAreaInset?.top ?? topInset : 0}px`);
+      document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${isMobilePlatform ? tg.contentSafeAreaInset?.bottom ?? bottomInset : 0}px`);
+      document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${isMobilePlatform ? tg.contentSafeAreaInset?.left ?? leftInset : 0}px`);
+      document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', `${isMobilePlatform ? tg.contentSafeAreaInset?.right ?? rightInset : 0}px`);
     };
 
     // КРИТИЧЕСКИ ВАЖНО: добавляем слушатель события viewport_changed
