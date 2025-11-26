@@ -97,6 +97,21 @@ export const TelegramNavigation = () => {
     const webApp = getTelegramWebApp();
     if (!webApp) return;
 
+    const getPlatformInfo = () => {
+      const platform = webApp.platform || 'unknown';
+      const isMobilePlatform = platform === 'ios' || platform === 'android';
+      return { platform, isMobilePlatform };
+    };
+
+    const applyPlatformClasses = (isMobilePlatform: boolean) => {
+      document.documentElement.classList.add('telegram-webapp');
+      document.body.classList.add('telegram-webapp');
+      document.documentElement.classList.toggle('telegram-mobile-app', isMobilePlatform);
+      document.documentElement.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+      document.body.classList.toggle('telegram-mobile-app', isMobilePlatform);
+      document.body.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+    };
+
     // Функция обновления CSS-переменных для safe area
     const updateSafeAreaInsets = () => {
       // Используем прямые свойства viewportSafeAreaInset* если они доступны, иначе fallback
@@ -104,12 +119,14 @@ export const TelegramNavigation = () => {
       const bottom = (webApp as any).viewportSafeAreaInsetBottom ?? webApp.safeAreaInset?.bottom ?? 0;
       const left = (webApp as any).viewportSafeAreaInsetLeft ?? webApp.safeAreaInset?.left ?? 0;
       const right = (webApp as any).viewportSafeAreaInsetRight ?? webApp.safeAreaInset?.right ?? 0;
+      const { isMobilePlatform } = getPlatformInfo();
       
       console.log('[TelegramNavigation] 📏 Обновление safe area insets:', {
         top,
         bottom,
         left,
         right,
+        isMobilePlatform,
         usingViewportProperties: !!(webApp as any).viewportSafeAreaInsetTop,
         usingSafeAreaInset: !!webApp.safeAreaInset,
       });
@@ -118,14 +135,25 @@ export const TelegramNavigation = () => {
       document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${bottom}px`);
       document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${left}px`);
       document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${right}px`);
+
+      if (isMobilePlatform) {
+        document.documentElement.style.setProperty('--app-safe-top', `${top}px`);
+        document.documentElement.style.setProperty('--app-safe-bottom', `${bottom}px`);
+        document.documentElement.style.setProperty('--app-safe-left', `${left}px`);
+        document.documentElement.style.setProperty('--app-safe-right', `${right}px`);
+      } else {
+        document.documentElement.style.setProperty('--app-safe-top', '0px');
+        document.documentElement.style.setProperty('--app-safe-bottom', '0px');
+        document.documentElement.style.setProperty('--app-safe-left', '0px');
+        document.documentElement.style.setProperty('--app-safe-right', '0px');
+      }
     };
 
     // Функция обновления CSS-переменных для content safe area
     // Единая система отступов на основе Telegram WebApp API
     const updateContentSafeAreaInsets = () => {
       // Определяем платформу (мобильная или десктоп)
-      const platform = webApp.platform || 'unknown';
-      const isMobile = platform === 'ios' || platform === 'android';
+      const { platform, isMobilePlatform } = getPlatformInfo();
       
       // Для мобильных устройств используем contentSafeAreaInset из Telegram API
       // Для десктопа отступы не нужны (нет нативной панели Telegram)
@@ -135,7 +163,7 @@ export const TelegramNavigation = () => {
       // Логируем ВСЕ доступные свойства для отладки
       console.log('[TelegramNavigation] 🔍 Проверка всех safe area свойств:', {
         platform,
-        isMobile,
+        isMobile: isMobilePlatform,
         // Прямые свойства viewport safe area
         viewportSafeAreaInsetTop: (webApp as any).viewportSafeAreaInsetTop,
         viewportSafeAreaInsetBottom: (webApp as any).viewportSafeAreaInsetBottom,
@@ -144,12 +172,12 @@ export const TelegramNavigation = () => {
         contentSafeAreaInset: webApp.contentSafeAreaInset,
       });
       
-      if (isMobile && webApp.contentSafeAreaInset) {
+      if (isMobilePlatform && webApp.contentSafeAreaInset) {
         // Используем contentSafeAreaInset.top из Telegram API
         // УМЕНЬШАЕМ В 2 РАЗА, как просил пользователь
         contentTop = Math.round((webApp.contentSafeAreaInset.top || 0) / 2);
         contentBottom = Math.round((webApp.contentSafeAreaInset.bottom || 0) / 2);
-      } else if (isMobile && webApp.safeAreaInset) {
+      } else if (isMobilePlatform && webApp.safeAreaInset) {
         // Fallback: используем safeAreaInset если contentSafeAreaInset недоступен
         // УМЕНЬШАЕМ В 2 РАЗА
         contentTop = Math.round((webApp.safeAreaInset.top || 0) / 2);
@@ -159,7 +187,7 @@ export const TelegramNavigation = () => {
       
       console.log('[TelegramNavigation] ✅ Setting content safe area insets:', {
         platform,
-        isMobile,
+        isMobile: isMobilePlatform,
         contentTop,
         contentBottom,
         willApplyPadding: contentTop > 0 || contentBottom > 0,
@@ -172,7 +200,7 @@ export const TelegramNavigation = () => {
       
       // Также сохраняем для обратной совместимости
       // КРИТИЧНО: Для десктопа устанавливаем 0, чтобы не было отступов
-      if (isMobile && webApp.contentSafeAreaInset) {
+      if (isMobilePlatform && webApp.contentSafeAreaInset) {
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${webApp.contentSafeAreaInset.top}px`);
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${webApp.contentSafeAreaInset.bottom}px`);
         document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${webApp.contentSafeAreaInset.left}px`);
@@ -188,6 +216,7 @@ export const TelegramNavigation = () => {
       // Добавляем класс на body/html для CSS селекторов
       document.body.classList.add('telegram-webapp');
       document.documentElement.classList.add('telegram-webapp');
+      applyPlatformClasses(isMobilePlatform);
     };
 
     // Функция обновления viewport stable height

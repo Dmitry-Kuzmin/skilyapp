@@ -101,18 +101,40 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
   const isMobile = useIsMobile();
+  const [isTelegramMobilePlatform, setIsTelegramMobilePlatform] = useState<boolean | null>(null);
   const mainContentRef = useRef<HTMLElement>(null);
   const notificationsApi = useNotifications();
   
   // Управление сессиями (только 1 активная сессия одновременно)
   useSessionManager();
   
+  // Отслеживаем фактическую платформу Telegram (ios/android vs desktop)
+  useEffect(() => {
+    if (!isTelegramApp) {
+      setIsTelegramMobilePlatform(null);
+      return;
+    }
+
+    const detectPlatform = () => {
+      const platform = window.Telegram?.WebApp?.platform;
+      if (platform) {
+        const isMobilePlatform = platform === 'ios' || platform === 'android';
+        setIsTelegramMobilePlatform(isMobilePlatform);
+      } else {
+        setIsTelegramMobilePlatform(null);
+      }
+    };
+
+    detectPlatform();
+  }, [isTelegramApp]);
+
   // КРИТИЧНО: Применяем отступы только для мобильных устройств в Telegram, не для десктопа
   useEffect(() => {
     // Проверяем наличие Telegram WebApp дополнительно
     const hasTelegramWebApp = !!window.Telegram?.WebApp;
-    // КРИТИЧНО: Отступы применяются только если это Telegram И мобильное устройство
-    const shouldApplyPadding = isTelegramApp && isMobile;
+    const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
+    // КРИТИЧНО: Отступы применяются только если это Telegram И мобильная платформа (не браузерная ширина)
+    const shouldApplyPadding = isTelegramApp && platformMobile;
     
     console.log('[Layout] isTelegramApp:', isTelegramApp, 'isMobile:', isMobile, 'hasTelegramWebApp:', hasTelegramWebApp, 'shouldApplyPadding:', shouldApplyPadding);
     
@@ -139,11 +161,12 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
       mainContentRef.current.style.paddingTop = '0px';
       console.log('[Layout] Removed padding-top (not Telegram mobile)');
     }
-  }, [isTelegramApp, isMobile, location.pathname]); // Также при изменении маршрута или размера экрана
+  }, [isTelegramApp, isMobile, isTelegramMobilePlatform, location.pathname]); // Также при изменении маршрута или размера экрана
   
   // Также применяем при изменении CSS переменных (только для мобильных)
   useEffect(() => {
-    if (!isTelegramApp || !isMobile || !mainContentRef.current) return;
+    const platformMobile = typeof isTelegramMobilePlatform === 'boolean' ? isTelegramMobilePlatform : isMobile;
+    if (!isTelegramApp || !platformMobile || !mainContentRef.current) return;
     
     const observer = new MutationObserver(() => {
       if (mainContentRef.current) {
@@ -160,7 +183,7 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
     });
     
     return () => observer.disconnect();
-  }, [isTelegramApp]);
+  }, [isTelegramApp, isMobile, isTelegramMobilePlatform]);
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
   // ОПТИМИЗАЦИЯ: Мемоизируем navigation для предотвращения лишних ре-рендеров
@@ -378,7 +401,7 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
       <main 
         ref={mainContentRef}
         className="telegram-main-content flex-1 bg-background"
-        style={isTelegramApp && !isMobile ? { paddingTop: '0px' } : {}}
+        style={isTelegramApp && isTelegramMobilePlatform === false ? { paddingTop: '0px' } : {}}
       >
         {children}
       </main>

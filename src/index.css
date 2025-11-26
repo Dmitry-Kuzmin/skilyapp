@@ -826,12 +826,18 @@ All colors MUST be HSL.
     }
   }
   
-  /* КРИТИЧНО: Для десктопа (больше 768px) убираем отступы полностью */
-  @media (min-width: 769px) {
-    html.telegram-webapp .telegram-main-content,
-    body.telegram-webapp .telegram-main-content {
-      padding-top: 0 !important;
-    }
+  /* КРИТИЧНО: Для десктопных Telegram WebApp убираем отступы независимо от ширины */
+  html.telegram-desktop-app,
+  body.telegram-desktop-app {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html.telegram-desktop-app .telegram-main-content,
+  body.telegram-desktop-app .telegram-main-content {
+    padding-top: 0 !important;
   }
 
   .app-bottom-nav {
