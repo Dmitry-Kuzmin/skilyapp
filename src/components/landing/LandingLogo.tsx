@@ -12,10 +12,11 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
   theme = "dark",
 }) => {
   const isLight = theme === "light";
-  const textColor = isLight ? "text-white" : "text-slate-900";
+  const textColor = isLight ? "text-white" : "text-white";
   const bodyColor = isLight ? "#ffffff" : "#4f46e5";
   const accentColor = isLight ? "rgba(255,255,255,0.65)" : "#a5b4fc";
   const windowColor = isLight ? "rgba(15,23,42,0.2)" : "#0f172a";
+  const accentTextColor = isLight ? "text-indigo-200" : "text-indigo-400";
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -51,21 +52,25 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
               fill="url(#logo-glow)"
             />
             <path
-              d="M33 24 C42 16 53 12 60 12 C67 12 77 16 83 24"
-              stroke={accentColor}
-              strokeWidth="3"
-              strokeLinecap="round"
-              opacity="0.5"
+              d="M18 46 C22 30 38 16 60 15 C82 14 100 28 106 44"
+              fill={accentColor}
+              opacity="0.35"
             />
             <path
-              d="M38 26 H70 C78 26 83 30 87 36 L95 48"
+              d="M25 42 C30 29 42 20 60 20 C78 20 92 29 98 42"
+              stroke={accentColor}
+              strokeWidth="4"
+              strokeLinecap="round"
+            />
+            <path
+              d="M36 28 H72 C80 28 86 32 90 38 L98 48"
               stroke={windowColor}
               strokeWidth="6"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
-              d="M24 44 L34 35 C37 32 40 31 44 31 H76 C81 31 85 33 88 37 L96 46"
+              d="M26 44 L36 34 C39 31 43 30 47 30 H75 C81 30 85 32 88 35 L96 44"
               stroke={windowColor}
               strokeWidth="3"
               strokeLinecap="round"
@@ -91,9 +96,7 @@ export const LandingLogo: React.FC<LandingLogoProps> = ({
               }`}
             ></div>
             <span
-              className={`text-[9px] font-bold uppercase tracking-[0.2em] ${
-                theme === "light" ? "text-indigo-200" : "text-indigo-500"
-              }`}
+              className={`text-[10px] font-semibold uppercase tracking-[0.35em] ${accentTextColor}`}
             >
               Global
             </span>
