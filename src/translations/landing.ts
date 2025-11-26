@@ -95,7 +95,11 @@ export interface LandingCopy {
     };
   };
   footer: {
-    menu: string[];
+    menu: Array<{
+      label: string;
+      href: string;
+      external?: boolean;
+    }>;
     note: string;
   };
 }
@@ -241,7 +245,12 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       },
     },
     footer: {
-      menu: ["Términos", "Privacidad", "Soporte", "Afiliados"],
+      menu: [
+        { label: "Términos", href: "/terms" },
+        { label: "Privacidad", href: "/privacy" },
+        { label: "Soporte", href: "https://t.me/sdadimtutbot", external: true },
+        { label: "Afiliados", href: "/partners" },
+      ],
       note: "© 2025 Skilyapp. La nueva forma de aprobar la DGT.",
     },
   },
@@ -379,7 +388,12 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       },
     },
     footer: {
-      menu: ["Terms", "Privacy", "Support", "Affiliates"],
+      menu: [
+        { label: "Terms", href: "/terms" },
+        { label: "Privacy", href: "/privacy" },
+        { label: "Support", href: "https://t.me/sdadimtutbot", external: true },
+        { label: "Affiliates", href: "/partners" },
+      ],
       note: "© 2025 Skilyapp. The smarter way to pass the DGT exam.",
     },
   },
@@ -517,7 +531,12 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       },
     },
     footer: {
-      menu: ["Условия", "Политика", "Поддержка", "Партнёрам"],
+      menu: [
+        { label: "Условия", href: "/terms" },
+        { label: "Политика", href: "/privacy" },
+        { label: "Поддержка", href: "https://t.me/sdadimtutbot", external: true },
+        { label: "Партнёрам", href: "/partners" },
+      ],
       note: "© 2025 Skilyapp. Мы помогаем русскоязычным ученикам сдать DGT.",
     },
   },

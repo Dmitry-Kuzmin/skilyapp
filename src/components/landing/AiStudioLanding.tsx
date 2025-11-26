@@ -491,11 +491,17 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       </section>
 
       <footer className="px-6 py-12 border-t border-slate-800/50 text-center text-slate-600 text-xs font-mono uppercase tracking-widest">
-        <div className="flex justify-center gap-6 mb-8">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8">
           {copy.footer.menu.map((item) => (
-            <span key={item} className="hover:text-white cursor-pointer transition-colors">
-              {item}
-            </span>
+            <a
+              key={item.label}
+              href={item.href}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? "noreferrer" : undefined}
+              className="hover:text-white cursor-pointer transition-colors"
+            >
+              {item.label}
+            </a>
           ))}
         </div>
         <p>{copy.footer.note}</p>
