@@ -27,6 +27,8 @@ export type DuelPassData = {
   xp: number;
   progress: number;
   spToNextLevel: number;
+  hasUnlockedFreeReward: boolean;
+  hasUnlockedPremiumReward: boolean;
 };
 
 export type DuelPassSeasonData = {
@@ -40,6 +42,8 @@ export const DEFAULT_DUEL_PASS_DATA: DuelPassData = Object.freeze({
   xp: 0,
   progress: 0,
   spToNextLevel: 0,
+  hasUnlockedFreeReward: false,
+  hasUnlockedPremiumReward: false,
 });
 
 type DuelPassQueryResult = {
@@ -106,10 +110,41 @@ const fetchDuelPass = async (profileId: string): Promise<DuelPassQueryResult> =>
     const currentSP = progress.season_points || 0;
     const currentLevel = progress.level || 1;
 
+    const { data: claimedRewardsData, error: claimedRewardsError } = await supabaseClient
+      .from("user_claimed_rewards")
+      .select("level, is_premium")
+      .eq("user_id", profileId)
+      .eq("season", activeSeason.id);
+
+    if (claimedRewardsError) {
+      logWarn("[useDuelPassData] Error loading claimed rewards:", claimedRewardsError);
+    }
+
+    const claimedFreeLevels = new Set<number>();
+    const claimedPremiumLevels = new Set<number>();
+
+    if (claimedRewardsData) {
+      claimedRewardsData.forEach((record: { level: number; is_premium: boolean }) => {
+        if (!record || !record.level) return;
+        if (record.is_premium) {
+          claimedPremiumLevels.add(record.level);
+        } else {
+          claimedFreeLevels.add(record.level);
+        }
+      });
+    }
+
     const rewardsData =
       rewardsResult.status === "fulfilled" && rewardsResult.value.data
         ? rewardsResult.value.data.filter((reward: any) => reward.season_id === activeSeason.id)
         : [];
+
+    const unlockedLevels = Math.max(currentLevel, 0);
+    const claimedFreeUnlocked = Array.from(claimedFreeLevels).filter((lvl) => lvl <= currentLevel).length;
+    const claimedPremiumUnlocked = Array.from(claimedPremiumLevels).filter((lvl) => lvl <= currentLevel).length;
+
+    const hasUnlockedFreeReward = unlockedLevels > 0 && claimedFreeUnlocked < unlockedLevels;
+    const hasUnlockedPremiumReward = unlockedLevels > 0 && claimedPremiumUnlocked < unlockedLevels;
 
     if (!rewardsData.length) {
       logWarn("[useDuelPassData] No rewards data for active season");
@@ -119,6 +154,8 @@ const fetchDuelPass = async (profileId: string): Promise<DuelPassQueryResult> =>
           xp: currentSP,
           progress: 0,
           spToNextLevel: 0,
+          hasUnlockedFreeReward,
+          hasUnlockedPremiumReward,
         },
         seasonData: {
           name_ru: activeSeason.name_ru,
@@ -153,6 +190,8 @@ const fetchDuelPass = async (profileId: string): Promise<DuelPassQueryResult> =>
         xp: currentSP,
         progress: Math.max(0, progressPercent),
         spToNextLevel,
+        hasUnlockedFreeReward,
+        hasUnlockedPremiumReward,
       },
       seasonData: {
         name_ru: activeSeason.name_ru,
@@ -184,10 +223,10 @@ export const useDuelPassData = (profileId?: string | null) => {
     refetchIntervalInBackground: false,
   });
 
-  return {
-    ...query,
-    duelPassData: query.data?.duelPassData ?? (enabled ? { ...DEFAULT_DUEL_PASS_DATA } : null),
-    seasonData: query.data?.seasonData ?? null,
-  };
+    return {
+      ...query,
+      duelPassData: query.data?.duelPassData ?? (enabled ? { ...DEFAULT_DUEL_PASS_DATA } : null),
+      seasonData: query.data?.seasonData ?? null,
+    };
 };
 

@@ -9,6 +9,7 @@ import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
 import { cn } from '@/lib/utils';
 import { useDuelPassData } from '@/hooks/useDuelPassData';
+import { usePremium } from '@/hooks/usePremium';
 
 interface WalletWidgetProps {
   className?: string;
@@ -18,12 +19,37 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { profileId } = useUserContext();
   const { balance, loading: coinsLoading } = useCoins();
   const { t } = useLanguage();
+  const { isPremium } = usePremium();
   const [shopOpen, setShopOpen] = useState(false);
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
   const { duelPassData, isPending: duelPassPending } = useDuelPassData(profileId);
 
   const showCoinsSkeleton = coinsLoading;
   const showDuelPassSkeleton = duelPassPending;
+  const hasClaimableReward = Boolean(
+    duelPassData &&
+      (duelPassData.hasUnlockedFreeReward ||
+        (isPremium && duelPassData.hasUnlockedPremiumReward))
+  );
+  const duelPassRewardLabel = hasClaimableReward ? t('wallet.duelPassRewardReady') : null;
+
+  const duelPassTooltipMobile = duelPassData
+    ? [
+        t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp }),
+        duelPassRewardLabel,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : undefined;
+
+  const duelPassTooltipDesktop = duelPassData
+    ? [
+        t('wallet.duelPassTooltipDesktop', { level: duelPassData.level }),
+        duelPassRewardLabel,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : undefined;
 
   // КРИТИЧНО: Логирование для диагностики открытия модального окна
   useEffect(() => {
@@ -85,54 +111,88 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             <Skeleton className="h-8 w-32 rounded-lg hidden sm:block" />
           </>
         ) : duelPassData ? (
-          <button
-            onClick={() => {
-              setDuelPassModalOpen(true);
-            }}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer sm:hidden"
-            title={t('wallet.duelPassTooltipMobile', { level: duelPassData.level, xp: duelPassData.xp })}
-          >
-            {/* Season Points */}
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
-                <span className="text-[10px] font-bold text-blue-400">S</span>
+          <div className="relative sm:hidden">
+            {hasClaimableReward && (
+              <>
+                <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-300/80 shadow-[0_0_20px_rgba(251,191,36,0.35)] animate-pulse" />
+                <span
+                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-[11px] font-bold text-white shadow-lg animate-bounce"
+                  aria-hidden="true"
+                >
+                  🎁
+                </span>
+              </>
+            )}
+            <button
+              onClick={() => {
+                setDuelPassModalOpen(true);
+              }}
+              className={cn(
+                "flex items-center gap-1.5 px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer w-full",
+                hasClaimableReward && "bg-amber-50/80 text-foreground"
+              )}
+              title={duelPassTooltipMobile}
+              aria-label={duelPassTooltipMobile}
+            >
+              {/* Season Points */}
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-blue-400">S</span>
+                </div>
+                <span className="text-xs font-semibold text-foreground">{duelPassData.xp}</span>
               </div>
-              <span className="text-xs font-semibold text-foreground">{duelPassData.xp}</span>
-            </div>
-            
-            {/* Разделитель */}
-            <div className="w-px h-4 bg-border" />
-            
-            {/* Уровень с прогресс-баром */}
-            <div className="flex items-center gap-1.5">
-              <Trophy className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
-              <div className="w-12 h-1 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
-                  style={{ width: `${Math.max(5, duelPassData.progress)}%` }}
-                />
+              
+              {/* Разделитель */}
+              <div className="w-px h-4 bg-border" />
+              
+              {/* Уровень с прогресс-баром */}
+              <div className="flex items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
+                <div className="w-12 h-1 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
+                    style={{ width: `${Math.max(5, duelPassData.progress)}%` }}
+                  />
+                </div>
+                <span className="text-xs font-semibold text-foreground min-w-[18px]">{duelPassData.level}</span>
               </div>
-              <span className="text-xs font-semibold text-foreground min-w-[18px]">{duelPassData.level}</span>
-            </div>
-          </button>
+            </button>
+          </div>
         ) : null}
         {!showDuelPassSkeleton && duelPassData && (
-          <button
-            onClick={() => {
-              setDuelPassModalOpen(true);
-            }}
-            className="hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
-            title={t('wallet.duelPassTooltipDesktop', { level: duelPassData.level })}
-          >
-            <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
-            <div className="w-10 md:w-12 h-1 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
-                style={{ width: `${duelPassData.progress}%` }}
-              />
-            </div>
-            <span className="text-xs font-medium text-muted-foreground">{duelPassData.level}</span>
-          </button>
+          <div className="relative hidden sm:block">
+            {hasClaimableReward && (
+              <>
+                <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-300/80 shadow-[0_0_24px_rgba(251,191,36,0.35)] animate-pulse" />
+                <span
+                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tight text-white shadow-lg animate-bounce"
+                  aria-hidden="true"
+                >
+                  🎁
+                </span>
+              </>
+            )}
+            <button
+              onClick={() => {
+                setDuelPassModalOpen(true);
+              }}
+              className={cn(
+                "hidden sm:flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer",
+                hasClaimableReward && "bg-amber-50/80 text-foreground"
+              )}
+              title={duelPassTooltipDesktop}
+              aria-label={duelPassTooltipDesktop}
+            >
+              <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
+              <div className="w-10 md:w-12 h-1 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
+                  style={{ width: `${duelPassData.progress}%` }}
+                />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">{duelPassData.level}</span>
+            </button>
+          </div>
         )}
 
 
