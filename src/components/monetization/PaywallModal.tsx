@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { UnifiedModal } from "@/components/ui/unified-modal";
-import { useModalRoute } from "@/hooks/useModalRoute";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
@@ -41,16 +40,6 @@ const plans = [
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
   const { isPremium, isTrial, daysRemaining, refresh } = usePremium();
-  const route = useModalRoute('paywall');
-  const isOpen = open || route.isOpen;
-  const handleOpenChange = (state: boolean) => {
-    if (onOpenChange) onOpenChange(state);
-    if (state) {
-      route.openModal();
-    } else {
-      route.closeModal();
-    }
-  };
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
   const [loadingPackages, setLoadingPackages] = useState(false);
@@ -176,14 +165,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
   return (
     <UnifiedModal
-      open={isOpen}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={onOpenChange}
       title="Получить Premium"
       showTitleBar={false}
       className="sm:max-w-lg"
       loading={loadingPackages && Object.keys(pricingPackages).length === 0}
       skeletonVariant="shop"
-      modalRouteKey="paywall"
     >
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-lg font-semibold">

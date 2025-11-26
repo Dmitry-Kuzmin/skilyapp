@@ -667,8 +667,8 @@ const Games = () => {
 
       {/* Modals */}
       <PaywallModal
-        isOpen={paywallOpen}
-        onClose={() => setPaywallOpen(false)}
+        open={paywallOpen}
+        onOpenChange={setPaywallOpen}
       />
 
       <TermProgressModal
