@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Coins, Trophy } from 'lucide-react';
+import { Coins, Trophy, Sparkles } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCoins } from '@/hooks/useCoins';
@@ -114,12 +114,13 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <div className="relative sm:hidden">
             {hasClaimableReward && (
               <>
-                <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-300/80 shadow-[0_0_20px_rgba(251,191,36,0.35)] animate-pulse" />
+                <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-300/80 shadow-[0_0_18px_rgba(251,191,36,0.3)] animate-pulse" />
                 <span
-                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-[11px] font-bold text-white shadow-lg animate-bounce"
                   aria-hidden="true"
+                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 p-1 shadow-lg"
                 >
-                  🎁
+                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-300/40 to-orange-400/40 animate-ping" />
+                  <Sparkles className="relative w-3 h-3 text-white" />
                 </span>
               </>
             )}
@@ -163,12 +164,13 @@ export function WalletWidget({ className }: WalletWidgetProps) {
           <div className="relative hidden sm:block">
             {hasClaimableReward && (
               <>
-                <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-300/80 shadow-[0_0_24px_rgba(251,191,36,0.35)] animate-pulse" />
+                <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-300/80 shadow-[0_0_22px_rgba(251,191,36,0.3)] animate-pulse" />
                 <span
-                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tight text-white shadow-lg animate-bounce"
                   aria-hidden="true"
+                  className="pointer-events-none absolute -top-1.5 -right-1.5 flex items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-1.5 py-0.5 shadow-lg"
                 >
-                  🎁
+                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-300/40 to-orange-400/40 animate-ping" />
+                  <Sparkles className="relative w-3 h-3 text-white" />
                 </span>
               </>
             )}
