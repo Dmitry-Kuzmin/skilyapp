@@ -172,9 +172,6 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               <div className="font-black text-white mb-2 leading-tight text-balance text-[clamp(1.6rem,5vw,2.4rem)]">
                 {stat.value}
               </div>
-              <p className="text-indigo-300 font-semibold uppercase tracking-[0.2em] text-xs">
-                {stat.label}
-              </p>
               <p className="text-slate-400 text-sm mt-2">{stat.description}</p>
             </div>
           ))}
@@ -283,48 +280,83 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           <h2 className="text-4xl md:text-6xl font-black text-white">{copy.comparison.title}</h2>
         </div>
 
-        <div className="relative overflow-x-auto rounded-[2.5rem] border border-slate-800 shadow-2xl">
+        <div className="relative rounded-[2.5rem] border border-slate-800 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"></div>
-          <table className="w-full relative text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800">
-                <th className="py-6 px-8 text-xs font-bold uppercase tracking-widest text-slate-500 w-1/3">
-                  {copy.comparison.featureLabel}
-                </th>
-                <th className="py-6 px-8 text-xs font-bold uppercase tracking-widest text-rose-400 w-1/3 text-center">
-                  {copy.comparison.traditional}
-                </th>
-                <th className="py-6 px-8 text-xs font-bold uppercase tracking-widest text-indigo-400 w-1/3 text-center bg-indigo-500/5">
-                  {copy.comparison.skily}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-sm font-medium">
-              {copy.comparison.rows.map((row, index) => (
-                <tr
-                  key={row.feature}
-                  className="border-b border-slate-800 last:border-0 hover:bg-slate-800/30 transition-colors"
-                >
-                  <td className="py-6 px-8 text-white font-bold">{row.feature}</td>
-                  <td className="py-6 px-8 text-slate-400 text-center">
-                    <div className="inline-flex items-center gap-2 justify-center">
-                      <XCircle size={16} className="text-rose-500" />
-                      {row.traditional}
-                    </div>
-                  </td>
-                  <td className="py-6 px-8 text-white text-center bg-indigo-500/5 relative">
-                    {index === 0 && (
-                      <div className="absolute inset-0 bg-indigo-500/10 animate-pulse pointer-events-none"></div>
-                    )}
-                    <div className="inline-flex items-center gap-2 justify-center relative z-10">
-                      <CheckCircle size={16} className="text-indigo-400" />
-                      {row.skily}
-                    </div>
-                  </td>
+          <div className="relative hidden md:block">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-800/70">
+                  <th className="py-6 px-8 text-xs font-bold uppercase tracking-[0.3em] text-slate-500 w-1/3">
+                    {copy.comparison.featureLabel}
+                  </th>
+                  <th className="py-6 px-8 text-xs font-bold uppercase tracking-[0.3em] text-rose-400 w-1/3 text-center">
+                    {copy.comparison.traditional}
+                  </th>
+                  <th className="py-6 px-8 text-xs font-bold uppercase tracking-[0.3em] text-indigo-400 w-1/3 text-center bg-indigo-500/5">
+                    {copy.comparison.skily}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-sm font-medium">
+                {copy.comparison.rows.map((row, index) => (
+                  <tr
+                    key={row.feature}
+                    className="border-b border-slate-800/70 last:border-0 hover:bg-slate-800/40 transition-colors"
+                  >
+                    <td className="py-6 px-8 text-white font-bold">{row.feature}</td>
+                    <td className="py-6 px-8 text-slate-400 text-center">
+                      <div className="inline-flex items-center gap-2 justify-center">
+                        <XCircle size={16} className="text-rose-500" />
+                        {row.traditional}
+                      </div>
+                    </td>
+                    <td className="py-6 px-8 text-white text-center bg-indigo-500/5 relative">
+                      {index === 0 && (
+                        <div className="absolute inset-0 bg-indigo-500/10 animate-pulse pointer-events-none rounded-br-[2.5rem]"></div>
+                      )}
+                      <div className="inline-flex items-center gap-2 justify-center relative z-10">
+                        <CheckCircle size={16} className="text-indigo-400" />
+                        {row.skily}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="relative md:hidden p-4 space-y-4">
+            {copy.comparison.rows.map((row) => (
+              <div
+                key={row.feature}
+                className="bg-slate-900/60 border border-slate-800/70 rounded-2xl p-4 space-y-3"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+                  {row.feature}
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-3">
+                    <XCircle size={16} className="text-rose-400 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-rose-400">
+                        {copy.comparison.traditional}
+                      </p>
+                      <p className="text-slate-400 text-sm leading-snug">{row.traditional}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle size={16} className="text-indigo-400 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-indigo-400">
+                        {copy.comparison.skily}
+                      </p>
+                      <p className="text-white text-sm leading-snug">{row.skily}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
