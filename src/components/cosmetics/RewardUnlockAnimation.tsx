@@ -23,6 +23,8 @@ interface RewardUnlockAnimationProps {
       animated?: boolean;
     };
   };
+  onQuickApply?: () => Promise<void> | void;
+  isApplying?: boolean;
 }
 
 const rarityColors = {
@@ -71,7 +73,13 @@ const typeLabels = {
   sticker: "Стикер",
 };
 
-export function RewardUnlockAnimation({ open, onOpenChange, reward }: RewardUnlockAnimationProps) {
+export function RewardUnlockAnimation({
+  open,
+  onOpenChange,
+  reward,
+  onQuickApply,
+  isApplying,
+}: RewardUnlockAnimationProps) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [animate, setAnimate] = useState(false);
 
@@ -216,14 +224,28 @@ export function RewardUnlockAnimation({ open, onOpenChange, reward }: RewardUnlo
             </div>
           </div>
 
-          {/* Action Button */}
-          <Button
-            onClick={() => onOpenChange(false)}
-            size="lg"
-            className="relative z-10 w-full"
-          >
-            Отлично!
-          </Button>
+          {/* Action Buttons */}
+          <div className="relative z-10 w-full space-y-3">
+            {onQuickApply && (
+              <Button
+                onClick={onQuickApply}
+                size="lg"
+                variant="secondary"
+                className="w-full"
+                disabled={isApplying}
+              >
+                {isApplying ? "Сохраняем..." : "Сделать активным"}
+              </Button>
+            )}
+            <Button
+              onClick={() => onOpenChange(false)}
+              size="lg"
+              className="w-full"
+              disabled={isApplying}
+            >
+              Продолжить
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

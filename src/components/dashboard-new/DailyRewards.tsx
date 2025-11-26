@@ -433,8 +433,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       </div>
 
       {/* Header - в стиле уровней готовности, компактный для десктопа */}
-      <div className="relative z-10 flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+      <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -452,37 +452,54 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             }`} />
           </motion.div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
-              <h3 className={`font-bold text-base sm:text-lg tracking-tight ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'} whitespace-nowrap`}>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h3 className={`font-bold text-base sm:text-xl tracking-tight leading-tight ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'}`}>
                 Ежедневная серия
               </h3>
               {weekNumber > 0 && (
                 <>
-                  <span className={`text-[10px] sm:text-xs font-bold ${badgeText} ${badgeBg} px-1.5 sm:px-2 py-0.5 rounded-md border ${badgeBorder} whitespace-nowrap`}>
+                  <span className={`text-[10px] sm:text-xs font-semibold ${badgeText} ${badgeBg} px-2 py-0.5 rounded-full border ${badgeBorder}`}>
                     Неделя {weekNumber}
                   </span>
                   {weekDay > 0 && weekDay < 7 && (
-                    <span className={`text-[9px] sm:text-[10px] ${badgeText} ${isDarkTheme ? 'bg-slate-900/60' : 'bg-slate-200/80'} px-1.5 sm:px-2 py-0.5 rounded-md border ${isDarkTheme ? 'border-slate-800' : 'border-slate-300'} whitespace-nowrap hidden sm:inline`}>
-                      Осталось: {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
+                    <span className={`text-[10px] ${badgeText} ${isDarkTheme ? 'bg-slate-900/60' : 'bg-slate-200/80'} px-2 py-0.5 rounded-full border ${isDarkTheme ? 'border-slate-800' : 'border-slate-300'}`}>
+                      Осталось {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
                     </span>
                   )}
                   {isDay7 && (
                     <motion.span
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
-                      className={`text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 'text-yellow-600 bg-yellow-100/80 border-yellow-300'} px-1.5 sm:px-2 py-0.5 rounded-md border whitespace-nowrap`}
+                      className={`text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 'text-yellow-600 bg-yellow-100/80 border-yellow-300'} px-2 py-0.5 rounded-full border`}
                     >
                       🎉 Завершение!
                     </motion.span>
                   )}
                 </>
               )}
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => setShowRewardsInfo(!showRewardsInfo)}
+                className={`w-8 h-8 rounded-full ${
+                  isDarkTheme
+                    ? 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-indigo-500/50'
+                    : 'bg-slate-100/80 hover:bg-slate-200 border-slate-200/60 hover:border-indigo-400/60'
+                } border flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
+              >
+                {showRewardsInfo ? (
+                  <X size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
+                ) : (
+                  <Info size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
+                )}
+              </motion.button>
             </div>
           </div>
         </div>
         
-        {/* Кнопка с информацией - сверху справа как в уровнях готовности */}
-        <div className="absolute top-6 right-6 z-20">
+        {/* placeholder for layout balance */}
+        <div className="hidden sm:block w-8" />
           <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

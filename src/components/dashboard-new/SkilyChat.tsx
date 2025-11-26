@@ -71,13 +71,13 @@ export const SkilyChat = React.memo(() => {
 
       {/* EXPANDED OVERLAY */}
       {isExpanded && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-8 animate-fade-in">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={handleCollapse}></div>
           
-          <div className="relative w-full max-w-4xl h-[85vh] bg-slate-900 rounded-[2rem] shadow-2xl shadow-black border border-slate-800 overflow-hidden flex flex-col animate-slide-up">
+          <div className="relative w-full h-full sm:h-[88vh] sm:max-w-5xl bg-slate-900 rounded-none sm:rounded-[2rem] shadow-2xl shadow-black border border-slate-800 overflow-hidden flex flex-col animate-slide-up">
             
             {/* Header */}
-            <div className="h-24 border-b border-slate-800 flex items-center justify-between px-8 bg-slate-900 z-20">
+            <div className="h-20 sm:h-24 border-b border-slate-800 flex items-center justify-between px-5 sm:px-8 bg-slate-900 z-20">
                <div className="flex items-center gap-6">
                   <div className="relative w-16 h-16 flex items-center justify-center">
                     <div className="absolute inset-0 rounded-full border-2 border-indigo-500 opacity-60 border-t-transparent border-b-transparent shadow-[0_0_20px_rgba(99,102,241,0.4)] animate-spin-slow"></div>
@@ -104,7 +104,7 @@ export const SkilyChat = React.memo(() => {
 
             {/* Chat Area */}
             <div className="flex-1 bg-slate-950/50 relative overflow-hidden flex flex-col">
-               <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 relative z-10 scroll-smooth">
+               <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-10 space-y-8 relative z-10 scroll-smooth">
                   {messages.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full opacity-100">
                        <div className="mb-8 scale-150 opacity-90 transition-all duration-500">
@@ -145,7 +145,7 @@ export const SkilyChat = React.memo(() => {
             </div>
 
             {/* Input */}
-            <div className="p-6 bg-slate-900 border-t border-slate-800 relative z-20">
+            <div className="p-4 sm:p-6 bg-slate-900 border-t border-slate-800 relative z-20">
                <div className="relative flex items-center">
                   <input
                     autoFocus

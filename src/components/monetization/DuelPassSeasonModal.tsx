@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
@@ -327,11 +327,20 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const showOnboarding = false;
   const [showPaywall, setShowPaywall] = useState(false);
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
-  const [unlockedReward, setUnlockedReward] = useState<any | null>(null);
+  const [cosmeticQueue, setCosmeticQueue] = useState<any[]>([]);
+  const [activeCosmeticReward, setActiveCosmeticReward] = useState<any | null>(null);
+  const [isApplyingAppearance, setIsApplyingAppearance] = useState(false);
   const [showPremiumSelector, setShowPremiumSelector] = useState(false);
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
+
+  useEffect(() => {
+    if (!activeCosmeticReward && cosmeticQueue.length > 0) {
+      setActiveCosmeticReward(cosmeticQueue[0]);
+      setCosmeticQueue((prev) => prev.slice(1));
+    }
+  }, [cosmeticQueue, activeCosmeticReward]);
 
   const formatSeasonDate = React.useCallback((date: Date | null) => {
     if (!date) return "—";
@@ -759,92 +768,203 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   };
 
+  const queueCosmeticReward = useCallback(
+    async (rewardPayload: any) => {
+      if (!rewardPayload || !rewardPayload.id) return;
+      const type = resolveRewardType(rewardPayload);
+      if (!["skin", "badge", "sticker"].includes(type)) return;
+
+      const key = `${type}:${rewardPayload.id}`;
+      let definition = rewardDetails[key];
+
+      if (!definition) {
+        const tableName =
+          type === "skin"
+            ? "skin_definitions"
+            : type === "badge"
+              ? "badge_definitions"
+              : "sticker_definitions";
+        const { data, error } = await supabase
+          .from(tableName)
+          .select("name_ru, description_ru, rarity, metadata")
+          .eq("id", rewardPayload.id)
+          .single();
+
+        if (error) {
+          console.warn("[DuelPassSeasonModal] Не удалось загрузить описание косметики:", error);
+        }
+
+        if (data) {
+          const parsedMetadata =
+            typeof data.metadata === "string"
+              ? (() => {
+                  try {
+                    return JSON.parse(data.metadata);
+                  } catch {
+                    return undefined;
+                  }
+                })()
+              : data.metadata;
+
+          definition = {
+            name: data.name_ru,
+            description: data.description_ru,
+            rarity: data.rarity,
+            metadata: parsedMetadata,
+          };
+        }
+      }
+
+      if (!definition) return;
+
+      setCosmeticQueue((prev) => [
+        ...prev,
+        {
+          type,
+          id: rewardPayload.id,
+          name_ru: definition.name || definition.name_ru || rewardPayload.name_ru || "Награда",
+          description_ru:
+            definition.description || definition.description_ru || rewardPayload.description_ru || "",
+          rarity: definition.rarity || "common",
+          metadata: definition.metadata || rewardPayload.metadata,
+        },
+      ]);
+    },
+    [rewardDetails]
+  );
+
+  const makeRewardToast = useCallback(
+    (rewardPayload: any, premiumReward: boolean, level: number) => {
+      if (!rewardPayload) return;
+
+      let rewardText = "";
+
+      if (rewardPayload.type === "coins" && rewardPayload.amount) {
+        rewardText = `+${rewardPayload.amount} ${dp("rewardTypes.coins.label")}`;
+      } else if (rewardPayload.type === "boost" && rewardPayload.id) {
+        rewardText = `${dp("rewardTypes.boost.label")}: ${formatTechnicalName(
+          rewardPayload.id,
+          dp("rewardTypes.boost.label")
+        )}`;
+      } else if (rewardPayload.type === "skin") {
+        rewardText = dp("rewardTypes.skin.label");
+      } else if (rewardPayload.type === "badge") {
+        rewardText = dp("rewardTypes.badge.label");
+      } else if (rewardPayload.type === "sticker") {
+        rewardText = dp("rewardTypes.sticker.label");
+      } else if (rewardPayload.type === "trophy") {
+        rewardText = dp("rewardTypes.trophy.label");
+      } else {
+        rewardText = dp("toasts.genericReward");
+      }
+
+      toast.success(premiumReward ? dp("toasts.premiumReward") : dp("toasts.rewardClaimed"), {
+        description: dp("toasts.rewardDescription", { level, reward: rewardText }),
+        duration: 4000,
+      });
+    },
+    [dp]
+  );
+
+  const handleQuickApplyAppearance = useCallback(
+    async (rewardData: any) => {
+      if (!profileId) {
+        toast.error("Профиль не найден");
+        return;
+      }
+
+      try {
+        setIsApplyingAppearance(true);
+
+        if (rewardData.type === "skin") {
+          const { error } = await supabase.rpc("activate_skin", {
+            p_user_id: profileId,
+            p_skin_id: rewardData.id,
+          });
+          if (error) throw error;
+          toast.success("Новый образ активирован");
+        } else if (rewardData.type === "badge") {
+          const { data, error } = await supabase.rpc("toggle_badge_display", {
+            p_user_id: profileId,
+            p_badge_id: rewardData.id,
+            p_display: true,
+          });
+
+          if (error) throw error;
+          if (data && data.success === false) {
+            throw new Error(data.message || "Не удалось обновить бейдж");
+          }
+          toast.success("Бейдж добавлен в профиль");
+        }
+
+      } catch (error: any) {
+        console.error("[DuelPassSeasonModal] Quick apply error:", error);
+        toast.error("Не удалось применить косметику", {
+          description: error?.message,
+        });
+      } finally {
+        setIsApplyingAppearance(false);
+      }
+    },
+    [profileId]
+  );
+
   const handleRewardClick = async (reward: any) => {
     const level = reward.level;
-    
-    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получается ли уже награда для этого уровня
-    const freeKey = `${level}-free`;
-    const premiumKey = `${level}-premium`;
-    
-    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получены ли уже награды перед вызовом claimReward
+    const hasFreeReward = !!reward.free_reward;
+    const hasPremiumReward = !!reward.premium_reward;
     const freeClaimed = claimedFreeRewards.has(level);
     const premiumClaimed = claimedPremiumRewards.has(level);
-    
-    // ИСПРАВЛЕНИЕ БАГА: Если награда уже получена - не делаем ничего
-    if (freeClaimed && (!reward.premium_reward || premiumClaimed || !isPremium)) {
-      return;
-    }
-    
-    // ИСПРАВЛЕНИЕ БАГА: Если Premium награда уже получена и нет бесплатной - не делаем ничего
-    if (!reward.free_reward && premiumClaimed) {
-      return;
-    }
-    
-    // Если пользователь Premium и есть Premium награда - получаем Premium награду
-    if (isPremium && reward.premium_reward && !premiumClaimed) {
-      // Сначала получаем бесплатную награду (если есть и еще не получена)
-      if (reward.free_reward && !freeClaimed && !claimingRewards.has(freeKey)) {
-        await claimReward(level, false);
-      }
-      // Затем получаем Premium награду
-      if (!claimingRewards.has(premiumKey)) {
-        await claimReward(level, true);
-      }
-    } else if (reward.free_reward && !freeClaimed && !claimingRewards.has(freeKey)) {
-      // Если есть бесплатная награда и она не получена - получаем её
-      await claimReward(level, false);
-      
-      // Если есть Premium награда и пользователь Premium, но Premium еще не получена - получаем Premium
-      if (reward.premium_reward && isPremium && !premiumClaimed && !claimingRewards.has(premiumKey)) {
-        // Небольшая задержка для показа анимации получения бесплатной награды
-        setTimeout(async () => {
-          await claimReward(level, true);
-        }, 500);
-      } else if (reward.premium_reward && !isPremium) {
-        // Если пользователь НЕ Premium - показываем модалку после получения бесплатной
-        setTimeout(() => {
-          setPremiumRewardPreview({
-            level: reward.level,
-            premium_reward: reward.premium_reward,
-          });
-        }, 500);
-      }
-    } else if (reward.premium_reward && !isPremium && !premiumClaimed) {
-      // Если есть только Premium награда и пользователь НЕ Premium - показываем модалку
+
+    // Если пользователь не Premium и доступна только премиальная награда — показываем апселл
+    if (hasPremiumReward && !isPremium && (!hasFreeReward || freeClaimed)) {
       setPremiumRewardPreview({
         level: reward.level,
         premium_reward: reward.premium_reward,
       });
-    } else if (isPremium && reward.premium_reward && !premiumClaimed && !claimingRewards.has(premiumKey)) {
-      // Если пользователь Premium и Premium награда не получена - получаем её
-      await claimReward(level, true);
+      return;
+    }
+
+    // Premium пользователь: получаем премиум (и автоматически free на сервере)
+    if (isPremium && hasPremiumReward && !premiumClaimed) {
+      await claimReward(level, true, {
+        lockFreePath: hasFreeReward && !freeClaimed,
+      });
+      return;
+    }
+
+    // Любой пользователь: если осталась бесплатная награда — получаем её
+    if (hasFreeReward && !freeClaimed) {
+      await claimReward(level, false);
+      return;
+    }
+
+    // Не-Premium: если премиум награда ещё не получена, показываем апселл
+    if (hasPremiumReward && !isPremium && !premiumClaimed) {
+      setPremiumRewardPreview({
+        level: reward.level,
+        premium_reward: reward.premium_reward,
+      });
     }
   };
 
-  const claimReward = async (level: number, isPremiumReward: boolean = false) => {
+  const claimReward = async (
+    level: number,
+    isPremiumReward: boolean = false,
+    options?: { lockFreePath?: boolean }
+  ) => {
     if (!profileId || !activeSeason) return;
 
-    // ИСПРАВЛЕНИЕ БАГА: Создаем уникальный ключ для отслеживания текущего запроса
-    const claimKey = `${level}-${isPremiumReward ? 'premium' : 'free'}`;
-    
-    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получается ли уже эта награда
-    if (claimingRewards.has(claimKey)) {
-      console.log(`[DuelPassSeasonModal] Reward ${claimKey} is already being claimed, skipping duplicate request`);
-      return;
-    }
-    
-    // ИСПРАВЛЕНИЕ БАГА: Проверяем, не получена ли уже награда локально
-    if (isPremiumReward && claimedPremiumRewards.has(level)) {
-      console.log(`[DuelPassSeasonModal] Premium reward for level ${level} already claimed locally`);
-      return;
-    }
-    if (!isPremiumReward && claimedFreeRewards.has(level)) {
-      console.log(`[DuelPassSeasonModal] Free reward for level ${level} already claimed locally`);
+    const claimKey = `${level}-${isPremiumReward ? "premium" : "free"}`;
+    const extraKeys = options?.lockFreePath ? [`${level}-free`] : [];
+    const keysToTrack = [claimKey, ...extraKeys];
+
+    if (keysToTrack.some((key) => claimingRewards.has(key))) {
+      console.log("[DuelPassSeasonModal] Reward already processing:", keysToTrack);
       return;
     }
 
-    // ИСПРАВЛЕНИЕ БАГА: Добавляем в список обрабатываемых наград
-    setClaimingRewards((prev) => new Set([...prev, claimKey]));
+    setClaimingRewards((prev) => new Set([...prev, ...keysToTrack]));
 
     try {
       const { data, error } = await supabaseClient.functions.invoke("duel-pass-claim", {
@@ -857,18 +977,16 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       });
 
       if (error) {
-        // ИСПРАВЛЕНИЕ БАГА: При ошибке 409 (уже получено) обновляем локальное состояние
         if (error.status === 409 || error.statusCode === 409) {
-          console.log(`[DuelPassSeasonModal] Reward already claimed for level ${level}, is_premium: ${isPremiumReward}, updating local state`);
-          // Обновляем локальное состояние, чтобы кнопка стала неактивной
           if (isPremiumReward) {
             setClaimedPremiumRewards((prev) => new Set([...prev, level]));
-            setClaimedRewards((prev) => new Set([...prev, level]));
+            if (isPremium) {
+              setClaimedRewards((prev) => new Set([...prev, level]));
+            }
           } else {
             setClaimedFreeRewards((prev) => new Set([...prev, level]));
             setClaimedRewards((prev) => new Set([...prev, level]));
           }
-          // Перезагружаем данные для синхронизации
           loadSeasonData(true);
           return;
         }
@@ -878,76 +996,38 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         return;
       }
 
-      // Показываем детали полученной награды
-      if (data?.reward) {
-        const reward = data.reward;
-        
-        // Для косметики (скины, бейджи, стикеры) показываем анимацию
-        if (["skin", "badge", "sticker"].includes(reward.type) && reward.id) {
-          // Загружаем определение косметики из БД
-          const tableName = reward.type === "skin" ? "skin_definitions" : 
-                           reward.type === "badge" ? "badge_definitions" : 
-                           "sticker_definitions";
-          
-          const { data: definition } = await supabase
-            .from(tableName)
-            .select("*")
-            .eq("id", reward.id)
-            .single();
-          
-          if (definition) {
-            setUnlockedReward({
-              type: reward.type,
-              id: reward.id,
-              name_ru: definition.name_ru,
-              description_ru: definition.description_ru,
-              rarity: definition.rarity,
-              metadata: definition.metadata,
-            });
+      const claimedList =
+        Array.isArray(data?.claimedRewards) && data.claimedRewards.length
+          ? data.claimedRewards
+          : data?.reward
+            ? [{ reward: data.reward, is_premium: isPremiumReward }]
+            : [];
+
+      for (const entry of claimedList) {
+        if (!entry?.reward) continue;
+
+        if (entry.is_premium) {
+          setClaimedPremiumRewards((prev) => new Set([...prev, level]));
+          if (isPremium) {
+            setClaimedRewards((prev) => new Set([...prev, level]));
           }
         } else {
-          // Для монет и бустов показываем toast
-          let rewardText = "";
-          
-          if (reward.type === "coins" && reward.amount) {
-            rewardText = `+${reward.amount} ${dp("rewardTypes.coins.label")}`;
-          } else if (reward.type === "boost" && reward.id) {
-            rewardText = `${dp("rewardTypes.boost.label")}: ${formatTechnicalName(reward.id, dp("rewardTypes.boost.label"))}`;
-          } else {
-            rewardText = dp("toasts.genericReward");
-          }
-
-          toast.success(
-            isPremium ? dp("toasts.premiumReward") : dp("toasts.rewardClaimed"),
-            {
-              description: dp("toasts.rewardDescription", { level, reward: rewardText }),
-              duration: 4000,
-            }
-          );
-        }
-      } else {
-        toast.success(dp("toasts.rewardClaimed"));
-      }
-
-      // Обновляем локальное состояние
-      if (isPremiumReward) {
-        setClaimedPremiumRewards((prev) => new Set([...prev, level]));
-        if (isPremium) {
+          setClaimedFreeRewards((prev) => new Set([...prev, level]));
           setClaimedRewards((prev) => new Set([...prev, level]));
         }
-      } else {
-        setClaimedFreeRewards((prev) => new Set([...prev, level]));
-        setClaimedRewards((prev) => new Set([...prev, level]));
+
+        makeRewardToast(entry.reward, entry.is_premium, level);
+        await queueCosmeticReward(entry.reward);
       }
-      loadSeasonData(true); // Перезагружаем данные (тихое обновление)
+
+      loadSeasonData(true);
     } catch (err: any) {
       console.error("[DuelPassSeasonModal] Claim error", err);
       toast.error(dp("toasts.rewardError"));
     } finally {
-      // ИСПРАВЛЕНИЕ БАГА: Удаляем из списка обрабатываемых наград в любом случае
       setClaimingRewards((prev) => {
         const next = new Set(prev);
-        next.delete(claimKey);
+        keysToTrack.forEach((key) => next.delete(key));
         return next;
       });
     }
@@ -1117,13 +1197,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             }}
           />
         )}
-        {unlockedReward && (
+        {activeCosmeticReward && (
           <RewardUnlockAnimation
-            open={!!unlockedReward}
+            open={!!activeCosmeticReward}
             onOpenChange={(open) => {
-              if (!open) setUnlockedReward(null);
+              if (!open) {
+                setActiveCosmeticReward(null);
+              }
             }}
-            reward={unlockedReward}
+            reward={activeCosmeticReward}
+            onQuickApply={
+              ["skin", "badge"].includes(activeCosmeticReward.type)
+                ? () => handleQuickApplyAppearance(activeCosmeticReward)
+                : undefined
+            }
+            isApplying={isApplyingAppearance}
           />
         )}
         <PremiumPlanSelector
@@ -1383,22 +1471,25 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
       <div className={cn("space-y-6", isMobile ? "px-3 py-4" : "px-6 py-6")}>
         {/* Сезонный hero блок */}
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={cn(
-            "relative overflow-hidden rounded-3xl border px-5 py-6 text-white",
-            seasonTheme.gradient,
-            seasonTheme.border,
-            seasonTheme.glow
-          )}
-        >
-          <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
-          <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
-          {/* Плавное затемнение по краям (vignette effect) */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)] pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none" />
-          <div className="relative z-10 space-y-5">
+        <div className="relative">
+          {/* Мягкое ореольное свечение вокруг карточки */}
+          <div className="pointer-events-none absolute -inset-6 rounded-[32px] bg-gradient-to-b from-cyan-400/25 via-blue-500/10 to-transparent opacity-70 blur-3xl" />
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={cn(
+              "relative overflow-hidden rounded-3xl border px-5 py-6 text-white",
+              seasonTheme.gradient,
+              seasonTheme.border,
+              "shadow-[0_0_60px_rgba(34,211,238,0.25)]"
+            )}
+          >
+            <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
+            <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
+            {/* Плавное затемнение по краям (vignette effect) */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.45)_120%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/45 pointer-events-none" />
+            <div className="relative z-10 space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className={cn("px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.3em]", seasonTheme.chip)}>
@@ -1449,8 +1540,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   )}
               </div>
             </div>
-          </div>
-        </motion.div>
+            </div>
+          </motion.div>
+        </div>
 
         {/* Прогресс по уровням */}
         <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
@@ -2025,13 +2117,21 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         }}
       />
     )}
-    {unlockedReward && (
+    {activeCosmeticReward && (
       <RewardUnlockAnimation
-        open={!!unlockedReward}
+        open={!!activeCosmeticReward}
         onOpenChange={(open) => {
-          if (!open) setUnlockedReward(null);
+          if (!open) {
+            setActiveCosmeticReward(null);
+          }
         }}
-        reward={unlockedReward}
+        reward={activeCosmeticReward}
+        onQuickApply={
+          ["skin", "badge"].includes(activeCosmeticReward.type)
+            ? () => handleQuickApplyAppearance(activeCosmeticReward)
+            : undefined
+        }
+        isApplying={isApplyingAppearance}
       />
     )}
     <PremiumPlanSelector

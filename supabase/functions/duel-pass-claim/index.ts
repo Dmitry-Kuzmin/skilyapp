@@ -81,235 +81,295 @@ serve(async (req) => {
       );
     }
 
-    const { data: alreadyClaimed } = await supabase
-      .from("user_claimed_rewards")
-      .select("id")
-      .eq("user_id", user_id)
-      .eq("season", season)
-      .eq("level", level)
-      .eq("is_premium", is_premium)
-      .maybeSingle();
+    type RewardPayload = {
+      type: string;
+      amount?: number;
+      id?: string;
+    };
 
-    if (alreadyClaimed) {
-      return new Response(
-        JSON.stringify({ 
-          error: "Reward already claimed",
-          message: "Эта награда уже была получена" 
-        }),
-        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    type ProcessResult =
+      | { status: "granted"; reward: RewardPayload; isPremium: boolean }
+      | { status: "already_claimed"; isPremium: boolean };
 
-    // Получаем награду из сезонных наград
-    const { data: reward, error: rewardError } = await supabase
+    const processReward = async (
+      rewardPayload: RewardPayload | null,
+      isPremiumReward: boolean,
+      conflictBehavior: "error" | "ignore" = "error"
+    ): Promise<ProcessResult | null> => {
+      if (!rewardPayload) {
+        return null;
+      }
+
+      const { data: existingClaim } = await supabase
+        .from("user_claimed_rewards")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("season", season)
+        .eq("level", level)
+        .eq("is_premium", isPremiumReward)
+        .maybeSingle();
+
+      if (existingClaim) {
+        if (conflictBehavior === "error") {
+          return { status: "already_claimed", isPremium: isPremiumReward };
+        }
+        return null;
+      }
+
+      if (rewardPayload.type === "coins" && rewardPayload.amount) {
+        await supabase.rpc("increment_profile_value", {
+          p_profile_id: user_id,
+          p_column: "coins",
+          p_amount: rewardPayload.amount,
+        });
+
+        await supabase.from("transactions").insert({
+          user_id,
+          transaction_type: "coins_earned_daily",
+          amount: rewardPayload.amount,
+          metadata: {
+            source: "duel_pass_reward",
+            level,
+            is_premium: isPremiumReward,
+            reward_type: isPremiumReward ? "premium" : "free",
+          },
+        });
+      } else if (rewardPayload.type === "boost" && rewardPayload.id) {
+        const { data: existingBoost } = await supabase
+          .from("boost_inventory")
+          .select("quantity")
+          .eq("user_id", user_id)
+          .eq("boost_type", rewardPayload.id)
+          .maybeSingle();
+
+        if (existingBoost) {
+          await supabase
+            .from("boost_inventory")
+            .update({ quantity: existingBoost.quantity + 1 })
+            .eq("user_id", user_id)
+            .eq("boost_type", rewardPayload.id);
+        } else {
+          await supabase.from("boost_inventory").insert({
+            user_id,
+            boost_type: rewardPayload.id,
+            quantity: 1,
+          });
+        }
+      } else if (rewardPayload.type === "skin" && rewardPayload.id) {
+        const { error: skinError } = await supabase.from("user_skins").insert({
+          user_id,
+          skin_id: rewardPayload.id,
+          obtained_from: "duel_pass",
+          obtained_metadata: {
+            season,
+            level,
+            is_premium: isPremiumReward,
+          },
+        });
+
+        if (skinError && skinError.code !== "23505") {
+          console.error("[duel-pass-claim] Error adding skin:", skinError);
+        }
+
+        await supabase.from("transactions").insert({
+          user_id,
+          transaction_type: "item_received",
+          amount: 0,
+          metadata: {
+            source: "duel_pass_reward",
+            level,
+            is_premium: isPremiumReward,
+            reward_type: "skin",
+            skin_id: rewardPayload.id,
+          },
+        });
+      } else if (rewardPayload.type === "badge" && rewardPayload.id) {
+        const { error: badgeError } = await supabase.from("user_badges").insert({
+          user_id,
+          badge_id: rewardPayload.id,
+          obtained_from: "duel_pass",
+          obtained_metadata: {
+            season,
+            level,
+            is_premium: isPremiumReward,
+          },
+        });
+
+        if (badgeError && badgeError.code !== "23505") {
+          console.error("[duel-pass-claim] Error adding badge:", badgeError);
+        }
+
+        await supabase.from("transactions").insert({
+          user_id,
+          transaction_type: "item_received",
+          amount: 0,
+          metadata: {
+            source: "duel_pass_reward",
+            level,
+            is_premium: isPremiumReward,
+            reward_type: "badge",
+            badge_id: rewardPayload.id,
+          },
+        });
+      } else if (rewardPayload.type === "sticker" && rewardPayload.id) {
+        const { data: existingSticker } = await supabase
+          .from("user_stickers")
+          .select("quantity")
+          .eq("user_id", user_id)
+          .eq("sticker_id", rewardPayload.id)
+          .maybeSingle();
+
+        if (existingSticker) {
+          await supabase
+            .from("user_stickers")
+            .update({ quantity: existingSticker.quantity + (rewardPayload.amount || 1) })
+            .eq("user_id", user_id)
+            .eq("sticker_id", rewardPayload.id);
+        } else {
+          await supabase.from("user_stickers").insert({
+            user_id,
+            sticker_id: rewardPayload.id,
+            quantity: rewardPayload.amount || 1,
+            obtained_from: "duel_pass",
+            obtained_metadata: {
+              season,
+              level,
+              is_premium: isPremiumReward,
+            },
+          });
+        }
+
+        await supabase.from("transactions").insert({
+          user_id,
+          transaction_type: "item_received",
+          amount: 0,
+          metadata: {
+            source: "duel_pass_reward",
+            level,
+            is_premium: isPremiumReward,
+            reward_type: "sticker",
+            sticker_id: rewardPayload.id,
+            quantity: rewardPayload.amount || 1,
+          },
+        });
+      }
+
+      const { error: insertError } = await supabase.from("user_claimed_rewards").insert({
+        user_id,
+        season,
+        level,
+        is_premium: isPremiumReward,
+      });
+
+      if (insertError) {
+        if (insertError.code === "23505") {
+          if (conflictBehavior === "error") {
+            return { status: "already_claimed", isPremium: isPremiumReward };
+          }
+          return null;
+        }
+        console.error("[duel-pass-claim] Error inserting claimed reward:", insertError);
+        throw insertError;
+      }
+
+      return {
+        status: "granted",
+        reward: rewardPayload,
+        isPremium: isPremiumReward,
+      };
+    };
+
+    const { data: rewardRow, error: rewardError } = await supabase
       .from("duel_pass_season_rewards")
-      .select(is_premium ? "premium_reward" : "free_reward")
+      .select("free_reward, premium_reward")
       .eq("season_id", seasonId)
       .eq("level", level)
       .single();
 
-    if (rewardError || !reward) {
+    if (rewardError || !rewardRow) {
       return new Response(
         JSON.stringify({ error: "Reward not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const rewardPayload = (is_premium ? reward.premium_reward : reward.free_reward) as {
-      type: string;
-      amount?: number;
-      id?: string;
-    };
+    const grantedRewards: RewardPayload[] = [];
+    const claimedEntries: { reward: RewardPayload; is_premium: boolean }[] = [];
 
-    // Обработка разных типов наград
-    if (rewardPayload.type === "coins" && rewardPayload.amount) {
-      // Начисляем монеты
-      await supabase.rpc("increment_profile_value", {
-        p_profile_id: user_id,
-        p_column: "coins",
-        p_amount: rewardPayload.amount,
-      });
-
-      await supabase.from("transactions").insert({
-        user_id,
-        transaction_type: "coins_earned_daily",
-        amount: rewardPayload.amount,
-        metadata: { 
-          source: "duel_pass_reward", 
-          level, 
-          is_premium,
-          reward_type: is_premium ? "premium" : "free"
-        },
-      });
-    } else if (rewardPayload.type === "boost" && rewardPayload.id) {
-      // Добавляем буст в инвентарь
-      // Сначала проверяем, есть ли уже такой буст
-      const { data: existingBoost } = await supabase
-        .from("boost_inventory")
-        .select("quantity")
-        .eq("user_id", user_id)
-        .eq("boost_type", rewardPayload.id)
-        .maybeSingle();
-
-      if (existingBoost) {
-        // Увеличиваем количество
-        await supabase
-          .from("boost_inventory")
-          .update({ quantity: existingBoost.quantity + 1 })
-          .eq("user_id", user_id)
-          .eq("boost_type", rewardPayload.id);
-      } else {
-        // Создаем новую запись
-        await supabase
-          .from("boost_inventory")
-          .insert({
-            user_id,
-            boost_type: rewardPayload.id,
-            quantity: 1,
-          });
-      }
-    } else if (rewardPayload.type === "skin" && rewardPayload.id) {
-      // Добавляем скин в инвентарь пользователя
-      const { error: skinError } = await supabase
-        .from("user_skins")
-        .insert({
-          user_id,
-          skin_id: rewardPayload.id,
-          obtained_from: "duel_pass",
-          obtained_metadata: {
-            season,
-            level,
-            is_premium,
-          },
-        });
-
-      if (skinError && skinError.code !== "23505") {
-        // Игнорируем ошибку дубликата (пользователь уже имеет этот скин)
-        console.error("[duel-pass-claim] Error adding skin:", skinError);
-      }
-
-      // Также логируем в транзакции для истории
-      await supabase.from("transactions").insert({
-        user_id,
-        transaction_type: "item_received",
-        amount: 0,
-        metadata: {
-          source: "duel_pass_reward",
-          level,
-          is_premium,
-          reward_type: "skin",
-          skin_id: rewardPayload.id,
-        },
-      });
-    } else if (rewardPayload.type === "badge" && rewardPayload.id) {
-      // Добавляем бейдж в инвентарь пользователя
-      const { error: badgeError } = await supabase
-        .from("user_badges")
-        .insert({
-          user_id,
-          badge_id: rewardPayload.id,
-          obtained_from: "duel_pass",
-          obtained_metadata: {
-            season,
-            level,
-            is_premium,
-          },
-        });
-
-      if (badgeError && badgeError.code !== "23505") {
-        console.error("[duel-pass-claim] Error adding badge:", badgeError);
-      }
-
-      // Также логируем в транзакции
-      await supabase.from("transactions").insert({
-        user_id,
-        transaction_type: "item_received",
-        amount: 0,
-        metadata: {
-          source: "duel_pass_reward",
-          level,
-          is_premium,
-          reward_type: "badge",
-          badge_id: rewardPayload.id,
-        },
-      });
-    } else if (rewardPayload.type === "sticker" && rewardPayload.id) {
-      // Добавляем стикер в инвентарь (или увеличиваем количество)
-      const { data: existingSticker } = await supabase
-        .from("user_stickers")
-        .select("quantity")
-        .eq("user_id", user_id)
-        .eq("sticker_id", rewardPayload.id)
-        .maybeSingle();
-
-      if (existingSticker) {
-        // Увеличиваем количество
-        await supabase
-          .from("user_stickers")
-          .update({ quantity: existingSticker.quantity + (rewardPayload.amount || 1) })
-          .eq("user_id", user_id)
-          .eq("sticker_id", rewardPayload.id);
-      } else {
-        // Создаем новую запись
-        await supabase.from("user_stickers").insert({
-          user_id,
-          sticker_id: rewardPayload.id,
-          quantity: rewardPayload.amount || 1,
-          obtained_from: "duel_pass",
-          obtained_metadata: {
-            season,
-            level,
-            is_premium,
-          },
-        });
-      }
-
-      // Также логируем в транзакции
-      await supabase.from("transactions").insert({
-        user_id,
-        transaction_type: "item_received",
-        amount: 0,
-        metadata: {
-          source: "duel_pass_reward",
-          level,
-          is_premium,
-          reward_type: "sticker",
-          sticker_id: rewardPayload.id,
-          quantity: rewardPayload.amount || 1,
-        },
-      });
-    }
-
-    // ИСПРАВЛЕНИЕ БАГА: Обрабатываем возможную ошибку дубликата при вставке (race condition)
-    const { error: insertError } = await supabase.from("user_claimed_rewards").insert({
-      user_id,
-      season,
-      level,
-      is_premium,
-    });
-
-    // ИСПРАВЛЕНИЕ БАГА: Если произошла ошибка дубликата (код 23505) - возвращаем 409
-    if (insertError) {
-      if (insertError.code === "23505") {
-        // UNIQUE constraint violation - награда уже получена (race condition)
+    if (is_premium) {
+      if (!rewardRow.premium_reward) {
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({ error: "Premium reward not available" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (rewardRow.free_reward) {
+        const freeResult = await processReward(rewardRow.free_reward as RewardPayload, false, "ignore");
+        if (freeResult && freeResult.status === "granted") {
+          grantedRewards.push(freeResult.reward);
+          claimedEntries.push({ reward: freeResult.reward, is_premium: false });
+        }
+      }
+
+      const premiumResult = await processReward(rewardRow.premium_reward as RewardPayload, true, "error");
+
+      if (!premiumResult) {
+        return new Response(
+          JSON.stringify({ error: "Reward not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (premiumResult.status === "already_claimed") {
+        return new Response(
+          JSON.stringify({
             error: "Reward already claimed",
-            message: "Эта награда уже была получена" 
+            message: "Эта награда уже была получена",
           }),
           { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      // Другая ошибка
-      console.error("[duel-pass-claim] Error inserting claimed reward:", insertError);
-      return new Response(
-        JSON.stringify({ error: "Failed to save claimed reward", message: insertError.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+
+      grantedRewards.push(premiumResult.reward);
+      claimedEntries.push({ reward: premiumResult.reward, is_premium: true });
+    } else {
+      if (!rewardRow.free_reward) {
+        return new Response(
+          JSON.stringify({ error: "Free reward not available" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const freeResult = await processReward(rewardRow.free_reward as RewardPayload, false, "error");
+
+      if (!freeResult) {
+        return new Response(
+          JSON.stringify({ error: "Reward not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (freeResult.status === "already_claimed") {
+        return new Response(
+          JSON.stringify({
+            error: "Reward already claimed",
+            message: "Эта награда уже была получена",
+          }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      grantedRewards.push(freeResult.reward);
+      claimedEntries.push({ reward: freeResult.reward, is_premium: false });
     }
 
     return new Response(
-      JSON.stringify({ success: true, reward: rewardPayload }),
+      JSON.stringify({
+        success: true,
+        reward: grantedRewards[grantedRewards.length - 1],
+        claimedRewards: claimedEntries,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

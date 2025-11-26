@@ -148,7 +148,7 @@ export function UnifiedModal({
 
       // Обновляем prop (основной источник истины)
       if (typeof onOpenChange === 'function') {
-        onOpenChange(state);
+      onOpenChange(state);
       }
       
       // Синхронизируем URL (если используется)
