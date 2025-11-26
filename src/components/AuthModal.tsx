@@ -210,33 +210,34 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   };
 
   return (
-      <UnifiedModal
+    <UnifiedModal
       open={open}
       onOpenChange={handleOpenChange}
       title={isSignUp ? "Регистрация" : "Вход в систему"}
       showTitleBar={false}
-      className="sm:max-w-md"
+      className="sm:max-w-md !bg-[#050d21] !text-white !border !border-white/5 shadow-[0_30px_80px_rgba(5,13,33,0.85)]"
+      contentClassName="px-6 py-6 sm:px-8 sm:py-8"
       modalRouteKey="auth"
     >
-      <div className="space-y-6 py-4">
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-xl gradient-primary">
-            <Crown className="w-8 h-8 text-primary-foreground" />
+      <div className="space-y-6">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center w-16 h-16 mx-auto rounded-2xl border border-indigo-500/40 bg-gradient-to-b from-indigo-500/20 via-transparent to-transparent shadow-[0_10px_30px_rgba(79,70,229,0.45)]">
+            <Crown className="w-7 h-7 text-indigo-200" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {isSignUp ? "Регистрация" : "Вход в систему"}
+            <h2 className="text-3xl font-black tracking-tight text-white">
+              {isSignUp ? "Регистрация" : "Вход в систему"}
             </h2>
-            <p className="text-sm text-muted-foreground">
-            {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
+            <p className="text-sm text-slate-400">
+              {isSignUp ? "Создайте аккаунт для доступа ко всем функциям" : "Войдите, чтобы продолжить обучение"}
             </p>
           </div>
         </div>
 
           {/* Telegram Login */}
-          <div className="space-y-2">
-            <Label className="text-center block text-lg">Войти через Telegram</Label>
-            <p className="text-sm text-muted-foreground text-center">
+          <div className="space-y-2 rounded-2xl border border-white/5 bg-white/[0.02] p-4 backdrop-blur-sm">
+            <Label className="text-center block text-sm tracking-[0.35em] uppercase text-indigo-200">Войти через Telegram</Label>
+            <p className="text-sm text-slate-400 text-center">
               Быстрый и безопасный способ входа
             </p>
             <div id="telegram-login-container" className="flex justify-center" />
@@ -246,7 +247,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className="w-full border-white/10 bg-white/5 text-white hover:bg-white/10"
             onClick={async () => {
               try {
                 const { error } = await supabase.auth.signInWithOAuth({
@@ -280,19 +281,21 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             Continue with Google
           </Button>
 
-          <div className="relative">
+          <div className="relative py-2">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-white/10" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">или войдите с email</span>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-[0.3em] text-slate-500">
+              <span className="px-3 bg-[#050d21]">или войдите с email</span>
             </div>
           </div>
 
           {/* Email Login/Signup */}
           <form onSubmit={handleEmailAuth} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm text-slate-300">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -300,10 +303,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-indigo-500/60"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Пароль</Label>
+              <Label htmlFor="password" className="text-sm text-slate-300">
+                Пароль
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -312,23 +318,30 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-indigo-500/60"
               />
             </div>
-            <Button type="submit" className="w-full shadow-primary" size="lg" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_20px_40px_rgba(79,70,229,0.5)]"
+              size="lg"
+              disabled={isLoading}
+            >
               {isLoading ? (isSignUp ? "Регистрация..." : "Вход...") : (isSignUp ? "Зарегистрироваться" : "Войти")}
             </Button>
             
-            <div className="text-center text-sm">
+            <div className="text-center text-sm text-slate-400">
               <button
                 type="button"
                 onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary hover:underline font-medium"
+                className="text-indigo-300 hover:text-white font-medium transition-colors"
               >
                 {isSignUp ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"}
               </button>
             </div>
           </form>
         </div>
+      </div>
     </UnifiedModal>
   );
 }
