@@ -168,7 +168,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
-            <div className="font-black text-white mb-3 leading-tight text-balance break-words text-[clamp(1.6rem,2.4vw,2.4rem)] max-w-[220px]">
+            <div className="font-black text-white mb-3 leading-snug text-pretty text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">
               {copy.ecosystem.cards.totalQuestions}
             </div>
             <p className="text-indigo-400 font-bold uppercase tracking-widest text-xs">
