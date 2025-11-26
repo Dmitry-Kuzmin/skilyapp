@@ -36,6 +36,17 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   const [isStarting, setIsStarting] = useState(false);
   const { language, setLanguage } = useLanguage();
   const copy = landingTranslations[language];
+  const highlightWord = copy.stats[1].label;
+  const totalQuestionsText = copy.ecosystem.cards.totalQuestions;
+  const highlightIndex = totalQuestionsText
+    .toLowerCase()
+    .lastIndexOf(highlightWord.toLowerCase());
+  const totalTextBefore =
+    highlightIndex >= 0 ? totalQuestionsText.slice(0, highlightIndex) : totalQuestionsText;
+  const totalTextHighlight =
+    highlightIndex >= 0 ? totalQuestionsText.slice(highlightIndex, highlightIndex + highlightWord.length) : "";
+  const totalTextAfter =
+    highlightIndex >= 0 ? totalQuestionsText.slice(highlightIndex + highlightWord.length) : "";
 
   const handleStartEngine = () => {
     if (isStarting) return;
@@ -168,12 +179,13 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
-            <div className="font-black text-white mb-3 leading-snug text-pretty text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">
-              {copy.ecosystem.cards.totalQuestions}
+            <div className="font-black text-white mb-2 leading-snug text-pretty text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">
+              {totalTextBefore}
+              {highlightIndex >= 0 && (
+                <span className="text-indigo-300">{totalTextHighlight}</span>
+              )}
+              {totalTextAfter}
             </div>
-            <p className="text-indigo-400 font-bold uppercase tracking-widest text-xs">
-              {copy.stats[1].label}
-            </p>
           </div>
           <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-all">
             <div className="flex gap-4 mb-4">
