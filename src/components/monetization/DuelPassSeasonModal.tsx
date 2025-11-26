@@ -326,7 +326,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [claimingRewards, setClaimingRewards] = useState<Set<string>>(new Set());
   const showOnboarding = false;
   const [showPaywall, setShowPaywall] = useState(false);
-  const [premiumRewardPreview, setPremiumRewardPreview] = useState<{level: number; premium_reward: any} | null>(null);
+  const [premiumRewardPreview, setPremiumRewardPreview] = useState<{ level: number; premium_reward: any } | null>(null);
   const [cosmeticQueue, setCosmeticQueue] = useState<any[]>([]);
   const [activeCosmeticReward, setActiveCosmeticReward] = useState<any | null>(null);
   const [isApplyingAppearance, setIsApplyingAppearance] = useState(false);
@@ -399,7 +399,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }),
     [dp]
   );
-  
+
   // Итоговый Premium статус: либо из хука, либо Premium Forever, либо Premium Pass для сезона
   // ВАЖНО: Premium Forever дает доступ ко всем Premium наградам автоматически
   const isPremium = isPremiumFromHook || hasPremiumForever || hasPremiumPass;
@@ -418,7 +418,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   // }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
 
   const hasLoadedRef = React.useRef(false);
-  
+
   useEffect(() => {
     if (open && profileId && !hasLoadedRef.current) {
       hasLoadedRef.current = true;
@@ -442,7 +442,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   useEffect(() => {
     if (!rewards.length) return;
-    
+
     let isMounted = true;
     const loadRewardDefinitions = async () => {
       const typeMap: Record<string, Set<string>> = {
@@ -725,36 +725,36 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         }
 
         if (claimedData) {
-        // console.log("[DuelPassSeasonModal] Загружено полученных наград из БД:", claimedData);
-        const claimed = new Set<number>();
-        const claimedFree = new Set<number>();
-        const claimedPremium = new Set<number>();
-        
-        claimedData.forEach((item: { level: number; is_premium: boolean }) => {
-          if (!item.is_premium) {
-            // Бесплатная награда получена
-            claimedFree.add(item.level);
-            claimed.add(item.level);
-            // console.log(`[DuelPassSeasonModal] Бесплатная награда уровня ${item.level} помечена как полученная`);
-          } else {
-            // Premium награда получена
-            claimedPremium.add(item.level);
-            if (isPremium) {
+          // console.log("[DuelPassSeasonModal] Загружено полученных наград из БД:", claimedData);
+          const claimed = new Set<number>();
+          const claimedFree = new Set<number>();
+          const claimedPremium = new Set<number>();
+
+          claimedData.forEach((item: { level: number; is_premium: boolean }) => {
+            if (!item.is_premium) {
+              // Бесплатная награда получена
+              claimedFree.add(item.level);
               claimed.add(item.level);
+              // console.log(`[DuelPassSeasonModal] Бесплатная награда уровня ${item.level} помечена как полученная`);
+            } else {
+              // Premium награда получена
+              claimedPremium.add(item.level);
+              if (isPremium) {
+                claimed.add(item.level);
+              }
+              // console.log(`[DuelPassSeasonModal] Premium награда уровня ${item.level} помечена как полученная`);
             }
-            // console.log(`[DuelPassSeasonModal] Premium награда уровня ${item.level} помечена как полученная`);
-          }
-        });
-        
-        // console.log("[DuelPassSeasonModal] Итоговые множества:", {
-        //   claimedFree: Array.from(claimedFree),
-        //   claimedPremium: Array.from(claimedPremium),
-        //   claimed: Array.from(claimed)
-        // });
-        
-        setClaimedRewards(claimed);
-        setClaimedFreeRewards(claimedFree);
-        setClaimedPremiumRewards(claimedPremium);
+          });
+
+          // console.log("[DuelPassSeasonModal] Итоговые множества:", {
+          //   claimedFree: Array.from(claimedFree),
+          //   claimedPremium: Array.from(claimedPremium),
+          //   claimed: Array.from(claimed)
+          // });
+
+          setClaimedRewards(claimed);
+          setClaimedFreeRewards(claimedFree);
+          setClaimedPremiumRewards(claimedPremium);
         }
       } else {
         console.error("[DuelPassSeasonModal] Claimed rewards request failed", claimedResult.reason);
@@ -798,12 +798,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           const parsedMetadata =
             typeof data.metadata === "string"
               ? (() => {
-                  try {
-                    return JSON.parse(data.metadata);
-                  } catch {
-                    return undefined;
-                  }
-                })()
+                try {
+                  return JSON.parse(data.metadata);
+                } catch {
+                  return undefined;
+                }
+              })()
               : data.metadata;
 
           definition = {
@@ -948,6 +948,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     }
   };
 
+  const claimingRef = React.useRef<Set<string>>(new Set());
+
   const claimReward = async (
     level: number,
     isPremiumReward: boolean = false,
@@ -959,11 +961,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const extraKeys = options?.lockFreePath ? [`${level}-free`] : [];
     const keysToTrack = [claimKey, ...extraKeys];
 
-    if (keysToTrack.some((key) => claimingRewards.has(key))) {
-      console.log("[DuelPassSeasonModal] Reward already processing:", keysToTrack);
+    // Проверка через Ref для мгновенной блокировки (защита от дабл-клика)
+    if (keysToTrack.some((key) => claimingRef.current.has(key))) {
+      console.log("[DuelPassSeasonModal] Reward already processing (ref check):", keysToTrack);
       return;
     }
 
+    // Блокируем сразу в Ref
+    keysToTrack.forEach(key => claimingRef.current.add(key));
+    // И обновляем стейт для UI
     setClaimingRewards((prev) => new Set([...prev, ...keysToTrack]));
 
     try {
@@ -971,7 +977,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         body: {
           user_id: profileId,
           level,
-          is_premium: isPremiumReward ? isPremium : false,
+          is_premium: isPremiumReward,
           season: activeSeason.season_number,
         },
       });
@@ -1025,6 +1031,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       console.error("[DuelPassSeasonModal] Claim error", err);
       toast.error(dp("toasts.rewardError"));
     } finally {
+      // Очищаем Ref и стейт
+      keysToTrack.forEach(key => claimingRef.current.delete(key));
       setClaimingRewards((prev) => {
         const next = new Set(prev);
         keysToTrack.forEach((key) => next.delete(key));
@@ -1037,14 +1045,14 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const SkeletonContent = () => (
     <>
       <div className={cn("border-b", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-4 w-48" />
-            </div>
+        <div className="flex items-center gap-3">
+          <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-48" />
           </div>
-            </div>
+        </div>
+      </div>
 
       <div className={cn("space-y-6", isMobile ? "px-3 py-4" : "px-6 py-6")}>
         {/* Progress Skeleton */}
@@ -1081,7 +1089,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <Skeleton className="h-8 w-24 rounded-lg" />
             </div>
           </div>
-          
+
           {/* Table Header Skeleton */}
           <div className="border rounded-lg overflow-hidden">
             <div className="grid grid-cols-5 gap-2 px-4 py-3 bg-muted/50 border-b">
@@ -1089,7 +1097,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 <Skeleton key={i} className="h-4 w-full" />
               ))}
             </div>
-            
+
             {/* Table Rows Skeleton */}
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
               <div key={i} className="grid grid-cols-5 gap-2 px-4 py-3 border-b last:border-b-0">
@@ -1142,38 +1150,38 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       loading={options?.loading ?? loading}
       skeletonVariant="default"
     >
-                <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         {description && (
           <div className="px-6 pt-4 pb-2 border-b border-border/40">
             <p className="text-sm text-muted-foreground">{description}</p>
-                </div>
+          </div>
         )}
         {content}
       </div>
     </UnifiedModal>
-      );
+  );
 
   if (!activeSeason || !seasonProgress) {
     const fallbackContent = loading ? (
       <SkeletonContent />
     ) : (
       <div className="text-center py-12 space-y-4 px-6">
-            <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
-            <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-              <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
-              <p className="text-xs mb-2">
-                {dp("migration.warningDescription")}
-              </p>
-              <ol className="text-xs list-decimal list-inside space-y-1 text-left">
-                <li>{dp("migration.steps.0")}</li>
-                <li>
-                  {dp("migration.steps.1")}{" "}
-                  <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
-                </li>
-                <li>{dp("migration.steps.2")}</li>
-              </ol>
-            </div>
-          </div>
+        <p className="text-muted-foreground">{dp("migration.noSeason")}</p>
+        <div className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+          <p className="font-semibold mb-2">{dp("migration.warningTitle")}</p>
+          <p className="text-xs mb-2">
+            {dp("migration.warningDescription")}
+          </p>
+          <ol className="text-xs list-decimal list-inside space-y-1 text-left">
+            <li>{dp("migration.steps.0")}</li>
+            <li>
+              {dp("migration.steps.1")}{" "}
+              <code className="bg-background px-1 rounded">APPLY_SEASON_MIGRATION_NOW.sql</code>
+            </li>
+            <li>{dp("migration.steps.2")}</li>
+          </ol>
+        </div>
+      </div>
     );
 
     return (
@@ -1246,7 +1254,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const filteredRewards = rewards.filter((reward) => {
     const unlocked = currentLevel >= reward.level;
     const isClaimed = claimedRewards.has(reward.level);
-    
+
     if (rewardFilter === 'available') {
       return unlocked && !isClaimed;
     }
@@ -1421,27 +1429,27 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             : dp("highlights.limit.descriptionFallback"),
       },
     ];
-    
+
     return (
-    <>
-      {/* Упрощенный Header */}
-      <div className={cn("relative text-left", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
-        {/* Плавное затемнение снизу для плавного перехода */}
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none" />
+      <>
+        {/* Упрощенный Header */}
+        <div className={cn("relative text-left", isMobile ? "px-4 pt-2 pb-4" : "px-6 pt-6 pb-4")}>
+          {/* Плавное затемнение снизу для плавного перехода */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-b from-background via-background/80 to-transparent pointer-events-none" />
           <div className="relative z-10 flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
               <Trophy className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-bold">{dp("title")}</h2>
-            <p className="text-xs mt-0.5 flex items-center gap-2 text-muted-foreground">
+              <h2 className="text-xl font-bold">{dp("title")}</h2>
+              <p className="text-xs mt-0.5 flex items-center gap-2 text-muted-foreground">
                 <span>{activeSeason.name_ru}</span>
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}
                 </span>
-            </p>
+              </p>
             </div>
             <TooltipProvider>
               <Tooltip>
@@ -1452,647 +1460,647 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
                     onClick={() => {
                       onOpenChange(false);
-                  openLeaderboardModal();
+                      openLeaderboardModal();
                     }}
                   >
                     <BarChart3 className="w-4 h-4" />
-                  <span className="text-xs font-medium">
-                    {isMobile ? "Лидеры" : "Таблица лидеров"}
-                </span>
+                    <span className="text-xs font-medium">
+                      {isMobile ? "Лидеры" : "Таблица лидеров"}
+                    </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                <p>{isMobile ? "Таблица лидеров сезона" : "Посмотреть рейтинг участников сезона"}</p>
+                  <p>{isMobile ? "Таблица лидеров сезона" : "Посмотреть рейтинг участников сезона"}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-      </div>
-
-      <div className={cn("space-y-6", isMobile ? "px-3 py-4" : "px-6 py-6")}>
-        {/* Сезонный hero блок */}
-        <div className="relative">
-          {/* Мягкое ореольное свечение вокруг карточки */}
-          <div className="pointer-events-none absolute -inset-6 rounded-[32px] bg-gradient-to-b from-cyan-400/25 via-blue-500/10 to-transparent opacity-70 blur-3xl" />
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={cn(
-              "relative overflow-hidden rounded-3xl border px-5 py-6 text-white",
-              seasonTheme.gradient,
-              seasonTheme.border,
-              "shadow-[0_0_60px_rgba(34,211,238,0.25)]"
-            )}
-          >
-            <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
-            <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
-            {/* Плавное затемнение по краям (vignette effect) */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.45)_120%)] pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/45 pointer-events-none" />
-            <div className="relative z-10 space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className={cn("px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.3em]", seasonTheme.chip)}>
-                  {dp("hero.seasonLabel", { number: activeSeason.season_number })}
-                </span>
-                <span className={cn("text-xs uppercase tracking-[0.4em]", seasonTheme.accent)}>
-                  {activeSeason.theme === "special" ? dp("hero.specialTheme") : activeSeason.name_en}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-white/80">
-                <Calendar className="w-4 h-4" />
-                <span>
-                  {formatSeasonDate(seasonStartDate)} — {formatSeasonDate(seasonEndDate)}
-                </span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-3xl font-black tracking-tight">{activeSeason.name_ru}</h2>
-              <p className="text-sm text-white/80 max-w-3xl">
-                {activeSeason.description_ru || dp("hero.defaultDescription")}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-6">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  {dp("hero.countdownLabel")}
-                </p>
-                <CountdownTicker endDate={activeSeason.end_date} labels={countdownLabels} />
-              </div>
-              <div className="flex flex-col gap-2 text-sm text-white/85">
-                <div className="flex items-center gap-2">
-                  <Hourglass className="w-4 h-4" />
-                  <span>{dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  <span>{dp("hero.levelsRemaining", { count: Math.max(maxLevel - currentLevel, 0) })}</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-3">{dp("hero.featuredTitle")}</p>
-              <div className="flex flex-wrap gap-3">
-                {featuredRewards.length
-                  ? featuredRewards.map((reward, index) => renderHeroRewardCard(reward, index))
-                  : (
-                    <div className="text-sm text-white/80">{dp("hero.featuredEmpty")}</div>
-                  )}
-              </div>
-            </div>
-            </div>
-          </motion.div>
         </div>
 
-        {/* Прогресс по уровням */}
-        <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-baseline gap-2">
-              <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                {dp("progress.currentLevelLabel")}
-              </span>
-              <span className="text-3xl font-black text-foreground">Lv {currentLevel}</span>
-              <span className="text-sm text-muted-foreground">
-                / {maxLevel}
-              </span>
+        <div className={cn("space-y-6", isMobile ? "px-3 py-4" : "px-6 py-6")}>
+          {/* Сезонный hero блок */}
+          <div className="relative">
+            {/* Мягкое ореольное свечение вокруг карточки */}
+            <div className="pointer-events-none absolute -inset-6 rounded-[32px] bg-gradient-to-b from-cyan-400/25 via-blue-500/10 to-transparent opacity-70 blur-3xl" />
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(
+                "relative overflow-hidden rounded-3xl border px-5 py-6 text-white",
+                seasonTheme.gradient,
+                seasonTheme.border,
+                "shadow-[0_0_60px_rgba(34,211,238,0.25)]"
+              )}
+            >
+              <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativePrimary)} />
+              <div className={cn("absolute inset-0 opacity-70 pointer-events-none", seasonTheme.decorativeSecondary)} />
+              {/* Плавное затемнение по краям (vignette effect) */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.45)_120%)] pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/45 pointer-events-none" />
+              <div className="relative z-10 space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className={cn("px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.3em]", seasonTheme.chip)}>
+                      {dp("hero.seasonLabel", { number: activeSeason.season_number })}
+                    </span>
+                    <span className={cn("text-xs uppercase tracking-[0.4em]", seasonTheme.accent)}>
+                      {activeSeason.theme === "special" ? dp("hero.specialTheme") : activeSeason.name_en}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      {formatSeasonDate(seasonStartDate)} — {formatSeasonDate(seasonEndDate)}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-black tracking-tight">{activeSeason.name_ru}</h2>
+                  <p className="text-sm text-white/80 max-w-3xl">
+                    {activeSeason.description_ru || dp("hero.defaultDescription")}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-6">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/60">
+                      {dp("hero.countdownLabel")}
+                    </p>
+                    <CountdownTicker endDate={activeSeason.end_date} labels={countdownLabels} />
+                  </div>
+                  <div className="flex flex-col gap-2 text-sm text-white/85">
+                    <div className="flex items-center gap-2">
+                      <Hourglass className="w-4 h-4" />
+                      <span>{dp("hero.daysLeft", { count: activeSeason.days_remaining ?? 0 })}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-4 h-4" />
+                      <span>{dp("hero.levelsRemaining", { count: Math.max(maxLevel - currentLevel, 0) })}</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/60 mb-3">{dp("hero.featuredTitle")}</p>
+                  <div className="flex flex-wrap gap-3">
+                    {featuredRewards.length
+                      ? featuredRewards.map((reward, index) => renderHeroRewardCard(reward, index))
+                      : (
+                        <div className="text-sm text-white/80">{dp("hero.featuredEmpty")}</div>
+                      )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Прогресс по уровням */}
+          <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                  {dp("progress.currentLevelLabel")}
+                </span>
+                <span className="text-3xl font-black text-foreground">Lv {currentLevel}</span>
+                <span className="text-sm text-muted-foreground">
+                  / {maxLevel}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{dp("progress.seasonPointsLabel")}</span>
+                <span className="text-lg font-semibold text-foreground">{currentSP}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>{dp("progress.seasonPointsLabel")}</span>
-              <span className="text-lg font-semibold text-foreground">{currentSP}</span>
+            <p className="text-xs text-muted-foreground">
+              {currentLevel < maxLevel && spToNextLevel > 0
+                ? dp("progress.toNext", { sp: spToNextLevel, level: currentLevel + 1 })
+                : currentLevel >= maxLevel
+                  ? dp("progress.max")
+                  : dp("progress.loading")}
+            </p>
+            <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-blue-500 to-primary rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg transition-all duration-500"
+                style={{ left: `calc(${Math.min(progressPercent, 100)}% - 6px)` }}
+              />
+              {rewards.slice(0, 10).map((r) => {
+                const position = (r.sp_required / totalSPNeeded) * 100;
+                const isReached = currentSP >= r.sp_required;
+                return (
+                  <div
+                    key={r.level}
+                    className={cn(
+                      "absolute top-0 w-px h-3 transition-opacity",
+                      isReached ? "bg-white/50" : "bg-muted-foreground/20"
+                    )}
+                    style={{ left: `${Math.min(position, 100)}%` }}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-between text-[11px] uppercase tracking-wide text-muted-foreground">
+              <span>{dp("progress.summary", { total: totalSPNeeded })}</span>
+              <span>{dp("progress.nextLevel", { sp: spToNextLevel })}</span>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {currentLevel < maxLevel && spToNextLevel > 0 
-              ? dp("progress.toNext", { sp: spToNextLevel, level: currentLevel + 1 })
-              : currentLevel >= maxLevel 
-              ? dp("progress.max")
-              : dp("progress.loading")}
-          </p>
-          <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-blue-500 to-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            />
-            <div
-              className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg transition-all duration-500"
-              style={{ left: `calc(${Math.min(progressPercent, 100)}% - 6px)` }}
-            />
-            {rewards.slice(0, 10).map((r) => {
-              const position = (r.sp_required / totalSPNeeded) * 100;
-              const isReached = currentSP >= r.sp_required;
+
+          {/* Хайлайты сезона */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {seasonHighlights.map((item, index) => {
+              const Icon = item.icon;
               return (
-                <div
-                  key={r.level}
-                  className={cn(
-                    "absolute top-0 w-px h-3 transition-opacity",
-                    isReached ? "bg-white/50" : "bg-muted-foreground/20"
-                  )}
-                  style={{ left: `${Math.min(position, 100)}%` }}
-                />
+                <motion.div
+                  key={`${item.title}-${index}`}
+                  whileHover={{ y: -4 }}
+                  className="rounded-2xl border border-border/50 bg-muted/20 p-4 shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs uppercase text-muted-foreground tracking-wide">{item.title}</p>
+                      <p className="text-sm font-semibold truncate">{item.value}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">{item.description}</p>
+                </motion.div>
               );
             })}
           </div>
-          <div className="flex items-center justify-between text-[11px] uppercase tracking-wide text-muted-foreground">
-            <span>{dp("progress.summary", { total: totalSPNeeded })}</span>
-            <span>{dp("progress.nextLevel", { sp: spToNextLevel })}</span>
-          </div>
-        </div>
 
-        {/* Хайлайты сезона */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {seasonHighlights.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={`${item.title}-${index}`}
-                whileHover={{ y: -4 }}
-                className="rounded-2xl border border-border/50 bg-muted/20 p-4 shadow-sm"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs uppercase text-muted-foreground tracking-wide">{item.title}</p>
-                    <p className="text-sm font-semibold truncate">{item.value}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">{item.description}</p>
-              </motion.div>
-            );
-          })}
-        </div>
-        
-        {/* Компактные карточки SP - горизонтальный layout */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-muted/30 backdrop-blur-sm border border-border/50"
-        >
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
-            <BookOpen className="w-4 h-4 text-blue-500" />
-            <span className="text-xs font-semibold">+25</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
-            <Trophy className="w-4 h-4 text-blue-500" />
-            <span className="text-xs font-semibold">+30</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-green-500/50 transition-colors">
-            <Calendar className="w-4 h-4 text-green-500" />
-            <span className="text-xs font-semibold">+15</span>
-          </div>
-          {isPremium ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
-              <Crown className="w-4 h-4 text-yellow-600" />
-              <span className="text-xs font-semibold">+20%</span>
-            </div>
-          ) : (
-            <button
-              onClick={() => {
-                onOpenChange(false);
-                setShowPaywall(true);
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-yellow-500/30 hover:bg-yellow-500/10 transition-colors"
-            >
-              <Crown className="w-4 h-4 text-yellow-600" />
-              <span className="text-xs font-semibold">+20%</span>
-            </button>
-          )}
-        </motion.div>
-
-        {/* Улучшенный баннер Premium Duel Pass */}
-        {!hasPremiumPass && (
+          {/* Компактные карточки SP - горизонтальный layout */}
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            onClick={() => !hasPremiumForever && setShowPremiumSelector(true)}
-            className={cn(
-              "group relative overflow-hidden rounded-2xl border-2 transition-all duration-300",
-              "bg-gradient-to-br from-blue-500/20 via-pink-500/20 to-orange-500/20",
-              "border-blue-500/30 hover:border-blue-500/50",
-              !hasPremiumForever && "cursor-pointer hover:shadow-2xl hover:shadow-blue-500/20",
-              "backdrop-blur-sm"
-            )}
+            transition={{ delay: 0.1 }}
+            className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-muted/30 backdrop-blur-sm border border-border/50"
           >
-            {/* Анимированный фон */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-pink-500/10 to-orange-500/10 opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(168,85,247,0.3),transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(236,72,153,0.3),transparent_50%)]" />
-            
-            {/* Декоративные элементы */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-400/20 to-pink-500/20 rounded-full blur-2xl" />
-            
-            <div className="relative p-4 md:p-6">
-              {/* Заголовок и цена */}
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="relative">
-                      <Crown className="w-6 h-6 md:w-7 md:h-7 text-yellow-400 drop-shadow-lg" />
-                      <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                        className="absolute inset-0"
-                      >
-                        <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-yellow-300 absolute -top-1 -right-1" />
-                      </motion.div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
+              <BookOpen className="w-4 h-4 text-blue-500" />
+              <span className="text-xs font-semibold">+25</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-blue-500/50 transition-colors">
+              <Trophy className="w-4 h-4 text-blue-500" />
+              <span className="text-xs font-semibold">+30</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-border/50 hover:border-green-500/50 transition-colors">
+              <Calendar className="w-4 h-4 text-green-500" />
+              <span className="text-xs font-semibold">+15</span>
+            </div>
+            {isPremium ? (
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30">
+                <Crown className="w-4 h-4 text-yellow-600" />
+                <span className="text-xs font-semibold">+20%</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  onOpenChange(false);
+                  setShowPaywall(true);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-background/80 border border-yellow-500/30 hover:bg-yellow-500/10 transition-colors"
+              >
+                <Crown className="w-4 h-4 text-yellow-600" />
+                <span className="text-xs font-semibold">+20%</span>
+              </button>
+            )}
+          </motion.div>
+
+          {/* Улучшенный баннер Premium Duel Pass */}
+          {!hasPremiumPass && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => !hasPremiumForever && setShowPremiumSelector(true)}
+              className={cn(
+                "group relative overflow-hidden rounded-2xl border-2 transition-all duration-300",
+                "bg-gradient-to-br from-blue-500/20 via-pink-500/20 to-orange-500/20",
+                "border-blue-500/30 hover:border-blue-500/50",
+                !hasPremiumForever && "cursor-pointer hover:shadow-2xl hover:shadow-blue-500/20",
+                "backdrop-blur-sm"
+              )}
+            >
+              {/* Анимированный фон */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-pink-500/10 to-orange-500/10 opacity-50 group-hover:opacity-75 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(168,85,247,0.3),transparent_50%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(236,72,153,0.3),transparent_50%)]" />
+
+              {/* Декоративные элементы */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-400/20 to-pink-500/20 rounded-full blur-2xl" />
+
+              <div className="relative p-4 md:p-6">
+                {/* Заголовок и цена */}
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="relative">
+                        <Crown className="w-6 h-6 md:w-7 md:h-7 text-yellow-400 drop-shadow-lg" />
+                        <motion.div
+                          animate={{ rotate: [0, 10, -10, 0] }}
+                          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                          className="absolute inset-0"
+                        >
+                          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-yellow-300 absolute -top-1 -right-1" />
+                        </motion.div>
+                      </div>
+                      <h4 className="font-bold text-lg md:text-xl bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 bg-clip-text text-transparent">
+                        {premiumBannerTexts.title}
+                      </h4>
+                      {hasPremiumForever && (
+                        <Badge className="bg-green-500/90 text-white text-xs px-2 py-0.5 shadow-lg">
+                          {premiumBannerTexts.freeBadge}
+                        </Badge>
+                      )}
                     </div>
-                    <h4 className="font-bold text-lg md:text-xl bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 bg-clip-text text-transparent">
-                      {premiumBannerTexts.title}
-                    </h4>
-                    {hasPremiumForever && (
-                      <Badge className="bg-green-500/90 text-white text-xs px-2 py-0.5 shadow-lg">
-                        {premiumBannerTexts.freeBadge}
-                      </Badge>
+
+                    {/* Описание */}
+                    <p className="text-sm md:text-base text-foreground/90 mb-3 font-medium">
+                      {hasPremiumForever
+                        ? premiumBannerTexts.descriptionForever
+                        : premiumBannerTexts.descriptionQuestion}
+                    </p>
+
+                    {!hasPremiumForever && (
+                      <p className="text-xs md:text-sm text-muted-foreground mb-4 leading-relaxed">
+                        {premiumBannerTexts.descriptionText}
+                      </p>
                     )}
                   </div>
-                  
-                  {/* Описание */}
-                  <p className="text-sm md:text-base text-foreground/90 mb-3 font-medium">
-                    {hasPremiumForever 
-                      ? premiumBannerTexts.descriptionForever
-                      : premiumBannerTexts.descriptionQuestion}
-                  </p>
-                  
+
+                  {/* Кнопка покупки */}
                   {!hasPremiumForever && (
-                    <p className="text-xs md:text-sm text-muted-foreground mb-4 leading-relaxed">
-                      {premiumBannerTexts.descriptionText}
-                    </p>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex-shrink-0"
+                    >
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowPremiumSelector(true);
+                        }}
+                        size="lg"
+                        className="w-full md:w-auto bg-gradient-to-r from-blue-600 via-pink-600 to-orange-600 hover:from-blue-700 hover:via-pink-700 hover:to-orange-700 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 px-6 py-6 md:py-3"
+                      >
+                        <Sparkles className="w-5 h-5 md:w-4 md:h-4 mr-2" />
+                        <span className="text-base md:text-sm">{premiumBannerTexts.buyCta}</span>
+                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+                    </motion.div>
                   )}
                 </div>
-                
-                {/* Кнопка покупки */}
+
+                {/* Выгоды Premium Duel Pass */}
                 {!hasPremiumForever && (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex-shrink-0"
-                  >
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowPremiumSelector(true);
-                      }}
-                      size="lg"
-                      className="w-full md:w-auto bg-gradient-to-r from-blue-600 via-pink-600 to-orange-600 hover:from-blue-700 hover:via-pink-700 hover:to-orange-700 text-white font-bold shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 px-6 py-6 md:py-3"
-                    >
-                      <Sparkles className="w-5 h-5 md:w-4 md:h-4 mr-2" />
-                      <span className="text-base md:text-sm">{premiumBannerTexts.buyCta}</span>
-                      <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </motion.div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-blue-500/20">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-pink-500/20 flex items-center justify-center">
+                        <Gift className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground">
+                          {premiumBannerTexts.benefits.double.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {premiumBannerTexts.benefits.double.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-yellow-500/20 flex items-center justify-center">
+                        <Star className="w-4 h-4 text-orange-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground">
+                          {premiumBannerTexts.benefits.exclusive.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {premiumBannerTexts.benefits.exclusive.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-blue-500/20 flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-pink-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground">
+                          {premiumBannerTexts.benefits.fastStart.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {premiumBannerTexts.benefits.fastStart.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
+                        <Trophy className="w-4 h-4 text-yellow-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground">
+                          {premiumBannerTexts.benefits.allSeasons.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {premiumBannerTexts.benefits.allSeasons.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
-              
-              {/* Выгоды Premium Duel Pass */}
-              {!hasPremiumForever && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-blue-500/20">
-                  <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-pink-500/20 flex items-center justify-center">
-                      <Gift className="w-4 h-4 text-blue-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">
-                        {premiumBannerTexts.benefits.double.title}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {premiumBannerTexts.benefits.double.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500/20 to-yellow-500/20 flex items-center justify-center">
-                      <Star className="w-4 h-4 text-orange-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">
-                        {premiumBannerTexts.benefits.exclusive.title}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {premiumBannerTexts.benefits.exclusive.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500/20 to-blue-500/20 flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-pink-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">
-                        {premiumBannerTexts.benefits.fastStart.title}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {premiumBannerTexts.benefits.fastStart.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-2">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
-                      <Trophy className="w-4 h-4 text-yellow-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground">
-                        {premiumBannerTexts.benefits.allSeasons.title}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {premiumBannerTexts.benefits.allSeasons.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {/* Индикатор Premium Forever */}
-        {/* Показываем ТОЛЬКО если действительно есть Premium Forever (без проверки hasPremiumPass) */}
-        {hasPremiumForever && (
-          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-green-600">{dp("premiumForever.title")}</p>
-              <p className="text-xs text-muted-foreground">{dp("premiumForever.description")}</p>
+          {/* Индикатор Premium Forever */}
+          {/* Показываем ТОЛЬКО если действительно есть Premium Forever (без проверки hasPremiumPass) */}
+          {hasPremiumForever && (
+            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-green-600">{dp("premiumForever.title")}</p>
+                <p className="text-xs text-muted-foreground">{dp("premiumForever.description")}</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Современная таблица наград */}
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-foreground">
-                {dp("table.title")}
-              </h4>
-              {seasonDaysRemaining !== null && (
-                <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                  {dp("table.remaining", { days: seasonDaysRemaining })}
-                </Badge>
-              )}
-            </div>
-            {/* Фильтры */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => setRewardFilter('all')}
-                className={cn(
-                  "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
-                  rewardFilter === 'all'
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+          {/* Современная таблица наград */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-bold text-foreground">
+                  {dp("table.title")}
+                </h4>
+                {seasonDaysRemaining !== null && (
+                  <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                    {dp("table.remaining", { days: seasonDaysRemaining })}
+                  </Badge>
                 )}
-              >
-                {dp("filters.all")}
-              </button>
-              <button
-                onClick={() => setRewardFilter('available')}
-                className={cn(
-                  "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
-                  rewardFilter === 'available'
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                )}
-              >
-                {dp("filters.available")}
-              </button>
+              </div>
+              {/* Фильтры */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setRewardFilter('all')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
+                    rewardFilter === 'all'
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
+                >
+                  {dp("filters.all")}
+                </button>
+                <button
+                  onClick={() => setRewardFilter('available')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-medium rounded-lg transition-all",
+                    rewardFilter === 'available'
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
+                >
+                  {dp("filters.available")}
+                </button>
+              </div>
             </div>
-          </div>
-          
-          {/* Улучшенная таблица */}
-          <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse min-w-full">
-                <colgroup>
-                  <col className="w-8" />
-                  <col style={{ width: '28%', minWidth: '100px' }} />
-                  <col style={{ width: '28%', minWidth: '100px' }} />
-                  <col className="w-16" />
-                  <col className="w-20" />
-                </colgroup>
-                <thead>
-                  <tr className="bg-muted/50 border-b border-border">
-                    <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                      {dp("table.columns.level")}
-                    </th>
-                    <th className="text-left px-1.5 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                      <div className="flex items-center gap-1">
-                        <Coins className="w-3 h-3 text-yellow-500" />
-                        <span>{dp("table.columns.free")}</span>
-                      </div>
-                    </th>
-                    <th className="text-left px-1.5 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                      <div className="flex items-center gap-1">
-                        <Crown className="w-3 h-3 text-yellow-600" />
-                        <span>{dp("table.columns.premium")}</span>
-                      </div>
-                    </th>
-                    <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                      {dp("table.columns.sp")}
-                    </th>
-                    <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                      {dp("table.columns.status")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredRewards.map((reward) => {
-                    const unlocked = currentLevel >= reward.level;
-                    const isCurrent = currentLevel === reward.level;
-                    
-                    // Проверяем наличие наград
-                    const hasFreeReward = !!reward.free_reward; // Есть ли бесплатная награда вообще
-                    const hasFreeCoins = reward.free_reward?.type === 'coins' && reward.free_reward?.amount;
-                    const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
-                    const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
-                    
-                    // Проверяем, какие награды получены
-                    const freeClaimed = claimedFreeRewards.has(reward.level);
-                    const premiumClaimed = claimedPremiumRewards.has(reward.level);
-                    
-                    // Правильная логика: allClaimed только если уровень разблокирован И все доступные награды получены
-                    let allClaimed = false;
-                    if (unlocked) {
-                      // Проверяем бесплатную награду
-                      // Если есть бесплатная награда - она должна быть получена
-                      // Если нет бесплатной награды - не учитываем её (считаем "полученной" условно)
-                      const freeRewardClaimed = hasFreeReward ? freeClaimed : true;
-                      
-                      // Проверяем Premium награду
-                      let premiumRewardClaimed = true; // По умолчанию true (если нет Premium награды)
-                      if (reward.premium_reward) {
-                        if (isPremium) {
-                          // Если пользователь Premium - Premium награда должна быть получена
-                          premiumRewardClaimed = premiumClaimed;
-                        } else {
-                          // Если пользователь НЕ Premium - Premium награда недоступна
-                          // НО! Если у уровня ТОЛЬКО Premium награда (нет бесплатной), то уровень НЕ может быть "получен"
-                          // для не-Premium пользователя, пока он не станет Premium
-                          // Если есть бесплатная награда - Premium не учитываем (она недоступна)
-                          premiumRewardClaimed = hasFreeReward ? true : false; // Если нет бесплатной - Premium обязательна
-                        }
-                      }
-                      
-                      // КРИТИЧНО: Если у уровня ТОЛЬКО Premium награда (нет бесплатной) и пользователь НЕ Premium,
-                      // то награда НЕ может быть получена (она недоступна)
-                      if (!hasFreeReward && reward.premium_reward && !isPremium) {
-                        allClaimed = false; // Premium награда недоступна для не-Premium пользователей
-                      } else {
-                        allClaimed = freeRewardClaimed && premiumRewardClaimed;
-                      }
-                      
-                      // Логирование для отладки - ОТКЛЮЧЕНО для продакшена (было в цикле для каждого уровня)
-                      // if (reward.level % 2 === 1) {
-                      //   console.log(`[DuelPassSeasonModal] Уровень ${reward.level}:`, {
-                      //     unlocked,
-                      //     hasFreeReward,
-                      //     freeClaimed,
-                      //     freeRewardClaimed,
-                      //     hasPremiumReward: !!reward.premium_reward,
-                      //     isPremium,
-                      //     premiumClaimed,
-                      //     premiumRewardClaimed,
-                      //     allClaimed
-                      //   });
-                      // }
-                    } else {
-                      // Уровень не разблокирован - не может быть "получен"
-                      allClaimed = false;
-                    }
-                    
-                    return (
-                      <tr
-                        key={reward.level}
-                        className={cn(
-                          "border-b border-border/50 transition-all cursor-pointer group",
-                          isCurrent && "bg-primary/5 border-l-4 border-l-primary",
-                          allClaimed 
-                            ? "bg-green-500/5 hover:bg-green-500/10" 
-                            : unlocked 
-                            ? "hover:bg-muted/50" 
-                            : "opacity-50"
-                        )}
-                        onClick={() => {
-                          if (unlocked && !allClaimed) {
-                            handleRewardClick(reward);
+
+            {/* Улучшенная таблица */}
+            <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse min-w-full">
+                  <colgroup>
+                    <col className="w-8" />
+                    <col style={{ width: '28%', minWidth: '100px' }} />
+                    <col style={{ width: '28%', minWidth: '100px' }} />
+                    <col className="w-16" />
+                    <col className="w-20" />
+                  </colgroup>
+                  <thead>
+                    <tr className="bg-muted/50 border-b border-border">
+                      <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        {dp("table.columns.level")}
+                      </th>
+                      <th className="text-left px-1.5 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        <div className="flex items-center gap-1">
+                          <Coins className="w-3 h-3 text-yellow-500" />
+                          <span>{dp("table.columns.free")}</span>
+                        </div>
+                      </th>
+                      <th className="text-left px-1.5 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        <div className="flex items-center gap-1">
+                          <Crown className="w-3 h-3 text-yellow-600" />
+                          <span>{dp("table.columns.premium")}</span>
+                        </div>
+                      </th>
+                      <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        {dp("table.columns.sp")}
+                      </th>
+                      <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        {dp("table.columns.status")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredRewards.map((reward) => {
+                      const unlocked = currentLevel >= reward.level;
+                      const isCurrent = currentLevel === reward.level;
+
+                      // Проверяем наличие наград
+                      const hasFreeReward = !!reward.free_reward; // Есть ли бесплатная награда вообще
+                      const hasFreeCoins = reward.free_reward?.type === 'coins' && reward.free_reward?.amount;
+                      const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
+                      const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
+
+                      // Проверяем, какие награды получены
+                      const freeClaimed = claimedFreeRewards.has(reward.level);
+                      const premiumClaimed = claimedPremiumRewards.has(reward.level);
+
+                      // Правильная логика: allClaimed только если уровень разблокирован И все доступные награды получены
+                      let allClaimed = false;
+                      if (unlocked) {
+                        // Проверяем бесплатную награду
+                        // Если есть бесплатная награда - она должна быть получена
+                        // Если нет бесплатной награды - не учитываем её (считаем "полученной" условно)
+                        const freeRewardClaimed = hasFreeReward ? freeClaimed : true;
+
+                        // Проверяем Premium награду
+                        let premiumRewardClaimed = true; // По умолчанию true (если нет Premium награды)
+                        if (reward.premium_reward) {
+                          if (isPremium) {
+                            // Если пользователь Premium - Premium награда должна быть получена
+                            premiumRewardClaimed = premiumClaimed;
+                          } else {
+                            // Если пользователь НЕ Premium - Premium награда недоступна
+                            // НО! Если у уровня ТОЛЬКО Premium награда (нет бесплатной), то уровень НЕ может быть "получен"
+                            // для не-Premium пользователя, пока он не станет Premium
+                            // Если есть бесплатная награда - Premium не учитываем (она недоступна)
+                            premiumRewardClaimed = hasFreeReward ? true : false; // Если нет бесплатной - Premium обязательна
                           }
-                        }}
-                      >
-                        {/* Уровень */}
-                        <td className="px-1 py-1.5 text-center">
-                          <div className={cn(
-                            "flex items-center justify-center w-6 h-6 rounded-md text-[11px] font-bold transition-all mx-auto",
-                            isCurrent 
-                              ? "bg-primary text-primary-foreground shadow-sm" 
-                              : allClaimed 
-                              ? "bg-green-500/20 text-green-600" 
-                              : unlocked 
-                              ? "bg-muted text-foreground" 
-                              : "bg-muted/50 text-muted-foreground"
-                          )}>
-                            {reward.level}
-                          </div>
-                        </td>
-                        
-                        {/* Free reward preview */}
-                        <td className="px-1.5 py-1.5 align-top">
-                          {renderTableRewardCell(reward.free_reward, 'free', { claimed: freeClaimed, unlocked })}
-                        </td>
-                        
-                        {/* Premium reward preview */}
-                        <td className="px-1.5 py-1.5 align-top">
-                          {renderTableRewardCell(reward.premium_reward, 'premium', { claimed: premiumClaimed, unlocked })}
-                        </td>
-                        
-                        {/* SP */}
-                        <td className="px-1 py-1.5 text-center">
-                          {!unlocked ? (
-                            <Badge variant="outline" className="text-[9px] px-1 py-0.5">
-                              {dp("table.spBadge", { sp: reward.sp_required - currentSP })}
-                            </Badge>
-                          ) : (
-                            <span className="text-[10px] text-muted-foreground">—</span>
+                        }
+
+                        // КРИТИЧНО: Если у уровня ТОЛЬКО Premium награда (нет бесплатной) и пользователь НЕ Premium,
+                        // то награда НЕ может быть получена (она недоступна)
+                        if (!hasFreeReward && reward.premium_reward && !isPremium) {
+                          allClaimed = false; // Premium награда недоступна для не-Premium пользователей
+                        } else {
+                          allClaimed = freeRewardClaimed && premiumRewardClaimed;
+                        }
+
+                        // Логирование для отладки - ОТКЛЮЧЕНО для продакшена (было в цикле для каждого уровня)
+                        // if (reward.level % 2 === 1) {
+                        //   console.log(`[DuelPassSeasonModal] Уровень ${reward.level}:`, {
+                        //     unlocked,
+                        //     hasFreeReward,
+                        //     freeClaimed,
+                        //     freeRewardClaimed,
+                        //     hasPremiumReward: !!reward.premium_reward,
+                        //     isPremium,
+                        //     premiumClaimed,
+                        //     premiumRewardClaimed,
+                        //     allClaimed
+                        //   });
+                        // }
+                      } else {
+                        // Уровень не разблокирован - не может быть "получен"
+                        allClaimed = false;
+                      }
+
+                      return (
+                        <tr
+                          key={reward.level}
+                          className={cn(
+                            "border-b border-border/50 transition-all cursor-pointer group",
+                            isCurrent && "bg-primary/5 border-l-4 border-l-primary",
+                            allClaimed
+                              ? "bg-green-500/5 hover:bg-green-500/10"
+                              : unlocked
+                                ? "hover:bg-muted/50"
+                                : "opacity-50"
                           )}
-                        </td>
-                        
-                        {/* Действие */}
-                        <td className="px-1 py-1.5 text-center">
-                          {allClaimed ? (
-                            <div className="flex items-center justify-center gap-0.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                              <span className="text-[9px] font-medium text-green-600">
-                                {dp("table.status.claimed")}
-                              </span>
+                          onClick={() => {
+                            if (unlocked && !allClaimed) {
+                              handleRewardClick(reward);
+                            }
+                          }}
+                        >
+                          {/* Уровень */}
+                          <td className="px-1 py-1.5 text-center">
+                            <div className={cn(
+                              "flex items-center justify-center w-6 h-6 rounded-md text-[11px] font-bold transition-all mx-auto",
+                              isCurrent
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : allClaimed
+                                  ? "bg-green-500/20 text-green-600"
+                                  : unlocked
+                                    ? "bg-muted text-foreground"
+                                    : "bg-muted/50 text-muted-foreground"
+                            )}>
+                              {reward.level}
                             </div>
-                          ) : unlocked ? (
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRewardClick(reward);
-                              }}
-                              disabled={
-                                // ИСПРАВЛЕНИЕ БАГА: Блокируем кнопку если награда уже получена или получается
-                                allClaimed ||
-                                claimingRewards.has(`${reward.level}-free`) ||
-                                claimingRewards.has(`${reward.level}-premium`) ||
-                                (hasFreeReward && freeClaimed && (!reward.premium_reward || premiumClaimed || !isPremium)) ||
-                                (!hasFreeReward && premiumClaimed)
-                              }
-                              className={cn(
-                                "h-6 px-1.5 text-[9px] font-medium",
-                                // Если есть бесплатная награда и она не получена - обычная кнопка
-                                // Если бесплатная получена, но есть премиум - желтая кнопка
-                                // Если только премиум - желтая кнопка
-                                ((hasFreeCoins && freeClaimed) || !hasFreeCoins) &&
+                          </td>
+
+                          {/* Free reward preview */}
+                          <td className="px-1.5 py-1.5 align-top">
+                            {renderTableRewardCell(reward.free_reward, 'free', { claimed: freeClaimed, unlocked })}
+                          </td>
+
+                          {/* Premium reward preview */}
+                          <td className="px-1.5 py-1.5 align-top">
+                            {renderTableRewardCell(reward.premium_reward, 'premium', { claimed: premiumClaimed, unlocked })}
+                          </td>
+
+                          {/* SP */}
+                          <td className="px-1 py-1.5 text-center">
+                            {!unlocked ? (
+                              <Badge variant="outline" className="text-[9px] px-1 py-0.5">
+                                {dp("table.spBadge", { sp: reward.sp_required - currentSP })}
+                              </Badge>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">—</span>
+                            )}
+                          </td>
+
+                          {/* Действие */}
+                          <td className="px-1 py-1.5 text-center">
+                            {allClaimed ? (
+                              <div className="flex items-center justify-center gap-0.5">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                                <span className="text-[9px] font-medium text-green-600">
+                                  {dp("table.status.claimed")}
+                                </span>
+                              </div>
+                            ) : unlocked ? (
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRewardClick(reward);
+                                }}
+                                disabled={
+                                  // ИСПРАВЛЕНИЕ БАГА: Блокируем кнопку если награда уже получена или получается
+                                  allClaimed ||
+                                  claimingRewards.has(`${reward.level}-free`) ||
+                                  claimingRewards.has(`${reward.level}-premium`) ||
+                                  (hasFreeReward && freeClaimed && (!reward.premium_reward || premiumClaimed || !isPremium)) ||
+                                  (!hasFreeReward && premiumClaimed)
+                                }
+                                className={cn(
+                                  "h-6 px-1.5 text-[9px] font-medium",
+                                  // Если есть бесплатная награда и она не получена - обычная кнопка
+                                  // Если бесплатная получена, но есть премиум - желтая кнопка
+                                  // Если только премиум - желтая кнопка
+                                  ((hasFreeCoins && freeClaimed) || !hasFreeCoins) &&
                                   reward.premium_reward &&
                                   !isPremium &&
                                   !premiumClaimed &&
                                   "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
-                              )}
-                            >
-                              {hasFreeReward && !freeClaimed ? (
-                                dp("table.buttons.claim")
-                              ) : !hasFreeReward && reward.premium_reward && !isPremium ? (
-                                <>
-                                  <Crown className="w-3 h-3 mr-1" />
-                                  {dp("table.buttons.premiumOnly")}
-                                </>
-                              ) : (reward.premium_reward && isPremium && !premiumClaimed) || (hasFreeReward && freeClaimed && reward.premium_reward && isPremium && !premiumClaimed) ? (
-                                <>
-                                  <Crown className="w-3 h-3 mr-1" />
-                                  {dp("table.buttons.claimPremium")}
-                                </>
-                              ) : (
-                                dp("table.buttons.default")
-                              )}
-                            </Button>
-                          ) : (
-                            <Badge variant="secondary" className="text-[9px] px-1 py-0.5">
-                              {dp("table.status.locked")}
-                            </Badge>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                                )}
+                              >
+                                {hasFreeReward && !freeClaimed ? (
+                                  dp("table.buttons.claim")
+                                ) : !hasFreeReward && reward.premium_reward && !isPremium ? (
+                                  <>
+                                    <Crown className="w-3 h-3 mr-1" />
+                                    {dp("table.buttons.premiumOnly")}
+                                  </>
+                                ) : (reward.premium_reward && isPremium && !premiumClaimed) || (hasFreeReward && freeClaimed && reward.premium_reward && isPremium && !premiumClaimed) ? (
+                                  <>
+                                    <Crown className="w-3 h-3 mr-1" />
+                                    {dp("table.buttons.claimPremium")}
+                                  </>
+                                ) : (
+                                  dp("table.buttons.default")
+                                )}
+                              </Button>
+                            ) : (
+                              <Badge variant="secondary" className="text-[9px] px-1 py-0.5">
+                                {dp("table.status.locked")}
+                              </Badge>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Season Challenges */}
-        <div className="border-t pt-4">
-          <SeasonChallengesWidget />
+          {/* Season Challenges */}
+          <div className="border-t pt-4">
+            <SeasonChallengesWidget />
+          </div>
         </div>
-      </div>
-    </>
+      </>
     );
   };
 
@@ -2103,47 +2111,47 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         contentClassName: "px-0 sm:px-6 sm:py-6",
         loading: loading,
       })}
-    <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
-    {premiumRewardPreview && (
-      <PremiumRewardUpsell
-        open={!!premiumRewardPreview}
+      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+      {premiumRewardPreview && (
+        <PremiumRewardUpsell
+          open={!!premiumRewardPreview}
+          onOpenChange={(open) => {
+            if (!open) setPremiumRewardPreview(null);
+          }}
+          reward={premiumRewardPreview}
+          onGetPremium={() => {
+            setShowPaywall(true);
+            setPremiumRewardPreview(null);
+          }}
+        />
+      )}
+      {activeCosmeticReward && (
+        <RewardUnlockAnimation
+          open={!!activeCosmeticReward}
+          onOpenChange={(open) => {
+            if (!open) {
+              setActiveCosmeticReward(null);
+            }
+          }}
+          reward={activeCosmeticReward}
+          onQuickApply={
+            ["skin", "badge"].includes(activeCosmeticReward.type)
+              ? () => handleQuickApplyAppearance(activeCosmeticReward)
+              : undefined
+          }
+          isApplying={isApplyingAppearance}
+        />
+      )}
+      <PremiumPlanSelector
+        open={showPremiumSelector}
         onOpenChange={(open) => {
-          if (!open) setPremiumRewardPreview(null);
-        }}
-        reward={premiumRewardPreview}
-        onGetPremium={() => {
-          setShowPaywall(true);
-          setPremiumRewardPreview(null);
-        }}
-      />
-    )}
-    {activeCosmeticReward && (
-      <RewardUnlockAnimation
-        open={!!activeCosmeticReward}
-        onOpenChange={(open) => {
+          setShowPremiumSelector(open);
           if (!open) {
-            setActiveCosmeticReward(null);
+            loadSeasonData(true);
           }
         }}
-        reward={activeCosmeticReward}
-        onQuickApply={
-          ["skin", "badge"].includes(activeCosmeticReward.type)
-            ? () => handleQuickApplyAppearance(activeCosmeticReward)
-            : undefined
-        }
-        isApplying={isApplyingAppearance}
+        triggerSource="duel_pass"
       />
-    )}
-    <PremiumPlanSelector
-      open={showPremiumSelector}
-      onOpenChange={(open) => {
-        setShowPremiumSelector(open);
-        if (!open) {
-          loadSeasonData(true);
-        }
-      }}
-      triggerSource="duel_pass"
-    />
     </>
   );
 }

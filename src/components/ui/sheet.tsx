@@ -65,7 +65,7 @@ interface SheetContentProps
 }
 
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
-  ({ side = "bottom", className, children, hideCloseButton = false, ...props }, ref) => {
+  ({ side = "bottom", className, children, hideCloseButton = false, onOpenChange, ...props }, ref) => {
     const contentRef = React.useRef<HTMLDivElement>(null);
     const [startY, setStartY] = React.useState<number | null>(null);
     const [currentY, setCurrentY] = React.useState<number | null>(null);
@@ -377,7 +377,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         console.log('[Sheet] TouchEnd:', {
           dragDistance,
           shouldClose,
-          hasOnOpenChange: !!props.onOpenChange,
+          hasOnOpenChange: !!onOpenChange,
           currentY,
           startY
         });
@@ -415,10 +415,10 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           }
           
           // Теперь вызываем закрытие после того, как стили убраны
-          // Способ 1: Через props.onOpenChange (приоритетный способ)
-          if (props.onOpenChange) {
+          // Способ 1: Через onOpenChange (приоритетный способ)
+          if (onOpenChange) {
             try {
-            props.onOpenChange(false);
+            onOpenChange(false);
               if (process.env.NODE_ENV === 'development') {
                 console.log('[Sheet] Method 1: onOpenChange(false) called after style cleanup');
               }
@@ -528,7 +528,6 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             props.onOpenAutoFocus?.(e);
           }}
           style={{
-            ...props.style,
             // GPU ускорение для плавных анимаций (только когда не перетаскиваем)
             willChange: isDragging ? "transform" : "auto",
             // Плавный easing для анимаций закрытия/открытия (только когда не перетаскиваем)

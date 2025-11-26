@@ -156,8 +156,10 @@ export function AvatarPreview({
             </>
           )}
 
-          {/* Буква инициала */}
-          <span className="relative z-10 drop-shadow-2xl">{getInitial()}</span>
+          {/* Буква инициала или эмодзи скина */}
+          <span className="relative z-10 drop-shadow-2xl text-5xl">
+            {previewSkin?.metadata?.emoji || getInitial()}
+          </span>
 
           {/* Градиентная рамка */}
           <div
