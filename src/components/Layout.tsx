@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect, useRef, useMemo, useCallback, memo } fr
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Home, FileText, BookOpen, Gamepad2, User, Crown, LogIn, Swords } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,13 +31,32 @@ interface LayoutProps {
   hideNavigation?: boolean;
 }
 
+type NavigationItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  matchPaths?: string[];
+  isActiveDuel?: boolean;
+};
+
+const isPathMatching = (pathname: string, basePath: string) => {
+  if (!basePath) return false;
+  if (pathname === basePath) return true;
+  return pathname.startsWith(`${basePath}/`);
+};
+
+const isNavigationItemActive = (item: NavigationItem, pathname: string) => {
+  const matchCandidates = item.matchPaths && item.matchPaths.length > 0
+    ? item.matchPaths
+    : [item.href];
+
+  return matchCandidates.some((basePath) => isPathMatching(pathname, basePath));
+};
+
 // ОПТИМИЗАЦИЯ: Мемоизированный компонент для NavLink элемента
-const NavItem = memo(({ item, currentPath, navigate }: { item: any; currentPath: string; navigate: (path: string) => void }) => {
+const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; currentPath: string; navigate: (path: string) => void }) => {
   const isDuel = item.isActiveDuel;
-  const isActive =
-    currentPath === item.href ||
-    currentPath.startsWith(`${item.href}/`) ||
-    (isDuel && currentPath.startsWith("/games/duel"));
+  const isActive = isNavigationItemActive(item, currentPath);
   const Icon = item.icon;
   
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -187,18 +207,19 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
 
   // Заменяем раздел "Игры" на "Дуэль" если есть активная дуэль
   // ОПТИМИЗАЦИЯ: Мемоизируем navigation для предотвращения лишних ре-рендеров
-  const navigation = useMemo(() => [
-    { name: t("home"), href: "/dashboard", icon: Home },
-    { name: t("tests"), href: "/tests", icon: FileText },
-    { name: t("learning"), href: "/learning", icon: BookOpen },
+  const navigation = useMemo<NavigationItem[]>(() => [
+    { name: t("home"), href: "/dashboard", icon: Home, matchPaths: ["/dashboard"] },
+    { name: t("tests"), href: "/tests", icon: FileText, matchPaths: ["/tests", "/test"] },
+    { name: t("learning"), href: "/learning", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
     activeDuel 
       ? { 
           name: "Дуэль", 
           href: `/games/duel?duelId=${activeDuel.duelId}`, 
           icon: Swords,
-          isActiveDuel: true 
+          isActiveDuel: true,
+          matchPaths: ["/games/duel"]
         }
-      : { name: t("games"), href: "/games", icon: Gamepad2 },
+      : { name: t("games"), href: "/games", icon: Gamepad2, matchPaths: ["/games"] },
   ], [t, activeDuel]);
 
   // ОПТИМИЗАЦИЯ: Prefetching для критических маршрутов при hover
@@ -299,24 +320,25 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
             </NavLink>
 
             <nav className="flex gap-1 min-w-0 flex-shrink">
-              {navigation.map((item) => (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  className={({ isActive }) =>
-                    cn(
+              {navigation.map((item) => {
+                const desktopActive = isNavigationItemActive(item, location.pathname);
+                return (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 whitespace-nowrap flex-shrink-0",
-                      isActive
+                      desktopActive
                         ? "bg-primary text-primary-foreground shadow-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                      (item as any).isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
-                    )
-                  }
-                >
-                  <item.icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="font-medium">{item.name}</span>
-                </NavLink>
-              ))}
+                      item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="font-medium">{item.name}</span>
+                  </NavLink>
+                );
+              })}
             </nav>
 
             <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
