@@ -344,16 +344,16 @@ const Games = () => {
   return (
     <>
       <Layout>
-        <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white">
+        <div className="min-h-screen bg-background p-6 md:p-10 font-sans pb-24 text-foreground">
           <div className="max-w-[1370px] mx-auto space-y-8">
 
             {/* Page Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
               <div>
-                <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2">
                   Игровая зона
                 </h1>
-                <p className="text-slate-400 font-medium text-lg">
+                <p className="text-muted-foreground font-medium text-lg">
                   Выбирай режим и прокачивай навыки
                 </p>
               </div>
@@ -362,25 +362,25 @@ const Games = () => {
               <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
                 {/* Games Played Badge */}
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 backdrop-blur-sm shadow-lg shadow-violet-500/10 flex-shrink-0 whitespace-nowrap">
-                  <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-violet-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-violet-100">
-                    {stats.gamesPlayed} <span className="text-violet-300/70 font-normal">игр</span>
+                  <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-violet-600 dark:text-violet-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-100">
+                    {stats.gamesPlayed} <span className="text-violet-600/70 dark:text-violet-300/70 font-normal">игр</span>
                   </span>
                 </div>
 
                 {/* Terms Badge */}
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10 flex-shrink-0 whitespace-nowrap">
-                  <Brain className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-emerald-100">
-                    {stats.studiedTerms} <span className="text-emerald-300/70 font-normal">терминов</span>
+                  <Brain className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-emerald-700 dark:text-emerald-100">
+                    {stats.studiedTerms} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">терминов</span>
                   </span>
                 </div>
 
                 {/* Result Badge */}
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
-                  <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-amber-100">
-                    {stats.averageResult}% <span className="text-amber-300/70 font-normal">рез.</span>
+                  <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                  <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
+                    {stats.averageResult}% <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">рез.</span>
                   </span>
                 </div>
               </div>
@@ -449,7 +449,7 @@ const Games = () => {
                         {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => (
                           <Avatar
                             key={player.id}
-                            className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-slate-900"
+                            className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-card"
                           >
                             {player.photoUrl && player.photoUrl.trim() !== '' ? (
                               <AvatarImage 
@@ -509,8 +509,8 @@ const Games = () => {
 
             {/* Other Games Grid - Dashboard Style (Darker, Glassmorphism) */}
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-slate-800 border border-slate-700">
+              <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-card border border-border">
                   <Gamepad2 className="w-6 h-6 text-indigo-400" />
                 </div>
                 Другие режимы
@@ -590,8 +590,8 @@ const Games = () => {
                       className={`
                         ${isFeatured ? 'md:col-span-2' : 'col-span-1'}
                         relative overflow-hidden rounded-[2rem] p-6 md:p-8 cursor-pointer group
-                        bg-slate-800/40 backdrop-blur-sm border border-slate-700/50
-                        ${theme.border} hover:bg-slate-800/60
+                        bg-card/60 dark:bg-card/40 backdrop-blur-sm border border-border
+                        ${theme.border} hover:bg-card/80 dark:hover:bg-card/60
                         shadow-lg hover:shadow-xl ${theme.shadow}
                         transition-colors duration-150
                         hover:-translate-y-1
@@ -641,16 +641,16 @@ const Games = () => {
                             <Icon className={`w-7 h-7 ${theme.icon}`} />
                           </div>
 
-                          <Badge variant="outline" className="border-slate-600 text-slate-400 bg-slate-800/50">
+                          <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
                             {game.difficulty}
                           </Badge>
                         </div>
 
                         <div>
-                          <h3 className={`text-2xl font-bold text-white mb-2 tracking-tight ${theme.titleHover} transition-colors`}>
+                          <h3 className={`text-2xl font-bold text-foreground mb-2 tracking-tight ${theme.titleHover} transition-colors`}>
                             {game.title}
                           </h3>
-                          <p className="text-slate-400 font-medium text-sm leading-relaxed">
+                          <p className="text-muted-foreground font-medium text-sm leading-relaxed">
                             {game.description}
                           </p>
                         </div>
