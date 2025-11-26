@@ -163,7 +163,9 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               key={stat.label}
               className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 text-center"
             >
-              <div className="text-4xl font-black text-white mb-2">{stat.value}</div>
+              <div className="text-3xl sm:text-4xl font-black text-white mb-2 leading-tight">
+                {stat.value}
+              </div>
               <p className="text-indigo-300 font-semibold uppercase tracking-[0.2em] text-xs">
                 {stat.label}
               </p>
