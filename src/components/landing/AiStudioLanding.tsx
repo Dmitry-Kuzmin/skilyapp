@@ -19,6 +19,7 @@ import {
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
+import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import {
   landingTranslations,
@@ -84,30 +85,11 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               {copy.controls.telegramApp}
             </button>
           </div>
-          <div className="flex flex-col items-end gap-1 text-right">
-            <span className="hidden md:inline text-[9px] font-semibold uppercase tracking-[0.4em] text-slate-500">
-              {copy.controls.languageLabel}
-            </span>
-            <div className="inline-flex items-center rounded-full bg-slate-900/80 border border-slate-800/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.3em] text-slate-400 shadow-sm">
-              {LANGUAGE_OPTIONS.map((option, index) => (
-                <React.Fragment key={option.code}>
-                  <button
-                    onClick={() => handleLanguageChange(option.code)}
-                    className={`px-1.5 transition-colors ${
-                      option.code === language
-                        ? "text-white"
-                        : "text-slate-500 hover:text-white"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                  {index < LANGUAGE_OPTIONS.length - 1 && (
-                    <span className="text-slate-700">/</span>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
+          <LanguageSelector
+            language={language}
+            onSelect={handleLanguageChange}
+            label={copy.controls.languageLabel}
+          />
           <button
             onClick={handleEnter}
             className="px-6 py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-bold text-slate-300 hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105"
