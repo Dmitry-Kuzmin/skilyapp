@@ -278,23 +278,26 @@ async function processSeason(season_id: number, supabase: any) {
                 rewardsProcessed++;
               }
             } else if (rewardType === "coins" && rewardData.amount) {
-              // Начисляем монеты через coins-earn функцию
-              const { error: coinsError } = await supabase.functions.invoke("coins-earn", {
-                body: {
-                  user_id: player.id,
-                  reward_type: "leaderboard_reward",
-                  metadata: {
-                    season_id,
-                    position,
-                    amount: rewardData.amount,
-                  },
-                },
+              const { error: coinsError } = await supabase.rpc("increment_profile_value", {
+                p_profile_id: player.id,
+                p_column: "coins",
+                p_amount: rewardData.amount,
               });
 
               if (coinsError) {
                 console.warn(`[season-end-rewards] Error adding coins:`, coinsError);
               } else {
                 rewardsProcessed++;
+                await supabase.from("transactions").insert({
+                  user_id: player.id,
+                  transaction_type: "coins_earned_leaderboard",
+                  amount: rewardData.amount,
+                  metadata: {
+                    season_id,
+                    position,
+                    reward_type: rewardType,
+                  },
+                });
               }
             } else if (rewardType === "aura") {
               // Аура - это метаданные, сохраняем в user_leaderboard_rewards

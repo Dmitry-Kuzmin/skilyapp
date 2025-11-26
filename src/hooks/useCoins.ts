@@ -2,15 +2,6 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 
-type RewardType =
-  | "daily_login"
-  | "complete_test"
-  | "win_duel"
-  | "lose_duel"
-  | "streak_3_days"
-  | "streak_7_days"
-  | "monthly_premium_bonus";
-
 type SpendType = "boost_50_50" | "boost_hint" | "boost_time" | "second_chance";
 
 // Глобальный кэш для баланса монет (не очищается при навигации)
@@ -81,33 +72,6 @@ export function useCoins() {
     refreshBalance();
   }, [profileId, refreshBalance]);
 
-  const earnCoins = useCallback(
-    async (rewardType: RewardType, metadata?: Record<string, unknown>) => {
-      if (!profileId) return;
-      setLoading(true);
-      try {
-        const { data, error } = await supabaseClient.functions.invoke("coins-earn", {
-          body: { user_id: profileId, reward_type: rewardType, metadata },
-        });
-        if (error) throw error;
-        if (data?.new_balance !== undefined) {
-          setBalance(data.new_balance);
-          // Обновляем кэш
-          if (profileId) {
-            coinsCache[profileId] = { balance: data.new_balance, timestamp: Date.now() };
-          }
-        } else {
-          await refreshBalance(true);
-        }
-      } catch (err) {
-        console.error("[useCoins] earnCoins error", err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [profileId, refreshBalance]
-  );
-
   const spendCoins = useCallback(
     async (spendType: SpendType, metadata?: Record<string, unknown>) => {
       if (!profileId) return;
@@ -141,7 +105,6 @@ export function useCoins() {
     balance,
     loading,
     refresh: refreshBalance,
-    earnCoins,
     spendCoins,
   };
 }

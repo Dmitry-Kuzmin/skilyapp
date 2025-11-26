@@ -42,7 +42,7 @@
 
 Когда челлендж завершен:
 1. Edge Function `season-challenges-reward` вызывается автоматически
-2. Награды начисляются через `season-sp` и `coins-earn`
+2. SP начисляются через `season-sp`, монеты — напрямую через `increment_profile_value` + запись в `transactions`
 3. Прогресс отмечается как `reward_claimed: true`
 
 ## Автогенерация ежедневных челленджей

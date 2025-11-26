@@ -63,7 +63,7 @@ supabase db push
 
 4. Разверните все Edge Functions:
    ```bash
-   supabase functions deploy coins-earn
+supabase functions deploy complete-test-and-award
    supabase functions deploy coins-spend
    supabase functions deploy premium-status
    supabase functions deploy purchase-create
@@ -209,9 +209,9 @@ STRIPE_CANCEL_URL=https://yourdomain.com/cancel
    - Пройдите через Stripe Checkout
    - Проверьте, что `duel_pass_premium` стал `true`
 
-4. **Начисление монет:**
-   - Вызовите `coins-earn` с `reward_type: "complete_test"`
-   - Проверьте, что монеты начислились и запись в `transactions`
+4. **Начисление наград за тест:**
+   - Вызовите `complete-test-and-award` с тестовыми данными (user_id, session_id, score, questions_count и т.д.)
+   - Проверьте, что монеты и SP начислились, в `transactions` появилась запись `coins_earned_test`
 
 5. **Duel Pass XP:**
    - Вызовите `duel-pass-xp` с `source_type: "test"`

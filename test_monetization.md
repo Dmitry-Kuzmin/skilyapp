@@ -23,16 +23,22 @@ const { data } = await supabase.functions.invoke('premium-status', {
 console.log('Premium Status:', data);
 ```
 
-#### B. Coins Earn
+#### B. Complete Test & Award
 ```javascript
-// Тест начисления монет
-const { data } = await supabase.functions.invoke('coins-earn', {
+// Тест начисления наград за тест
+const { data } = await supabase.functions.invoke('complete-test-and-award', {
   body: { 
     user_id: 'YOUR_PROFILE_ID',
-    reward_type: 'complete_test'
+    session_id: crypto.randomUUID(),
+    score: 92,
+    questions_count: 30,
+    correct_count: 28,
+    test_duration_seconds: 780,
+    premium_flag: false,
+    double_sp_active: false,
   }
 });
-console.log('Coins Earn:', data);
+console.log('Test Rewards:', data);
 ```
 
 #### C. Duel Pass XP
@@ -76,7 +82,7 @@ console.log('Duel Pass XP:', data);
 - Проверьте логику в `premium-status` функции
 
 ### Монеты не начисляются
-- Проверьте логи `coins-earn` функции
+- Проверьте логи `complete-test-and-award` функции
 - Проверьте таблицу `transactions`
 - Проверьте баланс в `profiles.coins`
 

@@ -19,6 +19,7 @@ import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
 import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
+import { usePremium } from "@/hooks/usePremium";
 
 type QuestionData = {
   id: string;
@@ -48,6 +49,19 @@ type Answer = {
   questionId: string;
   selectedAnswerId: string;
   isCorrect: boolean;
+};
+
+type TestRewardResult = {
+  coins_awarded?: number;
+  sp_awarded?: number;
+  base_coins?: number;
+  base_sp?: number;
+  abuse_penalty?: number;
+  diminishing_factor?: number;
+  message?: string;
+  level_up?: boolean;
+  new_level?: number;
+  tests_today?: number;
 };
 
 // Компонент для отображения изображения вопроса с обработкой ошибок
@@ -170,6 +184,7 @@ const TestSession = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { profileId } = useUserContext();
+  const { isPremium } = usePremium();
   const mode = useMemo(() => {
     if (rawMode) return rawMode;
     if (location.pathname.includes("/test/sequential")) return "sequential";
@@ -234,6 +249,17 @@ const TestSession = () => {
     }
     return (saved === 'en' ? 'en' : 'es') as 'es' | 'en';
   });
+  const testSessionIdRef = useRef<string | null>(null);
+  const getOrCreateSessionId = () => {
+    if (!testSessionIdRef.current) {
+      const fallbackId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      testSessionIdRef.current =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : fallbackId;
+    }
+    return testSessionIdRef.current;
+  };
   
   // Mastery Mode - отслеживаем неправильные вопросы для повторения
   const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
@@ -1604,6 +1630,8 @@ useEffect(() => {
         ? initialTimeBudget - timeLeft
         : 0;
 
+    let rewardResult: TestRewardResult | null = null;
+
     try {
       // Если это sequential тест, обновляем прогресс через функцию
       if (testId && profileId) {
@@ -1674,6 +1702,31 @@ useEffect(() => {
       console.error("Error saving results:", error);
     }
 
+    if (profileId) {
+      try {
+        const sessionId = getOrCreateSessionId();
+        const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
+          body: {
+            user_id: profileId,
+            session_id: sessionId,
+            test_id: testId || null,
+            score,
+            questions_count: questions.length,
+            correct_count: correctCount,
+            test_duration_seconds: Math.max(timeSpent, 0),
+            premium_flag: Boolean(isPremium),
+            double_sp_active: false,
+          },
+        });
+
+        if (rewardError) throw rewardError;
+        rewardResult = rewardData as TestRewardResult;
+      } catch (awardError) {
+        console.error("[TestSession] Error awarding test:", awardError);
+        toast.error("Не удалось начислить награды автоматически. Проверь соединение и попробуй повторить прохождение.");
+      }
+    }
+
     navigate("/test/results", {
       state: {
         questions,
@@ -1682,6 +1735,8 @@ useEffect(() => {
         timeSpent,
         testId,
         testInfo,
+        rewardResult,
+        sessionId: testSessionIdRef.current,
       },
     });
   };

@@ -11,7 +11,7 @@
 
 ### 2. **Edge Functions**
 - ✅ `premium-status` - проверка Premium статуса
-- ✅ `coins-earn` - начисление монет
+- ✅ `complete-test-and-award` - начисление наград за тесты (монеты + SP)
 - ✅ `coins-spend` - списание монет
 - ✅ `purchase-create` - создание покупки через Stripe
 - ✅ `purchase-webhook` - обработка Stripe webhooks
@@ -56,7 +56,7 @@
 
 ---
 
-### 2. **Начисление монет**
+### 2. **Начисление наград за тест**
 
 **Где проверить:**
 - Завершение теста (`/test-results`)
@@ -66,9 +66,9 @@
 **Что проверить:**
 
 1. **После завершения теста:**
-   - Пройдите любой тест
-   - После завершения должны начислиться **10 монет** (или 15 для Premium)
-   - Проверьте баланс монет в интерфейсе
+   - Пройдите любой режим теста
+   - Проверьте всплывающее уведомление о наградах: оно должно совпадать с ответом `complete-test-and-award`
+   - В таблице `test_results` появится запись с полями `coins_awarded` и `sp_awarded`
 
 2. **Ежедневный бонус:**
    - Откройте главную страницу
@@ -77,21 +77,26 @@
 
 3. **В консоли браузера:**
    ```javascript
-   // Тест начисления монет
-   const { data } = await supabase.functions.invoke('coins-earn', {
+   // Тест начисления наград
+   const { data } = await supabase.functions.invoke('complete-test-and-award', {
      body: { 
        user_id: 'ВАШ_PROFILE_ID',
-       reward_type: 'complete_test'
+       session_id: crypto.randomUUID(),
+       score: 95,
+       questions_count: 30,
+       correct_count: 29,
+       test_duration_seconds: 900,
+       premium_flag: false,
+       double_sp_active: false,
      }
    });
-   console.log('Начислено монет:', data);
+   console.log('Результат начисления:', data);
    ```
 
 4. **Проверка в БД:**
-   - Supabase Dashboard → Table Editor → `transactions`
-   - Должна появиться запись с типом `coins_earned_test`
-   - Supabase Dashboard → Table Editor → `profiles`
-   - Поле `coins` должно увеличиться
+   - Supabase Dashboard → `test_results` — проверьте `coins_awarded`, `sp_awarded`, `abuse_penalty`
+   - Supabase Dashboard → `transactions` — запись `coins_earned_test` с ссылкой на `test_result_id`
+   - Supabase Dashboard → `profiles` — поля `coins` и `season_sp` должны обновиться
 
 ---
 
@@ -295,7 +300,7 @@
 ## 🐛 Возможные проблемы и решения:
 
 ### Монеты не начисляются
-- Проверьте логи Edge Function `coins-earn` в Supabase Dashboard
+- Проверьте логи Edge Function `complete-test-and-award` в Supabase Dashboard
 - Проверьте таблицу `transactions`
 - Проверьте баланс в `profiles.coins`
 

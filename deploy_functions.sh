@@ -25,7 +25,7 @@ echo ""
 echo "📦 Развертывание функций монетизации..."
 
 # Развертываем функции монетизации
-supabase functions deploy coins-earn
+supabase functions deploy complete-test-and-award
 supabase functions deploy coins-spend
 supabase functions deploy premium-status
 supabase functions deploy purchase-create

@@ -69,17 +69,47 @@ serve(async (req) => {
       });
     }
 
-    // Начисляем монеты через coins-earn функцию
+    let coinsAwarded = 0;
     if (totalCoins > 0) {
-      await supabase.functions.invoke("coins-earn", {
-        body: {
-          user_id,
-          reward_type: "challenge_reward",
-          metadata: {
-            source: "season_challenge",
-            total_coins: totalCoins,
-            challenges: completed_challenges.map((c: any) => c.challenge_id),
-          },
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, premium_until, trial_until")
+        .eq("id", user_id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error("Profile not found for coin reward");
+      }
+
+      const now = new Date();
+      const isPremium =
+        (profile.premium_until && new Date(profile.premium_until) > now) ||
+        (profile.trial_until && new Date(profile.trial_until) > now);
+
+      const multiplier = isPremium ? 1.5 : 1;
+      coinsAwarded = Math.round(totalCoins * multiplier);
+
+      const challengesList = completed_challenges.map((c: any) => c.challenge_id);
+
+      const { error: coinsError } = await supabase.rpc("increment_profile_value", {
+        p_profile_id: profile.id,
+        p_column: "coins",
+        p_amount: coinsAwarded,
+      });
+
+      if (coinsError) {
+        throw coinsError;
+      }
+
+      await supabase.from("transactions").insert({
+        user_id: profile.id,
+        transaction_type: "coins_earned_challenge",
+        amount: coinsAwarded,
+        metadata: {
+          source: "season_challenge",
+          base_amount: totalCoins,
+          multiplier,
+          challenges: challengesList,
         },
       });
     }
@@ -88,7 +118,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         total_sp: totalSP,
-        total_coins: totalCoins,
+        total_coins: coinsAwarded,
         rewards,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

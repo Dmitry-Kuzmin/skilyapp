@@ -18,6 +18,16 @@ import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
 
+type TestRewardPayload = {
+  coins_awarded?: number;
+  sp_awarded?: number;
+  base_coins?: number;
+  base_sp?: number;
+  level_up?: boolean;
+  new_level?: number;
+  message?: string;
+};
+
 type QuestionData = {
   id: string;
   question_ru: string;
@@ -112,7 +122,7 @@ const TestResults = () => {
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
-  const rewardLoggedRef = useRef(false);
+  const duelPassSyncRef = useRef(false);
   const [rewards, setRewards] = useState<{
     coins?: number;
     sp?: number;
@@ -136,100 +146,59 @@ const TestResults = () => {
     );
   }
 
-  const { questions, answers, mode, timeSpent, testId, testInfo } = location.state as {
+  const { questions, answers, mode, timeSpent, testId, testInfo, rewardResult } = location.state as {
     questions: QuestionData[];
     answers: Answer[];
     mode: string;
     timeSpent: number;
     testId?: string;
     testInfo?: { id: string; title: string };
+    rewardResult?: TestRewardPayload | null;
   };
 
-  // Начисление наград после получения данных
+  // Синхронизируем награды, переданные с экрана теста
   useEffect(() => {
-    const handleRewards = async () => {
-      if (!profileId || rewardLoggedRef.current || !questions || questions.length === 0 || !answers) return;
-      rewardLoggedRef.current = true;
-      
-      // Вычисляем score из answers
-      const correctCount = answers.filter(a => a.isCorrect).length;
-      const score = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-      
+    if (!rewardResult) return;
+
+    setRewards({
+      coins: typeof rewardResult.coins_awarded === "number" ? rewardResult.coins_awarded : undefined,
+      sp: typeof rewardResult.sp_awarded === "number" ? rewardResult.sp_awarded : undefined,
+      levelUp: rewardResult.level_up,
+      newLevel: rewardResult.new_level,
+    });
+
+    const rewardMessages: string[] = [];
+    if (rewardResult.coins_awarded && rewardResult.coins_awarded > 0) {
+      rewardMessages.push(`+${rewardResult.coins_awarded} монет`);
+    }
+    if (rewardResult.sp_awarded && rewardResult.sp_awarded > 0) {
+      rewardMessages.push(`+${rewardResult.sp_awarded} SP`);
+    }
+    if (rewardResult.level_up && rewardResult.new_level) {
+      rewardMessages.push(`🎉 Новый уровень Duel Pass: ${rewardResult.new_level}!`);
+    }
+
+    if (rewardMessages.length > 0 || rewardResult.message) {
+      toast.success("Награды получены!", {
+        description: rewardResult.message || rewardMessages.join(", "),
+        duration: 5000,
+      });
+    }
+  }, [rewardResult]);
+
+  // Дуэльный пасс все еще синхронизируем отдельно
+  useEffect(() => {
+    const syncDuelPass = async () => {
+      if (!profileId || !rewardResult || duelPassSyncRef.current) return;
+      duelPassSyncRef.current = true;
+
       try {
-        // Начисляем монеты
-        const { data: coinsData, error: coinsError } = await supabase.functions.invoke("coins-earn", {
-          body: { user_id: profileId, reward_type: "complete_test" },
-        });
-        
-        if (coinsError) {
-          console.error('[TestResults] Coins error:', coinsError);
-        }
-        
-        // Начисляем Season Points за прохождение теста
-        const sourceType = score === 100 ? "test_perfect" : "test_completed";
-        const { data: spData, error: spError } = await supabase.functions.invoke("season-sp", {
-          body: { 
-            user_id: profileId, 
-            source_type: sourceType,
-            metadata: { 
-              questions_count: questions.length,
-              score: score 
-            }
-          },
-        });
-        
-        if (spError) {
-          console.error('[TestResults] SP error:', spError);
-        }
-        
-        // Также начисляем XP для обратной совместимости
         const { data: xpData, error: xpError } = await supabase.functions.invoke("duel-pass-xp", {
           body: { user_id: profileId, source_type: "test" },
         });
-        
-        if (xpError) {
-          console.error('[TestResults] XP error:', xpError);
-        }
-        
-        // Отслеживаем прогресс челленджей
-        await supabase.functions.invoke("season-challenges-track", {
-          body: {
-            user_id: profileId,
-            source_type: sourceType,
-            metadata: {
-              questions_count: questions.length,
-              score: score
-            }
-          },
-        });
-        
-        // Сохраняем результаты начислений
-        setRewards({
-          coins: coinsData?.reward_amount || 10,
-          sp: spData?.sp_added || (sourceType === "test_perfect" ? 35 : 25),
-          levelUp: spData?.level_up || false,
-          newLevel: spData?.level || undefined,
-        });
-        
-        // Показываем уведомление о начислениях
-        const rewardMessages = [];
-        if (coinsData?.reward_amount) {
-          rewardMessages.push(`+${coinsData.reward_amount} монет`);
-        }
-        if (spData?.sp_added) {
-          rewardMessages.push(`+${spData.sp_added} SP`);
-        }
-        if (spData?.level_up) {
-          rewardMessages.push(`🎉 Новый уровень Duel Pass: ${spData.level}!`);
-        }
-        
-        if (rewardMessages.length > 0) {
-          toast.success("Награды получены!", {
-            description: rewardMessages.join(", "),
-            duration: 5000,
-          });
-        }
-        
+
+        if (xpError) throw xpError;
+
         if (xpData?.level_up) {
           const { data: suggestion } = await supabase.functions.invoke("assistant-suggest", {
             body: { trigger: "duel_pass_level_up" },
@@ -240,15 +209,12 @@ const TestResults = () => {
           }
         }
       } catch (error) {
-        console.error('[TestResults] Error handling rewards:', error);
-        toast.error("Ошибка при начислении наград", {
-          description: "Попробуйте обновить страницу",
-        });
+        console.error("[TestResults] Duel Pass XP error:", error);
       }
     };
-    
-    handleRewards();
-  }, [profileId, questions, answers]);
+
+    syncDuelPass();
+  }, [profileId, rewardResult]);
 
   const [nextTest, setNextTest] = useState<{ id: string; title: string; status: string } | null>(null);
   const [loadingNextTest, setLoadingNextTest] = useState(false);

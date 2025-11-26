@@ -403,11 +403,15 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             contentRef.current.style.touchAction = '';
           }
           
-          // Восстанавливаем overlay - убираем все кастомные стили
-          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement;
+          // Плавно гасим overlay из текущего состояния
+          const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement | null;
           if (overlay) {
-            overlay.style.opacity = '';
-            overlay.style.transition = '';
+            const currentOpacity = window.getComputedStyle(overlay).opacity;
+            overlay.style.transition = 'opacity 220ms cubic-bezier(0.16, 1, 0.3, 1)';
+            overlay.style.opacity = currentOpacity;
+            requestAnimationFrame(() => {
+              overlay.style.opacity = '0';
+            });
           }
           
           // Теперь вызываем закрытие после того, как стили убраны
@@ -529,6 +533,15 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
             willChange: isDragging ? "transform" : "auto",
             // Плавный easing для анимаций закрытия/открытия (только когда не перетаскиваем)
             transition: isDragging ? undefined : "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+            ...(side === "bottom"
+              ? {
+                  borderTopLeftRadius: props.style?.borderTopLeftRadius ?? "28px",
+                  borderTopRightRadius: props.style?.borderTopRightRadius ?? "28px",
+                  boxShadow:
+                    props.style?.boxShadow ??
+                    "0 -20px 45px rgba(6, 10, 25, 0.35)",
+                }
+              : {}),
           }}
           {...props}
         >

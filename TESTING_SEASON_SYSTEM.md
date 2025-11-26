@@ -166,7 +166,7 @@ LIMIT 10;
 **Решение:**
 - Проверьте логи `season-challenges-reward` функции
 - Убедитесь, что челлендж действительно завершен (progress >= target_value)
-- Проверьте, что функции `season-sp` и `coins-earn` работают
+- Проверьте, что `season-sp` и RPC `increment_profile_value` отрабатывают без ошибок
 
 ### 6. Тестовые данные
 
