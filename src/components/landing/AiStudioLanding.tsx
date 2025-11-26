@@ -84,23 +84,27 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               {copy.controls.telegramApp}
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="hidden md:inline text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-500">
+          <div className="flex flex-col items-end gap-1 text-right">
+            <span className="hidden md:inline text-[9px] font-semibold uppercase tracking-[0.4em] text-slate-500">
               {copy.controls.languageLabel}
             </span>
-            <div className="flex items-center bg-slate-900/70 border border-slate-800/70 rounded-full p-0.5 text-[11px] uppercase tracking-[0.2em] text-slate-400 shadow-[0_8px_30px_rgba(15,23,42,0.35)]">
-              {LANGUAGE_OPTIONS.map((option) => (
-                <button
-                  key={option.code}
-                  onClick={() => handleLanguageChange(option.code)}
-                  className={`min-w-[36px] px-2 py-1 rounded-full text-[10px] font-bold transition-all ${
-                    option.code === language
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {option.label}
-                </button>
+            <div className="inline-flex items-center rounded-full bg-slate-900/80 border border-slate-800/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.3em] text-slate-400 shadow-sm">
+              {LANGUAGE_OPTIONS.map((option, index) => (
+                <React.Fragment key={option.code}>
+                  <button
+                    onClick={() => handleLanguageChange(option.code)}
+                    className={`px-1.5 transition-colors ${
+                      option.code === language
+                        ? "text-white"
+                        : "text-slate-500 hover:text-white"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                  {index < LANGUAGE_OPTIONS.length - 1 && (
+                    <span className="text-slate-700">/</span>
+                  )}
+                </React.Fragment>
               ))}
             </div>
           </div>
@@ -114,22 +118,24 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       </nav>
 
       <section className="relative z-10 px-6 pt-12 pb-10 md:pt-20 md:pb-16 max-w-[1400px] mx-auto flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 animate-fade-in relative z-20">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-6 sm:mb-8 animate-fade-in relative z-20">
           <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
           {copy.hero.badge}
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight md:tracking-tighter mb-6 md:mb-8 leading-[1.05] sm:leading-[0.95] animate-slide-up select-none drop-shadow-2xl text-balance max-w-4xl">
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-400 block pb-2">
+        <h1
+          className="text-[clamp(2.25rem,8vw,5.5rem)] font-black tracking-tight md:tracking-tighter mb-5 md:mb-8 leading-[1.05] sm:leading-[0.95] animate-slide-up select-none drop-shadow-2xl text-balance max-w-3xl"
+        >
+          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-400 block pb-1 sm:pb-2">
             {copy.hero.titleTop}
           </span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-indigo-400 via-violet-400 to-indigo-600 block pb-4">
+          <span className="bg-clip-text text-transparent bg-gradient-to-b from-indigo-400 via-violet-400 to-indigo-600 block">
             {copy.hero.titleBottom}
           </span>
         </h1>
 
         <p
-          className="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-12 animate-slide-up font-medium"
+          className="max-w-2xl text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed md:leading-loose mb-10 md:mb-12 animate-slide-up font-medium text-balance px-1"
           style={{ animationDelay: "0.1s" }}
         >
           <span className="text-white font-bold">{copy.hero.descriptionHighlight}</span>. {copy.hero.descriptionRest}
