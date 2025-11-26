@@ -340,7 +340,6 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               </button>
             </div>
           </form>
-        </div>
       </div>
     </UnifiedModal>
   );
