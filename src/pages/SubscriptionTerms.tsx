@@ -19,7 +19,7 @@ export default function SubscriptionTerms() {
 
 Если вы начали подписку или бесплатную пробную версию через Apple App Store, ваш аккаунт Apple ID будет автоматически продлеваться и с вас будет взиматься плата за продление, если автоматическое продление не отключено в настройках вашего аккаунта Apple ID.
 
-Если вы начали подписку через способ оплаты на веб-сайте Sdadim, ваша подписка будет автоматически продлеваться, и с вашего банковского счета будет взиматься плата за продление, если автоматическое продление не отключено. Для отключения автоматического продления свяжитесь с нами по адресу support@skilyapp.com.`
+Если вы начали подписку через способ оплаты на веб-сайте SkilyApp, ваша подписка будет автоматически продлеваться, и с вашего банковского счета будет взиматься плата за продление, если автоматическое продление не отключено. Для отключения автоматического продления свяжитесь с нами по адресу support@skilyapp.com.`
         },
         {
           title: "Отмена подписки",
@@ -35,7 +35,7 @@ export default function SubscriptionTerms() {
         },
         {
           title: "Цены и повышение цен",
-          content: `Цены на все платные подписки указаны на платформе Sdadim или в вашем аккаунте. Кроме того, Sdadim может повысить цену любых платных подписок по своему усмотрению, и мы оставляем за собой право делать это в любое время. В случае повышения цены Sdadim уведомит вас, и у вас будет возможность принять или отклонить повышение цены.`
+          content: `Цены на все платные подписки указаны на платформе SkilyApp или в вашем аккаунте. Кроме того, SkilyApp может повысить цену любых платных подписок по своему усмотрению, и мы оставляем за собой право делать это в любое время. В случае повышения цены SkilyApp уведомит вас, и у вас будет возможность принять или отклонить повышение цены.`
         },
         {
           title: "Изменения в условиях подписки",
@@ -57,7 +57,7 @@ Si inició la suscripción o la prueba gratuita usando Google Play, su cuenta de
 
 Si inició la suscripción o la prueba gratuita usando la App Store de Apple, su cuenta de Apple ID se renovará automáticamente y se le cobrará la renovación a menos que la renovación automática esté desactivada en la configuración de su cuenta de Apple ID.
 
-Si inició la suscripción usando el método de pago en el sitio web de Sdadim, su suscripción se renovará automáticamente y se cargará a su cuenta bancaria la renovación a menos que la renovación automática esté desactivada. Para desactivar la renovación automática, contáctenos en support@skilyapp.com.`
+Si inició la suscripción usando el método de pago en el sitio web de SkilyApp, su suscripción se renovará automáticamente y se cargará a su cuenta bancaria la renovación a menos que la renovación automática esté desactivada. Para desactivar la renovación automática, contáctenos en support@skilyapp.com.`
         },
         {
           title: "Cancelación de suscripción",
@@ -65,15 +65,17 @@ Si inició la suscripción usando el método de pago en el sitio web de Sdadim, 
         },
         {
           title: "Reembolsos",
-          content: `Proporcionamos reembolsos a nuestra propia discreción y sujeto a la ley aplicable, siempre que consideremos aceptable la solicitud. No hay reembolsos por períodos parcialmente utilizados.
+          content: `Proporcionamos reembolsos de acuerdo con la ley aplicable y nuestra política de reembolso.
 
-Generalmente, un reembolso solo puede solicitarse durante el período de suscripción. Si el período de suscripción ha expirado, el servicio se considerará consumido en su totalidad. Ciertas solicitudes de reembolso pueden considerarse solo en circunstancias especiales.
+Puede solicitar un reembolso dentro de los 14 días posteriores a la compra de una suscripción si el servicio no ha sido utilizado o ha sido utilizado mínimamente. Los reembolsos por períodos parcialmente utilizados se consideran caso por caso.
 
-Cualquier solicitud de reembolso debe enviarse a support@skilyapp.com.`
+Para solicitar un reembolso, contáctenos en support@skilyapp.com indicando la razón del reembolso. Revisaremos su solicitud dentro de 5 días hábiles.
+
+Los reembolsos se procesan utilizando el mismo método de pago utilizado para la compra original.`
         },
         {
           title: "Precios y aumentos de precios",
-          content: `Los precios de todas las suscripciones de pago se enumeran en la plataforma Sdadim o dentro de su cuenta. Además, Sdadim puede aumentar el precio de cualquier suscripción de pago a nuestra discreción y nos reservamos el derecho de hacerlo en cualquier momento. En caso de aumento de precio, Sdadim le notificará y tendrá la oportunidad de aceptar o rechazar cualquier aumento de precio.`
+          content: `Los precios de todas las suscripciones de pago se enumeran en la plataforma SkilyApp o dentro de su cuenta. Además, SkilyApp puede aumentar el precio de cualquier suscripción de pago a nuestra discreción y nos reservamos el derecho de hacerlo en cualquier momento. En caso de aumento de precio, SkilyApp le notificará y tendrá la oportunidad de aceptar o rechazar cualquier aumento de precio.`
         },
         {
           title: "Cambios en los términos de suscripción",
@@ -95,7 +97,7 @@ If you started the subscription or free trial using Google Play, your Google Pla
 
 If you started the subscription or free trial using Apple's App Store, your Apple ID account will be automatically renewed and charged for renewal unless auto-renewal is turned off in your Apple ID account settings.
 
-If you started the subscription using the payment method on the Sdadim Website, your subscription will be automatically renewed and your bank account charged for renewal unless auto-renewal is turned off. To turn off auto-renewal, contact us at support@skilyapp.com.`
+If you started the subscription using the payment method on the SkilyApp Website, your subscription will be automatically renewed and your bank account charged for renewal unless auto-renewal is turned off. To turn off auto-renewal, contact us at support@skilyapp.com.`
         },
         {
           title: "Canceling your subscription",
@@ -103,15 +105,17 @@ If you started the subscription using the payment method on the Sdadim Website, 
         },
         {
           title: "Refunds",
-          content: `We provide refunds at our own discretion, and subject to applicable law, provided we find the request acceptable. There are no refunds for partially used periods.
+          content: `We provide refunds in accordance with applicable law and our refund policy.
 
-Generally, a refund can only be claimed during the subscription period. If the subscription period has expired, the service will be deemed consumed in full. Certain refund requests may be considered only in special circumstances.
+You may request a refund within 14 days of your subscription purchase if the service has not been used or has been used minimally. Refunds for partially used periods are considered on a case-by-case basis.
 
-Any refund request should be made to support@skilyapp.com.`
+To request a refund, please contact us at support@skilyapp.com with the reason for your refund request. We will review your request within 5 business days.
+
+Refunds will be processed using the same payment method used for the original purchase.`
         },
         {
           title: "Pricing and Price Increases",
-          content: `The pricing for all paid subscriptions is listed on the Sdadim Platform or within your account. Additionally, Sdadim may increase the price of any paid subscriptions at our discretion and we reserve the right to do so at any time. In the event of a price increase, Sdadim shall notify you and you will have the chance to accept or reject any price increase.`
+          content: `The pricing for all paid subscriptions is listed on the SkilyApp Platform or within your account. Additionally, SkilyApp may increase the price of any paid subscriptions at our discretion and we reserve the right to do so at any time. In the event of a price increase, SkilyApp shall notify you and you will have the chance to accept or reject any price increase.`
         },
         {
           title: "Amendments",

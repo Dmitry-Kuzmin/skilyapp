@@ -7,7 +7,7 @@ export default function Privacy() {
   const content = {
     ru: {
       title: "Политика конфиденциальности",
-      intro: `Настоящая Политика конфиденциальности применяется к пользователям iOS-приложения, Android-приложения или веб-сайта Sdadim (совместно именуемые "Сайт") и другим взаимодействиям (например, запросы в службу поддержки клиентов, электронные письма, телефонные звонки).
+      intro: `Настоящая Политика конфиденциальности применяется к пользователям iOS-приложения, Android-приложения или веб-сайта SkilyApp (совместно именуемые "Сайт") и другим взаимодействиям (например, запросы в службу поддержки клиентов, электронные письма, телефонные звонки).
 
 Цель настоящей Политики конфиденциальности - помочь вам понять, какие персональные данные вы делитесь с нами. Эта политика описывает, что, когда и как мы собираем данные, и как мы используем и делимся вашими персональными данными.
 
@@ -25,7 +25,7 @@ export default function Privacy() {
 - Ваше имя (используется для отображения вашего имени на Сайте)
 - Email адрес - ваш уникальный ID, который мы используем для отслеживания и сохранения вашего прогресса на Сайте
 
-Мы будем хранить ваши данные Sdadim до тех пор, пока вы не запросите их удаление. Вы можете в любое время запросить удаление вашего аккаунта, и в этом случае мы удалим данные как можно скорее.`
+Мы будем хранить ваши данные SkilyApp до тех пор, пока вы не запросите их удаление. Вы можете в любое время запросить удаление вашего аккаунта, и в этом случае мы удалим данные как можно скорее.`
         },
         {
           title: "b. Использование Сайта",
@@ -71,7 +71,7 @@ export default function Privacy() {
           title: "Контролер персональных данных",
           content: `Контролером ваших данных является:
 
-Sdadim
+SkilyApp
 Россия, Москва, Сити 122
 
 Свяжитесь с нами по адресу support@skilyapp.com для любых вопросов или запросов, касающихся ваших персональных данных.`
@@ -80,7 +80,7 @@ Sdadim
     },
     es: {
       title: "Política de privacidad",
-      intro: `Esta Política de Privacidad se aplica a los usuarios de la aplicación iOS, aplicación Android o sitio web de Sdadim (colectivamente el "Sitio") y otras interacciones (por ejemplo, consultas de servicio al cliente, correos electrónicos, llamadas telefónicas).
+      intro: `Esta Política de Privacidad se aplica a los usuarios de la aplicación iOS, aplicación Android o sitio web de SkilyApp (colectivamente el "Sitio") y otras interacciones (por ejemplo, consultas de servicio al cliente, correos electrónicos, llamadas telefónicas).
 
 El propósito de esta Política de Privacidad es ayudarle a comprender qué datos personales comparte con nosotros. Esta política describe qué, cuándo y cómo recopilamos datos, y cómo usamos y compartimos sus datos personales.
 
@@ -98,7 +98,7 @@ Cuando crea una cuenta usando su correo electrónico, almacenamos la informació
 - Su nombre (se usa para mostrar su nombre en el Sitio)
 - Dirección de correo electrónico: su ID único que usamos para rastrear y guardar su progreso en el Sitio
 
-Mantendremos sus datos de Sdadim hasta que solicite que se eliminen. Puede solicitar en cualquier momento que se elimine su cuenta, y en ese caso eliminaremos los datos lo antes posible.`
+Mantendremos sus datos de SkilyApp hasta que solicite que se eliminen. Puede solicitar en cualquier momento que se elimine su cuenta, y en ese caso eliminaremos los datos lo antes posible.`
         },
         {
           title: "b. Usar el Sitio",
@@ -144,7 +144,7 @@ Usamos cookies para:
           title: "El controlador de datos personales",
           content: `El controlador de sus datos es:
 
-Sdadim
+SkilyApp
 Rusia, Moscú, Ciudad 122
 
 Contáctenos en support@skilyapp.com para cualquier pregunta o solicitud relacionada con sus datos personales.`
@@ -153,7 +153,7 @@ Contáctenos en support@skilyapp.com para cualquier pregunta o solicitud relacio
     },
     en: {
       title: "Privacy policy",
-      intro: `This Privacy Policy applies to users of Sdadim's iOS application, Android application or Website (collectively the Site) and other interactions (e.g. customer service inquiries, emails, phone calls).
+      intro: `This Privacy Policy applies to users of SkilyApp's iOS application, Android application or Website (collectively the Site) and other interactions (e.g. customer service inquiries, emails, phone calls).
 
 The purpose of this Privacy Policy is to help you understand what personal data you share with us. This policy describes what, when and how we collect data, and how we use and share your personal data.
 
@@ -171,7 +171,7 @@ When you create an Account using your email, we store the information that you p
 - Your name (used to display your name within the Site)
 - Email address - your unique ID that we use to track and save your progress on the Site
 
-We will keep your Sdadim data until you request to have it removed. You can at any time request to have your Account deleted, in which case we will delete the data as soon as possible.`
+We will keep your SkilyApp data until you request to have it removed. You can at any time request to have your Account deleted, in which case we will delete the data as soon as possible.`
         },
         {
           title: "b. Using the Site",
@@ -217,7 +217,7 @@ We use cookies for:
           title: "The Personal Data controller",
           content: `The controller of your data is:
 
-Sdadim
+SkilyApp
 Russia, Moscow, City 122
 
 Contact us at support@skilyapp.com for any questions or requests regarding your personal data.`

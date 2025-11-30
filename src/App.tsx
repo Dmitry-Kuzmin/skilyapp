@@ -69,6 +69,8 @@ const InviteLanding = lazy(() => import("./pages/InviteLanding"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
@@ -214,6 +216,8 @@ const App = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/subscription-terms" element={<SubscriptionTerms />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
