@@ -9,35 +9,45 @@ const corsHeaders = {
 /**
  * Верифицировать подпись Paddle webhook
  * Paddle использует HMAC-SHA256 для подписи webhook
- * Формат: signature = base64(hmac_sha256(payload, signature_key))
+ * Формат заголовка: "ts=timestamp;h1=signature"
+ * signature = base64(hmac_sha256(timestamp + ":" + payload, signature_key))
  */
 async function verifyPaddleSignature(
   payload: string,
-  signature: string,
+  signatureHeader: string,
   signatureKey: string
 ): Promise<boolean> {
-  if (!signature || !signatureKey) {
-    console.error("[paddle-webhook] Missing signature or key");
+  if (!signatureHeader || !signatureKey) {
+    console.error("[paddle-webhook] Missing signature header or key");
     return false;
   }
 
   try {
-    // Paddle отправляет подпись в заголовке "paddle-signature"
-    // Формат может быть: "ts=timestamp;h1=signature" или просто signature
-    // Извлекаем signature (h1 часть)
-    let signatureValue = signature;
-    if (signature.includes('h1=')) {
-      const parts = signature.split(';');
-      const h1Part = parts.find(p => p.startsWith('h1='));
-      if (h1Part) {
-        signatureValue = h1Part.split('=')[1];
+    // Paddle отправляет подпись в формате: "ts=timestamp;h1=signature"
+    const parts = signatureHeader.split(';');
+    let timestamp = '';
+    let signatureValue = '';
+
+    for (const part of parts) {
+      if (part.startsWith('ts=')) {
+        timestamp = part.split('=')[1];
+      } else if (part.startsWith('h1=')) {
+        signatureValue = part.split('=')[1];
       }
     }
+
+    if (!timestamp || !signatureValue) {
+      console.error("[paddle-webhook] Invalid signature format:", signatureHeader);
+      return false;
+    }
+
+    // Paddle создает подпись как: hmac_sha256(timestamp + ":" + payload, key)
+    const message = `${timestamp}:${payload}`;
 
     // Создаем HMAC-SHA256 подпись
     const encoder = new TextEncoder();
     const keyData = encoder.encode(signatureKey);
-    const payloadData = encoder.encode(payload);
+    const messageData = encoder.encode(message);
     
     const key = await crypto.subtle.importKey(
       "raw",
@@ -47,15 +57,16 @@ async function verifyPaddleSignature(
       ["sign"]
     );
     
-    const computedSignature = await crypto.subtle.sign("HMAC", key, payloadData);
+    const computedSignature = await crypto.subtle.sign("HMAC", key, messageData);
     
     // Конвертируем в base64
     const computedBase64 = btoa(
       String.fromCharCode(...new Uint8Array(computedSignature))
     );
 
-    // Сравниваем подписи (безопасное сравнение)
+    // Безопасное сравнение подписей (constant-time)
     if (computedBase64.length !== signatureValue.length) {
+      console.error("[paddle-webhook] Signature length mismatch");
       return false;
     }
 
@@ -65,6 +76,10 @@ async function verifyPaddleSignature(
         match = false;
         break;
       }
+    }
+
+    if (!match) {
+      console.error("[paddle-webhook] Signature verification failed");
     }
 
     return match;
@@ -306,4 +321,5 @@ serve(async (req) => {
     );
   }
 });
+
 
