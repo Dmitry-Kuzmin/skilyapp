@@ -26,10 +26,17 @@ import Layout from "@/components/Layout";
 
 const Index = () => {
   const { isAuthenticated, profileId } = useUserContext();
+  const navigate = useNavigate();
+  
+  // КРИТИЧНО: Проверяем авторизацию ДО всех хуков, которые требуют profileId
+  // Это предотвращает белый экран для неавторизованных пользователей
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+
   const { toast } = useToast();
   const { isPremium, isTrial, daysRemaining } = usePremium();
   const { balance } = useCoins();
-  const navigate = useNavigate();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   
@@ -380,11 +387,6 @@ const Index = () => {
       setClaimingBonus(false);
     }
   };
-
-  // Show landing page for non-authenticated users
-  if (!isAuthenticated) {
-    return <Landing />;
-  }
 
   // Handle welcome screen completion
   const handleWelcomeComplete = () => {
