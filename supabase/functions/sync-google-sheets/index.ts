@@ -114,6 +114,17 @@ interface RoadSignRow {
   sign_number?: string;
 }
 
+interface FlashcardRow {
+  id?: string;
+  topic?: number;
+  question_ru?: string;
+  question_es?: string;
+  question_eng?: string;
+  answer_ru?: string;
+  answer_es?: string;
+  answer_eng?: string;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -754,6 +765,133 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Sync flashcards if needed
+    let flashcardsProcessed = 0;
+    let flashcardsInserted = 0;
+    let flashcardsUpdated = 0;
+    let flashcardsSkipped = 0;
+    const flashcardsSkipReasons: string[] = [];
+    const flashcardsWarnings: string[] = [];
+
+    if (syncType === 'all' || syncType === 'flashcards') {
+      // Fetch Flashcards sheet - пробуем разные варианты названий
+      let flashcardsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=flashcards`;
+      let flashcardsResponse = await fetch(flashcardsUrl);
+      let flashcardsCsv = await flashcardsResponse.text();
+      
+      // Если не получилось, пробуем с заглавной буквы
+      if (flashcardsCsv.includes('error') || flashcardsCsv.length < 10) {
+        console.log('Trying "Flashcards" with capital F');
+        flashcardsUrl = `https://docs.google.com/spreadsheets/d/${sheetsId}/gviz/tq?tqx=out:csv&sheet=Flashcards`;
+        flashcardsResponse = await fetch(flashcardsUrl);
+        flashcardsCsv = await flashcardsResponse.text();
+      }
+      
+      const flashcardsRows = flashcardsCsv.split('\n').slice(1).filter(row => row.trim());
+
+      console.log(`Found ${flashcardsRows.length} flashcards rows`);
+      if (flashcardsRows.length > 0) {
+        console.log(`First row sample: ${flashcardsRows[0].substring(0, 100)}`);
+      }
+
+      for (const row of flashcardsRows) {
+        const columns = parseCSVRow(row);
+        
+        const rowNumber = flashcardsProcessed + flashcardsSkipped + 1;
+
+        // Логируем первые несколько строк для отладки
+        if (rowNumber <= 3) {
+          console.log(`Flashcard row ${rowNumber} columns:`, {
+            col0: columns[0]?.substring(0, 20),
+            col1: columns[1],
+            col2: columns[2]?.substring(0, 30),
+            totalCols: columns.length
+          });
+        }
+
+        // Структура: id, topic, Вопрос (РУС), Вопрос (ESP), Вопрос (ENG), Ответ (РУС), Ответ (ESP), Ответ (ENG)
+        const flashcardData: FlashcardRow = {
+          id: columns[0]?.trim() || null,
+          topic: columns[1] ? parseInt(columns[1]) : null,
+          question_ru: columns[2],
+          question_es: columns[3],
+          question_eng: columns[4],
+          answer_ru: columns[5],
+          answer_es: columns[6],
+          answer_eng: columns[7],
+        };
+
+        // Validate source_id (id)
+        if (!flashcardData.id || !flashcardData.id.trim()) {
+          flashcardsSkipReasons.push(`Карточка пропущена: отсутствует id (строка ${rowNumber + 1})`);
+          flashcardsSkipped++;
+          continue;
+        }
+
+        // Validate topic
+        if (!flashcardData.topic || isNaN(flashcardData.topic)) {
+          flashcardsSkipReasons.push(`Карточка пропущена: отсутствует или неверный topic (строка ${rowNumber + 1})`);
+          flashcardsSkipped++;
+          continue;
+        }
+
+        // Validate required fields - делаем более мягкую проверку
+        const hasQuestion = flashcardData.question_ru || flashcardData.question_es || flashcardData.question_eng;
+        const hasAnswer = flashcardData.answer_ru || flashcardData.answer_es || flashcardData.answer_eng;
+        
+        if (!hasQuestion || !hasAnswer) {
+          const missingFields = [];
+          if (!flashcardData.question_ru && !flashcardData.question_es && !flashcardData.question_eng) missingFields.push('question');
+          if (!flashcardData.answer_ru && !flashcardData.answer_es && !flashcardData.answer_eng) missingFields.push('answer');
+          flashcardsSkipReasons.push(`Карточка пропущена: отсутствуют обязательные поля (${missingFields.join(', ')}) (строка ${rowNumber + 1})`);
+          flashcardsSkipped++;
+          continue;
+        }
+
+        // Upsert flashcard - используем значения по умолчанию, если поле пустое
+        const { data: flashcard, error: flashcardError } = await supabase
+          .from('flashcards')
+          .upsert({
+            source_id: flashcardData.id.trim(),
+            topic: flashcardData.topic,
+            question_ru: (flashcardData.question_ru || '').trim() || flashcardData.question_es || flashcardData.question_eng || '',
+            question_es: (flashcardData.question_es || '').trim() || flashcardData.question_ru || flashcardData.question_eng || '',
+            question_eng: (flashcardData.question_eng || '').trim() || flashcardData.question_ru || flashcardData.question_es || '',
+            answer_ru: (flashcardData.answer_ru || '').trim() || flashcardData.answer_es || flashcardData.answer_eng || '',
+            answer_es: (flashcardData.answer_es || '').trim() || flashcardData.answer_ru || flashcardData.answer_eng || '',
+            answer_eng: (flashcardData.answer_eng || '').trim() || flashcardData.answer_ru || flashcardData.answer_es || '',
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'source_id',
+            ignoreDuplicates: false
+          })
+          .select('id, created_at, updated_at')
+          .single();
+
+        if (flashcardError) {
+          const reason = `Ошибка upsert карточки: ${flashcardError.message} (source_id: ${flashcardData.id})`;
+          console.error(reason);
+          flashcardsSkipReasons.push(reason);
+          flashcardsSkipped++;
+          continue;
+        }
+
+        // Determine if flashcard was new or updated
+        const createdAt = new Date(flashcard.created_at).getTime();
+        const updatedAt = new Date(flashcard.updated_at).getTime();
+        const timeDiff = Math.abs(updatedAt - createdAt);
+        const isNewFlashcard = timeDiff < 2000;
+
+        if (isNewFlashcard) {
+          flashcardsInserted++;
+        } else {
+          flashcardsUpdated++;
+        }
+
+        flashcardsProcessed++;
+      }
+    }
+
     const result = {
       success: true,
       topicsProcessed: topicsProcessed,
@@ -769,12 +907,18 @@ Deno.serve(async (req) => {
       signsInserted: syncType === 'all' || syncType === 'signs' ? signsInserted : 0,
       signsUpdated: syncType === 'all' || syncType === 'signs' ? signsUpdated : 0,
       signsSkipped: syncType === 'all' || syncType === 'signs' ? signsSkipped : 0,
+      flashcardsProcessed: syncType === 'all' || syncType === 'flashcards' ? flashcardsProcessed : 0,
+      flashcardsInserted: syncType === 'all' || syncType === 'flashcards' ? flashcardsInserted : 0,
+      flashcardsUpdated: syncType === 'all' || syncType === 'flashcards' ? flashcardsUpdated : 0,
+      flashcardsSkipped: syncType === 'all' || syncType === 'flashcards' ? flashcardsSkipped : 0,
       skipReasons: skipReasons.slice(0, 10), // First 10 reasons
       termsSkipReasons: termsSkipReasons.slice(0, 10), // First 10 reasons for terms
       signsSkipReasons: signsSkipReasons.slice(0, 10), // First 10 reasons for signs
+      flashcardsSkipReasons: flashcardsSkipReasons.slice(0, 10), // First 10 reasons for flashcards
       warnings: warnings.slice(0, 20), // First 20 warnings
       termsWarnings: termsWarnings.slice(0, 20), // First 20 warnings for terms
       signsWarnings: signsWarnings.slice(0, 20), // First 20 warnings for signs
+      flashcardsWarnings: flashcardsWarnings.slice(0, 20), // First 20 warnings for flashcards
       timestamp: new Date().toISOString(),
       availableTopics: Array.from(topicMap.keys()).sort((a, b) => a - b),
     };

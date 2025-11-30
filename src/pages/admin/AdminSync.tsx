@@ -25,6 +25,7 @@ interface SyncStats {
   topics: number;
   terms: number;
   signs: number;
+  flashcards: number;
 }
 
 interface SyncResult {
@@ -41,9 +42,9 @@ interface SyncResult {
 
 export function AdminSync() {
   const [syncing, setSyncing] = useState(false);
-  const [syncType, setSyncType] = useState<'all' | 'topics' | 'terms' | 'questions' | 'signs' | null>(null);
+  const [syncType, setSyncType] = useState<'all' | 'topics' | 'terms' | 'questions' | 'signs' | 'flashcards' | null>(null);
   const [lastSync, setLastSync] = useState<string | null>(null);
-  const [syncStats, setSyncStats] = useState<SyncStats>({ questions: 0, topics: 0, terms: 0, signs: 0 });
+  const [syncStats, setSyncStats] = useState<SyncStats>({ questions: 0, topics: 0, terms: 0, signs: 0, flashcards: 0 });
   const [recentQuestions, setRecentQuestions] = useState<any[]>([]);
   const [syncWarnings, setSyncWarnings] = useState<string[]>([]);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
@@ -61,11 +62,12 @@ export function AdminSync() {
 
   const loadStats = async () => {
     try {
-      const [questionsRes, topicsRes, termsRes, signsRes] = await Promise.all([
+      const [questionsRes, topicsRes, termsRes, signsRes, flashcardsRes] = await Promise.all([
         supabase.from("questions_new").select("id", { count: "exact", head: true }),
         supabase.from("topics").select("id", { count: "exact", head: true }),
         supabase.from("language_terms").select("id", { count: "exact", head: true }),
         supabase.from("road_signs").select("id", { count: "exact", head: true }),
+        supabase.from("flashcards").select("id", { count: "exact", head: true }),
       ]);
 
       setSyncStats({
@@ -73,6 +75,7 @@ export function AdminSync() {
         topics: topicsRes.count || 0,
         terms: termsRes.count || 0,
         signs: signsRes.count || 0,
+        flashcards: flashcardsRes.count || 0,
       });
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -117,7 +120,7 @@ export function AdminSync() {
     setSyncLogs(prev => [...prev, `[${new Date().toLocaleTimeString('ru-RU')}] ${message}`]);
   };
 
-  const handleSyncGoogleSheets = async (type: 'all' | 'topics' | 'terms' | 'questions' | 'signs') => {
+  const handleSyncGoogleSheets = async (type: 'all' | 'topics' | 'terms' | 'questions' | 'signs' | 'flashcards') => {
     setSyncing(true);
     setSyncType(type);
     setSyncWarnings([]);
@@ -132,7 +135,7 @@ export function AdminSync() {
       setSyncProgress(10);
 
       const { data, error } = await supabase.functions.invoke('sync-google-sheets', {
-        body: { type }
+        body: { syncType: type }
       });
 
       if (error) {
@@ -160,23 +163,28 @@ export function AdminSync() {
           (data?.topicsProcessed || 0) +
           (data?.questionsProcessed || 0) +
           (data?.termsProcessed || 0) +
-          (data?.signsProcessed || 0);
+          (data?.signsProcessed || 0) +
+          (data?.flashcardsProcessed || 0);
         skipped = 
           (data?.questionsSkipped || 0) +
           (data?.termsSkipped || 0) +
-          (data?.signsSkipped || 0);
+          (data?.signsSkipped || 0) +
+          (data?.flashcardsSkipped || 0);
         created = 
           (data?.questionsInserted || 0) +
           (data?.termsInserted || 0) +
-          (data?.signsInserted || 0);
+          (data?.signsInserted || 0) +
+          (data?.flashcardsInserted || 0);
         updated = 
           (data?.questionsUpdated || 0) +
           (data?.termsUpdated || 0) +
-          (data?.signsUpdated || 0);
+          (data?.signsUpdated || 0) +
+          (data?.flashcardsUpdated || 0);
         allWarnings = [
           ...(data?.warnings || []),
           ...(data?.termsWarnings || []),
           ...(data?.signsWarnings || []),
+          ...(data?.flashcardsWarnings || []),
         ];
       } else if (type === 'questions') {
         processed = data?.questionsProcessed || 0;
@@ -202,6 +210,12 @@ export function AdminSync() {
         created = data?.topicsProcessed || 0; // Topics всегда создаются/обновляются
         updated = 0;
         allWarnings = [];
+      } else if (type === 'flashcards') {
+        processed = data?.flashcardsProcessed || 0;
+        skipped = data?.flashcardsSkipped || 0;
+        created = data?.flashcardsInserted || 0;
+        updated = data?.flashcardsUpdated || 0;
+        allWarnings = data?.flashcardsWarnings || [];
       }
 
       // Собираем все причины пропуска
@@ -209,6 +223,7 @@ export function AdminSync() {
         ...(data?.skipReasons || []),
         ...(data?.termsSkipReasons || []),
         ...(data?.signsSkipReasons || []),
+        ...(data?.flashcardsSkipReasons || []),
       ];
 
       const result: SyncResult = {
@@ -306,6 +321,7 @@ export function AdminSync() {
       terms: "Термины",
       questions: "Вопросы",
       signs: "Дорожные знаки",
+      flashcards: "Флеш-карточки",
     };
     return labels[type] || type;
   };
@@ -510,6 +526,16 @@ export function AdminSync() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{syncStats.signs.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">в базе данных</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Флеш-карточки</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{syncStats.flashcards.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">в базе данных</p>
           </CardContent>
         </Card>
@@ -788,7 +814,7 @@ export function AdminSync() {
 
                 <div>
                   <h3 className="font-semibold mb-3">Выборочная синхронизация</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                     <Button
                       variant="outline"
                       onClick={() => handleSyncGoogleSheets('topics')}
@@ -828,6 +854,16 @@ export function AdminSync() {
                       <FileText className={cn("w-5 h-5", syncing && syncType === 'signs' && "animate-spin")} />
                       <span>Знаки</span>
                       <span className="text-xs text-muted-foreground">{syncStats.signs} в БД</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleSyncGoogleSheets('flashcards')}
+                      disabled={syncing}
+                      className="gap-2 h-auto py-4 flex-col"
+                    >
+                      <FileText className={cn("w-5 h-5", syncing && syncType === 'flashcards' && "animate-spin")} />
+                      <span>Карточки</span>
+                      <span className="text-xs text-muted-foreground">{syncStats.flashcards} в БД</span>
                     </Button>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Play, BookOpen, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Loader2, Play, BookOpen, CheckCircle2, CreditCard } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { calculateTopicProgress, calculateOverallProgress } from "@/utils/learningMap";
 import { cn } from "@/lib/utils";
 import { TopicDetailSkeleton } from "@/components/learning-map/TopicDetailSkeleton";
+import { FlashCardsModal } from "@/components/FlashCardsModal";
 
 const TopicDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ const TopicDetail = () => {
   const [subtopicsProgress, setSubtopicsProgress] = useState<SubtopicProgress[]>([]);
   const [topicProgress, setTopicProgress] = useState<any>(null);
   const [overallStats, setOverallStats] = useState<ProgressStats | null>(null);
+  const [flashcardsOpen, setFlashcardsOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -220,12 +222,22 @@ const TopicDetail = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Подтемы</h2>
-            {subtopics.length > 0 && (
-              <Button onClick={handleStartLearning} size="lg">
-                <Play className="w-4 h-4 mr-2" />
-                Начать обучение
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setFlashcardsOpen(true)}
+                className="gap-2"
+              >
+                <CreditCard className="w-4 h-4" />
+                Флеш-карточки
               </Button>
-            )}
+              {subtopics.length > 0 && (
+                <Button onClick={handleStartLearning} size="lg">
+                  <Play className="w-4 h-4 mr-2" />
+                  Начать обучение
+                </Button>
+              )}
+            </div>
           </div>
 
           <SubtopicList
@@ -235,6 +247,16 @@ const TopicDetail = () => {
           />
         </div>
       </div>
+
+      {/* Flash Cards Modal */}
+      {topic && (
+        <FlashCardsModal
+          open={flashcardsOpen}
+          onOpenChange={setFlashcardsOpen}
+          topic={topic.number}
+          language="ru"
+        />
+      )}
     </Layout>
   );
 };

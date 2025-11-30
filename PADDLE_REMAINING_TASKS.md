@@ -200,3 +200,4 @@ export function PaddlePaymentButton({
 
 После выполнения этих 6 шагов Paddle будет полностью подключен и готов к использованию! 🚀
 
+
