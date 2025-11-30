@@ -6,7 +6,8 @@ import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Crown } from "lucide-react";
 import { StarsPaymentButton } from "./StarsPaymentButton";
-import { getTelegramWebApp } from "@/lib/telegram";
+import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
+import { PAYMENT_CONFIG, getAvailablePaymentMethods, isPaymentMethodAvailable } from "@/lib/payment-config";
 
 interface PaywallModalProps {
   open: boolean;
@@ -44,9 +45,15 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
   const [loadingPackages, setLoadingPackages] = useState(false);
 
-  // Проверка, показывать ли кнопку Stars (только в Telegram Mini App)
+  // Определяем доступные методы оплаты
+  const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
+  const availableMethods = getAvailablePaymentMethods(currentPlatform);
+  const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
+  const showStripePayment = isPaymentMethodAvailable('stripe', currentPlatform);
+  const showPaypalPayment = isPaymentMethodAvailable('paypal', currentPlatform);
+  const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
+  
   const webApp = getTelegramWebApp();
-  const showStarsPayment = platform === 'telegram' && !!webApp;
 
   // Загрузить цены из БД
   useEffect(() => {
@@ -212,23 +219,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   </div>
                   
                   {/* Кнопки оплаты */}
-                  <div className="flex gap-2">
-                    <Button
-                      className="flex-1"
-                      onClick={() => handlePurchase(plan.key)}
-                      disabled={loadingKey === plan.key || !profileId}
-                    >
-                      {loadingKey === plan.key ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Перенаправляем...
-                        </>
-                      ) : (
-                        "Выбрать"
-                      )}
-                    </Button>
-                    
-                    {/* Кнопка оплаты Stars (только в Telegram) */}
+                  <div className="flex flex-col gap-2">
+                    {/* Telegram Stars (приоритетный метод в Telegram) */}
                     {showStarsPayment && priceCoins > 0 && (
                       <StarsPaymentButton
                         packageKey={plan.key}
@@ -237,9 +229,109 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                           refresh(); // Обновить статус Premium
                           onOpenChange(false);
                         }}
-                        variant="outline"
+                        variant="default"
                         size="default"
+                        className="w-full"
                       />
+                    )}
+                    
+                    {/* Stripe (только если включен в конфиге) */}
+                    {showStripePayment && (
+                      <Button
+                        className="w-full"
+                        onClick={() => handlePurchase(plan.key)}
+                        disabled={loadingKey === plan.key || !profileId}
+                      >
+                        {loadingKey === plan.key ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Перенаправляем...
+                          </>
+                        ) : (
+                          "Оплатить картой (Stripe)"
+                        )}
+                      </Button>
+                    )}
+                    
+                    {/* Cryptomus (криптоплатежи) */}
+                    {showCryptomusPayment && (
+                      <Button
+                        className="w-full"
+                        onClick={async () => {
+                          if (!profileId) return;
+                          setLoadingKey(plan.key);
+                          try {
+                            const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
+                              body: { user_id: profileId, catalog_key: plan.key },
+                            });
+                            
+                            if (error) {
+                              console.error("[PaywallModal] Cryptomus error", error);
+                              alert(`Ошибка: ${error.message || 'Не удалось создать платеж'}\n\nПроверьте настройки Cryptomus в Supabase Dashboard → Edge Functions → Settings`);
+                              return;
+                            }
+                            
+                            if (data?.error) {
+                              console.error("[PaywallModal] Cryptomus error in response", data.error);
+                              alert(`Ошибка: ${data.error}`);
+                              return;
+                            }
+                            
+                            if (data?.url) {
+                              // Открываем страницу оплаты Cryptomus
+                              if (webApp && platform === 'telegram') {
+                                if ((webApp as any).openLink) {
+                                  (webApp as any).openLink(data.url);
+                                } else {
+                                  window.location.href = data.url;
+                                }
+                              } else {
+                                window.location.href = data.url;
+                              }
+                            } else {
+                              alert("Не удалось получить ссылку на оплату");
+                            }
+                          } catch (err: any) {
+                            console.error("[PaywallModal] Cryptomus error", err);
+                            alert(`Ошибка: ${err?.message || JSON.stringify(err)}`);
+                          } finally {
+                            setLoadingKey(null);
+                          }
+                        }}
+                        disabled={loadingKey === plan.key || !profileId}
+                        variant="outline"
+                      >
+                        {loadingKey === plan.key ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Создаём платёж...
+                          </>
+                        ) : (
+                          "Оплатить криптовалютой"
+                        )}
+                      </Button>
+                    )}
+                    
+                    {/* PayPal (альтернатива для веб) */}
+                    {showPaypalPayment && !showStarsPayment && !showCryptomusPayment && (
+                      <Button
+                        className="w-full"
+                        onClick={() => {
+                          // TODO: Реализовать PayPal интеграцию
+                          alert('PayPal интеграция в разработке. Пока используйте Telegram Stars в Telegram Mini App или Cryptomus.');
+                        }}
+                        disabled={loadingKey === plan.key || !profileId}
+                        variant="outline"
+                      >
+                        Оплатить через PayPal
+                      </Button>
+                    )}
+                    
+                    {/* Сообщение если нет доступных методов */}
+                    {availableMethods.length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-2">
+                        Методы оплаты временно недоступны
+                      </div>
                     )}
                   </div>
                 </div>

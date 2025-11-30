@@ -21,6 +21,7 @@ import { usePremium } from '@/hooks/usePremium';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { dispatchUserEvent } from '@/lib/notification-events';
+import { PAYMENT_CONFIG, isPaymentMethodAvailable } from '@/lib/payment-config';
 
 const supabaseClient = supabase as any;
 
@@ -68,7 +69,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const dateLocale = localeMap[language] || 'en-US';
   // UnifiedModal сам синхронизирует с URL через modalRouteKey
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
-  const showStarsPayment = isTelegramMiniApp();
+  const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
+  const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
+  const showStripePayment = isPaymentMethodAvailable('stripe', currentPlatform);
+  const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
@@ -588,6 +592,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       return;
     }
 
+    // Проверяем, доступен ли Stripe
+    if (!showStripePayment) {
+      toast({
+        title: t('boostShop.toasts.errorTitle'),
+        description: 'Stripe временно недоступен. Используйте Telegram Stars для оплаты в Telegram Mini App.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       // Создаем Stripe Checkout сессию
       const { data, error } = await supabaseClient.functions.invoke("purchase-create", {
@@ -1067,16 +1081,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               <div className="h-px flex-1 bg-white/10" />
                             </div>
                         <div className="flex flex-col sm:flex-row gap-2">
-                          <Button
-                            size="sm"
-                                aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
-                            onClick={() => handleCoinPurchase(pack.catalogKey)}
-                                className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
-                            disabled={!profileId}
-                          >
-                                <ShoppingBag className="w-4 h-4 mr-2" />
-                            {t('boostShop.buttons.buy')}
-                          </Button>
+                          {/* Telegram Stars (приоритетный метод в Telegram) */}
                           {showStarsPayment && (
                             <StarsPaymentButton
                               packageKey={pack.packageKey}
@@ -1091,12 +1096,99 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                 setShowConfetti(true);
                                 setTimeout(() => setShowConfetti(false), 3000);
                               }}
-                              variant="outline"
+                              variant={showStripePayment ? "outline" : "default"}
                               size="sm"
-                                  className="w-full sm:flex-1 sm:min-w-[160px] border-white/20 text-white hover:bg-white/5"
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : 'border-white/20 text-white hover:bg-white/5'}`}
                             />
                           )}
+                          
+                          {/* Stripe (только если включен в конфиге) */}
+                          {showStripePayment && (
+                            <Button
+                              size="sm"
+                              aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
+                              onClick={() => handleCoinPurchase(pack.catalogKey)}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
+                              disabled={!profileId}
+                            >
+                              <ShoppingBag className="w-4 h-4 mr-2" />
+                              {t('boostShop.buttons.buy')}
+                            </Button>
+                          )}
+                          
+                          {/* Cryptomus (криптоплатежи) */}
+                          {showCryptomusPayment && (
+                            <Button
+                              size="sm"
+                              aria-label={t('boostShop.coins.buyPackAria', { amount: pack.amount })}
+                              onClick={async () => {
+                                if (!profileId) {
+                                  toast({
+                                    title: t('boostShop.toasts.errorTitle'),
+                                    description: t('boostShop.toasts.needLogin'),
+                                    variant: 'destructive',
+                                  });
+                                  return;
+                                }
+                                
+                                try {
+                                  const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
+                                    body: { user_id: profileId, catalog_key: pack.catalogKey },
+                                  });
+                                  
+                                  if (error) {
+                                    console.error("[BoostShop] Cryptomus error:", error);
+                                    toast({
+                                      title: t('boostShop.toasts.errorTitle'),
+                                      description: error.message || t('boostShop.toasts.purchaseErrorDescription'),
+                                      variant: 'destructive',
+                                    });
+                                    return;
+                                  }
+                                  
+                                  if (data?.error) {
+                                    toast({
+                                      title: t('boostShop.toasts.errorTitle'),
+                                      description: data.error || t('boostShop.toasts.purchaseErrorDescription'),
+                                      variant: 'destructive',
+                                    });
+                                    return;
+                                  }
+                                  
+                                  if (data?.url) {
+                                    window.location.href = data.url;
+                                  } else {
+                                    toast({
+                                      title: t('boostShop.toasts.errorTitle'),
+                                      description: t('boostShop.toasts.sessionError'),
+                                      variant: 'destructive',
+                                    });
+                                  }
+                                } catch (err: any) {
+                                  console.error("[BoostShop] Cryptomus error:", err);
+                                  toast({
+                                    title: t('boostShop.toasts.errorTitle'),
+                                    description: err?.message || t('boostShop.toasts.purchaseErrorDescription'),
+                                    variant: 'destructive',
+                                  });
+                                }
+                              }}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStarsPayment && !showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : 'border-white/20 text-white hover:bg-white/5'}`}
+                              disabled={!profileId}
+                              variant="outline"
+                            >
+                              <ShoppingBag className="w-4 h-4 mr-2" />
+                              Крипто
+                            </Button>
+                          )}
+                          
+                          {/* Сообщение если нет доступных методов */}
+                          {!showStarsPayment && !showStripePayment && !showCryptomusPayment && (
+                            <div className="text-sm text-muted-foreground text-center py-2 w-full">
+                              Используйте Telegram Mini App для оплаты через Stars
                             </div>
+                          )}
+                        </div>
                         </div>
                       </div>
                     </Card>

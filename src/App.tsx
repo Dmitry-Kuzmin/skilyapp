@@ -70,7 +70,32 @@ const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
 const Pricing = lazy(() => import("./pages/Pricing"));
-const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+// Компонент для обработки ошибок загрузки RefundPolicy
+function RefundPolicyErrorFallback() {
+  useEffect(() => {
+    console.error("[App] RefundPolicy module failed to load");
+    // Перезагружаем страницу через небольшую задержку
+    const timer = setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+  return <PageLoader />;
+}
+
+// Обработка ошибок для lazy loading RefundPolicy
+const RefundPolicy = lazy(() => 
+  import("./pages/RefundPolicy").catch((error) => {
+    console.error("[App] Failed to load RefundPolicy module:", error);
+    // Если ошибка связана с MIME type, это проблема с сервером/Vercel
+    if (error?.message?.includes('MIME type') || error?.message?.includes('text/html')) {
+      console.error("[App] MIME type error detected - likely server routing issue");
+      return { default: RefundPolicyErrorFallback };
+    }
+    // Для других ошибок тоже возвращаем fallback
+    return { default: RefundPolicyErrorFallback };
+  })
+);
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
