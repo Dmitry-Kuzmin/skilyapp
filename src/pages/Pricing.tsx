@@ -39,7 +39,7 @@ export default function Pricing() {
         },
         {
           name: "Premium Forever",
-          price: "€59.99",
+          price: "€99.99",
           period: "единоразово",
           description: "Пожизненный доступ ко всем функциям",
           features: [
@@ -103,7 +103,7 @@ export default function Pricing() {
         },
         {
           name: "Premium Forever",
-          price: "€59.99",
+          price: "€99.99",
           period: "pago único",
           description: "Acceso de por vida a todas las funciones",
           features: [
@@ -167,7 +167,7 @@ export default function Pricing() {
         },
         {
           name: "Premium Forever",
-          price: "€59.99",
+          price: "€99.99",
           period: "one-time",
           description: "Lifetime access to all features",
           features: [

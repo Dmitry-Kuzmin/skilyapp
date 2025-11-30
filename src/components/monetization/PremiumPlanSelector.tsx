@@ -41,7 +41,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
 
   // Цены (в центах для Stripe, в Stars для Telegram)
   const PRICES = {
-    lifetime: { cents: 5999, stars: 6000, display: "59.99€" },
+    lifetime: { cents: 9999, stars: 10000, display: "99.99€" },
     monthly: { cents: 999, stars: 1000, display: "9.99€" },
     duel_pass: { cents: 799, stars: 800, display: "7.99€" },
   };
