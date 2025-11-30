@@ -154,7 +154,7 @@ Refunds will be processed using the same payment method used for the original pu
             <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Россия, Москва, Сити 122
+            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> {language === 'ru' ? 'Испания, Таррагона' : language === 'es' ? 'España, Tarragona' : 'Spain, Tarragona'}
           </p>
         </div>
       </div>

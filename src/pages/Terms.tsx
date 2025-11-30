@@ -7,7 +7,7 @@ export default function Terms() {
   const content = {
     ru: {
       title: "Условия использования",
-      lastModified: "Последнее обновление: 14 июля 2023",
+      lastModified: "Последнее обновление: 30 ноября 2025",
       sections: [
         {
           title: "1. Ваше согласие",
@@ -101,7 +101,7 @@ export default function Terms() {
     },
     es: {
       title: "Términos y condiciones",
-      lastModified: "Última modificación: 14 de julio de 2023",
+      lastModified: "Última modificación: 30 de noviembre de 2025",
       sections: [
         {
           title: "1. Su aceptación",
@@ -193,7 +193,7 @@ Si dos o más disposiciones de este Acuerdo o cualquier otro acuerdo que pueda t
     },
     en: {
       title: "Terms and conditions",
-      lastModified: "Last Modified: July 14, 2023",
+      lastModified: "Last Modified: November 30, 2025",
       sections: [
         {
           title: "1. Your Acceptance",
@@ -315,7 +315,7 @@ If two or more provisions of this Agreement or any other agreement you may have 
             <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Россия, Москва, Сити 122
+            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> {language === 'ru' ? 'Испания, Таррагона' : language === 'es' ? 'España, Tarragona' : 'Spain, Tarragona'}
           </p>
         </div>
       </div>

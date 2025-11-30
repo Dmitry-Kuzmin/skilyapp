@@ -72,7 +72,7 @@ export default function Privacy() {
           content: `Контролером ваших данных является:
 
 SkilyApp
-Россия, Москва, Сити 122
+Испания, Таррагона
 
 Свяжитесь с нами по адресу support@skilyapp.com для любых вопросов или запросов, касающихся ваших персональных данных.`
         }
@@ -145,7 +145,7 @@ Usamos cookies para:
           content: `El controlador de sus datos es:
 
 SkilyApp
-Rusia, Moscú, Ciudad 122
+España, Tarragona
 
 Contáctenos en support@skilyapp.com para cualquier pregunta o solicitud relacionada con sus datos personales.`
         }
@@ -218,7 +218,7 @@ We use cookies for:
           content: `The controller of your data is:
 
 SkilyApp
-Russia, Moscow, City 122
+Spain, Tarragona
 
 Contact us at support@skilyapp.com for any questions or requests regarding your personal data.`
         }
@@ -255,7 +255,7 @@ Contact us at support@skilyapp.com for any questions or requests regarding your 
             <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Россия, Москва, Сити 122
+            <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Испания, Таррагона
           </p>
         </div>
       </div>
