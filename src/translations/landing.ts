@@ -248,6 +248,9 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       menu: [
         { label: "Términos", href: "/terms" },
         { label: "Privacidad", href: "/privacy" },
+        { label: "Términos de suscripción", href: "/subscription-terms" },
+        { label: "Política de reembolso", href: "/refund-policy" },
+        { label: "Precios", href: "/pricing" },
         { label: "Soporte", href: "https://t.me/sdadimtutbot", external: true },
         { label: "Afiliados", href: "/partners" },
       ],
@@ -391,6 +394,9 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       menu: [
         { label: "Terms", href: "/terms" },
         { label: "Privacy", href: "/privacy" },
+        { label: "Subscription Terms", href: "/subscription-terms" },
+        { label: "Refund Policy", href: "/refund-policy" },
+        { label: "Pricing", href: "/pricing" },
         { label: "Support", href: "https://t.me/sdadimtutbot", external: true },
         { label: "Affiliates", href: "/partners" },
       ],
@@ -534,6 +540,9 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       menu: [
         { label: "Условия", href: "/terms" },
         { label: "Политика", href: "/privacy" },
+        { label: "Условия подписки", href: "/subscription-terms" },
+        { label: "Политика возврата", href: "/refund-policy" },
+        { label: "Цены", href: "/pricing" },
         { label: "Поддержка", href: "https://t.me/sdadimtutbot", external: true },
         { label: "Партнёрам", href: "/partners" },
       ],

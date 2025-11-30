@@ -17,7 +17,28 @@ const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewC
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
 
-const Index = lazy(() => import("./pages/Index"));
+// Обработка ошибок для lazy loading Index (dashboard)
+const IndexErrorFallback = () => {
+  useEffect(() => {
+    console.error("[App] Index (dashboard) module failed to load");
+    const timer = setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+  return <PageLoader />;
+};
+
+const Index = lazy(() => 
+  import("./pages/Index").catch((error) => {
+    console.error("[App] Failed to load Index (dashboard) module:", error);
+    if (error?.message?.includes('MIME type') || error?.message?.includes('text/html')) {
+      console.error("[App] MIME type error detected for Index");
+      return { default: IndexErrorFallback };
+    }
+    return { default: IndexErrorFallback };
+  })
+);
 const LearningMap = lazy(() => import("./pages/LearningMap"));
 const TopicDetail = lazy(() => import("./pages/TopicDetail"));
 const SubtopicDetail = lazy(() => import("./pages/SubtopicDetail"));
