@@ -218,12 +218,14 @@ const translations: Record<Language, Record<string, any>> = {
     // Footer
     footer: {
       companyDescription: "Plataforma educativa para la preparación de exámenes DGT en España",
-      address: "Rusia, Moscú, Ciudad 122",
+      address: "España, Tarragona",
       contact: "Contacto: support@skilyapp.com",
       legal: "Legal",
       terms: "Términos y condiciones",
       privacy: "Política de privacidad",
       subscriptionTerms: "Términos de suscripción",
+      pricing: "Precios",
+      refundPolicy: "Política de reembolso",
       resources: "Recursos",
       support: "Soporte",
       supportEmail: "support@skilyapp.com",
@@ -922,12 +924,14 @@ const translations: Record<Language, Record<string, any>> = {
     // Footer
     footer: {
       companyDescription: "Educational platform for DGT exam preparation in Spain",
-      address: "Russia, Moscow, City 122",
+      address: "Spain, Tarragona",
       contact: "Contact: support@skilyapp.com",
       legal: "Legal",
       terms: "Terms and conditions",
       privacy: "Privacy policy",
       subscriptionTerms: "Subscription terms",
+      pricing: "Pricing",
+      refundPolicy: "Refund Policy",
       resources: "Resources",
       support: "Support",
       supportEmail: "support@skilyapp.com",
@@ -1608,12 +1612,14 @@ const translations: Record<Language, Record<string, any>> = {
     // Footer
     footer: {
       companyDescription: "Образовательная платформа для подготовки к экзаменам DGT в Испании",
-      address: "Россия, Москва, Сити 122",
+      address: "Испания, Таррагона",
       contact: "Контакты: support@skilyapp.com",
       legal: "Правовая информация",
       terms: "Условия использования",
       privacy: "Политика конфиденциальности",
       subscriptionTerms: "Условия подписки",
+      pricing: "Цены",
+      refundPolicy: "Политика возврата",
       resources: "Ресурсы",
       support: "Поддержка",
       supportEmail: "support@skilyapp.com",

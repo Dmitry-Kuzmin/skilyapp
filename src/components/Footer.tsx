@@ -32,9 +32,11 @@ export function Footer() {
     [
       { to: "/terms", label: t("footer.terms") },
       { to: "/privacy", label: t("footer.privacy") },
+      { to: "/subscription-terms", label: t("footer.subscriptionTerms") },
     ],
     [
-      { to: "/subscription-terms", label: t("footer.subscriptionTerms") },
+      { to: "/pricing", label: t("footer.pricing") },
+      { to: "/refund-policy", label: t("footer.refundPolicy") },
     ],
   ];
 
