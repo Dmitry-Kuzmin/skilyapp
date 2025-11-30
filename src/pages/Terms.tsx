@@ -95,7 +95,7 @@ export default function Terms() {
         },
         {
           title: "16. Проблемы с Платформой",
-          content: `Если у вас есть какие-либо вопросы, проблемы или если у вас возникли трудности с доступом или использованием Платформы, пожалуйста, свяжитесь с нами по адресу support@sdadim.com.`
+          content: `Если у вас есть какие-либо вопросы, проблемы или если у вас возникли трудности с доступом или использованием Платформы, пожалуйста, свяжитесь с нами по адресу support@skilyapp.com.`
         }
       ]
     },
@@ -187,7 +187,7 @@ Si dos o más disposiciones de este Acuerdo o cualquier otro acuerdo que pueda t
         },
         {
           title: "16. Problemas con la Plataforma",
-          content: `Si tiene alguna pregunta, problema o si tiene dificultades para acceder o usar la Plataforma, póngase en contacto con nosotros en support@sdadim.com.`
+          content: `Si tiene alguna pregunta, problema o si tiene dificultades para acceder o usar la Plataforma, póngase en contacto con nosotros en support@skilyapp.com.`
         }
       ]
     },
@@ -281,7 +281,7 @@ If two or more provisions of this Agreement or any other agreement you may have 
         },
         {
           title: "16. Platform Issues",
-          content: `Where you have any questions, issues, or if you are having trouble accessing or using the Platform, please contact us at support@sdadim.com.`
+          content: `Where you have any questions, issues, or if you are having trouble accessing or using the Platform, please contact us at support@skilyapp.com.`
         }
       ]
     }
@@ -312,7 +312,7 @@ If two or more provisions of this Agreement or any other agreement you may have 
 
         <div className="mt-12 p-6 bg-muted/50 rounded-lg">
           <p className="text-sm text-muted-foreground">
-            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@sdadim.com
+            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
           </p>
           <p className="text-sm text-muted-foreground mt-2">
             <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Россия, Москва, Сити 122

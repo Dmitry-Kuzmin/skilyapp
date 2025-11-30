@@ -19,7 +19,7 @@ export default function SubscriptionTerms() {
 
 Если вы начали подписку или бесплатную пробную версию через Apple App Store, ваш аккаунт Apple ID будет автоматически продлеваться и с вас будет взиматься плата за продление, если автоматическое продление не отключено в настройках вашего аккаунта Apple ID.
 
-Если вы начали подписку через способ оплаты на веб-сайте Sdadim, ваша подписка будет автоматически продлеваться, и с вашего банковского счета будет взиматься плата за продление, если автоматическое продление не отключено. Для отключения автоматического продления свяжитесь с нами по адресу support@sdadim.com.`
+Если вы начали подписку через способ оплаты на веб-сайте Sdadim, ваша подписка будет автоматически продлеваться, и с вашего банковского счета будет взиматься плата за продление, если автоматическое продление не отключено. Для отключения автоматического продления свяжитесь с нами по адресу support@skilyapp.com.`
         },
         {
           title: "Отмена подписки",
@@ -31,7 +31,7 @@ export default function SubscriptionTerms() {
 
 Как правило, возврат средств может быть запрошен только в течение периода подписки. Если период подписки истек, услуга будет считаться полностью потребленной. Некоторые запросы на возврат средств могут быть рассмотрены только в особых обстоятельствах.
 
-Любой запрос на возврат средств должен быть направлен на support@sdadim.com.`
+Любой запрос на возврат средств должен быть направлен на support@skilyapp.com.`
         },
         {
           title: "Цены и повышение цен",
@@ -57,7 +57,7 @@ Si inició la suscripción o la prueba gratuita usando Google Play, su cuenta de
 
 Si inició la suscripción o la prueba gratuita usando la App Store de Apple, su cuenta de Apple ID se renovará automáticamente y se le cobrará la renovación a menos que la renovación automática esté desactivada en la configuración de su cuenta de Apple ID.
 
-Si inició la suscripción usando el método de pago en el sitio web de Sdadim, su suscripción se renovará automáticamente y se cargará a su cuenta bancaria la renovación a menos que la renovación automática esté desactivada. Para desactivar la renovación automática, contáctenos en support@sdadim.com.`
+Si inició la suscripción usando el método de pago en el sitio web de Sdadim, su suscripción se renovará automáticamente y se cargará a su cuenta bancaria la renovación a menos que la renovación automática esté desactivada. Para desactivar la renovación automática, contáctenos en support@skilyapp.com.`
         },
         {
           title: "Cancelación de suscripción",
@@ -69,7 +69,7 @@ Si inició la suscripción usando el método de pago en el sitio web de Sdadim, 
 
 Generalmente, un reembolso solo puede solicitarse durante el período de suscripción. Si el período de suscripción ha expirado, el servicio se considerará consumido en su totalidad. Ciertas solicitudes de reembolso pueden considerarse solo en circunstancias especiales.
 
-Cualquier solicitud de reembolso debe enviarse a support@sdadim.com.`
+Cualquier solicitud de reembolso debe enviarse a support@skilyapp.com.`
         },
         {
           title: "Precios y aumentos de precios",
@@ -95,7 +95,7 @@ If you started the subscription or free trial using Google Play, your Google Pla
 
 If you started the subscription or free trial using Apple's App Store, your Apple ID account will be automatically renewed and charged for renewal unless auto-renewal is turned off in your Apple ID account settings.
 
-If you started the subscription using the payment method on the Sdadim Website, your subscription will be automatically renewed and your bank account charged for renewal unless auto-renewal is turned off. To turn off auto-renewal, contact us at support@sdadim.com.`
+If you started the subscription using the payment method on the Sdadim Website, your subscription will be automatically renewed and your bank account charged for renewal unless auto-renewal is turned off. To turn off auto-renewal, contact us at support@skilyapp.com.`
         },
         {
           title: "Canceling your subscription",
@@ -107,7 +107,7 @@ If you started the subscription using the payment method on the Sdadim Website, 
 
 Generally, a refund can only be claimed during the subscription period. If the subscription period has expired, the service will be deemed consumed in full. Certain refund requests may be considered only in special circumstances.
 
-Any refund request should be made to support@sdadim.com.`
+Any refund request should be made to support@skilyapp.com.`
         },
         {
           title: "Pricing and Price Increases",
@@ -147,7 +147,7 @@ Any refund request should be made to support@sdadim.com.`
 
         <div className="mt-12 p-6 bg-muted/50 rounded-lg">
           <p className="text-sm text-muted-foreground">
-            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@sdadim.com
+            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
           </p>
           <p className="text-sm text-muted-foreground mt-2">
             <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Россия, Москва, Сити 122

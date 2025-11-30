@@ -74,7 +74,7 @@ export default function Privacy() {
 Sdadim
 Россия, Москва, Сити 122
 
-Свяжитесь с нами по адресу support@sdadim.com для любых вопросов или запросов, касающихся ваших персональных данных.`
+Свяжитесь с нами по адресу support@skilyapp.com для любых вопросов или запросов, касающихся ваших персональных данных.`
         }
       ]
     },
@@ -147,7 +147,7 @@ Usamos cookies para:
 Sdadim
 Rusia, Moscú, Ciudad 122
 
-Contáctenos en support@sdadim.com para cualquier pregunta o solicitud relacionada con sus datos personales.`
+Contáctenos en support@skilyapp.com para cualquier pregunta o solicitud relacionada con sus datos personales.`
         }
       ]
     },
@@ -220,7 +220,7 @@ We use cookies for:
 Sdadim
 Russia, Moscow, City 122
 
-Contact us at support@sdadim.com for any questions or requests regarding your personal data.`
+Contact us at support@skilyapp.com for any questions or requests regarding your personal data.`
         }
       ]
     }
@@ -252,7 +252,7 @@ Contact us at support@sdadim.com for any questions or requests regarding your pe
 
         <div className="mt-12 p-6 bg-muted/50 rounded-lg">
           <p className="text-sm text-muted-foreground">
-            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@sdadim.com
+            <strong>{language === 'ru' ? 'Контакты:' : language === 'es' ? 'Contacto:' : 'Contact:'}</strong> support@skilyapp.com
           </p>
           <p className="text-sm text-muted-foreground mt-2">
             <strong>{language === 'ru' ? 'Адрес:' : language === 'es' ? 'Dirección:' : 'Address:'}</strong> Россия, Москва, Сити 122
