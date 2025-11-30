@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Brain,
@@ -35,6 +36,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 }) => {
   const [isStarting, setIsStarting] = useState(false);
   const { language, setLanguage } = useLanguage();
+  const navigate = useNavigate();
   const copy = landingTranslations[language];
   const highlightWord = copy.stats[1].label;
   const totalQuestionsText = copy.ecosystem.cards.totalQuestions;
@@ -499,15 +501,25 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       <footer className="px-6 py-12 border-t border-slate-800/50 text-center text-slate-600 text-xs font-mono uppercase tracking-widest">
         <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8">
           {copy.footer.menu.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              target={item.external ? "_blank" : undefined}
-              rel={item.external ? "noreferrer" : undefined}
-              className="hover:text-white cursor-pointer transition-colors"
-            >
-              {item.label}
-            </a>
+            item.external ? (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-white cursor-pointer transition-colors"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <button
+                key={item.label}
+                onClick={() => navigate(item.href)}
+                className="hover:text-white cursor-pointer transition-colors"
+              >
+                {item.label}
+              </button>
+            )
           ))}
         </div>
         <p>{copy.footer.note}</p>

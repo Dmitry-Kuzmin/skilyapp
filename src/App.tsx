@@ -97,6 +97,7 @@ const RefundPolicy = lazy(() =>
   })
 );
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const Partners = lazy(() => import("./pages/Partners"));
 const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
@@ -267,6 +268,7 @@ const App = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/partners" element={<Partners />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
