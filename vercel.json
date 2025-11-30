@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/((?!zohoverify|cryptomus_4d822fef\\.html|assets|.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
