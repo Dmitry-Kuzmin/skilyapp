@@ -5,6 +5,16 @@
       "destination": "/index.html"
     }
   ],
+  "routes": [
+    {
+      "src": "/zohoverify/(.*)",
+      "dest": "/zohoverify/$1"
+    },
+    {
+      "src": "/cryptomus_4d822fef.html",
+      "dest": "/cryptomus_4d822fef.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
