@@ -175,6 +175,29 @@ const App = () => {
     }
   }, [basename, isGitHubPages]);
 
+  // КРИТИЧНО: Очистка URL от ~and~ паттернов (проблема с 404.html на Vercel)
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    
+    // Проверяем наличие ~and~ в URL (признак проблемы с 404.html на Vercel)
+    if (currentPath.includes('~and~') || currentSearch.includes('~and~')) {
+      console.warn('[App] Detected ~and~ pattern in URL, cleaning up...');
+      
+      // Очищаем путь от ~and~
+      const cleanPath = currentPath.replace(/~and~/g, '&');
+      // Очищаем query параметры от ~and~
+      const cleanSearch = currentSearch.replace(/~and~/g, '&');
+      
+      // Восстанавливаем правильный URL
+      const cleanUrl = cleanPath + cleanSearch + window.location.hash;
+      window.history.replaceState({}, '', cleanUrl);
+      
+      // Перезагружаем страницу для применения правильного роутинга
+      window.location.reload();
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
