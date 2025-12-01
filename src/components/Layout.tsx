@@ -129,7 +129,8 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
 
 NavItem.displayName = 'NavItem';
 
-const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
+// ОПТИМИЗАЦИЯ: Мемоизируем Layout для предотвращения лишних ре-рендеров
+const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, platform, isAuthenticated, logout } = useUserContext();
@@ -342,17 +343,32 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
             <nav className="flex gap-1 min-w-0 flex-shrink">
               {navigation.map((item) => {
                 const desktopActive = isNavigationItemActive(item, location.pathname);
+                const handleDesktopClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  requestAnimationFrame(() => {
+                    navigate(item.href);
+                  });
+                };
                 return (
                   <NavLink
                     key={item.name}
                     to={item.href}
+                    onClick={handleDesktopClick}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 whitespace-nowrap flex-shrink-0",
+                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-150 whitespace-nowrap flex-shrink-0",
+                      // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
                       desktopActive
                         ? "bg-primary text-primary-foreground shadow-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                       item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
                     )}
+                    style={{
+                      pointerEvents: 'auto',
+                      touchAction: 'manipulation',
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
                   >
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span className="font-medium">{item.name}</span>
@@ -518,5 +534,9 @@ const Layout = ({ children, hideNavigation = false }: LayoutProps) => {
     </div>
   );
 };
+
+});
+
+Layout.displayName = 'Layout';
 
 export default Layout;

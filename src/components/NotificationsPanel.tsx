@@ -266,15 +266,14 @@ export function NotificationsPanel({
 
                     {/* Notifications in group */}
                     <div className="space-y-2">
-                      {groupNotifications.map((notification, index) => (
-                        <motion.div
+                      {groupNotifications.map((notification) => (
+                        <div
                           key={notification.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.03 }}
                           onClick={() => handleNotificationClick(notification)}
                           className={cn(
-                            "p-4 rounded-xl border-2 cursor-pointer transition-all w-full max-w-full overflow-hidden",
+                            "p-4 rounded-xl border-2 cursor-pointer transition-colors duration-150 w-full max-w-full overflow-hidden",
+                            // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors
+                            // ОПТИМИЗАЦИЯ: Убраны тяжелые анимации framer-motion для каждого элемента
                             "hover:shadow-md",
                             notification.is_read
                               ? 'bg-background/50 border-border/50 opacity-60'
@@ -374,7 +373,7 @@ export function NotificationsPanel({
                               </div>
                             </div>
                           </div>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                   </div>
