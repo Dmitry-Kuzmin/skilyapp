@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Shield, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
+import { Loader2, Shield, CheckCircle2, XCircle, RefreshCw, Copy } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useUserContext } from "@/contexts/UserContext";
 import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
 import { createClient } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 interface CryptomusPaymentPreviewProps {
   open: boolean;
