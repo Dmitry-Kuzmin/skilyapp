@@ -8,6 +8,7 @@ import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
+import { useSequentialTests } from "@/hooks/useSequentialTests";
 import { 
   Lock, 
   Unlock, 
@@ -61,18 +62,18 @@ type Test = {
 const SequentialTests = () => {
   const navigate = useNavigate();
   const { profileId, isAuthenticated } = useUserContext();
-  const [tests, setTests] = useState<Test[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedTest, setSelectedTest] = useState<Test | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
+  // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
+  const { data: tests = [], isLoading: loading } = useSequentialTests(profileId);
+
   useEffect(() => {
     if (isAuthenticated && profileId) {
       initializeUserProgress();
     }
-    loadTests();
   }, [isAuthenticated, profileId]);
 
   const initializeUserProgress = async () => {
@@ -88,59 +89,6 @@ const SequentialTests = () => {
       }
     } catch (error) {
       console.error('Error initializing user progress:', error);
-    }
-  };
-
-  const loadTests = async () => {
-    try {
-      setLoading(true);
-      
-      // Загружаем все тесты с информацией о теме
-      const { data: testsData, error: testsError } = await supabase
-        .from("tests")
-        .select(`
-          *,
-          topics (title_ru, title_es, number)
-        `)
-        .order("order_index");
-
-      if (testsError) throw testsError;
-
-      // Загружаем прогресс пользователя, если авторизован
-      let progressMap = new Map<string, Test['progress']>();
-      
-      if (isAuthenticated && profileId) {
-        const { data: progressData, error: progressError } = await supabase
-          .from("user_test_progress")
-          .select("*")
-          .eq("user_id", profileId);
-
-        if (!progressError && progressData) {
-          progressData.forEach(p => {
-            progressMap.set(p.test_id, {
-              status: p.status,
-              score: p.score,
-              best_score: p.best_score,
-              attempts_count: p.attempts_count,
-              correct_answers: p.correct_answers,
-              total_questions: p.total_questions,
-            });
-          });
-        }
-      }
-
-      // Объединяем тесты с прогрессом
-      const testsWithProgress = (testsData || []).map(test => ({
-        ...test,
-        progress: progressMap.get(test.id) || null,
-      }));
-
-      setTests(testsWithProgress);
-    } catch (error) {
-      console.error("Error loading tests:", error);
-      toast.error("Ошибка загрузки тестов");
-    } finally {
-      setLoading(false);
     }
   };
 
