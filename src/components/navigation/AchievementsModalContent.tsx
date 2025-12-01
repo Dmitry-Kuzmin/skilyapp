@@ -128,18 +128,18 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
         </div>
         <div className="mt-4 space-y-2">
           <Progress value={Math.max(0, Math.min(100, ((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100))} className="h-2" />
-          <p className="text-xs text-muted-foreground text-right">{t('achievements.xpRemaining', { xp: xpToNextLevel })}</p>
+          <p className="text-xs text-muted-foreground text-right">{t('achievementsModal.xpRemaining', { xp: xpToNextLevel })}</p>
         </div>
       </Card>
 
       <Card className="p-4 border border-border/30">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-sm text-muted-foreground">{t('achievements.unlockedCount')}</p>
+            <p className="text-sm text-muted-foreground">{t('achievementsModal.unlockedCount')}</p>
             <p className="text-2xl font-bold">{unlockedCount} / {totalCount}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">{t('achievements.progress')}</p>
+            <p className="text-sm text-muted-foreground">{t('achievementsModal.progress')}</p>
             <p className="text-2xl font-bold text-primary">{Math.round(completionPercent)}%</p>
           </div>
         </div>
