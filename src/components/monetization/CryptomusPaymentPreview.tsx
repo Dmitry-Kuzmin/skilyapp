@@ -137,73 +137,62 @@ export function CryptomusPaymentPreview({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Подтверждение оплаты</DialogTitle>
-          <DialogDescription>
-            Проверьте детали платежа перед переходом к оплате
-          </DialogDescription>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="text-lg">Подтверждение оплаты</DialogTitle>
         </DialogHeader>
 
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle className="text-lg">Детали платежа</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Товар:</span>
-              <span className="font-medium">{itemName}</span>
+        {/* Компактная информация о платеже */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between py-2 border-b">
+            <span className="text-sm text-muted-foreground">Товар</span>
+            <span className="font-medium text-sm">{itemName}</span>
+          </div>
+          
+          <div className="flex items-center justify-between py-2 border-b">
+            <span className="text-sm text-muted-foreground">Сумма</span>
+            <span className="font-bold text-lg">
+              {typeof amount === 'number' ? amount.toFixed(2) : Number(amount || 0).toFixed(2)} {currency.toUpperCase()}
+            </span>
+          </div>
+
+          {/* Статус проверки оплаты (только если активен) */}
+          {paymentStatus === 'checking' && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+              <RefreshCw className="h-3 w-3 animate-spin" />
+              <span>Проверка статуса...</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Сумма:</span>
-              <span className="font-bold text-lg">
-                {typeof amount === 'number' ? amount.toFixed(2) : Number(amount || 0).toFixed(2)} {currency.toUpperCase()}
-              </span>
+          )}
+
+          {paymentStatus === 'completed' && (
+            <div className="flex items-center gap-2 text-xs text-green-600 py-2">
+              <CheckCircle2 className="h-3 w-3" />
+              <span>Оплата завершена!</span>
             </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">ID заказа:</span>
-              <span className="font-mono text-xs">{orderId}</span>
+          )}
+
+          {paymentStatus === 'failed' && (
+            <div className="flex items-center gap-2 text-xs text-red-600 py-2">
+              <XCircle className="h-3 w-3" />
+              <span>Оплата не завершена</span>
             </div>
+          )}
 
-            {/* Статус проверки оплаты */}
-            {paymentStatus === 'checking' && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t">
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>Проверка статуса оплаты...</span>
-              </div>
-            )}
+          {/* Компактная информация о безопасности */}
+          <div className="flex items-start gap-2 text-xs text-muted-foreground pt-1">
+            <Shield className="h-3 w-3 mt-0.5 flex-shrink-0" />
+            <span>Безопасная оплата через Cryptomus</span>
+          </div>
+        </div>
 
-            {paymentStatus === 'completed' && (
-              <div className="flex items-center gap-2 text-sm text-green-600 pt-2 border-t">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Оплата успешно завершена!</span>
-              </div>
-            )}
-
-            {paymentStatus === 'failed' && (
-              <div className="flex items-center gap-2 text-sm text-red-600 pt-2 border-t">
-                <XCircle className="h-4 w-4" />
-                <span>Оплата не завершена</span>
-              </div>
-            )}
-
-            {/* Информация о безопасности */}
-            <div className="flex items-start gap-2 text-xs text-muted-foreground pt-2 border-t">
-              <Shield className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              <span>
-                Оплата обрабатывается через защищенный сервис Cryptomus. 
-                Ваши данные защищены.
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex gap-2 mt-4">
+        {/* Кнопки */}
+        <div className="flex gap-2 mt-4 pt-4 border-t">
           <Button
             variant="outline"
             onClick={handleCancel}
             disabled={isNavigating || paymentStatus === 'completed'}
             className="flex-1"
+            size="sm"
           >
             Отмена
           </Button>
@@ -211,6 +200,7 @@ export function CryptomusPaymentPreview({
             onClick={handleProceedToPayment}
             disabled={isNavigating || paymentStatus === 'completed'}
             className="flex-1"
+            size="sm"
           >
             {isNavigating ? (
               <>
@@ -218,7 +208,7 @@ export function CryptomusPaymentPreview({
                 Переход...
               </>
             ) : (
-              "Перейти к оплате"
+              "Оплатить"
             )}
           </Button>
         </div>
