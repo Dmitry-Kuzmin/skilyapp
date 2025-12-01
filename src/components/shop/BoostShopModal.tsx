@@ -1045,38 +1045,38 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     return (
                     <Card
                       key={idx}
-                        className={`group relative overflow-hidden rounded-3xl border bg-slate-900/70 backdrop-blur-xl p-4 md:p-5 shadow-lg transition-transform duration-200 hover:-translate-y-1 ${
+                        className={`group relative overflow-hidden rounded-3xl border bg-card backdrop-blur-xl p-4 md:p-5 shadow-lg transition-transform duration-200 hover:-translate-y-1 ${
                           isHighlighted
-                            ? 'border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
-                            : 'border-white/10 hover:border-primary/40'
+                            ? 'border-yellow-400/50 dark:border-yellow-400/50 shadow-[0_15px_40px_rgba(251,191,36,0.25)]'
+                            : 'border-border hover:border-primary/40'
                         }`}
                       >
-                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-yellow-300/50 dark:via-yellow-300/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-4">
                             <div className={`w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 ${
                               isHighlighted
                                 ? 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900'
-                                : 'bg-gradient-to-br from-slate-800 to-slate-900 text-yellow-300'
+                                : 'bg-gradient-to-br from-muted to-muted/80 text-foreground'
                             }`}>
                             <Coins className="w-7 h-7" />
                           </div>
                           <div className="flex-1 min-w-0">
-                              <p className="text-xl font-bold text-white truncate">
+                              <p className="text-xl font-bold text-foreground truncate">
                               {t('boostShop.coins.packLabel', { amount: pack.amount })}
                             </p>
                               <p className="text-xs text-muted-foreground">
                                 {description}
                               </p>
                             {pack.bonus > 0 && (
-                                <div className="flex items-center gap-1 text-xs mt-1 text-yellow-200">
+                                <div className="flex items-center gap-1 text-xs mt-1 text-yellow-600 dark:text-yellow-200">
                                   <Sparkles className="w-3 h-3" />
                                 {t('boostShop.coins.bonusLabel', { bonus: pack.bonus })}
                                 </div>
                             )}
                           </div>
                             <div className="text-right">
-                              <span className="text-2xl font-black text-white">{pack.price}</span>
+                              <span className="text-2xl font-black text-foreground">{pack.price}</span>
                               {pricePerCoin && (
                                 <p className="text-[11px] text-muted-foreground">
                                   ≈ {t('boostShop.coins.perCoin', { price: pricePerCoin.toFixed(2) })}
@@ -1087,9 +1087,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
 
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center text-xs text-muted-foreground gap-2">
-                              <div className="h-px flex-1 bg-white/10" />
+                              <div className="h-px flex-1 bg-border" />
                               <span className="text-center">{helperText}</span>
-                              <div className="h-px flex-1 bg-white/10" />
+                              <div className="h-px flex-1 bg-border" />
                             </div>
                         <div className="flex flex-col sm:flex-row gap-2">
                           {/* Telegram Stars (приоритетный метод в Telegram) */}
@@ -1109,7 +1109,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               }}
                               variant={showStripePayment ? "outline" : "default"}
                               size="sm"
-                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : 'border-white/20 text-white hover:bg-white/5'}`}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
                             />
                           )}
                           
@@ -1195,7 +1195,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   });
                                 }
                               }}
-                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStarsPayment && !showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : 'border-white/20 text-white hover:bg-white/5'}`}
+                              className={`w-full sm:flex-1 sm:min-w-[160px] ${!showStarsPayment && !showStripePayment && isHighlighted ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:brightness-110' : ''}`}
                               disabled={!profileId}
                               variant="outline"
                             >
