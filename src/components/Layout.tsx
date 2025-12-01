@@ -533,8 +533,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </div>
   );
-};
-
 });
 
 Layout.displayName = 'Layout';
