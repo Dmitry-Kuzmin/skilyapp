@@ -53,6 +53,9 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
   const lastToastAtRef = useRef(0);
   const lastTelegramAtRef = useRef(0);
 
+  // Глобальный реестр активных подписок для предотвращения дубликатов
+  const activeSubscriptionsRef = useRef<Map<string, any>>(new Map());
+
   useEffect(() => {
     if (!profileId) {
       debugLog('[useNotifications] No profileId, skipping subscription');
@@ -60,6 +63,15 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     }
 
     debugLog('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
+    
+    // Проверяем, не создана ли уже подписка для этого profileId
+    const channelName = `duel_notifications_${profileId}`;
+    if (activeSubscriptionsRef.current.has(channelName)) {
+      debugLog('[useNotifications] ⚠️ Subscription already exists, skipping duplicate');
+      // Загружаем уведомления, если подписка уже есть
+      loadNotifications();
+      return;
+    }
     
     // Load existing notifications first
     loadNotifications();
@@ -205,6 +217,8 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
       .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
           debugLog('[Notifications] ✅ Successfully subscribed to notifications channel:', channelName);
+          // Регистрируем подписку в глобальном реестре
+          activeSubscriptionsRef.current.set(channelName, channel);
         } else if (err) {
           // Логируем только серьезные ошибки (не mismatch, так как RLS политика исправлена)
           if (!err?.message?.includes('mismatch') && !err?.message?.includes('bindings')) {
@@ -223,6 +237,8 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
         } else if (status === 'CLOSED') {
           // CLOSED статус нормален при размонтировании компонента
           debugLog('[Notifications] Subscription closed (normal on unmount)');
+          // Удаляем из реестра при закрытии
+          activeSubscriptionsRef.current.delete(channelName);
         } else {
           debugLog('[Notifications] Subscription status:', status);
         }
@@ -230,6 +246,7 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
 
     return () => {
       debugLog('[useNotifications] Cleaning up notification subscription');
+      activeSubscriptionsRef.current.delete(channelName);
       supabase.removeChannel(channel);
     };
   }, [profileId, showToasts, playSounds, debugLog]);
@@ -242,12 +259,14 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
 
     debugLog('[useNotifications] Loading notifications for profileId:', profileId);
     
+    // ОПТИМИЗАЦИЯ: Загружаем только последние 30 уведомлений вместо 100
+    // Пагинация будет добавлена позже при необходимости
     const { data, error } = await supabase
       .from('duel_notifications')
       .select('*')
       .eq('user_id', profileId)
       .order('created_at', { ascending: false })
-      .limit(100); // Load more to filter on client side
+      .limit(30); // Оптимизировано: было 100, стало 30
 
     if (error) {
       console.error('[useNotifications] Error loading notifications:', error);

@@ -11,23 +11,84 @@ export const SkilyChat = React.memo(() => {
   const { messages, isLoading, sendMessage, clearMessages } = useLumiChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  // Блокировка скролла body при открытом попапе
+  useEffect(() => {
+    if (isExpanded) {
+      // Сохраняем текущую позицию скролла перед блокировкой
+      const scrollY = window.scrollY;
+      
+      // Блокируем скролл фона при открытом модальном окне
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      
+      // Сохраняем позицию скролла в data-атрибут для восстановления
+      document.body.setAttribute('data-scroll-y', scrollY.toString());
+    } else {
+      // Восстанавливаем позицию скролла
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      
+      // Разблокируем скролл при закрытии
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      
+      // Восстанавливаем позицию скролла
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+    }
+    
+    return () => {
+      // Очистка при размонтировании
+      const scrollY = document.body.getAttribute('data-scroll-y');
+      document.body.removeAttribute('data-scroll-y');
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10));
+      }
+    };
+  }, [isExpanded]);
+
+  // Автоскролл к последнему сообщению
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [messages, isExpanded, isLoading]);
+  }, [messages, isLoading]);
 
   const handleExpand = () => {
     playClickSound();
     setIsExpanded(true);
   };
 
-  const handleCollapse = (e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
+  const handleCollapse = () => {
     playClickSound();
     setIsExpanded(false);
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Закрываем только если клик был именно по backdrop, а не по контенту
+    if (e.target === e.currentTarget) {
+      handleCollapse();
+    }
+  };
+
+  const handleContentClick = (e: React.MouseEvent) => {
+    // Предотвращаем закрытие при клике на контент
+    e.stopPropagation();
   };
 
   const handleSendMessage = async () => {
@@ -73,10 +134,21 @@ export const SkilyChat = React.memo(() => {
 
       {/* EXPANDED OVERLAY */}
       {isExpanded && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 md:p-8 animate-fade-in">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={handleCollapse}></div>
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center animate-fade-in"
+          onClick={handleBackdropClick}
+        >
+          {/* Затемнение на весь экран без отступов */}
+          <div 
+            className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+            style={{ margin: 0, padding: 0 }}
+          ></div>
           
-          <div className="relative w-full h-full max-h-[95vh] sm:max-h-[90vh] md:max-h-[88vh] sm:max-w-5xl bg-slate-900 rounded-none sm:rounded-[2rem] shadow-2xl shadow-black border border-slate-800 overflow-hidden flex flex-col animate-slide-up">
+          {/* Контент попапа */}
+          <div 
+            className="relative w-full h-full max-h-screen sm:max-h-[90vh] md:max-h-[88vh] sm:w-full sm:max-w-5xl sm:mx-auto bg-slate-900 rounded-none sm:rounded-[2rem] shadow-2xl shadow-black border-0 sm:border border-slate-800 overflow-hidden flex flex-col animate-slide-up"
+            onClick={handleContentClick}
+          >
             
             {/* Header */}
             <div className="h-16 sm:h-20 md:h-24 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 md:px-8 bg-slate-900 z-20 flex-shrink-0">

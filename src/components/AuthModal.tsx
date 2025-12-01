@@ -119,6 +119,17 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }
   }, [isSignUp, showEmailForm]);
 
+  // Helper function to get client IP
+  const getClientIP = async (): Promise<string | null> => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      return data.ip || null;
+    } catch {
+      return null;
+    }
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -154,17 +165,99 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           return;
         }
 
+        // Get user ID after signup
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        
+        if (newUser) {
+          // Wait a bit for profile to be created
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Get profile ID
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('user_id', newUser.id)
+            .single();
+
+          // Check for partner code (priority over referral)
+          const partnerDataStr = sessionStorage.getItem('partner_code');
+          if (partnerDataStr && profile) {
+            try {
+              const partnerData = JSON.parse(partnerDataStr);
+              const ipAddress = await getClientIP();
+              const userAgent = navigator.userAgent;
+
+              const { data: activationData, error: activationError } = await supabase.functions.invoke('activate-partner-premium', {
+                body: {
+                  partner_code: partnerData.code.toUpperCase(),
+                  user_id: profile.id,
+                  utm_source: partnerData.utm_source,
+                  utm_medium: partnerData.utm_medium,
+                  utm_campaign: partnerData.utm_campaign,
+                  ip_address: ipAddress,
+                  user_agent: userAgent,
+                },
+              });
+
+              if (!activationError && activationData?.success) {
+                toast({
+                  title: "🎉 Premium активирован!",
+                  description: `Premium на 30 дней активирован!`,
+                });
+                sessionStorage.removeItem('partner_code');
+                // Trigger premium status update
+                window.dispatchEvent(new CustomEvent('premium-status-updated'));
+              } else if (activationData && !activationData.success) {
+                console.log('[AuthModal] Partner activation:', activationData.message);
+                // Don't show error, just log it
+              }
+              // ОПТИМИЗАЦИЯ: Очищаем partner_code даже если активация не удалась
+              // чтобы пользователь мог нормально войти в приложение
+              sessionStorage.removeItem('partner_code');
+            } catch (partnerError) {
+              console.error('[AuthModal] Partner activation error:', partnerError);
+              // ОПТИМИЗАЦИЯ: Очищаем partner_code даже при ошибке
+              sessionStorage.removeItem('partner_code');
+            }
+          } else {
+            // Apply referral code if present (only if no partner code)
+            const referralCode = sessionStorage.getItem('referral_code');
+            if (referralCode && profile) {
+              console.log('[AuthModal] Applying referral code for new user:', referralCode);
+              const { data: referralResult, error: referralError } = await supabase.rpc('create_referral', {
+                p_referrer_code: referralCode.toUpperCase(),
+                p_referred_id: profile.id
+              });
+
+              if (referralError) {
+                console.error('[AuthModal] Referral application error:', referralError);
+              } else if (referralResult && referralResult.length > 0 && referralResult[0].success) {
+                toast({
+                  title: "🎉 Вы получили +50 монет!",
+                  description: `Бонус за регистрацию по приглашению`,
+                });
+                sessionStorage.removeItem('referral_code');
+              }
+            }
+          }
+        }
+
         toast({
           title: "Регистрация успешна",
           description: "Добро пожаловать!",
         });
 
+        // ОПТИМИЗАЦИЯ: Очищаем все коды перед закрытием модалки
+        sessionStorage.removeItem('partner_code');
+        sessionStorage.removeItem('referral_code');
+
         onClose();
         
-        // Redirect to home page (learning map) after successful signup
+        // ОПТИМИЗАЦИЯ: Используем window.location.href для полного редиректа
+        // Это гарантирует, что UserContext обновится и пользователь попадет в приложение
         setTimeout(() => {
-          navigate('/');
-        }, 300);
+          window.location.href = '/';
+        }, 500);
       } else {
         // Sign in
         const { error } = await supabase.auth.signInWithPassword({

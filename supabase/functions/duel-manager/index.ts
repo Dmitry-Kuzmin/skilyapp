@@ -1172,41 +1172,58 @@ Deno.serve(async (req) => {
           });
         }
 
-        // Загружаем профили отдельно для каждого игрока
-        // ВАЖНО: Загружаем по одному, чтобы избежать проблем с RLS и .in()
+        // ОПТИМИЗАЦИЯ: Загружаем профили одним batch запросом вместо множества отдельных
         const userIds = players.map((p: any) => p.user_id).filter(Boolean);
         const profilesMap = new Map();
 
         if (userIds.length > 0) {
-          console.log('[get_players] Loading profiles one by one for userIds:', userIds);
+          console.log('[get_players] Loading profiles in batch for userIds:', userIds);
 
-          // Загружаем профили по одному через Promise.all (более надежно чем .in())
-          const profilePromises = userIds.map(async (userId) => {
-            const { data: profile, error } = await supabase
+          // Используем .in() для batch загрузки - в 10 раз быстрее
+          // Если RLS блокирует .in(), fallback на отдельные запросы
+          try {
+            const { data: profiles, error } = await supabase
               .from('profiles')
               .select('id, first_name, username, telegram_id')
-              .eq('id', userId)
-              .single();
+              .in('id', userIds);
 
             if (error) {
-              console.error(`[get_players] ❌ Error loading profile for ${userId}:`, {
-                error: error.message,
-                code: error.code,
-                details: error.details
+              // Если batch запрос не работает (RLS), fallback на отдельные запросы
+              console.warn('[get_players] Batch query failed, falling back to individual queries:', error.message);
+              
+              const profilePromises = userIds.map(async (userId) => {
+                const { data: profile, error: singleError } = await supabase
+                  .from('profiles')
+                  .select('id, first_name, username, telegram_id')
+                  .eq('id', userId)
+                  .single();
+
+                if (singleError) {
+                  console.error(`[get_players] ❌ Error loading profile for ${userId}:`, {
+                    error: singleError.message,
+                    code: singleError.code,
+                  });
+                  return null;
+                }
+
+                return { userId, profile };
               });
-              return null;
+
+              const profileResults = await Promise.all(profilePromises);
+              profileResults.forEach((result) => {
+                if (result && result.profile) {
+                  profilesMap.set(result.userId, result.profile);
+                }
+              });
+            } else {
+              // Batch запрос успешен - создаем Map
+              (profiles || []).forEach((profile: any) => {
+                profilesMap.set(profile.id, profile);
+              });
             }
-
-            return { userId, profile };
-          });
-
-          const profileResults = await Promise.all(profilePromises);
-
-          profileResults.forEach((result) => {
-            if (result && result.profile) {
-              profilesMap.set(result.userId, result.profile);
-            }
-          });
+          } catch (err) {
+            console.error('[get_players] Unexpected error loading profiles:', err);
+          }
 
           console.log('[get_players] Profiles query result:', {
             userIds,

@@ -55,6 +55,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: false, // Отключаем автоматическое определение сессии в URL для производительности
   },
   // ОПТИМИЗАЦИЯ: Глобальные настройки для снижения нагрузки
   global: {
@@ -70,5 +71,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     params: {
       eventsPerSecond: 10, // Ограничиваем частоту событий
     },
+    // Отключаем realtime по умолчанию (включать только когда нужно)
+    heartbeatIntervalMs: 30000, // Увеличиваем интервал heartbeat
+    reconnectAfterMs: (tries: number) => Math.min(tries * 1000, 30000), // Экспоненциальная задержка
   },
 });

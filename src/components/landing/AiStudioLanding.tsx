@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
@@ -16,7 +16,12 @@ import {
   Bookmark,
   XCircle,
   CheckCircle,
+  Gift,
+  ArrowRight,
+  Sparkles,
+  Coins,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
@@ -27,15 +32,49 @@ import {
   LANGUAGE_OPTIONS,
 } from "@/translations/landing";
 
+interface ReferrerInfo {
+  first_name: string;
+  username: string | null;
+  referral_code: string;
+  total_referrals: number;
+  photo_url: string | null;
+}
+
+interface PartnerInfo {
+  id: string;
+  name: string;
+  channel_name: string | null;
+  channel_url: string | null;
+  photo_url: string | null;
+  partner_code: string;
+  total_link_activations: number;
+}
+
 interface AiStudioLandingProps {
   onRequestAccess: () => void;
+  referrerInfo?: ReferrerInfo | null;
+  loadingReferrer?: boolean;
+  partnerInfo?: PartnerInfo | null;
+  loadingPartner?: boolean;
 }
 
 export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   onRequestAccess,
+  referrerInfo,
+  loadingReferrer = false,
+  partnerInfo,
+  loadingPartner = false,
 }) => {
   const [isStarting, setIsStarting] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
+
+  // Reset avatar error when referrerInfo changes
+  useEffect(() => {
+    if (referrerInfo) {
+      setAvatarError(false);
+    }
+  }, [referrerInfo?.photo_url]);
   const navigate = useNavigate();
   const copy = landingTranslations[language];
   const highlightWord = copy.stats[1].label;
@@ -105,12 +144,151 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           />
           <button
             onClick={handleEnter}
-            className="px-6 py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-bold text-slate-300 hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105"
+            className="px-6 py-2.5 rounded-full bg-slate-800/50 border border-slate-700 text-sm font-bold text-slate-300 hover:bg-white hover:text-slate-900 transition-all duration-300 hover:scale-105 relative"
           >
-            {copy.controls.studentAccess}
+            {referrerInfo ? (
+              <>
+                {copy.controls.studentAccess}
+                <span className="ml-2 text-amber-400 inline-flex items-center gap-1">
+                  +50 <Coins className="h-4 w-4 inline" />
+                </span>
+              </>
+            ) : (
+              copy.controls.studentAccess
+            )}
           </button>
         </div>
       </nav>
+
+      {/* Partner Banner (Priority over Referral) */}
+      {partnerInfo && !loadingPartner && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto"
+        >
+          <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 shadow-2xl">
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-yellow-500/10 pointer-events-none" />
+            
+            {/* Grid pattern overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-50" />
+            
+            <div className="relative p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
+              {/* Avatar and Info */}
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="relative flex-shrink-0">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-amber-500/30 overflow-hidden backdrop-blur-sm">
+                    <span className="bg-gradient-to-br from-amber-400 to-yellow-400 bg-clip-text text-transparent">
+                      {partnerInfo.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  {/* Glow effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-br from-amber-500/20 to-yellow-500/20 rounded-2xl blur-xl -z-10 opacity-50" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                      {language === 'ru' ? 'Партнер' : language === 'es' ? 'Socio' : 'Partner'}
+                    </span>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-black text-white mb-1.5 leading-tight">
+                    {partnerInfo.name} {language === 'ru' ? 'дарит Premium!' : language === 'es' ? 'regala Premium!' : 'gives Premium!'}
+                  </h3>
+                  <p className="text-sm md:text-base text-slate-300">
+                    <span className="font-bold text-amber-400">Premium на 30 дней</span> {language === 'ru' ? 'при регистрации' : language === 'es' ? 'al registrarse' : 'on registration'}
+                  </p>
+                  {partnerInfo.channel_name && (
+                    <p className="text-xs text-slate-400 mt-1">
+                      {partnerInfo.channel_name}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={handleEnter}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 hover:from-amber-500 hover:via-yellow-500 hover:to-amber-500 text-white font-black text-sm md:text-base shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 group relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <Crown className="h-4 w-4 relative z-10" />
+                <span className="relative z-10">{language === 'ru' ? 'Получить Premium' : language === 'es' ? 'Obtener Premium' : 'Get Premium'}</span>
+                <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Referral Banner (Shown only if no partner banner) */}
+      {!partnerInfo && referrerInfo && !loadingReferrer && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto"
+        >
+          <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 shadow-2xl">
+            {/* Subtle gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-fuchsia-500/5 pointer-events-none" />
+            
+            {/* Grid pattern overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-50" />
+            
+            <div className="relative p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
+              {/* Avatar and Info */}
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="relative flex-shrink-0">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-slate-700/50 overflow-hidden backdrop-blur-sm">
+                    {referrerInfo.photo_url && !avatarError ? (
+                      <img
+                        src={referrerInfo.photo_url}
+                        alt={referrerInfo.first_name}
+                        className="w-full h-full object-cover"
+                        onError={() => setAvatarError(true)}
+                      />
+                    ) : (
+                      <span className="bg-gradient-to-br from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+                        {referrerInfo.first_name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  {/* Glow effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 rounded-2xl blur-xl -z-10 opacity-50" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      {copy.referral.badge}
+                    </span>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-black text-white mb-1.5 leading-tight">
+                    {referrerInfo.first_name} {copy.referral.invitesYou}
+                  </h3>
+                  <p className="text-sm md:text-base text-slate-300">
+                    <span className="font-bold text-indigo-400">+50 {language === 'ru' ? 'монет' : language === 'es' ? 'monedas' : 'coins'}</span> {copy.referral.coinsOnRegistration}
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={handleEnter}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 hover:from-indigo-500 hover:via-violet-500 hover:to-indigo-500 text-white font-black text-sm md:text-base shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 group relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <Gift className="h-4 w-4 relative z-10" />
+                <span className="relative z-10">{copy.referral.join}</span>
+                <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <section className="relative z-10 px-6 pt-12 pb-10 md:pt-20 md:pb-16 max-w-[1400px] mx-auto flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-6 sm:mb-8 animate-fade-in relative z-20">
@@ -442,9 +620,14 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </ul>
             <button
               onClick={handleEnter}
-              className="w-full py-3 rounded-xl border border-slate-700 font-bold text-slate-300 hover:bg-slate-800 transition-colors"
+              className="w-full py-3 rounded-xl border border-slate-700 font-bold text-slate-300 hover:bg-slate-800 transition-colors relative"
             >
               {copy.pricing.plans.cadet.cta}
+              {referrerInfo && (
+                <span className="ml-2 text-amber-400 inline-flex items-center gap-1">
+                  +50 <Coins className="h-4 w-4 inline" />
+                </span>
+              )}
             </button>
           </div>
 
@@ -466,9 +649,14 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </ul>
             <button
               onClick={handleEnter}
-              className="w-full py-3 rounded-xl bg-indigo-600 font-bold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20"
+              className="w-full py-3 rounded-xl bg-indigo-600 font-bold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 relative"
             >
               {copy.pricing.plans.monthly.cta}
+              {referrerInfo && (
+                <span className="ml-2 text-amber-300 inline-flex items-center gap-1">
+                  +50 <Coins className="h-4 w-4 inline" />
+                </span>
+              )}
             </button>
           </div>
 
@@ -490,9 +678,14 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </ul>
             <button
               onClick={handleEnter}
-              className="w-full py-3 rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 transition-colors shadow-lg shadow-purple-500/20"
+              className="w-full py-3 rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 transition-colors shadow-lg shadow-purple-500/20 relative"
             >
               {copy.pricing.plans.yearly.cta}
+              {referrerInfo && (
+                <span className="ml-2 text-amber-300 inline-flex items-center gap-1">
+                  +50 <Coins className="h-4 w-4 inline" />
+                </span>
+              )}
             </button>
           </div>
         </div>

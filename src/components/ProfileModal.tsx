@@ -14,9 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/AuthModal";
 import { invalidateProfileCache } from "@/components/UserProfilePopover";
+import { ActivatePremiumKeyModal } from "@/components/ActivatePremiumKeyModal";
 import { 
   User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon, 
-  Gift, ChevronRight, Shield, Bell, Mail, Link as LinkIcon, Check, ExternalLink
+  Gift, ChevronRight, Shield, Bell, Mail, Link as LinkIcon, Check, ExternalLink, Key
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const [coins, setCoins] = useState(0);
   const [boosts, setBoosts] = useState(0);
   const [subscription, setSubscription] = useState('free');
+  const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [loading, setLoading] = useState(false);
   const [xp, setXp] = useState(0);
   const [nextLevelXp, setNextLevelXp] = useState(5000);
@@ -61,6 +63,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const [authMode, setAuthMode] = useState<'telegram' | 'email' | null>(null);
   const [telegramLinkToken, setTelegramLinkToken] = useState<string | null>(null);
   const [generatingToken, setGeneratingToken] = useState(false);
+  const [activateKeyModalOpen, setActivateKeyModalOpen] = useState(false);
   const telegramBotUsername = 'sdadimtutbot';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -123,7 +126,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
     try {
       setLoading(true);
-      let query = supabase.from('profiles').select('*');
+      let query = supabase.from('profiles').select('*, premium_forever_purchased_at, subscription_type, subscription_status');
       
       if (profileId) {
         // Use profileId if available (most reliable)
@@ -171,6 +174,13 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
         setSubscription(data.subscription_status || 'free');
         setXp(data.xp || 0);
         setNextLevelXp(5000);
+        
+        // Проверяем Premium Forever
+        const isLifetime = 
+          !!data.premium_forever_purchased_at &&
+          data.subscription_type === 'lifetime' &&
+          data.subscription_status === 'pro';
+        setHasPremiumForever(isLifetime);
       } else {
         console.warn('[ProfileModal] No profile data returned');
       }
@@ -635,6 +645,44 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
       <Separator />
 
+      {/* Activate Premium Key */}
+      {!hasPremiumForever && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold">Premium Forever</h3>
+          <div className="p-3 rounded-lg border bg-gradient-to-br from-amber-500/10 to-yellow-500/10 border-amber-500/20">
+            <p className="text-sm text-muted-foreground mb-3">
+              Получил ключ от партнера? Активируй его здесь!
+            </p>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setActivateKeyModalOpen(true)}
+            >
+              <Key className="h-4 w-4 mr-2" />
+              Активировать ключ
+            </Button>
+          </div>
+        </div>
+      )}
+      
+      {/* Premium Forever Status */}
+      {hasPremiumForever && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold">Premium Forever</h3>
+          <div className="p-3 rounded-lg border bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Crown className="h-5 w-5 text-green-500" />
+              <span className="font-semibold text-green-500">Активирован</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              У тебя есть пожизненный доступ ко всем функциям приложения! 🎉
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Separator />
+
       {/* Connected Accounts */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold">{t('profileMenu.connectedAccounts')}</h3>
@@ -872,6 +920,18 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
             setTimeout(() => loadUserProfile(), 1000);
           }
         }} 
+      />
+
+      {/* Activate Premium Key Modal */}
+      <ActivatePremiumKeyModal
+        open={activateKeyModalOpen}
+        onOpenChange={(open) => {
+          setActivateKeyModalOpen(open);
+          if (!open) {
+            // Reload profile after activation
+            setTimeout(() => loadUserProfile(), 1000);
+          }
+        }}
       />
     </>
   );

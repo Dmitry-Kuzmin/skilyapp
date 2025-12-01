@@ -1,13 +1,19 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Footer() {
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const isTelegramApp = isTelegramMiniApp();
+  const { isAuthenticated, supabaseUser } = useUserContext();
+  const [isPartner, setIsPartner] = useState(false);
+  const [loadingPartner, setLoadingPartner] = useState(false);
 
   // Определяем fullscreen режимы (тесты и игры) - footer должен быть скрыт
   const isFullscreenMode = 
@@ -18,6 +24,38 @@ export function Footer() {
     location.pathname.includes('/matching') ||
     location.pathname.includes('/four-variants') ||
     location.pathname.includes('/road-race');
+
+  // Проверяем, является ли пользователь партнером
+  useEffect(() => {
+    const checkPartnerStatus = async () => {
+      if (!isAuthenticated || !supabaseUser) {
+        setIsPartner(false);
+        return;
+      }
+
+      setLoadingPartner(true);
+      try {
+        const { data, error } = await supabase
+          .from("partners")
+          .select("id")
+          .eq("user_id", supabaseUser.id)
+          .maybeSingle();
+
+        if (!error && data) {
+          setIsPartner(true);
+        } else {
+          setIsPartner(false);
+        }
+      } catch (error) {
+        console.error("[Footer] Error checking partner status:", error);
+        setIsPartner(false);
+      } finally {
+        setLoadingPartner(false);
+      }
+    };
+
+    checkPartnerStatus();
+  }, [isAuthenticated, supabaseUser]);
 
   // Скрываем футер в Telegram приложении и в fullscreen режимах (тесты и игры)
   if (isTelegramApp || isFullscreenMode) {
@@ -37,6 +75,10 @@ export function Footer() {
     [
       { to: "/pricing", label: t("footer.pricing") },
       { to: "/refund-policy", label: t("footer.refundPolicy") },
+      { 
+        to: isPartner ? "/partner/dashboard" : "/partners", 
+        label: isPartner ? t("footer.partnerDashboard") : t("footer.becomePartner") 
+      },
     ],
   ];
 

@@ -7,14 +7,13 @@ import {
   Edit,
   Database,
   Upload,
-  LogOut,
-  Bell,
   FileUp,
   MessageSquare,
   AlertTriangle,
   Image as ImageIcon,
   Calendar,
   Eye,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +90,18 @@ const adminNavItems = [
     label: "Безопасность",
     icon: Shield,
     path: "/admin/security",
+  },
+  {
+    id: "partners",
+    label: "Партнеры",
+    icon: Users,
+    path: "/admin/partners",
+  },
+  {
+    id: "marketing",
+    label: "Рекламные материалы",
+    icon: ImageIcon,
+    path: "/admin/marketing",
   },
 ];
 
@@ -202,11 +213,6 @@ export function AdminLayout() {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
-  };
-
   if (authLoading) {
     return (
       <Layout>
@@ -235,51 +241,6 @@ export function AdminLayout() {
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-        {/* Header */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container mx-auto px-4">
-            <div className="flex h-16 items-center justify-between">
-              <div className="flex items-center gap-4">
-                <motion.div
-                  whileHover={{ scale: 1.05, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="p-2 rounded-lg bg-primary/10"
-                >
-                  <Shield className="h-6 w-6 text-primary" />
-                </motion.div>
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    Админ-панель
-                  </h1>
-                  <p className="text-xs text-muted-foreground">
-                    {userName && `Добро пожаловать, ${userName}`}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                {pendingReports > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate("/admin/reports")}
-                    className="relative"
-                  >
-                    <Bell className="h-4 w-4 mr-2" />
-                    Отчёты
-                    <Badge className="ml-2 bg-orange-500 text-white">
-                      {pendingReports}
-                    </Badge>
-                  </Button>
-                )}
-                <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
-                  <LogOut className="h-4 w-4" />
-                  Выход
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="container mx-auto px-4 py-6">
           <div className="flex gap-6">
             {/* Sidebar Navigation */}

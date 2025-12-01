@@ -102,6 +102,12 @@ export interface LandingCopy {
     }>;
     note: string;
   };
+  referral: {
+    badge: string;
+    invitesYou: string;
+    coinsOnRegistration: string;
+    join: string;
+  };
 }
 
 export const LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
@@ -255,6 +261,12 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Afiliados", href: "/partners" },
       ],
       note: "© 2025 Skilyapp. La nueva forma de aprobar la DGT.",
+    },
+    referral: {
+      badge: "Invitación",
+      invitesYou: "te invita!",
+      coinsOnRegistration: "al registrarse",
+      join: "Unirse",
     },
   },
   en: {
@@ -547,6 +559,12 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Партнёрам", href: "/partners" },
       ],
       note: "© 2025 Skilyapp. Мы помогаем русскоязычным ученикам сдать DGT.",
+    },
+    referral: {
+      badge: "Приглашение",
+      invitesYou: "приглашает тебя!",
+      coinsOnRegistration: "при регистрации",
+      join: "Присоединиться",
     },
   },
 };

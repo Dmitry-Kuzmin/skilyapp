@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 
 // Lazy load UI components - только тяжелые компоненты
@@ -9,9 +9,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PageLoader } from "@/components/PageLoader";
+import { ReferralRedirect } from "@/components/ReferralRedirect";
+import { PartnerRedirect } from "@/components/PartnerRedirect";
 
 // Lazy load только тяжелые компоненты
-const ReferralWelcome = lazy(() => import("@/components/ReferralWelcome").then(m => ({ default: m.ReferralWelcome })));
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
@@ -67,6 +68,13 @@ const AdminSeasonsManagement = lazy(() =>
 const AdminSecurityMonitoring = lazy(() =>
   import("./pages/admin/AdminSecurityMonitoring").then((module) => ({ default: module.AdminSecurityMonitoring }))
 );
+const AdminPartners = lazy(() =>
+  import("./pages/admin/AdminPartners").then((module) => ({ default: module.AdminPartners }))
+);
+const AdminMarketingMaterials = lazy(() =>
+  import("./pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
+);
+const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const AdminEditor = lazy(() => import("./pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
 const RaceGame = lazy(() => import("./pages/games/RaceGame"));
@@ -126,6 +134,22 @@ const Inventory = lazy(() => import("./pages/Inventory"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Article = lazy(() => import("./pages/Article"));
 
+// Глобальный компонент для прокрутки наверх при смене роута
+// Работает для всех страниц, включая те, которые не используют Layout
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Прокручиваем наверх при каждой смене роута
+    // Используем requestAnimationFrame для плавности и избежания конфликтов с рендерингом
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    });
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => {
   // Создаем QueryClient один раз с useMemo для оптимизации
   // ОПТИМИЗАЦИЯ: Улучшенные настройки кэширования для снижения нагрузки на Supabase
@@ -148,44 +172,12 @@ const App = () => {
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
   
-  // Referral welcome state
-  const [showReferralWelcome, setShowReferralWelcome] = useState(false);
-  const [referralCode, setReferralCode] = useState<string | null>(null);
-
   // Определяем basename для GitHub Pages
   // Если мы на GitHub Pages (dmitry-kuzmin.github.io), используем /sdadim-dgt-prep
   // Иначе используем /
   const isGitHubPages = window.location.hostname === 'dmitry-kuzmin.github.io' || 
                         window.location.pathname.startsWith('/sdadim-dgt-prep');
   const basename = isGitHubPages ? '/sdadim-dgt-prep' : '/';
-
-  // Check for referral code and show welcome screen
-  useEffect(() => {
-    const checkReferralCode = () => {
-      const code = sessionStorage.getItem('referral_code');
-      if (code) {
-        console.log('[App] Referral code detected:', code);
-        setReferralCode(code);
-        setShowReferralWelcome(true);
-      }
-    };
-    
-    // Небольшая задержка чтобы deep link успел обработаться
-    setTimeout(checkReferralCode, 500);
-  }, []);
-  
-  const handleAcceptReferral = () => {
-    console.log('[App] Referral accepted, code will be used on login');
-    setShowReferralWelcome(false);
-    // Код останется в sessionStorage и будет использован при логине
-  };
-  
-  const handleDeclineReferral = () => {
-    console.log('[App] Referral declined');
-    sessionStorage.removeItem('referral_code');
-    setShowReferralWelcome(false);
-    setReferralCode(null);
-  };
 
   // Обработка редиректа из 404.html для GitHub Pages
   useEffect(() => {
@@ -227,18 +219,8 @@ const App = () => {
         <Sonner />
         <Suspense fallback={null}>
           <CosmeticsPreviewProvider>
-              {/* Referral Welcome Screen */}
-              {showReferralWelcome && referralCode && (
-                <Suspense fallback={null}>
-                  <ReferralWelcome
-                    referralCode={referralCode}
-                    onAccept={handleAcceptReferral}
-                    onDecline={handleDeclineReferral}
-                  />
-                </Suspense>
-              )}
-              
               <BrowserRouter basename={basename}>
+                <ScrollToTop />
                 <Suspense fallback={null}>
                   <DeepLinkHandler />
                 </Suspense>
@@ -267,7 +249,9 @@ const App = () => {
           <Route path="/games/road-race" element={<RoadRace />} />
           <Route path="/games/flashcards" element={<FlashCardsGame />} />
           <Route path="/referrals" element={<Referrals />} />
-          <Route path="/join/:code" element={<InviteLanding />} />
+                    <Route path="/join/:code" element={<ReferralRedirect />} />
+                    <Route path="/partner/:code" element={<PartnerRedirect />} />
+          <Route path="/partner/dashboard" element={<PartnerDashboard />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="reports" element={<AdminQuestionReports />} />
@@ -277,6 +261,8 @@ const App = () => {
             <Route path="test-covers" element={<AdminTestCovers />} />
             <Route path="seasons" element={<AdminSeasonsManagement />} />
             <Route path="security" element={<AdminSecurityMonitoring />} />
+            <Route path="partners" element={<AdminPartners />} />
+            <Route path="marketing" element={<AdminMarketingMaterials />} />
           </Route>
           <Route path="/road-signs" element={<RoadSigns />} />
           <Route path="/dictionary" element={<Dictionary />} />

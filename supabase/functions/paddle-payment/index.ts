@@ -19,7 +19,7 @@ type CatalogEntry = {
 // Маппинг catalog_key -> Paddle Price ID
 // Замените на реальные Price IDs после создания продуктов в Paddle
 const PADDLE_PRICE_IDS: Record<string, string> = {
-  premium_monthly: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
+  premium_monthly: 'pro_01kbb8kmj4vmy7qz3ae3k49gs1', // Заменить на реальный Price ID
   premium_yearly: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
   duel_pass_season: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
   coins_pack_100: 'pri_xxxxxxxxxxxxx', // Заменить на реальный Price ID
