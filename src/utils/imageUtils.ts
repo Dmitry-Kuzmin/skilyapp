@@ -5,6 +5,18 @@ const imageCache = new Map<string, { url: string; aspectRatio: number; loaded: b
 const preloadPromises = new Map<string, Promise<void>>();
 
 /**
+ * Проверяет поддержку WebP в браузере
+ */
+function supportsWebP(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+}
+
+/**
  * Получить публичный URL изображения из Supabase Storage
  * Если передан полный URL (начинается с http), возвращает его как есть
  * Если передан относительный путь (например, "1110.jpeg" или "Image_test/Public/1110.jpeg"), возвращает URL из Supabase Storage
@@ -14,11 +26,14 @@ const preloadPromises = new Map<string, Promise<void>>();
  * - Имя файла: "1110.jpeg" - ищется в bucket 'questions'
  * - Путь с подпапками: "Image_test/Public/1110.jpeg" - ищется в bucket 'questions' в указанной подпапке
  * 
+ * ОПТИМИЗАЦИЯ: Автоматически пытается использовать WebP версию, если браузер поддерживает
+ * 
  * @param imageUrl - URL изображения или путь к файлу в Supabase Storage
  * @param bucket - Имя bucket в Supabase Storage (по умолчанию 'questions')
+ * @param preferWebP - Предпочитать WebP формат (по умолчанию true)
  * @returns Публичный URL изображения или null, если путь некорректный
  */
-export function getImageUrl(imageUrl: string | null | undefined, bucket: string = 'questions'): string | null {
+export function getImageUrl(imageUrl: string | null | undefined, bucket: string = 'questions', preferWebP: boolean = true): string | null {
   if (!imageUrl) return null;
 
   // Если это уже полный URL, возвращаем как есть
@@ -27,12 +42,28 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
   }
 
   // Нормализуем путь: убираем лишние слэши в начале и конце
-  const normalizedPath = imageUrl.trim().replace(/^\/+/, '').replace(/\/+$/, '');
+  let normalizedPath = imageUrl.trim().replace(/^\/+/, '').replace(/\/+$/, '');
 
   // Если путь пустой после нормализации, возвращаем null
   if (!normalizedPath) {
     console.warn(`[getImageUrl] Empty path after normalization for: ${imageUrl}`);
     return null;
+  }
+
+  // ОПТИМИЗАЦИЯ: Пытаемся использовать WebP версию, если браузер поддерживает
+  if (preferWebP && supportsWebP() && !normalizedPath.endsWith('.webp')) {
+    // Пытаемся найти WebP версию (заменяем расширение на .webp)
+    const webpPath = normalizedPath.replace(/\.(jpg|jpeg|png|JPG|JPEG|PNG)$/i, '.webp');
+    // Проверяем кэш для WebP версии
+    const webpCacheKey = `${bucket}:${webpPath}`;
+    const webpCached = imageCache.get(webpCacheKey);
+    if (webpCached && webpCached.loaded) {
+      return webpCached.url;
+    }
+    // Если WebP версия существует в кэше (даже не загружена), используем её
+    if (imageCache.has(webpCacheKey)) {
+      normalizedPath = webpPath;
+    }
   }
 
   // Проверяем кэш (но только если изображение уже загружено)
