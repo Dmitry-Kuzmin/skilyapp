@@ -20,6 +20,14 @@ import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 import { ChallengeBankNotification } from "@/components/ChallengeBankNotification";
 import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
 import { usePremium } from "@/hooks/usePremium";
+import { useTestQuestions } from "@/hooks/useTestQuestions";
+import { useSequentialTestQuestions } from "@/hooks/useTestQuestions";
+import {
+  useChallengeBankQuestions,
+  useDGTQuestions,
+  useQuestionsByTopic,
+  useTestInfo,
+} from "@/hooks/useTestQuestionsByMode";
 
 type QuestionData = {
   id: string;
@@ -784,9 +792,199 @@ const TestSession = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showQuestionMap, isClosing]);
 
+  // ОПТИМИЗАЦИЯ: Используем React Query хуки для загрузки вопросов в зависимости от режима
+  const challengeBankQuestions = useChallengeBankQuestions(
+    mode === 'challenge-bank' ? profileId : null,
+    30
+  );
+  const dgtQuestions = useDGTQuestions(mode === 'dgt' ? topic || null : null, 30);
+  const practiceQuestions = useQuestionsByTopic(
+    mode === 'practice' || mode === 'blitz' || mode === 'exam' ? topic || null : null,
+    questionCount,
+    mode === 'practice' || mode === 'blitz' || mode === 'exam'
+  );
+  const masteryQuestions = useQuestionsByTopic(
+    mode === 'mastery' ? topic || null : null,
+    questionCount,
+    mode === 'mastery'
+  );
+  const hardestQuestions = useQuestionsByTopic(
+    mode === 'hardest' ? null : null,
+    questionCount,
+    mode === 'hardest'
+  );
+  const moduleQuestions = useQuestionsByTopic(
+    mode === 'module' && topic ? topic : null,
+    20,
+    mode === 'module' && !!topic
+  );
+  const sequentialQuestions = useSequentialTestQuestions(mode === 'sequential' ? testId || null : null);
+  const testInfoData = useTestInfo(mode === 'sequential' ? testId || null : null);
+
+  // ОПТИМИЗАЦИЯ: Загружаем вопросы из хуков в зависимости от режима
   useEffect(() => {
-    loadQuestions();
-  }, [mode, topic, testId, profileId]);
+    if (mode === 'challenge-bank') {
+      if (challengeBankQuestions.data) {
+        setQuestions(challengeBankQuestions.data);
+        setTestInfo({ id: 'challenge_bank', title: '💡 Банк Сложных Вопросов™' });
+        setLoading(false);
+      } else if (challengeBankQuestions.isLoading) {
+        setLoading(true);
+      } else if (challengeBankQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'dgt') {
+      if (dgtQuestions.data) {
+        if (dgtQuestions.data.length === 0) {
+          toast.error("Вопросы для этой категории не найдены");
+          navigate("/dgt-tests");
+          return;
+        }
+        setQuestions(dgtQuestions.data);
+        setTestInfo({ id: `dgt_${topic?.toUpperCase()}`, title: `DGT Экзамен ${topic?.toUpperCase()}` });
+        setLoading(false);
+      } else if (dgtQuestions.isLoading) {
+        setLoading(true);
+      } else if (dgtQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'practice' || mode === 'blitz' || mode === 'exam') {
+      if (practiceQuestions.data) {
+        setQuestions(practiceQuestions.data);
+        setLoading(false);
+      } else if (practiceQuestions.isLoading) {
+        setLoading(true);
+      } else if (practiceQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'mastery') {
+      if (masteryQuestions.data) {
+        setQuestions(masteryQuestions.data);
+        setTestInfo({ id: 'mastery_mode', title: '🏆 Режим Мастерства' });
+        setLoading(false);
+      } else if (masteryQuestions.isLoading) {
+        setLoading(true);
+      } else if (masteryQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'hardest') {
+      if (hardestQuestions.data) {
+        setQuestions(hardestQuestions.data);
+        setTestInfo({ id: 'hardest_questions', title: '⚠️ Сложные Вопросы' });
+        setLoading(false);
+      } else if (hardestQuestions.isLoading) {
+        setLoading(true);
+      } else if (hardestQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'module') {
+      if (moduleQuestions.data) {
+        setQuestions(moduleQuestions.data);
+        setTestInfo({ id: `module_${topic}`, title: "Итоговый тест по модулю" });
+        setLoading(false);
+      } else if (moduleQuestions.isLoading) {
+        setLoading(true);
+      } else if (moduleQuestions.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    } else if (mode === 'sequential' && testId) {
+      if (sequentialQuestions.data && testInfoData.data) {
+        if (sequentialQuestions.data.length === 0) {
+          toast.error("Вопросы для этого теста не найдены");
+          navigate("/tests/sequential");
+          return;
+        }
+        setQuestions(sequentialQuestions.data);
+        setTestInfo({ id: testInfoData.data.id, title: testInfoData.data.title_ru });
+        
+        // Проверяем доступность теста и устанавливаем статус
+        if (profileId) {
+          supabase
+            .from("user_test_progress")
+            .select("*")
+            .eq("user_id", profileId)
+            .eq("test_id", testId)
+            .single()
+            .then(({ data: progressData }) => {
+              if (progressData && progressData.status === 'locked') {
+                toast.error("Этот тест заблокирован. Пройдите предыдущие тесты.");
+                navigate("/tests/sequential");
+                return;
+              }
+              setStartTime(Date.now());
+              supabase
+                .from("user_test_progress")
+                .upsert({
+                  user_id: profileId,
+                  test_id: testId,
+                  status: 'in_progress',
+                  started_at: new Date().toISOString(),
+                }, {
+                  onConflict: 'user_id,test_id'
+                });
+            });
+        }
+        
+        // Предзагружаем изображения
+        const firstImagesToPreload = sequentialQuestions.data
+          .slice(0, 3)
+          .map(q => q.image_url)
+          .filter(Boolean) as string[];
+        
+        if (firstImagesToPreload.length > 0) {
+          preloadImage(firstImagesToPreload[0]).catch(() => {});
+          firstImagesToPreload.slice(1).forEach((url, index) => {
+            setTimeout(() => {
+              preloadImage(url).catch(() => {});
+            }, (index + 1) * 300);
+          });
+        }
+        
+        setLoading(false);
+      } else if (sequentialQuestions.isLoading || testInfoData.isLoading) {
+        setLoading(true);
+      } else if (sequentialQuestions.error || testInfoData.error) {
+        toast.error("Ошибка загрузки вопросов");
+        setLoading(false);
+      }
+    }
+  }, [
+    mode,
+    challengeBankQuestions.data,
+    challengeBankQuestions.isLoading,
+    challengeBankQuestions.error,
+    dgtQuestions.data,
+    dgtQuestions.isLoading,
+    dgtQuestions.error,
+    practiceQuestions.data,
+    practiceQuestions.isLoading,
+    practiceQuestions.error,
+    masteryQuestions.data,
+    masteryQuestions.isLoading,
+    masteryQuestions.error,
+    hardestQuestions.data,
+    hardestQuestions.isLoading,
+    hardestQuestions.error,
+    moduleQuestions.data,
+    moduleQuestions.isLoading,
+    moduleQuestions.error,
+    sequentialQuestions.data,
+    sequentialQuestions.isLoading,
+    sequentialQuestions.error,
+    testInfoData.data,
+    testInfoData.isLoading,
+    testInfoData.error,
+    testId,
+    topic,
+    profileId,
+    navigate,
+  ]);
 
   // Проверяем, добавлен ли текущий вопрос в закладки
   useEffect(() => {
