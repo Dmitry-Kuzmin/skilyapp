@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2, BookOpen, FileText, Languages, CheckCircle2 } from "lucide-react";
 import Layout from "@/components/Layout";
@@ -12,110 +12,92 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { loadStaticMaterialBySubtopicId, loadStaticMaterialByStaticId } from "@/utils/staticMaterials";
 import { SubtopicDetailSkeleton } from "@/components/learning-map/SubtopicDetailSkeleton";
+import { useSubtopic, useSubtopicsByTopic } from "@/hooks/useSubtopic";
 
 const SubtopicDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const [loading, setLoading] = useState(true);
-  const [subtopic, setSubtopic] = useState<any>(null);
   const [material, setMaterial] = useState<Material | null>(null);
   const [terms, setTerms] = useState<any[]>([]);
   const [test, setTest] = useState<any>(null);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [allSubtopics, setAllSubtopics] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    if (id) {
-      loadSubtopicData();
-    }
-  }, [id, profileId]);
+  // ОПТИМИЗАЦИЯ: Используем React Query хуки для загрузки подтем
+  const { data: subtopic, isLoading: subtopicLoading } = useSubtopic(id || null);
+  const { data: allSubtopics = [] } = useSubtopicsByTopic(subtopic?.topic_id || null);
 
-  const loadSubtopicData = async () => {
+  // ОПТИМИЗАЦИЯ: Вычисляем currentIndex через useMemo
+  const computedCurrentIndex = useMemo(() => {
+    if (!id || allSubtopics.length === 0) return 0;
+    const idx = allSubtopics.findIndex((s) => s.id === id);
+    return idx >= 0 ? idx : 0;
+  }, [id, allSubtopics]);
+
+  useEffect(() => {
+    setCurrentIndex(computedCurrentIndex);
+  }, [computedCurrentIndex]);
+
+  useEffect(() => {
+    if (id && subtopic) {
+      loadSubtopicContent();
+    }
+  }, [id, subtopic, profileId]);
+
+  // ОПТИМИЗАЦИЯ: Обработка статических материалов
+  useEffect(() => {
+    if (!id) return;
+
+    const staticMatch = id.match(/^static-topic-(\d+)-subtopic-([\d-]+)$/);
+    if (staticMatch) {
+      // Это статический материал - загружаем напрямую
+      const loadStatic = async () => {
+        try {
+          setLoading(true);
+          const staticMaterial = await loadStaticMaterialByStaticId(id);
+          
+          if (staticMaterial) {
+            setMaterial({
+              id: staticMaterial.id,
+              subtopic_id: id,
+              title_ru: staticMaterial.title_ru,
+              title_es: staticMaterial.title_es,
+              title_en: staticMaterial.title_en,
+              content_ru: staticMaterial.content_ru,
+              content_es: staticMaterial.content_es,
+              content_en: staticMaterial.content_en,
+              source_pdf: staticMaterial.source_pdf,
+              images: staticMaterial.images.map(img => img.url),
+            });
+            
+            setLoading(false);
+          } else {
+            throw new Error("Статический материал не найден");
+          }
+        } catch (error) {
+          console.error("Error loading static material:", error);
+          toast.error("Ошибка загрузки материала");
+          setLoading(false);
+        }
+      };
+      
+      loadStatic();
+    } else {
+      // Обычная подтема - данные загружаются через React Query хуки
+      setLoading(subtopicLoading);
+    }
+  }, [id, subtopicLoading]);
+
+  const loadSubtopicContent = async () => {
+    if (!subtopic || !id) return;
+
     try {
       setLoading(true);
 
-      // Проверяем, является ли это статическим ID (формат: static-topic-{number}-subtopic-{code})
-      const staticMatch = id?.match(/^static-topic-(\d+)-subtopic-([\d-]+)$/);
-      
-      if (staticMatch) {
-        // Это статический материал - загружаем напрямую
-        const topicNumber = parseInt(staticMatch[1]);
-        const subtopicCode = staticMatch[2].replace('-', '.');
-        
-        console.log("[SubtopicDetail] Loading static material:", { topicNumber, subtopicCode });
-        
-        const staticMaterial = await loadStaticMaterialByStaticId(id!);
-        
-        if (staticMaterial) {
-          // Создаем виртуальную подтему для отображения
-          const virtualSubtopic = {
-            id: id,
-            code: subtopicCode,
-            title_ru: staticMaterial.title_ru,
-            title_es: staticMaterial.title_es,
-            title_en: staticMaterial.title_en,
-            type: "material" as const,
-            topic_id: `topic-${topicNumber}`,
-            order_index: staticMaterial.order,
-          };
-          
-          setSubtopic(virtualSubtopic);
-          
-          // Загружаем материал
-          setMaterial({
-            id: staticMaterial.id,
-            subtopic_id: id,
-            title_ru: staticMaterial.title_ru,
-            title_es: staticMaterial.title_es,
-            title_en: staticMaterial.title_en,
-            content_ru: staticMaterial.content_ru,
-            content_es: staticMaterial.content_es,
-            content_en: staticMaterial.content_en,
-            source_pdf: staticMaterial.source_pdf,
-            images: staticMaterial.images.map(img => img.url),
-          });
-          
-          // Для статических материалов навигация по подтемам не нужна
-          setAllSubtopics([virtualSubtopic]);
-          setCurrentIndex(0);
-          
-          setLoading(false);
-          return;
-        } else {
-          throw new Error("Статический материал не найден");
-        }
-      }
-
-      // Загружаем подтему из Supabase
-      const { data: subtopicData, error: subtopicError } = await supabase
-        .from("subtopics")
-        .select("*, topics(*)")
-        .eq("id", id)
-        .single();
-
-      if (subtopicError || !subtopicData) throw subtopicError || new Error("Subtopic not found");
-      const subtopic = subtopicData as any;
-      setSubtopic(subtopic);
-
-      // Загружаем все подтемы темы для навигации
-      if (subtopic?.topic_id) {
-        const { data: allSubtopicsData } = await supabase
-          .from("subtopics")
-          .select("*")
-          .eq("topic_id", subtopic.topic_id)
-          .order("order_index", { ascending: true });
-
-        if (allSubtopicsData) {
-          setAllSubtopics(allSubtopicsData);
-          const currentIdx = allSubtopicsData.findIndex((s: any) => s.id === id);
-          setCurrentIndex(currentIdx >= 0 ? currentIdx : 0);
-        }
-      }
-
       // Загружаем контент в зависимости от типа подтемы
-      if (subtopic?.type === "material") {
+      if (subtopic.type === "material") {
         // СНАЧАЛА пробуем загрузить статический материал
         console.log("[SubtopicDetail] Trying to load static material for subtopic:", id);
         const staticMaterial = await loadStaticMaterialBySubtopicId(id!, subtopic.topics?.number);
