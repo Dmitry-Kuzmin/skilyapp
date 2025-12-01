@@ -24,19 +24,14 @@ import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import Layout from "@/components/Layout";
 
-const Index = () => {
-  const { isAuthenticated, profileId } = useUserContext();
-  const navigate = useNavigate();
-  
-  // КРИТИЧНО: Проверяем авторизацию ДО всех хуков, которые требуют profileId
-  // Это предотвращает белый экран для неавторизованных пользователей
-  if (!isAuthenticated) {
-    return <Landing />;
-  }
-
+// Внутренний компонент для авторизованных пользователей
+// Это позволяет вызывать все хуки в правильном порядке
+const DashboardContent = () => {
+  const { profileId } = useUserContext();
   const { toast } = useToast();
   const { isPremium, isTrial, daysRemaining } = usePremium();
   const { balance } = useCoins();
+  const navigate = useNavigate();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   
@@ -437,9 +432,8 @@ const Index = () => {
             </button>
             <button
               onClick={() => {
-                console.log('[Index] Current state:', {
+                console.log('[DashboardContent] Current state:', {
                   profileId,
-                  isAuthenticated,
                   error: error.message,
                   dashboardData: !!dashboardData,
                 });
@@ -484,16 +478,29 @@ const Index = () => {
 
   return (
     <>
-      {showWelcome && isAuthenticated && (
+      {showWelcome && (
         <WelcomeOverlay onComplete={handleWelcomeComplete} />
       )}
       <Layout hideNavigation={showWelcome}>
         <div className={`w-full pb-6 ${showWelcome ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
           {pageContent}
-      </div>
+        </div>
       </Layout>
     </>
   );
+};
+
+// Основной компонент Index - проверяет авторизацию и рендерит нужный контент
+const Index = () => {
+  const { isAuthenticated } = useUserContext();
+  
+  // КРИТИЧНО: Проверяем авторизацию и рендерим нужный компонент
+  // Все хуки вызываются внутри DashboardContent, что соблюдает правила хуков
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+
+  return <DashboardContent />;
 };
 
 export default Index;
