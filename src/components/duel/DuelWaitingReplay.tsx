@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
+import { useDuelQuestionPositions } from '@/hooks/useDuelQuestionPositions';
+import { useDuelPlayers } from '@/hooks/useDuelPlayers';
 import {
   Clock,
   Trophy,
@@ -65,7 +67,11 @@ export function DuelWaitingReplay({
   const opponentPlayerIdRef = useRef<string | null>(null);
   // КРИТИЧНО: Используем state вместо ref для myPlayerId, чтобы useDuelRealtime мог переподписаться
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  // ОПТИМИЗАЦИЯ: Используем React Query хук для загрузки позиций вопросов
+  const { data: questionPositionsMap = new Map<string, number>() } = useDuelQuestionPositions(duelId);
   const questionPositionsRef = useRef<Map<string, number>>(new Map()); // Cache question positions
+  // ОПТИМИЗАЦИЯ: Используем React Query хук для загрузки игроков
+  const { data: players = [] } = useDuelPlayers(duelId);
   // Refs для функций чтобы использовать в fallback useEffect
   const loadOpponentDataRef = useRef<(() => Promise<void>) | null>(null);
   const checkIfOpponentFinishedRef = useRef<((force?: boolean) => Promise<void>) | null>(null);
@@ -73,6 +79,35 @@ export function DuelWaitingReplay({
   // Используем useDuelRealtime для получения статуса дуэли через Realtime (вместо периодических проверок)
   // КРИТИЧНО: Передаем myPlayerId как state, а не ref.current
   const { state: realtimeState } = useDuelRealtime(duelId, myPlayerId);
+
+  // ОПТИМИЗАЦИЯ: Синхронизируем questionPositionsMap с ref
+  useEffect(() => {
+    if (questionPositionsMap.size > 0) {
+      questionPositionsRef.current = questionPositionsMap;
+      console.log('[DuelWaitingReplay] ✅ Question positions synced from React Query:', questionPositionsMap.size);
+    }
+  }, [questionPositionsMap]);
+
+  // ОПТИМИЗАЦИЯ: Используем данные игроков из React Query
+  useEffect(() => {
+    if (players.length > 0 && profileId) {
+      const opponent = players.find((p) => p.user_id !== profileId);
+      const myPlayer = players.find((p) => p.user_id === profileId);
+
+      if (opponent) {
+        const name = opponent.profiles?.first_name || opponent.profiles?.username || 'Соперник';
+        setOpponentName(name);
+        setOpponentScore(opponent.score || 0);
+        opponentPlayerIdRef.current = opponent.id;
+      }
+
+      if (myPlayer) {
+        const name = myPlayer.profiles?.first_name || myPlayer.profiles?.username || 'Вы';
+        setMyName(name);
+        setMyPlayerId(myPlayer.id);
+      }
+    }
+  }, [players, profileId]);
 
   // Оптимизированная функция для безопасного вызова onDuelFinished (только один раз)
   const safeCallOnDuelFinished = useCallback(() => {
@@ -129,48 +164,14 @@ export function DuelWaitingReplay({
     }
   }, [onDuelFinished]);
 
-  // Load question positions once at start - cache them for fast access
-  // КРИТИЧНО: Должна быть вызвана ПЕРЕД загрузкой ответов соперника
+  // ОПТИМИЗАЦИЯ: Позиции вопросов теперь загружаются через useDuelQuestionPositions хук
+  // Функция оставлена для обратной совместимости, но больше не используется напрямую
   const loadQuestionPositions = async () => {
-    try {
-      console.log('[DuelWaitingReplay] 🔄 Loading question positions for duel:', duelId);
-
-      const { data: questions, error } = await supabase
-        .from('duel_questions')
-        .select('id, position')
-        .eq('duel_id', duelId)
-        .order('position', { ascending: true });
-
-      if (error) {
-        console.error('[DuelWaitingReplay] ❌ Error loading question positions:', error);
-        // Fallback: пробуем через Edge Function
-        try {
-          const { data: edgeData } = await supabase.functions.invoke('duel-manager', {
-            body: { action: 'get_questions', duel_id: duelId, profile_id: profileId }
-          });
-          if (edgeData?.questions) {
-            const positionsMap = new Map(edgeData.questions.map((q: any) => [q.id, q.position]));
-            questionPositionsRef.current = positionsMap;
-            console.log('[DuelWaitingReplay] ✅ Loaded question positions via Edge Function:', positionsMap.size);
-          }
-        } catch (fallbackError) {
-          console.error('[DuelWaitingReplay] ❌ Fallback also failed:', fallbackError);
-        }
-        return;
-      }
-
-      if (questions && questions.length > 0) {
-        const positionsMap = new Map(questions.map(q => [q.id, q.position]));
-        questionPositionsRef.current = positionsMap;
-        console.log('[DuelWaitingReplay] ✅ Loaded question positions:', {
-          count: questions.length,
-          positions: Array.from(positionsMap.entries()).slice(0, 5) // Показываем первые 5 для логов
-        });
-      } else {
-        console.warn('[DuelWaitingReplay] ⚠️ No questions found for duel:', duelId);
-      }
-    } catch (error) {
-      console.error('[DuelWaitingReplay] ❌ Exception loading question positions:', error);
+    // Позиции уже загружены через React Query хук useDuelQuestionPositions
+    // Эта функция оставлена для fallback случаев
+    if (questionPositionsRef.current.size === 0 && questionPositionsMap.size > 0) {
+      questionPositionsRef.current = questionPositionsMap;
+      console.log('[DuelWaitingReplay] ✅ Question positions loaded from React Query cache');
     }
   };
 
@@ -818,7 +819,34 @@ export function DuelWaitingReplay({
 
   const loadOpponentData = async () => {
     try {
-      // Используем Edge Function для получения игроков (обходит RLS проблемы)
+      // ОПТИМИЗАЦИЯ: Сначала пробуем использовать данные из React Query хука
+      if (players.length > 0 && profileId) {
+        const opponent = players.find((p) => p.user_id !== profileId);
+        const myPlayer = players.find((p) => p.user_id === profileId);
+
+        if (opponent) {
+          const name = opponent.profiles?.first_name || opponent.profiles?.username || 'Соперник';
+          setOpponentName(name);
+          setOpponentScore(opponent.score || 0);
+          opponentPlayerIdRef.current = opponent.id;
+          console.log('[DuelWaitingReplay] ✅ Loaded opponent data from React Query:', { name, score: opponent.score });
+        }
+
+        if (myPlayer) {
+          const name = myPlayer.profiles?.first_name || myPlayer.profiles?.username || 'Вы';
+          setMyName(name);
+          setMyPlayerId(myPlayer.id);
+          console.log('[DuelWaitingReplay] ✅ Loaded my player data from React Query:', { name, id: myPlayer.id });
+        }
+
+        // Если данные загружены из React Query, выходим
+        if (opponent && myPlayer) {
+          return;
+        }
+      }
+
+      // Fallback: Используем Edge Function если React Query еще не загрузил данные
+      console.log('[DuelWaitingReplay] ⚠️ React Query data not available, using Edge Function fallback');
       try {
         const { data: edgeData, error: edgeError } = await supabase.functions.invoke('duel-manager', {
           body: {
@@ -829,28 +857,19 @@ export function DuelWaitingReplay({
         });
 
         if (!edgeError && edgeData?.players) {
-          const players = edgeData.players;
-          const opponent = players.find((p: any) => p.user_id !== profileId);
-          const myPlayer = players.find((p: any) => p.user_id === profileId);
+          const edgePlayers = edgeData.players;
+          const opponent = edgePlayers.find((p: any) => p.user_id !== profileId);
+          const myPlayer = edgePlayers.find((p: any) => p.user_id === profileId);
 
           if (opponent) {
-            // Используем имя из Edge Function (уже обработано)
             const name = opponent.name || 'Соперник';
-            console.log('[DuelWaitingReplay] Setting opponent name from Edge Function:', {
-              name,
-              opponent: { id: opponent.id, user_id: opponent.user_id, score: opponent.score }
-            });
-
-            // Проверяем, что имя не пустое и не "Игрок" (может быть реальное имя)
             if (name && name.trim() && name !== 'Игрок') {
               setOpponentName(name);
             } else {
-              console.warn('[DuelWaitingReplay] Opponent name is empty or "Игрок", using "Соперник"');
               setOpponentName('Соперник');
             }
             setOpponentScore(opponent.score || 0);
-          } else {
-            console.warn('[DuelWaitingReplay] No opponent found in Edge Function response');
+            opponentPlayerIdRef.current = opponent.id;
           }
 
           if (myPlayer) {
@@ -860,74 +879,10 @@ export function DuelWaitingReplay({
             } else {
               setMyName('Вы');
             }
+            setMyPlayerId(myPlayer.id);
           }
         } else {
           console.error('[DuelWaitingReplay] Error loading players via Edge Function:', edgeError);
-          // Fallback к прямому запросу БЕЗ JOIN (чтобы избежать ошибки 400)
-          const { data: players, error: playersError } = await supabase
-            .from('duel_players')
-            .select('id, user_id, score, correct_count')
-            .eq('duel_id', duelId);
-
-          if (playersError) {
-            console.error('[DuelWaitingReplay] Error loading players:', playersError);
-            return;
-          }
-
-          if (players && players.length >= 2) {
-            const opponent = players.find(p => p.user_id !== profileId);
-            const myPlayer = players.find(p => p.user_id === profileId);
-
-            if (opponent) {
-              setOpponentScore(opponent.score || 0);
-            }
-
-            // Загружаем профили ОТДЕЛЬНО по одному (чтобы избежать проблем с .in() и RLS)
-            const userIds = [myPlayer?.user_id, opponent?.user_id].filter(Boolean) as string[];
-            if (userIds.length > 0) {
-              // Загружаем профили по одному через Promise.all
-              const profilePromises = userIds.map(async (userId) => {
-                const { data: profile, error } = await supabase
-                  .from('profiles')
-                  .select('id, first_name, username')
-                  .eq('id', userId)
-                  .single();
-
-                if (error) {
-                  console.error(`[DuelWaitingReplay] ❌ Error loading profile for ${userId}:`, error);
-                  return null;
-                }
-
-                return { userId, profile };
-              });
-
-              const profileResults = await Promise.all(profilePromises);
-              const profilesMap = new Map();
-
-              profileResults.forEach((result) => {
-                if (result && result.profile) {
-                  profilesMap.set(result.userId, result.profile);
-                }
-              });
-
-              if (opponent?.user_id) {
-                const opponentProfile = profilesMap.get(opponent.user_id);
-                if (opponentProfile) {
-                  const name = opponentProfile.first_name || opponentProfile.username || 'Соперник';
-                  console.log('[DuelWaitingReplay] ✅ Setting opponent name from direct query:', name);
-                  setOpponentName(name);
-                }
-              }
-
-              if (myPlayer?.user_id) {
-                const myProfile = profilesMap.get(myPlayer.user_id);
-                if (myProfile) {
-                  const name = myProfile.first_name || myProfile.username || 'Вы';
-                  setMyName(name);
-                }
-              }
-            }
-          }
         }
       } catch (error) {
         console.error('[DuelWaitingReplay] Exception loading players:', error);
