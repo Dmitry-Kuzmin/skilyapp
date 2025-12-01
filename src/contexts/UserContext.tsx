@@ -11,6 +11,7 @@ interface UserContextType {
   session: Session | null;
   platform: 'telegram' | 'web';
   isAuthenticated: boolean;
+  isLoading: boolean; // Состояние загрузки авторизации
   profileId: string | null; // ID профиля из таблицы profiles
   login: (userData: TelegramUser) => Promise<void>;
   logout: () => void;
@@ -418,6 +419,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         session,
         platform,
         isAuthenticated,
+        isLoading,
         profileId,
         login,
         logout,

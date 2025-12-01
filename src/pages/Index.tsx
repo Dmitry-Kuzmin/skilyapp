@@ -23,6 +23,7 @@ import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton"
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import Layout from "@/components/Layout";
+import { PageLoader } from "@/components/PageLoader";
 
 // Внутренний компонент для авторизованных пользователей
 // Это позволяет вызывать все хуки в правильном порядке
@@ -492,7 +493,13 @@ const DashboardContent = () => {
 
 // Основной компонент Index - проверяет авторизацию и рендерит нужный контент
 const Index = () => {
-  const { isAuthenticated } = useUserContext();
+  const { isAuthenticated, isLoading } = useUserContext();
+  
+  // КРИТИЧНО: Показываем loader пока идет загрузка авторизации
+  // Это предотвращает белый экран при перезагрузке страницы
+  if (isLoading) {
+    return <PageLoader />;
+  }
   
   // КРИТИЧНО: Проверяем авторизацию и рендерим нужный компонент
   // Все хуки вызываются внутри DashboardContent, что соблюдает правила хуков
