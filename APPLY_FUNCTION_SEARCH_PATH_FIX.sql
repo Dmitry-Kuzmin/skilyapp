@@ -28,7 +28,7 @@ ALTER FUNCTION public.create_referral(TEXT, UUID) SET search_path = public;
 ALTER FUNCTION public.can_access_daily_bonus(UUID) SET search_path = public;
 
 -- Challenge functions
-ALTER FUNCTION public.can_access_challenge_question(UUID, UUID) SET search_path = public;
+ALTER FUNCTION public.can_access_challenge_question(UUID) SET search_path = public;
 
 -- Premium functions
 ALTER FUNCTION public.auto_unlock_duel_pass_for_premium(UUID) SET search_path = public;
@@ -40,7 +40,7 @@ ALTER FUNCTION public.issue_premium_keys_to_partner(UUID, INTEGER, TEXT) SET sea
 ALTER FUNCTION public.activate_partner_premium(UUID, TEXT) SET search_path = public;
 
 -- Question report functions
-ALTER FUNCTION public.can_access_question_report(UUID, UUID) SET search_path = public;
+ALTER FUNCTION public.can_access_question_report(UUID) SET search_path = public;
 
 -- Flashcard functions
 ALTER FUNCTION public.update_user_flashcard_progress_updated_at() SET search_path = public;
@@ -69,8 +69,8 @@ ALTER FUNCTION public.create_user_metrics_on_profile() SET search_path = public;
 ALTER FUNCTION public.update_notification_rule_timestamp() SET search_path = public;
 
 -- Challenge bank functions
-ALTER FUNCTION public.get_challenge_bank_stats() SET search_path = public;
-ALTER FUNCTION public.get_challenge_bank_questions(INTEGER, INTEGER) SET search_path = public;
+ALTER FUNCTION public.get_challenge_bank_stats(UUID) SET search_path = public;
+ALTER FUNCTION public.get_challenge_bank_questions(UUID, INTEGER, BOOLEAN) SET search_path = public;
 
 -- Generic update functions
 ALTER FUNCTION public.update_updated_at_column() SET search_path = public;
