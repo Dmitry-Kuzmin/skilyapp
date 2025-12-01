@@ -6,7 +6,23 @@
 import { supabase } from '@/integrations/supabase/client';
 import { openDB, IDBPDatabase, IDBPTransaction } from 'idb';
 
-interface AnalyticsEvent {
+// Приоритеты событий (важные события защищены от удаления)
+export type EventPriority = 'high' | 'medium' | 'low';
+
+// Важные типы событий, которые нельзя удалять
+const IMPORTANT_EVENT_TYPES = new Set([
+  'test_completed',
+  'test_passed',
+  'test_failed',
+  'purchase_completed',
+  'payment_success',
+  'payment_failed',
+  'achievement_unlocked',
+  'level_up',
+  'exam_completed',
+]);
+
+export interface AnalyticsEvent {
   id: string;
   user_id: string;
   event_type: string;
@@ -14,11 +30,12 @@ interface AnalyticsEvent {
   override_template_type?: string;
   timestamp: number;
   retryCount: number;
+  priority: EventPriority; // Приоритет события
 }
 
 const DB_NAME = 'SkilyAppAnalytics';
 const STORE_NAME = 'analytics_events';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Обновлено: добавлен индекс priority
 
 // Лимиты
 const MAX_EVENTS_IN_QUEUE = 1000; // Максимум событий в очереди
@@ -33,11 +50,40 @@ let sendTimer: number | null = null;
 async function getDb(): Promise<IDBPDatabase> {
   if (!db) {
     db = await openDB(DB_NAME, DB_VERSION, {
-      upgrade(db) {
+      upgrade(db, oldVersion) {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
+          // Создание новой таблицы
           const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
           store.createIndex('timestamp', 'timestamp');
           store.createIndex('user_id', 'user_id');
+          store.createIndex('priority', 'priority');
+        } else if (oldVersion < 2) {
+          // Миграция с версии 1 на 2: добавляем индекс priority
+          const transaction = db.transaction([STORE_NAME], 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
+          if (!store.indexNames.contains('priority')) {
+            store.createIndex('priority', 'priority');
+          }
+          // Добавляем priority к существующим событиям (будет выполнено асинхронно)
+          store.openCursor().onsuccess = (event: any) => {
+            const cursor = event.target.result;
+            if (cursor) {
+              const eventData = cursor.value;
+              if (!eventData.priority) {
+                // Определяем приоритет на основе типа события
+                const eventType = eventData.event_type || '';
+                let priority: EventPriority = 'low';
+                if (IMPORTANT_EVENT_TYPES.has(eventType)) {
+                  priority = 'high';
+                } else if (eventType.includes('progress') || eventType.includes('duel')) {
+                  priority = 'medium';
+                }
+                eventData.priority = priority;
+                cursor.update(eventData);
+              }
+              cursor.continue();
+            }
+          };
         }
       },
     });
@@ -50,6 +96,19 @@ async function getDb(): Promise<IDBPDatabase> {
  */
 function isOnline(): boolean {
   return navigator.onLine;
+}
+
+/**
+ * Определить приоритет события
+ */
+function getEventPriority(eventType: string): EventPriority {
+  if (IMPORTANT_EVENT_TYPES.has(eventType)) {
+    return 'high';
+  }
+  if (eventType.includes('progress') || eventType.includes('duel')) {
+    return 'medium';
+  }
+  return 'low';
 }
 
 /**
@@ -73,6 +132,7 @@ export async function queueAnalyticsEvent(
       override_template_type: overrideTemplateType,
       timestamp: Date.now(),
       retryCount: 0,
+      priority: getEventPriority(eventType), // Определяем приоритет
     };
 
     await db.add(STORE_NAME, event);
@@ -234,7 +294,7 @@ async function cleanupOldEvents(): Promise<void> {
 }
 
 /**
- * Ограничить размер очереди
+ * Ограничить размер очереди (удаляет сначала низкоприоритетные события)
  */
 async function limitQueueSize(): Promise<void> {
   try {
@@ -246,17 +306,44 @@ async function limitQueueSize(): Promise<void> {
     
     if (count > MAX_EVENTS_IN_QUEUE) {
       const toDelete = count - MAX_EVENTS_IN_QUEUE;
-      const index = store.index('timestamp');
-      const cursor = await index.openCursor(null, 'next');
       
-      let deleted = 0;
-      while (cursor && deleted < toDelete) {
-        await cursor.delete();
-        deleted++;
-        await cursor.continue();
+      // Получаем все события, сортируем по приоритету и времени
+      const allEvents: AnalyticsEvent[] = [];
+      let cursor = await store.openCursor();
+      
+      while (cursor) {
+        allEvents.push(cursor.value);
+        cursor = await cursor.continue();
       }
       
-      console.log(`[AnalyticsQueue] Limited queue size, deleted ${deleted} oldest events`);
+      // Сортируем: сначала низкоприоритетные и старые
+      allEvents.sort((a, b) => {
+        const priorityOrder = { low: 0, medium: 1, high: 2 };
+        const priorityDiff = priorityOrder[a.priority || 'low'] - priorityOrder[b.priority || 'low'];
+        if (priorityDiff !== 0) return priorityDiff;
+        return a.timestamp - b.timestamp; // Старые первыми
+      });
+      
+      // Удаляем самые низкоприоритетные события
+      let deleted = 0;
+      for (const event of allEvents) {
+        if (deleted >= toDelete) break;
+        
+        // НИКОГДА не удаляем high priority события при переполнении
+        if (event.priority === 'high') {
+          console.warn(`[AnalyticsQueue] Queue full, but protecting high priority event: ${event.event_type}`);
+          continue;
+        }
+        
+        await store.delete(event.id);
+        deleted++;
+      }
+      
+      if (deleted > 0) {
+        console.log(`[AnalyticsQueue] Limited queue size, deleted ${deleted} low priority events`);
+      } else {
+        console.warn(`[AnalyticsQueue] Queue full but all events are high priority!`);
+      }
     }
   } catch (error) {
     console.error('[AnalyticsQueue] Limit queue size error:', error);

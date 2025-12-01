@@ -13,7 +13,7 @@ interface CacheEntry {
 }
 
 const CACHE_NAME = 'skilyapp-v7';
-const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_CACHE_SIZE = 200 * 1024 * 1024; // 200 MB (увеличено с 50MB для активных студентов)
 const MAX_CACHE_AGE_IMAGES = 7 * 24 * 60 * 60 * 1000; // 7 дней для изображений тестов
 const MAX_CACHE_AGE_DATA = 30 * 24 * 60 * 60 * 1000; // 30 дней для данных тестов
 const CLEANUP_THRESHOLD = 0.8; // Начинаем очистку при 80% заполнения
