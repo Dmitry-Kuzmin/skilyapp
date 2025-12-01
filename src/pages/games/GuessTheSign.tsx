@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import Confetti from "react-confetti";
 import { BoostButton } from "@/components/duel/BoostButton";
 import { getImageUrl } from "@/utils/imageUtils";
+import { useRoadSigns } from "@/hooks/useRoadSigns";
+import { useBoostInventory } from "@/hooks/useBoostInventory";
 
 interface RoadSign {
   id: string;
@@ -78,61 +80,29 @@ export default function GuessTheSign() {
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / QUESTIONS_COUNT) * 100;
 
-  // Load road signs from database
+  // ОПТИМИЗАЦИЯ: Используем React Query хук для загрузки знаков с кэшированием
+  const { data: roadSignsData, isLoading: signsLoading } = useRoadSigns();
+
   useEffect(() => {
-    const loadSigns = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("road_signs")
-        .select("*")
-        .limit(200);
-
-      if (error) {
-        toast.error("Ошибка загрузки знаков");
-        console.error(error);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        setAllSigns(data);
-      } else {
-        toast.error("Знаки не найдены в базе данных");
-      }
+    if (roadSignsData && roadSignsData.length > 0) {
+      setAllSigns(roadSignsData);
       setLoading(false);
-    };
+    } else if (!signsLoading && roadSignsData && roadSignsData.length === 0) {
+      toast.error("Знаки не найдены в базе данных");
+      setLoading(false);
+    } else if (signsLoading) {
+      setLoading(true);
+    }
+  }, [roadSignsData, signsLoading]);
 
-    loadSigns();
-  }, []);
+  // ОПТИМИЗАЦИЯ: Используем React Query хук для загрузки бустов с кэшированием
+  const { data: boostInventory } = useBoostInventory();
 
-  // Load boosts
   useEffect(() => {
-    if (gameState === "playing" && profileId) {
-      loadBoosts();
+    if (boostInventory) {
+      setBoosts(boostInventory);
     }
-  }, [gameState, profileId]);
-
-  const loadBoosts = async () => {
-    if (!profileId) return;
-    
-    try {
-      const { data } = await supabase
-        .from('boost_inventory')
-        .select('boost_type, quantity')
-        .eq('user_id', profileId);
-
-      if (data) {
-        const boostMap: { [key: string]: number } = { fifty_fifty: 0, time_extend: 0, hint: 0, skip: 0 };
-        data.forEach(item => {
-          if (item.boost_type in boostMap) {
-            boostMap[item.boost_type] = item.quantity;
-          }
-        });
-        setBoosts(boostMap);
-      }
-    } catch (error) {
-      console.error('Error loading boosts:', error);
-    }
-  };
+  }, [boostInventory]);
 
   // Timer for expert mode
   useEffect(() => {

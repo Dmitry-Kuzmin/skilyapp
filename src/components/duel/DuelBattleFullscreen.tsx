@@ -309,12 +309,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     syncBetInfo();
   }, [duelId, profileId, syncBetInfo, syncBoostInventory, syncPlayers, syncQuestions]);
 
-  // ОПТИМИЗАЦИЯ: Heartbeat увеличен до 15 секунд (было 5) для экономии Edge Function вызовов
-  // Realtime подписка уже отслеживает активность, heartbeat нужен только как fallback
+  // ОПТИМИЗАЦИЯ: Heartbeat используется только как fallback при отсутствии Realtime
+  // Realtime подписка отслеживает активность в реальном времени через useDuelRealtime
+  // Heartbeat вызывается только если Realtime не работает (каждые 60 секунд)
   useEffect(() => {
     if (!duelId || !profileId || !state.duelStarted) return;
 
-    const heartbeatInterval = setInterval(async () => {
+    let heartbeatInterval: NodeJS.Timeout | null = null;
+    let lastRealtimeEvent = state.lastEventAt || Date.now();
+    const REALTIME_TIMEOUT = 30000; // 30 секунд без событий = Realtime не работает
+
+    // Проверяем, работает ли Realtime (есть ли события)
+    const checkRealtimeHealth = () => {
+      const timeSinceLastEvent = Date.now() - lastRealtimeEvent;
+      return timeSinceLastEvent < REALTIME_TIMEOUT && state.connectionStatus === 'connected';
+    };
+
+    // Heartbeat только как fallback
+    heartbeatInterval = setInterval(async () => {
+      // Если Realtime работает, heartbeat не нужен
+      if (checkRealtimeHealth()) {
+        log('[DuelBattleFullscreen] Realtime active, skipping heartbeat');
+        return;
+      }
+
+      // Realtime не работает - используем heartbeat как fallback
+      log('[DuelBattleFullscreen] Realtime inactive, using heartbeat fallback');
       try {
         const { data, error } = await supabase.functions.invoke('duel-manager', {
           body: {
@@ -327,16 +347,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         if (error) {
           logError('[DuelBattleFullscreen] Heartbeat error:', error);
         } else if (data?.opponent_status) {
-          // Обновляем статус соперника из ответа heartbeat
           setOpponentActivityStatus(data.opponent_status);
         }
       } catch (error) {
         logError('[DuelBattleFullscreen] Heartbeat exception:', error);
       }
-    }, 15000); // Увеличено с 5 до 15 секунд для экономии запросов
+    }, 60000); // Увеличено до 60 секунд - только fallback
 
-    return () => clearInterval(heartbeatInterval);
-  }, [duelId, profileId, state.duelStarted]);
+    // Обновляем lastRealtimeEvent при событиях Realtime
+    // (useDuelRealtime уже отслеживает изменения через lastEventAt)
+
+    return () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+      }
+    };
+  }, [duelId, profileId, state.duelStarted, state.lastEventAt, state.connectionStatus]);
 
   // Синхронизация статуса активности из Realtime
   useEffect(() => {
