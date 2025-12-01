@@ -1,7 +1,8 @@
 import { AnimatePresence } from 'framer-motion';
-import { useModalStore, type ModalType } from '@/store/modalStore';
+import { useModalStore, type ModalType, getModalUrlKey } from '@/store/modalStore';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useSearchParams } from 'react-router-dom';
 import React from 'react';
 
 // Импорты всех модалок
@@ -60,25 +61,51 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
  * - Плавные анимации через AnimatePresence
  */
 export const GlobalModalManager = () => {
-  const { stack, closeModal } = useModalStore();
+  const { stack, closeModal, openModal } = useModalStore();
+  const [searchParams] = useSearchParams();
+
+  // Синхронизация URL -> модалки при монтировании и изменении URL
+  useEffect(() => {
+    const modalParam = searchParams.get('modal');
+    if (!modalParam) {
+      // Если в URL нет модалки, но в стеке есть - закрываем все (URL имеет приоритет)
+      if (stack.length > 0) {
+        // Но не закрываем автоматически, чтобы не ломать работу
+        // URL может быть очищен пользователем, но модалки должны остаться открытыми
+      }
+      return;
+    }
+
+    // Находим тип модалки по URL-ключу (обратный поиск)
+    const modalType = (Object.keys(MODAL_COMPONENTS) as ModalType[]).find(
+      (type) => {
+        const urlKey = getModalUrlKey(type);
+        return urlKey === modalParam;
+      }
+    );
+
+    if (modalType && !stack.some(m => m.type === modalType)) {
+      // Извлекаем параметры из URL
+      const props: Record<string, any> = {};
+      searchParams.forEach((value, key) => {
+        if (key !== 'modal') {
+          props[key] = value;
+        }
+      });
+
+      // Открываем модалку без синхронизации URL (чтобы не дублировать)
+      openModal(modalType, props, false);
+    }
+  }, [searchParams, stack, openModal]);
 
   // Обработка кнопки "Назад" на Android/PWA
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       if (stack.length > 0) {
-        // Предотвращаем навигацию назад
-        event.preventDefault();
-        // Закрываем верхнюю модалку
-        closeModal();
-        // Возвращаем запись в историю для следующего нажатия
-        window.history.pushState(null, '', window.location.href);
+        // Закрываем верхнюю модалку (URL уже обновлен браузером)
+        closeModal(undefined, false); // Не синхронизируем URL, т.к. браузер уже обновил его
       }
     };
-
-    // Добавляем запись в историю при открытии первой модалки
-    if (stack.length === 1) {
-      window.history.pushState({ modal: true }, '', window.location.href);
-    }
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -135,16 +162,16 @@ export const GlobalModalManager = () => {
 
         // Поддержка разных интерфейсов модалок
         if (modal.type === 'AUTH') {
-          modalProps.onClose = () => closeModal(modal.id);
+          modalProps.onClose = () => closeModal(modal.id, true); // Синхронизируем URL
         } else if (modal.type === 'CELEBRATION') {
           // CelebrationModal использует show и onClose
           modalProps.show = isTop;
-          modalProps.onClose = () => closeModal(modal.id);
+          modalProps.onClose = () => closeModal(modal.id, true); // Синхронизируем URL
         } else {
           // Остальные модалки используют open и onOpenChange
           modalProps.onOpenChange = (open: boolean) => {
             if (!open) {
-              closeModal(modal.id);
+              closeModal(modal.id, true); // Синхронизируем URL
             }
           };
         }
