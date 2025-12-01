@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTopics } from "@/hooks/useTopics";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import { useChallengeBankCount } from "@/hooks/useChallengeBankCount";
 
 // Views
 import { BentoTestsView } from "@/components/tests/views/BentoTestsView";
