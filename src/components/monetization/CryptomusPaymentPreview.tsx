@@ -138,7 +138,7 @@ export function CryptomusPaymentPreview({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2"
+        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !max-h-none !overflow-visible"
       >
         <DialogHeader>
           <DialogTitle>Подтверждение оплаты</DialogTitle>
@@ -148,10 +148,10 @@ export function CryptomusPaymentPreview({
         </DialogHeader>
 
         <Card className="mt-4">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">Детали платежа</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Товар:</span>
               <span className="font-medium">{itemName}</span>
@@ -192,7 +192,7 @@ export function CryptomusPaymentPreview({
             {/* Информация о безопасности */}
             <div className="flex items-start gap-2 text-xs text-muted-foreground pt-2 border-t">
               <Shield className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              <span>
+              <span className="leading-relaxed">
                 Оплата обрабатывается через защищенный сервис Cryptomus. 
                 Ваши данные защищены.
               </span>
@@ -200,7 +200,7 @@ export function CryptomusPaymentPreview({
           </CardContent>
         </Card>
 
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4 pt-2">
           <Button
             variant="outline"
             onClick={handleCancel}
