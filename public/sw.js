@@ -132,30 +132,52 @@ self.addEventListener('fetch', (event) => {
        url.pathname.includes('answer_options') ||
        url.pathname.includes('tests') ||
        url.pathname.includes('topics'))) {
-    // Используем Network First стратегию для данных тестов
+    // КРИТИЧНО: Network First стратегия с таймаутом 3 секунды
+    // Если сервер не отвечает за 3 секунды - переключаемся на кэш мгновенно
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Клонируем ответ для кэширования
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch(() => {
-          // Если сеть недоступна, пытаемся получить из кэша
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            // Если нет в кэше, возвращаем ошибку
-            return new Response('Offline: данные не доступны', {
-              status: 503,
-              statusText: 'Service Unavailable',
+      Promise.race([
+        // Пытаемся загрузить из сети
+        fetch(request)
+          .then((response) => {
+            // Клонируем ответ для кэширования
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
             });
+            return response;
+          })
+          .catch(() => {
+            // Если сеть недоступна, возвращаем null для переключения на кэш
+            return null;
+          }),
+        // Таймаут: если сеть не отвечает за 3 секунды - переключаемся на кэш
+        new Promise((resolve) => {
+          setTimeout(() => resolve(null), 3000); // 3 секунды таймаут
+        }),
+      ]).then((networkResponse) => {
+        // Если сеть ответила быстро - используем ответ из сети
+        if (networkResponse) {
+          return networkResponse;
+        }
+        
+        // Если сеть не ответила или таймаут - используем кэш
+        return caches.match(request).then((cachedResponse) => {
+          if (cachedResponse) {
+            console.log('[SW] Using cached response (network timeout or offline)');
+            return cachedResponse;
+          }
+          
+          // Если нет в кэше, возвращаем ошибку
+          return new Response(JSON.stringify({ 
+            error: 'Offline: данные не доступны',
+            message: 'Нет подключения к интернету и данные не найдены в кэше'
+          }), {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'application/json' },
           });
-        })
+        });
+      })
     );
     return;
   }
@@ -223,12 +245,18 @@ self.addEventListener('fetch', (event) => {
           }
         }
         
-        // Для HTML используем Network First с fallback на кэш
+        // Для HTML используем Network First с таймаутом 3 секунды и fallback на кэш
         if (isHTML) {
         try {
-          const response = await fetch(request, {
+          // КРИТИЧНО: Таймаут 3 секунды для HTML запросов
+          const response = await Promise.race([
+            fetch(request, {
               cache: 'no-cache',
-          });
+            }),
+            new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Network timeout')), 3000);
+            }),
+          ]);
 
             // Кэшируем только успешные ответы
             if (response && response.ok && response.status === 200) {
