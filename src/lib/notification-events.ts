@@ -1,9 +1,14 @@
 import { supabase } from '@/integrations/supabase/client';
+import { queueAnalyticsEvent } from '@/utils/analyticsQueue';
 
 interface DispatchOptions {
   overrideTemplateType?: string;
 }
 
+/**
+ * Отправить событие пользователя (с кэшированием при оффлайн)
+ * События автоматически кэшируются и отправляются пачкой при восстановлении связи
+ */
 export async function dispatchUserEvent(
   userId: string | null | undefined,
   eventType: string,
@@ -12,25 +17,13 @@ export async function dispatchUserEvent(
 ): Promise<void> {
   if (!userId) return;
 
-  try {
-    const { error } = await supabase.functions.invoke('user-event-dispatcher', {
-      body: {
-        user_id: userId,
-        event_type: eventType,
-        payload,
-        override_template_type: options?.overrideTemplateType,
-      },
-    });
+  // Всегда добавляем событие в очередь (она сама решит, отправить сразу или кэшировать)
+  await queueAnalyticsEvent(userId, eventType, payload, options?.overrideTemplateType);
 
-    if (error) {
-      throw error;
-    }
-  } catch (error) {
-    console.error('[notification-events] Failed to dispatch event', {
-      eventType,
-      payload,
-      error,
-    });
+  // Если онлайн, пытаемся отправить сразу (через очередь)
+  if (navigator.onLine) {
+    // Очередь сама отправит события при следующем тике
+    // Это позволяет батчить события для лучшей производительности
   }
 }
 

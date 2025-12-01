@@ -5,7 +5,7 @@
 
 // Обновляем версию кэша при каждом деплое, чтобы очистить старые файлы
 // ОПТИМИЗАЦИЯ: Используем дату деплоя вместо timestamp для стабильности
-const CACHE_VERSION = 'v7'; // Обновлено: JS/CSS больше не обрабатываются через SW
+const CACHE_VERSION = 'v8'; // Обновлено: добавлена ротация кэша и метки времени
 const CACHE_NAME = `skilyapp-${CACHE_VERSION}`;
 const STATIC_CACHE_NAME = `skilyapp-static-${CACHE_VERSION}`;
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50 MB лимит кэша
@@ -141,8 +141,16 @@ self.addEventListener('fetch', (event) => {
           .then((response) => {
             // Клонируем ответ для кэширования
             const responseClone = response.clone();
+            // Добавляем метку времени для ротации кэша
+            const headers = new Headers(responseClone.headers);
+            headers.set('sw-cache-date', Date.now().toString());
+            const cachedResponse = new Response(responseClone.body, {
+              status: responseClone.status,
+              statusText: responseClone.statusText,
+              headers: headers,
+            });
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
+              cache.put(request, cachedResponse);
             });
             return response;
           })
@@ -233,7 +241,15 @@ self.addEventListener('fetch', (event) => {
             const response = await fetch(request);
             if (response && response.ok && response.status === 200) {
               const cache = await caches.open(CACHE_NAME);
-              cache.put(request, response.clone()).catch(() => {
+              // Добавляем метку времени для ротации кэша
+              const headers = new Headers(response.headers);
+              headers.set('sw-cache-date', Date.now().toString());
+              const cachedResponse = new Response(response.body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: headers,
+              });
+              cache.put(request, cachedResponse).catch(() => {
                 // Игнорируем ошибки кэширования
               });
             }
@@ -261,7 +277,15 @@ self.addEventListener('fetch', (event) => {
             // Кэшируем только успешные ответы
             if (response && response.ok && response.status === 200) {
             const cache = await caches.open(CACHE_NAME);
-              cache.put(request, response.clone()).catch(() => {
+              // Добавляем метку времени для ротации кэша
+              const headers = new Headers(response.headers);
+              headers.set('sw-cache-date', Date.now().toString());
+              const cachedResponse = new Response(response.body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: headers,
+              });
+              cache.put(request, cachedResponse).catch(() => {
                 // Игнорируем ошибки кэширования
               });
           }
@@ -316,6 +340,64 @@ self.addEventListener('message', (event) => {
     caches.delete(CACHE_NAME).then(() => {
       event.ports[0].postMessage({ success: true });
     });
+  }
+});
+
+// КРИТИЧНО: Background Sync API для отправки аналитики при восстановлении связи
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'analytics-sync') {
+    event.waitUntil(
+      // Отправляем сообщение клиенту для отправки аналитики
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SYNC_ANALYTICS' });
+        });
+      })
+    );
+  }
+  
+  if (event.tag === 'cache-rotation') {
+    event.waitUntil(
+      // Периодическая ротация кэша
+      (async () => {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          const requests = await cache.keys();
+          const now = Date.now();
+          const MAX_AGE_IMAGES = 7 * 24 * 60 * 60 * 1000; // 7 дней
+          const MAX_AGE_DATA = 30 * 24 * 60 * 60 * 1000; // 30 дней
+          
+          let deletedCount = 0;
+          for (const request of requests) {
+            const response = await cache.match(request);
+            if (!response) continue;
+            
+            const cacheDateHeader = response.headers.get('sw-cache-date');
+            if (cacheDateHeader) {
+              const cacheDate = parseInt(cacheDateHeader, 10);
+              const age = now - cacheDate;
+              
+              const url = request.url;
+              const isImage = url.includes('/storage/v1/object/public/');
+              const isData = url.includes('/rest/v1/');
+              
+              const maxAge = isImage ? MAX_AGE_IMAGES : isData ? MAX_AGE_DATA : Infinity;
+              
+              if (age > maxAge) {
+                await cache.delete(request);
+                deletedCount++;
+              }
+            }
+          }
+          
+          if (deletedCount > 0) {
+            console.log(`[SW] Cache rotation: deleted ${deletedCount} old entries`);
+          }
+        } catch (error) {
+          console.error('[SW] Cache rotation error:', error);
+        }
+      })()
+    );
   }
 });
 
