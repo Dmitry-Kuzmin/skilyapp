@@ -21,6 +21,19 @@ initServerTime().catch((error) => {
   console.error('[Main] Failed to init server time:', error);
 });
 
+// КРИТИЧНО: Синхронизация времени при возврате в приложение (защита от смены часового пояса/времени)
+if (typeof window !== 'undefined') {
+  document.addEventListener('visibilitychange', async () => {
+    // Когда пользователь возвращается в приложение - синхронизируем время
+    if (!document.hidden) {
+      const { forceSyncServerTime } = await import('@/utils/serverTime');
+      forceSyncServerTime().catch((error) => {
+        console.warn('[Main] Failed to sync server time on visibility change:', error);
+      });
+    }
+  });
+}
+
 // КРИТИЧНО: Логирование сразу после импортов для диагностики
 console.log('[Main] ✅ Script loaded and imports completed', {
   timestamp: new Date().toISOString(),

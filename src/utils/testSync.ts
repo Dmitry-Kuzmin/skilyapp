@@ -255,6 +255,72 @@ export async function syncTestProgress(
 }
 
 /**
+ * Проверить наличие конфликтов без синхронизации (для периодической проверки во время активной сессии)
+ * Возвращает информацию о конфликтах для отображения пользователю
+ */
+export async function checkForConflicts(
+  userId: string,
+  localProgress: TestProgress
+): Promise<{
+  hasConflicts: boolean;
+  conflicts: Array<{
+    questionId: string;
+    localAnswer: boolean; // isCorrect
+    serverAnswer: boolean;
+    serverTimestamp: number;
+    localTimestamp: number;
+  }>;
+}> {
+  try {
+    const questionIds = localProgress.answers.map((a) => a.questionId);
+    
+    if (questionIds.length === 0) {
+      return { hasConflicts: false, conflicts: [] };
+    }
+
+    // Получаем серверный прогресс
+    const serverProgress = await getServerProgress(userId, localProgress.testId, questionIds);
+    
+    const conflicts: Array<{
+      questionId: string;
+      localAnswer: boolean;
+      serverAnswer: boolean;
+      serverTimestamp: number;
+      localTimestamp: number;
+    }> = [];
+
+    // Проверяем каждый локальный ответ на конфликты
+    localProgress.answers.forEach((localAnswer) => {
+      const serverItem = serverProgress.get(localAnswer.questionId);
+      
+      if (serverItem && serverItem.is_answered) {
+        const serverTimestamp = new Date(serverItem.last_attempt_at).getTime();
+        const localTimestampServer = toServerTime(localAnswer.timestamp);
+        
+        // Если серверный ответ новее И отличается от локального - конфликт
+        if (serverTimestamp > localTimestampServer && serverItem.is_correct !== localAnswer.isCorrect) {
+          conflicts.push({
+            questionId: localAnswer.questionId,
+            localAnswer: localAnswer.isCorrect,
+            serverAnswer: serverItem.is_correct,
+            serverTimestamp,
+            localTimestamp: localAnswer.timestamp,
+          });
+        }
+      }
+    });
+
+    return {
+      hasConflicts: conflicts.length > 0,
+      conflicts,
+    };
+  } catch (error) {
+    console.error('[testSync] Error checking for conflicts:', error);
+    return { hasConflicts: false, conflicts: [] };
+  }
+}
+
+/**
  * Загрузить и объединить прогресс теста с сервера
  * Используется при загрузке теста для получения актуального состояния
  */
