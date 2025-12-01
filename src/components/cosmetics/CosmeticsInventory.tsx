@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useMemo } from "react";
 import { useUserContext } from "@/contexts/UserContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -25,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useCosmeticsPreview, type PreviewSkin, type PreviewBadge, type PreviewSticker } from "@/contexts/CosmeticsPreviewContext";
+import { useCosmeticsDefinitions, useCosmeticsInventory, useActivateSkin, useToggleBadgeDisplay } from "@/hooks/useCosmetics";
 
 interface SkinDefinition {
   id: string;
@@ -117,92 +117,49 @@ const getPatternStyle = (index: number) => {
 export function CosmeticsInventory() {
   const { profileId } = useUserContext();
   const { previewSkin, previewBadges, previewSticker, setPreviewSkin, setPreviewBadges, setPreviewSticker } = useCosmeticsPreview();
-  const [loading, setLoading] = useState(true);
+  
+  // ОПТИМИЗАЦИЯ: Используем React Query хуки вместо прямых запросов
+  const { data: definitions, isLoading: definitionsLoading } = useCosmeticsDefinitions();
+  const { data: inventory, isLoading: inventoryLoading } = useCosmeticsInventory(profileId);
+  const activateSkinMutation = useActivateSkin();
+  const toggleBadgeMutation = useToggleBadgeDisplay();
 
-  // All definitions
-  const [allSkins, setAllSkins] = useState<SkinDefinition[]>([]);
-  const [allBadges, setAllBadges] = useState<BadgeDefinition[]>([]);
-  const [allStickers, setAllStickers] = useState<StickerDefinition[]>([]);
+  const loading = definitionsLoading || inventoryLoading;
 
-  // User ownership
-  const [ownedSkins, setOwnedSkins] = useState<Set<string>>(new Set());
-  const [activeSkinId, setActiveSkinId] = useState<string | null>(null);
+  // ОПТИМИЗАЦИЯ: Вычисляем производные данные через useMemo
+  const allSkins = useMemo(() => definitions?.skins || [], [definitions]);
+  const allBadges = useMemo(() => definitions?.badges || [], [definitions]);
+  const allStickers = useMemo(() => definitions?.stickers || [], [definitions]);
 
-  const [ownedBadges, setOwnedBadges] = useState<Set<string>>(new Set());
-  const [displayedBadgeIds, setDisplayedBadgeIds] = useState<Set<string>>(new Set());
+  const ownedSkins = useMemo(() => {
+    return new Set(inventory?.skins.map(s => s.skin_id) || []);
+  }, [inventory]);
 
-  const [ownedStickers, setOwnedStickers] = useState<Map<string, number>>(new Map()); // ID -> Quantity
+  const activeSkinId = useMemo(() => {
+    return inventory?.skins.find(s => s.is_active)?.skin_id || null;
+  }, [inventory]);
 
-  useEffect(() => {
-    loadData();
-  }, [profileId]);
+  const ownedBadges = useMemo(() => {
+    return new Set(inventory?.badges.map(b => b.badge_id) || []);
+  }, [inventory]);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
+  const displayedBadgeIds = useMemo(() => {
+    return new Set(inventory?.badges.filter(b => b.is_displayed).map(b => b.badge_id) || []);
+  }, [inventory]);
 
-      // 1. Load Definitions
-      const [skinsDef, badgesDef, stickersDef] = await Promise.all([
-        supabase.from("skin_definitions").select("*").order("rarity", { ascending: false }),
-        supabase.from("badge_definitions").select("*").order("rarity", { ascending: false }),
-        supabase.from("sticker_definitions").select("*").order("rarity", { ascending: false })
-      ]);
-
-      setAllSkins(skinsDef.data || []);
-      setAllBadges(badgesDef.data || []);
-      setAllStickers(stickersDef.data || []);
-
-      // 2. Load User Inventory if logged in
-      if (profileId) {
-        const [userSkins, userBadges, userStickers] = await Promise.all([
-          supabase.from("user_skins").select("skin_id, is_active").eq("user_id", profileId),
-          supabase.from("user_badges").select("badge_id, is_displayed").eq("user_id", profileId),
-          supabase.from("user_stickers").select("sticker_id, quantity").eq("user_id", profileId)
-        ]);
-
-        // Process Skins
-        if (userSkins.data) {
-          const owned = new Set(userSkins.data.map(s => s.skin_id));
-          setOwnedSkins(owned);
-          const active = userSkins.data.find(s => s.is_active);
-          setActiveSkinId(active?.skin_id || null);
-        }
-
-        // Process Badges
-        if (userBadges.data) {
-          const owned = new Set(userBadges.data.map(b => b.badge_id));
-          setOwnedBadges(owned);
-          const displayed = new Set(userBadges.data.filter(b => b.is_displayed).map(b => b.badge_id));
-          setDisplayedBadgeIds(displayed);
-        }
-
-        // Process Stickers
-        if (userStickers.data) {
-          const owned = new Map(userStickers.data.map(s => [s.sticker_id, s.quantity]));
-          setOwnedStickers(owned);
-        }
-      }
-
-    } catch (error: any) {
-      console.error("[CosmeticsInventory] Error loading data:", error);
-      toast.error("Ошибка загрузки данных");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const ownedStickers = useMemo(() => {
+    return new Map(inventory?.stickers.map(s => [s.sticker_id, s.quantity]) || []);
+  }, [inventory]);
 
   const activateSkin = async (skinId: string) => {
     if (!profileId) return;
 
     try {
-      const { error } = await supabase.rpc("activate_skin", {
-        p_user_id: profileId,
-        p_skin_id: skinId,
+      await activateSkinMutation.mutateAsync({
+        profileId,
+        skinId,
       });
 
-      if (error) throw error;
-
-      setActiveSkinId(skinId);
       toast.success("Скин активирован!");
     } catch (error: any) {
       console.error("Error activating skin:", error);
@@ -214,26 +171,10 @@ export function CosmeticsInventory() {
     if (!profileId) return;
 
     try {
-      const { data, error } = await supabase.rpc("toggle_badge_display", {
-        p_user_id: profileId,
-        p_badge_id: badgeId,
-        p_display: !currentDisplay,
-      });
-
-      if (error) throw error;
-
-      const result = data as { success: boolean; error?: string; message?: string };
-
-      if (!result.success) {
-        toast.error(result.message || "Ошибка");
-        return;
-      }
-
-      setDisplayedBadgeIds(prev => {
-        const next = new Set(prev);
-        if (currentDisplay) next.delete(badgeId);
-        else next.add(badgeId);
-        return next;
+      await toggleBadgeMutation.mutateAsync({
+        profileId,
+        badgeId,
+        display: !currentDisplay,
       });
 
       toast.success(currentDisplay ? "Бейдж скрыт" : "Бейдж отображается в профиле");
