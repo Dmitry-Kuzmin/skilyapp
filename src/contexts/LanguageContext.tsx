@@ -478,7 +478,7 @@ const translations: Record<Language, Record<string, any>> = {
         googleLinkError: "No se pudo vincular la cuenta de Google",
       },
     },
-    achievements: {
+    achievementsModal: {
       title: "Logros",
       description: "Rastrea tu progreso y desbloquea recompensas — todo en una ventana",
       totalXP: "Experiencia total",
@@ -1305,7 +1305,7 @@ const translations: Record<Language, Record<string, any>> = {
         googleLinkError: "Couldn't link Google account",
       },
     },
-    achievements: {
+    achievementsModal: {
       title: "Achievements",
       description: "Track your progress and unlock rewards — all in one window",
       totalXP: "Total XP",
@@ -2114,7 +2114,7 @@ const translations: Record<Language, Record<string, any>> = {
         googleLinkError: "Не удалось связать Google-аккаунт",
       },
     },
-    achievements: {
+    achievementsModal: {
       title: "Достижения",
       description: "Отслеживайте прогресс и открывайте награды — всё в одном окне",
       totalXP: "Всего опыта",

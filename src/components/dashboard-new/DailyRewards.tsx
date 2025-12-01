@@ -896,9 +896,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           handleClaim(e as any);
         }}
         disabled={isClaiming || showRewardsInfo}
-        className={`transition-all duration-500 ${
-          showRewardsInfo ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto'
-        }`}
         animate={isDay7 && !isClaiming ? {
           boxShadow: [
             '0 0 20px rgba(255,255,255,0.1)',
@@ -912,6 +909,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         transition={{ duration: 2, repeat: !isClaiming ? Infinity : 0 }}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         className={`relative z-50 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${
+          showRewardsInfo ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto'
+        } ${
           isClaiming
             ? isDarkTheme
               ? 'bg-slate-800/50 text-slate-400 cursor-wait border border-slate-700/20 shadow-[0_0_15px_rgba(148,163,184,0.1)]'
