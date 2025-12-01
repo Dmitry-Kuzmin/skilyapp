@@ -138,13 +138,7 @@ export function CryptomusPaymentPreview({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md mx-auto"
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
+        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2"
       >
         <DialogHeader>
           <DialogTitle>Подтверждение оплаты</DialogTitle>
