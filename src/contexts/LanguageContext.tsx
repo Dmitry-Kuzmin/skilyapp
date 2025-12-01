@@ -1701,6 +1701,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       premium: {
         title: "Premium подписка",
+        subtitle: "Получите максимум от обучения",
         activeBadge: "Активна",
         benefits: {
           unlimitedTests: "Безлимитный доступ ко всем тестам",
