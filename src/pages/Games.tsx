@@ -10,7 +10,7 @@ import { getStudiedTermsCount } from "@/lib/termProgress";
 import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TermProgressModal } from "@/components/TermProgressModal";
-import { BoostShopModal } from "@/components/shop/BoostShopModal";
+import { useModal } from "@/hooks/useModal";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,7 +44,7 @@ const Games = () => {
     averageResult: 0,
   });
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
-  const [isBoostShopOpen, setIsBoostShopOpen] = useState(false);
+  const { openModal: openBoostShop } = useModal('BOOST_SHOP');
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
   const [onlineCount, setOnlineCount] = useState<number>(0);
@@ -674,11 +674,6 @@ const Games = () => {
       <TermProgressModal
         isOpen={isProgressModalOpen}
         onClose={() => setIsProgressModalOpen(false)}
-      />
-
-      <BoostShopModal
-        open={isBoostShopOpen}
-        onOpenChange={setIsBoostShopOpen}
       />
     </>
   );

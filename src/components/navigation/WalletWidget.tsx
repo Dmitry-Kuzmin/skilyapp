@@ -5,7 +5,7 @@ import { Coins, Trophy, Sparkles } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCoins } from '@/hooks/useCoins';
-import { BoostShopModal } from '@/components/shop/BoostShopModal';
+import { useModal } from '@/hooks/useModal';
 import { DuelPassSeasonModal } from '@/components/monetization/DuelPassSeasonModal';
 import { cn } from '@/lib/utils';
 import { useDuelPassData } from '@/hooks/useDuelPassData';
@@ -20,7 +20,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
   const { balance, loading: coinsLoading } = useCoins();
   const { t } = useLanguage();
   const { isPremium } = usePremium();
-  const [shopOpen, setShopOpen] = useState(false);
+  const { openModal: openBoostShop } = useModal('BOOST_SHOP');
   const [duelPassModalOpen, setDuelPassModalOpen] = useState(false);
   const { duelPassData, isPending: duelPassPending } = useDuelPassData(profileId);
 
@@ -51,12 +51,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
         .join(' · ')
     : undefined;
 
-  // КРИТИЧНО: Логирование для диагностики открытия модального окна
-  useEffect(() => {
-    if (shopOpen) {
-      console.log('[WalletWidget] Shop modal opened, shopOpen:', shopOpen);
-    }
-  }, [shopOpen]);
 
   const getDuelPassButtonClasses = (extra: string) =>
     cn(
@@ -100,12 +94,7 @@ export function WalletWidget({ className }: WalletWidgetProps) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log('[WalletWidget] Shop button clicked, opening modal, current shopOpen:', shopOpen);
-              // КРИТИЧНО: Используем функциональное обновление для гарантии
-              setShopOpen((prev) => {
-                console.log('[WalletWidget] Setting shopOpen from', prev, 'to', true);
-                return true;
-              });
+              openBoostShop();
             }}
             onTouchStart={(e) => {
               // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
@@ -204,7 +193,6 @@ export function WalletWidget({ className }: WalletWidgetProps) {
 
       </div>
 
-      <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
       <DuelPassSeasonModal open={duelPassModalOpen} onOpenChange={setDuelPassModalOpen} />
     </>
   );

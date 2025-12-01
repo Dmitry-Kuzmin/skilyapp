@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Zap, Crown, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { BoostShopModal } from '@/components/shop/BoostShopModal';
+import { useModal } from '@/hooks/useModal';
 import { PaywallModal } from './PaywallModal';
 import { useState } from 'react';
 
@@ -13,7 +13,7 @@ interface TestUpsellBannerProps {
 }
 
 export function TestUpsellBanner({ trigger, coins, failedCount }: TestUpsellBannerProps) {
-  const [shopOpen, setShopOpen] = useState(false);
+  const { openModal: openBoostShop } = useModal('BOOST_SHOP');
   const [paywallOpen, setPaywallOpen] = useState(false);
 
   const getContent = () => {
@@ -23,7 +23,7 @@ export function TestUpsellBanner({ trigger, coins, failedCount }: TestUpsellBann
           title: 'Монет не хватает',
           description: `У тебя ${coins || 0} монет. Пополни баланс, чтобы продолжить!`,
           cta: 'Пополнить',
-          action: () => setShopOpen(true),
+          action: () => openBoostShop(),
           icon: Zap,
           color: 'text-yellow-500'
         };
@@ -83,7 +83,6 @@ export function TestUpsellBanner({ trigger, coins, failedCount }: TestUpsellBann
         </div>
       </Card>
 
-      <BoostShopModal open={shopOpen} onOpenChange={setShopOpen} />
       <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
     </>
   );

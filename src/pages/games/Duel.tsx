@@ -22,7 +22,7 @@ import { dispatchUserEvent } from '@/lib/notification-events';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Users, Clock, Share2 } from 'lucide-react';
-import { BoostShopModal } from '@/components/shop/BoostShopModal';
+import { useModal } from '@/hooks/useModal';
 import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
 import { toast } from 'sonner';
@@ -79,7 +79,7 @@ export default function Duel() {
     const [betAmount, setBetAmount] = useState(0);
     const [userCoins, setUserCoins] = useState(0);
     const [duelStats, setDuelStats] = useState({ totalDuels: 0, wins: 0 });
-    const [showShop, setShowShop] = useState(false);
+    const { openModal: openBoostShop } = useModal('BOOST_SHOP');
     const lowCoinsPromptedRef = useRef(false);
     const [hostInsuranceEnabled, setHostInsuranceEnabled] = useState(false);
     const [joinInsuranceEnabled, setJoinInsuranceEnabled] = useState(false);
@@ -311,7 +311,7 @@ export default function Duel() {
                 toast.info(message, {
                     action: {
                         label: 'Купить монеты',
-                        onClick: () => setShowShop(true),
+                        onClick: () => openBoostShop(),
                     },
                 });
             }
@@ -1858,7 +1858,6 @@ export default function Duel() {
                             onClose={() => setShowJoinModal(false)}
                             onDuelJoined={handleDuelJoined}
                         />
-                        <BoostShopModal open={showShop} onOpenChange={setShowShop} />
                     </div>
                 </Layout>
             )}
