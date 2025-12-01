@@ -107,10 +107,10 @@ export default function PaymentSuccess() {
         if (sessionId) {
           // Stripe платеж
           const result = await supabase
-            .from('purchases')
-            .select('*')
-            .eq('stripe_session_id', sessionId)
-            .single();
+          .from('purchases')
+          .select('*')
+          .eq('stripe_session_id', sessionId)
+          .single();
           purchase = result.data;
           purchaseError = result.error;
         } else if (orderId) {

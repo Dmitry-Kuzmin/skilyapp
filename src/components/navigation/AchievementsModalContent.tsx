@@ -207,9 +207,9 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                             ) : (
                               <Lock className="w-4 h-4 text-muted-foreground/80" />
                             )}
-                            <span className="text-sm font-semibold">{achievement.title.ru}</span>
+                            <span className="text-sm font-semibold">{t(`achievements.list.${achievement.id}.title`) || achievement.title.ru}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">{achievement.description.ru}</p>
+                          <p className="text-xs text-muted-foreground mb-2">{t(`achievements.list.${achievement.id}.description`) || achievement.description.ru}</p>
                         </div>
                         <div
                           className={cn(

@@ -129,6 +129,7 @@ const translations: Record<Language, Record<string, any>> = {
         coins: "Monedas",
       },
       startButton: "Comenzar",
+      level: "Nivel",
     },
     online: "En línea",
     xpProgress: "XP hasta siguiente nivel",
@@ -464,6 +465,68 @@ const translations: Record<Language, Record<string, any>> = {
         games: "Juegos",
         learning: "Aprendizaje",
         other: "Otro",
+      },
+      list: {
+        leader_of_roads: {
+          title: "Líder de carreteras",
+          description: "Ocupar el primer lugar en el ranking entre estudiantes",
+        },
+        spanish_driver: {
+          title: "Conductor español",
+          description: "Pasar el test final de normas de tráfico",
+        },
+        photomodel: {
+          title: "Fotomodelo",
+          description: "Añadir foto al perfil",
+        },
+        novice: {
+          title: "Novato",
+          description: "Completar la primera lección de normas de tráfico",
+        },
+        weekend_warrior: {
+          title: "Guerrero de fin de semana",
+          description: "Pasar un test el sábado y domingo",
+        },
+        enthusiast: {
+          title: "Entusiasta",
+          description: "Estudiar 3 días seguidos",
+        },
+        social_butterfly: {
+          title: "Alma de la fiesta",
+          description: "Invitar 3 amigos a la aplicación",
+        },
+        strategist: {
+          title: "Estratega",
+          description: "Completar todos los tests adicionales",
+        },
+        true_student: {
+          title: "Verdadero estudiante",
+          description: "Completar 10 días seguidos sin faltar",
+        },
+        flawless_driver: {
+          title: "Conductor impecable",
+          description: "Pasar 20 lecciones sin errores",
+        },
+        examiner: {
+          title: "Examinador",
+          description: "Pasar 20 tests de examen",
+        },
+        sign_sniper: {
+          title: "Francotirador de señales",
+          description: "Aprender 50 señales sin errores",
+        },
+        pdd_genius: {
+          title: "Genio de normas",
+          description: "Obtener 100% de respuestas correctas en un test de examen",
+        },
+        sign_master: {
+          title: "Maestro de señales",
+          description: "Aprender 100 señales de tráfico",
+        },
+        pdd_master: {
+          title: "Maestro de normas",
+          description: "Obtener 4000 puntos de experiencia",
+        },
       },
     },
     wallet: {
@@ -1198,6 +1261,68 @@ const translations: Record<Language, Record<string, any>> = {
         learning: "Learning",
         other: "Other",
       },
+      list: {
+        leader_of_roads: {
+          title: "Road Leader",
+          description: "Take first place in the ranking among students",
+        },
+        spanish_driver: {
+          title: "Spanish Driver",
+          description: "Pass the final traffic rules test",
+        },
+        photomodel: {
+          title: "Photomodel",
+          description: "Add photo to profile",
+        },
+        novice: {
+          title: "Novice",
+          description: "Complete the first traffic rules lesson",
+        },
+        weekend_warrior: {
+          title: "Weekend Warrior",
+          description: "Take a test on Saturday and Sunday",
+        },
+        enthusiast: {
+          title: "Enthusiast",
+          description: "Study for 3 days in a row",
+        },
+        social_butterfly: {
+          title: "Social Butterfly",
+          description: "Invite 3 friends to the app",
+        },
+        strategist: {
+          title: "Strategist",
+          description: "Complete all additional tests",
+        },
+        true_student: {
+          title: "True Student",
+          description: "Complete 10 days in a row without missing",
+        },
+        flawless_driver: {
+          title: "Flawless Driver",
+          description: "Pass 20 lessons without errors",
+        },
+        examiner: {
+          title: "Examiner",
+          description: "Pass 20 exam tests",
+        },
+        sign_sniper: {
+          title: "Sign Sniper",
+          description: "Learn 50 signs without errors",
+        },
+        pdd_genius: {
+          title: "Traffic Rules Genius",
+          description: "Get 100% correct answers in an exam test",
+        },
+        sign_master: {
+          title: "Sign Master",
+          description: "Learn 100 traffic signs",
+        },
+        pdd_master: {
+          title: "Traffic Rules Master",
+          description: "Earn 4000 experience points",
+        },
+      },
     },
     wallet: {
       duelPassTooltipMobile: "Duel Pass level {{level}} - {{xp}} SP",
@@ -1913,6 +2038,68 @@ const translations: Record<Language, Record<string, any>> = {
         learning: "Обучение",
         other: "Другое",
       },
+      list: {
+        leader_of_roads: {
+          title: "Лидер дорог",
+          description: "Занять первое место в рейтинге среди учеников",
+        },
+        spanish_driver: {
+          title: "Испанский водитель",
+          description: "Пройти финальный тест по ПДД",
+        },
+        photomodel: {
+          title: "Фотомодель",
+          description: "Добавить фото в профиль",
+        },
+        novice: {
+          title: "Новичок",
+          description: "Завершить первый урок по ПДД",
+        },
+        weekend_warrior: {
+          title: "Воин выходного дня",
+          description: "Пройти тест в субботу и воскресенье",
+        },
+        enthusiast: {
+          title: "Энтузиаст",
+          description: "Заниматься 3 дня подряд",
+        },
+        social_butterfly: {
+          title: "Душа компании",
+          description: "Пригласить 3 друзей в приложение",
+        },
+        strategist: {
+          title: "Стратег",
+          description: "Завершить все дополнительные тесты",
+        },
+        true_student: {
+          title: "Настоящий ученик",
+          description: "Завершить 10 дней подряд без пропусков",
+        },
+        flawless_driver: {
+          title: "Безошибочный водитель",
+          description: "Пройти 20 уроков без ошибок",
+        },
+        examiner: {
+          title: "Экзаменатор",
+          description: "Пройти 20 экзаменационных тестов",
+        },
+        sign_sniper: {
+          title: "Снайпер знаков",
+          description: "Узнать 50 знаков без ошибок",
+        },
+        pdd_genius: {
+          title: "Гений ПДД",
+          description: "Набрать 100% правильных ответов в экзаменационном тесте",
+        },
+        sign_master: {
+          title: "Знаток знаков",
+          description: "Выучить 100 дорожных знаков",
+        },
+        pdd_master: {
+          title: "Мастер ПДД",
+          description: "Набрать 4000 очков опыта",
+        },
+      },
     },
     wallet: {
       duelPassTooltipMobile: "Duel Pass уровень {{level}} - {{xp}} SP",
@@ -2254,6 +2441,7 @@ const languageOverrides: Partial<Record<Language, Record<string, any>>> = {
         coins: "Монеты",
       },
       startButton: "Старт",
+      level: "Уровень",
     },
   },
   en: {

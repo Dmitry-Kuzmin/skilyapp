@@ -190,49 +190,49 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-indigo-900/20 pointer-events-none"></div>
             
             <div className="relative z-10 flex flex-col h-full justify-between">
-              {/* Top section: Level badge */}
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
-                  <Star size={16} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
-                  <span className="text-sm font-bold text-white drop-shadow-sm">Уровень {stats.level || 1}</span>
+              {/* Top section: Level badge - улучшенное выравнивание */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-md border border-white/30 shadow-lg shadow-white/10">
+                  <Star size={14} className="text-yellow-300 fill-yellow-300 drop-shadow-sm" />
+                  <span className="text-xs sm:text-sm font-bold text-white drop-shadow-sm">{t('dashboard.level')} {stats.level || 1}</span>
                 </div>
               </div>
 
-              {/* Middle section: Greeting and content */}
-              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-8 mb-6">
-                <div className="flex-1">
-                  <h2 className={`text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-4 ${heroHeadingClass}`}>
+              {/* Middle section: Greeting and content - улучшенное выравнивание */}
+              <div className="flex-1 flex flex-col md:flex-row justify-between items-center gap-6 mb-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-3 ${heroHeadingClass}`}>
                     {t('dashboard.heroGreeting')}
                   </h2>
-                  <p className={`${heroBodyTextClass} font-medium text-base md:text-lg leading-relaxed max-w-md`}>
+                  <p className={`${heroBodyTextClass} font-medium text-sm sm:text-base md:text-lg leading-relaxed`}>
                     {t('dashboard.heroEfficiencyPrefix')} <strong className="text-white">{stats.averageScore}%</strong>.{' '}
                     {t(heroStatusKey)}
                   </p>
                 </div>
 
-                {/* START Button */}
+                {/* START Button - улучшенный размер и выравнивание */}
                 <button 
                   onClick={handleStartQuiz}
-                  className="group relative w-36 h-36 md:w-40 md:h-40 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
+                  className="group relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 flex-shrink-0 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 transform-gpu"
                 >
-                  {/* Glow effect - улучшенный */}
-                  <div className="absolute inset-[-20%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
+                  {/* Glow effect */}
+                  <div className="absolute inset-[-15%] rounded-full opacity-60 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-gradient-to-br from-white/40 via-purple-200/30 to-indigo-200/40 blur-xl"></div>
                   
-                  {/* White circle background - с градиентом */}
+                  {/* White circle background */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white via-purple-50/90 to-indigo-50/90 shadow-[0_20px_50px_rgba(255,255,255,0.4)]"></div>
                   
                   {/* Inner content */}
                   <div className="relative z-10 flex flex-col items-center justify-center">
-                    <Power size={32} className={`${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-2 drop-shadow-lg`} />
-                    <span className={`${statStartButtonText} font-bold text-sm tracking-wider uppercase`}>
+                    <Power size={24} className={`sm:w-7 sm:h-7 md:w-8 md:h-8 ${isDarkTheme ? 'text-indigo-600' : 'text-indigo-600'} mb-1 sm:mb-2 drop-shadow-lg`} />
+                    <span className={`${statStartButtonText} font-bold text-[10px] sm:text-xs md:text-sm tracking-wider uppercase`}>
                       {t('dashboard.startButton')}
                     </span>
                   </div>
                 </button>
               </div>
 
-              {/* Bottom section: Stats blocks - компактный улучшенный дизайн */}
-              <div className="flex items-stretch gap-1.5 xs:gap-2 sm:gap-2.5 md:gap-3">
+              {/* Bottom section: Stats blocks - более компактный дизайн */}
+              <div className="flex items-stretch gap-1.5 xs:gap-2 sm:gap-2.5">
                 {/* XP Card */}
                 <button
                   onClick={() => handleStatClick('xp')}
