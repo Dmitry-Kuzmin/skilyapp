@@ -137,12 +137,18 @@ export default defineConfig(({ mode }) => {
     // ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ: Улучшенная компрессия
     minifySyntax: true, // Минификация синтаксиса
     minifyWhitespace: true, // Удаление пробелов
-    rollupOptions: {
+      rollupOptions: {
       // КРИТИЧНО: Явно указываем entry point
       input: 'index.html',
       // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking (ослаблено для предотвращения удаления кода)
       treeshake: {
-        moduleSideEffects: 'no-external', // Разрешаем side effects для внутренних модулей
+        moduleSideEffects: (id) => {
+          // КРИТИЧНО: framer-motion имеет side effects и должен быть включен полностью
+          if (id.includes('framer-motion')) {
+            return true;
+          }
+          return 'no-external'; // Разрешаем side effects для внутренних модулей
+        },
         propertyReadSideEffects: false,
         tryCatchDeoptimization: false,
       },
@@ -255,7 +261,10 @@ export default defineConfig(({ mode }) => {
       'react-dom',
       'react-router-dom',
       '@tanstack/react-query',
+      'framer-motion',
     ],
+    // КРИТИЧНО: Явно указываем, что framer-motion должен быть предварительно оптимизирован
+    exclude: [],
   },
   };
 });
