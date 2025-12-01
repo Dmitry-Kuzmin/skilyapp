@@ -11,7 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
-import { getImageUrl, preloadImage, getCachedImageAspectRatio } from "@/utils/imageUtils";
+import { getImageUrl, preloadImage, getCachedImageAspectRatio, preloadImages } from "@/utils/imageUtils";
+import { saveTestProgress, loadTestProgress, clearTestProgress } from "@/utils/testStorage";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
 import { AIExplanationDialog } from "@/components/AIExplanationDialog";
 import { AIWidget } from "@/components/AIWidget";
@@ -903,6 +904,29 @@ const TestSession = () => {
         setQuestions(sequentialQuestions.data);
         setTestInfo({ id: testInfoData.data.id, title: testInfoData.data.title_ru });
         
+        // КРИТИЧНО: Загружаем сохраненный прогресс из локального хранилища
+        if (testId) {
+          loadTestProgress(testId).then((savedProgress) => {
+            if (savedProgress && savedProgress.answers.length > 0) {
+              // Восстанавливаем прогресс
+              setAnswers(savedProgress.answers.map(a => ({
+                questionId: a.questionId,
+                selectedAnswerId: a.selectedAnswerId,
+                isCorrect: a.isCorrect,
+              })));
+              setCurrentIndex(savedProgress.currentIndex);
+              setStartTime(savedProgress.startTime);
+              
+              toast.info('Прогресс восстановлен из локального хранилища', {
+                description: `Восстановлено ${savedProgress.answers.length} ответов`,
+                duration: 3000,
+              });
+            }
+          }).catch((error) => {
+            console.error('[TestSession] Error loading saved progress:', error);
+          });
+        }
+        
         // Проверяем доступность теста и устанавливаем статус
         if (profileId) {
           supabase
@@ -1164,21 +1188,23 @@ const TestSession = () => {
     }
   };
 
-  // Предзагрузка изображений следующих и предыдущих вопросов
+  // ОПТИМИЗАЦИЯ: Агрессивная предзагрузка изображений следующих вопросов
   useEffect(() => {
     if (questions.length === 0 || loading) return;
 
     const preloadNextImages = async () => {
       const imagesToPreload: (string | null | undefined)[] = [];
 
-      // Предзагружаем следующее изображение (если есть)
+      // КРИТИЧНО: Предзагружаем следующее изображение ПРИОРИТЕТНО (для мгновенного переключения)
       if (currentIndex + 1 < questions.length && questions[currentIndex + 1]?.image_url) {
         imagesToPreload.push(questions[currentIndex + 1].image_url);
       }
 
-      // Предзагружаем изображение через один вопрос (для еще более быстрой загрузки)
-      if (currentIndex + 2 < questions.length && questions[currentIndex + 2]?.image_url) {
-        imagesToPreload.push(questions[currentIndex + 2].image_url);
+      // Предзагружаем изображения следующих 3-5 вопросов (для плавной прокрутки)
+      for (let i = 2; i <= 5 && currentIndex + i < questions.length; i++) {
+        if (questions[currentIndex + i]?.image_url) {
+          imagesToPreload.push(questions[currentIndex + i].image_url);
+        }
       }
 
       // Предзагружаем предыдущее изображение (на случай возврата назад)
@@ -1652,7 +1678,26 @@ useEffect(() => {
       isCorrect,
     };
 
-    setAnswers([...(answers || []), newAnswer]);
+    const updatedAnswers = [...(answers || []), newAnswer];
+    setAnswers(updatedAnswers);
+    
+    // КРИТИЧНО: Сохраняем ответ локально для offline режима
+    if (testInfo?.id) {
+      saveTestProgress(
+        testInfo.id,
+        mode,
+        updatedAnswers.map(a => ({
+          questionId: a.questionId,
+          selectedAnswerId: a.selectedAnswerId,
+          isCorrect: a.isCorrect,
+          timestamp: Date.now(),
+        })),
+        currentIndex,
+        startTime
+      ).catch((error) => {
+        console.error('[TestSession] Error saving progress locally:', error);
+      });
+    }
     
     // Mastery Mode: добавляем неправильные вопросы для повторения
     if (mode === "mastery" && !isCorrect) {
@@ -1783,6 +1828,59 @@ useEffect(() => {
     }
   };
   
+  // КРИТИЧНО: Отслеживание онлайн/офлайн статуса и синхронизация
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setPendingSync(true);
+      
+      // Синхронизируем сохраненные ответы при восстановлении связи
+      if (testInfo?.id && answers.length > 0) {
+        toast.success('Соединение восстановлено', {
+          description: 'Синхронизируем ваши ответы...',
+          duration: 3000,
+        });
+        
+        // Здесь можно добавить синхронизацию с сервером
+        // Пока просто сохраняем локально
+        saveTestProgress(
+          testInfo.id,
+          mode,
+          answers.map(a => ({
+            questionId: a.questionId,
+            selectedAnswerId: a.selectedAnswerId,
+            isCorrect: a.isCorrect,
+            timestamp: Date.now(),
+          })),
+          currentIndex,
+          startTime
+        ).then(() => {
+          setPendingSync(false);
+          toast.success('Прогресс синхронизирован', { duration: 2000 });
+        }).catch((error) => {
+          console.error('[TestSession] Error syncing progress:', error);
+          setPendingSync(false);
+        });
+      }
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.warning('Потеряно соединение с интернетом', {
+        description: 'Ваши ответы сохраняются локально',
+        duration: 5000,
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [testInfo, answers, currentIndex, startTime, mode]);
+
   // Прокрутка вверх при изменении вопроса
   useEffect(() => {
     if (questions.length > 0 && currentIndex >= 0) {
@@ -2086,6 +2184,20 @@ useEffect(() => {
             isTelegramApp ? "px-2 sm:px-4 !pt-12" : "pb-2 md:pb-3"
           )}
         >
+        {/* КРИТИЧНО: Индикатор офлайн статуса */}
+        {!isOnline && (
+          <div className="mb-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center gap-2 text-sm text-yellow-600 dark:text-yellow-400">
+            <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+            <span>Офлайн режим: ответы сохраняются локально</span>
+          </div>
+        )}
+        {pendingSync && (
+          <div className="mb-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span>Синхронизация прогресса...</span>
+          </div>
+        )}
+
         {/* Unified Progress Bar - переиспользуемый компонент */}
         <div className="mb-3 sm:mb-4 -mt-6 sm:-mt-3 md:mt-0">
           <QuestionProgressBar

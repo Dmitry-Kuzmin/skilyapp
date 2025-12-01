@@ -26,10 +26,9 @@ console.log('[Main] ✅ Script loaded and imports completed', {
 // Инициализация Telegram WebApp теперь происходит в useInitTelegram hook в App.tsx
 // Это гарантирует правильный порядок инициализации
 
-// Регистрация Service Worker для кэширования
-// ВРЕМЕННО ОТКЛЮЧЕНО для диагностики белого экрана
-// Раскомментируйте после исправления проблемы
-if ('serviceWorker' in navigator && import.meta.env.PROD && false) {
+// КРИТИЧНО: Регистрация Service Worker для кэширования и offline режима
+// Включено для поддержки offline режима в тестах
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   // Сначала отключаем все существующие Service Workers
   navigator.serviceWorker.getRegistrations().then((registrations) => {
     for (const registration of registrations) {

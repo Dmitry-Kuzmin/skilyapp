@@ -111,18 +111,57 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Пропускаем запросы к внешним ресурсам, API, data: URLs и blob: URLs
+  // КРИТИЧНО: Кэшируем данные тестов для offline режима
+  // Пропускаем только критичные API запросы, но кэшируем данные тестов
   if (
     url.protocol === 'data:' ||
     url.protocol === 'blob:' ||
     url.protocol === 'chrome-extension:' ||
     url.protocol === 'moz-extension:' ||
-    url.pathname.startsWith('/api/') ||
-    url.pathname.startsWith('/supabase/') ||
     url.pathname.startsWith('/_next/') ||
     url.pathname.startsWith('/__') ||
     url.pathname.includes('vercel')
   ) {
+    return;
+  }
+  
+  // КРИТИЧНО: Кэшируем запросы к Supabase для данных тестов (questions, answer_options)
+  // Это позволяет работать в offline режиме
+  if (url.pathname.includes('/rest/v1/') && 
+      (url.pathname.includes('questions') || 
+       url.pathname.includes('answer_options') ||
+       url.pathname.includes('tests') ||
+       url.pathname.includes('topics'))) {
+    // Используем Network First стратегию для данных тестов
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Клонируем ответ для кэширования
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Если сеть недоступна, пытаемся получить из кэша
+          return caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Если нет в кэше, возвращаем ошибку
+            return new Response('Offline: данные не доступны', {
+              status: 503,
+              statusText: 'Service Unavailable',
+            });
+          });
+        })
+    );
+    return;
+  }
+  
+  // Пропускаем другие API запросы (не кэшируем)
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/supabase/')) {
     return;
   }
 

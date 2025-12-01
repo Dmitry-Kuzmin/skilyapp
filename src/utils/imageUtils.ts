@@ -75,7 +75,41 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
 
   // Если это путь к файлу в Supabase Storage, получаем публичный URL
   try {
-    const { data, error } = supabase.storage.from(bucket).getPublicUrl(normalizedPath);
+    // ОПТИМИЗАЦИЯ: Определяем оптимальный размер изображения для устройства
+    const getOptimalSize = (): { width?: number; height?: number; quality?: number } => {
+      if (typeof window === 'undefined') return {};
+      
+      const width = window.innerWidth;
+      const dpr = window.devicePixelRatio || 1;
+      
+      // Для мобильных устройств используем меньший размер
+      if (width < 768) {
+        // Мобильные: максимум 800px с учетом DPR
+        return { width: Math.min(800, Math.floor(width * dpr)), quality: 80 };
+      } else if (width < 1024) {
+        // Планшеты: максимум 1200px
+        return { width: Math.min(1200, Math.floor(width * dpr)), quality: 85 };
+      } else {
+        // Десктоп: максимум 1600px
+        return { width: Math.min(1600, Math.floor(width * dpr)), quality: 90 };
+      }
+    };
+
+    const transformOptions = getOptimalSize();
+    
+    // Используем Supabase Image Transformations если доступны
+    const { data, error } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(normalizedPath, {
+        transform: transformOptions.width || transformOptions.height 
+          ? {
+              width: transformOptions.width,
+              height: transformOptions.height,
+              quality: transformOptions.quality || 85,
+              format: 'auto', // Автоматически выбирает WebP если поддерживается
+            }
+          : undefined,
+      });
     
     if (error) {
       console.error(`[getImageUrl] Error getting public URL (bucket: ${bucket}, path: ${normalizedPath}):`, error);
