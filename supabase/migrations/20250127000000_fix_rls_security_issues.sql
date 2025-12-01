@@ -72,24 +72,42 @@ END $$;
 -- =====================================================
 ALTER TABLE public.telegram_link_history ENABLE ROW LEVEL SECURITY;
 
--- Пользователи могут видеть только свою историю привязок
-CREATE POLICY IF NOT EXISTS "Users can view their own link history"
-  ON public.telegram_link_history
-  FOR SELECT
-  USING (
-    profile_id IN (
-      SELECT id FROM public.profiles
-      WHERE user_id = auth.uid() 
-         OR telegram_id = ((current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint)
-    )
-  );
+-- Проверяем и создаем политики, если их нет
+DO $$
+BEGIN
+  -- Пользователи могут видеть только свою историю привязок
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'telegram_link_history' 
+    AND policyname = 'Users can view their own link history'
+  ) THEN
+    CREATE POLICY "Users can view their own link history"
+      ON public.telegram_link_history
+      FOR SELECT
+      USING (
+        profile_id IN (
+          SELECT id FROM public.profiles
+          WHERE user_id = auth.uid() 
+             OR telegram_id = ((current_setting('request.jwt.claims', true)::json->>'telegram_id')::bigint)
+        )
+      );
+  END IF;
 
--- Только система может создавать записи (через service_role)
--- Примечание: service_role автоматически обходит RLS, поэтому Edge Functions будут работать
-CREATE POLICY IF NOT EXISTS "System can create link history"
-  ON public.telegram_link_history
-  FOR INSERT
-  WITH CHECK (true);
+  -- Только система может создавать записи (через service_role)
+  -- Примечание: service_role автоматически обходит RLS, поэтому Edge Functions будут работать
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'telegram_link_history' 
+    AND policyname = 'System can create link history'
+  ) THEN
+    CREATE POLICY "System can create link history"
+      ON public.telegram_link_history
+      FOR INSERT
+      WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Пользователи не могут обновлять или удалять историю
 -- (это делает только система через service_role, который обходит RLS)
@@ -99,11 +117,22 @@ CREATE POLICY IF NOT EXISTS "System can create link history"
 -- =====================================================
 ALTER TABLE public.cron_job_logs ENABLE ROW LEVEL SECURITY;
 
--- Только авторизованные пользователи могут читать логи (read-only)
-CREATE POLICY IF NOT EXISTS "Authenticated users can read cron logs"
-  ON public.cron_job_logs
-  FOR SELECT
-  USING (auth.role() = 'authenticated');
+-- Проверяем и создаем политику, если её нет
+DO $$
+BEGIN
+  -- Только авторизованные пользователи могут читать логи (read-only)
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'cron_job_logs' 
+    AND policyname = 'Authenticated users can read cron logs'
+  ) THEN
+    CREATE POLICY "Authenticated users can read cron logs"
+      ON public.cron_job_logs
+      FOR SELECT
+      USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- Только service_role может создавать/обновлять логи
 -- (это делается через Edge Functions или cron jobs)
@@ -114,11 +143,22 @@ CREATE POLICY IF NOT EXISTS "Authenticated users can read cron logs"
 -- =====================================================
 ALTER TABLE public.duel_pass_rewards ENABLE ROW LEVEL SECURITY;
 
--- Все авторизованные пользователи могут читать награды
-CREATE POLICY IF NOT EXISTS "Authenticated users can read rewards"
-  ON public.duel_pass_rewards
-  FOR SELECT
-  USING (auth.role() = 'authenticated');
+-- Проверяем и создаем политику, если её нет
+DO $$
+BEGIN
+  -- Все авторизованные пользователи могут читать награды
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'duel_pass_rewards' 
+    AND policyname = 'Authenticated users can read rewards'
+  ) THEN
+    CREATE POLICY "Authenticated users can read rewards"
+      ON public.duel_pass_rewards
+      FOR SELECT
+      USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- Только service_role может изменять награды
 -- (это делается через миграции)
@@ -129,11 +169,22 @@ CREATE POLICY IF NOT EXISTS "Authenticated users can read rewards"
 -- =====================================================
 ALTER TABLE public.notification_rules ENABLE ROW LEVEL SECURITY;
 
--- Все авторизованные пользователи могут читать правила
-CREATE POLICY IF NOT EXISTS "Authenticated users can read notification rules"
-  ON public.notification_rules
-  FOR SELECT
-  USING (auth.role() = 'authenticated');
+-- Проверяем и создаем политику, если её нет
+DO $$
+BEGIN
+  -- Все авторизованные пользователи могут читать правила
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'notification_rules' 
+    AND policyname = 'Authenticated users can read notification rules'
+  ) THEN
+    CREATE POLICY "Authenticated users can read notification rules"
+      ON public.notification_rules
+      FOR SELECT
+      USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- Только service_role может изменять правила
 -- (это делается через миграции)
@@ -144,11 +195,22 @@ CREATE POLICY IF NOT EXISTS "Authenticated users can read notification rules"
 -- =====================================================
 ALTER TABLE public.bot_tips ENABLE ROW LEVEL SECURITY;
 
--- Все авторизованные пользователи могут читать советы
-CREATE POLICY IF NOT EXISTS "Authenticated users can read bot tips"
-  ON public.bot_tips
-  FOR SELECT
-  USING (auth.role() = 'authenticated');
+-- Проверяем и создаем политику, если её нет
+DO $$
+BEGIN
+  -- Все авторизованные пользователи могут читать советы
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'bot_tips' 
+    AND policyname = 'Authenticated users can read bot tips'
+  ) THEN
+    CREATE POLICY "Authenticated users can read bot tips"
+      ON public.bot_tips
+      FOR SELECT
+      USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- Только service_role может изменять советы
 -- (это делается через миграции)
@@ -159,11 +221,22 @@ CREATE POLICY IF NOT EXISTS "Authenticated users can read bot tips"
 -- =====================================================
 ALTER TABLE public.bot_guide_sections ENABLE ROW LEVEL SECURITY;
 
--- Все авторизованные пользователи могут читать гайды
-CREATE POLICY IF NOT EXISTS "Authenticated users can read bot guides"
-  ON public.bot_guide_sections
-  FOR SELECT
-  USING (auth.role() = 'authenticated');
+-- Проверяем и создаем политику, если её нет
+DO $$
+BEGIN
+  -- Все авторизованные пользователи могут читать гайды
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'bot_guide_sections' 
+    AND policyname = 'Authenticated users can read bot guides'
+  ) THEN
+    CREATE POLICY "Authenticated users can read bot guides"
+      ON public.bot_guide_sections
+      FOR SELECT
+      USING (auth.role() = 'authenticated');
+  END IF;
+END $$;
 
 -- Только service_role может изменять гайды
 -- (это делается через миграции)
