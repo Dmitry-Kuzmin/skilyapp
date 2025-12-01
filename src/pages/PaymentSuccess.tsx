@@ -146,6 +146,28 @@ export default function PaymentSuccess() {
           metadata: purchase.metadata
         });
 
+        // КРИТИЧНО: Проверяем статус покупки
+        // Если покупка в статусе pending - платеж не был завершен, перенаправляем на cancel
+        if (purchase?.status === 'pending') {
+          console.warn('[PaymentSuccess] ⚠️ Purchase is still pending - payment was not completed');
+          toast.warning('Платеж не был завершен', {
+            description: 'Вы вернулись со страницы оплаты, но платеж не был завершен.',
+          });
+          // Перенаправляем на страницу отмены
+          navigate('/cancel');
+          return;
+        }
+
+        // Если покупка отменена или провалилась
+        if (purchase?.status === 'cancelled' || purchase?.status === 'failed') {
+          console.warn('[PaymentSuccess] ⚠️ Purchase was cancelled or failed');
+          toast.warning('Платеж был отменен', {
+            description: 'Платеж не был завершен.',
+          });
+          navigate('/cancel');
+          return;
+        }
+
         // Если покупка уже обработана (completed), проверяем что монеты начислены
         if (purchase?.status === 'completed') {
           console.log('[PaymentSuccess] Purchase already processed');
