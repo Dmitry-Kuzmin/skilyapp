@@ -291,6 +291,7 @@ const App = () => {
                   <HallOfFameModal />
                   <DuelPassLeaderboardModal />
                 </Suspense>
+                <PerformanceMonitor />
               </BrowserRouter>
             </CosmeticsPreviewProvider>
         </Suspense>

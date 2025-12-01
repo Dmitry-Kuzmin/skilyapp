@@ -59,23 +59,41 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
   const isActive = isNavigationItemActive(item, currentPath);
   const Icon = item.icon;
   
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     // КРИТИЧНО: Явная обработка клика для мгновенного перехода без задержек
     e.preventDefault();
     e.stopPropagation();
-    navigate(item.href);
-  };
+    e.nativeEvent.stopImmediatePropagation();
+    
+    // Используем requestAnimationFrame для немедленного перехода без блокировки UI
+    requestAnimationFrame(() => {
+      navigate(item.href);
+    });
+  }, [item.href, navigate]);
   
-  const handleTouchStart = (e: React.TouchEvent<HTMLAnchorElement>) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLAnchorElement>) => {
     // КРИТИЧНО: Обработка touch для мгновенной реакции на мобильных
     e.stopPropagation();
-  };
+    e.nativeEvent.stopImmediatePropagation();
+  }, []);
+  
+  const handleTouchEnd = useCallback((e: React.TouchEvent<HTMLAnchorElement>) => {
+    // КРИТИЧНО: Обработка touchEnd для немедленного перехода
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
+    
+    requestAnimationFrame(() => {
+      navigate(item.href);
+    });
+  }, [item.href, navigate]);
   
   return (
     <NavLink
       to={item.href}
       onClick={handleClick}
       onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       className={cn(
         "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors duration-150 relative",
         // ОПТИМИЗАЦИЯ: Убрано transition-all, оставлен только transition-colors для мгновенной отзывчивости
@@ -90,8 +108,10 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
         pointerEvents: 'auto',
         touchAction: 'manipulation',
         WebkitTapHighlightColor: 'transparent',
+        WebkitTouchCallout: 'none',
+        userSelect: 'none',
         position: 'relative',
-        zIndex: 50 // КРИТИЧНО: Высокий z-index чтобы быть выше EdgeSwipeBack
+        zIndex: 100 // КРИТИЧНО: Увеличен z-index чтобы быть выше EdgeSwipeBack и других элементов
       }}
     >
       <Icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />

@@ -70,10 +70,12 @@ export const EdgeSwipeBack: React.FC = () => {
         left: 0,
         width: EDGE_ZONE_PX,
         height: "calc(100vh - 100px)", // КРИТИЧНО: Исключаем нижние 100px (область навигации)
-        zIndex: 10, // ОПТИМИЗАЦИЯ: Уменьшен z-index чтобы не блокировать клики по навигации
+        zIndex: 5, // КРИТИЧНО: Низкий z-index чтобы НЕ блокировать клики по навигации (z-index: 100)
         touchAction: "pan-y", // Разрешаем вертикальный скролл
         background: "transparent",
         pointerEvents: "auto",
+        // КРИТИЧНО: Исключаем область навигации из pointer events
+        clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 100px), 0 calc(100% - 100px))",
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

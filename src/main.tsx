@@ -10,6 +10,7 @@ import "./index.css";
 import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
 import { initRollbar, reportError, reportWarning } from "./lib/rollbar";
+import { performanceMonitor } from "./utils/performance";
 
 // Инициализируем Rollbar в начале приложения
 initRollbar();
@@ -59,7 +60,41 @@ reportWebVitals((metric) => {
       rating: metric.rating,
     });
   }
+  
+  // Записываем метрики в performance monitor
+  if (performanceMonitor) {
+    performanceMonitor.recordMetric(`web-vital-${metric.name}`, metric.value);
+  }
 });
+
+// Мониторинг производительности навигации
+if (performanceMonitor && typeof window !== 'undefined') {
+  // Отслеживаем время загрузки страницы
+  window.addEventListener('load', () => {
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    if (nav) {
+      const loadTime = nav.loadEventEnd - nav.fetchStart;
+      performanceMonitor.recordMetric('page-load', loadTime);
+      
+      if (loadTime > 3000) {
+        console.warn(`[Performance] Slow page load: ${loadTime.toFixed(2)}ms`);
+      }
+    }
+  });
+  
+  // Отслеживаем время перехода между страницами
+  let navigationStart = performance.now();
+  window.addEventListener('beforeunload', () => {
+    navigationStart = performance.now();
+  });
+  
+  window.addEventListener('load', () => {
+    const navigationTime = performance.now() - navigationStart;
+    if (navigationTime > 0 && navigationTime < 10000) { // Игнорируем первичную загрузку
+      performanceMonitor.recordMetric('navigation-time', navigationTime);
+    }
+  });
+}
 
 // КРИТИЧНО: Обработка глобальных ошибок для диагностики белого экрана
 window.addEventListener('error', (event) => {
