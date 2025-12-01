@@ -123,14 +123,28 @@ function loadCachedOffset(): ServerTimeInfo | null {
 }
 
 /**
- * Получить текущее серверное время
+ * Получить текущее серверное время (синхронная версия для быстрого использования)
+ */
+export function getServerTimeSync(): number {
+  const timeInfo = loadCachedOffset();
+  if (!timeInfo) {
+    // Если нет offset - возвращаем локальное время (будет исправлено при следующей синхронизации)
+    return Date.now();
+  }
+  
+  // Вычисляем текущее серверное время: локальное время + offset
+  return Date.now() + timeInfo.offset;
+}
+
+/**
+ * Получить текущее серверное время (асинхронная версия с синхронизацией)
  */
 export async function getServerTime(): Promise<number> {
   // Пытаемся использовать кэшированный offset
   let timeInfo = loadCachedOffset();
 
   // Если нет кэша или он устарел - синхронизируемся
-  if (!timeInfo) {
+  if (!timeInfo || needsResync()) {
     timeInfo = await syncServerTime();
   }
 

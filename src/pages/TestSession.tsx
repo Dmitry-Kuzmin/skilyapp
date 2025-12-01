@@ -1682,7 +1682,11 @@ useEffect(() => {
     setAnswers(updatedAnswers);
     
     // КРИТИЧНО: Сохраняем ответ локально для offline режима
+    // Используем server time для защиты от неверного времени на устройстве
     if (testInfo?.id) {
+      // Используем синхронную версию для быстроты (offset уже кэширован)
+      const { getServerTimeSync } = await import('@/utils/serverTime');
+      
       saveTestProgress(
         testInfo.id,
         mode,
@@ -1690,7 +1694,7 @@ useEffect(() => {
           questionId: a.questionId,
           selectedAnswerId: a.selectedAnswerId,
           isCorrect: a.isCorrect,
-          timestamp: Date.now(),
+          timestamp: getServerTimeSync(), // Используем server time (быстро, через offset)
         })),
         currentIndex,
         startTime
@@ -1844,6 +1848,10 @@ useEffect(() => {
         try {
           // КРИТИЧНО: Синхронизация с сервером с разрешением конфликтов
           // Сначала сохраняем локально
+          // КРИТИЧНО: Используем server time для защиты от неверного времени на устройстве
+          const { getServerTime } = await import('@/utils/serverTime');
+          const serverTime = await getServerTime();
+          
           const localProgress: import('@/utils/testStorage').TestProgress = {
             testId: testInfo.id,
             mode,
@@ -1851,15 +1859,11 @@ useEffect(() => {
               questionId: a.questionId,
               selectedAnswerId: a.selectedAnswerId,
               isCorrect: a.isCorrect,
-              timestamp: await (async () => {
-              // КРИТИЧНО: Используем server time для защиты от неверного времени на устройстве
-              const { getServerTime } = await import('@/utils/serverTime');
-              return await getServerTime();
-            })(),
+              timestamp: serverTime, // Используем server time
             })),
             currentIndex,
             startTime,
-            lastUpdated: Date.now(),
+            lastUpdated: serverTime,
           };
 
           await saveTestProgress(
