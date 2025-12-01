@@ -3,14 +3,14 @@
  * Сохраняет ответы в IndexedDB для работы в offline режиме
  */
 
-interface TestAnswer {
+export interface TestAnswer {
   questionId: string;
   selectedAnswerId: string;
   isCorrect: boolean;
   timestamp: number;
 }
 
-interface TestProgress {
+export interface TestProgress {
   testId: string;
   mode: string;
   answers: TestAnswer[];

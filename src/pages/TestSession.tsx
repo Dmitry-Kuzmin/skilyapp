@@ -1830,37 +1830,76 @@ useEffect(() => {
   
   // КРИТИЧНО: Отслеживание онлайн/офлайн статуса и синхронизация
   useEffect(() => {
-    const handleOnline = () => {
+    const handleOnline = async () => {
       setIsOnline(true);
       setPendingSync(true);
       
       // Синхронизируем сохраненные ответы при восстановлении связи
-      if (testInfo?.id && answers.length > 0) {
+      if (testInfo?.id && answers.length > 0 && profileId) {
         toast.success('Соединение восстановлено', {
           description: 'Синхронизируем ваши ответы...',
           duration: 3000,
         });
         
-        // Здесь можно добавить синхронизацию с сервером
-        // Пока просто сохраняем локально
-        saveTestProgress(
-          testInfo.id,
-          mode,
-          answers.map(a => ({
-            questionId: a.questionId,
-            selectedAnswerId: a.selectedAnswerId,
-            isCorrect: a.isCorrect,
-            timestamp: Date.now(),
-          })),
-          currentIndex,
-          startTime
-        ).then(() => {
-          setPendingSync(false);
-          toast.success('Прогресс синхронизирован', { duration: 2000 });
-        }).catch((error) => {
+        try {
+          // КРИТИЧНО: Синхронизация с сервером с разрешением конфликтов
+          // Сначала сохраняем локально
+          const localProgress: import('@/utils/testStorage').TestProgress = {
+            testId: testInfo.id,
+            mode,
+            answers: answers.map(a => ({
+              questionId: a.questionId,
+              selectedAnswerId: a.selectedAnswerId,
+              isCorrect: a.isCorrect,
+              timestamp: Date.now(),
+            })),
+            currentIndex,
+            startTime,
+            lastUpdated: Date.now(),
+          };
+
+          await saveTestProgress(
+            testInfo.id,
+            mode,
+            localProgress.answers,
+            currentIndex,
+            startTime
+          );
+
+          // Затем синхронизируем с сервером с разрешением конфликтов
+          const { syncTestProgress } = await import('@/utils/testSync');
+          const syncResult = await syncTestProgress(profileId, localProgress);
+
+          if (syncResult.success) {
+            setPendingSync(false);
+            if (syncResult.conflicts > 0) {
+              toast.success(`Прогресс синхронизирован`, {
+                description: `Разрешено ${syncResult.conflicts} конфликтов. Отправлено ${syncResult.syncedAnswers} ответов.`,
+                duration: 3000,
+              });
+            } else {
+              toast.success(`Прогресс синхронизирован`, {
+                description: `Отправлено ${syncResult.syncedAnswers} ответов`,
+                duration: 2000,
+              });
+            }
+          } else {
+            setPendingSync(false);
+            toast.error('Ошибка синхронизации', {
+              description: syncResult.error || 'Не удалось синхронизировать прогресс',
+              duration: 5000,
+            });
+          }
+        } catch (error) {
           console.error('[TestSession] Error syncing progress:', error);
           setPendingSync(false);
-        });
+          toast.error('Ошибка синхронизации', {
+            description: 'Не удалось синхронизировать прогресс',
+            duration: 5000,
+          });
+        }
+      } else {
+        setPendingSync(false);
       }
     };
 
