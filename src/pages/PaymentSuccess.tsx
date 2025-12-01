@@ -79,10 +79,13 @@ export default function PaymentSuccess() {
         
         if (!sessionId && !orderId) {
           console.error('[PaymentSuccess] ❌ No session_id or order_id found');
-          // Для Cryptomus: webhook обрабатывает платеж автоматически, просто показываем успех
-          console.log('[PaymentSuccess] No payment ID found, assuming Cryptomus webhook processed it');
-          setProcessing(false);
-          refresh();
+          // Если нет ID платежа, возможно пользователь просто вернулся без оплаты
+          // Перенаправляем на страницу отмены
+          console.log('[PaymentSuccess] No payment ID found - redirecting to cancel');
+          toast.warning('Платеж не был завершен', {
+            description: 'Вы вернулись со страницы оплаты, но платеж не был завершен.',
+          });
+          navigate('/cancel');
           return;
         }
 
@@ -252,9 +255,26 @@ export default function PaymentSuccess() {
         // Если покупка еще не обработана, вызываем process-purchase функцию
         // Для Cryptomus: webhook обрабатывает автоматически, но можем проверить статус
         if (orderId && !sessionId) {
-          // Cryptomus платеж - webhook должен был обработать
-          console.log('[PaymentSuccess] Cryptomus payment - webhook should have processed it');
-          // Просто обновляем статус и показываем успех
+          // Cryptomus платеж - проверяем статус в БД
+          // Если покупка уже была найдена выше, используем её статус
+          if (purchase) {
+            if (purchase.status === 'pending') {
+              console.warn('[PaymentSuccess] ⚠️ Cryptomus payment is still pending - payment was not completed');
+              toast.warning('Платеж не был завершен', {
+                description: 'Вы вернулись со страницы оплаты, но платеж не был завершен. Webhook обработает платеж автоматически после оплаты.',
+              });
+              navigate('/cancel');
+              return;
+            } else if (purchase.status === 'completed') {
+              console.log('[PaymentSuccess] ✅ Cryptomus payment already completed by webhook');
+              refresh();
+              setProcessing(false);
+              return;
+            }
+          }
+          
+          // Если покупка не найдена или статус неизвестен - ждем webhook
+          console.log('[PaymentSuccess] Cryptomus payment - waiting for webhook or checking status...');
           refresh();
           setProcessing(false);
           return;
