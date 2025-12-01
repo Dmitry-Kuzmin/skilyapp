@@ -301,6 +301,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       premium: {
         title: "Suscripción Premium",
+        subtitle: "Obtén el máximo de tu aprendizaje",
         activeBadge: "Activa",
         benefits: {
           unlimitedTests: "Acceso ilimitado a todos los tests",
@@ -309,8 +310,10 @@ const translations: Record<Language, Record<string, any>> = {
           instantHints: "Sin anuncios y pistas instantáneas",
         },
         monthlyLabel: "Mes",
+        yearlyLabel: "Año",
         lifetimeLabel: "Para siempre",
         bestBadge: "Mejor",
+        popularBadge: "Popular",
         chooseButton: "Elegir",
         activeButton: "Activa",
       },
@@ -1007,6 +1010,7 @@ const translations: Record<Language, Record<string, any>> = {
       },
       premium: {
         title: "Premium subscription",
+        subtitle: "Get the most out of your learning",
         activeBadge: "Active",
         benefits: {
           unlimitedTests: "Unlimited access to every test",
@@ -1015,8 +1019,10 @@ const translations: Record<Language, Record<string, any>> = {
           instantHints: "No ads and instant hints",
         },
         monthlyLabel: "Month",
+        yearlyLabel: "Year",
         lifetimeLabel: "Lifetime",
         bestBadge: "Best value",
+        popularBadge: "Popular",
         chooseButton: "Choose",
         activeButton: "Active",
       },
@@ -1703,8 +1709,10 @@ const translations: Record<Language, Record<string, any>> = {
           instantHints: "Без рекламы и мгновенные подсказки",
         },
         monthlyLabel: "Месяц",
+        yearlyLabel: "Год",
         lifetimeLabel: "Навсегда",
         bestBadge: "Лучшее",
+        popularBadge: "Популярно",
         chooseButton: "Выбрать",
         activeButton: "Активна",
       },

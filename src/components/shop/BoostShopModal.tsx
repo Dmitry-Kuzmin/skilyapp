@@ -1289,7 +1289,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                     </div>
 
                     {/* Тарифы */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                       {/* Месячный тариф */}
                       <Card className="relative overflow-hidden p-4 border-2 border-border/50 hover:border-primary/50 transition-all hover:shadow-lg">
                         <div className="space-y-3">
@@ -1306,6 +1306,37 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             size="sm" 
                             variant={isPremium ? "outline" : "default"}
                             className="w-full h-10 font-semibold"
+                            onClick={() => setPaywallOpen(true)}
+                            disabled={isPremium}
+                          >
+                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                          </Button>
+                        </div>
+                      </Card>
+                      
+                      {/* Годовой тариф */}
+                      <Card className="relative overflow-hidden p-4 border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 hover:border-primary/70 transition-all hover:shadow-xl hover:scale-[1.02]">
+                        {/* Бейдж "Популярно" */}
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white border-0 shadow-md text-xs px-2 py-0.5">
+                            {t('boostShop.premium.popularBadge') || 'Популярно'}
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              {t('boostShop.premium.yearlyLabel') || 'Годовая подписка'}
+                            </p>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">€59.99</span>
+                              <span className="text-xs text-muted-foreground">/год</span>
+                            </div>
+                            <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">Экономия 50%</p>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            className="w-full h-10 font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white border-0 shadow-md"
                             onClick={() => setPaywallOpen(true)}
                             disabled={isPremium}
                           >
