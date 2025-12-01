@@ -5,6 +5,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { loadTestProgress, TestProgress, TestAnswer } from './testStorage';
+import { toServerTime, getServerTime } from './serverTime';
 
 interface ServerProgress {
   question_id: string;
@@ -97,9 +98,11 @@ function mergeProgress(
       });
     } else {
       // Конфликт: есть и локально, и на сервере
-      const localTimestamp = localAnswer.timestamp;
+      // КРИТИЧНО: Конвертируем локальное время в серверное для корректного сравнения
+      const localTimestampServer = toServerTime(localAnswer.timestamp);
+      const serverTimestampServer = serverTimestamp; // Уже серверное время
 
-      if (serverTimestamp > localTimestamp) {
+      if (serverTimestampServer > localTimestampServer) {
         // Серверный ответ новее - используем его
         mergedAnswers.set(questionId, {
           ...localAnswer,
@@ -108,16 +111,16 @@ function mergeProgress(
           source: 'merged',
         });
         console.log(
-          `[testSync] Conflict resolved for ${questionId}: using server answer (${new Date(serverTimestamp).toISOString()} vs ${new Date(localTimestamp).toISOString()})`
+          `[testSync] Conflict resolved for ${questionId}: using server answer (server: ${new Date(serverTimestampServer).toISOString()} vs local (converted): ${new Date(localTimestampServer).toISOString()})`
         );
-      } else if (localTimestamp > serverTimestamp) {
-        // Локальный ответ новее - оставляем его
+      } else if (localTimestampServer > serverTimestampServer) {
+        // Локальный ответ новее (после коррекции на server time) - оставляем его
         mergedAnswers.set(questionId, {
           ...localAnswer,
           source: 'merged',
         });
         console.log(
-          `[testSync] Conflict resolved for ${questionId}: using local answer (${new Date(localTimestamp).toISOString()} vs ${new Date(serverTimestamp).toISOString()})`
+          `[testSync] Conflict resolved for ${questionId}: using local answer (local (converted): ${new Date(localTimestampServer).toISOString()} vs server: ${new Date(serverTimestampServer).toISOString()})`
         );
       } else {
         // Одинаковое время - приоритет локальному (более полная информация)
@@ -185,15 +188,18 @@ export async function syncTestProgress(
         });
       } else {
         const serverTimestamp = new Date(serverItem.last_attempt_at).getTime();
-        if (answer.timestamp > serverTimestamp) {
-          // Локальный ответ новее - отправляем на сервер
+        // КРИТИЧНО: Конвертируем локальное время в серверное для корректного сравнения
+        const localTimestampServer = toServerTime(answer.timestamp);
+        
+        if (localTimestampServer > serverTimestamp) {
+          // Локальный ответ новее (после коррекции на server time) - отправляем на сервер
           answersToSync.push({
             questionId: answer.questionId,
             isCorrect: answer.isCorrect,
-            timestamp: answer.timestamp,
+            timestamp: answer.timestamp, // Сохраняем оригинальный timestamp для отправки
           });
           conflicts++;
-        } else if (answer.timestamp < serverTimestamp && answer.source === 'local') {
+        } else if (localTimestampServer < serverTimestamp && answer.source === 'local') {
           // Серверный ответ новее - конфликт, но не отправляем
           conflicts++;
         }

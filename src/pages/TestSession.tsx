@@ -1851,7 +1851,11 @@ useEffect(() => {
               questionId: a.questionId,
               selectedAnswerId: a.selectedAnswerId,
               isCorrect: a.isCorrect,
-              timestamp: Date.now(),
+              timestamp: await (async () => {
+              // КРИТИЧНО: Используем server time для защиты от неверного времени на устройстве
+              const { getServerTime } = await import('@/utils/serverTime');
+              return await getServerTime();
+            })(),
             })),
             currentIndex,
             startTime,

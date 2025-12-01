@@ -11,9 +11,15 @@ import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
 import { initRollbar, reportError, reportWarning } from "./lib/rollbar";
 import { performanceMonitor } from "./utils/performance";
+import { initServerTime } from "./utils/serverTime";
 
 // Инициализируем Rollbar в начале приложения
 initRollbar();
+
+// КРИТИЧНО: Инициализация Server Time Offset для защиты от неверного времени на устройстве
+initServerTime().catch((error) => {
+  console.error('[Main] Failed to init server time:', error);
+});
 
 // КРИТИЧНО: Логирование сразу после импортов для диагностики
 console.log('[Main] ✅ Script loaded and imports completed', {

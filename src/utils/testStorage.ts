@@ -66,7 +66,7 @@ export async function saveTestProgress(
       answers,
       currentIndex,
       startTime,
-      lastUpdated: Date.now(),
+      lastUpdated: Date.now(), // Будет конвертировано в server time при синхронизации
     };
 
     await store.put(progress);
