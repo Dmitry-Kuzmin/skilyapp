@@ -8,23 +8,18 @@ Supabase Auth может проверять пароли через HaveIBeenPwn
 
 ### Вариант 1: Через Supabase Dashboard (рекомендуется)
 
-**Важно:** Настройка находится НЕ в разделе Policies (это для RLS). Нужно искать в других разделах:
-
+**Точный путь:**
 1. Откройте Supabase Dashboard: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn
 2. Перейдите в раздел **Authentication** (левый сайдбар)
-3. В разделе **CONFIGURATION** найдите и откройте **"Advanced"** (не Policies!)
-4. В разделе **Advanced** найдите секцию **"Password Security"** или **"Password Strength"**
-5. Включите опцию **"Leaked Password Protection"** или **"Check passwords against HaveIBeenPwned"**
+3. Откройте вкладку **"Settings"** (Настройки) - это НЕ Policies!
+4. Найдите раздел **"Password Strength"** (Сложность пароля)
+5. Активируйте опцию **"Prevent the use of leaked passwords"** (Предотвращать использование скомпрометированных паролей)
 6. Сохраните изменения
 
-**Альтернативные места для поиска:**
-- **Authentication** → **Configuration** → **URL Configuration** (может быть там)
-- **Authentication** → **Configuration** → **Attack Protection** (может быть там)
-- **Authentication** → **Settings** (если есть такой раздел)
-
-**Если не нашли:**
-- Возможно, эта функция доступна только на плане Pro и выше
-- Проверьте ваш тарифный план: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/settings/billing
+**Важно:**
+- Эта функция доступна только на тарифном плане **Pro и выше**
+- Если не видите эту опцию, проверьте тариф: https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/settings/billing
+- Настройка находится в **Settings**, а не в **Policies** (Policies - это для RLS таблиц)
 
 ### Вариант 2: Через Management API
 
