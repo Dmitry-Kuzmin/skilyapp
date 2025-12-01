@@ -14,6 +14,7 @@ import { AIWidget } from '@/components/AIWidget';
 import { toast } from 'sonner';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { cn } from '@/lib/utils';
+import { useDuelResults } from '@/hooks/useDuelResults';
 
 interface DuelResultProps {
   duelId: string;
@@ -23,8 +24,11 @@ interface DuelResultProps {
 
 export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps) {
   const { profileId } = useUserContext();
+  
+  // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
+  const { data: duelResultsData, isLoading: loading, refetch } = useDuelResults(duelId, profileId);
+  
   const [results, setResults] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [myAnswers, setMyAnswers] = useState<any[]>([]);
   const [showAIWidget, setShowAIWidget] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null);
@@ -32,9 +36,23 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
   const rewardsAppliedRef = useRef(false);
   const notificationSentRef = useRef(false);
 
+  // Обновляем состояние при загрузке данных
   useEffect(() => {
-    loadResults();
-  }, [duelId]);
+    if (duelResultsData) {
+      setResults(duelResultsData.results);
+      setMyAnswers(duelResultsData.myAnswers);
+      
+      // Отправляем уведомление сопернику
+      if (!notificationSentRef.current && duelResultsData.opponentPlayer?.user_id) {
+        notificationSentRef.current = true;
+        dispatchUserEvent(duelResultsData.opponentPlayer.user_id, 'duel_finished', {
+          duel_id: duelId,
+          opponent_score: duelResultsData.results.myScore,
+          is_opponent_winner: duelResultsData.results.isWinner
+        });
+      }
+    }
+  }, [duelResultsData, duelId]);
 
   useEffect(() => {
     if (results && profileId && !rewardsAppliedRef.current) {
@@ -98,104 +116,22 @@ export function DuelResult({ duelId, onRematch, onBackToMenu }: DuelResultProps)
     }
   }, [results]);
 
-  const loadResults = async () => {
-    try {
-      // Загружаем данные дуэли
-      const { data: duelData, error: duelError } = await supabase
-        .from('duels')
-        .select('*')
-        .eq('id', duelId)
-        .single();
-
-      if (duelError) throw duelError;
-
-      // Загружаем игроков из таблицы duel_players
-      const { data: playersData, error: playersError } = await supabase
-        .from('duel_players')
-        .select(`
-          *,
-          profiles(id, username, first_name, photo_url)
-        `)
-        .eq('duel_id', duelId);
-
-      if (playersError) throw playersError;
-
-      if (!playersData || playersData.length < 2) {
-        throw new Error('Не найдены оба игрока');
-      }
-
-      // Находим моего игрока и соперника
-      const myPlayer = playersData.find((p: any) => p.user_id === profileId);
-      const opponentPlayer = playersData.find((p: any) => p.user_id !== profileId);
-
-      if (!myPlayer || !opponentPlayer) {
-        throw new Error('Не найден игрок или соперник');
-      }
-
-      const myScore = myPlayer.score || 0;
-      const opponentScore = opponentPlayer.score || 0;
-      const myCorrect = myPlayer.correct_count || 0;
-      const opponentCorrect = opponentPlayer.correct_count || 0;
-      const opponent = opponentPlayer.profiles || {};
-
-      const isWinner = myScore > opponentScore;
-      const isDraw = myScore === opponentScore;
-
-      let winnings = 0;
-      let insuranceRefund = 0;
-      if (duelData.bet_amount > 0) {
-        if (isWinner) {
-          winnings = duelData.bet_amount * 2;
-        } else if (isDraw) {
-          winnings = duelData.bet_amount;
-        }
-        if (!isWinner && !isDraw && duelData.insurance_used) {
-          insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
-        }
-      }
-
-      const bonusCoins = isWinner ? 10 : (isDraw ? 5 : 0);
-      setRewards({ sp: 0, xp: 0, bonusCoins, insuranceRefund });
-
-      // Загружаем ответы игрока (используем player_id вместо user_id)
-      const { data: answersData } = await supabase
-        .from('duel_answers')
-        .select('*, duel_questions(*)')
-        .eq('duel_id', duelId)
-        .eq('player_id', myPlayer.id)
-        .order('created_at');
-
-      setMyAnswers(answersData || []);
-
-      setResults({
-        isWinner,
-        isDraw,
-        myScore,
-        opponentScore,
-        myCorrect,
-        opponentCorrect,
-        opponentName: opponent?.username || opponent?.first_name || 'Соперник',
-        opponentAvatar: opponent?.photo_url,
-        betAmount: duelData.bet_amount || 0,
-        winnings,
-        insuranceRefund,
-        insuranceUsed: duelData.insurance_used || false
+  // Вычисляем bonusCoins из results
+  useEffect(() => {
+    if (results) {
+      const bonusCoins = results.isWinner ? 10 : (results.isDraw ? 5 : 0);
+      setRewards(prev => prev ? {
+        ...prev,
+        bonusCoins,
+        insuranceRefund: results.insuranceRefund
+      } : {
+        sp: 0,
+        xp: 0,
+        bonusCoins,
+        insuranceRefund: results.insuranceRefund
       });
-
-      if (!notificationSentRef.current && opponentPlayer.user_id) {
-        notificationSentRef.current = true;
-        dispatchUserEvent(opponentPlayer.user_id, 'duel_finished', {
-          duel_id: duelId,
-          opponent_score: myScore,
-          is_opponent_winner: isWinner
-        });
-      }
-    } catch (error) {
-      console.error('[DuelResult] Error loading results:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [results]);
 
   const handleQuestionClick = (answer: any) => {
     setSelectedQuestion(answer.duel_questions);

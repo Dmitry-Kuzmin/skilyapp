@@ -26,6 +26,7 @@ import { StatsWidget } from "@/components/admin/StatsWidget";
 import { QuickActionCard } from "@/components/admin/QuickActionCard";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useAdminStats } from "@/hooks/useAdminStats";
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -43,63 +44,22 @@ export function AdminDashboard() {
   const [systemHealth, setSystemHealth] = useState<SystemHealthStatus | null>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetchStats();
-    fetchRecentActivity();
-    
-    // Refresh stats every 30 seconds
-    const interval = setInterval(() => {
-      fetchStats();
-      fetchRecentActivity();
-    }, 30000);
+  // ОПТИМИЗАЦИЯ: Используем React Query хук вместо прямых запросов
+  const { data: adminStats, isLoading: statsLoading } = useAdminStats();
 
-    return () => clearInterval(interval);
+  useEffect(() => {
+    fetchRecentActivity();
   }, []);
 
-  const fetchStats = async () => {
-    try {
-      const [
-        topicsRes,
-        questionsRes,
-        usersRes,
-        tagsRes,
-        reportsRes,
-        termsRes,
-        signsRes,
-        activeUsersRes,
-      ] = await Promise.all([
-        supabase.from("topics").select("*", { count: "exact", head: true }),
-        supabase.from("questions_new").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
-        supabase.from("tags").select("*", { count: "exact", head: true }),
-        supabase
-          .from("question_reports")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "pending"),
-        supabase.from("language_terms").select("*", { count: "exact", head: true }),
-        supabase.from("road_signs").select("*", { count: "exact", head: true }),
-        supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true })
-          .gte("last_seen", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()),
-      ]);
-
-      setStats({
-        topics: topicsRes.count || 0,
-        questions: questionsRes.count || 0,
-        users: usersRes.count || 0,
-        tags: tagsRes.count || 0,
-        reports: reportsRes.count || 0,
-        languageTerms: termsRes.count || 0,
-        roadSigns: signsRes.count || 0,
-        activeUsers: activeUsersRes.count || 0,
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    } finally {
+  // Обновляем stats из хука
+  useEffect(() => {
+    if (adminStats) {
+      setStats(adminStats);
       setLoading(false);
+    } else if (statsLoading) {
+      setLoading(true);
     }
-  };
+  }, [adminStats, statsLoading]);
 
   const fetchRecentActivity = async () => {
     try {

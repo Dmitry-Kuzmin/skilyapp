@@ -64,8 +64,10 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
 
     debugLog('[useNotifications] ✅ Setting up notifications for profileId:', profileId);
     
-    // Проверяем, не создана ли уже подписка для этого profileId
+    // Создаем канал с уникальным именем (объявляем один раз)
     const channelName = `duel_notifications_${profileId}`;
+    
+    // Проверяем, не создана ли уже подписка для этого profileId
     if (activeSubscriptionsRef.current.has(channelName)) {
       debugLog('[useNotifications] ⚠️ Subscription already exists, skipping duplicate');
       // Загружаем уведомления, если подписка уже есть
@@ -80,9 +82,6 @@ export function useNotifications(options?: { showToasts?: boolean; playSounds?: 
     // Используем более простой фильтр для лучшей совместимости с realtime
     debugLog('[useNotifications] Creating Realtime channel for profileId:', profileId);
     debugLog('[useNotifications] ProfileId type:', typeof profileId, 'value:', profileId);
-    
-    // Создаем канал с уникальным именем
-    const channelName = `duel_notifications_${profileId}`;
     
     const channel = supabase
       .channel(channelName)
