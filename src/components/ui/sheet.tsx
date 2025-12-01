@@ -546,12 +546,18 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={(e) => handleTouchEnd(e)}
-          onClick={(e) => {
+          onInteractOutside={(e) => {
             // КРИТИЧНО: Предотвращаем закрытие модалки при клике на контент
-            // Radix UI закрывает модалку при клике на overlay, но мы не хотим закрывать при клике на контент
+            // Radix UI закрывает модалку при клике вне контента (на overlay), но мы не хотим закрывать при клике на сам контент
             const target = e.target as HTMLElement;
             
-            // Если клик на интерактивный элемент - останавливаем распространение
+            // Если клик внутри контента модалки - предотвращаем закрытие
+            if (contentRef.current && contentRef.current.contains(target)) {
+              e.preventDefault();
+              return;
+            }
+            
+            // Если клик на интерактивный элемент внутри контента - предотвращаем закрытие
             const interactiveElements = ['button', 'a', 'input', 'select', 'textarea', '[role="tab"]', '[role="button"]', '[role="link"]'];
             const isInteractive = interactiveElements.some(selector => {
               if (selector.startsWith('[')) {
@@ -560,10 +566,27 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
               return target.closest(selector) !== null || target.tagName.toLowerCase() === selector;
             });
             
-            // Если клик на интерактивный элемент - останавливаем распространение
-            if (isInteractive) {
-              e.stopPropagation();
+            // Если клик на интерактивный элемент - предотвращаем закрытие
+            if (isInteractive && contentRef.current && contentRef.current.contains(target)) {
+              e.preventDefault();
+              return;
             }
+            
+            // Вызываем оригинальный обработчик, если он был передан
+            props.onInteractOutside?.(e);
+          }}
+          onPointerDownOutside={(e) => {
+            // КРИТИЧНО: Предотвращаем закрытие при клике на контент
+            const target = e.target as HTMLElement;
+            
+            // Если клик внутри контента модалки - предотвращаем закрытие
+            if (contentRef.current && contentRef.current.contains(target)) {
+              e.preventDefault();
+              return;
+            }
+            
+            // Вызываем оригинальный обработчик, если он был передан
+            props.onPointerDownOutside?.(e);
           }}
           onOpenAutoFocus={(e) => {
             // Предотвращаем автофокус на первый элемент при открытии (может мешать свайпу)

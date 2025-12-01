@@ -1,4 +1,3 @@
-import { AnimatePresence } from 'framer-motion';
 import { useModalStore, type ModalType, getModalUrlKey } from '@/store/modalStore';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -58,7 +57,7 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
  * - Поддержка стека модалок с автоматическим z-index
  * - Обработка кнопки "Назад" на Android
  * - Блокировка скролла body при открытых модалках
- * - Плавные анимации через AnimatePresence
+ * - Рендеринг только верхней модалки из стека
  */
 export const GlobalModalManager = () => {
   const { stack, closeModal, openModal } = useModalStore();
@@ -150,59 +149,53 @@ export const GlobalModalManager = () => {
   // Если модалок нет, ничего не рендерим
   if (stack.length === 0) return null;
 
+  // Рендерим только верхнюю модалку из стека
+  const topModal = stack[stack.length - 1];
+  if (!topModal) return null;
+
+  const Component = MODAL_COMPONENTS[topModal.type];
+  
+  if (!Component) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[GlobalModalManager] Unknown modal type: ${topModal.type}`);
+    }
+    return null;
+  }
+
+  // Адаптер для разных интерфейсов модалок
+  // AuthModal использует onClose, остальные - onOpenChange
+  const modalProps: any = {
+    ...topModal.props,
+    open: true,
+    zIndex: topModal.zIndex || 1000 + stack.length - 1,
+  };
+
+  // Поддержка разных интерфейсов модалок
+  if (topModal.type === 'AUTH') {
+    modalProps.onClose = () => closeModal(topModal.id, true); // Синхронизируем URL
+  } else if (topModal.type === 'CELEBRATION') {
+    // CelebrationModal использует show и onClose
+    modalProps.show = true;
+    modalProps.onClose = () => closeModal(topModal.id, true); // Синхронизируем URL
+  } else {
+    // Остальные модалки используют open и onOpenChange
+    modalProps.onOpenChange = (open: boolean) => {
+      if (!open) {
+        closeModal(topModal.id, true); // Синхронизируем URL
+      }
+    };
+  }
+
   return createPortal(
-    <AnimatePresence mode="wait">
-      {stack.map((modal, index) => {
-        const Component = MODAL_COMPONENTS[modal.type];
-        
-        if (!Component) {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn(`[GlobalModalManager] Unknown modal type: ${modal.type}`);
-          }
-          return null;
-        }
-
-        const isTop = index === stack.length - 1;
-
-        // Адаптер для разных интерфейсов модалок
-        // AuthModal использует onClose, остальные - onOpenChange
-        const modalProps: any = {
-          ...modal.props,
-          open: isTop, // Только верхняя модалка активна
-          zIndex: modal.zIndex || 1000 + index,
-        };
-
-        // Поддержка разных интерфейсов модалок
-        if (modal.type === 'AUTH') {
-          modalProps.onClose = () => closeModal(modal.id, true); // Синхронизируем URL
-        } else if (modal.type === 'CELEBRATION') {
-          // CelebrationModal использует show и onClose
-          modalProps.show = isTop;
-          modalProps.onClose = () => closeModal(modal.id, true); // Синхронизируем URL
-        } else {
-          // Остальные модалки используют open и onOpenChange
-          modalProps.onOpenChange = (open: boolean) => {
-            if (!open) {
-              closeModal(modal.id, true); // Синхронизируем URL
-            }
-          };
-        }
-
-        return (
-          <div
-            key={modal.id}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: modal.zIndex || 1000 + index,
-              pointerEvents: isTop ? 'auto' : 'none', // Только верхняя модалка интерактивна
-            }}
-          >
-            <Component {...modalProps} />
-          </div>
-        );
-      })}
-    </AnimatePresence>,
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: topModal.zIndex || 1000 + stack.length - 1,
+      }}
+    >
+      <Component {...modalProps} />
+    </div>,
     document.body
   );
 };
