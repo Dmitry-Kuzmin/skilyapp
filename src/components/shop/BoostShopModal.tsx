@@ -1330,9 +1330,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             </p>
                             <div className="flex items-baseline gap-1">
                               <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">€59.99</span>
-                              <span className="text-xs text-muted-foreground">/год</span>
+                              <span className="text-xs text-muted-foreground">{t('boostShop.premium.yearlySuffix')}</span>
                             </div>
-                            <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">Экономия 50%</p>
+                            <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">{t('boostShop.premium.savingsLabel')}</p>
                           </div>
                           <Button 
                             size="sm" 
@@ -1362,7 +1362,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             <div className="flex items-baseline gap-1">
                               <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">€99.99</span>
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">Один раз навсегда</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('boostShop.premium.lifetimeSuffix')}</p>
                           </div>
                           <Button 
                             size="sm" 
@@ -1578,52 +1578,112 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                   }
                   
                   return (
-                    <div className="space-y-1 pb-4">
+                    <div className="space-y-2 pb-4">
                       {filtered.map((tx, idx) => {
                         const IconComponent = tx.icon || (tx.amount > 0 ? TrendingUp : TrendingDown);
+                        const isPositive = tx.amount > 0;
+                        const isPurchase = tx.category === 'purchase';
+                        const isReward = tx.category === 'reward';
+                        
                         return (
                           <motion.div
                             key={tx.id || idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: idx * 0.02 }}
-                            className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.03, duration: 0.2 }}
+                            className="group relative overflow-hidden rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card hover:border-border hover:shadow-md transition-all duration-200"
                           >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <div className={`p-2 rounded-lg flex-shrink-0 ${
-                                tx.amount > 0 
-                                  ? 'bg-green-500/10 text-green-600' 
-                                  : 'bg-red-500/10 text-red-600'
-                              }`}>
-                                <IconComponent className="h-4 w-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{tx.description}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <p className="text-xs text-muted-foreground">
-                                    {formatTransactionDate(tx.created_at)}
+                            <div className="flex items-center justify-between p-4">
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                {/* Иконка с градиентом */}
+                                <div className={`relative flex-shrink-0 ${
+                                  isPositive 
+                                    ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20' 
+                                    : isPurchase
+                                      ? 'bg-gradient-to-br from-blue-500/20 to-indigo-500/20'
+                                      : isReward
+                                        ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20'
+                                        : 'bg-gradient-to-br from-red-500/20 to-rose-500/20'
+                                } p-2.5 rounded-xl border ${
+                                  isPositive 
+                                    ? 'border-green-500/30' 
+                                    : isPurchase
+                                      ? 'border-blue-500/30'
+                                      : isReward
+                                        ? 'border-yellow-500/30'
+                                        : 'border-red-500/30'
+                                }`}>
+                                  <IconComponent className={`h-4 w-4 ${
+                                    isPositive 
+                                      ? 'text-green-600 dark:text-green-400' 
+                                      : isPurchase
+                                        ? 'text-blue-600 dark:text-blue-400'
+                                        : isReward
+                                          ? 'text-yellow-600 dark:text-yellow-400'
+                                          : 'text-red-600 dark:text-red-400'
+                                  }`} />
+                                </div>
+                                
+                                {/* Описание */}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                                    {tx.description}
                                   </p>
-                                  {tx.category && tx.category !== 'earn' && tx.category !== 'spend' && (
-                                    <Badge variant="secondary" className="text-xs h-4 px-1.5">
-                                      {tx.category === 'purchase'
-                                        ? t('boostShop.history.badges.purchase')
-                                        : tx.category === 'reward'
-                                          ? t('boostShop.history.badges.reward')
-                                          : ''}
-                                    </Badge>
-                                  )}
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-xs text-muted-foreground">
+                                      {formatTransactionDate(tx.created_at)}
+                                    </p>
+                                    {tx.category && (isPurchase || isReward) && (
+                                      <Badge 
+                                        variant="secondary" 
+                                        className={`text-xs h-5 px-2 font-medium ${
+                                          isPurchase 
+                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' 
+                                            : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'
+                                        }`}
+                                      >
+                                        {isPurchase
+                                          ? t('boostShop.history.badges.purchase')
+                                          : t('boostShop.history.badges.reward')}
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
+                              
+                              {/* Сумма */}
+                              <div className="flex-shrink-0 ml-3">
+                                {tx.metadata?.price && tx.amount === 0 ? (
+                                  <div className="text-right">
+                                    <span className="text-base font-bold text-blue-600 dark:text-blue-400">
+                                      €{tx.metadata.price}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="text-right">
+                                    <span className={`text-base font-bold ${
+                                      isPositive 
+                                        ? 'text-green-600 dark:text-green-400' 
+                                        : 'text-red-600 dark:text-red-400'
+                                    }`}>
+                                      {isPositive ? '+' : ''}{tx.amount}
+                                    </span>
+                                    <p className="text-[10px] text-muted-foreground mt-0.5">монет</p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <span className={`text-sm font-bold flex-shrink-0 ml-2 ${
-                              tx.amount > 0 ? 'text-green-600' : tx.metadata?.price ? 'text-blue-600' : 'text-red-600'
-                            }`}>
-                              {tx.metadata?.price && tx.amount === 0 ? (
-                                <span className="text-blue-600">€{tx.metadata.price}</span>
-                              ) : (
-                                <span>{tx.amount > 0 ? '+' : ''}{tx.amount}</span>
-                              )}
-                            </span>
+                            
+                            {/* Декоративная линия */}
+                            <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${
+                              isPositive 
+                                ? 'from-green-500/50 to-emerald-500/50' 
+                                : isPurchase
+                                  ? 'from-blue-500/50 to-indigo-500/50'
+                                  : isReward
+                                    ? 'from-yellow-500/50 to-orange-500/50'
+                                    : 'from-red-500/50 to-rose-500/50'
+                            } opacity-0 group-hover:opacity-100 transition-opacity`} />
                           </motion.div>
                         );
                       })}
