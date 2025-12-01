@@ -138,3 +138,5 @@ export const PAYMENT_CONFIG: PaymentConfig = {
 - Льготный режим для доходов до €12,000/год
 
 
+
+

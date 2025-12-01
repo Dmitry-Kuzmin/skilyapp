@@ -12,3 +12,5 @@ COMMENT ON COLUMN purchases.cryptomus_order_id IS 'Order ID из Cryptomus';
 COMMENT ON COLUMN purchases.cryptomus_payment_id IS 'Payment ID из Cryptomus';
 
 
+
+

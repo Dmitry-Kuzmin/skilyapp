@@ -20,19 +20,21 @@ export default function PaymentSuccess() {
   useEffect(() => {
     const processPayment = async () => {
       try {
-        // Получаем session_id из URL параметров
-        let sessionId = searchParams.get('session_id');
+        // Получаем параметры из URL
+        let sessionId = searchParams.get('session_id'); // Stripe
+        let orderId = searchParams.get('order_id'); // Cryptomus
         
         console.log('[PaymentSuccess] Page loaded:', {
           sessionId,
+          orderId,
           profileId,
           url: window.location.href,
           searchParams: Object.fromEntries(searchParams.entries())
         });
         
         // Если session_id нет в URL, пытаемся найти альтернативными способами
-        if (!sessionId) {
-          console.warn('[PaymentSuccess] ⚠️ No session_id in URL, trying alternatives...');
+        if (!sessionId && !orderId) {
+          console.warn('[PaymentSuccess] ⚠️ No session_id or order_id in URL, trying alternatives...');
           
           // Способ 1: Проверяем sessionStorage (приоритет для Telegram) и localStorage (fallback)
           const storedSessionId = sessionStorage.getItem('stripe_checkout_session_id') 
@@ -46,13 +48,13 @@ export default function PaymentSuccess() {
           }
           
           // Способ 2: Если есть profileId, ищем последнюю pending покупку за последние 10 минут
-          if (!sessionId && profileId) {
+          if (!sessionId && !orderId && profileId) {
             console.log('[PaymentSuccess] Searching for recent pending purchase...');
             const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
             
             const { data: recentPurchases } = await supabase
               .from('purchases')
-              .select('stripe_session_id, created_at, status')
+              .select('stripe_session_id, cryptomus_order_id, created_at, status')
               .eq('user_id', profileId)
               .in('status', ['pending', 'completed'])
               .gte('created_at', tenMinutesAgo)
@@ -63,29 +65,26 @@ export default function PaymentSuccess() {
               const recentPurchase = recentPurchases[0];
               console.log('[PaymentSuccess] Found recent purchase:', recentPurchase);
               
-              // Если покупка pending - обработаем её
-              if (recentPurchase.status === 'pending') {
+              // Приоритет: Stripe session_id, затем Cryptomus order_id
+              if (recentPurchase.stripe_session_id) {
                 sessionId = recentPurchase.stripe_session_id;
                 console.log('[PaymentSuccess] Using pending purchase session_id:', sessionId);
-              } else if (recentPurchase.status === 'completed') {
-                // Если уже completed, проверяем что монеты начислены
-                sessionId = recentPurchase.stripe_session_id;
-                console.log('[PaymentSuccess] Found completed purchase, checking coins...');
+              } else if (recentPurchase.cryptomus_order_id) {
+                orderId = recentPurchase.cryptomus_order_id;
+                console.log('[PaymentSuccess] Using pending purchase order_id:', orderId);
               }
             }
           }
         }
         
-        if (!sessionId) {
-          console.error('[PaymentSuccess] ❌ No session_id found in URL, localStorage, or recent purchases');
-          toast.error('Не найден ID сессии оплаты', {
-            description: 'Пожалуйста, проверьте ваш баланс. Если монеты не начислены, обратитесь в поддержку.',
-          });
+        if (!sessionId && !orderId) {
+          console.error('[PaymentSuccess] ❌ No session_id or order_id found');
+          // Для Cryptomus: webhook обрабатывает платеж автоматически, просто показываем успех
+          console.log('[PaymentSuccess] No payment ID found, assuming Cryptomus webhook processed it');
           setProcessing(false);
+          refresh();
           return;
         }
-        
-        console.log('[PaymentSuccess] ✅ Using session_id:', sessionId);
 
         if (!profileId) {
           console.warn('[PaymentSuccess] ⚠️ No profileId available');
@@ -96,14 +95,31 @@ export default function PaymentSuccess() {
           return;
         }
 
-        console.log('[PaymentSuccess] Processing payment for session:', sessionId, 'user:', profileId);
+        console.log('[PaymentSuccess] Processing payment:', { sessionId, orderId, user: profileId });
 
-        // Проверяем статус покупки в БД
-        const { data: purchase, error: purchaseError } = await supabase
-          .from('purchases')
-          .select('*')
-          .eq('stripe_session_id', sessionId)
-          .single();
+        // Проверяем статус покупки в БД (Stripe или Cryptomus)
+        let purchase;
+        let purchaseError;
+        
+        if (sessionId) {
+          // Stripe платеж
+          const result = await supabase
+            .from('purchases')
+            .select('*')
+            .eq('stripe_session_id', sessionId)
+            .single();
+          purchase = result.data;
+          purchaseError = result.error;
+        } else if (orderId) {
+          // Cryptomus платеж
+          const result = await supabase
+            .from('purchases')
+            .select('*')
+            .eq('cryptomus_order_id', orderId)
+            .single();
+          purchase = result.data;
+          purchaseError = result.error;
+        }
 
         if (purchaseError) {
           if (purchaseError.code === 'PGRST116') {
@@ -149,13 +165,20 @@ export default function PaymentSuccess() {
             
             console.log('[PaymentSuccess] User coins:', profile?.coins, 'Expected coins from purchase:', coins);
             
-            // Проверяем транзакцию
+            // Проверяем транзакцию (Stripe или Cryptomus)
+            const transactionType = purchase.stripe_session_id 
+              ? 'coins_purchase_stripe' 
+              : 'coins_purchase_cryptomus';
+            const transactionKey = purchase.stripe_session_id 
+              ? { 'metadata->>session_id': sessionId }
+              : { 'metadata->>order_id': orderId };
+            
             const { data: transaction } = await supabase
               .from('transactions')
               .select('*')
               .eq('user_id', profileId)
-              .eq('transaction_type', 'coins_purchase_stripe')
-              .eq('metadata->>session_id', sessionId)
+              .eq('transaction_type', transactionType)
+              .match(transactionKey)
               .single();
             
             if (!transaction) {
@@ -205,6 +228,16 @@ export default function PaymentSuccess() {
         }
 
         // Если покупка еще не обработана, вызываем process-purchase функцию
+        // Для Cryptomus: webhook обрабатывает автоматически, но можем проверить статус
+        if (orderId && !sessionId) {
+          // Cryptomus платеж - webhook должен был обработать
+          console.log('[PaymentSuccess] Cryptomus payment - webhook should have processed it');
+          // Просто обновляем статус и показываем успех
+          refresh();
+          setProcessing(false);
+          return;
+        }
+        
         console.log('[PaymentSuccess] Calling process-purchase function for pending purchase');
         
         const { data, error } = await supabase.functions.invoke('process-purchase', {

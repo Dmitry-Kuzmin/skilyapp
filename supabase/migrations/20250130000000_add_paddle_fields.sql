@@ -15,3 +15,5 @@ COMMENT ON COLUMN purchases.paddle_transaction_id IS 'Transaction ID из Paddle
 COMMENT ON COLUMN purchases.paddle_subscription_id IS 'Subscription ID из Paddle (для подписок)';
 
 
+
+
