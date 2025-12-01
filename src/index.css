@@ -481,6 +481,17 @@ All colors MUST be HSL.
   @keyframes fadeIn {
     from {
       opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInOriginal {
+    from {
+      opacity: 0;
       transform: translateY(30px) translateZ(0);
     }
     to {

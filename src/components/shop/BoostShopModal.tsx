@@ -15,7 +15,7 @@ import Confetti from 'react-confetti';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { BoostCard } from './BoostCard';
-import { motion } from 'framer-motion';
+// Removed framer-motion import for better performance
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
@@ -1485,7 +1485,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4" style={{ contain: 'layout style paint' }}>
                 {loadingHistory ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
@@ -1586,12 +1586,12 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         const isReward = tx.category === 'reward';
                         
                         return (
-                          <motion.div
+                          <div
                             key={tx.id || idx}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.03, duration: 0.2 }}
-                            className="group relative overflow-hidden rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card hover:border-border hover:shadow-md transition-all duration-200"
+                            className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-card hover:border-border hover:shadow-sm transition-colors duration-150"
+                            style={{ 
+                              animation: `fadeIn 0.2s ease-out ${Math.min(idx * 0.01, 0.3)}s both`,
+                            }}
                           >
                             <div className="flex items-center justify-between p-4">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
