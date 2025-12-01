@@ -97,19 +97,10 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
 
     const transformOptions = getOptimalSize();
     
-    // Используем Supabase Image Transformations если доступны
+    // Получаем базовый публичный URL
     const { data, error } = supabase.storage
       .from(bucket)
-      .getPublicUrl(normalizedPath, {
-        transform: transformOptions.width || transformOptions.height 
-          ? {
-              width: transformOptions.width,
-              height: transformOptions.height,
-              quality: transformOptions.quality || 85,
-              format: 'auto', // Автоматически выбирает WebP если поддерживается
-            }
-          : undefined,
-      });
+      .getPublicUrl(normalizedPath);
     
     if (error) {
       console.error(`[getImageUrl] Error getting public URL (bucket: ${bucket}, path: ${normalizedPath}):`, error);
@@ -121,24 +112,37 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
       return null;
     }
 
+    // ОПТИМИЗАЦИЯ: Добавляем параметры трансформации через URL (если нужно)
+    // Supabase Storage поддерживает трансформации через URL параметры
+    let finalUrl = data.publicUrl;
+    if (transformOptions.width || transformOptions.height) {
+      const params = new URLSearchParams();
+      if (transformOptions.width) params.set('width', transformOptions.width.toString());
+      if (transformOptions.height) params.set('height', transformOptions.height.toString());
+      if (transformOptions.quality) params.set('quality', transformOptions.quality.toString());
+      
+      // Добавляем параметры к URL
+      finalUrl = `${data.publicUrl}?${params.toString()}`;
+    }
+
     // Сохраняем URL в кэш для быстрого доступа в будущем
     // Даже если изображение еще не загружено, URL уже известен
     const existingCache = imageCache.get(cacheKey);
     if (!existingCache) {
       imageCache.set(cacheKey, {
-        url: data.publicUrl,
+        url: finalUrl,
         aspectRatio: 1,
         loaded: false,
       });
-    } else if (existingCache.url !== data.publicUrl) {
+    } else if (existingCache.url !== finalUrl) {
       // Обновляем URL, если он изменился
       imageCache.set(cacheKey, {
         ...existingCache,
-        url: data.publicUrl,
+        url: finalUrl,
       });
     }
 
-    return data.publicUrl;
+    return finalUrl;
   } catch (error) {
     console.error(`[getImageUrl] Exception getting image URL from Supabase Storage (bucket: ${bucket}, path: ${normalizedPath}):`, error);
     return null;
