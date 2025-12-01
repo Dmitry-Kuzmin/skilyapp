@@ -31,11 +31,11 @@ ALTER FUNCTION public.can_access_daily_bonus(UUID) SET search_path = public;
 ALTER FUNCTION public.can_access_challenge_question(UUID) SET search_path = public;
 
 -- Premium functions
-ALTER FUNCTION public.auto_unlock_duel_pass_for_premium(UUID) SET search_path = public;
+ALTER FUNCTION public.auto_unlock_duel_pass_for_premium() SET search_path = public;
 ALTER FUNCTION public.has_premium_forever(UUID) SET search_path = public;
-ALTER FUNCTION public.generate_premium_key(TEXT, INTEGER, TIMESTAMPTZ) SET search_path = public;
+ALTER FUNCTION public.generate_premium_key() SET search_path = public;
 ALTER FUNCTION public.activate_premium_key(TEXT, UUID) SET search_path = public;
-ALTER FUNCTION public.should_purchase_duel_pass(UUID) SET search_path = public;
+ALTER FUNCTION public.should_purchase_duel_pass(UUID, INTEGER) SET search_path = public;
 ALTER FUNCTION public.issue_premium_keys_to_partner(UUID, INTEGER, TEXT) SET search_path = public;
 ALTER FUNCTION public.activate_partner_premium(UUID, TEXT) SET search_path = public;
 
@@ -47,18 +47,18 @@ ALTER FUNCTION public.update_user_flashcard_progress_updated_at() SET search_pat
 
 -- Cosmetics functions
 ALTER FUNCTION public.get_random_sticker_from_pool(TEXT) SET search_path = public;
-ALTER FUNCTION public.get_random_loot(TEXT) SET search_path = public;
+ALTER FUNCTION public.get_random_loot(TEXT, TEXT) SET search_path = public;
 ALTER FUNCTION public.get_seasonal_weekly_badge() SET search_path = public;
-ALTER FUNCTION public.grant_random_loot(UUID, TEXT) SET search_path = public;
+ALTER FUNCTION public.grant_random_loot(UUID, JSONB) SET search_path = public;
 ALTER FUNCTION public.can_access_cosmetics(UUID) SET search_path = public;
 ALTER FUNCTION public.activate_skin(UUID, TEXT) SET search_path = public;
 ALTER FUNCTION public.toggle_badge_display(UUID, TEXT, BOOLEAN) SET search_path = public;
 ALTER FUNCTION public.use_sticker(UUID, TEXT) SET search_path = public;
 
 -- Device tracking functions
-ALTER FUNCTION public.register_or_update_device(UUID, TEXT, TEXT, JSONB) SET search_path = public;
+ALTER FUNCTION public.register_or_update_device(UUID, TEXT, TEXT, TEXT, INET, TEXT) SET search_path = public;
 ALTER FUNCTION public.can_change_password(UUID) SET search_path = public;
-ALTER FUNCTION public.register_password_change(UUID, TEXT) SET search_path = public;
+ALTER FUNCTION public.register_password_change(UUID, INET, TEXT) SET search_path = public;
 ALTER FUNCTION public.cleanup_expired_sessions() SET search_path = public;
 ALTER FUNCTION public.get_user_devices(UUID) SET search_path = public;
 
@@ -114,8 +114,8 @@ ALTER FUNCTION public.update_question_reports_updated_at() SET search_path = pub
 ALTER FUNCTION public.set_question_report_resolved_at() SET search_path = public;
 
 -- Test functions
-ALTER FUNCTION public.initialize_user_test_progress(UUID, UUID) SET search_path = public;
-ALTER FUNCTION public.unlock_next_test(UUID) SET search_path = public;
+ALTER FUNCTION public.initialize_user_test_progress(UUID) SET search_path = public;
+ALTER FUNCTION public.unlock_next_test(UUID, UUID) SET search_path = public;
 ALTER FUNCTION public.update_test_progress(UUID, UUID, INTEGER, INTEGER) SET search_path = public;
 ALTER FUNCTION public.get_test_questions(UUID, INTEGER) SET search_path = public;
 ALTER FUNCTION public.populate_tests_from_questions() SET search_path = public;
@@ -127,12 +127,12 @@ ALTER FUNCTION public.get_user_topics_progress_batch(UUID[]) SET search_path = p
 ALTER FUNCTION public.search_dgt_knowledge(TEXT, INTEGER, INTEGER) SET search_path = public;
 ALTER FUNCTION public.update_rules_search_vector() SET search_path = public;
 ALTER FUNCTION public.search_compact_rules(TEXT, INTEGER, INTEGER) SET search_path = public;
-ALTER FUNCTION public.get_random_dgt_questions(INTEGER) SET search_path = public;
-ALTER FUNCTION public.update_dgt_question_stats(UUID, BOOLEAN) SET search_path = public;
+ALTER FUNCTION public.get_random_dgt_questions(TEXT, INTEGER) SET search_path = public;
+ALTER FUNCTION public.update_dgt_question_stats() SET search_path = public;
 ALTER FUNCTION public.update_dgt_updated_at_column() SET search_path = public;
 
 -- Session functions
-ALTER FUNCTION public.create_or_update_session(TEXT, JSONB) SET search_path = public;
+ALTER FUNCTION public.create_or_update_session(UUID, UUID, TEXT, INET, TEXT, INTEGER) SET search_path = public;
 
 -- Admin functions
 ALTER FUNCTION public.update_admin_reports_updated_at() SET search_path = public;
