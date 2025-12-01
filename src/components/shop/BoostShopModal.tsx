@@ -19,6 +19,7 @@ import { motion } from 'framer-motion';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { usePremium } from '@/hooks/usePremium';
 import { StarsPaymentButton } from '@/components/monetization/StarsPaymentButton';
+import { CryptomusPaymentPreview } from '@/components/monetization/CryptomusPaymentPreview';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { PAYMENT_CONFIG, isPaymentMethodAvailable } from '@/lib/payment-config';
@@ -76,6 +77,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
+  
+  // Состояние для предварительного экрана Cryptomus
+  const [cryptomusPreview, setCryptomusPreview] = useState<{
+    open: boolean;
+    paymentUrl: string;
+    orderId: string;
+    amount: number;
+    currency: string;
+    itemName: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -1155,8 +1166,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                     return;
                                   }
                                   
-                                  if (data?.url) {
-                                    window.location.href = data.url;
+                                  if (data?.url && data?.orderId) {
+                                    // Показываем предварительный экран вместо прямого редиректа
+                                    setCryptomusPreview({
+                                      open: true,
+                                      paymentUrl: data.url,
+                                      orderId: data.orderId,
+                                      amount: pack.price,
+                                      currency: 'EUR',
+                                      itemName: `${pack.amount} монет`,
+                                    });
                                   } else {
                                     toast({
                                       title: t('boostShop.toasts.errorTitle'),
@@ -1536,6 +1555,30 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
       </UnifiedModal>
       <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      
+      {/* Предварительный экран Cryptomus */}
+      {cryptomusPreview && (
+        <CryptomusPaymentPreview
+          open={cryptomusPreview.open}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCryptomusPreview(null);
+            }
+          }}
+          paymentUrl={cryptomusPreview.paymentUrl}
+          orderId={cryptomusPreview.orderId}
+          amount={cryptomusPreview.amount}
+          currency={cryptomusPreview.currency}
+          itemName={cryptomusPreview.itemName}
+          onPaymentComplete={() => {
+            // Обновляем баланс монет после успешной оплаты
+            loadUserData();
+          }}
+          onCancel={() => {
+            // Ничего не делаем при отмене
+          }}
+        />
+      )}
     </>
   );
 }

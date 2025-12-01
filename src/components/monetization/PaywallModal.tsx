@@ -6,6 +6,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Crown } from "lucide-react";
 import { StarsPaymentButton } from "./StarsPaymentButton";
+import { CryptomusPaymentPreview } from "./CryptomusPaymentPreview";
 import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
 import { PAYMENT_CONFIG, getAvailablePaymentMethods, isPaymentMethodAvailable } from "@/lib/payment-config";
 
@@ -44,6 +45,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
   const [loadingPackages, setLoadingPackages] = useState(false);
+  
+  // Состояние для предварительного экрана Cryptomus
+  const [cryptomusPreview, setCryptomusPreview] = useState<{
+    open: boolean;
+    paymentUrl: string;
+    orderId: string;
+    amount: number;
+    currency: string;
+    itemName: string;
+  } | null>(null);
 
   // Определяем доступные методы оплаты
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
@@ -277,17 +288,21 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                               return;
                             }
                             
-                            if (data?.url) {
-                              // Открываем страницу оплаты Cryptomus
-                              if (webApp && platform === 'telegram') {
-                                if ((webApp as any).openLink) {
-                                  (webApp as any).openLink(data.url);
-                                } else {
-                                  window.location.href = data.url;
-                                }
-                              } else {
-                                window.location.href = data.url;
-                              }
+                            if (data?.url && data?.orderId) {
+                              // Показываем предварительный экран вместо прямого редиректа
+                              const packageInfo = pricingPackages[plan.key];
+                              const amount = packageInfo?.price_coins 
+                                ? packageInfo.price_coins / 100 
+                                : parseFloat(plan.price.replace(/[^\d.]/g, ''));
+                              
+                              setCryptomusPreview({
+                                open: true,
+                                paymentUrl: data.url,
+                                orderId: data.orderId,
+                                amount: amount,
+                                currency: 'EUR',
+                                itemName: plan.title,
+                              });
                             } else {
                               alert("Не удалось получить ссылку на оплату");
                             }
@@ -339,6 +354,31 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             })}
           </div>
         </div>
+        
+        {/* Предварительный экран Cryptomus */}
+        {cryptomusPreview && (
+          <CryptomusPaymentPreview
+            open={cryptomusPreview.open}
+            onOpenChange={(open) => {
+              if (!open) {
+                setCryptomusPreview(null);
+              }
+            }}
+            paymentUrl={cryptomusPreview.paymentUrl}
+            orderId={cryptomusPreview.orderId}
+            amount={cryptomusPreview.amount}
+            currency={cryptomusPreview.currency}
+            itemName={cryptomusPreview.itemName}
+            onPaymentComplete={() => {
+              // Обновляем статус Premium после успешной оплаты
+              refresh();
+              onOpenChange(false);
+            }}
+            onCancel={() => {
+              setLoadingKey(null);
+            }}
+          />
+        )}
     </UnifiedModal>
   );
 }
