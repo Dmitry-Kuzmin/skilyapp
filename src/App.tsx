@@ -17,6 +17,7 @@ const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
+import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
