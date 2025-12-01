@@ -12,7 +12,7 @@ export function useChallengeBankCount(profileId: string | null) {
       if (!profileId) return 0;
 
       const { count, error } = await supabase
-        .from("challenge_bank")
+        .from("user_challenge_questions")
         .select("*", { count: "exact", head: true })
         .eq("user_id", profileId)
         .eq("mastered", false);

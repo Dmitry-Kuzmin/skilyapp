@@ -2,10 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface UserProgress {
-  topic_id: string;
-  questions_answered: number;
-  correct_answers: number;
-  last_practiced_at: string | null;
+  is_correct: boolean;
 }
 
 /**
@@ -20,7 +17,7 @@ export function useUserProgress(profileId: string | null) {
 
       const { data, error } = await supabase
         .from("user_progress")
-        .select("topic_id, questions_answered, correct_answers, last_practiced_at")
+        .select("is_correct")
         .eq("user_id", profileId);
 
       if (error) throw error;

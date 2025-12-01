@@ -30,109 +30,56 @@ const Tests = () => {
   const { isPremium } = usePremium();
   const { language, t } = useLanguage();
 
-  // State
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [stats, setStats] = useState({
-    accuracy: 0,
-    completed: 0,
-    correct: 0,
-    errors: 0,
-    totalAnswered: 0,
-    averageScore: 0
-  });
-  const [challengeBankCount, setChallengeBankCount] = useState(0);
+  // ОПТИМИЗАЦИЯ: Используем React Query хуки вместо прямых запросов
+  const { data: dbTopics = [], isLoading: topicsLoading } = useTopics();
+  const { data: userProgress = [] } = useUserProgress(profileId);
+  const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId);
+
   const [randomQuestionCount, setRandomQuestionCount] = useState(20);
-  const [loading, setLoading] = useState(true);
+  const loading = topicsLoading;
 
-  // Load data
-  useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      await Promise.all([
-        loadTopics(),
-        isAuthenticated && profileId ? loadStats() : Promise.resolve(),
-        isAuthenticated && profileId ? loadChallengeBankCount() : Promise.resolve()
-      ]);
-      setLoading(false);
+  // ОПТИМИЗАЦИЯ: Вычисляем topics с локализацией через useMemo
+  const topics = useMemo(() => {
+    return dbTopics.map((topic) => {
+      // Выбираем название темы в зависимости от языка
+      let topicName = "";
+      if (language === "es") {
+        topicName = topic.title_es || topic.title_ru || `Tema ${topic.number}`;
+      } else if (language === "en") {
+        topicName = topic.title_en || topic.title_es || topic.title_ru || `Topic ${topic.number}`;
+      } else {
+        topicName = topic.title_ru || `Тема ${topic.number}`;
+      }
+
+      return {
+        id: topic.id,
+        number: topic.number,
+        name: topicName,
+        questions: 40, // Placeholder
+        cover_image: topic.cover_image,
+        gradient_from: topic.gradient_from,
+        gradient_to: topic.gradient_to,
+        is_premium: topic.is_premium || false,
+      };
+    });
+  }, [dbTopics, language]);
+
+  // ОПТИМИЗАЦИЯ: Вычисляем stats через useMemo
+  const stats = useMemo(() => {
+    const totalAnswered = userProgress.length;
+    const correct = userProgress.filter((item) => item.is_correct).length;
+    const accuracy = totalAnswered > 0 ? Math.round((correct / totalAnswered) * 100) : 0;
+    const errors = totalAnswered - correct;
+
+    return {
+      accuracy,
+      completed: 0, // Не используется в текущей версии
+      correct,
+      errors,
+      totalAnswered,
+      averageScore: 0, // Не используется в текущей версии
     };
-    init();
-  }, [isAuthenticated, profileId]);
-
-  const loadTopics = async () => {
-    try {
-      const { data: dbTopics, error } = await supabase
-        .from("topics")
-        .select(`
-          id, number, title_ru, title_es, title_en, cover_image, 
-          gradient_from, gradient_to, is_premium
-        `)
-        .order('number');
-
-      if (error) throw error;
-
-      const topicsWithCounts = (dbTopics || []).map(topic => {
-        // Выбираем название темы в зависимости от языка
-        let topicName = '';
-        if (language === 'es') {
-          topicName = topic.title_es || topic.title_ru || `Tema ${topic.number}`;
-        } else if (language === 'en') {
-          topicName = topic.title_en || topic.title_es || topic.title_ru || `Topic ${topic.number}`;
-        } else {
-          topicName = topic.title_ru || `Тема ${topic.number}`;
-        }
-
-        return {
-          id: topic.id,
-          number: topic.number,
-          name: topicName,
-          questions: 40, // Placeholder
-          cover_image: topic.cover_image,
-          gradient_from: topic.gradient_from,
-          gradient_to: topic.gradient_to,
-          is_premium: topic.is_premium || false,
-        };
-      });
-
-      setTopics(topicsWithCounts);
-    } catch (error) {
-      console.error("Error loading topics:", error);
-    }
-  };
-
-  const loadStats = async () => {
-    if (!profileId) return;
-    try {
-      const { data } = await supabase
-        .from("user_progress")
-        .select("is_correct")
-        .eq("user_id", profileId);
-
-      const totalAnswered = data?.length || 0;
-      const correct = data?.filter((item) => item.is_correct).length || 0;
-      const accuracy = totalAnswered > 0 ? Math.round((correct / totalAnswered) * 100) : 0;
-      const errors = totalAnswered - correct;
-
-      setStats(prev => ({ ...prev, totalAnswered, correct, accuracy, errors }));
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    }
-  };
-
-  const loadChallengeBankCount = async () => {
-    if (!profileId) return;
-    try {
-      // @ts-ignore
-      const { count } = await supabase
-        .from('user_challenge_questions')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profileId)
-        .eq('mastered', false);
-
-      setChallengeBankCount(count || 0);
-    } catch (error) {
-      console.error("Error loading challenge bank:", error);
-    }
-  };
+  }, [userProgress]);
 
   const handleStartTest = (path: string) => {
     navigate(path);
