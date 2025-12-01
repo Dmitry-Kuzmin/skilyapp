@@ -1210,7 +1210,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                               Используйте Telegram Mini App для оплаты через Stars
                             </div>
                           )}
-                        </div>
+                            </div>
                         </div>
                       </div>
                     </Card>
@@ -1265,13 +1265,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                       <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
                           <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                        </div>
+                      </div>
                         <span className="text-sm font-medium">{t('boostShop.premium.benefits.unlimitedTests')}</span>
                       </div>
                       <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
                           <Check className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                        </div>
+                      </div>
                         <span className="text-sm font-medium">{t('boostShop.premium.benefits.bonusCoins')}</span>
                       </div>
                       <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
@@ -1295,22 +1295,22 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         <div className="space-y-3">
                           <div>
                             <p className="text-xs font-medium text-muted-foreground mb-1">
-                              {t('boostShop.premium.monthlyLabel')}
-                            </p>
+                          {t('boostShop.premium.monthlyLabel')}
+                        </p>
                             <div className="flex items-baseline gap-1">
                               <span className="text-2xl md:text-3xl font-bold text-foreground">€9.99</span>
                               <span className="text-xs text-muted-foreground">/мес</span>
                             </div>
                           </div>
-                          <Button 
-                            size="sm" 
+                        <Button 
+                          size="sm" 
                             variant={isPremium ? "outline" : "default"}
                             className="w-full h-10 font-semibold"
-                            onClick={() => setPaywallOpen(true)}
-                            disabled={isPremium}
-                          >
-                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                          </Button>
+                          onClick={() => setPaywallOpen(true)}
+                          disabled={isPremium}
+                        >
+                          {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                        </Button>
                         </div>
                       </Card>
                       
@@ -1364,14 +1364,14 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">{t('boostShop.premium.lifetimeSuffix')}</p>
                           </div>
-                          <Button 
-                            size="sm" 
+                        <Button 
+                          size="sm" 
                             className="w-full h-10 font-semibold bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0 shadow-md"
-                            onClick={() => setPaywallOpen(true)}
-                            disabled={isPremium}
-                          >
-                            {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                          </Button>
+                          onClick={() => setPaywallOpen(true)}
+                          disabled={isPremium}
+                        >
+                          {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
+                        </Button>
                         </div>
                       </Card>
                     </div>
@@ -1390,7 +1390,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/60 rounded-xl blur-sm opacity-50" />
                         <div className="relative bg-gradient-to-br from-primary to-primary/80 p-2.5 rounded-xl shadow-lg">
                           <Trophy className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                        </div>
+                    </div>
                       </div>
                       <div>
                         <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
@@ -1605,18 +1605,18 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                         ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
                                         : 'bg-red-500/10 text-red-600 dark:text-red-400'
                                 } p-2 rounded-lg`}>
-                                  <IconComponent className="h-4 w-4" />
-                                </div>
+                                <IconComponent className="h-4 w-4" />
+                              </div>
                                 
                                 {/* Описание */}
-                                <div className="flex-1 min-w-0">
+                              <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-foreground truncate">
                                     {tx.description}
                                   </p>
-                                  <div className="flex items-center gap-2 mt-0.5">
-                                    <p className="text-xs text-muted-foreground">
-                                      {formatTransactionDate(tx.created_at)}
-                                    </p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatTransactionDate(tx.created_at)}
+                                  </p>
                                     {tx.category && (isPurchase || isReward) && (
                                       <Badge 
                                         variant="secondary" 
@@ -1627,28 +1627,28 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                         }`}
                                       >
                                         {isPurchase
-                                          ? t('boostShop.history.badges.purchase')
+                                        ? t('boostShop.history.badges.purchase')
                                           : t('boostShop.history.badges.reward')}
-                                      </Badge>
-                                    )}
-                                  </div>
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
+                            </div>
                               
                               {/* Сумма */}
                               <div className="flex-shrink-0 ml-2">
-                                {tx.metadata?.price && tx.amount === 0 ? (
+                              {tx.metadata?.price && tx.amount === 0 ? (
                                   <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                                     €{tx.metadata.price}
                                   </span>
-                                ) : (
+                              ) : (
                                   <span className={`text-sm font-bold ${
                                     isPositive 
                                       ? 'text-green-600 dark:text-green-400' 
                                       : 'text-red-600 dark:text-red-400'
                                   }`}>
                                     {isPositive ? '+' : ''}{tx.amount}
-                                  </span>
+                            </span>
                                 )}
                               </div>
                             </div>

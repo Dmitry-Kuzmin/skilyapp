@@ -45,7 +45,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
   const [loadingPackages, setLoadingPackages] = useState(false);
-  
+
   // Состояние для предварительного экрана Cryptomus
   const [cryptomusPreview, setCryptomusPreview] = useState<{
     open: boolean;
