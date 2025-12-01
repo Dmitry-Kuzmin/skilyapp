@@ -291,9 +291,18 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                             if (data?.url && data?.orderId) {
                               // Показываем предварительный экран вместо прямого редиректа
                               const packageInfo = pricingPackages[plan.key];
-                              const amount = packageInfo?.price_coins 
-                                ? packageInfo.price_coins / 100 
-                                : parseFloat(plan.price.replace(/[^\d.]/g, ''));
+                              let amount = 0;
+                              
+                              if (packageInfo?.price_coins) {
+                                amount = packageInfo.price_coins / 100;
+                              } else {
+                                // Парсим цену из строки типа "€9.99 / мес"
+                                const priceMatch = plan.price.match(/[\d.]+/);
+                                amount = priceMatch ? parseFloat(priceMatch[0]) : 0;
+                              }
+                              
+                              // Убеждаемся, что amount - число
+                              amount = Number(amount) || 0;
                               
                               setCryptomusPreview({
                                 open: true,

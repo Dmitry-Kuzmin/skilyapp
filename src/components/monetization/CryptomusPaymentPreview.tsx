@@ -157,7 +157,7 @@ export function CryptomusPaymentPreview({
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Сумма:</span>
               <span className="font-bold text-lg">
-                {amount.toFixed(2)} {currency.toUpperCase()}
+                {typeof amount === 'number' ? amount.toFixed(2) : Number(amount || 0).toFixed(2)} {currency.toUpperCase()}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
