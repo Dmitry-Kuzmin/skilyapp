@@ -201,8 +201,12 @@ serve(async (req) => {
         db_item_id: entry.dbItemId,
         ...(entry.metadata || {}),
       }),
-      currencies: ["USDT", "BTC", "ETH", "TRX"], // Поддерживаемые криптовалюты
-      network: "TRC20", // Для USDT
+      currencies: [
+        { currency: "USDT", network: "TRC20" },
+        { currency: "BTC" },
+        { currency: "ETH" },
+        { currency: "TRX" }
+      ], // Поддерживаемые криптовалюты
       address: null,
       is_refresh: false,
     };
