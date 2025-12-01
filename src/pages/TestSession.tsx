@@ -927,7 +927,35 @@ const TestSession = () => {
                   started_at: new Date().toISOString(),
                 }, {
                   onConflict: 'user_id,test_id'
+                })
+                .catch((error) => {
+                  // Обработка ошибок upsert (не критично, продолжаем работу)
+                  console.error("[TestSession] Ошибка обновления прогресса:", error);
                 });
+            })
+            .catch((error) => {
+              // Обработка ошибок: если запись не найдена (PGRST116) - это нормально для нового теста
+              if (error?.code === 'PGRST116') {
+                // Запись не найдена - это нормально, создаем новую
+                setStartTime(Date.now());
+                supabase
+                  .from("user_test_progress")
+                  .upsert({
+                    user_id: profileId,
+                    test_id: testId,
+                    status: 'in_progress',
+                    started_at: new Date().toISOString(),
+                  }, {
+                    onConflict: 'user_id,test_id'
+                  })
+                  .catch((upsertError) => {
+                    console.error("[TestSession] Ошибка создания прогресса:", upsertError);
+                  });
+              } else {
+                // Другая ошибка - логируем, но не блокируем тест
+                console.error("[TestSession] Ошибка проверки прогресса:", error);
+                setStartTime(Date.now());
+              }
             });
         }
         
