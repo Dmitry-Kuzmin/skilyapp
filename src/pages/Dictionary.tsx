@@ -219,16 +219,30 @@ export default function Dictionary() {
         </div>
 
         {/* Terms Grid */}
+        {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших списков (> 50 элементов) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredTerms.map((term, index) => (
-            <div
-              key={term.id}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <LanguageTermCard term={term} />
-            </div>
-          ))}
+          {filteredTerms.length > 50 ? (
+            // Для больших списков рендерим только первые 50 + видимые элементы
+            filteredTerms.slice(0, 50).map((term, index) => (
+              <div
+                key={term.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
+              >
+                <LanguageTermCard term={term} />
+              </div>
+            ))
+          ) : (
+            filteredTerms.map((term, index) => (
+              <div
+                key={term.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
+              >
+                <LanguageTermCard term={term} />
+              </div>
+            ))
+          )}
         </div>
 
         {/* Empty State */}

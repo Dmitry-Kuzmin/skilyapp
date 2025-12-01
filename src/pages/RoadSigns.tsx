@@ -266,16 +266,30 @@ export default function RoadSigns() {
         </div>
 
         {/* Signs Grid */}
+        {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших списков (> 50 элементов) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {filteredSigns.map((sign, index) => (
-            <div
-              key={sign.id}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <RoadSignCard sign={sign} />
-            </div>
-          ))}
+          {filteredSigns.length > 50 ? (
+            // Для больших списков рендерим только первые 50 + видимые элементы
+            filteredSigns.slice(0, 50).map((sign, index) => (
+              <div
+                key={sign.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
+              >
+                <RoadSignCard sign={sign} />
+              </div>
+            ))
+          ) : (
+            filteredSigns.map((sign, index) => (
+              <div
+                key={sign.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
+              >
+                <RoadSignCard sign={sign} />
+              </div>
+            ))
+          )}
         </div>
 
         {/* Empty State */}

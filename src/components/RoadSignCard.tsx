@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Languages, Info } from "lucide-react";
+import { LazyImage } from "@/components/LazyImage";
 
 interface RoadSign {
   id: string;
@@ -43,13 +44,10 @@ export const RoadSignCard = memo(({ sign }: RoadSignCardProps) => {
           <CardContent className="relative p-4 space-y-3">
             {/* Image Container */}
             <div className="aspect-square rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-              <img 
+              <LazyImage 
                 src={sign.image_url} 
                 alt={sign.name_es}
                 className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500"
-                loading="lazy"
-                decoding="async"
-                fetchPriority="auto"
               />
             </div>
 
@@ -97,12 +95,11 @@ export const RoadSignCard = memo(({ sign }: RoadSignCardProps) => {
           <div className="space-y-4">
             <div className="relative group rounded-2xl bg-gradient-to-br from-muted to-muted/50 p-8 shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-              <img 
+              <LazyImage 
                 src={sign.image_url} 
                 alt={sign.name_es}
                 className="w-full h-auto max-h-80 object-contain relative z-10 drop-shadow-2xl"
-                loading="lazy"
-                decoding="async"
+                priority={true}
               />
             </div>
           </div>

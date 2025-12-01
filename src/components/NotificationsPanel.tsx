@@ -265,8 +265,9 @@ export function NotificationsPanel({
                     </div>
 
                     {/* Notifications in group */}
+                    {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших групп (> 20 уведомлений) */}
                     <div className="space-y-2">
-                      {groupNotifications.map((notification) => (
+                      {(groupNotifications.length > 20 ? groupNotifications.slice(0, 20) : groupNotifications).map((notification) => (
                         <div
                           key={notification.id}
                           onClick={() => handleNotificationClick(notification)}
