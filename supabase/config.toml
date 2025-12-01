@@ -35,3 +35,9 @@ verify_jwt = false
 
 [functions.complete-test-and-award]
 verify_jwt = true
+
+[functions.cryptomus-webhook]
+verify_jwt = false
+
+[functions.cryptomus-payment]
+verify_jwt = false
