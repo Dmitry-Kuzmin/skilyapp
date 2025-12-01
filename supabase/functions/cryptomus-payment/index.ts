@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createHash } from "https://deno.land/std@0.168.0/node/crypto.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -81,25 +82,20 @@ const CATALOG: Record<string, CatalogEntry> = {
 
 /**
  * Создать подпись для Cryptomus API
+ * Формат: MD5(base64(payload) + secret)
  */
-async function createSignature(payload: string, secret: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(secret);
-  const payloadData = encoder.encode(payload);
+function createSignature(payload: string, secret: string): string {
+  // 1. Кодируем payload в base64
+  const base64Payload = btoa(unescape(encodeURIComponent(payload)));
   
-  const key = await crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
+  // 2. Объединяем base64 payload с секретом
+  const dataToHash = base64Payload + secret;
   
-  const signature = await crypto.subtle.sign("HMAC", key, payloadData);
-  const hashArray = Array.from(new Uint8Array(signature));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  
-  return hashHex;
+  // 3. Вычисляем MD5 хэш
+  // Используем Node.js crypto для MD5 (доступен через std/node)
+  const hash = createHash("md5");
+  hash.update(dataToHash);
+  return hash.digest("hex");
 }
 
 serve(async (req) => {
@@ -213,7 +209,7 @@ serve(async (req) => {
 
     // Создаем подпись
     const payloadString = JSON.stringify(payload);
-    const signature = await createSignature(payloadString, cryptomusPaymentKey);
+    const signature = createSignature(payloadString, cryptomusPaymentKey);
 
     // Отправляем запрос в Cryptomus API
     const cryptomusResponse = await fetch("https://api.cryptomus.com/v1/payment", {
