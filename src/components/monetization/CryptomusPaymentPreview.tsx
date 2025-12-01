@@ -139,7 +139,7 @@ export function CryptomusPaymentPreview({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !max-h-none !overflow-visible !pt-8"
+        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !max-h-none !overflow-visible !pt-8 !gap-0"
       >
         <DialogHeader className="space-y-2">
           <DialogTitle>Подтверждение оплаты</DialogTitle>
@@ -221,7 +221,7 @@ export function CryptomusPaymentPreview({
           </CardContent>
         </Card>
 
-        <div className="flex gap-3 mt-6 pt-4 border-t">
+        <div className="flex gap-3 mt-4 -mx-6 -mb-6 px-6 pb-6 pt-4 border-t bg-muted/30">
           <Button
             variant="outline"
             onClick={handleCancel}
