@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 import { useModalStore, type ModalType, getModalUrlKey } from '@/store/modalStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import React from 'react';
@@ -137,6 +137,12 @@ export const GlobalModalManager = () => {
 
   // Рендерим только на клиенте
   if (typeof window === 'undefined') return null;
+  
+  // Проверяем, что document.body существует и готов
+  if (!document.body) return null;
+
+  // Если модалок нет, ничего не рендерим
+  if (stack.length === 0) return null;
 
   return createPortal(
     <AnimatePresence mode="wait">

@@ -229,13 +229,39 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         return;
       }
       
+      // КРИТИЧНО: Проверяем, что touch не начинается на интерактивном элементе
+      const target = e.target as HTMLElement;
+      const interactiveElements = ['button', 'a', 'input', 'select', 'textarea', '[role="tab"]', '[role="button"]', '[role="link"]'];
+      const isInteractive = interactiveElements.some(selector => {
+        if (selector.startsWith('[')) {
+          return target.closest(selector) !== null;
+        }
+        return target.closest(selector) !== null || target.tagName.toLowerCase() === selector;
+      });
+      
+      // Если touch начинается на интерактивном элементе - игнорируем
+      if (isInteractive) {
+        return;
+      }
+      
       const touchY = e.touches[0].clientY;
+      const touchX = e.touches[0].clientX;
       const rect = contentRef.current?.getBoundingClientRect();
       
       if (!rect) return;
       
       // Сохраняем высоту модалки для динамического порога
       modalHeightRef.current = rect.height;
+      
+      // КРИТИЧНО: Свайп для закрытия только из очень узкой зоны вверху (индикатор + 40px)
+      // Это предотвращает случайное закрытие при взаимодействии с контентом
+      const dragZoneHeight = 50; // Узкая зона только для индикатора и небольшой области вокруг
+      const isInDragZone = touchY - rect.top < dragZoneHeight;
+      
+      if (!isInDragZone) {
+        // Touch не в зоне для drag - игнорируем
+        return;
+      }
       
       // Instagram-стиль: "липкая" прокрутка - проверяем, можно ли скроллить контент
       const scrollableElement = e.currentTarget.querySelector('[data-scrollable]') || 
@@ -247,10 +273,9 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       const scrollTop = isScrollable ? (scrollableElement as HTMLElement).scrollTop : 0;
       
       // Если контент скроллится и мы не в самом верху - не начинаем свайп для закрытия
-      if (isScrollable && scrollTop > 0) {
-        // Проверяем, что свайп начинается от верха sheet (зона индикатора)
-        if (touchY - rect.top < 60) {
-          // Если скролл вверху, разрешаем свайп для закрытия
+      if (isScrollable && scrollTop > 10) {
+        // Если есть скролл, разрешаем свайп только если мы точно в зоне индикатора
+        if (touchY - rect.top < 30) {
           setStartY(touchY);
           setIsDragging(true);
           velocityRef.current = 0;
@@ -262,17 +287,15 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           }
         }
       } else {
-        // Если контент не скроллится или мы вверху - разрешаем свайп с любой точки верха
-        if (touchY - rect.top < 100) { // Увеличиваем зону для лучшего UX
+        // Если контент не скроллится или мы вверху - разрешаем свайп только из зоны индикатора
         setStartY(touchY);
         setIsDragging(true);
-          velocityRef.current = 0;
-          lastYRef.current = touchY;
-          lastTimeRef.current = Date.now();
-          
+        velocityRef.current = 0;
+        lastYRef.current = touchY;
+        lastTimeRef.current = Date.now();
+        
         if (contentRef.current) {
           contentRef.current.style.touchAction = 'pan-y';
-          }
         }
       }
     };
