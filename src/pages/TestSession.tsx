@@ -274,21 +274,6 @@ const TestSession = () => {
   const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
   const [masteryRound, setMasteryRound] = useState(1);
   
-  // КРИТИЧНО: Состояния для отслеживания онлайн/офлайн и синхронизации
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [pendingSync, setPendingSync] = useState(false);
-  
-  // КРИТИЧНО: Состояния для обработки конфликтов во время активной сессии
-  const [conflictNotification, setConflictNotification] = useState<{
-    visible: boolean;
-    conflicts: Array<{
-      questionId: string;
-      questionNumber: number;
-      localAnswer: boolean;
-      serverAnswer: boolean;
-    }>;
-  }>({ visible: false, conflicts: [] });
-  
   const isTelegramApp = isTelegramMiniApp();
 
   // Сохраняем настройки в localStorage
@@ -1697,11 +1682,7 @@ useEffect(() => {
     setAnswers(updatedAnswers);
     
     // КРИТИЧНО: Сохраняем ответ локально для offline режима
-    // Используем server time для защиты от неверного времени на устройстве
     if (testInfo?.id) {
-      // Используем синхронную версию для быстроты (offset уже кэширован)
-      const { getServerTimeSync } = await import('@/utils/serverTime');
-      
       saveTestProgress(
         testInfo.id,
         mode,
@@ -1709,7 +1690,7 @@ useEffect(() => {
           questionId: a.questionId,
           selectedAnswerId: a.selectedAnswerId,
           isCorrect: a.isCorrect,
-          timestamp: getServerTimeSync(), // Используем server time (быстро, через offset)
+          timestamp: Date.now(),
         })),
         currentIndex,
         startTime
@@ -1849,80 +1830,37 @@ useEffect(() => {
   
   // КРИТИЧНО: Отслеживание онлайн/офлайн статуса и синхронизация
   useEffect(() => {
-    const handleOnline = async () => {
+    const handleOnline = () => {
       setIsOnline(true);
       setPendingSync(true);
       
       // Синхронизируем сохраненные ответы при восстановлении связи
-      if (testInfo?.id && answers.length > 0 && profileId) {
+      if (testInfo?.id && answers.length > 0) {
         toast.success('Соединение восстановлено', {
           description: 'Синхронизируем ваши ответы...',
           duration: 3000,
         });
         
-        try {
-          // КРИТИЧНО: Синхронизация с сервером с разрешением конфликтов
-          // Сначала сохраняем локально
-          // КРИТИЧНО: Используем server time для защиты от неверного времени на устройстве
-          const { getServerTime } = await import('@/utils/serverTime');
-          const serverTime = await getServerTime();
-          
-          const localProgress: import('@/utils/testStorage').TestProgress = {
-            testId: testInfo.id,
-            mode,
-            answers: answers.map(a => ({
-              questionId: a.questionId,
-              selectedAnswerId: a.selectedAnswerId,
-              isCorrect: a.isCorrect,
-              timestamp: serverTime, // Используем server time
-            })),
-            currentIndex,
-            startTime,
-            lastUpdated: serverTime,
-          };
-
-          await saveTestProgress(
-            testInfo.id,
-            mode,
-            localProgress.answers,
-            currentIndex,
-            startTime
-          );
-
-          // Затем синхронизируем с сервером с разрешением конфликтов
-          const { syncTestProgress } = await import('@/utils/testSync');
-          const syncResult = await syncTestProgress(profileId, localProgress);
-
-          if (syncResult.success) {
-            setPendingSync(false);
-            if (syncResult.conflicts > 0) {
-              toast.success(`Прогресс синхронизирован`, {
-                description: `Разрешено ${syncResult.conflicts} конфликтов. Отправлено ${syncResult.syncedAnswers} ответов.`,
-                duration: 3000,
-              });
-            } else {
-              toast.success(`Прогресс синхронизирован`, {
-                description: `Отправлено ${syncResult.syncedAnswers} ответов`,
-                duration: 2000,
-              });
-            }
-          } else {
-            setPendingSync(false);
-            toast.error('Ошибка синхронизации', {
-              description: syncResult.error || 'Не удалось синхронизировать прогресс',
-              duration: 5000,
-            });
-          }
-        } catch (error) {
+        // Здесь можно добавить синхронизацию с сервером
+        // Пока просто сохраняем локально
+        saveTestProgress(
+          testInfo.id,
+          mode,
+          answers.map(a => ({
+            questionId: a.questionId,
+            selectedAnswerId: a.selectedAnswerId,
+            isCorrect: a.isCorrect,
+            timestamp: Date.now(),
+          })),
+          currentIndex,
+          startTime
+        ).then(() => {
+          setPendingSync(false);
+          toast.success('Прогресс синхронизирован', { duration: 2000 });
+        }).catch((error) => {
           console.error('[TestSession] Error syncing progress:', error);
           setPendingSync(false);
-          toast.error('Ошибка синхронизации', {
-            description: 'Не удалось синхронизировать прогресс',
-            duration: 5000,
-          });
-        }
-      } else {
-        setPendingSync(false);
+        });
       }
     };
 
@@ -1941,135 +1879,7 @@ useEffect(() => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [testInfo, answers, currentIndex, startTime, mode, profileId]);
-
-  // КРИТИЧНО: Периодическая проверка конфликтов во время активной сессии (каждые 30 секунд)
-  useEffect(() => {
-    if (!isOnline || !testInfo?.id || !profileId || answers.length === 0) {
-      return;
-    }
-
-    const checkConflicts = async () => {
-      try {
-        const { checkForConflicts } = await import('@/utils/testSync');
-        const { getServerTime } = await import('@/utils/serverTime');
-        const serverTime = await getServerTime();
-        
-        const localProgress: import('@/utils/testStorage').TestProgress = {
-          testId: testInfo.id,
-          mode,
-          answers: answers.map(a => ({
-            questionId: a.questionId,
-            selectedAnswerId: a.selectedAnswerId,
-            isCorrect: a.isCorrect,
-            timestamp: serverTime,
-          })),
-          currentIndex,
-          startTime,
-          lastUpdated: serverTime,
-        };
-
-        const conflictCheck = await checkForConflicts(profileId, localProgress);
-        
-        if (conflictCheck.hasConflicts && conflictCheck.conflicts.length > 0) {
-          // Показываем уведомление о конфликтах
-          const conflictsWithNumbers = conflictCheck.conflicts.map(conflict => {
-            const questionIndex = questions.findIndex(q => q.id === conflict.questionId);
-            return {
-              questionId: conflict.questionId,
-              questionNumber: questionIndex + 1,
-              localAnswer: conflict.localAnswer,
-              serverAnswer: conflict.serverAnswer,
-            };
-          }).filter(c => c.questionNumber > 0);
-
-          if (conflictsWithNumbers.length > 0) {
-            setConflictNotification({
-              visible: true,
-              conflicts: conflictsWithNumbers,
-            });
-          }
-        }
-      } catch (error) {
-        console.error('[TestSession] Error checking for conflicts:', error);
-      }
-    };
-
-    // Проверяем сразу при монтировании (если есть ответы)
-    checkConflicts();
-
-    // Затем проверяем каждые 30 секунд
-    const interval = setInterval(checkConflicts, 30000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [isOnline, testInfo, answers, currentIndex, startTime, mode, profileId, questions]);
-
-  // Обработчик применения обновлений с сервера при конфликте
-  const handleApplyServerUpdates = async () => {
-    if (!testInfo?.id || !profileId) return;
-
-    try {
-      const { syncTestProgress } = await import('@/utils/testSync');
-      const { getServerTime } = await import('@/utils/serverTime');
-      const serverTime = await getServerTime();
-      
-      const localProgress: import('@/utils/testStorage').TestProgress = {
-        testId: testInfo.id,
-        mode,
-        answers: answers.map(a => ({
-          questionId: a.questionId,
-          selectedAnswerId: a.selectedAnswerId,
-          isCorrect: a.isCorrect,
-          timestamp: serverTime,
-        })),
-        currentIndex,
-        startTime,
-        lastUpdated: serverTime,
-      };
-
-      const syncResult = await syncTestProgress(profileId, localProgress);
-      
-      if (syncResult.success) {
-        // Обновляем локальные ответы на основе синхронизированных данных
-        const updatedAnswers = answers.map(answer => {
-          const mergedAnswer = syncResult.mergedAnswers.find(ma => ma.questionId === answer.questionId);
-          if (mergedAnswer && mergedAnswer.source === 'merged' || mergedAnswer?.source === 'server') {
-            return {
-              ...answer,
-              isCorrect: mergedAnswer.isCorrect,
-            };
-          }
-          return answer;
-        });
-        
-        setAnswers(updatedAnswers);
-        
-        toast.success('Обновления применены', {
-          description: `Синхронизировано ${syncResult.syncedAnswers} ответов`,
-          duration: 3000,
-        });
-      }
-      
-      setConflictNotification({ visible: false, conflicts: [] });
-    } catch (error) {
-      console.error('[TestSession] Error applying server updates:', error);
-      toast.error('Ошибка применения обновлений', {
-        description: 'Не удалось применить обновления с сервера',
-        duration: 5000,
-      });
-    }
-  };
-
-  // Обработчик пропуска обновлений
-  const handleSkipUpdates = () => {
-    setConflictNotification({ visible: false, conflicts: [] });
-    toast.info('Обновления пропущены', {
-      description: 'Ваши локальные ответы сохранены',
-      duration: 2000,
-    });
-  };
+  }, [testInfo, answers, currentIndex, startTime, mode]);
 
   // Прокрутка вверх при изменении вопроса
   useEffect(() => {
@@ -2392,39 +2202,6 @@ useEffect(() => {
           <div className="mb-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
             <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             <span>Синхронизация прогресса...</span>
-          </div>
-        )}
-        
-        {/* КРИТИЧНО: Уведомление о конфликтах во время активной сессии */}
-        {conflictNotification.visible && conflictNotification.conflicts.length > 0 && (
-          <div className="mb-2 px-4 py-3 rounded-lg bg-orange-500/10 border-2 border-orange-500/30 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm font-semibold text-orange-600 dark:text-orange-400">
-              <AlertTriangle className="w-4 h-4" />
-              <span>Обнаружены обновления с другого устройства</span>
-            </div>
-            <p className="text-xs text-orange-700 dark:text-orange-300">
-              {conflictNotification.conflicts.length === 1
-                ? `Ответ на вопрос ${conflictNotification.conflicts[0].questionNumber} был изменен на другом устройстве.`
-                : `Ответы на ${conflictNotification.conflicts.length} вопросов были изменены на другом устройстве.`}
-            </p>
-            <div className="flex gap-2 mt-1">
-              <Button
-                size="sm"
-                variant="default"
-                onClick={handleApplyServerUpdates}
-                className="text-xs h-7 bg-orange-500 hover:bg-orange-600 text-white"
-              >
-                Применить обновления
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleSkipUpdates}
-                className="text-xs h-7 border-orange-500/50 text-orange-600 dark:text-orange-400 hover:bg-orange-500/10"
-              >
-                Пропустить
-              </Button>
-            </div>
           </div>
         )}
 

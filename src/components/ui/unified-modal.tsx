@@ -27,6 +27,7 @@ interface UnifiedModalProps {
   modalRouteKey?: string;
   fullscreen?: boolean; // Полноэкранный режим с залитым фоном
   preventClose?: boolean; // Предотвратить закрытие (клик вне, ESC) - полезно для форм с несохраненными данными
+  zIndex?: number; // Z-index для управления наложением модалок (используется глобальным менеджером)
 }
 
 /**
@@ -58,6 +59,7 @@ export function UnifiedModal({
   modalRouteKey,
   fullscreen = false,
   preventClose = false,
+  zIndex,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
   

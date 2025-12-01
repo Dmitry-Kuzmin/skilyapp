@@ -18,6 +18,7 @@ const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewC
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
+import { GlobalModalManager } from "@/components/GlobalModalManager";
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -292,6 +293,8 @@ const App = () => {
                   <HallOfFameModal />
                   <DuelPassLeaderboardModal />
                 </Suspense>
+                {/* Глобальный менеджер модалок для Instagram-подобного поведения */}
+                <GlobalModalManager />
                 <PerformanceMonitor />
               </BrowserRouter>
             </CosmeticsPreviewProvider>
