@@ -105,24 +105,24 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
         <div className="flex items-center justify-center gap-3 mb-2">
           <Sparkles className="w-6 h-6 text-primary animate-pulse" />
           <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-            {t('achievements.title')}
+            {t('achievementsModal.title')}
           </h2>
           <Sparkles className="w-6 h-6 text-primary animate-pulse" />
         </div>
         <p className="text-muted-foreground text-sm">
-          {t('achievements.description')}
+          {t('achievementsModal.description')}
         </p>
       </div>
 
       <Card className="p-4 border border-border/30 shadow-sm bg-gradient-to-br from-card via-card to-primary/5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">{t('achievements.totalXP')}</p>
+            <p className="text-sm text-muted-foreground">{t('achievementsModal.totalXP')}</p>
             <p className="text-3xl font-bold tabular-nums">{xp.toLocaleString()} XP</p>
-            <p className="text-xs text-muted-foreground mt-1">{t('achievements.xpToNextLevel', { xp: xpToNextLevel })}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('achievementsModal.xpToNextLevel', { xp: xpToNextLevel })}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">{t('achievements.currentLevel')}</p>
+            <p className="text-sm text-muted-foreground">{t('achievementsModal.currentLevel')}</p>
             <p className="text-2xl font-bold">Lv {level}</p>
           </div>
         </div>
@@ -174,7 +174,7 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                 <div className="flex items-center gap-3">
                   <Icon className="w-5 h-5 text-primary" />
                   <h3 className="text-lg font-bold capitalize">
-                    {t(`achievements.categories.${category}`)}
+                    {t(`achievementsModal.categories.${category}`)}
                   </h3>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -219,13 +219,13 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                               : "border-border/60 text-muted-foreground bg-muted/20"
                           )}
                         >
-                          {isUnlocked ? t('achievements.unlocked') : `+${achievement.reward.xp ?? 0} XP`}
+                          {isUnlocked ? t('achievementsModal.unlocked') : `+${achievement.reward.xp ?? 0} XP`}
                         </div>
                       </div>
                       {!isUnlocked && (
                         <>
                           <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-3">
-                            <span>{t('achievements.progressLabel')}</span>
+                            <span>{t('achievementsModal.progressLabel')}</span>
                             <span>{percent}%</span>
                           </div>
                           <Progress value={percent} className="h-1.5 mt-1.5" />
