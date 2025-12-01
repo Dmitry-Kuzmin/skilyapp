@@ -546,6 +546,25 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={(e) => handleTouchEnd(e)}
+          onClick={(e) => {
+            // КРИТИЧНО: Предотвращаем закрытие модалки при клике на контент
+            // Radix UI закрывает модалку при клике на overlay, но мы не хотим закрывать при клике на контент
+            const target = e.target as HTMLElement;
+            
+            // Если клик на интерактивный элемент - останавливаем распространение
+            const interactiveElements = ['button', 'a', 'input', 'select', 'textarea', '[role="tab"]', '[role="button"]', '[role="link"]'];
+            const isInteractive = interactiveElements.some(selector => {
+              if (selector.startsWith('[')) {
+                return target.closest(selector) !== null;
+              }
+              return target.closest(selector) !== null || target.tagName.toLowerCase() === selector;
+            });
+            
+            // Если клик на интерактивный элемент - останавливаем распространение
+            if (isInteractive) {
+              e.stopPropagation();
+            }
+          }}
           onOpenAutoFocus={(e) => {
             // Предотвращаем автофокус на первый элемент при открытии (может мешать свайпу)
             e.preventDefault();

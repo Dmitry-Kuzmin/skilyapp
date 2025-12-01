@@ -63,6 +63,12 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
 export const GlobalModalManager = () => {
   const { stack, closeModal, openModal } = useModalStore();
   const [searchParams] = useSearchParams();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Проверяем, что компонент смонтирован и DOM готов
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Синхронизация URL -> модалки при монтировании и изменении URL
   useEffect(() => {
@@ -135,8 +141,8 @@ export const GlobalModalManager = () => {
     }
   }, [stack.length]);
 
-  // Рендерим только на клиенте
-  if (typeof window === 'undefined') return null;
+  // Рендерим только на клиенте и после монтирования
+  if (typeof window === 'undefined' || !isMounted) return null;
   
   // Проверяем, что document.body существует и готов
   if (!document.body) return null;
