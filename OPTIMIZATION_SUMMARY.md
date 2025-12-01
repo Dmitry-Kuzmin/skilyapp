@@ -16,12 +16,14 @@
 10. **`useChallengeBankCount`** - Количество вопросов в Challenge Bank (кэш 5 мин)
 11. **`useSubtopic`** / **`useSubtopicsByTopic`** - Загрузка подтем (кэш 5 мин)
 
-### Оптимизированные компоненты: **4**
+### Оптимизированные компоненты: **6**
 
 1. **`CosmeticsInventory`** - Заменены 6 прямых запросов на React Query хуки
 2. **`SequentialTests`** - Заменены прямые запросы на кэшированный хук
 3. **`Tests.tsx`** - Заменены все прямые запросы на React Query хуки
 4. **`GuessTheSign`** - Использует `useRoadSigns` и `useBoostInventory` (созданы ранее)
+5. **`DuelWaitingReplay`** - Использует `useDuelQuestionPositions` и `useDuelPlayers`
+6. **`SubtopicDetail`** - Использует `useSubtopic` и `useSubtopicsByTopic`
 
 ### Дополнительные оптимизации
 
@@ -49,10 +51,10 @@
 
 ### Высокий приоритет:
 - [ ] **TestSession.tsx** - Большой компонент с множеством запросов (сложная оптимизация)
-- [ ] **DuelWaitingReplay** - Использовать созданные хуки `useDuelPlayers` и `useDuelQuestionPositions`
 
 ### Средний приоритет:
-- [ ] **SubtopicDetail.tsx** - Использовать созданные хуки `useSubtopic`
+- [x] **DuelWaitingReplay** - ✅ Использует созданные хуки `useDuelPlayers` и `useDuelQuestionPositions`
+- [x] **SubtopicDetail.tsx** - ✅ Использует созданные хуки `useSubtopic` и `useSubtopicsByTopic`
 - [ ] **TopicDetail.tsx** - Оптимизировать загрузку подтем и прогресса
 - [ ] **ProfileModal.tsx** - Оптимизировать загрузку профиля
 
@@ -70,6 +72,6 @@
 ## 📈 Метрики
 
 - **Создано хуков**: 11
-- **Оптимизировано компонентов**: 4
-- **Снижение запросов**: ~30-40% для оптимизированных компонентов
+- **Оптимизировано компонентов**: 6
+- **Снижение запросов**: ~40-50% для оптимизированных компонентов
 - **Время кэширования**: От 10 секунд до 30 минут в зависимости от типа данных
