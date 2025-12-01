@@ -2462,6 +2462,7 @@ const languageOverrides: Partial<Record<Language, Record<string, any>>> = {
         coins: "Coins",
       },
       startButton: "Start",
+      level: "Level",
     },
   },
 };
