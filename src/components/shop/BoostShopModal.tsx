@@ -1168,8 +1168,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                                   
                                   if (data?.url && data?.orderId) {
                                     // Показываем предварительный экран вместо прямого редиректа
-                                    // Убеждаемся, что price - число
-                                    const amount = Number(pack.price) || 0;
+                                    // Используем priceValue (число) вместо price (строка)
+                                    const amount = pack.priceValue || 0;
                                     
                                     setCryptomusPreview({
                                       open: true,
