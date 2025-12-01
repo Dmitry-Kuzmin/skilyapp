@@ -107,8 +107,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
     logUserContext("[UserContext] Setting up Supabase auth listener");
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         logUserContext("[UserContext] Auth state changed:", event, newSession?.user?.email);
+        
+        // КРИТИЧНО: Сохраняем токен в IndexedDB для доступа из Service Worker
+        if (newSession?.access_token) {
+          const { saveAuthToken } = await import('@/utils/authTokenStorage');
+          // Вычисляем expires_in из expires_at
+          const expiresAt = newSession.expires_at ? newSession.expires_at * 1000 : Date.now() + 3600000;
+          const expiresIn = Math.floor((expiresAt - Date.now()) / 1000);
+          await saveAuthToken(newSession.access_token, expiresIn);
+        }
         
         // КРИТИЧНО: Если есть реальный пользователь из Supabase, очищаем Telegram mock-данные
         if (newSession?.user) {

@@ -20,6 +20,7 @@ const IMPORTANT_CATEGORIES = new Set(['duel', 'progress', 'system', 'monetizatio
 type EventPayload = Record<string, any>;
 
 interface EventRequest {
+  event_id?: string; // КРИТИЧНО: Уникальный ID для дедупликации
   user_id: string;
   event_type: string;
   payload?: EventPayload;
@@ -40,7 +41,7 @@ serve(async (req) => {
     }
 
     const body: EventRequest = await req.json();
-    const { user_id, event_type, payload = {}, override_template_type } = body;
+    const { event_id, user_id, event_type, payload = {}, override_template_type } = body;
 
     if (!user_id || !event_type) {
       return new Response(JSON.stringify({ error: 'user_id and event_type are required' }), {
@@ -50,6 +51,51 @@ serve(async (req) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // КРИТИЧНО: Дедупликация по event_id (если передан)
+    if (event_id) {
+      const { data: existingEvent } = await supabase
+        .from('analytics_events_log')
+        .select('id, processed')
+        .eq('event_id', event_id)
+        .maybeSingle();
+
+      if (existingEvent) {
+        if (existingEvent.processed) {
+          // Событие уже обработано - возвращаем успех (идемпотентность)
+          console.log(`[EventDispatcher] Event ${event_id} already processed, skipping`);
+          return new Response(
+            JSON.stringify({ success: true, skipped: true, reason: 'already_processed' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } else {
+          // Событие в процессе обработки - возвращаем успех (защита от дубликатов)
+          console.log(`[EventDispatcher] Event ${event_id} already in queue, skipping`);
+          return new Response(
+            JSON.stringify({ success: true, skipped: true, reason: 'duplicate' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
+      // Записываем событие в лог для дедупликации (еще не обработано)
+      await supabase
+        .from('analytics_events_log')
+        .insert({
+          event_id,
+          user_id,
+          event_type,
+          payload,
+          override_template_type,
+          processed: false,
+        })
+        .catch((error) => {
+          // Игнорируем ошибки уникальности (если событие уже есть)
+          if (error.code !== '23505') {
+            console.error('[EventDispatcher] Error logging event:', error);
+          }
+        });
+    }
 
     const { data: settings } = await supabase
       .from('user_notification_settings')
@@ -164,6 +210,17 @@ serve(async (req) => {
       if (!sent) continue;
 
       sentCount += 1;
+    }
+
+    // КРИТИЧНО: Помечаем событие как обработанное (если был event_id)
+    if (event_id) {
+      await supabase
+        .from('analytics_events_log')
+        .update({ processed: true, processed_at: new Date().toISOString() })
+        .eq('event_id', event_id)
+        .catch((error) => {
+          console.error('[EventDispatcher] Error marking event as processed:', error);
+        });
     }
 
     return new Response(JSON.stringify({ success: true, sent: sentCount }), {

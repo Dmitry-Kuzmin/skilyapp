@@ -199,8 +199,25 @@ async function sendBatch(): Promise<void> {
               return store.delete(event.id);
             })
             .catch((error) => {
+              // КРИТИЧНО: Если токен протух (401) - НЕ увеличиваем retryCount, откладываем до открытия приложения
+              if (error.message === 'TOKEN_EXPIRED') {
+                console.warn(`[AnalyticsQueue] Token expired for event ${event.id}, deferring until app opens`);
+                // НЕ удаляем событие, НЕ увеличиваем retryCount
+                // Оно будет отправлено когда приложение откроется и токен обновится
+                return Promise.resolve(); // Пропускаем это событие
+              }
+              
+              // Для других ошибок - стандартная обработка
               console.error(`[AnalyticsQueue] Failed to send event ${event.id}:`, error);
-              // Увеличиваем счетчик попыток
+              
+              // КРИТИЧНО: Для 400 ошибок (Bad Request) - НЕ ретраим (ошибка клиента)
+              const isClientError = error.status === 400 || error.message?.includes('400') || error.message?.includes('Bad Request');
+              if (isClientError) {
+                console.warn(`[AnalyticsQueue] Client error (400) for event ${event.id}, not retrying`);
+                return store.delete(event.id); // Удаляем, не ретраим
+              }
+              
+              // Увеличиваем счетчик попыток только для сетевых/серверных ошибок
               event.retryCount += 1;
               
               // Если превышен лимит попыток, удаляем событие
@@ -232,10 +249,12 @@ async function sendBatch(): Promise<void> {
 
 /**
  * Отправить одно событие
+ * КРИТИЧНО: Включает event_id для дедупликации на сервере
  */
 async function sendSingleEvent(event: AnalyticsEvent): Promise<void> {
   const { error } = await supabase.functions.invoke('user-event-dispatcher', {
     body: {
+      event_id: event.id, // КРИТИЧНО: Уникальный ID для дедупликации
       user_id: event.user_id,
       event_type: event.event_type,
       payload: event.payload,
@@ -244,6 +263,11 @@ async function sendSingleEvent(event: AnalyticsEvent): Promise<void> {
   });
 
   if (error) {
+    // КРИТИЧНО: Если 401 (Unauthorized) - токен протух, откладываем отправку
+    if (error.status === 401 || error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+      console.warn(`[AnalyticsQueue] Token expired for event ${event.id}, deferring until app opens`);
+      throw new Error('TOKEN_EXPIRED'); // Специальная ошибка для обработки
+    }
     throw error;
   }
 }
@@ -398,6 +422,21 @@ if (typeof window !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && isOnline()) {
       scheduleBatchSend();
+    }
+  });
+
+  // КРИТИЧНО: iOS fallback - используем pagehide вместо beforeunload (более надежно)
+  // pagehide срабатывает при закрытии вкладки, сворачивании, переключении приложения
+  document.addEventListener('pagehide', (event) => {
+    // persisted = true означает, что страница сохраняется в кэше (не закрывается полностью)
+    // persisted = false означает, что страница закрывается
+    if (!event.persisted && isOnline()) {
+      // Страница закрывается - пытаемся отправить критичные события
+      console.log('[AnalyticsQueue] Page hiding, attempting to send critical events');
+      // Отправляем только HIGH приоритет события
+      sendCriticalEventsOnly().catch((error) => {
+        console.error('[AnalyticsQueue] Failed to send critical events on pagehide:', error);
+      });
     }
   });
 
