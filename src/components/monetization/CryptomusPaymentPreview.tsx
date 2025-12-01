@@ -138,11 +138,11 @@ export function CryptomusPaymentPreview({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !max-h-none !overflow-visible"
+        className="sm:max-w-md !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !max-h-none !overflow-visible !pt-8"
       >
-        <DialogHeader>
+        <DialogHeader className="space-y-2">
           <DialogTitle>Подтверждение оплаты</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             Проверьте детали платежа перед переходом к оплате
           </DialogDescription>
         </DialogHeader>
@@ -162,9 +162,29 @@ export function CryptomusPaymentPreview({
                 {typeof amount === 'number' ? amount.toFixed(2) : Number(amount || 0).toFixed(2)} {currency.toUpperCase()}
               </span>
             </div>
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex flex-col gap-1.5 text-sm pt-1">
               <span className="text-muted-foreground">ID заказа:</span>
-              <span className="font-mono text-xs">{orderId}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs break-all text-muted-foreground bg-muted/50 px-2 py-1.5 rounded border">
+                  {orderId}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 flex-shrink-0"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(orderId);
+                      toast.success('ID заказа скопирован');
+                    } catch (err) {
+                      console.error('Failed to copy:', err);
+                    }
+                  }}
+                  title="Скопировать ID заказа"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
 
             {/* Статус проверки оплаты */}
@@ -200,19 +220,19 @@ export function CryptomusPaymentPreview({
           </CardContent>
         </Card>
 
-        <div className="flex gap-2 mt-4 pt-2">
+        <div className="flex gap-3 mt-6 pt-4 border-t">
           <Button
             variant="outline"
             onClick={handleCancel}
             disabled={isNavigating || paymentStatus === 'completed'}
-            className="flex-1"
+            className="flex-1 h-11"
           >
             Отмена
           </Button>
           <Button
             onClick={handleProceedToPayment}
             disabled={isNavigating || paymentStatus === 'completed'}
-            className="flex-1"
+            className="flex-1 h-11"
           >
             {isNavigating ? (
               <>
