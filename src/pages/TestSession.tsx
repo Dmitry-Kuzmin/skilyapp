@@ -1918,6 +1918,13 @@ useEffect(() => {
   };
 
   const finishTest = async () => {
+    // КРИТИЧНО: Очищаем локальное сохранение после завершения теста
+    if (testInfo?.id) {
+      clearTestProgress(testInfo.id).catch((error) => {
+        console.error('[TestSession] Error clearing saved progress:', error);
+      });
+    }
+    
     // MASTERY MODE: Если есть неправильные вопросы - повторяем!
     if (mode === "mastery" && masteryWrongQuestions.length > 0) {
       const wrongQuestionsData = questions.filter(q => masteryWrongQuestions.includes(q.id));
