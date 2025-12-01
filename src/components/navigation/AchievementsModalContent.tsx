@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const XP_PER_LEVEL = 225;
 
@@ -58,6 +59,7 @@ const categoryIcons: Record<string, any> = {
 };
 
 export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: AchievementsModalContentProps) => {
+  const { t } = useLanguage();
   const [combinedAchievements, setCombinedAchievements] = useState<CombinedAchievement[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -103,41 +105,41 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
         <div className="flex items-center justify-center gap-3 mb-2">
           <Sparkles className="w-6 h-6 text-primary animate-pulse" />
           <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-            Достижения
+            {t('achievements.title')}
           </h2>
           <Sparkles className="w-6 h-6 text-primary animate-pulse" />
         </div>
         <p className="text-muted-foreground text-sm">
-          Отслеживайте прогресс и открывайте награды — всё в одном окне
+          {t('achievements.description')}
         </p>
       </div>
 
       <Card className="p-4 border border-border/30 shadow-sm bg-gradient-to-br from-card via-card to-primary/5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">Всего опыта</p>
+            <p className="text-sm text-muted-foreground">{t('achievements.totalXP')}</p>
             <p className="text-3xl font-bold tabular-nums">{xp.toLocaleString()} XP</p>
-            <p className="text-xs text-muted-foreground mt-1">До следующего уровня: {xpToNextLevel} XP</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('achievements.xpToNextLevel', { xp: xpToNextLevel })}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Текущий уровень</p>
+            <p className="text-sm text-muted-foreground">{t('achievements.currentLevel')}</p>
             <p className="text-2xl font-bold">Lv {level}</p>
           </div>
         </div>
         <div className="mt-4 space-y-2">
           <Progress value={Math.max(0, Math.min(100, ((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100))} className="h-2" />
-          <p className="text-xs text-muted-foreground text-right">Осталось {xpToNextLevel} XP</p>
+          <p className="text-xs text-muted-foreground text-right">{t('achievements.xpRemaining', { xp: xpToNextLevel })}</p>
         </div>
       </Card>
 
       <Card className="p-4 border border-border/30">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-sm text-muted-foreground">Открыто достижений</p>
+            <p className="text-sm text-muted-foreground">{t('achievements.unlockedCount')}</p>
             <p className="text-2xl font-bold">{unlockedCount} / {totalCount}</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-muted-foreground">Прогресс</p>
+            <p className="text-sm text-muted-foreground">{t('achievements.progress')}</p>
             <p className="text-2xl font-bold text-primary">{Math.round(completionPercent)}%</p>
           </div>
         </div>
@@ -172,13 +174,7 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                 <div className="flex items-center gap-3">
                   <Icon className="w-5 h-5 text-primary" />
                   <h3 className="text-lg font-bold capitalize">
-                    {category === "beginner" && "Новичок"}
-                    {category === "master" && "Мастер"}
-                    {category === "streak" && "Серия"}
-                    {category === "accuracy" && "Точность"}
-                    {category === "games" && "Игры"}
-                    {category === "learning" && "Обучение"}
-                    {category === "other" && "Другое"}
+                    {t(`achievements.categories.${category}`)}
                   </h3>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -223,13 +219,13 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                               : "border-border/60 text-muted-foreground bg-muted/20"
                           )}
                         >
-                          {isUnlocked ? "Получено" : `+${achievement.reward.xp ?? 0} XP`}
+                          {isUnlocked ? t('achievements.unlocked') : `+${achievement.reward.xp ?? 0} XP`}
                         </div>
                       </div>
                       {!isUnlocked && (
                         <>
                           <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-3">
-                            <span>Прогресс</span>
+                            <span>{t('achievements.progressLabel')}</span>
                             <span>{percent}%</span>
                           </div>
                           <Progress value={percent} className="h-1.5 mt-1.5" />
