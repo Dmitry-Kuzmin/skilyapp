@@ -170,6 +170,11 @@ export default defineConfig(({ mode }) => {
               return 'react-vendor';
             }
             
+            // КРИТИЧНО: framer-motion в отдельный chunk для предотвращения проблем с минификацией
+            if (id.includes('framer-motion')) {
+              return 'framer-motion';
+            }
+            
             // Специфичные проверки для известных React-зависимых библиотек
             if (
               id.includes('@radix-ui') ||
@@ -186,7 +191,6 @@ export default defineConfig(({ mode }) => {
               id.includes('cmdk') ||
               id.includes('vaul') ||
               id.includes('next-themes') ||
-              id.includes('framer-motion') ||
               id.includes('lucide-react') ||
               id.includes('use-sync-external-store') ||
               id.includes('useSyncExternalStore') ||
