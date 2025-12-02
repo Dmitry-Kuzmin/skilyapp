@@ -126,9 +126,11 @@ export default defineConfig(({ mode }) => {
     },
   },
   build: {
-    // КРИТИЧНО: Временно отключаем минификацию для диагностики проблемы с Nn is not a function
-    minify: false, // Временно отключаем для диагностики
+    // КРИТИЧНО: Включаем минификацию обратно, но с более безопасными настройками
+    minify: 'esbuild',
     target: 'es2015',
+    // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации
+    cssMinify: true,
     // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
     cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
     cssMinify: true, // Минифицируем CSS
@@ -154,6 +156,12 @@ export default defineConfig(({ mode }) => {
         tryCatchDeoptimization: false,
       },
       output: {
+        // КРИТИЧНО: Добавляем версионирование для принудительной инвалидации кэша
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        // КРИТИЧНО: Отключаем hoisting для предотвращения проблем с динамическими импортами
+        hoistTransitiveImports: false,
         manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
@@ -274,6 +282,12 @@ export default defineConfig(({ mode }) => {
   // КРИТИЧНО: Настройки для правильной обработки динамических импортов
   ssr: {
     noExternal: [], // Не делаем ничего external для SSR (у нас нет SSR, но это может помочь)
+  },
+  // КРИТИЧНО: Настройки для правильной обработки динамических импортов и React.lazy()
+  esbuild: {
+    // Отключаем некоторые оптимизации, которые могут ломать динамические импорты
+    legalComments: 'none',
+    treeShaking: true,
   },
   };
 });

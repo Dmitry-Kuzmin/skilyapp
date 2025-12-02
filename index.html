@@ -249,12 +249,25 @@
         }
       }
     </script>
-    <!-- КРИТИЧНО: Логирование перед загрузкой модуля -->
+    <!-- КРИТИЧНО: Принудительная очистка кэша для решения проблемы с Nn is not a function -->
     <script>
+      // КРИТИЧНО: Очищаем кэш перед загрузкой модулей
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
+        });
+      }
+      
+      // КРИТИЧНО: Добавляем версию в URL для принудительной инвалидации кэша
+      const CACHE_BUST = '?v=' + Date.now();
+      
       console.log('[HTML] ✅ Script execution started', {
         timestamp: new Date().toISOString(),
         readyState: document.readyState,
         location: window.location.href,
+        cacheBust: CACHE_BUST,
       });
       
       // Проверяем, что модули поддерживаются
@@ -267,7 +280,7 @@
       
       // Отслеживаем ошибки загрузки модулей
       window.addEventListener('error', function(e) {
-        if (e.filename && e.filename.includes('main')) {
+        if (e.filename && (e.filename.includes('main') || e.filename.includes('react-vendor'))) {
           console.error('[HTML] ❌ Module load error:', {
             message: e.message,
             filename: e.filename,
