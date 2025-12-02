@@ -12,6 +12,7 @@ import {
   Download, 
   Sparkles, 
   Zap, 
+  Music,
   Shield, 
   BarChart3, 
   Check, 
@@ -21,7 +22,8 @@ import {
   Linkedin,
   Youtube,
   Facebook,
-  Globe
+  Globe,
+  Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -51,7 +53,7 @@ interface LinkHistory {
 // Social sources with lucide icons
 const SOURCES = [
   { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'text-pink-500', gradient: 'from-purple-500 to-pink-500', bg: 'bg-pink-500/20' },
-  { id: 'tiktok', name: 'TikTok', icon: Zap, color: 'text-cyan-400', gradient: 'from-cyan-400 to-black', bg: 'bg-cyan-500/20' },
+  { id: 'tiktok', name: 'TikTok', icon: Music, color: 'text-cyan-400', gradient: 'from-cyan-400 to-black', bg: 'bg-cyan-500/20' },
   { id: 'twitter', name: 'Twitter', icon: Twitter, color: 'text-sky-400', gradient: 'from-sky-400 to-blue-500', bg: 'bg-sky-500/20' },
   { id: 'youtube', name: 'YouTube', icon: Youtube, color: 'text-red-500', gradient: 'from-red-500 to-orange-500', bg: 'bg-red-500/20' },
   { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'text-blue-600', gradient: 'from-blue-600 to-cyan-600', bg: 'bg-blue-500/20' },
@@ -149,6 +151,43 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
     setCopied(true);
     toast.success("Скопировано!");
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadQR = () => {
+    if (!generatedLink) {
+      toast.error("Сначала создайте ссылку");
+      return;
+    }
+    
+    const svg = document.querySelector('.qr-code-canvas');
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx!.drawImage(img, 0, 0);
+      const pngFile = canvas.toDataURL('image/png');
+      
+      const downloadLink = document.createElement('a');
+      downloadLink.download = `qr-${generatedLink.link_code}.png`;
+      downloadLink.href = pngFile;
+      downloadLink.click();
+      
+      toast.success("QR-код сохранён!");
+    };
+    
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  const handleReset = () => {
+    setGeneratedLink(null);
+    setCampaign("");
+    setPreviewLink("skilyapp.com/waiting...");
   };
 
   const currentSource = selectedSource;
@@ -253,23 +292,36 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
               </div>
             </div>
 
-            {/* Action */}
-            <button
-              onClick={handleGenerate}
-              disabled={loading || !campaign.trim()}
-              className={`
-                w-full relative overflow-hidden group bg-white text-black font-medium py-3.5 rounded-xl transition-all duration-200
-                hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]
-                disabled:opacity-50 disabled:cursor-not-allowed
-                ${loading ? 'scale-[0.99] opacity-90' : 'hover:scale-[1.01]'}
-              `}
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {loading ? 'Генерация...' : 'Generate Magic Link'}
-                {!loading && <Sparkles size={16} className="text-indigo-600" />}
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
-            </button>
+            {/* Action Buttons */}
+            <div className="space-y-2">
+              <button
+                onClick={handleGenerate}
+                disabled={loading || !campaign.trim()}
+                className={`
+                  w-full relative overflow-hidden group bg-white text-black font-medium py-3.5 rounded-xl transition-all duration-200
+                  hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  ${loading ? 'scale-[0.99] opacity-90' : 'hover:scale-[1.01]'}
+                `}
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  {loading ? 'Генерация...' : 'Generate Magic Link'}
+                  {!loading && <Sparkles size={16} className="text-indigo-600" />}
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+
+              {generatedLink && (
+                <motion.button
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={handleReset}
+                  className="w-full py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white bg-slate-900/50 hover:bg-slate-800 border border-white/5 hover:border-white/10 transition-all"
+                >
+                  Create New Link
+                </motion.button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -310,6 +362,7 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                           fgColor="#000000"
                           bgColor="#ffffff"
                           level="H"
+                          className="qr-code-canvas"
                         />
                       ) : (
                         <div className="w-full h-full bg-slate-100 rounded-lg flex items-center justify-center">
@@ -352,8 +405,9 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                         <span>{copied ? 'Copied' : 'Copy'}</span>
                       </button>
                       <button 
-                        onClick={() => toast.info("Сохранение QR...")}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-medium text-slate-300 hover:text-white transition-all active:scale-95"
+                        onClick={handleDownloadQR}
+                        disabled={!generatedLink}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-medium text-slate-300 hover:text-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Download size={14} />
                         <span>Save</span>
@@ -384,24 +438,32 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
 
       </div>
 
-      {/* Recent Links History */}
+      {/* Recent Links History - под генератором */}
       {linkHistory.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-12 w-full max-w-6xl mx-auto"
+          className="mt-16 w-full"
         >
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
-              Recent Links
-            </h2>
-            <span className="text-xs text-slate-600">{linkHistory.length} ссылок</span>
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Clock size={18} className="text-slate-500" />
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                Recent Links
+              </h2>
+            </div>
+            <span className="text-xs text-slate-600 px-2.5 py-1 rounded-lg bg-slate-900/50 border border-white/5">
+              {linkHistory.length} {linkHistory.length === 1 ? 'ссылка' : 'ссылок'}
+            </span>
           </div>
 
           <div className="space-y-2">
-            {linkHistory.map((link) => (
-              <div
+            {linkHistory.map((link, index) => (
+              <motion.div
                 key={link.link_id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
                 className="group p-4 rounded-xl bg-slate-900/50 border border-white/5 hover:bg-slate-900/80 hover:border-white/10 transition-all"
               >
                 <div className="flex items-center justify-between gap-4">
@@ -449,7 +511,7 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </motion.div>
