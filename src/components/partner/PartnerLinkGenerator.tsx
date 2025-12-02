@@ -436,15 +436,13 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
           </div>
         </div>
 
-      </div>
-
-      {/* Recent Links History - под генератором */}
-      {linkHistory.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-16 w-full"
-        >
+        {/* Recent Links History */}
+        {linkHistory.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-16 col-span-full"
+          >
           <div className="mb-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Clock size={18} className="text-slate-500" />
@@ -514,8 +512,10 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
               </motion.div>
             ))}
           </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+
+      </div>
     </div>
   );
 }
