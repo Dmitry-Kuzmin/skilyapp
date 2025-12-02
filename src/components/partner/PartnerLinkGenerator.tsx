@@ -13,6 +13,9 @@ import {
   Sparkles, 
   Zap, 
   Music,
+  Music2,
+  Send,
+  MessageCircle,
   Shield, 
   BarChart3, 
   Check, 
@@ -23,7 +26,12 @@ import {
   Youtube,
   Facebook,
   Globe,
-  Clock
+  Clock,
+  Search,
+  MoreHorizontal,
+  MousePointer2,
+  TrendingUp,
+  Users
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -61,6 +69,19 @@ const SOURCES = [
   { id: 'other', name: 'Other', icon: Globe, color: 'text-emerald-400', gradient: 'from-emerald-400 to-teal-500', bg: 'bg-emerald-500/20' },
 ];
 
+// Helper to get channel icon
+const getChannelIcon = (channel: string) => {
+  switch (channel.toLowerCase()) {
+    case 'instagram': return Instagram;
+    case 'telegram': return Send;
+    case 'tiktok': return Music2;
+    case 'youtube': return Youtube;
+    case 'whatsapp': return MessageCircle;
+    case 'facebook': return Facebook;
+    default: return LinkIcon;
+  }
+};
+
 export function PartnerLinkGenerator({ partnerId }: Props) {
   const [loading, setLoading] = useState(false);
   const [destination, setDestination] = useState<string>("home");
@@ -70,6 +91,8 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
   const [previewLink, setPreviewLink] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [linkHistory, setLinkHistory] = useState<LinkHistory[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Active'>('All');
 
   // Live preview - обновляется автоматически
   useEffect(() => {
@@ -144,6 +167,18 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
   useEffect(() => {
     loadLinkHistory();
   }, [partnerId]);
+
+  // Calculate stats
+  const totalClicks = linkHistory.reduce((acc, link) => acc + link.clicks_count, 0);
+  const totalRegs = linkHistory.reduce((acc, link) => acc + link.registrations_count, 0);
+  const avgConv = totalClicks > 0 ? ((totalRegs / totalClicks) * 100).toFixed(1) : '0.0';
+
+  // Filter links
+  const filteredLinks = linkHistory.filter(link => {
+    const matchesSearch = link.utm_campaign.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'All' || (statusFilter === 'Active' && link.clicks_count >= 0);
+    return matchesSearch && matchesStatus;
+  });
 
   const handleCopy = async () => {
     const linkToCopy = generatedLink?.full_url || previewLink;
@@ -459,82 +494,172 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
           </div>
         </div>
 
-        {/* Recent Links History */}
+        {/* Links PRO - History Table */}
         {linkHistory.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mt-16 col-span-full"
           >
-          <div className="mb-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Clock size={18} className="text-slate-500" />
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-                Recent Links
-              </h2>
-            </div>
-            <span className="text-xs text-slate-600 px-2.5 py-1 rounded-lg bg-slate-900/50 border border-white/5">
-              {linkHistory.length} {linkHistory.length === 1 ? 'ссылка' : 'ссылок'}
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {linkHistory.map((link, index) => (
-              <motion.div
-                key={link.link_id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="group p-4 rounded-xl bg-slate-900/50 border border-white/5 hover:bg-slate-900/80 hover:border-white/10 transition-all"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  {/* Left: Link Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <code className="text-xs font-mono text-slate-400 px-2 py-0.5 rounded bg-white/5">
-                        {link.link_code}
-                      </code>
-                      <span className="text-sm font-medium text-white truncate">
-                        {link.utm_campaign}
-                      </span>
-                    </div>
-                    <code className="text-xs text-slate-600 truncate block">
-                      {link.full_url}
-                    </code>
-                  </div>
-
-                  {/* Center: Stats */}
-                  <div className="hidden md:flex items-center gap-6">
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">Clicks</div>
-                      <div className="text-sm font-semibold text-slate-300">{link.clicks_count}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">Reg</div>
-                      <div className="text-sm font-semibold text-slate-300">{link.registrations_count}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">CR</div>
-                      <div className="text-sm font-semibold text-indigo-400">{link.conversion_rate}%</div>
-                    </div>
-                  </div>
-
-                  {/* Right: Actions */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(link.full_url);
-                        toast.success("Скопировано!");
-                      }}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <Copy size={14} />
-                    </button>
-                  </div>
+            {/* Header with Stats */}
+            <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <h2 className="text-2xl font-bold tracking-tight text-white">Links</h2>
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/20">PRO</span>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+                <p className="text-zinc-400 text-sm">Управляйте, отслеживайте и оптимизируйте кампании</p>
+              </div>
+              
+              <div className="flex items-center gap-6 border-l border-zinc-800 pl-6">
+                <div className="text-right">
+                  <p className="text-xs text-zinc-500 uppercase font-semibold">Clicks (All)</p>
+                  <p className="text-lg font-bold text-zinc-200">{totalClicks.toLocaleString()}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-zinc-500 uppercase font-semibold">Regs (All)</p>
+                  <p className="text-lg font-bold text-zinc-200">{totalRegs}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-zinc-500 uppercase font-semibold">Conv.</p>
+                  <p className="text-lg font-bold text-emerald-400">{avgConv}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input 
+                  type="text" 
+                  placeholder="Поиск по кампаниям..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+                  <button 
+                    onClick={() => setStatusFilter('All')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${statusFilter === 'All' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  >
+                    All
+                  </button>
+                  <button 
+                    onClick={() => setStatusFilter('Active')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${statusFilter === 'Active' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  >
+                    Active
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-zinc-800 bg-zinc-900/50">
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Campaign</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Target</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Clicks</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Regs</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Conv.</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Created</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/50">
+                    {filteredLinks.map((link) => {
+                      // Extract source from campaign name
+                      const sourceName = link.utm_campaign.split('_')[0] || 'other';
+                      const ChannelIconComponent = getChannelIcon(sourceName);
+                      
+                      return (
+                        <tr 
+                          key={link.link_id}
+                          className="group hover:bg-zinc-800/30 cursor-pointer transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-400 group-hover:border-zinc-600 transition-colors">
+                                <ChannelIconComponent className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-white group-hover:text-indigo-400 transition-colors">{link.utm_campaign}</p>
+                                <p className="text-xs text-zinc-500 capitalize">{sourceName}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-sm text-zinc-400">{link.destination || 'Main Page'}</span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <span className="text-sm text-zinc-300 font-medium">{link.clicks_count.toLocaleString()}</span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <span className="text-sm text-zinc-300 font-medium">{link.registrations_count}</span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${
+                              link.conversion_rate > 10 ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400'
+                            }`}>
+                              {link.conversion_rate}%
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-xs text-zinc-500">
+                              {new Date(link.created_at).toLocaleDateString('ru-RU', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                              })}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border bg-emerald-500/5 text-emerald-400 border-emerald-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                              Active
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                              <button 
+                                onClick={() => {
+                                  navigator.clipboard.writeText(link.full_url);
+                                  toast.success("Скопировано!");
+                                }}
+                                className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded-md"
+                                title="Copy Link"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              <button className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-700 rounded-md">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                
+                {filteredLinks.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="p-4 rounded-full bg-zinc-900 border border-zinc-800 mb-4">
+                      <Search className="w-6 h-6 text-zinc-500" />
+                    </div>
+                    <h3 className="text-zinc-200 font-medium mb-1">Ссылки не найдены</h3>
+                    <p className="text-zinc-500 text-sm max-w-xs">Попробуйте изменить фильтры или создайте новую ссылку</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </motion.div>
         )}
 
