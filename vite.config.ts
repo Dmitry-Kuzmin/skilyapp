@@ -162,6 +162,12 @@ export default defineConfig(({ mode }) => {
         assetFileNames: 'assets/[name]-[hash].[ext]',
         // КРИТИЧНО: Отключаем hoisting для предотвращения проблем с динамическими импортами
         hoistTransitiveImports: false,
+        // КРИТИЧНО: Правильная обработка динамических импортов для React.lazy()
+        inlineDynamicImports: false, // Не инлайним динамические импорты
+        // КРИТИЧНО: Используем ES модули для правильной работы динамических импортов
+        format: 'es',
+        // КРИТИЧНО: Сохраняем сигнатуры entry points для правильной работы React.lazy()
+        preserveEntrySignatures: 'strict',
         manualChunks: (id) => {
           // Разделяем node_modules на отдельные chunks
           if (id.includes('node_modules')) {
