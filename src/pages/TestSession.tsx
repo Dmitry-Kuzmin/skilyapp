@@ -274,6 +274,26 @@ const TestSession = () => {
   const [masteryWrongQuestions, setMasteryWrongQuestions] = useState<string[]>([]);
   const [masteryRound, setMasteryRound] = useState(1);
   
+  // КРИТИЧНО: Состояния для отслеживания онлайн/офлайн и синхронизации
+  const [isOnline, setIsOnline] = useState(() => {
+    if (typeof navigator !== 'undefined') {
+      return navigator.onLine;
+    }
+    return true;
+  });
+  const [pendingSync, setPendingSync] = useState(false);
+  
+  // КРИТИЧНО: Состояния для обработки конфликтов во время активной сессии
+  const [conflictNotification, setConflictNotification] = useState<{
+    visible: boolean;
+    conflicts: Array<{
+      questionId: string;
+      questionNumber: number;
+      localAnswer: boolean;
+      serverAnswer: boolean;
+    }>;
+  }>({ visible: false, conflicts: [] });
+  
   const isTelegramApp = isTelegramMiniApp();
 
   // Сохраняем настройки в localStorage

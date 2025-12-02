@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 
 interface QuestionProgressBarProps {
   currentIndex: number;
@@ -98,41 +97,6 @@ export function QuestionProgressBar({
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           </div>
-          
-          {/* Visual indicators for answered questions - современные компактные индикаторы */}
-          {answers.length > 0 && (
-            <div className="absolute inset-0 flex items-center pointer-events-none">
-              {answers.map((answer, idx) => {
-                // Правильный расчет позиции: центрируем индикатор на позиции вопроса
-                // Используем (idx + 0.5) для центрирования между границами сегмента
-                const position = ((idx + 0.5) / totalQuestions) * 100;
-                // w-2 h-2 = 8px, поэтому вычитаем 4px для центрирования
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: idx * 0.03, duration: 0.2, type: "spring", stiffness: 300 }}
-                    className={cn(
-                      "absolute rounded-full transition-all duration-200",
-                      answer.isCorrect
-                        ? "w-2 h-2 bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
-                        : "w-2 h-2 bg-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.2),0_1px_2px_rgba(0,0,0,0.1)]"
-                    )}
-                    style={{ 
-                      left: `calc(${position}% - 4px)`,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 10
-                    }}
-                  >
-                    {/* Тонкий блик для современного вида */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 via-transparent to-transparent" />
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
         </div>
         
         {/* Score indicators */}

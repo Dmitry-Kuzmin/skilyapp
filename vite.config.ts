@@ -126,20 +126,16 @@ export default defineConfig(({ mode }) => {
     },
   },
   build: {
-    // КРИТИЧНО: Включаем минификацию обратно, но с более безопасными настройками
+    // КРИТИЧНО: Используем esbuild с более консервативными настройками
     minify: 'esbuild',
     target: 'es2015',
     // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации
     cssMinify: true,
     // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
     cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
-    cssMinify: true, // Минифицируем CSS
     sourcemap: false, // Отключаем sourcemaps в production для уменьшения размера
     // ОПТИМИЗАЦИЯ: Улучшенное удаление неиспользуемого кода
     cssTarget: 'chrome80', // Оптимизация для современных браузеров
-    // ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ: Улучшенная компрессия
-    minifySyntax: true, // Минификация синтаксиса
-    minifyWhitespace: true, // Удаление пробелов
       rollupOptions: {
       // КРИТИЧНО: Явно указываем entry point
       input: 'index.html',
@@ -148,6 +144,10 @@ export default defineConfig(({ mode }) => {
         moduleSideEffects: (id) => {
           // КРИТИЧНО: framer-motion имеет side effects и должен быть включен полностью
           if (id.includes('framer-motion')) {
+            return true;
+          }
+          // КРИТИЧНО: React и ReactDOM должны сохранять side effects
+          if (id.includes('react') || id.includes('react-dom')) {
             return true;
           }
           return 'no-external'; // Разрешаем side effects для внутренних модулей
@@ -169,29 +169,20 @@ export default defineConfig(({ mode }) => {
         // КРИТИЧНО: Сохраняем сигнатуры entry points для правильной работы React.lazy()
         preserveEntrySignatures: 'strict',
         manualChunks: (id) => {
-          // Разделяем node_modules на отдельные chunks
+          // УПРОЩЕННАЯ СТРАТЕГИЯ: Разделяем на минимальное количество chunks
+          // для предотвращения проблем с загрузкой и минификацией
           if (id.includes('node_modules')) {
-            // КРИТИЧНО: ВСЕ React-зависимые библиотеки в ОДНОМ chunk
-            // Проверяем ПЕРВЫМ, чтобы гарантировать правильный порядок загрузки
-            // Это предотвращает ошибки forwardRef/useLayoutEffect на Vercel
-            
             // ОПТИМИЗАЦИЯ: Тяжелые библиотеки в отдельные chunks для lazy loading
             if (id.includes('recharts')) {
               return 'recharts-vendor'; // ~200KB - загружается только в админке
             }
             
-            // Широкий паттерн для всех библиотек с "react" в пути
-            if (id.includes('/react') || id.includes('\\react')) {
-              return 'react-vendor';
-            }
-            
-            // КРИТИЧНО: framer-motion в отдельный chunk для предотвращения проблем с минификацией
-            if (id.includes('framer-motion')) {
-              return 'framer-motion';
-            }
-            
-            // Специфичные проверки для известных React-зависимых библиотек
+            // КРИТИЧНО: ВСЕ React и React-зависимые библиотеки в ОДНОМ chunk
+            // Это предотвращает проблемы с минификацией и порядком загрузки
             if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router') ||
               id.includes('@radix-ui') ||
               id.includes('@tanstack/react-query') ||
               id.includes('react-hook-form') ||
@@ -207,6 +198,7 @@ export default defineConfig(({ mode }) => {
               id.includes('vaul') ||
               id.includes('next-themes') ||
               id.includes('lucide-react') ||
+              id.includes('framer-motion') ||
               id.includes('use-sync-external-store') ||
               id.includes('useSyncExternalStore') ||
               id.includes('use-callback-ref') ||
@@ -214,54 +206,14 @@ export default defineConfig(({ mode }) => {
             ) {
               return 'react-vendor';
             }
-            // Supabase
+            
+            // Supabase - отдельный chunk
             if (id.includes('@supabase')) {
               return 'supabase';
             }
-            // TipTap (только extensions, без react - @tiptap/react уже в react-vendor)
-            if (id.includes('@tiptap') && !id.includes('@tiptap/react')) {
-              return 'tiptap';
-            }
-            // XLSX (Excel файлы) - используется только в админке
-            if (id.includes('xlsx')) {
-              return 'xlsx';
-            }
-            // Sonner (toast уведомления)
-            if (id.includes('sonner')) {
-              return 'sonner';
-            }
-            // Date библиотеки
-            if (id.includes('date-fns')) {
-              return 'date-libs';
-            }
-            // Validation библиотеки
-            if (id.includes('zod')) {
-              return 'validation-libs';
-            }
-            // Markdown библиотеки (remark только, react-markdown уже в react-vendor)
-            if (id.includes('remark') && !id.includes('react-markdown')) {
-              return 'markdown-libs';
-            }
-            // Utils библиотеки (классы, утилиты)
-            if (id.includes('clsx') || id.includes('tailwind-merge') || id.includes('class-variance-authority')) {
-              return 'utils-libs';
-            }
-            // Остальные vendor библиотеки - создаем отдельные chunks для каждой
-            // Это предотвращает попадание React-зависимых библиотек в общий vendor chunk
-            const match = id.match(/node_modules\/([^/]+)/);
-            if (match) {
-              const pkgName = match[1];
-              // Для scoped packages (@scope/package) создаем отдельный chunk
-              if (pkgName.startsWith('@')) {
-                return `vendor-${pkgName.replace('@', '').replace('/', '-')}`;
-              }
-              // Для обычных packages тоже создаем отдельный chunk
-              // Это гарантирует, что ничего не попадет в общий vendor
-              return `vendor-${pkgName}`;
-            }
-            // Если не удалось определить пакет - добавляем в react-vendor на всякий случай
-            // Это безопаснее, чем создавать общий vendor chunk
-            return 'react-vendor';
+            
+            // Остальные vendor библиотеки - в общий vendor chunk
+            return 'vendor';
           }
         },
       },
@@ -294,6 +246,12 @@ export default defineConfig(({ mode }) => {
     // Отключаем некоторые оптимизации, которые могут ломать динамические импорты
     legalComments: 'none',
     treeShaking: true,
+    // КРИТИЧНО: Более консервативная минификация для предотвращения ошибок
+    minifyIdentifiers: true,
+    minifySyntax: true,
+    minifyWhitespace: true,
+    // КРИТИЧНО: Не переименовываем имена функций/переменных слишком агрессивно
+    keepNames: false,
   },
   };
 });
