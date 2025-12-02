@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { Flame, Award, Sparkles, Zap, Gift, Trophy, Info, Coins, TrendingUp, X } from 'lucide-react';
+import { Flame, Award, Sparkles, Zap, Gift, Trophy, Info, Coins, TrendingUp, X, CheckCircle, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations';
 import { CelebrationModal } from './CelebrationModal';
@@ -170,7 +170,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#ffffff'];
+    const colors = ['#ff4d00', '#ffb700', '#2ECC71', '#3b82f6', '#8b5cf6', '#ffffff', '#fbbf24'];
     
     // Убеждаемся, что canvas имеет правильные размеры
     if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
@@ -178,16 +178,17 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       canvas.height = window.innerHeight;
     }
 
-    for (let i = 0; i < 100; i++) {
+    // Увеличиваем количество частиц для более эффектного confetti
+    for (let i = 0; i < 150; i++) {
       particlesRef.current.push({
         x: startX,
         y: startY,
-        vx: (Math.random() - 0.5) * 15,
-        vy: (Math.random() - 0.5) * 15 - 5,
-        size: Math.random() * 8 + 2,
+        vx: (Math.random() - 0.5) * 20,
+        vy: (Math.random() - 0.5) * 20 - 8,
+        size: Math.random() * 10 + 3,
         color: colors[Math.floor(Math.random() * colors.length)],
-        life: 100,
-        gravity: 0.5,
+        life: 120,
+        gravity: 0.4,
       });
     }
 
@@ -263,9 +264,9 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
     e?.preventDefault();
     e?.stopPropagation();
     
-    // Разрешаем повторное нажатие для тестирования
-    if (isClaiming) {
-      console.log('[DailyRewards] Claim blocked: already claiming');
+    // Блокируем повторное нажатие и если уже получено сегодня
+    if (isClaiming || effectiveHasClaimed) {
+      console.log('[DailyRewards] Claim blocked:', { isClaiming, effectiveHasClaimed });
       return;
     }
 
@@ -433,8 +434,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
       </div>
 
       {/* Header - в стиле уровней готовности, компактный для десктопа */}
-      <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="relative z-10 flex items-start gap-3 mb-6">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -452,37 +453,38 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
             }`} />
           </motion.div>
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-              <h3 className={`font-bold text-base sm:text-xl tracking-tight leading-tight ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'}`}>
-                Ежедневная серия
-              </h3>
-              {weekNumber > 0 && (
-                <>
-                  <span className={`text-[10px] sm:text-xs font-semibold ${badgeText} ${badgeBg} px-2 py-0.5 rounded-full border ${badgeBorder}`}>
-                    Неделя {weekNumber}
+            <h3 className={`font-bold text-base sm:text-xl tracking-tight leading-tight mb-2 ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'}`}>
+              Ежедневная серия
+            </h3>
+            {weekNumber > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-[10px] sm:text-xs font-semibold ${badgeText} ${badgeBg} px-2 py-0.5 rounded-full border ${badgeBorder}`}>
+                  Неделя {weekNumber}
+                </span>
+                {weekDay > 0 && weekDay < 7 && (
+                  <span className={`text-[11px] sm:text-xs font-bold ${isDarkTheme ? 'text-blue-300 bg-blue-500/20 border-blue-500/40' : 'text-blue-700 bg-blue-100 border-blue-300'} px-2.5 py-0.5 rounded-full border`}>
+                    Осталось {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
                   </span>
-                  {weekDay > 0 && weekDay < 7 && (
-                    <span className={`text-[10px] ${badgeText} ${isDarkTheme ? 'bg-slate-900/60' : 'bg-slate-200/80'} px-2 py-0.5 rounded-full border ${isDarkTheme ? 'border-slate-800' : 'border-slate-300'}`}>
-                      Осталось {7 - weekDay} {7 - weekDay === 1 ? 'день' : (7 - weekDay >= 2 && 7 - weekDay <= 4 ? 'дня' : 'дней')}
-                    </span>
-                  )}
-                  {isDay7 && (
-                    <motion.span
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className={`text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 'text-yellow-600 bg-yellow-100/80 border-yellow-300'} px-2 py-0.5 rounded-full border`}
-                    >
-                      🎉 Завершение!
-                    </motion.span>
-                  )}
-                </>
-              )}
-          <motion.button
+                )}
+                {isDay7 && (
+                  <motion.span
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className={`text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30' : 'text-yellow-600 bg-yellow-100/80 border-yellow-300'} px-2 py-0.5 rounded-full border`}
+                  >
+                    🎉 Завершение!
+                  </motion.span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        <motion.button
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
             onClick={() => setShowRewardsInfo(!showRewardsInfo)}
-            className={`w-8 h-8 rounded-full ${
+            className={`flex-shrink-0 w-8 h-8 rounded-full ${
               isDarkTheme
                 ? 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-indigo-500/50'
                 : 'bg-slate-100/80 hover:bg-slate-200 border-slate-200/60 hover:border-indigo-400/60'
@@ -494,10 +496,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               <Info size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
             )}
           </motion.button>
-            </div>
-        </div>
-        </div>
-        
       </div>
 
       {/* Main Gauge */}
@@ -592,12 +590,24 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                   "drop-shadow(0 0 0px rgba(249,115,22,0))"
                 ]
               } : isDay7 ? {
-                scale: [1, 1.15, 1],
-                rotate: [0, 5, -5, 0]
+                scale: [1, 1.2, 1],
+                rotate: [0, 8, -8, 0],
+                filter: [
+                  "drop-shadow(0 0 10px rgba(251,191,36,0.5))",
+                  "drop-shadow(0 0 25px rgba(251,191,36,0.8))",
+                  "drop-shadow(0 0 10px rgba(251,191,36,0.5))"
+                ]
+              } : !effectiveHasClaimed ? {
+                scale: [1, 1.08, 1],
+                filter: [
+                  "drop-shadow(0 0 5px rgba(249,115,22,0.3))",
+                  "drop-shadow(0 0 15px rgba(249,115,22,0.6))",
+                  "drop-shadow(0 0 5px rgba(249,115,22,0.3))"
+                ]
               } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{ duration: isDay7 ? 1.5 : 2, repeat: !effectiveHasClaimed ? Infinity : 0 }}
             >
-              <Flame className={`w-8 h-8 mb-2 ${flameColor} transition-colors duration-500`} />
+              <Flame className={`w-8 h-8 mb-2 ${flameColor} transition-colors duration-500`} fill={effectiveHasClaimed || isDay7 ? 'currentColor' : 'none'} />
             </motion.div>
             <span className={`text-4xl font-bold ${streakText} tracking-tighter leading-none`}>{currentStreak}</span>
             <span className={`text-[10px] uppercase font-bold ${streakLabel} tracking-widest mt-1`}>Дней</span>
@@ -613,6 +623,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           {[1, 2, 3, 4, 5, 6, 7].map((day) => {
             const isCompleted = day < weeklyProgress || (day === weeklyProgress && effectiveHasClaimed);
             const isActive = day === weeklyProgress && !effectiveHasClaimed;
+            const isJackpot = day === 7;
             const reward = weeklyRewards.find(r => r.day_number === day);
             const rewardData = reward?.reward || {};
 
@@ -624,15 +635,95 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
                     onMouseEnter={() => setHoveredDay(day)}
                     onMouseLeave={() => setHoveredDay(null)}
                   >
-                    <div
-                      className={`w-full max-w-[12px] h-2 rounded-full transition-all duration-500 ${
-                        isCompleted 
-                          ? `${dotCompleted} ${isDarkTheme ? 'shadow-[0_0_10px_rgba(249,115,22,0.5)]' : 'shadow-[0_0_8px_rgba(249,115,22,0.4)]'}`
+                    <motion.div 
+                      className={`
+                        group/card relative flex-1 aspect-square rounded-lg border-2 
+                        flex flex-col items-center justify-center
+                        transition-all duration-300 cursor-help overflow-hidden min-h-[32px]
+                        ${isCompleted 
+                          ? isDarkTheme
+                            ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/40 shadow-[0_0_12px_rgba(34,197,94,0.3)]'
+                            : 'bg-gradient-to-br from-green-100 to-emerald-100 border-green-400/60 shadow-md'
                           : isActive 
-                            ? `${dotActive} ${isDarkTheme ? 'animate-pulse shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.4)]'}`
-                            : dotInactive
-                      }`}
-                    ></div>
+                            ? isJackpot
+                              ? isDarkTheme
+                                ? 'bg-gradient-to-br from-yellow-500/30 to-orange-500/30 border-yellow-500/60 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse'
+                                : 'bg-gradient-to-br from-yellow-200 to-orange-200 border-yellow-500/80 shadow-lg animate-pulse'
+                              : isDarkTheme
+                                ? 'bg-gradient-to-br from-orange-500/25 to-red-500/25 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.4)]'
+                                : 'bg-gradient-to-br from-orange-100 to-red-100 border-orange-400/60 shadow-md'
+                            : isDarkTheme
+                              ? 'bg-slate-800/30 border-slate-700/40 opacity-60'
+                              : 'bg-slate-100/50 border-slate-300/40 opacity-50'
+                        }
+                        ${isJackpot && isActive ? 'scale-105' : ''}
+                        hover:scale-105 hover:border-opacity-100
+                      `}
+                      whileHover={{ y: -2 }}
+                    >
+                      {/* Glow для активных дней */}
+                      {isActive && (
+                        <motion.div
+                          className={`absolute -inset-1 rounded-lg blur-sm -z-10 ${
+                            isJackpot ? 'bg-yellow-500/30' : 'bg-orange-500/20'
+                          }`}
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        />
+                      )}
+
+                      {/* Содержимое карточки */}
+                      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+                        {isCompleted ? (
+                          <motion.div
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            className={isDarkTheme ? 'text-green-400' : 'text-green-600'}
+                          >
+                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </motion.div>
+                        ) : isActive ? (
+                          <>
+                            {isJackpot ? (
+                              <motion.div
+                                animate={{ 
+                                  scale: [1, 1.15, 1],
+                                  rotate: [0, 8, -8, 0]
+                                }}
+                                transition={{ duration: 1, repeat: Infinity }}
+                              >
+                                <Gift className={`w-3 h-3 sm:w-4 sm:h-4 ${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'}`} />
+                              </motion.div>
+                            ) : (
+                              <span className={`text-[10px] sm:text-xs font-bold ${isDarkTheme ? 'text-white' : 'text-orange-700'}`}>
+                                {day}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <Lock className={`w-2 h-2 sm:w-2.5 sm:h-2.5 ${isDarkTheme ? 'text-slate-600' : 'text-slate-400'}`} />
+                            <span className={`text-[8px] sm:text-[9px] ${isDarkTheme ? 'text-slate-600' : 'text-slate-500'}`}>
+                              {day}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Shimmer effect для jackpot */}
+                      {isJackpot && isActive && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          animate={{ x: ['-100%', '200%'] }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            repeatDelay: 0.5,
+                            ease: "linear"
+                          }}
+                        />
+                      )}
+                    </motion.div>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className={`${isDarkTheme ? 'bg-slate-900/95 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900 shadow-xl'} p-3 max-w-[200px]`}>
@@ -697,9 +788,23 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               {/* Заголовок - упрощенный, компактный для десктопа */}
               <div className="mb-4 sm:mb-6">
                 <div className="flex items-start justify-between gap-4 mb-3 sm:mb-4">
-                  <h2 className={`text-lg sm:text-xl font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
-                    💡 О ежедневных наградах
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      onClick={() => setShowRewardsInfo(false)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`w-8 h-8 rounded-full ${
+                        isDarkTheme
+                          ? 'bg-slate-700/50 hover:bg-slate-700 border-slate-600/50 hover:border-indigo-500/50'
+                          : 'bg-slate-100/80 hover:bg-slate-200 border-slate-200/60 hover:border-indigo-400/60'
+                      } border flex items-center justify-center transition-all duration-200`}
+                    >
+                      <X size={16} className={isDarkTheme ? 'text-slate-300' : 'text-slate-600'} />
+                    </motion.button>
+                    <h2 className={`text-lg sm:text-xl font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
+                      💡 О ежедневных наградах
+                    </h2>
+                  </div>
                 </div>
                 <p className={`text-xs sm:text-sm ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'} hidden sm:block`}>
                   Каждый день ты получаешь награды за вход. Чем больше дней подряд, тем лучше награды!
@@ -895,23 +1000,27 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           e.stopPropagation();
           handleClaim(e as any);
         }}
-        disabled={isClaiming || showRewardsInfo}
-        animate={isDay7 && !isClaiming ? {
+        disabled={isClaiming || showRewardsInfo || effectiveHasClaimed}
+        animate={isDay7 && !isClaiming && !effectiveHasClaimed ? {
           boxShadow: [
             '0 0 20px rgba(255,255,255,0.1)',
             '0 0 40px rgba(251, 191, 36, 0.6)',
             '0 0 20px rgba(255,255,255,0.1)'
           ],
           scale: [1, 1.02, 1],
-        } : !isClaiming ? {
+        } : !isClaiming && !effectiveHasClaimed ? {
           scale: [1, 1.01, 1],
         } : {}}
-        transition={{ duration: 2, repeat: !isClaiming ? Infinity : 0 }}
+        transition={{ duration: 2, repeat: !isClaiming && !effectiveHasClaimed ? Infinity : 0 }}
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         className={`relative z-50 w-full py-4 rounded-2xl font-bold text-xs tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden group/btn ${
           showRewardsInfo ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto'
         } ${
-          isClaiming
+          effectiveHasClaimed
+            ? isDarkTheme
+              ? 'bg-slate-800/50 text-slate-500 cursor-not-allowed border border-slate-700/20'
+              : 'bg-slate-200/50 text-slate-400 cursor-not-allowed border border-slate-300/20'
+          : isClaiming
             ? isDarkTheme
               ? 'bg-slate-800/50 text-slate-400 cursor-wait border border-slate-700/20 shadow-[0_0_15px_rgba(148,163,184,0.1)]'
               : 'bg-slate-200/50 text-slate-500 cursor-wait border border-slate-300/20 shadow-[0_0_15px_rgba(148,163,184,0.1)]'
@@ -923,16 +1032,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
         }`}
       >
         {/* Shimmer эффект на кнопке - адаптивный */}
-        {!isClaiming && (
+        {!isClaiming && !effectiveHasClaimed && (
           <motion.div
-            className={`absolute inset-0 bg-gradient-to-r from-transparent ${isDarkTheme ? isDay7 ? 'via-white/50' : 'via-white/50' : isDay7 ? 'via-white/40' : 'via-slate-200/30'} to-transparent z-10`}
+            className={`absolute inset-0 bg-gradient-to-r from-transparent ${isDarkTheme ? isDay7 ? 'via-white/60' : 'via-white/50' : isDay7 ? 'via-white/50' : 'via-slate-200/40'} to-transparent z-10`}
             animate={{
               x: ['-100%', '200%'],
             }}
             transition={{
-              duration: 1.5,
+              duration: isDay7 ? 1.2 : 1.5,
               repeat: Infinity,
-              repeatDelay: 0.8,
+              repeatDelay: isDay7 ? 0.5 : 0.8,
               ease: "linear",
             }}
           />
@@ -967,7 +1076,16 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
           </>
         )}
         <AnimatePresence mode="wait">
-          {isClaiming ? (
+          {effectiveHasClaimed ? (
+            <motion.span
+              key="claimed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-center gap-2"
+            >
+              ✓ Получено сегодня
+            </motion.span>
+          ) : isClaiming ? (
             <motion.span
               key="claiming"
               initial={{ opacity: 0, y: 10 }}
@@ -984,7 +1102,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({ currentStreak, hasC
               exit={{ opacity: 0, y: 10 }}
               className="flex items-center justify-center gap-2"
             >
-              {weekDay === 7 ? '🎉 Завершить неделю!' : 'Получить бонус'}
+              {weekDay === 7 ? '🎉 Завершить неделю!' : '🎁 Получить бонус'}
             </motion.span>
           )}
         </AnimatePresence>

@@ -75,134 +75,267 @@ const DashboardContent = () => {
       return;
     }
 
+    const dailyBonus = dashboardData.daily_bonus;
+    
+    // Проверяем, можно ли получить награду
+    if (!dailyBonus.can_claim) {
+      console.log('[handleClaimBonus] Already claimed today');
+      toast({
+        title: "Уже получено",
+        description: "Сегодняшняя награда уже получена",
+        variant: "default",
+      });
+      return;
+    }
+
     try {
       setClaimingBonus(true);
-      const today = new Date().toISOString().split('T')[0];
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       
-      const dailyBonus = dashboardData.daily_bonus;
+      // ✅ OPTIMISTIC UPDATE: мгновенно обновляем UI
+      const optimisticStreak = (dailyBonus.current_streak || 0) + 1;
+      const optimisticWeekDay = optimisticStreak % 7 || 7;
+      const optimisticReward = dashboardData.weeklyRewards.find(r => r.day_number === optimisticWeekDay);
       
-      // Проверяем, можно ли получить награду
-      if (!dailyBonus.can_claim) {
-        console.log('[handleClaimBonus] Already claimed today');
-        toast({
-          title: "Уже получено",
-          description: "Сегодняшняя награда уже получена",
-          variant: "default",
+      console.log('[handleClaimBonus] Optimistic update:', { optimisticStreak, weekDay: optimisticWeekDay });
+
+      // Сохраняем предыдущее состояние для отката
+      const previousDashboardData = dashboardData;
+      
+      // ✅ ПОПЫТКА 1: Использовать новый Edge Function (безопасный метод)
+      let useNewMethod = true;
+      let edgeFunctionData = null;
+      
+      try {
+        console.log('[handleClaimBonus] Attempting Edge Function method...');
+        const { data: efData, error: efError } = await supabase.functions.invoke('claim-daily-bonus', {
+          body: { user_id: profileId }
         });
-        setClaimingBonus(false);
-        return;
-      }
-      
-      console.log('[handleClaimBonus] Processing claim...');
-      
-      // Вычисляем новый стрик (без ограничения, циклический расчет)
-      let newStreak = 1;
-      if (dailyBonus.last_claimed_date === yesterday) {
-        // Продолжаем streak (без ограничения)
-        newStreak = (dailyBonus.current_streak || 0) + 1;
-      } else if (dailyBonus.last_claimed_date === today) {
-        // Уже получено сегодня
-        console.log('[handleClaimBonus] Already claimed today (date check)');
-        toast({
-          title: "Уже получено",
-          description: "Сегодняшняя награда уже получена",
-          variant: "default",
-        });
-        setClaimingBonus(false);
-        return;
-      }
 
-      // Циклический расчет: день недели (1-7)
-      // Если streak кратен 7, то день 7, иначе остаток от деления
-      const weekDay = newStreak % 7 || 7;
-      const weekNumber = Math.ceil(newStreak / 7);
-
-      // Получаем награду по дню недели (циклический)
-      const currentReward = dashboardData.weeklyRewards.find(r => r.day_number === weekDay);
-      if (!currentReward) {
-        console.error('[handleClaimBonus] Reward not found for streak:', newStreak);
-        throw new Error('Reward not found');
-      }
-
-      // Обновляем или создаём user_daily_bonus
-      let bonusUpdateError = null;
-      if (dailyBonus.id) {
-      const { error: bonusError } = await (supabase as any)
-        .from('user_daily_bonus')
-        .update({
-          current_streak: newStreak,
-          last_claimed_date: today,
-            total_claims: (dailyBonus.total_claims || 0) + 1,
-        })
-        .eq('id', dailyBonus.id);
-
-        bonusUpdateError = bonusError;
-      } else {
-        const { error: bonusError } = await (supabase as any)
-          .from('user_daily_bonus')
-          .insert({
-            user_id: profileId,
-            current_streak: newStreak,
-            last_claimed_date: today,
-            total_claims: 1,
-          });
-
-        bonusUpdateError = bonusError;
-      }
-
-      if (bonusUpdateError) {
-        console.error('[handleClaimBonus] Error updating daily_bonus:', bonusUpdateError);
-        throw bonusUpdateError;
-      }
-
-      // Обновляем XP и монеты сразу (без ожидания Edge Functions)
-      const updateData: { xp?: number; coins?: number } = {};
-      
-      if (currentReward.reward.xp && currentReward.reward.xp > 0) {
-        updateData.xp = (dashboardData.profile.xp || 0) + currentReward.reward.xp;
-      }
-      
-      if (currentReward.reward.coins && currentReward.reward.coins > 0) {
-        updateData.coins = (dashboardData.profile.coins || 0) + currentReward.reward.coins;
-      }
-
-      if (Object.keys(updateData).length > 0) {
-        const { error: updateError } = await supabase
-        .from('profiles')
-          .update(updateData)
-        .eq('id', profileId);
-
-        if (updateError) {
-          console.error('[handleClaimBonus] Error updating profile:', updateError);
-        // Не прерываем выполнение, продолжаем
+        if (efError) {
+          console.warn('[handleClaimBonus] Edge Function error:', efError);
+          // ❌ В production НЕ fallback
+          if (import.meta.env.PROD) {
+            toast({
+              title: "Ошибка сервера",
+              description: "Не удалось получить бонус. Попробуйте позже.",
+              variant: "destructive",
+            });
+            setClaimingBonus(false);
+            return;
+          }
+          useNewMethod = false;
+        } else if (!efData?.success) {
+          if (efData?.error === 'already_claimed_today') {
+            toast({
+              title: "Уже получено",
+              description: "Сегодняшняя награда уже получена (серверное время)",
+              variant: "default",
+            });
+            setClaimingBonus(false);
+            return;
+          }
+          if (efData?.error === 'concurrent_claim') {
+            toast({
+              title: "Повтори попытку",
+              description: "Подожди секунду и попробуй снова",
+              variant: "default",
+            });
+            setClaimingBonus(false);
+            return;
+          }
+          console.warn('[handleClaimBonus] Edge Function returned error:', efData);
+          if (import.meta.env.PROD) {
+            toast({
+              title: "Ошибка",
+              description: efData?.message || "Не удалось получить бонус",
+              variant: "destructive",
+            });
+            setClaimingBonus(false);
+            return;
+          }
+          useNewMethod = false;
+        } else {
+          edgeFunctionData = efData;
+          console.log('[handleClaimBonus] Edge Function success:', efData);
         }
+      } catch (efCatchError) {
+        console.error('[handleClaimBonus] Edge Function exception:', efCatchError);
+        if (import.meta.env.PROD) {
+          toast({
+            title: "Ошибка",
+            description: "Попробуйте позже",
+            variant: "destructive",
+          });
+          setClaimingBonus(false);
+          return;
+        }
+        useNewMethod = false;
       }
 
-      // Вызываем Edge Functions асинхронно (без ожидания - они могут быть медленными)
-      // Продолжаем выполнение даже если функции не ответили
+      // Определяем награду и streak для дальнейшей обработки
+      let newStreak: number;
+      let weekDay: number;
+      let currentReward: any;
+
+      // ✅ МЕТОД 1: Edge Function (безопасно, с серверным временем)
+      if (useNewMethod && edgeFunctionData) {
+        console.log('[handleClaimBonus] Using Edge Function method');
+        
+        newStreak = edgeFunctionData.new_streak;
+        weekDay = edgeFunctionData.week_day;
+        currentReward = dashboardData.weeklyRewards.find(r => r.day_number === weekDay);
+        
+        // ✅ Используем данные из response (без лишнего запроса)
+        if (dashboardData) {
+          dashboardData.daily_bonus.current_streak = newStreak;
+          dashboardData.daily_bonus.last_claimed_date = edgeFunctionData.server_time;
+          dashboardData.profile.xp = edgeFunctionData.new_xp;
+          dashboardData.profile.coins = edgeFunctionData.new_coins;
+        }
+        
+        // ❄️ Показать уведомление о Freeze
+        if (edgeFunctionData.freeze_used) {
+          toast({
+            title: "❄️ Streak спасён!",
+            description: "Заморозка автоматически использована",
+          });
+        }
+        
+        // 🎁 Mystery Box анимация для дня 7
+        if (edgeFunctionData.mystery_reward && weekDay === 7) {
+          // Показываем Mystery Box ПОСЛЕ основной celebration
+          setTimeout(() => {
+            setShowMysteryBox(true);
+            setMysteryBoxReward(edgeFunctionData.mystery_reward);
+            
+            setTimeout(() => {
+              setShowMysteryBox(false);
+              // Отложенный invalidate (экономия bandwidth)
+              invalidateCache();
+            }, 8000);
+          }, 3000);
+        } else {
+          // Для дней 1-6 - отложенный invalidate
+          setTimeout(() => invalidateCache(), 2000);
+        }
+        
+        console.log('[handleClaimBonus] Claim successful (server), streak:', newStreak);
+
+      } else {
+        // ✅ МЕТОД 2: Fallback на старый метод (с клиентским временем)
+        console.log('[handleClaimBonus] Using fallback (legacy) method');
+        
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        
+        // Вычисляем новый стрик
+        newStreak = 1;
+        if (dailyBonus.last_claimed_date === yesterday) {
+          newStreak = (dailyBonus.current_streak || 0) + 1;
+        } else if (dailyBonus.last_claimed_date === today) {
+          console.log('[handleClaimBonus] Already claimed today (date check)');
+          toast({
+            title: "Уже получено",
+            description: "Сегодняшняя награда уже получена",
+            variant: "default",
+          });
+          setClaimingBonus(false);
+          return;
+        }
+
+        // Циклический расчет: день недели (1-7)
+        weekDay = newStreak % 7 || 7;
+        currentReward = dashboardData.weeklyRewards.find(r => r.day_number === weekDay);
+        
+        if (!currentReward) {
+          console.error('[handleClaimBonus] Reward not found for streak:', newStreak);
+          throw new Error('Reward not found');
+        }
+
+        // Обновляем user_daily_bonus
+        let bonusUpdateError = null;
+        if (dailyBonus.id) {
+          const { error: bonusError } = await (supabase as any)
+            .from('user_daily_bonus')
+            .update({
+              current_streak: newStreak,
+              last_claimed_date: today,
+              total_claims: (dailyBonus.total_claims || 0) + 1,
+            })
+            .eq('id', dailyBonus.id);
+
+          bonusUpdateError = bonusError;
+        } else {
+          const { error: bonusError } = await (supabase as any)
+            .from('user_daily_bonus')
+            .insert({
+              user_id: profileId,
+              current_streak: newStreak,
+              last_claimed_date: today,
+              total_claims: 1,
+            });
+
+          bonusUpdateError = bonusError;
+        }
+
+        if (bonusUpdateError) {
+          console.error('[handleClaimBonus] Error updating daily_bonus:', bonusUpdateError);
+          throw bonusUpdateError;
+        }
+
+        // Обновляем XP и монеты
+        const updateData: { xp?: number; coins?: number } = {};
+        
+        if (currentReward.reward.xp && currentReward.reward.xp > 0) {
+          updateData.xp = (dashboardData.profile.xp || 0) + currentReward.reward.xp;
+        }
+        
+        if (currentReward.reward.coins && currentReward.reward.coins > 0) {
+          updateData.coins = (dashboardData.profile.coins || 0) + currentReward.reward.coins;
+        }
+
+        if (Object.keys(updateData).length > 0) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', profileId);
+
+          if (updateError) {
+            console.error('[handleClaimBonus] Error updating profile:', updateError);
+          }
+        }
+
+        invalidateCache();
+      }
+
+      // ✅ Проверка награды после определения метода
+      if (!currentReward) {
+        console.error('[handleClaimBonus] Reward not found for day:', weekDay);
+        setClaimingBonus(false);
+        return;
+      }
+
+      // Вызываем Edge Functions асинхронно (без ожидания)
       Promise.allSettled([
-        // УБРАНО: coins-earn - монеты теперь начисляются напрямую из daily_bonus_def
-        // УБРАНО: duel-pass-xp - используем новую систему season-sp вместо старой
         supabase.functions.invoke('season-sp', {
-        body: { 
-          user_id: profileId, 
-          source_type: 'daily_login',
-          metadata: { streak_days: newStreak }
-        },
+          body: { 
+            user_id: profileId, 
+            source_type: 'daily_login',
+            metadata: { streak_days: newStreak }
+          },
         }).then(({ data: spData }) => {
           // Если был level up в Duel Pass, показываем уведомление
           if (spData?.level_up) {
             supabase.functions.invoke('assistant-suggest', {
-          body: { trigger: 'duel_pass_level_up' },
+              body: { trigger: 'duel_pass_level_up' },
             }).then(({ data: suggestion }) => {
-        const message = suggestion?.suggestion?.message;
-        if (message) {
-          toast({
-            title: "Duel Pass",
-            description: message,
-          });
-        }
+              const message = suggestion?.suggestion?.message;
+              if (message) {
+                toast({
+                  title: "Duel Pass",
+                  description: message,
+                });
+              }
             }).catch(err => {
               console.warn('[handleClaimBonus] assistant-suggest error:', err);
             });

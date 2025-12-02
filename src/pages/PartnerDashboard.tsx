@@ -20,6 +20,8 @@ import {
   RefreshCw,
   Link as LinkIcon,
   QrCode,
+  BarChart3,
+  Zap,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
 import Layout from "@/components/Layout";
+import { PartnerConversionFunnel } from "@/components/partner/PartnerConversionFunnel";
+import { PartnerLinkGenerator } from "@/components/partner/PartnerLinkGenerator";
+import { PartnerBalancePayouts } from "@/components/partner/PartnerBalancePayouts";
+import { AutoschoolStudentsProgress } from "@/components/partner/AutoschoolStudentsProgress";
 
 interface PartnerData {
   id: string;
@@ -37,7 +43,7 @@ interface PartnerData {
   email: string;
   channel_name: string;
   channel_url: string;
-  partner_type: "barter" | "revenue_share";
+  partner_type: "barter" | "revenue_share" | "autoschool";
   status: "active" | "inactive";
   registration_status: "pending" | "approved" | "rejected";
   total_keys_issued: number;
@@ -45,6 +51,8 @@ interface PartnerData {
   total_link_activations: number;
   partner_code: string | null;
   accumulated_commission: number;
+  balance_available?: number;
+  balance_hold?: number;
   created_at: string;
 }
 
@@ -524,11 +532,35 @@ export default function PartnerDashboard() {
 
           {/* Tabs */}
           <Tabs 
-            defaultValue={partner.partner_code ? "link" : "keys"} 
+            defaultValue="funnel" 
             className="space-y-4"
             key={partner.partner_code || "no-code"}
           >
-            <TabsList className="bg-slate-900/80 border-slate-800">
+            <TabsList className="bg-slate-900/80 border-slate-800 flex-wrap">
+              {partner.registration_status === "approved" && (
+                <>
+                  <TabsTrigger value="funnel">
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Воронка конверсий
+                  </TabsTrigger>
+                  <TabsTrigger value="link-generator">
+                    <Zap className="h-4 w-4 mr-2" />
+                    Генератор ссылок
+                  </TabsTrigger>
+                  {partner.partner_type === "revenue_share" && (
+                    <TabsTrigger value="balance">
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      Баланс
+                    </TabsTrigger>
+                  )}
+                  {partner.partner_type === "autoschool" && (
+                    <TabsTrigger value="students">
+                      <Users className="h-4 w-4 mr-2" />
+                      Мои Студенты
+                    </TabsTrigger>
+                  )}
+                </>
+              )}
               {partner.registration_status === "approved" && partner.partner_code && (
                 <TabsTrigger value="link">
                   <LinkIcon className="h-4 w-4 mr-2" />
@@ -549,6 +581,34 @@ export default function PartnerDashboard() {
                 </TabsTrigger>
               )}
             </TabsList>
+
+            {/* Conversion Funnel Tab - NEW! */}
+            {partner.registration_status === "approved" && (
+              <TabsContent value="funnel">
+                <PartnerConversionFunnel partnerId={partner.id} days={30} />
+              </TabsContent>
+            )}
+
+            {/* Link Generator Tab - NEW! */}
+            {partner.registration_status === "approved" && (
+              <TabsContent value="link-generator">
+                <PartnerLinkGenerator partnerId={partner.id} />
+              </TabsContent>
+            )}
+
+            {/* Balance & Payouts Tab - NEW! */}
+            {partner.registration_status === "approved" && partner.partner_type === "revenue_share" && (
+              <TabsContent value="balance">
+                <PartnerBalancePayouts partnerId={partner.id} />
+              </TabsContent>
+            )}
+
+            {/* Autoschool Students Tab - NEW! */}
+            {partner.registration_status === "approved" && partner.partner_type === "autoschool" && (
+              <TabsContent value="students">
+                <AutoschoolStudentsProgress partnerId={partner.id} />
+              </TabsContent>
+            )}
 
             {/* Partner Link Tab */}
             {partner.registration_status === "approved" && partner.partner_code && (

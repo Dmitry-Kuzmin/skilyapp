@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SystemStatus, SystemHealthStatus } from "@/components/admin/SystemStatus";
 import { StatsWidget } from "@/components/admin/StatsWidget";
 import { QuickActionCard } from "@/components/admin/QuickActionCard";
+import { DailyBonusMonitor } from "@/components/admin/DailyBonusMonitor";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAdminStats } from "@/hooks/useAdminStats";
@@ -235,12 +236,21 @@ export function AdminDashboard() {
         />
       </div>
 
+      {/* Daily Bonus Monitor */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <DailyBonusMonitor />
+      </motion.div>
+
       {/* Quick Actions */}
       <div>
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.4 }}
           className="text-2xl font-bold mb-4 flex items-center gap-2"
         >
           <TrendingUp className="h-6 w-6" />
