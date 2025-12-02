@@ -7,7 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Copy, Download, Sparkles, Zap, Shield, BarChart3, Check, Link as LinkIcon } from "lucide-react";
+import { 
+  Copy, 
+  Download, 
+  Sparkles, 
+  Zap, 
+  Shield, 
+  BarChart3, 
+  Check, 
+  Link as LinkIcon,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Facebook,
+  Globe
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
 
@@ -20,32 +35,45 @@ interface GeneratedLink {
   full_url: string;
 }
 
-// Social sources с иконками
-const SOCIAL_SOURCES = [
-  { id: 'instagram', name: 'Instagram', icon: '📸', color: 'from-pink-500 to-purple-600' },
-  { id: 'tiktok', name: 'TikTok', icon: '🎵', color: 'from-black to-pink-500' },
-  { id: 'twitter', name: 'Twitter', icon: '🐦', color: 'from-blue-400 to-blue-500' },
-  { id: 'youtube', name: 'YouTube', icon: '▶️', color: 'from-red-500 to-red-600' },
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: 'from-blue-600 to-blue-700' },
-  { id: 'telegram', name: 'Telegram', icon: '✈️', color: 'from-blue-500 to-cyan-400' },
-  { id: 'other', name: 'Other', icon: '🌐', color: 'from-slate-500 to-slate-600' },
+// Social sources with lucide icons
+const SOURCES = [
+  { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'text-pink-500', gradient: 'from-purple-500 to-pink-500', bg: 'bg-pink-500/20' },
+  { id: 'tiktok', name: 'TikTok', icon: Zap, color: 'text-cyan-400', gradient: 'from-cyan-400 to-black', bg: 'bg-cyan-500/20' },
+  { id: 'twitter', name: 'Twitter', icon: Twitter, color: 'text-sky-400', gradient: 'from-sky-400 to-blue-500', bg: 'bg-sky-500/20' },
+  { id: 'youtube', name: 'YouTube', icon: Youtube, color: 'text-red-500', gradient: 'from-red-500 to-orange-500', bg: 'bg-red-500/20' },
+  { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'text-blue-600', gradient: 'from-blue-600 to-cyan-600', bg: 'bg-blue-500/20' },
+  { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'text-blue-500', gradient: 'from-blue-600 to-indigo-600', bg: 'bg-blue-500/20' },
+  { id: 'other', name: 'Other', icon: Globe, color: 'text-emerald-400', gradient: 'from-emerald-400 to-teal-500', bg: 'bg-emerald-500/20' },
 ];
 
 export function PartnerLinkGenerator({ partnerId }: Props) {
   const [loading, setLoading] = useState(false);
   const [destination, setDestination] = useState<string>("home");
   const [campaign, setCampaign] = useState<string>("");
-  const [selectedSource, setSelectedSource] = useState<string>("instagram");
+  const [selectedSource, setSelectedSource] = useState(SOURCES[0]);
   const [generatedLink, setGeneratedLink] = useState<GeneratedLink | null>(null);
+  const [previewLink, setPreviewLink] = useState<string>("");
   const [copied, setCopied] = useState(false);
 
-  const handleSourceSelect = (sourceId: string) => {
-    setSelectedSource(sourceId);
-    const date = new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }).replace('.', '');
-    setCampaign(`${sourceId}_${date}`);
+  // Live preview - обновляется автоматически
+  useEffect(() => {
+    if (!campaign.trim()) {
+      setPreviewLink("skilyapp.com/waiting...");
+      return;
+    }
+    const cleanCampaign = campaign.trim().replace(/\s+/g, '-').toLowerCase();
+    setPreviewLink(`skilyapp.com/${selectedSource.id}/${cleanCampaign}`);
+  }, [campaign, selectedSource]);
+
+  const handleSourceSelect = (source: typeof SOURCES[0]) => {
+    setSelectedSource(source);
+    if (!campaign) {
+      const date = new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' }).replace('.', '');
+      setCampaign(`${source.id}_${date}`);
+    }
   };
 
-  const handleGenerateLink = async () => {
+  const handleGenerate = async () => {
     if (!campaign.trim()) {
       toast.error("Введите название кампании");
       return;
@@ -79,74 +107,80 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
   };
 
   const handleCopy = async () => {
-    if (!generatedLink) return;
-    await navigator.clipboard.writeText(generatedLink.full_url);
+    const linkToCopy = generatedLink?.full_url || previewLink;
+    await navigator.clipboard.writeText(linkToCopy);
     setCopied(true);
     toast.success("Скопировано!");
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const selectedSocial = SOCIAL_SOURCES.find(s => s.id === selectedSource);
+  const currentSource = selectedSource;
+  const Icon = currentSource.icon;
 
   return (
-    <div className="h-[calc(100vh-100px)] w-full max-w-[1600px] mx-auto px-6">
-      <div className="grid grid-cols-[380px_1fr] gap-6 h-full">
+    <div className="min-h-[calc(100vh-100px)] bg-[#0A0A0B] text-slate-300 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      {/* Ambient Background Glows */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 z-10">
         
-        {/* LEFT: Input Panel */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex flex-col"
-        >
-          {/* Header */}
-          <div className="mb-6">
+        {/* LEFT COLUMN: CONTROLS */}
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          <header className="mb-2">
             <div className="flex items-center gap-2 mb-2">
-              <Zap className="h-5 w-5 text-primary" />
-              <h1 className="text-xl font-semibold text-white">Magic Link Gen</h1>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Sparkles size={16} className="text-white" />
+              </div>
+              <h1 className="text-xl font-medium text-white tracking-tight">Magic Link Gen</h1>
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-slate-500 text-sm leading-relaxed">
               Создавайте красивые отслеживаемые короткие ссылки за секунды
             </p>
-          </div>
+          </header>
 
-          {/* Controls */}
-          <Card className="flex-1 border-white/5 bg-slate-900/40 backdrop-blur-sm">
-            <div className="p-5 space-y-5">
-              
-              {/* Source */}
-              <div className="space-y-2.5">
-                <Label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Источник
-                </Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {SOCIAL_SOURCES.map((source) => (
+          <div className="space-y-6">
+            {/* Source Selector */}
+            <div className="space-y-3">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Источник</label>
+              <div className="flex flex-wrap gap-2">
+                {SOURCES.map((source) => {
+                  const isActive = selectedSource.id === source.id;
+                  const SourceIcon = source.icon;
+                  return (
                     <button
                       key={source.id}
-                      onClick={() => handleSourceSelect(source.id)}
+                      onClick={() => handleSourceSelect(source)}
                       className={`
-                        relative p-2.5 rounded-lg transition-all text-center
-                        ${selectedSource === source.id 
-                          ? 'bg-primary text-white shadow-lg shadow-primary/25' 
-                          : 'bg-white/5 text-slate-400 hover:bg-white/10'
-                        }
+                        group relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 border
+                        ${isActive 
+                          ? 'bg-slate-800 border-slate-600 text-white shadow-lg shadow-black/20' 
+                          : 'bg-slate-900/50 border-white/5 text-slate-400 hover:bg-slate-800 hover:border-slate-700'}
                       `}
                     >
-                      <div className="text-xl mb-1">{source.icon}</div>
-                      <div className="text-[9px] font-medium">{source.name}</div>
+                      <SourceIcon size={14} className={`transition-colors ${isActive ? source.color : 'text-slate-500 group-hover:text-slate-400'}`} />
+                      <span>{source.name}</span>
+                      {isActive && (
+                        <span className={`absolute inset-0 rounded-lg bg-gradient-to-r ${source.gradient} opacity-10`} />
+                      )}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
+            </div>
 
-              {/* Target URL (Destination) */}
-              <div className="space-y-2">
-                <Label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Целевая страница
-                </Label>
-                <div className="relative">
-                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            {/* Inputs */}
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Целевая страница</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <LinkIcon size={14} className="text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                  </div>
                   <Select value={destination} onValueChange={setDestination}>
-                    <SelectTrigger className="h-10 pl-9 bg-white/5 border-white/10 text-sm">
+                    <SelectTrigger className="w-full bg-slate-900/50 border border-white/10 rounded-xl h-12 pl-9 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 hover:border-white/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-white/10">
@@ -160,183 +194,157 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                 </div>
               </div>
 
-              {/* Campaign Name */}
-              <div className="space-y-2">
-                <Label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Название кампании
-                </Label>
-                <div className="relative">
-                  <Zap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Название кампании</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Zap size={14} className="text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+                  </div>
                   <Input
+                    type="text"
                     placeholder="instagram_02дек"
                     value={campaign}
                     onChange={(e) => setCampaign(e.target.value)}
-                    className="h-10 pl-9 bg-white/5 border-white/10 text-sm"
+                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-9 pr-4 text-sm text-white placeholder-slate-600 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all hover:border-white/20"
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && campaign.trim()) {
-                        handleGenerateLink();
+                        handleGenerate();
                       }
                     }}
                   />
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={handleGenerateLink}
-                  disabled={loading || !campaign.trim()}
-                  className="flex-1 h-10 bg-primary hover:bg-primary/90 text-sm font-medium"
-                >
-                  {loading ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                    </motion.div>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-1.5" />
-                      Generate Magic Link
-                    </>
-                  )}
-                </Button>
-              </div>
             </div>
-          </Card>
-        </motion.div>
 
-        {/* RIGHT: Preview/Result */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center justify-center"
-        >
-          <AnimatePresence mode="wait">
-            {generatedLink ? (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full max-w-xl"
-              >
-                <Card className="border-white/5 bg-slate-900/40 backdrop-blur-sm">
-                  <div className="p-10 space-y-8">
-                    {/* Campaign Header */}
-                    <div>
-                      <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                        Кампания
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-3xl">{selectedSocial?.icon}</div>
-                        <div>
-                          <div className="text-sm text-slate-400">{selectedSocial?.name}</div>
-                          <div className="text-xl font-semibold text-white">{campaign}</div>
-                        </div>
-                      </div>
+            {/* Action */}
+            <button
+              onClick={handleGenerate}
+              disabled={loading || !campaign.trim()}
+              className={`
+                w-full relative overflow-hidden group bg-white text-black font-medium py-3.5 rounded-xl transition-all duration-200
+                hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]
+                disabled:opacity-50 disabled:cursor-not-allowed
+                ${loading ? 'scale-[0.99] opacity-90' : 'hover:scale-[1.01]'}
+              `}
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {loading ? 'Генерация...' : 'Generate Magic Link'}
+                {!loading && <Sparkles size={16} className="text-indigo-600" />}
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: PREVIEW CARD */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          <div className="relative w-full aspect-[1.58/1] perspective-1000 group">
+            {/* Card Glow Background */}
+            <div 
+              className={`absolute -inset-4 rounded-[2rem] bg-gradient-to-br ${currentSource.gradient} opacity-20 blur-2xl transition-all duration-500 group-hover:opacity-30`}
+            />
+
+            {/* The Card */}
+            <div className="relative h-full w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#111114]">
+              {/* Mesh Gradient Background */}
+              <div className="absolute inset-0 bg-slate-900">
+                <div className={`absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br ${currentSource.gradient} opacity-20 blur-[100px] rounded-full mix-blend-screen transform translate-x-1/3 -translate-y-1/3 transition-all duration-700`} />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 blur-[80px] rounded-full mix-blend-screen transform -translate-x-1/3 translate-y-1/3" />
+              </div>
+              
+              {/* Card Content Grid */}
+              <div className="relative h-full z-10 grid grid-cols-12 p-8">
+                
+                {/* Left Side: QR & Branding */}
+                <div className="col-span-5 flex flex-col justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-8 h-8 rounded-lg ${currentSource.bg} border border-white/5 flex items-center justify-center`}>
+                      <Icon size={16} className={currentSource.color} />
                     </div>
+                    <span className="text-sm font-medium text-slate-300">{currentSource.name}</span>
+                  </div>
 
-                    {/* QR Code */}
-                    <div className="flex flex-col items-center py-8">
-                      <div className="p-6 bg-white rounded-3xl shadow-2xl mb-4">
+                  <div className="space-y-2">
+                    <div className="w-32 h-32 bg-white rounded-xl p-2 shadow-xl shadow-black/20">
+                      {generatedLink ? (
                         <QRCode
                           value={generatedLink.full_url}
-                          size={240}
-                          fgColor="#3B82F6"
+                          size={112}
+                          fgColor="#000000"
+                          bgColor="#ffffff"
                           level="H"
                         />
-                      </div>
-                      <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                        Сканируйте для перехода
-                      </div>
+                      ) : (
+                        <div className="w-full h-full bg-slate-100 rounded-lg flex items-center justify-center">
+                          <Sparkles className="text-slate-300" size={32} />
+                        </div>
+                      )}
                     </div>
-
-                    {/* Short Link */}
-                    <div>
-                      <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                        Короткая ссылка
-                      </div>
-                      <div className="p-4 rounded-xl bg-black/20 border border-white/5 mb-4">
-                        <code className="text-base font-mono text-primary break-all select-all">
-                          {generatedLink.full_url}
-                        </code>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={handleCopy}
-                          className="flex-1 h-11 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white"
-                          variant="ghost"
-                        >
-                          {copied ? (
-                            <>
-                              <Check className="h-4 w-4 mr-2" />
-                              Скопировано
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Копировать
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          onClick={() => toast.info("Сохранение QR...")}
-                          variant="ghost"
-                          className="h-11 px-5 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Сохранить
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Status Indicators */}
-                    <div className="flex items-center justify-center gap-6 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-xs text-slate-500">Live Preview</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-3 h-3 text-blue-500" />
-                        <span className="text-xs text-slate-500">Secure SSL</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <BarChart3 className="w-3 h-3 text-primary" />
-                        <span className="text-xs text-slate-500">Analytics Ready</span>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="w-full max-w-xl"
-              >
-                <Card className="border-white/5 bg-slate-900/30 backdrop-blur-sm">
-                  <div className="p-20 text-center">
-                    <div className="w-24 h-24 rounded-3xl bg-slate-800/30 flex items-center justify-center mx-auto mb-6">
-                      <Sparkles className="h-12 w-12 text-slate-600" />
-                    </div>
-                    <h3 className="text-lg font-medium text-slate-400 mb-2">
-                      Ваша ссылка появится здесь
-                    </h3>
-                    <p className="text-sm text-slate-600">
-                      Выберите источник, целевую страницу и название кампании
+                    <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold pl-1">
+                      Scan to Visit
                     </p>
                   </div>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+                </div>
+
+                {/* Right Side: Link Info */}
+                <div className="col-span-7 flex flex-col justify-between items-end text-right pl-4">
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Campaign</div>
+                    <div className="text-2xl font-semibold text-white tracking-tight break-all line-clamp-2">
+                      {campaign || <span className="text-slate-700">Untitled Campaign</span>}
+                    </div>
+                  </div>
+
+                  <div className="w-full space-y-4">
+                    <div className="space-y-2">
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Short Link</div>
+                      <div className="flex items-center justify-end gap-3 group/link">
+                        <span className={`font-mono text-lg transition-colors ${campaign ? 'text-indigo-300' : 'text-slate-700'}`}>
+                          {generatedLink?.full_url || previewLink}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Actions */}
+                    <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+                      <button 
+                        onClick={handleCopy}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-medium text-slate-300 hover:text-white transition-all active:scale-95"
+                      >
+                        {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                        <span>{copied ? 'Copied' : 'Copy'}</span>
+                      </button>
+                      <button 
+                        onClick={() => toast.info("Сохранение QR...")}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-sm font-medium text-slate-300 hover:text-white transition-all active:scale-95"
+                      >
+                        <Download size={14} />
+                        <span>Save</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Status Indicators */}
+          <div className="mt-8 flex justify-center gap-6 opacity-40">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+              Live Preview
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+              Secure SSL
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+              Analytics Ready
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
