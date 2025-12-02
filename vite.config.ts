@@ -166,8 +166,6 @@ export default defineConfig(({ mode }) => {
         inlineDynamicImports: false, // Не инлайним динамические импорты
         // КРИТИЧНО: Используем ES модули для правильной работы динамических импортов
         format: 'es',
-        // КРИТИЧНО: Сохраняем сигнатуры entry points для правильной работы React.lazy()
-        preserveEntrySignatures: 'strict',
         manualChunks: (id) => {
           // УПРОЩЕННАЯ СТРАТЕГИЯ: Разделяем на минимальное количество chunks
           // для предотвращения проблем с загрузкой и минификацией
