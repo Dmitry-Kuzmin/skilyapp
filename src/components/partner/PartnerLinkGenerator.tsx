@@ -221,7 +221,7 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
             {/* Source Selector */}
             <div className="space-y-3">
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Источник</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {SOURCES.map((source) => {
                   const isActive = selectedSource.id === source.id;
                   const SourceIcon = source.icon;
@@ -230,13 +230,13 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                       key={source.id}
                       onClick={() => handleSourceSelect(source)}
                       className={`
-                        group relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200 border
+                        group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-all duration-200 border
                         ${isActive 
                           ? 'bg-slate-800 border-slate-600 text-white shadow-lg shadow-black/20' 
                           : 'bg-slate-900/50 border-white/5 text-slate-400 hover:bg-slate-800 hover:border-slate-700'}
                       `}
                     >
-                      <SourceIcon size={14} className={`transition-colors ${isActive ? source.color : 'text-slate-500 group-hover:text-slate-400'}`} />
+                      <SourceIcon size={13} className={`transition-colors ${isActive ? source.color : 'text-slate-500 group-hover:text-slate-400'}`} />
                       <span>{source.name}</span>
                       {isActive && (
                         <span className={`absolute inset-0 rounded-lg bg-gradient-to-r ${source.gradient} opacity-10`} />
@@ -298,17 +298,17 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                 onClick={handleGenerate}
                 disabled={loading || !campaign.trim()}
                 className={`
-                  w-full relative overflow-hidden group bg-white text-black font-medium py-3.5 rounded-xl transition-all duration-200
-                  hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]
+                  w-full relative overflow-hidden group bg-gradient-to-r from-blue-500 to-violet-500 text-white font-medium py-3.5 rounded-xl transition-all duration-200
+                  hover:shadow-[0_0_20px_-5px_rgba(99,102,241,0.5)]
                   disabled:opacity-50 disabled:cursor-not-allowed
                   ${loading ? 'scale-[0.99] opacity-90' : 'hover:scale-[1.01]'}
                 `}
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {loading ? 'Генерация...' : 'Generate Magic Link'}
-                  {!loading && <Sparkles size={16} className="text-indigo-600" />}
+                  {!loading && <Sparkles size={16} />}
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
 
               {generatedLink && (
@@ -341,6 +341,16 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 blur-[80px] rounded-full mix-blend-screen transform -translate-x-1/3 translate-y-1/3" />
               </div>
               
+              {/* Noise Texture Overlay */}
+              <div 
+                className="absolute inset-0 opacity-[0.015] mix-blend-overlay pointer-events-none"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '200px 200px'
+                }}
+              />
+              
               {/* Card Content Grid */}
               <div className="relative h-full z-10 grid grid-cols-12 p-8">
                 
@@ -354,18 +364,18 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="w-32 h-32 bg-white rounded-xl p-2 shadow-xl shadow-black/20">
+                    <div className="w-32 h-32 bg-white rounded-2xl p-3 shadow-xl shadow-black/20">
                       {generatedLink ? (
                         <QRCode
                           value={generatedLink.full_url}
-                          size={112}
+                          size={104}
                           fgColor="#000000"
                           bgColor="#ffffff"
                           level="H"
                           className="qr-code-canvas"
                         />
                       ) : (
-                        <div className="w-full h-full bg-slate-100 rounded-lg flex items-center justify-center">
+                        <div className="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center">
                           <Sparkles className="text-slate-300" size={32} />
                         </div>
                       )}
@@ -389,9 +399,22 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
                     <div className="space-y-2">
                       <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Short Link</div>
                       <div className="flex items-center justify-end gap-3 group/link">
-                        <span className={`font-mono text-lg transition-colors ${campaign ? 'text-indigo-300' : 'text-slate-700'}`}>
-                          {generatedLink?.full_url || previewLink}
-                        </span>
+                        <div className={`font-mono text-base transition-colors truncate ${campaign ? 'text-white' : 'text-slate-700'}`}>
+                          {(() => {
+                            const url = generatedLink?.full_url || previewLink;
+                            const cleanUrl = url.replace(/^https?:\/\//, '');
+                            const parts = cleanUrl.split('/');
+                            const domain = parts.slice(0, -1).join('/');
+                            const code = parts[parts.length - 1];
+                            
+                            return (
+                              <>
+                                <span className="text-white/50">{domain}/</span>
+                                <span className="text-white font-bold">{code}</span>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
 
