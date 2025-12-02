@@ -285,3 +285,4 @@ WHERE tgname LIKE '%freeze%';
 Выполни проверки 1-5 в Supabase SQL Editor.
 
 
+

@@ -451,3 +451,4 @@ COMMENT ON FUNCTION add_to_fraud_blacklist IS 'Добавляет элемент
 COMMENT ON FUNCTION get_pending_fraud_alerts IS 'Возвращает pending fraud alerts для админ-панели';
 
 
+

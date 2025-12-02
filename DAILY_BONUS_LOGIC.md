@@ -663,3 +663,4 @@ User Click "Получить бонус"
 - **Модалка**: `src/components/dashboard-new/CelebrationModal.tsx`
 
 
+

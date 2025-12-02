@@ -424,3 +424,4 @@ supabase functions deploy claim-daily-bonus --no-verify-jwt
 Начинай с **Шага 1** из инструкции выше.
 
 
+

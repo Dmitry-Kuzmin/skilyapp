@@ -300,3 +300,4 @@ Push costs:          -100% (Cron → Webhook 0₽)
 Открывай Supabase Dashboard и начинай с **Миграции #1**
 
 
+

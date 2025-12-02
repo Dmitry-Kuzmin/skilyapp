@@ -254,3 +254,4 @@ SELECT * FROM claim_daily_bonus_atomic(
 **Экономия:** ~8,000 запросов/месяц ✅
 
 
+

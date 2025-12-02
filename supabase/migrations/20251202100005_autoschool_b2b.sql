@@ -450,3 +450,4 @@ COMMENT ON FUNCTION get_autoschool_top_students IS 'Возвращает топ 
 COMMENT ON FUNCTION enable_instructor_mode IS 'Включает/выключает режим инструктора (показывает правильные ответы)';
 
 
+

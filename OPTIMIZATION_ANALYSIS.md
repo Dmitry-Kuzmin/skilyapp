@@ -585,3 +585,4 @@ REFRESH MATERIALIZED VIEW weekly_retention;
 🎉 **ОЦЕНКА: 9/10** - Отличная работа!
 
 
+

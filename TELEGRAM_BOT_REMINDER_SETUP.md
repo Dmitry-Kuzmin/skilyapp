@@ -476,3 +476,4 @@ pm2 start bot.js --name telegram-bot
 Telegram Bot напоминания настроены **БЕЗ Supabase Cron** = **0₽ стоимость** 🚀
 
 
+

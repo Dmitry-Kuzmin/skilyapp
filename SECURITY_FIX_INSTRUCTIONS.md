@@ -212,3 +212,4 @@ supabase db lint --level warning
 **Статус:** ✅ Готово к применению
 
 
+

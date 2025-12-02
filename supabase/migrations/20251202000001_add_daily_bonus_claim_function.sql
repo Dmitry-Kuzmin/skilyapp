@@ -231,3 +231,4 @@ GRANT EXECUTE ON FUNCTION public.claim_daily_bonus_atomic TO service_role;
 REVOKE EXECUTE ON FUNCTION public.claim_daily_bonus_atomic FROM anon, authenticated;
 
 
+

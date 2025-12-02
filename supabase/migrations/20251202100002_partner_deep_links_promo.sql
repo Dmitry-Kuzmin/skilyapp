@@ -411,3 +411,4 @@ COMMENT ON FUNCTION apply_partner_promo_code IS 'Применяет промок
 COMMENT ON FUNCTION get_partner_links_stats IS 'Возвращает статистику по всем ссылкам партнера';
 
 
+

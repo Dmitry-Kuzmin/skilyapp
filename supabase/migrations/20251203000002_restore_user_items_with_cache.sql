@@ -452,3 +452,4 @@ GRANT EXECUTE ON FUNCTION public.buy_streak_freeze TO authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_daily_bonus_atomic TO service_role;
 
 
+

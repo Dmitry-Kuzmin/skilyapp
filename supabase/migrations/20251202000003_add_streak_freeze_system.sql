@@ -242,3 +242,4 @@ COMMENT ON TABLE public.user_items IS
   'Инвентарь пользователя: streak_freeze, boost_tickets, mystery_boxes и другие предметы';
 
 
+

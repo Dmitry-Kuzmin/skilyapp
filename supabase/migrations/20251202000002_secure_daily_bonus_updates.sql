@@ -134,3 +134,4 @@ COMMENT ON POLICY "Only service role can update daily bonus" ON public.user_dail
   'Только Edge Functions могут обновлять daily bonus через claim_daily_bonus_atomic функцию';
 
 
+

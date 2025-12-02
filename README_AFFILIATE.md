@@ -248,3 +248,4 @@ https://supabase.com/dashboard
 **Версия:** 2.0.0 FINAL
 
 
+
