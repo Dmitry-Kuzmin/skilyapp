@@ -51,37 +51,38 @@ export function ModernPartnerConversionFunnel({ partnerId, days = 30 }: Props) {
 
   if (loading || !stats) {
     return (
-      <div className="bg-[#151923] border border-[#1e293b] rounded-xl p-8">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
         <div className="flex items-center justify-center">
-          <div className="animate-spin h-6 w-6 border-3 border-primary border-t-transparent rounded-full" />
+          <div className="animate-spin h-6 w-6 border-3 border-indigo-500 border-t-transparent rounded-full" />
         </div>
       </div>
     );
   }
 
   const funnelSteps = [
-    { label: 'Клики', value: stats.clicks, percentage: 100 },
-    { label: 'Регистрации', value: stats.registrations, percentage: stats.click_to_install_rate },
-    { label: 'Покупки', value: stats.purchases, percentage: stats.reg_to_purchase_rate, highlight: true },
+    { label: 'Клики', value: stats.clicks, percentage: 100, color: 'bg-blue-500' },
+    { label: 'Регистрации', value: stats.registrations, percentage: stats.click_to_install_rate, color: 'bg-indigo-500' },
+    { label: 'Покупки', value: stats.purchases, percentage: stats.reg_to_purchase_rate, color: 'bg-emerald-500' },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Воронка */}
-      <div className="bg-[#151923] border border-[#1e293b] rounded-xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-white">Воронка конверсий</h3>
-            <p className="text-sm text-slate-500 mt-1">Последние {days} дней</p>
-          </div>
-          <div className="px-3 py-1.5 bg-primary/10 rounded-lg">
-            <span className="text-sm font-medium text-primary">
-              {stats.overall_conversion_rate}% конверсия
-            </span>
-          </div>
+      {/* Header with overall stats */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-white mb-1">Воронка конверсий</h2>
+          <p className="text-sm text-zinc-400">Последние {days} дней</p>
         </div>
+        <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+          <span className="text-sm font-semibold text-emerald-400">
+            {stats.overall_conversion_rate.toFixed(1)}% общая конверсия
+          </span>
+        </div>
+      </div>
 
-        <div className="space-y-4">
+      {/* Funnel Visualization */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+        <div className="space-y-6">
           {funnelSteps.map((step, index) => (
             <motion.div
               key={step.label}
@@ -90,31 +91,31 @@ export function ModernPartnerConversionFunnel({ partnerId, days = 30 }: Props) {
               transition={{ delay: index * 0.1 }}
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-slate-400">{step.label}</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider w-24">
+                    {step.label}
+                  </span>
                   <span className="text-2xl font-bold text-white">{step.value.toLocaleString()}</span>
                 </div>
                 {index > 0 && (
-                  <span className="text-sm text-slate-500">
-                    {step.percentage}% от предыдущего
+                  <span className="text-sm text-zinc-500">
+                    {step.percentage.toFixed(1)}%
                   </span>
                 )}
               </div>
               
-              <div className="relative h-2 bg-[#0a0e1a] rounded-full overflow-hidden">
+              <div className="relative h-3 bg-zinc-950 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${step.percentage}%` }}
-                  transition={{ duration: 1, delay: index * 0.1 }}
-                  className={`absolute top-0 left-0 h-full ${
-                    step.highlight ? 'bg-primary' : 'bg-slate-700'
-                  }`}
+                  transition={{ duration: 0.8, delay: index * 0.1, ease: "easeOut" }}
+                  className={`absolute top-0 left-0 h-full ${step.color}`}
                 />
               </div>
 
               {index < funnelSteps.length - 1 && (
-                <div className="flex justify-center my-2">
-                  <svg className="h-4 w-4 text-slate-700" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex justify-center my-3">
+                  <svg className="h-4 w-4 text-zinc-700" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v10.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V4a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
                 </div>
@@ -125,14 +126,14 @@ export function ModernPartnerConversionFunnel({ partnerId, days = 30 }: Props) {
 
         {/* Финансы */}
         {stats.total_revenue > 0 && (
-          <div className="mt-6 pt-6 border-t border-[#1e293b] grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Доход</p>
-              <p className="text-xl font-bold text-white">€{stats.total_revenue.toFixed(2)}</p>
+          <div className="mt-6 pt-6 border-t border-zinc-800 grid grid-cols-2 gap-4">
+            <div className="text-center p-4 bg-zinc-950/50 rounded-xl">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Доход</p>
+              <p className="text-2xl font-bold text-white">€{stats.total_revenue.toFixed(2)}</p>
             </div>
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Комиссия</p>
-              <p className="text-xl font-bold text-primary">€{stats.total_commission.toFixed(2)}</p>
+            <div className="text-center p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Комиссия</p>
+              <p className="text-2xl font-bold text-emerald-400">€{stats.total_commission.toFixed(2)}</p>
             </div>
           </div>
         )}

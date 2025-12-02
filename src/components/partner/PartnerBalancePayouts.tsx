@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,6 @@ import {
   XCircle, 
   DollarSign,
   AlertCircle,
-  ExternalLink
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -63,7 +62,6 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
     try {
       setLoading(true);
 
-      // Загрузить баланс партнера
       const { data: partnerData, error: partnerError } = await supabase
         .from('partners')
         .select('balance_available, balance_hold, balance_paid, min_payout_amount, hold_period_days')
@@ -76,8 +74,6 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
         setBalance(partnerData);
       }
 
-      // Загрузить историю выплат
-      // @ts-ignore
       const { data: historyData, error: historyError } = await supabase
         .rpc('get_partner_payout_history', {
           p_partner_id: partnerId,
@@ -103,7 +99,7 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
     const amount = parseFloat(payoutForm.amount);
 
     if (isNaN(amount) || amount < balance.min_payout_amount) {
-      toast.error(`Минимальная сумма для вывода: €${balance.min_payout_amount}`);
+      toast.error(`Минимальная сумма: €${balance.min_payout_amount}`);
       return;
     }
 
@@ -113,14 +109,13 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
     }
 
     if (!payoutForm.details.trim()) {
-      toast.error("Укажите реквизиты для выплаты");
+      toast.error("Укажите реквизиты");
       return;
     }
 
     try {
       setLoading(true);
 
-      // @ts-ignore
       const { data, error } = await supabase.rpc('request_partner_payout', {
         p_partner_id: partnerId,
         p_amount: amount,
@@ -140,8 +135,8 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
           return;
         }
 
-        toast.success("Запрос на выплату создан", {
-          description: "Мы обработаем его в течение 48 часов",
+        toast.success("Запрос создан", {
+          description: "Обработаем в течение 48 часов",
         });
 
         setShowPayoutDialog(false);
@@ -150,9 +145,7 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
       }
     } catch (error: any) {
       console.error('[PartnerBalancePayouts] Request error:', error);
-      toast.error("Ошибка создания запроса", {
-        description: error.message,
-      });
+      toast.error("Ошибка создания запроса");
     } finally {
       setLoading(false);
     }
@@ -160,217 +153,167 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
 
   if (loading || !balance) {
     return (
-      <Card className="bg-slate-900/80 border-slate-800">
-        <CardContent className="p-8">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin h-6 w-6 border-3 border-indigo-500 border-t-transparent rounded-full" />
+        </div>
+      </div>
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { label: "Ожидает", icon: Clock, color: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" },
-      processing: { label: "Обработка", icon: TrendingUp, color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
-      completed: { label: "Выплачено", icon: CheckCircle2, color: "bg-green-500/20 text-green-300 border-green-500/30" },
-      rejected: { label: "Отклонено", icon: XCircle, color: "bg-red-500/20 text-red-300 border-red-500/30" },
+  const getStatusConfig = (status: string) => {
+    const configs = {
+      pending: { label: "Ожидает", icon: Clock, color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" },
+      processing: { label: "Обработка", icon: TrendingUp, color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+      completed: { label: "Выплачено", icon: CheckCircle2, color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+      rejected: { label: "Отклонено", icon: XCircle, color: "bg-red-500/10 text-red-400 border-red-500/20" },
     };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    const Icon = config.icon;
-
-    return (
-      <Badge variant="outline" className={config.color}>
-        <Icon className="h-3 w-3 mr-1" />
-        {config.label}
-      </Badge>
-    );
+    return configs[status as keyof typeof configs] || configs.pending;
   };
 
   return (
     <div className="space-y-6">
-      {/* Баланс */}
-      <Card className="bg-slate-900/80 border-slate-800">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5 text-primary" />
-            Баланс и выплаты
-          </CardTitle>
-          <CardDescription>
-            Управление вашими доходами от партнерской программы
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Карточки баланса */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0 }}
-            >
-              <Card className="bg-gradient-to-br from-green-500/10 to-blue-500/10 border-green-500/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-slate-400">Доступно к выводу</p>
-                    <CheckCircle2 className="h-5 w-5 text-green-400" />
-                  </div>
-                  <p className="text-3xl font-black text-green-400">
-                    €{balance.balance_available.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Минимум для вывода: €{balance.min_payout_amount}
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-slate-400">В холде</p>
-                    <Clock className="h-5 w-5 text-amber-400" />
-                  </div>
-                  <p className="text-3xl font-black text-amber-400">
-                    €{balance.balance_hold.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Период заморозки: {balance.hold_period_days} дней
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="bg-slate-800/50 border-slate-700">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-slate-400">Всего выплачено</p>
-                    <DollarSign className="h-5 w-5 text-primary" />
-                  </div>
-                  <p className="text-3xl font-black text-primary">
-                    €{balance.balance_paid.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    За всё время
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Кнопка вывода */}
-          <Button
-            onClick={() => setShowPayoutDialog(true)}
-            disabled={balance.balance_available < balance.min_payout_amount}
-            size="lg"
-            className="w-full bg-primary hover:bg-primary/90"
-          >
-            <Wallet className="h-5 w-5 mr-2" />
-            Запросить вывод средств
-          </Button>
-
-          {balance.balance_available < balance.min_payout_amount && (
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-300">
-                Минимальная сумма для вывода: €{balance.min_payout_amount}. 
-                Необходимо еще €{(balance.min_payout_amount - balance.balance_available).toFixed(2)}.
+      {/* Balance Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Доступно</span>
+                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              </div>
+              <p className="text-3xl font-bold text-emerald-400 mb-2">
+                €{balance.balance_available.toFixed(2)}
               </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              <p className="text-xs text-zinc-500">
+                Мин. для вывода: €{balance.min_payout_amount}
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      {/* История выплат */}
-      <Card className="bg-slate-900/80 border-slate-800">
-        <CardHeader>
-          <CardTitle className="text-lg">История выплат</CardTitle>
-          <CardDescription>
-            {payoutHistory.length} запросов
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {payoutHistory.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">
-              <Wallet className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Запросов на выплату пока нет</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {payoutHistory.map((payout) => (
-                <div
-                  key={payout.payout_id}
-                  className="p-4 rounded-lg border border-slate-800 bg-slate-800/30 hover:bg-slate-800/50 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <p className="font-bold text-lg">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">В холде</span>
+                <Clock className="h-4 w-4 text-amber-400" />
+              </div>
+              <p className="text-3xl font-bold text-amber-400 mb-2">
+                €{balance.balance_hold.toFixed(2)}
+              </p>
+              <p className="text-xs text-zinc-500">
+                Период: {balance.hold_period_days} дней
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Выплачено</span>
+                <DollarSign className="h-4 w-4 text-indigo-400" />
+              </div>
+              <p className="text-3xl font-bold text-white mb-2">
+                €{balance.balance_paid.toFixed(2)}
+              </p>
+              <p className="text-xs text-zinc-500">
+                За всё время
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Payout Button */}
+      <Button
+        onClick={() => setShowPayoutDialog(true)}
+        disabled={balance.balance_available < balance.min_payout_amount}
+        className="w-full h-12 bg-white text-black hover:bg-zinc-200 font-medium"
+      >
+        <Wallet className="h-4 w-4 mr-2" />
+        Запросить вывод средств
+      </Button>
+
+      {balance.balance_available < balance.min_payout_amount && (
+        <div className="flex items-start gap-2 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <AlertCircle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-400">
+            Минимум: €{balance.min_payout_amount}. Необходимо еще €{(balance.min_payout_amount - balance.balance_available).toFixed(2)}
+          </p>
+        </div>
+      )}
+
+      {/* History Table */}
+      {payoutHistory.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 mb-4">
+            История выплат
+          </h3>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-zinc-800 bg-zinc-900/50">
+                  <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Сумма</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Метод</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Запрос</th>
+                  <th className="px-6 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Статус</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800/50">
+                {payoutHistory.map((payout) => {
+                  const statusConfig = getStatusConfig(payout.status);
+                  const StatusIcon = statusConfig.icon;
+                  return (
+                    <tr key={payout.payout_id} className="hover:bg-zinc-800/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-semibold text-white">
                           €{payout.amount.toFixed(2)}
-                        </p>
-                        {getStatusBadge(payout.status)}
-                        <Badge variant="outline" className="text-xs">
-                          {payout.payout_method.toUpperCase()}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-slate-400">
-                        Запрос: {new Date(payout.requested_at).toLocaleDateString('ru-RU', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
-                      {payout.completed_at && (
-                        <p className="text-sm text-green-400 mt-1">
-                          Выплачено: {new Date(payout.completed_at).toLocaleDateString('ru-RU', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      )}
-                      {payout.rejection_reason && (
-                        <p className="text-sm text-red-400 mt-1">
-                          Причина отклонения: {payout.rejection_reason}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-zinc-400 uppercase">
+                          {payout.payout_method}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-xs text-zinc-500">
+                          {new Date(payout.requested_at).toLocaleDateString('ru-RU')}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+                          <StatusIcon className="w-3 h-3" />
+                          {statusConfig.label}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-      {/* Диалог запроса выплаты */}
+      {/* Payout Dialog */}
       <Dialog open={showPayoutDialog} onOpenChange={setShowPayoutDialog}>
-        <DialogContent className="bg-slate-900 border-slate-800 max-w-md">
+        <DialogContent className="bg-zinc-900 border-zinc-800 max-w-md">
           <DialogHeader>
-            <DialogTitle>Запрос на вывод средств</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-white">Запрос на вывод</DialogTitle>
+            <DialogDescription className="text-zinc-400">
               Доступно: €{balance.balance_available.toFixed(2)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Сумма */}
+            {/* Amount */}
             <div className="space-y-2">
-              <Label htmlFor="amount">Сумма к выводу (€)</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Сумма (€)
+              </Label>
               <Input
-                id="amount"
                 type="number"
                 step="0.01"
                 min={balance.min_payout_amount}
@@ -378,61 +321,61 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
                 value={payoutForm.amount}
                 onChange={(e) => setPayoutForm({ ...payoutForm, amount: e.target.value })}
                 placeholder={`Минимум €${balance.min_payout_amount}`}
-                className="bg-slate-800/50 border-slate-700"
+                className="h-12 bg-zinc-950 border-zinc-800"
               />
             </div>
 
-            {/* Метод */}
+            {/* Method */}
             <div className="space-y-2">
-              <Label htmlFor="method">Способ выплаты</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Способ
+              </Label>
               <Select 
                 value={payoutForm.method} 
                 onValueChange={(value: any) => setPayoutForm({ ...payoutForm, method: value })}
               >
-                <SelectTrigger className="bg-slate-800/50 border-slate-700">
+                <SelectTrigger className="h-12 bg-zinc-950 border-zinc-800">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-900 border-slate-700">
-                  <SelectItem value="paypal">💳 PayPal (быстро, 2% комиссия)</SelectItem>
-                  <SelectItem value="sepa">🏦 SEPA (3-5 дней, без комиссии)</SelectItem>
-                  <SelectItem value="wise">💸 Wise (1-2 дня, 1% комиссия)</SelectItem>
-                  <SelectItem value="usdt">₿ USDT (крипта, для опытных)</SelectItem>
+                <SelectContent className="bg-zinc-900 border-zinc-800">
+                  <SelectItem value="paypal">💳 PayPal</SelectItem>
+                  <SelectItem value="sepa">🏦 SEPA</SelectItem>
+                  <SelectItem value="wise">💸 Wise</SelectItem>
+                  <SelectItem value="usdt">₿ USDT</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Реквизиты */}
+            {/* Details */}
             <div className="space-y-2">
-              <Label htmlFor="details">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 {payoutForm.method === 'sepa' ? 'IBAN' : 
-                 payoutForm.method === 'usdt' ? 'Wallet Address' : 
+                 payoutForm.method === 'usdt' ? 'Wallet' : 
                  'Email'}
               </Label>
               <Input
-                id="details"
                 value={payoutForm.details}
                 onChange={(e) => setPayoutForm({ ...payoutForm, details: e.target.value })}
                 placeholder={
-                  payoutForm.method === 'sepa' ? 'ES1234567890...' :
+                  payoutForm.method === 'sepa' ? 'ES1234...' :
                   payoutForm.method === 'usdt' ? '0x...' :
-                  'your@email.com'
+                  'email@example.com'
                 }
-                className="bg-slate-800/50 border-slate-700"
+                className="h-12 bg-zinc-950 border-zinc-800"
               />
             </div>
 
-            {/* Информация */}
-            <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
-              <p className="text-sm text-blue-300">
-                💡 Выплата будет обработана в течение <strong>48 часов</strong> после проверки администратором.
+            {/* Info */}
+            <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+              <p className="text-sm text-indigo-400">
+                💡 Выплата обрабатывается в течение 48 часов
               </p>
             </div>
 
             <Button
               onClick={handleRequestPayout}
               disabled={loading}
-              size="lg"
-              className="w-full"
+              className="w-full h-12 bg-white text-black hover:bg-zinc-200 font-medium"
             >
               {loading ? "Отправка..." : "Запросить выплату"}
             </Button>
@@ -442,4 +385,3 @@ export function PartnerBalancePayouts({ partnerId }: Props) {
     </div>
   );
 }
-

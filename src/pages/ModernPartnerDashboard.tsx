@@ -100,8 +100,8 @@ export default function ModernPartnerDashboard() {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen bg-[#0a0e1a] flex items-center justify-center">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+          <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full" />
         </div>
       </Layout>
     );
@@ -110,11 +110,11 @@ export default function ModernPartnerDashboard() {
   if (!partner || partner.registration_status !== "approved") {
     return (
       <Layout>
-        <div className="min-h-screen bg-[#0a0e1a] flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-[#151923] border border-[#1e293b] rounded-2xl p-8 text-center">
-            <Sparkles className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Ожидание одобрения</h2>
-            <p className="text-slate-400">
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-8 text-center">
+            <Sparkles className="h-12 w-12 text-indigo-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-white mb-2">Ожидание одобрения</h2>
+            <p className="text-zinc-400 text-sm">
               Ваша заявка на рассмотрении. Мы свяжемся с вами в течение 24 часов.
             </p>
           </div>
@@ -152,56 +152,61 @@ export default function ModernPartnerDashboard() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-[#0a0e1a] text-white">
+      <div className="min-h-screen bg-zinc-950 text-white">
         {/* Header */}
-        <div className="border-b border-[#1e293b] bg-[#0a0e1a]/80 backdrop-blur-xl sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-white mb-1">
-                  {partner.name}
-                </h1>
-                <p className="text-sm text-slate-500">{partner.channel_name}</p>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-xl font-semibold tracking-tight text-white">
+                    {partner.name}
+                  </h1>
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-bold border border-indigo-500/20">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-sm text-zinc-500 mt-1">{partner.channel_name}</p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={() => loadDashboardData()}
                 disabled={loading}
-                className="text-slate-400 hover:text-white hover:bg-[#151923]"
+                className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
               >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              </Button>
+              </button>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           
-          {/* Stats Grid - Минималистичные карточки */}
+          {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {statCards.map((stat, index) => {
               const Icon = stat.icon;
               return (
                 <motion.div
                   key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-[#151923] border border-[#1e293b] rounded-xl p-5 hover:border-[#2d3748] transition-colors"
+                  className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                       {stat.label}
                     </span>
-                    <Icon className="h-4 w-4 text-slate-600" />
+                    <div className="p-1.5 rounded-md bg-zinc-800">
+                      <Icon className="h-4 w-4 text-zinc-400" />
+                    </div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-1">
+                  <div className="text-2xl font-bold text-white">
                     {stat.value}
                   </div>
                   {stat.trend && (
-                    <div className="text-xs text-emerald-400 font-medium">
+                    <div className="text-xs text-emerald-500 font-medium mt-1">
                       {stat.trend}
                     </div>
                   )}
@@ -210,48 +215,48 @@ export default function ModernPartnerDashboard() {
             })}
           </div>
 
-          {/* Tabs - Чистые, минималистичные */}
+          {/* Tabs */}
           <Tabs defaultValue="funnel" className="space-y-6">
-            <TabsList className="bg-[#151923] border border-[#1e293b] p-1 h-auto">
+            <TabsList className="bg-zinc-900 border border-zinc-800 p-1 h-auto">
               {partner.registration_status === "approved" && (
                 <>
                   <TabsTrigger 
                     value="funnel"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 px-4 py-2.5 text-sm font-medium rounded-lg transition-all"
+                    className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >
-                    <BarChart3 className="h-4 w-4 mr-2" />
+                    <BarChart3 className="h-4 w-4 mr-1.5" />
                     Аналитика
                   </TabsTrigger>
                   <TabsTrigger 
                     value="link-generator"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 px-4 py-2.5 text-sm font-medium rounded-lg transition-all"
+                    className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >
-                    <Zap className="h-4 w-4 mr-2" />
+                    <Zap className="h-4 w-4 mr-1.5" />
                     Ссылки
                   </TabsTrigger>
                   {partner.partner_type === "revenue_share" && (
                     <TabsTrigger 
                       value="balance"
-                      className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 px-4 py-2.5 text-sm font-medium rounded-lg transition-all"
+                      className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                     >
-                      <DollarSign className="h-4 w-4 mr-2" />
+                      <DollarSign className="h-4 w-4 mr-1.5" />
                       Баланс
                     </TabsTrigger>
                   )}
                   {partner.partner_type === "autoschool" && (
                     <TabsTrigger 
                       value="students"
-                      className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 px-4 py-2.5 text-sm font-medium rounded-lg transition-all"
+                      className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                     >
-                      <Users className="h-4 w-4 mr-2" />
+                      <Users className="h-4 w-4 mr-1.5" />
                       Студенты
                     </TabsTrigger>
                   )}
                   <TabsTrigger 
                     value="materials"
-                    className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-400 px-4 py-2.5 text-sm font-medium rounded-lg transition-all"
+                    className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="h-4 w-4 mr-1.5" />
                     Материалы
                   </TabsTrigger>
                 </>
@@ -279,12 +284,14 @@ export default function ModernPartnerDashboard() {
             )}
 
             <TabsContent value="materials" className="mt-6">
-              <div className="bg-[#151923] border border-[#1e293b] rounded-xl p-12 text-center">
-                <Download className="h-12 w-12 text-slate-600 mx-auto mb-4" />
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-16 text-center">
+                <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 inline-flex mb-4">
+                  <Download className="h-8 w-8 text-zinc-500" />
+                </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
                   Рекламные материалы
                 </h3>
-                <p className="text-slate-500">
+                <p className="text-zinc-500 text-sm">
                   Баннеры, логотипы и шаблоны скоро появятся здесь
                 </p>
               </div>
