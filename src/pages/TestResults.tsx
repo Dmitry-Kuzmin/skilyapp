@@ -157,9 +157,11 @@ const TestResults = () => {
     rewardResult?: TestRewardPayload | null;
   };
 
-  // Синхронизируем награды, переданные с экрана теста
+  // Синхронизируем награды, переданные с экрана теста (только один раз!)
+  const hasShownRewardsRef = useRef(false);
+  
   useEffect(() => {
-    if (!rewardResult) return;
+    if (!rewardResult || hasShownRewardsRef.current) return;
 
     try {
       setRewards({
@@ -180,11 +182,13 @@ const TestResults = () => {
         rewardMessages.push(`🎉 Новый уровень Duel Pass: ${rewardResult.new_level}!`);
       }
 
-      if (rewardMessages.length > 0 || rewardResult.message) {
+      // Показываем уведомление только если есть новые награды (не "already processed")
+      if ((rewardMessages.length > 0 || rewardResult.message) && rewardResult.message !== "Test already processed") {
         toast.success("Награды получены!", {
           description: rewardResult.message || rewardMessages.join(", "),
           duration: 5000,
         });
+        hasShownRewardsRef.current = true; // Помечаем что уже показали
       }
     } catch (error) {
       console.error("[TestResults] Error processing rewards:", error);
