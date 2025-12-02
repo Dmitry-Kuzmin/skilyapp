@@ -30,3 +30,4 @@ LIMIT 10;
 -- WHERE partner_code IS NULL;
 
 
+

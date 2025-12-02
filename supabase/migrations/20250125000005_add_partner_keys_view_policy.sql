@@ -20,3 +20,4 @@ COMMENT ON POLICY "Partners can view their issued keys" ON public.premium_keys I
 'Allows partners to view all keys issued to them, regardless of activation status';
 
 
+

@@ -30,3 +30,4 @@ COMMENT ON POLICY "Anyone can view active partners by code" ON public.partners I
   'Разрешает неавторизованным пользователям читать данные одобренных и активных партнеров по partner_code. Необходимо для отображения баннера партнера на посадочной странице.';
 
 
+

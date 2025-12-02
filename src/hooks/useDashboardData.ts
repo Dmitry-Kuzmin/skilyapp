@@ -36,6 +36,14 @@ interface DashboardData extends DashboardStats {
 const dashboardCache: Record<string, { data: DashboardData | null; timestamp: number }> = {};
 const CACHE_DURATION = 30000; // 30 секунд
 
+// Глобальная функция для инвалидации кэша (можно вызвать из любого места)
+export function invalidateAllDashboardCache() {
+  Object.keys(dashboardCache).forEach(key => {
+    delete dashboardCache[key];
+  });
+  console.log('[useDashboardData] Global cache invalidated');
+}
+
 export function useDashboardData() {
   const { profileId } = useUserContext();
   const [data, setData] = useState<DashboardData | null>(null);

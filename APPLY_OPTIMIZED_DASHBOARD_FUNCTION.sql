@@ -117,3 +117,4 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON FUNCTION get_partner_dashboard IS 'Returns partner dashboard data including link activation statistics. Optimized for performance - uses explicit column selection and limits key queries to 50.';
 
 
+

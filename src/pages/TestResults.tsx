@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
+import { invalidateAllDashboardCache } from "@/hooks/useDashboardData";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -160,29 +161,34 @@ const TestResults = () => {
   useEffect(() => {
     if (!rewardResult) return;
 
-    setRewards({
-      coins: typeof rewardResult.coins_awarded === "number" ? rewardResult.coins_awarded : undefined,
-      sp: typeof rewardResult.sp_awarded === "number" ? rewardResult.sp_awarded : undefined,
-      levelUp: rewardResult.level_up,
-      newLevel: rewardResult.new_level,
-    });
-
-    const rewardMessages: string[] = [];
-    if (rewardResult.coins_awarded && rewardResult.coins_awarded > 0) {
-      rewardMessages.push(`+${rewardResult.coins_awarded} монет`);
-    }
-    if (rewardResult.sp_awarded && rewardResult.sp_awarded > 0) {
-      rewardMessages.push(`+${rewardResult.sp_awarded} SP`);
-    }
-    if (rewardResult.level_up && rewardResult.new_level) {
-      rewardMessages.push(`🎉 Новый уровень Duel Pass: ${rewardResult.new_level}!`);
-    }
-
-    if (rewardMessages.length > 0 || rewardResult.message) {
-      toast.success("Награды получены!", {
-        description: rewardResult.message || rewardMessages.join(", "),
-        duration: 5000,
+    try {
+      setRewards({
+        coins: typeof rewardResult.coins_awarded === "number" ? rewardResult.coins_awarded : undefined,
+        sp: typeof rewardResult.sp_awarded === "number" ? rewardResult.sp_awarded : undefined,
+        levelUp: rewardResult.level_up,
+        newLevel: rewardResult.new_level,
       });
+
+      const rewardMessages: string[] = [];
+      if (rewardResult.coins_awarded && rewardResult.coins_awarded > 0) {
+        rewardMessages.push(`+${rewardResult.coins_awarded} монет`);
+      }
+      if (rewardResult.sp_awarded && rewardResult.sp_awarded > 0) {
+        rewardMessages.push(`+${rewardResult.sp_awarded} SP`);
+      }
+      if (rewardResult.level_up && rewardResult.new_level) {
+        rewardMessages.push(`🎉 Новый уровень Duel Pass: ${rewardResult.new_level}!`);
+      }
+
+      if (rewardMessages.length > 0 || rewardResult.message) {
+        toast.success("Награды получены!", {
+          description: rewardResult.message || rewardMessages.join(", "),
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("[TestResults] Error processing rewards:", error);
+      // Не показываем ошибку пользователю, так как это не критично для отображения результатов
     }
   }, [rewardResult]);
 
@@ -210,6 +216,8 @@ const TestResults = () => {
         }
       } catch (error) {
         console.error("[TestResults] Duel Pass XP error:", error);
+        // Игнорируем ошибки синхронизации Duel Pass (offline режим)
+        // Результаты теста все равно будут отображены
       }
     };
 
@@ -240,9 +248,12 @@ const TestResults = () => {
   const correctCount = correctAnswers.length;
   const incorrectCount = incorrectAnswers.length;
   const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-  // Для экзамена: максимум 3 ошибки (из 30 вопросов = минимум 27 правильных = 90%)
-  // Упрощенная логика: если ошибок <= 3, то процент всегда >= 90% при 30 вопросах
-  const passed = mode === "exam" ? incorrectCount <= 3 : true;
+  
+  // Логика определения успешности теста:
+  // - Для экзамена: максимум 3 ошибки (из 30 вопросов = 90%)
+  // - Для практики: минимум 80% правильных ответов
+  // - Для sequential: минимум 80% правильных ответов
+  const passed = mode === "exam" ? incorrectCount <= 3 : percentage >= 80;
   
   // Статистика по темам для рекомендаций
   const topicStats: Record<string, { correct: number; incorrect: number; total: number; questions: QuestionData[] }> = {};
@@ -285,11 +296,17 @@ const TestResults = () => {
       setLoadingNextTest(true);
       try {
         // Получаем информацию о текущем тесте
-        const { data: currentTest } = await supabase
+        const { data: currentTest, error: currentTestError } = await supabase
           .from("tests")
           .select("min_pass_percent")
           .eq("id", testId)
           .single();
+
+        if (currentTestError) {
+          console.error("[TestResults] Error loading current test:", currentTestError);
+          // В offline режиме просто не показываем следующий тест
+          return;
+        }
 
         if (!currentTest) return;
 
@@ -301,7 +318,7 @@ const TestResults = () => {
         }
 
         // Находим следующий тест
-        const { data: nextTestData } = await supabase
+        const { data: nextTestData, error: nextTestError } = await supabase
           .from("tests")
           .select("id, title_ru, title_es")
           .eq("required_test_id", testId)
@@ -309,18 +326,28 @@ const TestResults = () => {
           .limit(1)
           .single();
 
+        if (nextTestError) {
+          console.error("[TestResults] Error loading next test:", nextTestError);
+          return;
+        }
+
         if (!nextTestData) {
           setLoadingNextTest(false);
           return;
         }
 
         // Проверяем статус следующего теста
-        const { data: nextTestProgress } = await supabase
+        const { data: nextTestProgress, error: progressError } = await supabase
           .from("user_test_progress")
           .select("status")
           .eq("user_id", profileId)
           .eq("test_id", nextTestData.id)
           .single();
+
+        if (progressError) {
+          console.error("[TestResults] Error loading test progress:", progressError);
+          // Не критично, показываем тест как unlocked
+        }
 
         setNextTest({
           id: nextTestData.id,
@@ -328,7 +355,8 @@ const TestResults = () => {
           status: nextTestProgress?.status || 'unlocked',
         });
       } catch (error) {
-        console.error("Error loading next test:", error);
+        console.error("[TestResults] Error loading next test:", error);
+        // В offline режиме игнорируем ошибки - результаты все равно отобразятся
       } finally {
         setLoadingNextTest(false);
       }
@@ -381,7 +409,7 @@ const TestResults = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        const { data: existingNotification } = await supabase
+        const { data: existingNotification, error: checkError } = await supabase
           .from('duel_notifications')
           .select('id')
           .eq('user_id', profileId)
@@ -389,8 +417,14 @@ const TestResults = () => {
           .gte('created_at', today.toISOString())
           .single();
         
+        if (checkError && checkError.code !== 'PGRST116') {
+          // PGRST116 = not found, это нормально
+          console.error('[TestResults] Error checking notifications:', checkError);
+          return; // Не пытаемся создать уведомление, если не можем проверить существующие
+        }
+        
         if (!existingNotification) {
-          await supabase
+          const { error: insertError } = await supabase
             .from('duel_notifications')
             .insert({
               user_id: profileId,
@@ -407,9 +441,15 @@ const TestResults = () => {
                 passed
               }
             });
+          
+          if (insertError) {
+            console.error('[TestResults] Error inserting notification:', insertError);
+            // Не критично для отображения результатов
+          }
         }
       } catch (error) {
-        console.error('Error creating test notification:', error);
+        console.error('[TestResults] Error creating test notification:', error);
+        // В offline режиме игнорируем ошибки уведомлений
       }
     };
     
@@ -558,6 +598,13 @@ const TestResults = () => {
       return () => clearTimeout(timer);
     }
   }, [passed, percentage]);
+
+  // Инвалидируем кэш dashboard при монтировании страницы результатов
+  useEffect(() => {
+    // Это гарантирует, что статистика обновится при следующем визите на dashboard
+    invalidateAllDashboardCache();
+    console.log('[TestResults] Dashboard cache invalidated - stats will refresh');
+  }, []);
 
   return (
     <Layout>

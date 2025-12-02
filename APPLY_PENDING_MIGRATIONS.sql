@@ -17,3 +17,4 @@ ORDER BY version;
 -- 3. 20250125000008_fix_partners_public_read.sql
 
 
+

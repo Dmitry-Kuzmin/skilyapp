@@ -53,3 +53,4 @@ WHERE NOT blocked_locks.granted
 -- SELECT pg_terminate_backend(<PID>);  -- Жесткое прерывание
 
 
+
