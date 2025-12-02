@@ -126,7 +126,8 @@ export default defineConfig(({ mode }) => {
     },
   },
   build: {
-    minify: 'esbuild', // Используем esbuild (быстрее чем terser)
+    // КРИТИЧНО: Временно отключаем минификацию для диагностики проблемы с Nn is not a function
+    minify: false, // Временно отключаем для диагностики
     target: 'es2015',
     // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
     cssCodeSplit: true, // Разделяем CSS на отдельные файлы для лучшего кэширования
@@ -269,6 +270,10 @@ export default defineConfig(({ mode }) => {
     ],
     // КРИТИЧНО: Явно указываем, что framer-motion должен быть предварительно оптимизирован
     exclude: [],
+  },
+  // КРИТИЧНО: Настройки для правильной обработки динамических импортов
+  ssr: {
+    noExternal: [], // Не делаем ничего external для SSR (у нас нет SSR, но это может помочь)
   },
   };
 });
