@@ -128,10 +128,23 @@ export function useDashboardData() {
           return;
         }
 
+        // ИСПРАВЛЕНО: Берем статистику из test_results (новая система)
+        const { data: testResultsData } = await supabase
+          .from('test_results')
+          .select('questions_count, correct_count')
+          .eq('user_id', profileId);
+        
         const sessions = sessionsResult.data || [];
-        const testsCompleted = sessions.length;
-        const totalQuestions = sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0);
-        const correctAnswers = sessions.reduce((acc, s) => acc + (s.score || 0), 0);
+        const testResults = testResultsData || [];
+        
+        // Объединяем данные из обеих систем
+        const testsCompleted = sessions.length + testResults.length;
+        const totalQuestions = 
+          sessions.reduce((acc, s) => acc + (s.total_questions || 0), 0) +
+          testResults.reduce((acc, t) => acc + (t.questions_count || 0), 0);
+        const correctAnswers = 
+          sessions.reduce((acc, s) => acc + (s.score || 0), 0) +
+          testResults.reduce((acc, t) => acc + (t.correct_count || 0), 0);
         const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
         const bonus = bonusResult.data;
         const today = new Date().toISOString().split('T')[0];
