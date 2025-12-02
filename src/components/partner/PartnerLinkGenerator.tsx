@@ -35,6 +35,19 @@ interface GeneratedLink {
   full_url: string;
 }
 
+interface LinkHistory {
+  link_id: string;
+  link_code: string;
+  full_url: string;
+  destination: string;
+  utm_campaign: string;
+  clicks_count: number;
+  registrations_count: number;
+  purchases_count: number;
+  conversion_rate: number;
+  created_at: string;
+}
+
 // Social sources with lucide icons
 const SOURCES = [
   { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'text-pink-500', gradient: 'from-purple-500 to-pink-500', bg: 'bg-pink-500/20' },
@@ -54,6 +67,7 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
   const [generatedLink, setGeneratedLink] = useState<GeneratedLink | null>(null);
   const [previewLink, setPreviewLink] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [linkHistory, setLinkHistory] = useState<LinkHistory[]>([]);
 
   // Live preview - обновляется автоматически
   useEffect(() => {
@@ -64,6 +78,23 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
     const cleanCampaign = campaign.trim().replace(/\s+/g, '-').toLowerCase();
     setPreviewLink(`skilyapp.com/${selectedSource.id}/${cleanCampaign}`);
   }, [campaign, selectedSource]);
+
+  const loadLinkHistory = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_partner_links_with_stats', {
+        p_partner_id: partnerId,
+        p_limit: 5
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setLinkHistory(data);
+      }
+    } catch (error: any) {
+      console.error('[PartnerLinkGenerator] Load history error:', error);
+    }
+  };
 
   const handleSourceSelect = (source: typeof SOURCES[0]) => {
     setSelectedSource(source);
@@ -97,6 +128,7 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
           full_url: link.full_url,
         });
         toast.success("Magic Link создан! ✨");
+        loadLinkHistory();
       }
     } catch (error: any) {
       console.error('[PartnerLinkGenerator] Error:', error);
@@ -105,6 +137,11 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
       setLoading(false);
     }
   };
+
+  // Load history on mount
+  useEffect(() => {
+    loadLinkHistory();
+  }, [partnerId]);
 
   const handleCopy = async () => {
     const linkToCopy = generatedLink?.full_url || previewLink;
@@ -346,6 +383,77 @@ export function PartnerLinkGenerator({ partnerId }: Props) {
         </div>
 
       </div>
+
+      {/* Recent Links History */}
+      {linkHistory.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-12 w-full max-w-6xl mx-auto"
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+              Recent Links
+            </h2>
+            <span className="text-xs text-slate-600">{linkHistory.length} ссылок</span>
+          </div>
+
+          <div className="space-y-2">
+            {linkHistory.map((link) => (
+              <div
+                key={link.link_id}
+                className="group p-4 rounded-xl bg-slate-900/50 border border-white/5 hover:bg-slate-900/80 hover:border-white/10 transition-all"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  {/* Left: Link Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <code className="text-xs font-mono text-slate-400 px-2 py-0.5 rounded bg-white/5">
+                        {link.link_code}
+                      </code>
+                      <span className="text-sm font-medium text-white truncate">
+                        {link.utm_campaign}
+                      </span>
+                    </div>
+                    <code className="text-xs text-slate-600 truncate block">
+                      {link.full_url}
+                    </code>
+                  </div>
+
+                  {/* Center: Stats */}
+                  <div className="hidden md:flex items-center gap-6">
+                    <div className="text-center">
+                      <div className="text-xs text-slate-500 mb-0.5">Clicks</div>
+                      <div className="text-sm font-semibold text-slate-300">{link.clicks_count}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs text-slate-500 mb-0.5">Reg</div>
+                      <div className="text-sm font-semibold text-slate-300">{link.registrations_count}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs text-slate-500 mb-0.5">CR</div>
+                      <div className="text-sm font-semibold text-indigo-400">{link.conversion_rate}%</div>
+                    </div>
+                  </div>
+
+                  {/* Right: Actions */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(link.full_url);
+                        toast.success("Скопировано!");
+                      }}
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Copy size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
