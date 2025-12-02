@@ -4,6 +4,10 @@ import { UnifiedModal } from '@/components/ui/unified-modal';
 
 // Lazy load heavy dashboard components
 const DailyRewards = lazy(() => import('./DailyRewards').then(m => ({ default: m.DailyRewards })));
+const DailyRewardsVariantA = lazy(() => import('./DailyRewardsVariantA').then(m => ({ default: m.DailyRewardsVariantA })));
+const DailyRewardsVariantB = lazy(() => import('./DailyRewardsVariantB').then(m => ({ default: m.DailyRewardsVariantB })));
+const DailyRewardsVariantC = lazy(() => import('./DailyRewardsVariantC').then(m => ({ default: m.DailyRewardsVariantC })));
+const DailyRewardsVariantSelector = lazy(() => import('./DailyRewardsVariantSelector').then(m => ({ default: m.DailyRewardsVariantSelector })));
 const SkilyChat = lazy(() => import('./SkilyChat').then(m => ({ default: m.SkilyChat })));
 const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default: m.ExamReadiness })));
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
@@ -57,6 +61,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
   const [cockpitOpen, setCockpitOpen] = useState(false);
+  const [dailyRewardsVariant, setDailyRewardsVariant] = useState<'A' | 'B' | 'C' | 'original'>(() => {
+    // Сохраняем выбор в localStorage
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('daily_rewards_variant') as any) || 'original';
+    }
+    return 'original';
+  });
   const { t } = useLanguage();
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
@@ -326,12 +337,49 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           {/* 2. DAILY REWARDS (Col: 1, Row: 2) */}
           <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <DailyRewards 
-                currentStreak={stats.currentStreak} 
-                hasClaimedToday={hasClaimedToday} 
-                onClaim={onClaimReward} 
+            {/* Селектор вариантов */}
+            <Suspense fallback={<div className="h-16" />}>
+              <DailyRewardsVariantSelector
+                selectedVariant={dailyRewardsVariant}
+                onSelect={(variant) => {
+                  setDailyRewardsVariant(variant);
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('daily_rewards_variant', variant);
+                  }
+                }}
               />
+            </Suspense>
+
+            {/* Условный рендеринг выбранного варианта */}
+            <Suspense fallback={<ComponentSkeleton />}>
+              {dailyRewardsVariant === 'original' && (
+                <DailyRewards 
+                  currentStreak={stats.currentStreak} 
+                  hasClaimedToday={hasClaimedToday} 
+                  onClaim={onClaimReward} 
+                />
+              )}
+              {dailyRewardsVariant === 'A' && (
+                <DailyRewardsVariantA 
+                  currentStreak={stats.currentStreak} 
+                  hasClaimedToday={hasClaimedToday} 
+                  onClaim={onClaimReward} 
+                />
+              )}
+              {dailyRewardsVariant === 'B' && (
+                <DailyRewardsVariantB 
+                  currentStreak={stats.currentStreak} 
+                  hasClaimedToday={hasClaimedToday} 
+                  onClaim={onClaimReward} 
+                />
+              )}
+              {dailyRewardsVariant === 'C' && (
+                <DailyRewardsVariantC 
+                  currentStreak={stats.currentStreak} 
+                  hasClaimedToday={hasClaimedToday} 
+                  onClaim={onClaimReward} 
+                />
+              )}
             </Suspense>
           </div>
 
