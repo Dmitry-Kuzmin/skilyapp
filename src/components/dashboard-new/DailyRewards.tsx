@@ -269,7 +269,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative overflow-hidden rounded-3xl p-4 ${
+      className={`h-full relative overflow-hidden rounded-3xl p-4 flex flex-col ${
         isDarkTheme 
           ? 'bg-gradient-to-br from-[#0B1120] via-[#0f172a] to-[#0B1120] border-slate-800' 
           : 'bg-gradient-to-br from-white via-slate-50 to-white border-slate-200'
@@ -348,7 +348,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
       </div>
 
       {/* MAIN CONTENT: Круг + Карточки - уменьшенные отступы */}
-      <div className="relative z-10 flex items-center gap-3 mb-3">
+      <div className="relative z-10 flex items-center gap-3 mb-3 flex-1">
         {/* КРУГ */}
         <div className="flex-shrink-0">
           <div className="relative w-24 h-24">
