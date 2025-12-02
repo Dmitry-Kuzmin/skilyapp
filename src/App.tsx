@@ -77,6 +77,8 @@ const AdminMarketingMaterials = lazy(() =>
   import("./pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
 );
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
+const ModernPartnerDashboard = lazy(() => import("./pages/ModernPartnerDashboard"));
+const PartnerLinkRedirect = lazy(() => import("./pages/PartnerLinkRedirect"));
 const AdminEditor = lazy(() => import("./pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
 const RaceGame = lazy(() => import("./pages/games/RaceGame"));
@@ -253,7 +255,9 @@ const App = () => {
           <Route path="/referrals" element={<Referrals />} />
                     <Route path="/join/:code" element={<ReferralRedirect />} />
                     <Route path="/partner/:code" element={<PartnerRedirect />} />
-          <Route path="/partner/dashboard" element={<PartnerDashboard />} />
+                    <Route path="/go/:code" element={<PartnerLinkRedirect />} />
+          <Route path="/partner/dashboard" element={<ModernPartnerDashboard />} />
+          <Route path="/partner/dashboard-old" element={<PartnerDashboard />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="reports" element={<AdminQuestionReports />} />

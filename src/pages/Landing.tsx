@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/AuthModal";
 import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
+import { PartnerInviteBanner } from "@/components/landing/PartnerInviteBanner";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -154,6 +155,7 @@ const Landing = () => {
 
   return (
     <>
+      {partnerInfo && <PartnerInviteBanner />}
       <AiStudioLanding 
         onRequestAccess={() => setAuthModalOpen(true)}
         referrerInfo={referrerInfo}

@@ -120,7 +120,10 @@ self.addEventListener('fetch', (event) => {
     url.protocol === 'moz-extension:' ||
     url.pathname.startsWith('/_next/') ||
     url.pathname.startsWith('/__') ||
-    url.pathname.includes('vercel')
+    url.pathname.includes('vercel') ||
+    url.pathname.startsWith('/go/') || // Партнерские ссылки (редиректы)
+    url.pathname.startsWith('/partner/') || // Партнерские страницы
+    url.pathname.startsWith('/join/') // Реферальные ссылки
   ) {
     return;
   }
