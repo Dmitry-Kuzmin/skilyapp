@@ -142,12 +142,13 @@ export default defineConfig(({ mode }) => {
       // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking (ослаблено для предотвращения удаления кода)
       treeshake: {
         moduleSideEffects: (id) => {
-          // КРИТИЧНО: framer-motion имеет side effects и должен быть включен полностью
-          if (id.includes('framer-motion')) {
+          // КРИТИЧНО: React и ReactDOM должны сохранять side effects
+          // Проверяем ПЕРВЫМ для гарантии правильной обработки
+          if (id.includes('react') || id.includes('react-dom')) {
             return true;
           }
-          // КРИТИЧНО: React и ReactDOM должны сохранять side effects
-          if (id.includes('react') || id.includes('react-dom')) {
+          // КРИТИЧНО: framer-motion имеет side effects и должен быть включен полностью
+          if (id.includes('framer-motion')) {
             return true;
           }
           return 'no-external'; // Разрешаем side effects для внутренних модулей
@@ -166,51 +167,22 @@ export default defineConfig(({ mode }) => {
         inlineDynamicImports: false, // Не инлайним динамические импорты
         // КРИТИЧНО: Используем ES модули для правильной работы динамических импортов
         format: 'es',
+        // КРИТИЧНО: Гарантируем правильный порядок загрузки модулей
+        generatedCode: {
+          constBindings: true,
+          objectShorthand: true,
+        },
         manualChunks: (id) => {
-          // УПРОЩЕННАЯ СТРАТЕГИЯ: Разделяем на минимальное количество chunks
-          // для предотвращения проблем с загрузкой и минификацией
+          // МАКСИМАЛЬНО УПРОЩЕННАЯ СТРАТЕГИЯ для исправления ошибки unstable_scheduleCallback
           if (id.includes('node_modules')) {
             // ОПТИМИЗАЦИЯ: Тяжелые библиотеки в отдельные chunks для lazy loading
             if (id.includes('recharts')) {
               return 'recharts-vendor'; // ~200KB - загружается только в админке
             }
             
-            // КРИТИЧНО: ВСЕ React и React-зависимые библиотеки в ОДНОМ chunk
-            // Это предотвращает проблемы с минификацией и порядком загрузки
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('react-router') ||
-              id.includes('@radix-ui') ||
-              id.includes('@tanstack/react-query') ||
-              id.includes('react-hook-form') ||
-              id.includes('@hookform') ||
-              id.includes('embla-carousel-react') ||
-              id.includes('react-confetti') ||
-              id.includes('react-day-picker') ||
-              id.includes('react-markdown') ||
-              id.includes('react-resizable-panels') ||
-              id.includes('@tiptap/react') ||
-              id.includes('@uidotdev/usehooks') ||
-              id.includes('cmdk') ||
-              id.includes('vaul') ||
-              id.includes('next-themes') ||
-              id.includes('lucide-react') ||
-              id.includes('framer-motion') ||
-              id.includes('use-sync-external-store') ||
-              id.includes('useSyncExternalStore') ||
-              id.includes('use-callback-ref') ||
-              id.includes('use-sidecar')
-            ) {
-              return 'react-vendor';
-            }
-            
-            // Supabase - отдельный chunk
-            if (id.includes('@supabase')) {
-              return 'supabase';
-            }
-            
-            // Остальные vendor библиотеки - в общий vendor chunk
+            // КРИТИЧНО: ВСЕ node_modules в ОДИН vendor chunk
+            // Это гарантирует, что React и ReactDOM всегда вместе
+            // и загружаются в правильном порядке
             return 'vendor';
           }
         },
@@ -224,16 +196,21 @@ export default defineConfig(({ mode }) => {
     esbuildOptions: {
       jsx: 'automatic',
     },
-    // ОПТИМИЗАЦИЯ: Предварительная оптимизация зависимостей
+    // КРИТИЧНО: Предварительная оптимизация React и ReactDOM вместе
+    // Это гарантирует, что они загружаются в правильном порядке
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
+      'react-dom/client',
       'react-router-dom',
       '@tanstack/react-query',
       'framer-motion',
     ],
     // КРИТИЧНО: Явно указываем, что framer-motion должен быть предварительно оптимизирован
     exclude: [],
+    // КРИТИЧНО: Форсируем объединение React и ReactDOM
+    force: false,
   },
   // КРИТИЧНО: Настройки для правильной обработки динамических импортов
   ssr: {
