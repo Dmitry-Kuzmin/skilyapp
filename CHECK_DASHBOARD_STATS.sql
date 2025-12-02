@@ -11,7 +11,7 @@ SELECT
   SUM(questions_count - correct_count) as total_errors,
   CASE 
     WHEN SUM(questions_count) > 0 
-    THEN ROUND((SUM(correct_count)::float / SUM(questions_count)::float) * 100, 1)
+    THEN ROUND((SUM(correct_count)::NUMERIC / SUM(questions_count)::NUMERIC) * 100, 1)
     ELSE 0
   END as accuracy_percent
 FROM test_results
