@@ -11,6 +11,10 @@ interface DashboardStats {
     boosts: number;
     streak_days: number;
     settings?: any;
+    photo_url?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    username?: string | null;
   };
   stats: {
     tests_completed: number;
@@ -31,6 +35,31 @@ interface DashboardStats {
     total_claims: number;
     can_claim: boolean;
   };
+  premium?: {
+    is_premium: boolean;
+    subscription_status?: string | null;
+    subscription_end_date?: string | null;
+    trial_days_remaining?: number | null;
+  };
+  partner?: {
+    is_partner: boolean;
+    partner_id?: string | null;
+    partner_code?: string | null;
+    partner_name?: string | null;
+    partner_status?: string | null;
+  };
+  topics?: Array<{
+    id: string;
+    number: number;
+    title_ru: string;
+    title_es?: string;
+    order_index: number;
+  }>;
+  daily_bonus_definitions?: Array<{
+    day_number: number;
+    reward: number;
+    description: string;
+  }>;
 }
 
 interface DashboardData extends DashboardStats {
@@ -42,10 +71,18 @@ interface DashboardData extends DashboardStats {
 const DASHBOARD_QUERY_KEY = 'dashboard-data';
 
 /**
- * ОПТИМИЗИРОВАННЫЙ хук для получения данных dashboard
- * Использует React Query + новый RPC get_dashboard_complete
- * БЫЛО: 50+ запросов на загрузку dashboard
- * СТАЛО: 1 запрос на загрузку всего dashboard
+ * SUPER ОПТИМИЗИРОВАННЫЙ хук для получения данных dashboard
+ * Использует React Query + SUPER RPC get_dashboard_super
+ * БЫЛО: 200+ запросов на загрузку dashboard
+ * СТАЛО: 1 SUPER запрос на загрузку ВСЕГО dashboard (включая topics, partners, premium)
+ * 
+ * SUPER RPC v2.0 возвращает:
+ * - Profile (полный с аватаром)
+ * - Stats, Readiness, Daily Bonus
+ * - Premium Status (без Edge Function!)
+ * - Partner Status (без отдельного запроса!)
+ * - Topics (список тем)
+ * - Daily Bonus Definitions
  */
 export function useDashboardData() {
   const { profileId } = useUserContext();
@@ -61,16 +98,29 @@ export function useDashboardData() {
     queryFn: async () => {
       if (!profileId) return null;
 
-      console.log('[useDashboardData] 🚀 Fetching dashboard with single RPC call');
+      console.log('[useDashboardData] 🚀 Fetching dashboard with SUPER RPC call');
 
-      // ОПТИМИЗАЦИЯ: Один RPC вместо 50+ запросов
+      // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
+      const { data: superResult, error: superError } = await supabase
+        .rpc('get_dashboard_super', { p_user_id: profileId });
+
+      if (!superError && superResult && !superResult.error) {
+        console.log('[useDashboardData] ✅ SUPER RPC success - all data in 1 request!', {
+          profileId,
+          hasPremium: !!superResult.premium,
+          hasPartner: !!superResult.partner,
+          hasTopics: !!superResult.topics,
+        });
+        return superResult as DashboardData;
+      }
+
+      // Fallback на обычный RPC
+      console.warn('[useDashboardData] ⚠️ Super RPC not available, trying regular RPC');
       const { data: result, error: rpcError } = await supabase
         .rpc('get_dashboard_complete', { p_user_id: profileId });
 
       if (rpcError) {
         console.error('[useDashboardData] ❌ RPC error:', rpcError);
-        
-        // Fallback: если новый RPC не работает, используем старый способ
         console.warn('[useDashboardData] ⚠️ Falling back to old method');
         return await fetchDashboardFallback(profileId);
       }
@@ -80,7 +130,7 @@ export function useDashboardData() {
         return null;
       }
 
-      console.log('[useDashboardData] ✅ Dashboard loaded successfully', {
+      console.log('[useDashboardData] ✅ Dashboard loaded successfully (regular RPC)', {
         profileId,
         testsCompleted: result.stats.tests_completed,
         xp: result.profile.xp,

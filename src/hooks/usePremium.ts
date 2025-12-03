@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { useDashboardData } from "./useDashboardData";
 
 interface PremiumState {
   isPremium: boolean;
@@ -28,13 +29,16 @@ const initialState: PremiumState = {
 const PREMIUM_QUERY_KEY = "premium-status";
 
 /**
- * ОПТИМИЗИРОВАННЫЙ хук для получения premium статуса
- * Использует React Query для глобального кэширования и дедупликации запросов
- * Все компоненты используют один и тот же кэш - запрос выполняется только один раз
+ * SUPER ОПТИМИЗИРОВАННЫЙ хук для получения premium статуса
+ * v2.0 - Использует данные из Super RPC Dashboard (нет отдельного запроса!)
+ * Fallback на Edge Function только если Super RPC не вернул premium данные
  */
 export function usePremium() {
   const { profileId } = useUserContext();
   const queryClient = useQueryClient();
+  
+  // ОПТИМИЗАЦИЯ: Пытаемся взять premium из Super RPC Dashboard
+  const { data: dashboardData } = useDashboardData();
 
   const {
     data: state = initialState,
@@ -45,12 +49,31 @@ export function usePremium() {
     queryFn: async () => {
       if (!profileId) return initialState;
 
+      // ОПТИМИЗАЦИЯ: Если есть данные из Super RPC - используем их!
+      if (dashboardData?.premium) {
+        console.log('[usePremium] ✅ Using premium data from Super RPC (no extra request)');
+        const premium = dashboardData.premium;
+        
+        return {
+          isPremium: premium.is_premium,
+          isTrial: premium.subscription_status === 'trial',
+          isLifetime: premium.subscription_status === 'lifetime',
+          activeUntil: premium.subscription_end_date,
+          daysRemaining: premium.trial_days_remaining ?? 0,
+          coins: dashboardData.profile.coins,
+          subscriptionType: premium.subscription_status,
+          subscriptionStatus: premium.subscription_status,
+        };
+      }
+
+      // Fallback: Edge Function (только если Super RPC не вернул данные)
+      console.warn('[usePremium] ⚠️ Super RPC premium data not available, using Edge Function');
+      
       const { data, error } = await supabase.functions.invoke("premium-status", {
         body: { user_id: profileId },
       });
 
       if (error) {
-        // Тихая обработка ошибок - возвращаем initialState
         if (import.meta.env.DEV) {
           console.warn("[usePremium] Failed to fetch status:", error);
         }
@@ -66,20 +89,19 @@ export function usePremium() {
         isTrial: data.isTrial ?? false,
         isLifetime: data.isLifetime ?? false,
         activeUntil: data.activeUntil ?? null,
-        daysRemaining: data.daysRemaining === null ? 999999 : (data.daysRemaining ?? 0), // null = Premium Forever
+        daysRemaining: data.daysRemaining === null ? 999999 : (data.daysRemaining ?? 0),
         coins: data.coins ?? 0,
         subscriptionType: data.subscriptionType || null,
         subscriptionStatus: data.subscriptionStatus || null,
       };
     },
     enabled: !!profileId,
-    staleTime: 2 * 60 * 1000, // 2 минуты - данные считаются свежими
-    gcTime: 5 * 60 * 1000, // 5 минут - кэш хранится в памяти
-    refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе
-    refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
-    refetchOnReconnect: true, // Перезапрашиваем только при восстановлении соединения
-    retry: 1, // Минимум повторных попыток
-    // Используем initialState при ошибке
+    staleTime: 2 * 60 * 1000, // 2 минуты
+    gcTime: 5 * 60 * 1000, // 5 минут
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: true,
+    retry: 1,
     placeholderData: initialState,
   });
 

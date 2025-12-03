@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useDashboardData } from './useDashboardData';
 
 /**
  * ОПТИМИЗАЦИЯ: Хуки для статических данных с агрессивным кэшированием
@@ -17,12 +18,24 @@ export interface DailyBonusDef {
 
 /**
  * Загружает определения ежедневных бонусов
+ * SUPER ОПТИМИЗАЦИЯ: Берет из Super RPC Dashboard (нет отдельного запроса!)
  * КЭШИРОВАНИЕ: 24 часа (данные не меняются)
  */
 export function useDailyBonusDefinitions() {
+  // ОПТИМИЗАЦИЯ: Пытаемся взять из Super RPC Dashboard
+  const { data: dashboardData } = useDashboardData();
+  
   return useQuery<DailyBonusDef[]>({
     queryKey: ['daily-bonus-definitions'],
     queryFn: async () => {
+      // Если есть в Super RPC - используем!
+      if (dashboardData?.daily_bonus_definitions) {
+        console.log('[useStaticData] ✅ Using daily_bonus_definitions from Super RPC');
+        return dashboardData.daily_bonus_definitions;
+      }
+
+      // Fallback: отдельный запрос
+      console.warn('[useStaticData] ⚠️ Daily bonus defs not in Super RPC, fetching separately');
       const { data, error } = await supabase
         .from('daily_bonus_def')
         .select('day_number, reward, description')
@@ -32,7 +45,7 @@ export function useDailyBonusDefinitions() {
       if (error) throw error;
       return data || [];
     },
-    staleTime: 24 * 60 * 60 * 1000, // 24 часа - эти данные не меняются
+    staleTime: 24 * 60 * 60 * 1000, // 24 часа
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -54,12 +67,24 @@ export interface TopicBasic {
 
 /**
  * Загружает базовый список всех тем
+ * SUPER ОПТИМИЗАЦИЯ: Берет из Super RPC Dashboard (нет отдельного запроса!)
  * КЭШИРОВАНИЕ: 1 час (данные меняются редко)
  */
 export function useTopicsList() {
+  // ОПТИМИЗАЦИЯ: Пытаемся взять из Super RPC Dashboard
+  const { data: dashboardData } = useDashboardData();
+  
   return useQuery<TopicBasic[]>({
     queryKey: ['topics-list'],
     queryFn: async () => {
+      // Если есть в Super RPC - используем!
+      if (dashboardData?.topics) {
+        console.log('[useStaticData] ✅ Using topics from Super RPC');
+        return dashboardData.topics;
+      }
+
+      // Fallback: отдельный запрос
+      console.warn('[useStaticData] ⚠️ Topics not in Super RPC, fetching separately');
       const { data, error } = await supabase
         .from('topics')
         .select('id, number, title_ru, title_es, order_index')

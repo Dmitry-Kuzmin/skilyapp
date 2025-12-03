@@ -3,46 +3,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-
-// ОПТИМИЗАЦИЯ: React Query hook для партнерского статуса
-const usePartnerStatus = (userId: string | undefined, isAuthenticated: boolean) => {
-  return useQuery({
-    queryKey: ['partner-status', userId],
-    queryFn: async () => {
-      if (!userId) return false;
-      
-      const { data, error } = await supabase
-        .from("partners")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("[Footer] Error checking partner status:", error);
-        return false;
-      }
-
-      return !!data;
-    },
-    enabled: !!userId && isAuthenticated,
-    staleTime: 5 * 60 * 1000, // 5 минут - партнерский статус редко меняется
-    gcTime: 30 * 60 * 1000, // 30 минут
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
-};
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 export function Footer() {
   const { t } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const isTelegramApp = isTelegramMiniApp();
-  const { isAuthenticated, supabaseUser } = useUserContext();
+  const { isAuthenticated } = useUserContext();
   
-  // ОПТИМИЗАЦИЯ: Используем React Query вместо useState + useEffect
-  const { data: isPartner = false } = usePartnerStatus(supabaseUser?.id, isAuthenticated);
+  // SUPER ОПТИМИЗАЦИЯ: Берем partner из Super RPC Dashboard (нет отдельного запроса!)
+  const { data: dashboardData } = useDashboardData();
+  const isPartner = dashboardData?.partner?.is_partner ?? false;
 
   // Определяем fullscreen режимы (тесты и игры) - footer должен быть скрыт
   const isFullscreenMode = 

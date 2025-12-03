@@ -2,6 +2,9 @@ import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
+import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 
 // Lazy load UI components - только тяжелые компоненты
 // Легкие компоненты (Toaster, Sonner, TooltipProvider) оставляем синхронными для мгновенного отображения
@@ -157,24 +160,55 @@ const ScrollToTop = () => {
 const App = () => {
   // Создаем QueryClient один раз с useMemo для оптимизации
   // ОПТИМИЗАЦИЯ: Улучшенные настройки кэширования для снижения нагрузки на Supabase
-  const queryClient = useMemo(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими дольше
-        gcTime: 10 * 60 * 1000, // 10 минут (было cacheTime, переименовано в v5)
-        refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе окна
-        refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
-        refetchOnReconnect: true, // Перезапрашиваем только при восстановлении соединения
-        retry: 1, // Минимум повторных попыток
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Экспоненциальная задержка
+  const queryClient = useMemo(() => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими дольше
+          gcTime: 10 * 60 * 1000, // 10 минут (было cacheTime, переименовано в v5)
+          refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе окна
+          refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
+          refetchOnReconnect: true, // Перезапрашиваем только при восстановлении соединения
+          retry: 1, // Минимум повторных попыток
+          retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Экспоненциальная задержка
+        },
+        mutations: {
+          retry: 1, // Минимум повторных попыток для мутаций
+        },
       },
-      mutations: {
-        retry: 1, // Минимум повторных попыток для мутаций
-      },
-    },
-  }), []);
+    });
+
+    // 🚀 PERSIST CACHE: Мгновенная загрузка как в Telegram!
+    // Кэш сохраняется в localStorage и восстанавливается при следующем визите
+    if (typeof window !== 'undefined') {
+      const persister = createSyncStoragePersister({
+        storage: window.localStorage,
+        key: 'SKILYAPP_QUERY_CACHE', // Уникальный ключ для нашего приложения
+      });
+
+      persistQueryClient({
+        queryClient: client,
+        persister,
+        maxAge: 24 * 60 * 60 * 1000, // 24 часа - максимальный возраст кэша
+        dehydrateOptions: {
+          // Не сохраняем ошибки и бесконечные запросы
+          shouldDehydrateQuery: (query) => {
+            return query.state.status === 'success';
+          },
+        },
+      });
+
+      console.log('[App] 💾 Persist cache initialized - instant load enabled!');
+    }
+
+    return client;
+  }, []);
+  
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
+  
+  // ОПТИМИЗАЦИЯ: Фоновые задачи (не блокируют рендеринг)
+  useBackgroundTasks();
   
   // Определяем basename для GitHub Pages
   // Если мы на GitHub Pages (dmitry-kuzmin.github.io), используем /sdadim-dgt-prep
