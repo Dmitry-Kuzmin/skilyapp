@@ -158,6 +158,18 @@ serve(async (req) => {
 
       console.log('[Passkey Login] Passkey found for user:', passkeyData.user_id);
 
+      // Конвертируем public_key из Base64 в Uint8Array для @simplewebauthn
+      let credentialPublicKey: Uint8Array;
+      
+      // Поддержка старого формата (если public_key - это bytea/Buffer)
+      if (typeof passkeyData.public_key === 'string') {
+        // Новый формат: Base64 строка
+        credentialPublicKey = base64urlToUint8Array(passkeyData.public_key);
+      } else {
+        // Старый формат: bytea или Buffer объект
+        credentialPublicKey = new Uint8Array(passkeyData.public_key);
+      }
+
       // ПОЛНАЯ ВЕРИФИКАЦИЯ через @simplewebauthn/server
       try {
         const verification = await verifyAuthenticationResponse({
@@ -166,8 +178,8 @@ serve(async (req) => {
           expectedOrigin: EXPECTED_ORIGIN,
           expectedRPID: RP_ID,
           authenticator: {
-            credentialID: base64urlToUint8Array(passkeyData.credential_id || credential.id),
-            credentialPublicKey: passkeyData.public_key,
+            credentialID: base64urlToUint8Array(credential.id),
+            credentialPublicKey: credentialPublicKey,
             counter: passkeyData.counter,
           },
           requireUserVerification: true, // Обязательная биометрия

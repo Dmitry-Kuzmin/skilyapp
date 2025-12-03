@@ -214,15 +214,18 @@ serve(async (req) => {
         console.log('[Passkey Register] Verification successful, saving to DB');
         console.log('[Passkey Register] Credential ID from client:', credential.id);
 
+        // Конвертируем public_key в Base64 для хранения в БД
+        const publicKeyBase64 = uint8ArrayToBase64url(new Uint8Array(credentialPublicKey));
+
         // Сохраняем credential в БД
         // ВАЖНО: Используем credential.id (строка от клиента), а НЕ конвертируем credentialID
-        // Клиент и сервер должны использовать одинаковый формат!
+        // public_key сохраняем как Base64 строку (не bytea) для простоты
         const { error: insertError } = await supabase
           .from('passkey_credentials')
           .insert({
             user_id: user.id,
-            credential_id: credential.id, // ← ИСПРАВЛЕНО: используем строку от клиента
-            public_key: credentialPublicKey, // Уже в правильном формате (COSE)
+            credential_id: credential.id,
+            public_key: publicKeyBase64, // Base64 строка (будет храниться как text в bytea поле)
             counter: counter,
             device_name: deviceName || null,
             transports: credential.response.transports || ['internal'],
