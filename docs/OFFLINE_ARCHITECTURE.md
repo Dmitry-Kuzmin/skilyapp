@@ -248,3 +248,4 @@ expiration: {
 - [React Query Persistence](https://tanstack.com/query/latest/docs/react/plugins/persistQueryClient)
 - [IndexedDB (idb-keyval)](https://github.com/jakearchibald/idb-keyval)
 
+

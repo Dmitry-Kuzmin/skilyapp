@@ -207,3 +207,4 @@ src/utils/webVitals.ts - Web Vitals (FCP, LCP, CLS, TBT)
 Проверил: Cursor AI Agent  
 Статус: ✅ Готов к деплою (после применения миграции)
 
+

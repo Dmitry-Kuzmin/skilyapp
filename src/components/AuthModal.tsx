@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PasskeyLoginButton } from "@/components/auth/PasskeyLoginButton";
 
 const authSchema = z.object({
   email: z.string().email({ message: "Неверный формат email" }).max(255),
@@ -375,6 +376,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               </div>
             </div>
           </div>
+
+          {/* Passkey Login (Face ID / Touch ID) */}
+          <PasskeyLoginButton onSuccess={onClose} />
 
         {/* Google Login */}
         <Button

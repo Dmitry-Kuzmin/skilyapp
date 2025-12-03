@@ -106,6 +106,7 @@ const DGTTestsSimple = lazy(() => import("./pages/DGTTestsSimple"));
 const ChallengeBank = lazy(() => import("./pages/ChallengeBank"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const InviteLanding = lazy(() => import("./pages/InviteLanding"));
+const Settings = lazy(() => import("./pages/Settings"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
@@ -432,6 +433,7 @@ const App = () => {
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/duel-leaderboard" element={<DuelLeaderboard />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/success" element={<PaymentSuccess />} />
           <Route path="/cancel" element={<PaymentCancel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
