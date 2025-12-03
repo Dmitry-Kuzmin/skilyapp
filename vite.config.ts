@@ -111,6 +111,21 @@ export default defineConfig(({ mode }) => {
         icons: []
       },
       workbox: {
+        // АРХИТЕКТУРА OFFLINE-FIRST:
+        // 
+        // Service Worker отвечает ТОЛЬКО за статику:
+        //   - JS/CSS/HTML (app shell)
+        //   - Images (Supabase Storage, локальные)
+        //   - Fonts
+        // 
+        // React Query отвечает за данные (API):
+        //   - Supabase REST API (/rest/v1/...)
+        //   - Supabase Functions (/functions/v1/...)
+        //   - Кэш в IndexedDB через idb-keyval
+        //   - Управление staleTime/gcTime
+        // 
+        // Это предотвращает конфликты двойного кэша и устаревшие данные.
+        
         // КРИТИЧНО: Максимально агрессивный precache для Telegram (всё кэшируем заранее)
         globPatterns: [
           '**/*.{js,css,html,ico,png,svg,woff,woff2,json}',
@@ -121,29 +136,33 @@ export default defineConfig(({ mode }) => {
         // КРИТИЧНО: Увеличиваем лимит для vendor chunks
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB (было 5MB)
         
-        // КРИТИЧНО: Стратегии кэширования для Runtime
+        // КРИТИЧНО: Стратегии кэширования ТОЛЬКО для статики
+        // API кэшируется на уровне React Query + IndexedDB, НЕ в Service Worker
         runtimeCaching: [
           {
-            // КРИТИЧНО: Все navigation requests (открытие страниц) - сначала кэш
+            // КРИТИЧНО: Navigation (app shell) - NetworkFirst для обновлений
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'pages',
+              cacheName: 'pages-shell',
               networkTimeoutSeconds: 3, // 3 сек ждём сеть, затем кэш
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней
               },
+              cacheableResponse: {
+                statuses: [200],
+              },
             },
           },
           {
-            // Static Assets из CDN/локальные - сначала кэш
-            urlPattern: /^https?:\/\/.*\.(js|css|html)$/,
+            // Static Assets (JS, CSS) - CacheFirst для скорости
+            urlPattern: /^https?:\/\/.*\.(js|css)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-assets',
               expiration: {
-                maxEntries: 100,
+                maxEntries: 150,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
               },
               cacheableResponse: {
@@ -152,14 +171,15 @@ export default defineConfig(({ mode }) => {
             },
           },
           {
-            // Supabase Images & Storage - агрессивное кэширование
-            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
+            // Supabase Storage ТОЛЬКО (images, files) - CacheFirst
+            // НЕ кэшируем /rest/ и /functions/ - за это отвечает React Query
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'supabase-images',
+              cacheName: 'supabase-storage',
               expiration: {
                 maxEntries: 300,
-                maxAgeSeconds: 60 * 60 * 24 * 90, // 90 дней
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней (было 90)
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -167,39 +187,7 @@ export default defineConfig(({ mode }) => {
             },
           },
           {
-            // Supabase API - NetworkFirst с агрессивным fallback
-            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-api',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 10, // 10 минут (было 5)
-              },
-              networkTimeoutSeconds: 5, // 5 сек timeout (было 3)
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // Supabase Functions - кэшируем на 5 минут
-            urlPattern: /^https:\/\/.*\.supabase\.co\/functions\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-functions',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5,
-              },
-              networkTimeoutSeconds: 5,
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            // Fonts и другие assets
+            // Fonts - CacheFirst, долгий TTL
             urlPattern: /^https?:\/\/.*\.(woff|woff2|ttf|eot|otf)$/,
             handler: 'CacheFirst',
             options: {
@@ -210,11 +198,31 @@ export default defineConfig(({ mode }) => {
               },
             },
           },
+          {
+            // Images (локальные и внешние) - CacheFirst
+            urlPattern: /^https?:\/\/.*\.(png|jpg|jpeg|svg|gif|webp|ico)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
         
-        // КРИТИЧНО: Navigation fallback для SPA
+        // КРИТИЧНО: Navigation fallback для SPA (только для реальных страниц)
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/],
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/,
+          // ВАЖНО: Не перехватываем Supabase запросы (должны идти через React Query)
+          /supabase\.co/,
+        ],
         
         // КРИТИЧНО: Очищаем старые кэши при обновлении
         cleanupOutdatedCaches: true,

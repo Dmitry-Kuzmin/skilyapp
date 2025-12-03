@@ -33,7 +33,7 @@ BEGIN
     streak_days,
     settings,
     subscription_status,
-    subscription_end_date,
+    subscription_expires_at,
     photo_url,
     first_name,
     last_name,
@@ -143,7 +143,7 @@ BEGIN
   -- 5. НОВОЕ: Premium статус (убираем Edge Function)
   SELECT 
     subscription_status,
-    subscription_end_date,
+    subscription_expires_at,
     CASE 
       WHEN subscription_status = 'active' AND subscription_end_date > NOW() THEN true
       WHEN subscription_status = 'trial' AND subscription_end_date > NOW() THEN true
