@@ -155,7 +155,7 @@ BEGIN
     pc.user_id,
     pc.public_key,
     pc.counter,
-    u.email
+    u.email::text
   FROM public.passkey_credentials pc
   JOIN auth.users u ON u.id = pc.user_id
   WHERE pc.credential_id = p_credential_id;
