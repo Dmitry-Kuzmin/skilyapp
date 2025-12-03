@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.passkey_credentials (
   
   -- WebAuthn данные
   credential_id text NOT NULL UNIQUE, -- Base64URL encoded credential ID
-  public_key bytea NOT NULL, -- Публичный ключ (COSE format)
+  public_key text NOT NULL, -- Публичный ключ (Base64URL encoded COSE format)
   counter bigint NOT NULL DEFAULT 0, -- Signature counter для защиты от replay attacks
   
   -- Metadata
@@ -140,7 +140,7 @@ CREATE OR REPLACE FUNCTION public.get_passkey_for_verification(
 RETURNS TABLE (
   id uuid,
   user_id uuid,
-  public_key bytea,
+  public_key text,
   counter bigint,
   user_email text
 )
