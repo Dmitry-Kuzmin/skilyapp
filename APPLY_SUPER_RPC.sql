@@ -267,7 +267,6 @@ BEGIN
         'order_index', t.order_index
       ) ORDER BY t.order_index), '[]'::json)
       FROM topics t
-      ORDER BY t.order_index
     ),
     'daily_bonus_definitions', (
       SELECT COALESCE(json_agg(json_build_object(
@@ -276,7 +275,6 @@ BEGIN
         'description', dbd.description
       ) ORDER BY dbd.day_number), '[]'::json)
       FROM daily_bonus_def dbd
-      ORDER BY dbd.day_number
       LIMIT 7
     )
   ) INTO v_result;

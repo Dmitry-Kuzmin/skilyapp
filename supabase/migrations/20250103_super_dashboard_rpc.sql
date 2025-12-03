@@ -265,7 +265,6 @@ BEGIN
         'order_index', t.order_index
       ) ORDER BY t.order_index), '[]'::json)
       FROM topics t
-      ORDER BY t.order_index
     ),
     -- НОВОЕ: Daily Bonus Definitions (только нужные поля!)
     'daily_bonus_definitions', (
@@ -275,7 +274,6 @@ BEGIN
         'description', dbd.description
       ) ORDER BY dbd.day_number), '[]'::json)
       FROM daily_bonus_def dbd
-      ORDER BY dbd.day_number
       LIMIT 7
     )
   ) INTO v_result;
