@@ -158,16 +158,34 @@ serve(async (req) => {
 
       console.log('[Passkey Login] Passkey found for user:', passkeyData.user_id);
 
-      // Конвертируем public_key из Base64 в Uint8Array для @simplewebauthn
+      // Конвертируем public_key в Uint8Array для @simplewebauthn
       let credentialPublicKey: Uint8Array;
       
-      // Поддержка старого формата (если public_key - это bytea/Buffer)
-      if (typeof passkeyData.public_key === 'string') {
-        // Новый формат: Base64 строка
-        credentialPublicKey = base64urlToUint8Array(passkeyData.public_key);
-      } else {
-        // Старый формат: bytea или Buffer объект
-        credentialPublicKey = new Uint8Array(passkeyData.public_key);
+      try {
+        if (typeof passkeyData.public_key === 'string') {
+          // Пытаемся распарсить как JSON (массив чисел)
+          const parsed = JSON.parse(passkeyData.public_key);
+          if (Array.isArray(parsed)) {
+            credentialPublicKey = new Uint8Array(parsed);
+          } else {
+            // Это Base64 строка
+            credentialPublicKey = base64urlToUint8Array(passkeyData.public_key);
+          }
+        } else if (Array.isArray(passkeyData.public_key)) {
+          // Массив чисел напрямую
+          credentialPublicKey = new Uint8Array(passkeyData.public_key);
+        } else {
+          // Buffer объект или другой формат
+          credentialPublicKey = new Uint8Array(passkeyData.public_key as any);
+        }
+        
+        console.log('[Passkey Login] Public key converted, length:', credentialPublicKey.length);
+      } catch (error) {
+        console.error('[Passkey Login] Failed to parse public_key:', error);
+        return new Response(
+          JSON.stringify({ error: 'Invalid public key format' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       // ПОЛНАЯ ВЕРИФИКАЦИЯ через @simplewebauthn/server
@@ -214,56 +232,47 @@ serve(async (req) => {
 
         console.log('[Passkey Login] Creating Supabase session for user:', passkeyData.user_email);
 
-        // Генерируем сессию для пользователя через Admin API
+        // Используем recovery link - он содержит токены
         const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-          type: 'magiclink',
+          type: 'recovery',
           email: passkeyData.user_email,
         });
 
-        if (linkError || !linkData) {
-          console.error('[Passkey Login] Failed to generate link:', linkError);
+        if (linkError || !linkData?.properties?.action_link) {
+          console.error('[Passkey Login] Failed to generate recovery link:', linkError);
           return new Response(
             JSON.stringify({ error: 'Failed to create session' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        // Безопасно извлекаем токены из properties
-        // В новых версиях Supabase они доступны напрямую
-        const accessToken = linkData.properties?.access_token;
-        const refreshToken = linkData.properties?.refresh_token;
+        // Парсим токены из recovery link
+        const url = new URL(linkData.properties.action_link);
+        
+        // В recovery link токены в fragment (#), не в query (?)
+        const fragment = url.hash.substring(1); // Убираем #
+        const fragmentParams = new URLSearchParams(fragment);
+        
+        let accessToken = fragmentParams.get('access_token');
+        let refreshToken = fragmentParams.get('refresh_token');
+        
+        // Fallback: пробуем из query параметров
+        if (!accessToken) {
+          accessToken = url.searchParams.get('access_token');
+          refreshToken = url.searchParams.get('refresh_token');
+        }
 
         if (!accessToken || !refreshToken) {
-          // Fallback: парсим из action_link (старый метод)
-          const url = new URL(linkData.properties.action_link);
-          const fallbackAccessToken = url.searchParams.get('access_token');
-          const fallbackRefreshToken = url.searchParams.get('refresh_token');
-
-          if (!fallbackAccessToken || !fallbackRefreshToken) {
-            console.error('[Passkey Login] Missing tokens in generated link');
-            return new Response(
-              JSON.stringify({ error: 'Failed to create session' }),
-              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          }
-
-          console.log('[Passkey Login] Session created successfully (fallback method)');
-
+          console.error('[Passkey Login] Missing tokens in recovery link');
+          console.error('[Passkey Login] Fragment params:', Array.from(fragmentParams.keys()).join(', '));
+          console.error('[Passkey Login] Query params:', Array.from(url.searchParams.keys()).join(', '));
           return new Response(
-            JSON.stringify({
-              success: true,
-              access_token: fallbackAccessToken,
-              refresh_token: fallbackRefreshToken,
-              user: {
-                id: passkeyData.user_id,
-                email: passkeyData.user_email,
-              },
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            JSON.stringify({ error: 'Failed to create session - missing tokens' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        console.log('[Passkey Login] Session created successfully');
+        console.log('[Passkey Login] Session created successfully via recovery link');
 
         // Возвращаем токены клиенту
         return new Response(
