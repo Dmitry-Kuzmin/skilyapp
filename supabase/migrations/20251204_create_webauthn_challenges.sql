@@ -202,6 +202,8 @@ COMMENT ON FUNCTION public.cleanup_expired_webauthn_challenges IS
 CREATE OR REPLACE FUNCTION public.trigger_cleanup_challenges()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   -- При каждой вставке с вероятностью ~1% запускаем очистку
