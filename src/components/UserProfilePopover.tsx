@@ -43,7 +43,8 @@ import {
   Trophy,
   Flame,
   Calendar,
-  Star
+  Star,
+  Shield
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -161,6 +162,12 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   };
 
   const quickActions = [
+    {
+      key: 'security',
+      icon: Shield,
+      label: 'Безопасность',
+      action: () => navigate('/settings'),
+    },
     {
       key: 'invite',
       icon: Gift,
