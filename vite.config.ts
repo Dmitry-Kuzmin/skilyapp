@@ -258,14 +258,20 @@ export default defineConfig(({ mode }) => {
           },
         ],
         
-        // КРИТИЧНО: Navigation fallback для SPA (только для реальных страниц)
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [
-          /^\/api/,
-          /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/, // JSON правильно исключён
-          // ВАЖНО: Не перехватываем Supabase запросы (должны идти через React Query)
-          /supabase\.co/,
-        ],
+        // КРИТИЧНО: Navigation fallback для SPA
+        // ВАЖНО: На мобильном Safari navigateFallback может вызывать
+        // "Response is disturbed or locked" для прямых URL внутренних страниц.
+        // Vercel rewrites в vercel.json уже обрабатывают SPA routing,
+        // поэтому navigateFallback можно отключить.
+        navigateFallback: undefined, // Отключён (полагаемся на vercel.json rewrites)
+        
+        // Если бы использовали navigateFallback:
+        // navigateFallback: '/index.html',
+        // navigateFallbackDenylist: [
+        //   /^\/api/,
+        //   /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/,
+        //   /supabase\.co/,
+        // ],
         
         // КРИТИЧНО: Очищаем старые кэши при обновлении
         cleanupOutdatedCaches: true,
