@@ -281,11 +281,11 @@ serve(async (req) => {
         // КРИТИЧНО: 
         // 1. Используем ANON client (НЕ service_role!)
         // 2. Используем token_hash поле (НЕ token!)
-        // 3. Передаём hashed_token (НЕ raw token из URL!)
+        // 3. Передаём ТОЛЬКО token_hash и type (email НЕ нужен!)
+        // 4. hashed_token уже содержит информацию о пользователе
         const { data: sessionData, error: verifyError } = await supabaseAnon.auth.verifyOtp({
-          email: normalizedEmail,
           type: 'magiclink',
-          token_hash: hashedToken, // ← ИСПРАВЛЕНО: token_hash + hashed_token!
+          token_hash: hashedToken, // ← ТОЛЬКО token_hash и type!
         } as any); // as any для обхода TypeScript types
 
         if (verifyError || !sessionData?.session) {
