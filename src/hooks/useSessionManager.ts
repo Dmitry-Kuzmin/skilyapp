@@ -228,13 +228,13 @@ export function useSessionManager() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId, deviceInfo?.fingerprint, isRegistered]);
 
-  // Heartbeat: обновляем активность каждые 5 минут
+  // Heartbeat: обновляем активность каждые 10 минут (было 5)
   useEffect(() => {
     if (!profileId || !sessionTokenRef.current) return;
 
     const interval = setInterval(() => {
       updateSessionActivity();
-    }, 5 * 60 * 1000); // 5 минут
+    }, 10 * 60 * 1000); // 10 минут - снижаем частоту запросов
 
     heartbeatIntervalRef.current = interval as unknown as number;
 

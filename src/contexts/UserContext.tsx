@@ -37,25 +37,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Load profile ID when user changes with optimistic loading and retry
   useEffect(() => {
+    let isMounted = true;
+    
     const loadProfileId = async () => {
       if (supabaseUser) {
         // For web users - get profile by user_id
         logUserContext("[UserContext] Loading profile for Supabase user:", supabaseUser.id);
         
-        // Check cache first
+        // Check cache first - если есть кэш, используем его и НЕ делаем запрос
         const cachedId = localStorage.getItem(`profile_${supabaseUser.id}`);
         if (cachedId) {
-          logUserContext("[UserContext] Using cached profileId:", cachedId);
-          setProfileId(cachedId);
+          logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
+          if (isMounted) setProfileId(cachedId);
+          return; // ОПТИМИЗАЦИЯ: Не делаем запрос, если есть кэш
         }
         
+        // Только если нет кэша - делаем запрос
         const { data } = await supabase
           .from('profiles')
           .select('id')
           .eq('user_id', supabaseUser.id)
           .maybeSingle();
         
-        if (data?.id) {
+        if (isMounted && data?.id) {
           setProfileId(data.id);
           localStorage.setItem(`profile_${supabaseUser.id}`, data.id);
           logUserContext("[UserContext] Loaded profile ID for web user:", data.id);
@@ -64,14 +68,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // For Telegram users - get profile by telegram_id with retry
         logUserContext("[UserContext] Loading profile for Telegram user:", user.id);
         
-        // Check cache first for instant load
+        // Check cache first - если есть кэш, используем его и НЕ делаем запрос
         const cachedId = localStorage.getItem(`profile_${user.id}`);
         if (cachedId) {
-          logUserContext("[UserContext] Using cached profileId:", cachedId);
-          setProfileId(cachedId);
+          logUserContext("[UserContext] ✅ Using cached profileId (no DB request):", cachedId);
+          if (isMounted) setProfileId(cachedId);
+          return; // ОПТИМИЗАЦИЯ: Не делаем запрос, если есть кэш
         }
         
+        // Только если нет кэша - делаем запрос с retry
         const queryProfile = async (attempt: number = 1): Promise<void> => {
+          if (!isMounted) return;
+          
           const { data, error } = await supabase
             .from('profiles')
             .select('id')
@@ -82,24 +90,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
             console.error('[UserContext] Error loading profile:', error);
           } else if (data?.id) {
             logUserContext("[UserContext] Loaded profile ID for Telegram user:", data.id);
-            setProfileId(data.id);
-            localStorage.setItem(`profile_${user.id}`, data.id);
-          } else if (attempt < 5) {
-            // Retry if profile not found yet (might be creating)
-            logUserContext(`[UserContext] Profile not found, retry ${attempt}/5 in 500ms...`);
-            setTimeout(() => queryProfile(attempt + 1), 500);
+            if (isMounted) {
+              setProfileId(data.id);
+              localStorage.setItem(`profile_${user.id}`, data.id);
+            }
+          } else if (attempt < 3) { // ОПТИМИЗАЦИЯ: Снижаем retry с 5 до 3
+            logUserContext(`[UserContext] Profile not found, retry ${attempt}/3 in 1000ms...`);
+            setTimeout(() => queryProfile(attempt + 1), 1000);
           } else {
-            logUserContext("[UserContext] No profile found after 5 retries");
+            logUserContext("[UserContext] No profile found after 3 retries");
           }
         };
 
         queryProfile();
       } else {
-        setProfileId(null);
+        if (isMounted) setProfileId(null);
       }
     };
 
     loadProfileId();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [user, supabaseUser]);
 
   // Supabase auth listener for web users

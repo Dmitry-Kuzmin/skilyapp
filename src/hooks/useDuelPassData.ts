@@ -216,11 +216,13 @@ export const useDuelPassData = (profileId?: string | null) => {
     queryKey: ["duelPass", profileId],
     queryFn: () => fetchDuelPass(profileId as string),
     enabled,
-    staleTime: 30_000,
-    gcTime: 2 * 60 * 1000,
+    staleTime: 2 * 60 * 1000, // 2 минуты - увеличиваем кэш
+    gcTime: 10 * 60 * 1000, // 10 минут
     retry: 1,
-    refetchInterval: enabled ? 30_000 : false,
+    refetchInterval: false, // Отключаем автообновление
     refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false, // Не обновляем при фокусе
+    refetchOnMount: false, // Не обновляем при монтировании
   });
 
     return {

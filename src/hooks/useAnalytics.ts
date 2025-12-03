@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
   calculateTrend,
   calculateConsistencyScore,
   calculateTimeToPass,
-  findCriticalPoint,
   calculateFocusBattery,
   generateActivityHeatmap,
 } from '@/utils/analytics';
 import type { TrendData, CriticalPoint } from '@/utils/analytics';
+import { useTopicsList } from './useStaticData';
 
 interface TestResult {
   score: number;
@@ -26,232 +27,157 @@ interface AnalyticsData {
   activityHeatmap: ReturnType<typeof generateActivityHeatmap>;
 }
 
+/**
+ * ОПТИМИЗИРОВАННЫЙ хук для аналитики
+ * Использует React Query для кэширования + объединяет запросы
+ * БЫЛО: 3 запроса при каждом использовании
+ * СТАЛО: 1 запрос + кэширование
+ */
 export function useAnalytics(
   profileId: string | null,
   currentScore: number,
   targetScore: number = 85
 ) {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  // Получаем список тем из кэша (статические данные)
+  const { data: topicsList = [] } = useTopicsList();
 
-  useEffect(() => {
-    if (!profileId) {
-      setLoading(false);
-      return;
-    }
+  // Загружаем аналитические данные одним запросом
+  const { data: rawData, isLoading: loading, error } = useQuery({
+    queryKey: ['analytics-data', profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
 
-    const loadAnalytics = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // 1. Загружаем сессии тестов для анализа
-        const { data: sessionsData, error: sessionsError } = await supabase
+      // ОПТИМИЗАЦИЯ: Объединяем запросы
+      const [sessionsResult, progressResult] = await Promise.all([
+        // 1. Сессии тестов
+        supabase
           .from('game_sessions')
-          .select(`
-            score,
-            total_questions,
-            created_at,
-            game_type
-          `)
+          .select('score, total_questions, created_at, game_type')
           .eq('user_id', profileId)
           .or('game_type.eq.test_exam,game_type.eq.test_practice')
           .order('created_at', { ascending: false })
-          .limit(50); // Берем последние 50 тестов
-
-        if (sessionsError) throw sessionsError;
-
-        // 2. Загружаем прогресс для определения критической точки
-        // Делаем два запроса для избежания проблем с вложенными join'ами
-        const { data: progressData, error: progressError } = await supabase
-          .from('user_progress')
-          .select(`
-            is_correct,
-            question_id,
-            questions_new!inner(topic_id)
-          `)
-          .eq('user_id', profileId)
-          .eq('is_answered', true);
-
-        // Загружаем темы отдельно
-        let topicMap = new Map<string, { id: string; title: string }>();
-        if (progressData && progressData.length > 0) {
-          // Собираем уникальные topic_id (только валидные UUID)
-          const topicIds = new Set<string>();
-          progressData.forEach((progress: any) => {
-            const topicId = progress.questions_new?.topic_id;
-            // Проверяем, что topic_id существует и является валидным UUID
-            if (topicId && typeof topicId === 'string' && topicId.length > 0) {
-              topicIds.add(topicId);
-            }
-          });
-
-          // Загружаем темы одним запросом (только если есть валидные ID)
-          if (topicIds.size > 0) {
-            const topicIdsArray = Array.from(topicIds);
-            // Дополнительная проверка: фильтруем только валидные UUID
-            const validTopicIds = topicIdsArray.filter(id => 
-              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-            );
-            
-            if (validTopicIds.length > 0) {
-              const { data: topicsData, error: topicsError } = await supabase
-                .from('topics')
-                .select('id, title_ru')
-                .in('id', validTopicIds);
-
-              if (!topicsError && topicsData) {
-                topicsData.forEach((topic: any) => {
-                  topicMap.set(topic.id, { id: topic.id, title: topic.title_ru || 'Неизвестная тема' });
-                });
-              } else if (topicsError) {
-                console.warn('[useAnalytics] Topics query error:', topicsError);
-              }
-            }
-          }
-        }
-
-        if (progressError) {
-          console.error('[useAnalytics] Progress query error:', progressError);
-          // Продолжаем работу без данных прогресса, используем только сессии
-          console.warn('[useAnalytics] Continuing without progress data');
-        }
-
-        // 3. Преобразуем данные сессий в формат TestResult
-        const testResults: TestResult[] = (sessionsData || []).map(session => {
-          const accuracy = session.total_questions > 0
-            ? ((session.score || 0) / session.total_questions) * 100
-            : 0;
-          
-          return {
-            score: session.score || 0,
-            accuracy: Math.round(accuracy),
-            date: session.created_at,
-            topic_id: undefined, // Пока не сохраняем topic_id в сессиях
-          };
-        });
-
-        // 4. Подсчитываем ошибки по темам (используем уже загруженную карту тем)
-        const topicErrors = new Map<string, { errors: number; attempts: number }>();
-        if (progressData) {
-          progressData.forEach((progress: any) => {
-            const topicId = progress.questions_new?.topic_id;
-            if (topicId && topicMap.has(topicId)) {
-              const stats = topicErrors.get(topicId) || { errors: 0, attempts: 0 };
-              stats.attempts += 1;
-              if (!progress.is_correct) {
-                stats.errors += 1;
-              }
-              topicErrors.set(topicId, stats);
-            }
-          });
-        }
-
-        // Преобразуем данные прогресса в формат для критической точки
-        const testResultsWithTopics: TestResult[] = testResults.map((result, index) => {
-          // Простая эвристика: распределяем ошибки по темам пропорционально
-          if (index < progressData?.length) {
-            const progress = progressData[index];
-            const topicId = (progress as any).questions_new?.topic_id;
-            return {
-              ...result,
-              topic_id: topicId,
-            };
-          }
-          return result;
-        });
-
-        // Если есть данные по ошибкам, обновляем topic_id для тестов
-        if (topicErrors.size > 0) {
-          testResultsWithTopics.forEach((result, index) => {
-            if (!result.topic_id && index < 10) {
-              // Присваиваем тему с наибольшим количеством ошибок первым тестам
-              const maxErrorTopic = Array.from(topicErrors.entries())
-                .sort((a, b) => {
-                  const aRate = a[1].attempts > 0 ? a[1].errors / a[1].attempts : 0;
-                  const bRate = b[1].attempts > 0 ? b[1].errors / b[1].attempts : 0;
-                  return bRate - aRate;
-                })[0];
-              if (maxErrorTopic) {
-                result.topic_id = maxErrorTopic[0];
-              }
-            }
-          });
-        }
-
-        // 5. Рассчитываем метрики
-        const trend = calculateTrend(testResults, 10);
-        const consistency = calculateConsistencyScore(testResults);
+          .limit(50),
         
-        // Рассчитываем среднее количество тестов в день (за последние 7 дней)
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const recentTests = testResults.filter(t => new Date(t.date) >= sevenDaysAgo);
-        const averageDailyTests = recentTests.length / 7;
+        // 2. Прогресс пользователя
+        supabase
+          .from('user_progress')
+          .select('is_correct, question_id, questions_new!inner(topic_id)')
+          .eq('user_id', profileId)
+          .eq('is_answered', true),
+      ]);
 
-        const timeToPass = calculateTimeToPass(
-          currentScore,
-          targetScore,
-          trend,
-          averageDailyTests
-        );
-
-        // Улучшенная логика для критической точки
-        let criticalPoint: CriticalPoint | null = null;
-        if (topicErrors.size > 0) {
-          const topicsWithErrors = Array.from(topicErrors.entries())
-            .map(([topicId, stats]) => {
-              const errorRate = stats.attempts > 0
-                ? Math.round((stats.errors / stats.attempts) * 100)
-                : 0;
-              const topicInfo = topicMap.get(topicId);
-              return {
-                topic_id: topicId,
-                topic_title: topicInfo?.title || 'Неизвестная тема',
-                error_count: stats.errors,
-                error_rate: errorRate,
-                attempts: stats.attempts,
-              };
-            })
-            .sort((a, b) => {
-              // Сортируем по error_rate, затем по error_count
-              if (b.error_rate !== a.error_rate) {
-                return b.error_rate - a.error_rate;
-              }
-              return b.error_count - a.error_count;
-            });
-
-          if (topicsWithErrors.length > 0 && topicsWithErrors[0].error_rate > 0) {
-            const topicInfo = topicMap.get(topicsWithErrors[0].topic_id);
-            criticalPoint = {
-              ...topicsWithErrors[0],
-              topic_title: topicInfo?.title || topicsWithErrors[0].topic_title,
-            };
-          }
-        }
-
-        const focusBattery = calculateFocusBattery(testResults);
-        const activityHeatmap = generateActivityHeatmap(testResults, 30);
-
-        setAnalytics({
-          trend,
-          consistency,
-          timeToPass,
-          criticalPoint,
-          focusBattery,
-          activityHeatmap,
-        });
-      } catch (err) {
-        console.error('Error loading analytics:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-      } finally {
-        setLoading(false);
+      if (sessionsResult.error) throw sessionsResult.error;
+      if (progressResult.error) {
+        console.warn('[useAnalytics] Progress error, continuing without it:', progressResult.error);
       }
+
+      return {
+        sessions: sessionsResult.data || [],
+        progress: progressResult.data || [],
+      };
+    },
+    enabled: !!profileId,
+    staleTime: 60 * 1000, // 1 минута
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
+  });
+
+  // Вычисляем аналитику на основе загруженных данных
+  const analytics = useMemo(() => {
+    if (!rawData) return null;
+
+    // Преобразуем данные сессий в формат TestResult
+    const testResults: TestResult[] = rawData.sessions.map(session => {
+      const accuracy = session.total_questions > 0
+        ? ((session.score || 0) / session.total_questions) * 100
+        : 0;
+      
+      return {
+        score: session.score || 0,
+        accuracy: Math.round(accuracy),
+        date: session.created_at,
+        topic_id: undefined,
+      };
+    });
+
+    // Создаем карту тем из кэшированного списка
+    const topicMap = new Map(
+      topicsList.map(t => [t.id, { id: t.id, title: t.title_ru || 'Неизвестная тема' }])
+    );
+
+    // Подсчитываем ошибки по темам
+    const topicErrors = new Map<string, { errors: number; attempts: number }>();
+    rawData.progress.forEach((progress: any) => {
+      const topicId = progress.questions_new?.topic_id;
+      if (topicId && topicMap.has(topicId)) {
+        const stats = topicErrors.get(topicId) || { errors: 0, attempts: 0 };
+        stats.attempts += 1;
+        if (!progress.is_correct) {
+          stats.errors += 1;
+        }
+        topicErrors.set(topicId, stats);
+      }
+    });
+
+    // Рассчитываем метрики
+    const trend = calculateTrend(testResults, 10);
+    const consistency = calculateConsistencyScore(testResults);
+    
+    // Рассчитываем среднее количество тестов в день
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recentTests = testResults.filter(t => new Date(t.date) >= sevenDaysAgo);
+    const averageDailyTests = recentTests.length / 7;
+
+    const timeToPass = calculateTimeToPass(
+      currentScore,
+      targetScore,
+      trend,
+      averageDailyTests
+    );
+
+    // Критическая точка
+    let criticalPoint: CriticalPoint | null = null;
+    if (topicErrors.size > 0) {
+      const topicsWithErrors = Array.from(topicErrors.entries())
+        .map(([topicId, stats]) => {
+          const errorRate = stats.attempts > 0
+            ? Math.round((stats.errors / stats.attempts) * 100)
+            : 0;
+          const topicInfo = topicMap.get(topicId);
+          return {
+            topic_id: topicId,
+            topic_title: topicInfo?.title || 'Неизвестная тема',
+            error_count: stats.errors,
+            error_rate: errorRate,
+            attempts: stats.attempts,
+          };
+        })
+        .sort((a, b) => b.error_rate !== a.error_rate ? b.error_rate - a.error_rate : b.error_count - a.error_count);
+
+      if (topicsWithErrors.length > 0 && topicsWithErrors[0].error_rate > 0) {
+        criticalPoint = topicsWithErrors[0];
+      }
+    }
+
+    const focusBattery = calculateFocusBattery(testResults);
+    const activityHeatmap = generateActivityHeatmap(testResults, 30);
+
+    return {
+      trend,
+      consistency,
+      timeToPass,
+      criticalPoint,
+      focusBattery,
+      activityHeatmap,
     };
+  }, [rawData, topicsList, currentScore, targetScore]);
 
-    loadAnalytics();
-  }, [profileId, currentScore, targetScore]);
-
-  return { analytics, loading, error };
+  return { 
+    analytics, 
+    loading, 
+    error: error as Error | null 
+  };
 }
 
