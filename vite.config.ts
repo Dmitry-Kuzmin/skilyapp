@@ -128,13 +128,16 @@ export default defineConfig(({ mode }) => {
         
         // КРИТИЧНО: Максимально агрессивный precache для Telegram (всё кэшируем заранее)
         globPatterns: [
-          '**/*.{js,css,html,ico,png,svg,woff,woff2,json}',
+          '**/*.{js,css,html,ico,png,svg,woff,woff2}',
+          // Добавляем JSON файлы явно (materials, manifest)
+          'data/**/*.json',
+          'manifest.webmanifest',
         ],
         // ВАЖНО: Не игнорируем крупные файлы в Telegram (плохой интернет)
         globIgnores: [],
         
-        // КРИТИЧНО: Увеличиваем лимит для vendor chunks
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB (было 5MB)
+        // КРИТИЧНО: Увеличиваем лимит для vendor chunks и больших JSON
+        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB (для materials JSONs)
         
         // КРИТИЧНО: Стратегии кэширования ТОЛЬКО для статики
         // API кэшируется на уровне React Query + IndexedDB, НЕ в Service Worker
@@ -156,13 +159,32 @@ export default defineConfig(({ mode }) => {
             },
           },
           {
-            // Static Assets (JS, CSS) - CacheFirst для скорости
+            // КРИТИЧНО: Локальные JS/CSS (с нашего домена) - CacheFirst
+            // Гарантирует что app shell всегда доступен offline
+            urlPattern: ({ url }) => {
+              return url.origin === location.origin && 
+                     (url.pathname.endsWith('.js') || url.pathname.endsWith('.css'));
+            },
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'app-static-assets',
+              expiration: {
+                maxEntries: 150,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Внешние JS/CSS (CDN) - CacheFirst
             urlPattern: /^https?:\/\/.*\.(js|css)$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'static-assets',
+              cacheName: 'external-assets',
               expiration: {
-                maxEntries: 150,
+                maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
               },
               cacheableResponse: {
@@ -213,13 +235,34 @@ export default defineConfig(({ mode }) => {
               },
             },
           },
+          {
+            // КРИТИЧНО: Локальные JSON файлы (materials, manifest) - CacheFirst
+            // Включает /data/materials/*.json и другие локальные JSON
+            urlPattern: ({ url }) => {
+              // Только файлы с нашего домена
+              if (url.origin !== location.origin) return false;
+              // JSON файлы или файлы в /data/
+              return url.pathname.endsWith('.json') || url.pathname.includes('/data/');
+            },
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'local-data',
+              expiration: {
+                maxEntries: 500, // Много materials файлов
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
         
         // КРИТИЧНО: Navigation fallback для SPA (только для реальных страниц)
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [
           /^\/api/,
-          /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/,
+          /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/, // JSON правильно исключён
           // ВАЖНО: Не перехватываем Supabase запросы (должны идти через React Query)
           /supabase\.co/,
         ],

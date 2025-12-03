@@ -285,7 +285,7 @@ const App = () => {
       </div>
     );
   }
-  
+
   return (
     <PersistQueryClientProvider
       client={queryClient}
