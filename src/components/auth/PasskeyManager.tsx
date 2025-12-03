@@ -32,6 +32,26 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
+// Автогенерация названия устройства
+function getAutoDeviceName(): string {
+  const ua = navigator.userAgent;
+  
+  if (/iPhone/.test(ua)) return 'iPhone';
+  if (/iPad/.test(ua)) return 'iPad';
+  if (/Macintosh/.test(ua)) {
+    if (/Safari/.test(ua) && !/Chrome/.test(ua)) return 'Mac (Safari)';
+    if (/Chrome/.test(ua)) return 'Mac (Chrome)';
+    return 'Mac';
+  }
+  if (/Windows/.test(ua)) {
+    if (/Edge/.test(ua)) return 'Windows (Edge)';
+    if (/Chrome/.test(ua)) return 'Windows (Chrome)';
+    return 'Windows';
+  }
+  if (/Android/.test(ua)) return 'Android';
+  return 'Устройство';
+}
+
 export function PasskeyManager() {
   const [passkeys, setPasskeys] = useState<PasskeyCredential[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,18 +105,12 @@ export function PasskeyManager() {
   };
 
   const handleRegister = async () => {
-    if (!deviceName.trim()) {
-      toast({
-        title: 'Укажите название',
-        description: 'Введите название устройства',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setIsRegistering(true);
 
-    const result = await registerPasskey({ deviceName: deviceName.trim() });
+    // Автогенерация названия если не указано
+    const finalDeviceName = deviceName.trim() || getAutoDeviceName();
+    
+    const result = await registerPasskey({ deviceName: finalDeviceName });
 
     if (result.success) {
       toast({
@@ -237,7 +251,7 @@ export function PasskeyManager() {
           <div className="flex gap-3">
             <Button
               onClick={handleRegister}
-              disabled={isRegistering || !deviceName.trim()}
+              disabled={isRegistering}
               className="flex-1 h-10 bg-white text-black hover:bg-white/90 font-medium disabled:opacity-50"
             >
               {isRegistering ? (
@@ -267,7 +281,7 @@ export function PasskeyManager() {
           </div>
 
           <p className="text-xs text-zinc-500">
-            После нажатия "Зарегистрировать" браузер запросит Face ID, Touch ID или Windows Hello
+            Название опционально (автоматически определится). После нажатия браузер запросит Face ID, Touch ID или Windows Hello
           </p>
         </div>
       )}
