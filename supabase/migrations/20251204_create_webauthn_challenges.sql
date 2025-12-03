@@ -200,22 +200,12 @@ COMMENT ON FUNCTION public.cleanup_expired_webauthn_challenges IS
   'Удаляет истёкшие challenges. Вызывается по cron или вручную.';
 
 -- ============================================
--- 6. pg_cron job (если доступен)
+-- 6. Автоматическая очистка через Trigger
 -- ============================================
 
 -- ВАЖНО: pg_cron может быть недоступен на некоторых планах Supabase
--- В таком случае можно вызывать cleanup вручную или через Edge Function
-
--- Раскомментируйте если pg_cron доступен:
-/*
-SELECT cron.schedule(
-  'cleanup-webauthn-challenges',
-  '*/5 * * * *', -- Каждые 5 минут
-  $$SELECT public.cleanup_expired_webauthn_challenges()$$
-);
-*/
-
--- Альтернатива: Trigger на INSERT (самоочистка)
+-- Поэтому используем trigger на INSERT для автоматической очистки
+-- Trigger запускается с вероятностью 1% при каждой вставке challenge
 CREATE OR REPLACE FUNCTION public.trigger_cleanup_challenges()
 RETURNS TRIGGER
 LANGUAGE plpgsql
