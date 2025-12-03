@@ -125,19 +125,31 @@ export default defineConfig(({ mode }) => {
         //   - Управление staleTime/gcTime
         // 
         // Это предотвращает конфликты двойного кэша и устаревшие данные.
+        //
+        // ВАЖНО: iOS Safari ограничения:
+        //   - Лимит кэша: ~50 МБ на домен
+        //   - Очистка кэша: при нехватке памяти или бездействии
+        //   - Деактивация SW: при закрытии Safari
+        //   - Минимизируем precache, используем runtime cache
         
-        // КРИТИЧНО: Максимально агрессивный precache для Telegram (всё кэшируем заранее)
+        // Precache для offline режима
+        // ВАЖНО: iOS Safari агрессивно чистит кэши > 50 МБ
+        // Минимизируем precache, остальное кэшируем runtime
         globPatterns: [
-          '**/*.{js,css,html,ico,png,svg,woff,woff2}',
-          // Добавляем JSON файлы явно (materials, manifest)
-          'data/**/*.json',
+          '**/*.{js,css,html,ico,svg}',
+          // Манифесты (маленькие)
           'manifest.webmanifest',
+          'data/materials-manifest.json',
         ],
-        // ВАЖНО: Не игнорируем крупные файлы в Telegram (плохой интернет)
-        globIgnores: [],
+        // ВАЖНО: Исключаем крупные файлы из precache (будут в runtime)
+        globIgnores: [
+          '**/data/materials/**', // Большие JSON - в runtime cache
+          '**/sounds/**',         // Звуки не критичны
+          '**/*.{png,jpg,jpeg,webp}', // Изображения - в runtime cache
+        ],
         
-        // КРИТИЧНО: Увеличиваем лимит для vendor chunks и больших JSON
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB (для materials JSONs)
+        // Лимит для vendor chunks (vendor.js ~2.5 МБ)
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
         
         // КРИТИЧНО: Стратегии кэширования ТОЛЬКО для статики
         // API кэшируется на уровне React Query + IndexedDB, НЕ в Service Worker
@@ -160,7 +172,7 @@ export default defineConfig(({ mode }) => {
             options: {
               cacheName: 'app-static-assets',
               expiration: {
-                maxEntries: 150,
+                maxEntries: 80, // Уменьшено для iOS Safari (было 150)
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
               },
               cacheableResponse: {
@@ -191,8 +203,8 @@ export default defineConfig(({ mode }) => {
             options: {
               cacheName: 'supabase-storage',
               expiration: {
-                maxEntries: 300,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней (было 90)
+                maxEntries: 100, // Уменьшено для iOS Safari (было 300)
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -218,8 +230,8 @@ export default defineConfig(({ mode }) => {
             options: {
               cacheName: 'images',
               expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+                maxEntries: 60, // Уменьшено для iOS Safari (было 200)
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней (было 30)
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -227,20 +239,21 @@ export default defineConfig(({ mode }) => {
             },
           },
           {
-            // КРИТИЧНО: Локальные JSON файлы (materials, manifest) - CacheFirst
-            // Включает /data/materials/*.json и другие локальные JSON
+            // КРИТИЧНО: Локальные JSON файлы (materials) - CacheFirst
+            // iOS Safari ограничивает кэш - кэшируем только часто используемые
             urlPattern: ({ url }) => {
               // Только файлы с нашего домена
               if (url.origin !== location.origin) return false;
               // JSON файлы или файлы в /data/
               return url.pathname.endsWith('.json') || url.pathname.includes('/data/');
             },
-            handler: 'CacheFirst',
+            handler: 'NetworkFirst', // NetworkFirst вместо CacheFirst для iOS
             options: {
               cacheName: 'local-data',
+              networkTimeoutSeconds: 3, // Быстрый fallback
               expiration: {
-                maxEntries: 500, // Много materials файлов
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+                maxEntries: 100, // Сильно уменьшено для iOS (было 500)
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней (было 30)
               },
               cacheableResponse: {
                 statuses: [0, 200],
