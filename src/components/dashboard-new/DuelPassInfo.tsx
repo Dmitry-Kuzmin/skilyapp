@@ -1,93 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Trophy, Zap, Clock, TrendingUp, ChevronRight } from 'lucide-react';
-import { useUserContext } from '@/contexts/UserContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { playClickSound } from '@/services/audioService';
 import { useTheme } from 'next-themes';
+import { useDuelPassInfo } from '@/hooks/useDuelPassInfo';
 
 interface DuelPassInfoProps {
   className?: string;
 }
 
+/**
+ * ОПТИМИЗИРОВАННЫЙ компонент DuelPassInfo
+ * Использует useDuelPassInfo с React Query кэшированием
+ * БЫЛО: 3 запроса при каждом рендере
+ * СТАЛО: 1 запрос + кэширование
+ */
 export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
-  const { profileId } = useUserContext();
   const { openModal } = useModalRoute('duel-pass-season');
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
-  const [loading, setLoading] = useState(true);
-  const [duelPassData, setDuelPassData] = useState<{
-    level: number;
-    seasonPoints: number;
-    nextLevelSP: number;
-    daysRemaining: number;
-    seasonName: string;
-    totalDuels?: number;
-    wins?: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!profileId) {
-      setLoading(false);
-      return;
-    }
-
-    const loadData = async () => {
-      try {
-        setLoading(true);
-
-        // Получаем активный сезон
-        const { data: seasonData, error: seasonError } = await supabase.rpc('get_active_season');
-        
-        if (seasonError || !seasonData || seasonData.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        const season = seasonData[0];
-
-        // Получаем прогресс и статистику параллельно
-        const [progressResult, statsResult] = await Promise.allSettled([
-          supabase.rpc('get_or_create_season_progress', {
-            p_user_id: profileId,
-            p_season_id: season.id,
-          }),
-          supabase
-            .from('duel_stats')
-            .select('total_duels, wins')
-            .eq('user_id', profileId)
-            .maybeSingle(),
-        ]);
-
-        const progress = progressResult.status === 'fulfilled' && progressResult.value.data?.[0];
-        const stats = statsResult.status === 'fulfilled' && statsResult.value.data;
-
-        if (progress) {
-          const currentSP = progress.season_points || 0;
-          const currentLevel = progress.level || 1;
-          const spForNextLevel = 100; // Каждый уровень требует 100 SP
-          const spInCurrentLevel = currentSP % 100;
-          const nextLevelSP = spForNextLevel - spInCurrentLevel;
-
-          setDuelPassData({
-            level: currentLevel,
-            seasonPoints: currentSP,
-            nextLevelSP: nextLevelSP,
-            daysRemaining: season.days_remaining || 0,
-            seasonName: season.name_ru || `Сезон ${season.season_number || 1}`,
-            totalDuels: stats?.total_duels || 0,
-            wins: stats?.wins || 0,
-          });
-        }
-      } catch (error) {
-        console.error('[DuelPassInfo] Error loading data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [profileId]);
+  
+  // ОПТИМИЗАЦИЯ: Используем кэшированные данные
+  const { data: duelPassData, loading } = useDuelPassInfo();
 
   const handleClick = () => {
     playClickSound();
@@ -190,13 +124,13 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = ({ className }) => {
             </p>
           </div>
         </div>
-        {duelPassData.totalDuels !== undefined && (
+        {duelPassData.totalDuels > 0 && (
           <div className="flex items-center gap-2 flex-1">
             <TrendingUp className={`w-4 h-4 ${statIconClass}`} />
             <div>
               <p className={`text-xs ${textSecondaryClass}`}>Дуэли</p>
               <p className={`text-sm font-semibold ${textPrimaryClass}`}>
-                {duelPassData.wins || 0} / {duelPassData.totalDuels}
+                {duelPassData.wins} / {duelPassData.totalDuels}
               </p>
             </div>
           </div>

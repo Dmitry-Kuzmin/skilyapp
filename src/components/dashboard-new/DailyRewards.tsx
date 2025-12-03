@@ -5,7 +5,7 @@ import { CelebrationAnimations, CelebrationType } from './CelebrationAnimations'
 import { CelebrationModal } from './CelebrationModal';
 import { playClickSound, playSuccessSound } from '@/services/audioService';
 import { useCockpitSettings } from '@/hooks/useCockpitSettings';
-import { supabase } from '@/integrations/supabase/client';
+import { useDailyBonusDefinitions } from '@/hooks/useStaticData';
 import { useTheme } from 'next-themes';
 
 interface DailyRewardsProps {
@@ -31,7 +31,6 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [weeklyRewards, setWeeklyRewards] = useState<any[]>([]);
   const [celebrationType, setCelebrationType] = useState<CelebrationType>('phoenix');
   const [celebrationSoundType, setCelebrationSoundType] = useState<'default' | 'fanfare' | 'bells' | 'synth' | 'orchestral' | 'pop'>('orchestral');
   const flameAnchorRef = useRef<HTMLDivElement>(null);
@@ -56,22 +55,8 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const effectiveHasClaimed = hasClaimedToday;
 
-  // Загружаем награды
-  useEffect(() => {
-    const loadRewards = async () => {
-      const { data } = await supabase
-        .from('daily_bonus_def')
-        .select('day_number, reward, description')
-        .order('day_number', { ascending: true })
-        .limit(7);
-      
-      if (data) {
-        setWeeklyRewards(data);
-      }
-    };
-    
-    loadRewards();
-  }, []);
+  // ОПТИМИЗАЦИЯ: Используем кэшированные данные вместо прямого запроса
+  const { data: weeklyRewards = [] } = useDailyBonusDefinitions();
 
   const { settings: cockpitSettings } = useCockpitSettings();
   const celebrationMode = cockpitSettings.animationMode;
