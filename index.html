@@ -214,51 +214,9 @@
 
   <body>
     <div id="root"></div>
-    <!-- КРИТИЧНО: Очистка старых Service Workers для диагностики белого экрана -->
-    <!-- Выполняем асинхронно, не блокируя загрузку основного скрипта -->
+    <!-- PWA Service Worker управляется через vite-plugin-pwa -->
+    <!-- НЕ удаляем SW вручную - это блокирует offline режим -->
     <script>
-      // Выполняем очистку после загрузки DOM, не блокируя основной скрипт
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          cleanupServiceWorkers();
-        });
-      } else {
-        // DOM уже загружен, выполняем сразу
-        cleanupServiceWorkers();
-      }
-      
-      function cleanupServiceWorkers() {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(var registration of registrations) {
-              registration.unregister().then(function(success) {
-                console.log('[SW Cleanup] Unregistered:', success);
-              });
-            }
-          });
-          // Очищаем кэш
-          if ('caches' in window) {
-            caches.keys().then(function(names) {
-              for (let name of names) {
-                caches.delete(name).then(function(success) {
-                  console.log('[SW Cleanup] Cache deleted:', name, success);
-                });
-              }
-            });
-          }
-        }
-      }
-    </script>
-    <!-- КРИТИЧНО: Принудительная очистка кэша для решения проблемы с Nn is not a function -->
-    <script>
-      // КРИТИЧНО: Очищаем кэш перед загрузкой модулей
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (let name of names) {
-            caches.delete(name);
-          }
-        });
-      }
       
       // КРИТИЧНО: Добавляем версию в URL для принудительной инвалидации кэша
       const CACHE_BUST = '?v=' + Date.now();
