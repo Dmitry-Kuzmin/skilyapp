@@ -328,8 +328,11 @@ ON game_sessions(user_id, game_type, created_at DESC);
 -- ПРОВЕРКА РАБОТЫ
 -- ======================================
 
--- Замени YOUR_USER_ID на свой UUID из profiles
-SELECT get_dashboard_super('YOUR_USER_ID'::UUID);
+-- Замени YOUR_USER_ID на свой UUID из profiles и раскомментируй:
+-- SELECT get_dashboard_super('YOUR_USER_ID'::UUID);
+
+-- Или используй свой user_id напрямую (пример):
+-- SELECT get_dashboard_super('560c5df8-b29a-45ad-b08c-4f9cbc1e7cb4'::UUID);
 
 -- Если работает, увидишь JSON со всеми данными!
 -- Если ошибка - проверь, что все таблицы существуют
