@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { createAsyncStoragePersister } from "@/lib/queryPersister";
+import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 
 // Lazy load UI components - только тяжелые компоненты
 // Легкие компоненты (Toaster, Sonner, TooltipProvider) оставляем синхронными для мгновенного отображения
@@ -16,6 +17,7 @@ import { ReferralRedirect } from "@/components/ReferralRedirect";
 import { PartnerRedirect } from "@/components/PartnerRedirect";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
+import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
 
 // Lazy load только тяжелые компоненты
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
@@ -162,6 +164,9 @@ const ScrollToTop = () => {
 const App = () => {
   // OFFLINE-FIRST: Детектор первого запуска
   const [isFirstRun, setIsFirstRun] = useState(false);
+  
+  // OFFLINE-FIRST: Инициализация analytics
+  useOfflineAnalytics();
   
   useEffect(() => {
     // Проверяем, есть ли кэш (это не первый запуск)
@@ -361,6 +366,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <OfflineBanner />
+        <OfflineQueueIndicator />
         <Suspense fallback={null}>
           <CosmeticsPreviewProvider>
               <BrowserRouter basename={basename}>

@@ -23,6 +23,8 @@ import { CryptomusPaymentPreview } from '@/components/monetization/CryptomusPaym
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { PAYMENT_CONFIG, isPaymentMethodAvailable } from '@/lib/payment-config';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
+import { trackOfflineAction } from '@/utils/offlineAnalytics';
 
 const supabaseClient = supabase as any;
 
@@ -68,6 +70,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
   const dateLocale = localeMap[language] || 'en-US';
+  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
   // UnifiedModal сам синхронизирует с URL через modalRouteKey
   // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
@@ -724,9 +727,53 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         profileId, 
         boostType: boost.type, 
         cost: boost.cost_coins, 
-        currentCoins: coins 
+        currentCoins: coins,
+        online: navigator.onLine,
       });
 
+      // OFFLINE-FIRST: Если offline - добавляем в очередь
+      if (!navigator.onLine) {
+        console.log('[BoostShop] Offline mode detected, queuing boost purchase');
+        
+        await enqueueOfflineAction('coin-spend', {
+          itemId: boost.type,
+          cost: boost.cost_coins,
+          type: 'boost',
+          boost_name: boost.name_ru,
+        });
+        
+        // Оптимистичное обновление UI
+        setCoins(prev => prev - boost.cost_coins);
+        
+        // Оптимистично обновляем инвентарь (локально)
+        setInventory(prev => {
+          const existing = prev.find(i => i.boost_type === boost.type);
+          if (existing) {
+            return prev.map(i => 
+              i.boost_type === boost.type 
+                ? { ...i, quantity: i.quantity + 1 }
+                : i
+            );
+          } else {
+            return [...prev, { boost_type: boost.type, quantity: 1 }];
+          }
+        });
+        
+        trackOfflineAction('boost-purchase', true);
+        
+        toast({
+          title: t('boostShop.toasts.successTitle') || 'Буст куплен!',
+          description: 'Покупка сохранена локально. Применится при восстановлении сети.',
+        });
+        
+        // Анимации (локально)
+        sounds.correctAnswer();
+        haptics.boostActivated();
+        
+        return;
+      }
+
+      // ONLINE: Обычная покупка
       // Проверяем существование профиля перед покупкой
       const { data: profileCheck, error: profileCheckError } = await supabaseClient
         .from('profiles')
@@ -812,6 +859,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       } catch (txError) {
         console.warn('[BoostShop] Исключение при создании транзакции (не критично):', txError);
       }
+      
+      trackOfflineAction('boost-purchase', true);
 
       // Анимации и звуки
       setShowConfetti(true);
@@ -876,6 +925,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         message: errorMessage,
         fullError: error
       });
+      
+      trackOfflineAction('boost-purchase', false, errorMessage);
       
       toast({
         title: t('boostShop.toasts.purchaseErrorTitle'),

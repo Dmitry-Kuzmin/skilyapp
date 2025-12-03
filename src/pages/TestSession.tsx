@@ -29,6 +29,8 @@ import {
   useQuestionsByTopic,
   useTestInfo,
 } from "@/hooks/useTestQuestionsByMode";
+import { useOfflineQueue } from "@/hooks/useOfflineQueue";
+import { trackOfflineAction } from "@/utils/offlineAnalytics";
 
 type QuestionData = {
   id: string;
@@ -194,6 +196,7 @@ const TestSession = () => {
   const [searchParams] = useSearchParams();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
+  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
   const mode = useMemo(() => {
     if (rawMode) return rawMode;
     if (location.pathname.includes("/test/sequential")) return "sequential";
@@ -2056,8 +2059,12 @@ useEffect(() => {
     if (profileId) {
       try {
         const sessionId = getOrCreateSessionId();
-        const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
-          body: {
+        
+        // OFFLINE-FIRST: Если offline - добавляем в очередь вместо прямой отправки
+        if (!navigator.onLine) {
+          console.log("[TestSession] Offline mode detected, queuing test result for later sync");
+          
+          await enqueueOfflineAction('test-result', {
             user_id: profileId,
             session_id: sessionId,
             test_id: testId || null,
@@ -2067,15 +2074,49 @@ useEffect(() => {
             test_duration_seconds: Math.max(timeSpent, 0),
             premium_flag: Boolean(isPremium),
             double_sp_active: false,
-          },
-        });
+          });
+          
+          // Базовые награды для UI (будут пересчитаны при sync)
+          const baseCoins = Math.max(2, Math.floor(score / 10));
+          const baseSP = Math.max(1, Math.floor(score / 20));
+          
+          rewardResult = {
+            coins_awarded: baseCoins,
+            sp_awarded: baseSP,
+            message: "Результат сохранён локально. Награды будут начислены при восстановлении сети.",
+          } as TestRewardResult;
+          
+          trackOfflineAction('test-submit', true);
+          
+          toast.info("Результат сохранён. Награды будут начислены при восстановлении соединения.", {
+            duration: 4000,
+          });
+        } else {
+          // ONLINE: Обычная отправка
+          const { data: rewardData, error: rewardError } = await supabase.functions.invoke("complete-test-and-award", {
+            body: {
+              user_id: profileId,
+              session_id: sessionId,
+              test_id: testId || null,
+              score,
+              questions_count: questions.length,
+              correct_count: correctCount,
+              test_duration_seconds: Math.max(timeSpent, 0),
+              premium_flag: Boolean(isPremium),
+              double_sp_active: false,
+            },
+          });
 
-        if (rewardError) throw rewardError;
-        rewardResult = rewardData as TestRewardResult;
-        
-        console.log("[TestSession] Rewards awarded successfully:", rewardResult);
+          if (rewardError) throw rewardError;
+          rewardResult = rewardData as TestRewardResult;
+          
+          trackOfflineAction('test-submit', true);
+          console.log("[TestSession] Rewards awarded successfully:", rewardResult);
+        }
       } catch (awardError: any) {
         console.error("[TestSession] Error awarding test:", awardError);
+        
+        trackOfflineAction('test-submit', false, awardError.message);
         
         // Fallback: показываем базовые награды локально (без начисления в БД)
         // Пользователь сможет повторить тест или награды начислятся при следующем запуске
@@ -2086,7 +2127,7 @@ useEffect(() => {
           success: false,
           coins_awarded: baseCoins,
           sp_awarded: baseSP,
-          message: "Награды будут начислены позже (офлайн режим)",
+          message: "Награды будут начислены позже",
         } as TestRewardResult;
         
         // Показываем предупреждение (не ошибку), чтобы не пугать пользователя
