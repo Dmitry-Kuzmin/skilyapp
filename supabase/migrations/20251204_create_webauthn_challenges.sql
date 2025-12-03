@@ -63,7 +63,7 @@ CREATE POLICY "Admins can view challenges"
   USING (
     EXISTS (
       SELECT 1 FROM public.profiles 
-      WHERE id = auth.uid()::text 
+      WHERE user_id = auth.uid()
       AND role = 'admin'
     )
   );
