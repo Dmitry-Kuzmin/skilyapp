@@ -104,20 +104,42 @@ export default defineConfig(({ mode }) => {
         background_color: '#09090b', // zinc-950
         display: 'standalone',
         orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
         // Иконки можно добавить позже (создать pwa-192x192.png и pwa-512x512.png)
         // Пока приложение будет использовать favicon.ico
         icons: []
       },
       workbox: {
-        // КРИТИЧНО: Настройки для максимальной оффлайн работы
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // КРИТИЧНО: Максимально агрессивный precache для Telegram (всё кэшируем заранее)
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,woff,woff2,json}',
+        ],
+        // ВАЖНО: Не игнорируем крупные файлы в Telegram (плохой интернет)
+        globIgnores: [],
         
-        // Стратегии кэширования
+        // КРИТИЧНО: Увеличиваем лимит для vendor chunks
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB (было 5MB)
+        
+        // КРИТИЧНО: Стратегии кэширования для Runtime
         runtimeCaching: [
           {
-            // Static Assets: HTML, JS, CSS - загружаем из кэша, обновляем в фоне
+            // КРИТИЧНО: Все navigation requests (открытие страниц) - сначала кэш
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages',
+              networkTimeoutSeconds: 3, // 3 сек ждём сеть, затем кэш
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней
+              },
+            },
+          },
+          {
+            // Static Assets из CDN/локальные - сначала кэш
             urlPattern: /^https?:\/\/.*\.(js|css|html)$/,
-            handler: 'StaleWhileRevalidate',
+            handler: 'CacheFirst',
             options: {
               cacheName: 'static-assets',
               expiration: {
@@ -136,7 +158,7 @@ export default defineConfig(({ mode }) => {
             options: {
               cacheName: 'supabase-images',
               expiration: {
-                maxEntries: 200,
+                maxEntries: 300,
                 maxAgeSeconds: 60 * 60 * 24 * 90, // 90 дней
               },
               cacheableResponse: {
@@ -145,16 +167,32 @@ export default defineConfig(({ mode }) => {
             },
           },
           {
-            // Supabase API - NetworkFirst с кэшем на случай offline
+            // Supabase API - NetworkFirst с агрессивным fallback
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5, // 5 минут (короткий кэш для API)
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 10, // 10 минут (было 5)
               },
-              networkTimeoutSeconds: 3, // Быстрый fallback на кэш при медленной сети
+              networkTimeoutSeconds: 5, // 5 сек timeout (было 3)
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Supabase Functions - кэшируем на 5 минут
+            urlPattern: /^https:\/\/.*\.supabase\.co\/functions\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-functions',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 5,
+              },
+              networkTimeoutSeconds: 5,
               cacheableResponse: {
                 statuses: [0, 200],
               },
@@ -174,12 +212,16 @@ export default defineConfig(({ mode }) => {
           },
         ],
         
-        // КРИТИЧНО: Navigation fallback для SPA (всегда отдаём index.html для маршрутов)
+        // КРИТИЧНО: Navigation fallback для SPA
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /\.(png|jpg|jpeg|svg|gif|webp|ico)$/],
+        navigateFallbackDenylist: [/^\/api/, /\.(png|jpg|jpeg|svg|gif|webp|ico|json)$/],
         
-        // Размер кэша
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+        // КРИТИЧНО: Очищаем старые кэши при обновлении
+        cleanupOutdatedCaches: true,
+        
+        // КРИТИЧНО: Клиентские claims для немедленной активации SW
+        clientsClaim: true,
+        skipWaiting: true,
       },
       devOptions: {
         enabled: false, // Отключаем в dev режиме для быстрой разработки

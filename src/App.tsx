@@ -159,6 +159,33 @@ const ScrollToTop = () => {
 };
 
 const App = () => {
+  // OFFLINE-FIRST: Детектор первого запуска
+  const [isFirstRun, setIsFirstRun] = useState(false);
+  
+  useEffect(() => {
+    // Проверяем, есть ли кэш (это не первый запуск)
+    const checkFirstRun = async () => {
+      try {
+        // Проверяем IndexedDB
+        const { get } = await import('idb-keyval');
+        const cache = await get('SDADIM_REACT_QUERY_OFFLINE_CACHE');
+        
+        // Если кэша нет И мы offline - это первый запуск без интернета
+        if (!cache && !navigator.onLine) {
+          console.warn('[App] First run without internet - cache not available');
+          setIsFirstRun(true);
+        } else {
+          setIsFirstRun(false);
+        }
+      } catch (error) {
+        console.error('[App] Failed to check first run:', error);
+        setIsFirstRun(false);
+      }
+    };
+    
+    checkFirstRun();
+  }, []);
+  
   // OFFLINE-FIRST: Создаем QueryClient с длительным кэшированием
   // Данные хранятся в IndexedDB и доступны даже без сети
   const queryClient = useMemo(() => {
@@ -229,6 +256,35 @@ const App = () => {
     }
   }, []);
 
+  // Показываем сообщение при первом запуске без интернета
+  if (isFirstRun) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
+        <div className="max-w-md w-full space-y-6 text-center">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-white">
+              Welcome to Sdadim
+            </h1>
+            <p className="text-sm text-zinc-400">
+              Please connect to the internet for the first launch
+            </p>
+          </div>
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <p className="text-xs text-amber-500 font-medium">
+              After the first launch, the app will work offline with cached data.
+            </p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-lg transition-shadow"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <PersistQueryClientProvider
       client={queryClient}

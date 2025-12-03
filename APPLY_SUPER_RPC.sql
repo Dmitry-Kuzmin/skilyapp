@@ -310,23 +310,19 @@ COMMENT ON FUNCTION get_dashboard_super IS
 
 -- Индекс для быстрого поиска партнера по user_id
 CREATE INDEX IF NOT EXISTS idx_partners_user_id 
-ON partners(user_id) 
-WHERE status = 'active';
+ON partners(user_id, status);
 
 -- Индекс для быстрого поиска daily tasks
 CREATE INDEX IF NOT EXISTS idx_daily_tasks_user_date 
-ON daily_tasks(user_id, date) 
-WHERE date >= CURRENT_DATE - INTERVAL '7 days';
+ON daily_tasks(user_id, date DESC);
 
 -- Индекс для быстрого поиска achievements
 CREATE INDEX IF NOT EXISTS idx_achievements_user_created 
-ON achievements(user_id, created_at DESC) 
-WHERE unlocked = true;
+ON achievements(user_id, unlocked, created_at DESC);
 
 -- Индекс для game_sessions с фильтром по типу
 CREATE INDEX IF NOT EXISTS idx_game_sessions_user_type 
-ON game_sessions(user_id, game_type, created_at DESC)
-WHERE game_type IN ('test_exam', 'test_practice');
+ON game_sessions(user_id, game_type, created_at DESC);
 
 -- ======================================
 -- ПРОВЕРКА РАБОТЫ

@@ -20,20 +20,50 @@ initRollbar();
 // КРИТИЧНО: Регистрация PWA Service Worker для offline-first режима
 // autoUpdate гарантирует, что пользователи всегда получают последнюю версию
 if (import.meta.env.PROD) {
-  registerSW({
+  console.log('[PWA] Starting Service Worker registration...');
+  console.log('[PWA] Environment:', {
+    prod: import.meta.env.PROD,
+    mode: import.meta.env.MODE,
+    userAgent: navigator.userAgent.substring(0, 100),
+  });
+  
+  const updateSW = registerSW({
+    immediate: true, // КРИТИЧНО: Регистрируем SW немедленно
     onNeedRefresh() {
-      console.log('[PWA] New version available - updating...');
+      console.log('[PWA] 🔄 New version available - updating...');
+      // Автоматически обновляемся (autoUpdate)
+      updateSW(true);
     },
     onOfflineReady() {
       console.log('[PWA] ✅ App ready to work offline!');
+      console.log('[PWA] Cache initialized, you can now use the app without internet');
+    },
+    onRegistered(registration) {
+      console.log('[PWA] ✅ Service Worker registered successfully');
+      console.log('[PWA] Registration:', registration);
+      
+      // Проверяем, что SW действительно активен
+      if (registration) {
+        console.log('[PWA] Active SW:', registration.active);
+        console.log('[PWA] Installing SW:', registration.installing);
+        console.log('[PWA] Waiting SW:', registration.waiting);
+      }
     },
     onRegisteredSW(swUrl, registration) {
-      console.log('[PWA] Service Worker registered:', swUrl);
+      console.log('[PWA] ✅ Service Worker registered at:', swUrl);
+      console.log('[PWA] Scope:', registration?.scope);
     },
     onRegisterError(error) {
-      console.error('[PWA] Service Worker registration failed:', error);
+      console.error('[PWA] ❌ Service Worker registration failed:', error);
+      console.error('[PWA] This might happen in:', {
+        telegramWebView: navigator.userAgent.includes('Telegram'),
+        private: window.navigator.userAgent.includes('Private'),
+        incognito: !window.indexedDB,
+      });
     },
   });
+} else {
+  console.log('[PWA] Development mode - Service Worker disabled');
 }
 
 // КРИТИЧНО: Инициализация Server Time Offset для защиты от неверного времени на устройстве
