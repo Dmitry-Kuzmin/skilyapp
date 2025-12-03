@@ -32,6 +32,9 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
       if (supported) {
         const available = await isPlatformAuthenticatorAvailable();
         setIsAvailable(available);
+        
+        // ВАЖНО: Всегда показываем кнопку если браузер поддерживает
+        // Browser сам покажет доступные Passkeys (или предложит другое устройство)
       }
     };
 
@@ -57,11 +60,23 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
           navigate('/');
         }, 300);
       } else {
-        toast({
-          title: 'Ошибка входа',
-          description: result.error || 'Не удалось войти через Passkey',
-          variant: 'destructive',
-        });
+        // Улучшенная обработка ошибок
+        const errorMessage = result.error || 'Не удалось войти через Passkey';
+        
+        // Если Passkey не найден - предлагаем зарегистрировать
+        if (errorMessage.includes('not found') || errorMessage.includes('не найден')) {
+          toast({
+            title: 'Passkey не настроен',
+            description: 'Сначала войдите через email и добавьте устройство в настройках',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Ошибка входа',
+            description: errorMessage,
+            variant: 'destructive',
+          });
+        }
       }
     } catch (error) {
       console.error('[PasskeyLoginButton] Error:', error);
