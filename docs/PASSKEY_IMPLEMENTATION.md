@@ -31,14 +31,50 @@ Frontend:
 ```sql
 id              uuid PRIMARY KEY
 user_id         uuid → auth.users(id)
-credential_id   text UNIQUE         # Base64URL credential ID
-public_key      bytea               # Публичный ключ (COSE)
+credential_id   text UNIQUE         # Base64URL credential ID (от браузера)
+public_key      text                # Base64URL encoded COSE public key
 counter         bigint              # Signature counter (защита от replay)
-device_name     text                # Опциональное название
+device_name     text                # Опциональное название устройства
 transports      text[]              # ['usb', 'nfc', 'ble', 'internal']
 created_at      timestamptz
 last_used_at    timestamptz
 ```
+
+**⚠️ КРИТИЧНО: Формат `public_key`**
+
+В нашей реализации `public_key` хранится как **`text`** (Base64URL encoded), а не `bytea`.
+
+**При сохранении (passkey-register):**
+```typescript
+// credentialPublicKey - Uint8Array от @simplewebauthn
+const publicKeyBase64 = uint8ArrayToBase64url(credentialPublicKey);
+
+await supabase.from('passkey_credentials').insert({
+  public_key: publicKeyBase64, // ← Base64URL string
+});
+```
+
+**При чтении (passkey-login):**
+```typescript
+// Получаем из БД
+const { public_key } = passkeyData; // string
+
+// Конвертируем обратно в Uint8Array
+const publicKeyBytes = base64urlToUint8Array(public_key);
+
+// Используем в verifyAuthenticationResponse
+const verification = await verifyAuthenticationResponse({
+  authenticator: {
+    credentialPublicKey: publicKeyBytes, // ← Uint8Array
+  },
+});
+```
+
+**Почему text, а не bytea:**
+- Проще работать в Deno/Edge Functions (не нужен Buffer)
+- Избегаем проблем с кодировками
+- Base64URL - стандарт для WebAuthn
+- Индексы (UNIQUE) на user_id
 
 **Таблица 2:** `webauthn_challenges` (временное хранилище, TTL: 2 минуты)
 
@@ -211,6 +247,24 @@ Settings → Security → Passkeys
    - Требуется биометрия (`userVerification: 'required'`)
    - Проверка флагов в authenticatorData
 
+5. **Rate Limiting (DoS Protection)** ✅ NEW!
+   - **Лимит:** 10 попыток за 1 минуту на пользователя
+   - **Реализация:** SQL проверка в `create_webauthn_challenge()`
+   - **Защита:** Предотвращает спам запросов к БД
+   - **Error:** `Rate limit exceeded. Please wait.`
+   
+   ```sql
+   -- В функции create_webauthn_challenge
+   SELECT count(*) INTO v_recent_attempts
+   FROM webauthn_challenges
+   WHERE created_at > now() - interval '1 minute'
+     AND (user_id = p_user_id OR challenge_type = p_challenge_type);
+   
+   IF v_recent_attempts > 10 THEN
+     RAISE EXCEPTION 'Rate limit exceeded';
+   END IF;
+   ```
+
 ### ✅ Полная верификация подписи (РЕАЛИЗОВАНО)
 
 **Используется библиотека:** `@simplewebauthn/server@10.0.0`
@@ -252,6 +306,77 @@ const verification = await verifyAuthenticationResponse({
 - ✅ User verification флаги
 - ✅ Counter для защиты от replay
 - ✅ COSE key parsing
+
+### 🔑 КРИТИЧНО: Link Exchange Pattern (создание сессии)
+
+**Это самая сложная часть реализации!** После успешной WebAuthn верификации нужно создать Supabase Auth сессию.
+
+**⚠️ ПРАВИЛЬНЫЙ способ (ЕДИНСТВЕННЫЙ рабочий в Edge Functions):**
+
+```typescript
+// 1. Два клиента: admin для generateLink, anon для verifyOtp
+const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+const supabaseAnon = createClient(SUPABASE_URL, ANON_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+// 2. Генерируем Magic Link (email нормализован в lowercase!)
+const normalizedEmail = userEmail.toLowerCase().trim();
+
+const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+  type: 'magiclink',
+  email: normalizedEmail,
+});
+
+if (linkError || !linkData?.properties) throw linkError;
+
+// 3. КРИТИЧНО: Используем hashed_token, а НЕ token из URL!
+const hashedToken = linkData.properties.hashed_token;
+if (!hashedToken) throw new Error('No hashed_token in properties');
+
+// 4. Обмениваем через verifyOtp
+// ВАЖНО: 
+// - Только type + token_hash (БЕЗ email!)
+// - Через anon client (НЕ service_role!)
+// - as any для TypeScript типов
+const { data: sessionData, error: verifyError } = await supabaseAnon.auth.verifyOtp({
+  type: 'magiclink',
+  token_hash: hashedToken, // ← НЕ token!
+} as any); // ← ОБЯЗАТЕЛЬНО as any!
+
+if (verifyError) throw verifyError;
+
+const { access_token, refresh_token } = sessionData.session;
+// Возвращаем токены клиенту
+```
+
+**❌ ЧТО НЕ РАБОТАЕТ (типичные ошибки):**
+
+```typescript
+// ❌ ОШИБКА 1: Парсить token из URL
+const url = new URL(linkData.properties.action_link);
+const token = url.searchParams.get('token'); // ← НЕПРАВИЛЬНО!
+verifyOtp({ token }); // → otp_expired
+
+// ❌ ОШИБКА 2: Передавать email в verifyOtp
+verifyOtp({ email, type, token_hash }); // → validation_failed
+
+// ❌ ОШИБКА 3: Использовать service_role для verifyOtp
+supabaseAdmin.auth.verifyOtp(...); // → странные ошибки
+
+// ❌ ОШИБКА 4: signInWithPassword с временным паролем
+await admin.updateUserById(userId, { password: tempPassword });
+await admin.auth.signInWithPassword(...); // → 503 error (CPU limit)
+```
+
+**Почему это работает:**
+- `hashed_token` — это то что Supabase хранит в БД
+- `token_hash` поле говорит API сравнивать напрямую (без повторного хеширования)
+- `anon` client — правильный контекст для публичной операции verifyOtp
+- Без `email` — hashed_token уже содержит user_id
 
 ## ⚡ Оптимизация
 

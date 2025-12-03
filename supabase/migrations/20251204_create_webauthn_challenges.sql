@@ -80,7 +80,29 @@ SET search_path = public
 AS $$
 DECLARE
   v_challenge_id uuid;
+  v_recent_attempts integer;
 BEGIN
+  -- ============================================
+  -- RATE LIMITING: Защита от DoS атак
+  -- ============================================
+  -- Проверяем количество попыток за последнюю минуту
+  -- Лимит: 10 попыток на пользователя или глобально
+  SELECT count(*) INTO v_recent_attempts
+  FROM public.webauthn_challenges
+  WHERE created_at > now() - interval '1 minute'
+    AND (
+      -- Если user_id известен - проверяем по нему
+      (p_user_id IS NOT NULL AND user_id = p_user_id)
+      -- Иначе - глобальный лимит для анонимных (login)
+      OR (p_user_id IS NULL AND challenge_type = p_challenge_type)
+    );
+
+  -- Если превышен лимит - отклоняем запрос
+  IF v_recent_attempts > 10 THEN
+    RAISE EXCEPTION 'Rate limit exceeded. Too many authentication attempts. Please wait a minute.'
+      USING ERRCODE = 'P0001'; -- custom error code
+  END IF;
+
   -- Удаляем старые challenges этого пользователя (если есть)
   IF p_user_id IS NOT NULL THEN
     DELETE FROM public.webauthn_challenges

@@ -60,30 +60,59 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
           navigate('/');
         }, 300);
       } else {
-        // Улучшенная обработка ошибок
+        // Улучшенная обработка ошибок с Recovery подсказками
         const errorMessage = result.error || 'Не удалось войти через Passkey';
         
         // Если Passkey не найден - предлагаем зарегистрировать
         if (errorMessage.includes('not found') || errorMessage.includes('не найден')) {
           toast({
             title: 'Passkey не настроен',
-            description: 'Сначала войдите через email и добавьте устройство в настройках',
+            description: 'Войдите через email и добавьте устройство в Настройках → Безопасность',
             variant: 'destructive',
+            duration: 6000,
           });
-        } else {
+        } 
+        // Если пользователь отменил (закрыл диалог Face ID)
+        else if (errorMessage.includes('abort') || errorMessage.includes('cancel') || errorMessage.includes('отменено')) {
           toast({
-            title: 'Ошибка входа',
-            description: errorMessage,
+            title: 'Вход отменён',
+            description: 'Вы можете войти через email или попробовать Passkey снова',
+            duration: 4000,
+          });
+        }
+        // Rate limit превышен
+        else if (errorMessage.includes('Rate limit') || errorMessage.includes('Too many')) {
+          toast({
+            title: 'Слишком много попыток',
+            description: 'Подождите минуту или войдите через email',
             variant: 'destructive',
+            duration: 6000,
+          });
+        }
+        // Другие ошибки
+        else {
+          toast({
+            title: 'Не удалось войти',
+            description: 'Попробуйте снова или используйте вход через email',
+            variant: 'destructive',
+            duration: 5000,
           });
         }
       }
     } catch (error) {
       console.error('[PasskeyLoginButton] Error:', error);
+      
+      // Recovery подсказка в catch блоке
+      const errorMsg = error instanceof Error ? error.message : '';
+      const isUserCancellation = errorMsg.includes('abort') || errorMsg.includes('cancel');
+      
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось выполнить вход',
-        variant: 'destructive',
+        title: isUserCancellation ? 'Вход отменён' : 'Ошибка входа',
+        description: isUserCancellation 
+          ? 'Вы можете войти через email' 
+          : 'Не удалось войти через Passkey. Используйте вход через email',
+        variant: isUserCancellation ? 'default' : 'destructive',
+        duration: 5000,
       });
     } finally {
       setIsLoading(false);
@@ -135,10 +164,15 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
         </div>
       </Button>
 
-      {/* Подсказка */}
-      <p className="text-xs text-center text-zinc-500">
-        Face ID • Touch ID • Windows Hello
-      </p>
+      {/* Подсказки */}
+      <div className="space-y-1">
+        <p className="text-xs text-center text-zinc-500">
+          Face ID • Touch ID • Windows Hello
+        </p>
+        <p className="text-xs text-center text-zinc-600">
+          Нет доступа к устройству? Используйте вход через email выше
+        </p>
+      </div>
     </div>
   );
 }
