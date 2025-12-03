@@ -141,23 +141,14 @@ export default defineConfig(({ mode }) => {
         
         // КРИТИЧНО: Стратегии кэширования ТОЛЬКО для статики
         // API кэшируется на уровне React Query + IndexedDB, НЕ в Service Worker
+        // 
+        // ВАЖНО: НЕ кэшируем navigation requests (request.mode === 'navigate')
+        // потому что:
+        // 1. Vercel rewrites уже обрабатывают SPA routing (vercel.json)
+        // 2. Mobile Safari выдаёт "Response is disturbed or locked" при попытке
+        //    закэшировать navigation responses (особенность WebKit)
+        // 3. index.html в precache - этого достаточно для offline
         runtimeCaching: [
-          {
-            // КРИТИЧНО: Navigation (app shell) - NetworkFirst для обновлений
-            urlPattern: ({ request }) => request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'pages-shell',
-              networkTimeoutSeconds: 3, // 3 сек ждём сеть, затем кэш
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 дней
-              },
-              cacheableResponse: {
-                statuses: [200],
-              },
-            },
-          },
           {
             // КРИТИЧНО: Локальные JS/CSS (с нашего домена) - CacheFirst
             // Гарантирует что app shell всегда доступен offline
