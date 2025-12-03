@@ -52,10 +52,13 @@ export function PasskeyManager() {
       if (supported) {
         const available = await isPlatformAuthenticatorAvailable();
         setIsAvailable(available);
-      }
-
-      if (supported && available) {
-        loadPasskeys();
+        
+        // Загружаем passkeys только если доступен platform authenticator
+        if (available) {
+          loadPasskeys();
+        } else {
+          setIsLoading(false);
+        }
       } else {
         setIsLoading(false);
       }
