@@ -19,6 +19,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "./ThemeToggle";
 import { PasskeyManager } from "@/components/auth/PasskeyManager";
+import { cn } from "@/lib/utils";
 
 interface SettingsDrawerProps {
   open: boolean;
