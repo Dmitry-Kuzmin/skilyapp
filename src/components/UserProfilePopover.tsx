@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Settings, 
   Gift, 
@@ -49,61 +50,6 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useCosmeticsPreview } from "@/contexts/CosmeticsPreviewContext";
 
 const supabaseClient = supabase as any;
-
-// Глобальный кэш для данных профиля (не очищается при навигации)
-type CachedProfile = {
-  data: {
-    photo_url?: string | null;
-    first_name?: string | null;
-    last_name?: string | null;
-    username?: string | null;
-    xp?: number;
-    subscription_status?: string | null;
-    settings?: Record<string, unknown> | null;
-  };
-  timestamp: number;
-};
-
-const profileCache: Record<string, CachedProfile> = {};
-const PROFILE_CACHE_DURATION = 300000; // 5 минут
-const PROFILE_CACHE_STORAGE_KEY = "profile_avatar_cache";
-
-const isBrowser = typeof window !== "undefined";
-
-const loadProfileFromStorage = (profileId: string): CachedProfile | null => {
-  if (!isBrowser) return null;
-  try {
-    const raw = window.localStorage.getItem(PROFILE_CACHE_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Record<string, CachedProfile>;
-    const cached = parsed?.[profileId];
-    if (!cached) return null;
-    if (Date.now() - cached.timestamp > PROFILE_CACHE_DURATION) {
-      return null;
-    }
-    return cached;
-  } catch (error) {
-    console.warn("[UserProfilePopover] Failed to read avatar cache:", error);
-    return null;
-  }
-};
-
-const saveProfileToStorage = (profileId: string, cachedProfile: CachedProfile) => {
-  if (!isBrowser) return;
-  try {
-    const raw = window.localStorage.getItem(PROFILE_CACHE_STORAGE_KEY);
-    const parsed = raw ? (JSON.parse(raw) as Record<string, CachedProfile>) : {};
-    parsed[profileId] = cachedProfile;
-    window.localStorage.setItem(PROFILE_CACHE_STORAGE_KEY, JSON.stringify(parsed));
-  } catch (error) {
-    console.warn("[UserProfilePopover] Failed to persist avatar cache:", error);
-  }
-};
-
-// Функция для инвалидации кэша профиля (для использования в других компонентах)
-export function invalidateProfileCache(profileId: string) {
-  delete profileCache[profileId];
-}
 
 const generateAvatarColor = (userId: string) => {
   const colors = [
@@ -137,6 +83,31 @@ interface UserProfilePopoverProps {
   onOpenNotifications?: () => void;
 }
 
+// ОПТИМИЗАЦИЯ: React Query hook для аватара с глобальным кэшем
+const useAvatarData = (profileId: string | null) => {
+  return useQuery({
+    queryKey: ['avatar-data', profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('photo_url, first_name, last_name, username')
+        .eq('id', profileId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!profileId,
+    staleTime: 5 * 60 * 1000, // 5 минут - аватар редко меняется
+    gcTime: 30 * 60 * 1000, // 30 минут в памяти
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+};
+
 export function UserProfilePopover({ notificationsApi, onOpenNotifications }: UserProfilePopoverProps) {
   const { user, profileId, logout, supabaseUser, platform } = useUserContext();
   const { language, setLanguage, t } = useLanguage();
@@ -147,90 +118,13 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   const [open, setOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [showSkeleton, setShowSkeleton] = useState(true);
   const isMiniApp = isTelegramMiniApp();
-  const hasInitializedRef = useRef(false);
   const { unreadCount } = notificationsApi;
   const hasUnreadNotifications = unreadCount > 0;
   
-
-  // Загружаем профиль сразу при монтировании для загрузки аватара в header
-  useEffect(() => {
-    if (profileId) {
-      loadProfile();
-    } else {
-      setShowSkeleton(false);
-    }
-  }, [profileId]);
-
-  const loadProfile = async (force = false) => {
-    if (!profileId) return;
-
-    // Проверяем кэш перед загрузкой
-    const cached = profileCache[profileId];
-    const now = Date.now();
-    if (!force && cached && (now - cached.timestamp) < PROFILE_CACHE_DURATION) {
-      setProfile(cached.data);
-      setLoading(false);
-      setShowSkeleton(false);
-      hasInitializedRef.current = true;
-      return;
-    }
-
-    // Пытаемся взять из persistent storage
-    if (!force) {
-      const stored = loadProfileFromStorage(profileId);
-      if (stored) {
-        profileCache[profileId] = stored;
-        setProfile(stored.data);
-        setLoading(false);
-        setShowSkeleton(false);
-        hasInitializedRef.current = true;
-        return;
-      }
-    }
-
-    try {
-      setLoading(true);
-      if (!hasInitializedRef.current) {
-      setShowSkeleton(true);
-      }
-      
-      // Задержка перед показом skeleton для предотвращения мигания
-      const skeletonTimeout = setTimeout(() => {
-        if (!hasInitializedRef.current) {
-        setShowSkeleton(true);
-        }
-      }, 100);
-
-      const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('photo_url, first_name, last_name, username')
-        .eq('id', profileId)
-        .single();
-
-      if (error) throw error;
-
-      if (data) {
-        const cachedProfile: CachedProfile = { data, timestamp: now };
-        setProfile(data);
-        // Сохраняем в кэш
-        profileCache[profileId] = cachedProfile;
-        saveProfileToStorage(profileId, cachedProfile);
-      }
-      
-      clearTimeout(skeletonTimeout);
-      hasInitializedRef.current = true;
-    } catch (error) {
-      console.error('[UserProfilePopover] Failed to load profile:', error);
-    } finally {
-      setLoading(false);
-      // Скрываем skeleton после загрузки с небольшой задержкой
-      setTimeout(() => setShowSkeleton(false), 50);
-    }
-  };
+  // ОПТИМИЗАЦИЯ: Используем React Query для аватара - дедупликация автоматическая!
+  const { data: profile, isLoading: loading } = useAvatarData(profileId);
+  const showSkeleton = loading && !profile;
 
   const avatarColor = generateAvatarColor(profileId || '');
   const initials = getInitials(profile?.first_name || user?.first_name);
@@ -240,7 +134,7 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   const xp = profileXp || 0;
   const nextLevelXp = 5000;
   const xpProgress = Math.min((xp % nextLevelXp) / nextLevelXp * 100, 100);
-  const subscription = profile?.subscription_status || 'free';
+  const subscription = 'free'; // Убрали subscription_status из запроса
 
 
   const handleLogout = () => {

@@ -3,8 +3,36 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+
+// ОПТИМИЗАЦИЯ: React Query hook для партнерского статуса
+const usePartnerStatus = (userId: string | undefined, isAuthenticated: boolean) => {
+  return useQuery({
+    queryKey: ['partner-status', userId],
+    queryFn: async () => {
+      if (!userId) return false;
+      
+      const { data, error } = await supabase
+        .from("partners")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error("[Footer] Error checking partner status:", error);
+        return false;
+      }
+
+      return !!data;
+    },
+    enabled: !!userId && isAuthenticated,
+    staleTime: 5 * 60 * 1000, // 5 минут - партнерский статус редко меняется
+    gcTime: 30 * 60 * 1000, // 30 минут
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+};
 
 export function Footer() {
   const { t } = useLanguage();
@@ -12,8 +40,9 @@ export function Footer() {
   const navigate = useNavigate();
   const isTelegramApp = isTelegramMiniApp();
   const { isAuthenticated, supabaseUser } = useUserContext();
-  const [isPartner, setIsPartner] = useState(false);
-  const [loadingPartner, setLoadingPartner] = useState(false);
+  
+  // ОПТИМИЗАЦИЯ: Используем React Query вместо useState + useEffect
+  const { data: isPartner = false } = usePartnerStatus(supabaseUser?.id, isAuthenticated);
 
   // Определяем fullscreen режимы (тесты и игры) - footer должен быть скрыт
   const isFullscreenMode = 
@@ -24,38 +53,6 @@ export function Footer() {
     location.pathname.includes('/matching') ||
     location.pathname.includes('/four-variants') ||
     location.pathname.includes('/road-race');
-
-  // Проверяем, является ли пользователь партнером
-  useEffect(() => {
-    const checkPartnerStatus = async () => {
-      if (!isAuthenticated || !supabaseUser) {
-        setIsPartner(false);
-        return;
-      }
-
-      setLoadingPartner(true);
-      try {
-        const { data, error } = await supabase
-          .from("partners")
-          .select("id")
-          .eq("user_id", supabaseUser.id)
-          .maybeSingle();
-
-        if (!error && data) {
-          setIsPartner(true);
-        } else {
-          setIsPartner(false);
-        }
-      } catch (error) {
-        console.error("[Footer] Error checking partner status:", error);
-        setIsPartner(false);
-      } finally {
-        setLoadingPartner(false);
-      }
-    };
-
-    checkPartnerStatus();
-  }, [isAuthenticated, supabaseUser]);
 
   // Скрываем футер в Telegram приложении и в fullscreen режимах (тесты и игры)
   if (isTelegramApp || isFullscreenMode) {

@@ -402,7 +402,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
     
     setIsBuildingCurriculum(true);
     // Асинхронно строим структуру с проверкой статических материалов
-    buildStructuredCurriculumAsync(curriculumBlueprint, topics, topicsProgress, language)
+    buildStructuredCurriculumAsync(curriculumBlueprint, topics, topicsProgress, language, t)
       .then((result) => {
         setStructuredCurriculum(result);
         setIsBuildingCurriculum(false);
@@ -410,10 +410,10 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       .catch((error) => {
         console.error("[LearningMap] Error building structured curriculum:", error);
         // Fallback на синхронную версию
-        setStructuredCurriculum(buildStructuredCurriculum(curriculumBlueprint, topics, topicsProgress, language));
+        setStructuredCurriculum(buildStructuredCurriculum(curriculumBlueprint, topics, topicsProgress, language, t));
         setIsBuildingCurriculum(false);
       });
-  }, [topics, topicsProgress, language]);
+  }, [topics, topicsProgress, language, t]);
 
   const globalProgress = useMemo(() => {
     if (topics.length === 0) return 0;
@@ -761,7 +761,8 @@ async function buildStructuredCurriculumAsync(
   blueprint: CurriculumBlueprintTopic[],
   topics: TopicWithSubtopics[],
   progressMap: Map<string, TopicProgress>,
-  language: string
+  language: string,
+  t: (key: string) => string
 ): Promise<StructuredCurriculumTopic[]> {
   const topicByNumber = new Map<number, TopicWithSubtopics>();
   topics.forEach((topic) => topicByNumber.set(topic.number, topic));
@@ -929,7 +930,8 @@ function buildStructuredCurriculum(
   blueprint: CurriculumBlueprintTopic[],
   topics: TopicWithSubtopics[],
   progressMap: Map<string, TopicProgress>,
-  language: string
+  language: string,
+  t: (key: string) => string
 ): StructuredCurriculumTopic[] {
   const topicByNumber = new Map<number, TopicWithSubtopics>();
   topics.forEach((topic) => topicByNumber.set(topic.number, topic));

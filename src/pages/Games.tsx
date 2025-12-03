@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,28 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
-import { getStudiedTermsCount } from "@/lib/termProgress";
 import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TermProgressModal } from "@/components/TermProgressModal";
 import { useModal } from "@/hooks/useModal";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
+import { useGamesStats, useOnlinePlayers } from "@/hooks/useGamesData";
 
-interface GamesStats {
-  gamesPlayed: number;
-  studiedTerms: number;
-  averageResult: number;
-}
-
-interface OnlinePlayer {
-  id: string;
-  name: string;
-  photoUrl: string | null;
-  initials: string;
-}
-
-const fallbackPlayers: OnlinePlayer[] = [
+// Fallback игроки для отображения, пока загружаются реальные
+const fallbackPlayers = [
   { id: "fallback-1", name: "Lola", photoUrl: null, initials: "LO" },
   { id: "fallback-2", name: "David", photoUrl: null, initials: "DA" },
   { id: "fallback-3", name: "Inés", photoUrl: null, initials: "IN" },
@@ -38,220 +25,18 @@ const Games = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const [paywallOpen, setPaywallOpen] = useState(false);
-  const [stats, setStats] = useState<GamesStats>({
-    gamesPlayed: 0,
-    studiedTerms: 0,
-    averageResult: 0,
-  });
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
   const { openModal: openBoostShop } = useModal('BOOST_SHOP');
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-  const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
-  const [onlineCount, setOnlineCount] = useState<number>(0);
-
-  useEffect(() => {
-    if (profileId) {
-      // Добавляем небольшую задержку, чтобы избежать частых запросов
-      const timer = setTimeout(() => {
-        loadStats();
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      setIsLoadingStats(false);
-    }
-  }, [profileId]);
-
-  useEffect(() => {
-    loadOnlinePlayers();
-  }, []);
-
-  const loadOnlinePlayers = async () => {
-    try {
-      // Получаем текущее время минус 15 минут (считаем онлайн тех, кто был активен за последние 15 минут)
-      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-      
-      // Загружаем онлайн игроков (активны за последние 15 минут)
-      const { data: onlineData, error: onlineError } = await supabase
-        .from('profiles')
-        .select('id, first_name, username, photo_url, last_login')
-        .gte('last_login', fifteenMinutesAgo)
-        .order('last_login', { ascending: false })
-        .limit(100); // Получаем больше для точного подсчета
-
-      if (onlineError) {
-        console.error('Error loading online players:', onlineError);
-        // Fallback на старую логику при ошибке
-        const { data: fallbackData } = await supabase
-          .from('profiles')
-          .select('id, first_name, username, photo_url, last_login')
-          .order('last_login', { ascending: false, nullsLast: true })
-          .limit(5);
-        
-        if (fallbackData) {
-          const formatted = fallbackData
-            .map((profile) => {
-              const displayName = profile.first_name || profile.username || 'Player';
-              return {
-                id: profile.id,
-                name: displayName,
-                photoUrl: profile.photo_url,
-                initials: displayName
-                  .split(' ')
-                  .map((part) => part.charAt(0))
-                  .join('')
-                  .slice(0, 2)
-                  .toUpperCase() || 'PL',
-              } satisfies OnlinePlayer;
-            })
-            .slice(0, 3);
-          setOnlinePlayers(formatted);
-          setOnlineCount(Math.max(formatted.length * 25, 50)); // Минимум 50
-        }
-        return;
-      }
-
-      // Подсчитываем реальное количество онлайн
-      const actualOnlineCount = onlineData?.length || 0;
-      
-      // Устанавливаем реальный счетчик (минимум 10 для визуального эффекта)
-      setOnlineCount(Math.max(actualOnlineCount, 10));
-
-      // Форматируем первых 3 для отображения аватаров
-      const formatted = (onlineData || [])
-        .slice(0, 3)
-        .map((profile) => {
-          const displayName = profile.first_name || profile.username || 'Player';
-          return {
-            id: profile.id,
-            name: displayName,
-            photoUrl: profile.photo_url,
-            initials: displayName
-              .split(' ')
-              .map((part) => part.charAt(0))
-              .join('')
-              .slice(0, 2)
-              .toUpperCase() || 'PL',
-          } satisfies OnlinePlayer;
-        });
-
-      setOnlinePlayers(formatted.length > 0 ? formatted : fallbackPlayers);
-    } catch (error) {
-      console.error('Unexpected error loading online players:', error);
-      // Fallback на fallback players
-      setOnlinePlayers(fallbackPlayers);
-      setOnlineCount(75); // Fallback значение
-    }
-  };
-
-  // Обновляем статистику при возврате на страницу (visibility change)
-  useEffect(() => {
-    if (!profileId) return;
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        loadStats();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId]);
-
-  const loadStats = async () => {
-    if (!profileId) return;
-    try {
-      setIsLoadingStats(true);
-
-      // Загружаем данные параллельно
-      const [gamesPlayed, studiedTermsCount, averageResult] = await Promise.all([
-        loadGamesPlayed(),
-        loadStudiedTermsCount(),
-        loadAverageResult(),
-      ]);
-
-      setStats({
-        gamesPlayed,
-        studiedTerms: studiedTermsCount,
-        averageResult,
-      });
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    } finally {
-      setIsLoadingStats(false);
-    }
-  };
-
-  const loadGamesPlayed = async (): Promise<number> => {
-    if (!profileId) return 0;
-    try {
-      const { count, error } = await supabase
-        .from('game_sessions')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profileId);
-
-      if (error) {
-        console.error('Error loading games played:', error);
-        return 0;
-      }
-
-      return count || 0;
-    } catch (error) {
-      console.error('Error loading games played:', error);
-      return 0;
-    }
-  };
-
-  const loadStudiedTermsCount = async (): Promise<number> => {
-    if (!profileId) return 0;
-    try {
-      const count = await getStudiedTermsCount(profileId);
-      return count;
-    } catch (error) {
-      console.error('Error loading studied terms count:', error);
-      return 0;
-    }
-  };
-
-  const loadAverageResult = async (): Promise<number> => {
-    if (!profileId) return 0;
-    try {
-      const { data: sessions, error } = await supabase
-        .from('game_sessions')
-        .select('score, total_questions')
-        .eq('user_id', profileId)
-        .not('total_questions', 'is', null)
-        .gt('total_questions', 0);
-
-      if (error) {
-        console.error('Error loading average result:', error);
-        return 0;
-      }
-
-      if (!sessions || sessions.length === 0) {
-        return 0;
-      }
-
-      // Вычисляем средний процент правильных ответов
-      let totalPercentage = 0;
-      let validSessions = 0;
-
-      (sessions as Array<{ score: number; total_questions: number }>).forEach((session) => {
-        if (session.total_questions > 0) {
-          const percentage = (session.score / session.total_questions) * 100;
-          totalPercentage += percentage;
-          validSessions++;
-        }
-      });
-
-      return validSessions > 0 ? Math.round(totalPercentage / validSessions) : 0;
-    } catch (error) {
-      console.error('Error loading average result:', error);
-      return 0;
-    }
-  };
+  
+  // ОПТИМИЗАЦИЯ: Используем React Query hooks вместо useState + useEffect
+  const { data: stats, isLoading: isLoadingStats } = useGamesStats(profileId);
+  const { data: onlineData } = useOnlinePlayers();
+  
+  const onlinePlayers = onlineData?.players || [];
+  const onlineCount = onlineData?.count || 0;
+  
+  // Fallback значения для stats
+  const safeStats = stats || { gamesPlayed: 0, studiedTerms: 0, averageResult: 0 };
 
   const games = [
     {
@@ -364,7 +149,7 @@ const Games = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/30 backdrop-blur-sm shadow-lg shadow-violet-500/10 flex-shrink-0 whitespace-nowrap">
                   <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-violet-600 dark:text-violet-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-100">
-                    {stats.gamesPlayed} <span className="text-violet-600/70 dark:text-violet-300/70 font-normal">игр</span>
+                    {safeStats.gamesPlayed} <span className="text-violet-600/70 dark:text-violet-300/70 font-normal">игр</span>
                   </span>
                 </div>
 
@@ -372,7 +157,7 @@ const Games = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10 flex-shrink-0 whitespace-nowrap">
                   <Brain className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-emerald-700 dark:text-emerald-100">
-                    {stats.studiedTerms} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">терминов</span>
+                    {safeStats.studiedTerms} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">терминов</span>
                   </span>
                 </div>
 
@@ -380,7 +165,7 @@ const Games = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
                   <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {stats.averageResult}% <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">рез.</span>
+                    {safeStats.averageResult}% <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">рез.</span>
                   </span>
                 </div>
               </div>

@@ -13,7 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/AuthModal";
-import { invalidateProfileCache } from "@/components/UserProfilePopover";
+import { useQueryClient } from "@tanstack/react-query";
 import { ActivatePremiumKeyModal } from "@/components/ActivatePremiumKeyModal";
 import { 
   User, Settings, HelpCircle, LogOut, Zap, Crown, X, Pencil, Camera, Trash2, Sun, Moon, 
@@ -39,6 +39,7 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   const { setTheme, theme: currentTheme } = useTheme();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const queryClient = useQueryClient(); // ОПТИМИЗАЦИЯ: Для инвалидации кэша
   // UnifiedModal сам синхронизирует с URL через modalRouteKey
 
   const [settings, setSettings] = useState<UserSettings>({
@@ -286,9 +287,10 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
       if (updateError) throw updateError;
 
-      // Очищаем кэш профиля, чтобы обновить аватар
+      // ОПТИМИЗАЦИЯ: Инвалидируем React Query кэш для обновления аватара
       if (profileId) {
-        invalidateProfileCache(profileId);
+        queryClient.invalidateQueries({ queryKey: ['avatar-data', profileId] });
+        queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
       }
 
       toast.success(t('avatarUploaded'));
