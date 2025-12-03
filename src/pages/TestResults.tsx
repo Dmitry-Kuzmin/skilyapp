@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trophy, XCircle, Clock, CheckCircle2, Languages, ChevronDown, ChevronUp, Target, TrendingUp, BookOpen, ArrowRight, Play, Crown, Sparkles, Star, Zap, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,7 +18,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { improvementTips, encouragements } from "@/data/lumiHints";
-import { invalidateAllDashboardCache } from "@/hooks/useDashboardData";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -515,12 +515,17 @@ const TestResults = () => {
     }
   }, [passed, percentage]);
 
+  // ОПТИМИЗАЦИЯ: Используем React Query для инвалидации кэша
+  const queryClient = useQueryClient();
+  
   // Инвалидируем кэш dashboard при монтировании страницы результатов
   useEffect(() => {
     // Это гарантирует, что статистика обновится при следующем визите на dashboard
-    invalidateAllDashboardCache();
+    queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
+    queryClient.invalidateQueries({ queryKey: ['profile-data'] });
+    queryClient.invalidateQueries({ queryKey: ['analytics-data'] });
     console.log('[TestResults] Dashboard cache invalidated - stats will refresh');
-  }, []);
+  }, [queryClient]);
 
   return (
     <Layout>
