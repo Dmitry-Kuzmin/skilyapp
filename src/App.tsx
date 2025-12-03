@@ -15,6 +15,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { ReferralRedirect } from "@/components/ReferralRedirect";
 import { PartnerRedirect } from "@/components/PartnerRedirect";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
 
 // Lazy load только тяжелые компоненты
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
@@ -382,6 +383,8 @@ const App = () => {
                 {/* Глобальный менеджер модалок для Instagram-подобного поведения */}
                 <GlobalModalManager />
                 <PerformanceMonitor />
+                {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
+                <ServiceWorkerDebug />
               </BrowserRouter>
             </CosmeticsPreviewProvider>
         </Suspense>
