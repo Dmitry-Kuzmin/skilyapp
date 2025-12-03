@@ -159,18 +159,47 @@ COMMENT ON TABLE public.offline_sync_log IS
 -- RLS для offline_sync_log
 ALTER TABLE public.offline_sync_log ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can view own sync log"
-ON public.offline_sync_log
-FOR SELECT
-USING (auth.uid() IN (
-  SELECT user_id FROM public.profiles WHERE id = profile_id
-));
+-- Users can view own sync log
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public'
+    AND tablename = 'offline_sync_log' 
+    AND policyname = 'Users can view own sync log'
+  ) THEN
+    CREATE POLICY "Users can view own sync log"
+    ON public.offline_sync_log
+    FOR SELECT
+    USING (auth.uid() IN (
+      SELECT user_id FROM public.profiles WHERE id = profile_id
+    ));
+    
+    RAISE NOTICE 'Created policy: Users can view own sync log';
+  ELSE
+    RAISE NOTICE 'Policy already exists: Users can view own sync log';
+  END IF;
+END $$;
 
 -- Service role может insert (Edge Function)
-CREATE POLICY IF NOT EXISTS "Service role can insert sync log"
-ON public.offline_sync_log
-FOR INSERT
-WITH CHECK (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public'
+    AND tablename = 'offline_sync_log' 
+    AND policyname = 'Service role can insert sync log'
+  ) THEN
+    CREATE POLICY "Service role can insert sync log"
+    ON public.offline_sync_log
+    FOR INSERT
+    WITH CHECK (true);
+    
+    RAISE NOTICE 'Created policy: Service role can insert sync log';
+  ELSE
+    RAISE NOTICE 'Policy already exists: Service role can insert sync log';
+  END IF;
+END $$;
 
 -- 8. Helper функция для Edge Function логирования
 
