@@ -18,6 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { useUserContext } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "./ThemeToggle";
+import { PasskeyManager } from "@/components/auth/PasskeyManager";
 
 interface SettingsDrawerProps {
   open: boolean;
@@ -25,11 +26,12 @@ interface SettingsDrawerProps {
 }
 
 export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
-  const { user, logout, platform } = useUserContext();
+  const { user, logout, platform, supabaseUser } = useUserContext();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState(true);
   const [language, setLanguage] = useState("ru");
   const [soundsEnabled, setSoundsEnabled] = useState(true);
+  const [showPasskeys, setShowPasskeys] = useState(false);
 
   useEffect(() => {
     // Load sounds preference from localStorage
@@ -225,15 +227,28 @@ export function SettingsDrawer({ open, onOpenChange }: SettingsDrawerProps) {
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </button>
 
-            <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+            <button 
+              onClick={() => setShowPasskeys(!showPasskeys)}
+              className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-primary" />
                 </div>
                 <span className="font-medium">Безопасность</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              <ChevronRight className={cn(
+                "w-5 h-5 text-muted-foreground transition-transform",
+                showPasskeys && "rotate-90"
+              )} />
             </button>
+
+            {/* Passkeys Section (раскрывается) */}
+            {showPasskeys && supabaseUser && platform === 'web' && (
+              <div className="ml-4 p-4 rounded-lg bg-zinc-900/50 border border-zinc-800">
+                <PasskeyManager />
+              </div>
+            )}
           </section>
 
           <Separator />
