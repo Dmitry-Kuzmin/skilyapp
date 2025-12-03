@@ -26,8 +26,7 @@ const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
 import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import { GlobalModalManager } from "@/components/GlobalModalManager";
-import { PasskeyOnboarding } from "@/components/auth/PasskeyOnboarding";
-import { usePasskeyOnboarding } from "@/hooks/usePasskeyOnboarding";
+import { PasskeyOnboardingWrapper } from "@/components/PasskeyOnboardingWrapper";
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -453,10 +452,7 @@ const App = () => {
                 {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
                 <ServiceWorkerDebug />
                 {/* Passkey Onboarding (после первого входа) */}
-                <PasskeyOnboarding 
-                  open={shouldShowPasskeyOnboarding} 
-                  onOpenChange={dismissPasskeyOnboarding} 
-                />
+                <PasskeyOnboardingWrapper />
               </BrowserRouter>
             </CosmeticsPreviewProvider>
         </Suspense>
