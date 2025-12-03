@@ -243,13 +243,16 @@ serve(async (req) => {
 
         console.log('[Passkey Login] Creating Supabase session for user:', passkeyData.user_email);
 
-        // Шаг 1: Генерируем Magic Link (не отправляется, возвращается в ответе)
+        // Normalize email (Supabase чувствителен к регистру)
+        const normalizedEmail = passkeyData.user_email.toLowerCase().trim();
+
+        // Шаг 1: Генерируем Magic Link через Admin API
         const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
           type: 'magiclink',
-          email: passkeyData.user_email,
+          email: normalizedEmail,
         });
 
-        if (linkError || !linkData?.properties?.action_link) {
+        if (linkError || !linkData?.properties) {
           console.error('[Passkey Login] Failed to generate magic link:', linkError);
           return new Response(
             JSON.stringify({ error: 'Failed to create session' }),
@@ -257,32 +260,33 @@ serve(async (req) => {
           );
         }
 
-        // Шаг 2: Извлекаем СЫРОЙ токен из action_link
-        // action_link: https://.../auth/v1/verify?token=RAW_TOKEN&type=magiclink&redirect_to=...
-        const actionLink = new URL(linkData.properties.action_link);
-        const rawToken = actionLink.searchParams.get('token');
+        // Debug: логируем properties
+        console.log('[Passkey Login] Link properties keys:', Object.keys(linkData.properties).join(', '));
 
-        if (!rawToken) {
-          console.error('[Passkey Login] Token not found in action_link');
-          console.error('[Passkey Login] Action link:', linkData.properties.action_link);
+        // Шаг 2: Получаем HASHED_TOKEN (НЕ парсим из URL!)
+        // КРИТИЧНО: Используем hashed_token, а НЕ token из action_link!
+        const hashedToken = linkData.properties.hashed_token;
+
+        if (!hashedToken) {
+          console.error('[Passkey Login] No hashed_token in properties');
           return new Response(
-            JSON.stringify({ error: 'Failed to extract token from link' }),
+            JSON.stringify({ error: 'Failed to extract hashed_token' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        console.log('[Passkey Login] Raw token extracted, length:', rawToken.length);
-        console.log('[Passkey Login] Token preview:', rawToken.substring(0, 20) + '...');
-        console.log('[Passkey Login] Exchanging for session...');
+        console.log('[Passkey Login] Hashed token extracted, length:', hashedToken.length);
 
-        // Шаг 3: ОБМЕНИВАЕМ сырой токен на сессию через verifyOtp
-        // КРИТИЧНО: Используем ANON client для verifyOtp, НЕ service_role!
-        // verifyOtp - это публичная операция, должна идти от anon key
+        // Шаг 3: ОБМЕНИВАЕМ hashed_token на сессию через verifyOtp
+        // КРИТИЧНО: 
+        // 1. Используем ANON client (НЕ service_role!)
+        // 2. Используем token_hash поле (НЕ token!)
+        // 3. Передаём hashed_token (НЕ raw token из URL!)
         const { data: sessionData, error: verifyError } = await supabaseAnon.auth.verifyOtp({
-          email: passkeyData.user_email,
-          token: rawToken, // ← Сырой токен из URL
+          email: normalizedEmail,
           type: 'magiclink',
-        });
+          token_hash: hashedToken, // ← ИСПРАВЛЕНО: token_hash + hashed_token!
+        } as any); // as any для обхода TypeScript types
 
         if (verifyError || !sessionData?.session) {
           console.error('[Passkey Login] Failed to verify OTP:', verifyError);
