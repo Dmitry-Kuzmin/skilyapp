@@ -23,17 +23,29 @@ CREATE TABLE IF NOT EXISTS public.passkey_credentials (
   
   -- Timestamps
   created_at timestamptz NOT NULL DEFAULT now(),
-  last_used_at timestamptz,
-  
-  -- Для быстрого поиска
-  CONSTRAINT passkey_credentials_user_id_fkey 
-    FOREIGN KEY (user_id) 
-    REFERENCES auth.users(id) 
-    ON DELETE CASCADE
+  last_used_at timestamptz
 );
 
 -- ============================================
--- 2. Индексы (ТОЛЬКО необходимые)
+-- 2. Foreign Key (если ещё не создан)
+-- ============================================
+
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'passkey_credentials_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.passkey_credentials
+    ADD CONSTRAINT passkey_credentials_user_id_fkey 
+      FOREIGN KEY (user_id) 
+      REFERENCES auth.users(id) 
+      ON DELETE CASCADE;
+  END IF;
+END $$;
+
+-- ============================================
+-- 3. Индексы (ТОЛЬКО необходимые)
 -- ============================================
 
 -- Поиск по user_id (при входе и в Settings)
@@ -49,7 +61,7 @@ CREATE INDEX IF NOT EXISTS idx_passkey_credentials_last_used
   ON public.passkey_credentials(user_id, last_used_at DESC NULLS LAST);
 
 -- ============================================
--- 3. Row Level Security (RLS)
+-- 4. Row Level Security (RLS)
 -- ============================================
 
 ALTER TABLE public.passkey_credentials ENABLE ROW LEVEL SECURITY;
@@ -74,7 +86,7 @@ CREATE POLICY "Users can delete own passkeys"
 -- Не создаём политики для INSERT/UPDATE - это будет делать только backend
 
 -- ============================================
--- 4. Комментарии для документации
+-- 5. Комментарии для документации
 -- ============================================
 
 COMMENT ON TABLE public.passkey_credentials IS 
@@ -93,7 +105,7 @@ COMMENT ON COLUMN public.passkey_credentials.transports IS
   'Массив методов транспорта: usb, nfc, ble, internal. Используется для UX подсказок.';
 
 -- ============================================
--- 5. Функция для обновления last_used_at
+-- 6. Функция для обновления last_used_at
 -- ============================================
 
 CREATE OR REPLACE FUNCTION public.update_passkey_last_used(
@@ -119,7 +131,7 @@ COMMENT ON FUNCTION public.update_passkey_last_used IS
   'Обновляет last_used_at и counter при успешном входе через Passkey. Вызывается из Edge Function.';
 
 -- ============================================
--- 6. Функция для получения passkey по credential_id
+-- 7. Функция для получения passkey по credential_id
 -- ============================================
 
 CREATE OR REPLACE FUNCTION public.get_passkey_for_verification(
