@@ -293,9 +293,58 @@ const App = () => {
         persister,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
         dehydrateOptions: {
-          // Сохраняем только успешные запросы
+          // КРИТИЧНО: Фильтруем что персистим в IndexedDB
+          // Сохраняем только "медленные" данные, НЕ ephemeral/realtime
           shouldDehydrateQuery: (query) => {
-            return query.state.status === 'success';
+            // Только успешные запросы
+            if (query.state.status !== 'success') {
+              return false;
+            }
+
+            const queryKey = query.queryKey[0] as string;
+
+            // ❌ НЕ сохраняем ephemeral/realtime данные (они быстро устаревают)
+            const ephemeralKeys = [
+              'online-players',           // Онлайн игроки (меняется каждую секунду)
+              'duel-notifications',       // Realtime уведомления
+              'live-game-state',          // Состояние активной игры
+              'active-duel',              // Текущая дуэль
+              'duel-players',             // Игроки в дуэли (realtime)
+              'websocket-status',         // WebSocket connection
+              'system-status',            // System health (admin)
+              'active-sessions',          // Активные сессии (admin)
+            ];
+
+            if (ephemeralKeys.includes(queryKey)) {
+              return false;
+            }
+
+            // ✅ Сохраняем "медленные" и стабильные данные
+            const persistKeys = [
+              'dashboard',                // Dashboard данные
+              'dashboard-complete',       // Полный dashboard
+              'topics',                   // Список тем
+              'subtopics',               // Подтемы
+              'materials',               // Учебные материалы
+              'user-progress',           // Прогресс пользователя
+              'test-questions',          // Вопросы тестов
+              'road-signs',              // Дорожные знаки
+              'sequential-tests',        // Последовательные тесты
+              'premium-status',          // Premium статус
+              'cosmetics',               // Косметика/аватары
+              'inventory',               // Инвентарь
+              'coins',                   // Монеты
+              'boost-inventory',         // Бусты
+              'challenge-bank-count',    // Challenge bank
+              'exam-readiness',          // Готовность к экзамену
+              'duel-pass-info',          // Duel Pass инфо
+              'partners',                // Партнёры
+            ];
+
+            // Если queryKey начинается с одного из persist keys
+            return persistKeys.some(key => 
+              typeof queryKey === 'string' && queryKey.startsWith(key)
+            );
           },
         },
       }}
