@@ -1,10 +1,10 @@
 import { lazy, Suspense, useEffect, useState, useMemo } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useInitTelegram } from "@/hooks/useInitTelegram";
 import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createAsyncStoragePersister } from "@/lib/queryPersister";
 
 // Lazy load UI components - только тяжелые компоненты
 // Легкие компоненты (Toaster, Sonner, TooltipProvider) оставляем синхронными для мгновенного отображения
@@ -14,6 +14,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { PageLoader } from "@/components/PageLoader";
 import { ReferralRedirect } from "@/components/ReferralRedirect";
 import { PartnerRedirect } from "@/components/PartnerRedirect";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 // Lazy load только тяжелые компоненты
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
@@ -158,51 +159,29 @@ const ScrollToTop = () => {
 };
 
 const App = () => {
-  // Создаем QueryClient один раз с useMemo для оптимизации
-  // ОПТИМИЗАЦИЯ: Улучшенные настройки кэширования для снижения нагрузки на Supabase
+  // OFFLINE-FIRST: Создаем QueryClient с длительным кэшированием
+  // Данные хранятся в IndexedDB и доступны даже без сети
   const queryClient = useMemo(() => {
-    const client = new QueryClient({
+    return new QueryClient({
       defaultOptions: {
         queries: {
-          staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими дольше
-          gcTime: 10 * 60 * 1000, // 10 минут (было cacheTime, переименовано в v5)
+          staleTime: 5 * 60 * 1000, // 5 минут - данные считаются свежими
+          gcTime: 7 * 24 * 60 * 60 * 1000, // 7 дней - данные хранятся в кэше
           refetchOnWindowFocus: false, // Не перезапрашиваем при фокусе окна
           refetchOnMount: false, // Не перезапрашиваем при монтировании, если данные свежие
-          refetchOnReconnect: true, // Перезапрашиваем только при восстановлении соединения
+          refetchOnReconnect: true, // Перезапрашиваем при восстановлении соединения
           retry: 1, // Минимум повторных попыток
-          retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Экспоненциальная задержка
+          retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
         },
         mutations: {
-          retry: 1, // Минимум повторных попыток для мутаций
+          retry: 1,
         },
       },
     });
-
-    // 🚀 PERSIST CACHE: Мгновенная загрузка как в Telegram!
-    // Кэш сохраняется в localStorage и восстанавливается при следующем визите
-    if (typeof window !== 'undefined') {
-      const persister = createSyncStoragePersister({
-        storage: window.localStorage,
-        key: 'SKILYAPP_QUERY_CACHE', // Уникальный ключ для нашего приложения
-      });
-
-      persistQueryClient({
-        queryClient: client,
-        persister,
-        maxAge: 24 * 60 * 60 * 1000, // 24 часа - максимальный возраст кэша
-        dehydrateOptions: {
-          // Не сохраняем ошибки и бесконечные запросы
-          shouldDehydrateQuery: (query) => {
-            return query.state.status === 'success';
-          },
-        },
-      });
-
-      console.log('[App] 💾 Persist cache initialized - instant load enabled!');
-    }
-
-    return client;
   }, []);
+
+  // OFFLINE-FIRST: Создаём persister на IndexedDB с robust fallback
+  const persister = useMemo(() => createAsyncStoragePersister(), []);
   
   // КРИТИЧЕСКИ ВАЖНО: инициализируем Telegram WebApp в самом начале
   useInitTelegram();
@@ -251,10 +230,23 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+        dehydrateOptions: {
+          // Сохраняем только успешные запросы
+          shouldDehydrateQuery: (query) => {
+            return query.state.status === 'success';
+          },
+        },
+      }}
+    >
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <OfflineBanner />
         <Suspense fallback={null}>
           <CosmeticsPreviewProvider>
               <BrowserRouter basename={basename}>
@@ -338,7 +330,7 @@ const App = () => {
             </CosmeticsPreviewProvider>
         </Suspense>
       </TooltipProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 };
 

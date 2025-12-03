@@ -12,9 +12,29 @@ import { reportWebVitals } from "./utils/webVitals";
 import { initRollbar, reportError, reportWarning } from "./lib/rollbar";
 import { performanceMonitor } from "./utils/performance";
 import { initServerTime } from "./utils/serverTime";
+import { registerSW } from 'virtual:pwa-register';
 
 // Инициализируем Rollbar в начале приложения
 initRollbar();
+
+// КРИТИЧНО: Регистрация PWA Service Worker для offline-first режима
+// autoUpdate гарантирует, что пользователи всегда получают последнюю версию
+if (import.meta.env.PROD) {
+  registerSW({
+    onNeedRefresh() {
+      console.log('[PWA] New version available - updating...');
+    },
+    onOfflineReady() {
+      console.log('[PWA] ✅ App ready to work offline!');
+    },
+    onRegisteredSW(swUrl, registration) {
+      console.log('[PWA] Service Worker registered:', swUrl);
+    },
+    onRegisterError(error) {
+      console.error('[PWA] Service Worker registration failed:', error);
+    },
+  });
+}
 
 // КРИТИЧНО: Инициализация Server Time Offset для защиты от неверного времени на устройстве
 initServerTime().catch((error) => {
@@ -45,29 +65,9 @@ console.log('[Main] ✅ Script loaded and imports completed', {
 // Инициализация Telegram WebApp теперь происходит в useInitTelegram hook в App.tsx
 // Это гарантирует правильный порядок инициализации
 
-// КРИТИЧНО: Регистрация Service Worker для кэширования и offline режима
-// Включено для поддержки offline режима в тестах
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  // Сначала отключаем все существующие Service Workers
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    for (const registration of registrations) {
-      registration.unregister().then((success) => {
-        console.log('[SW] Unregistered old Service Worker:', success);
-      });
-    }
-  });
-  
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.log('[SW] Service Worker registered:', registration.scope);
-      })
-      .catch((error) => {
-        console.error('[SW] Service Worker registration failed:', error);
-      });
-  });
-}
+// КРИТИЧНО: PWA Service Worker регистрируется автоматически через vite-plugin-pwa
+// Это обеспечивает offline-first архитектуру для Telegram Mini App
+// См. vite.config.ts для настроек кэширования
 
 // Инициализация Web Vitals мониторинга
 reportWebVitals((metric) => {

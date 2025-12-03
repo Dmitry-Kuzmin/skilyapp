@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 import type { Plugin } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 // Плагин для оптимизации загрузки CSS (неблокирующая загрузка)
 function optimizeCssLoading(): Plugin {
@@ -91,6 +92,99 @@ export default defineConfig(({ mode }) => {
     react(),
     mode === "development" && componentTagger(),
     mode === "production" && optimizeCssLoading(), // Только в production
+    // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'favicon.svg'],
+      manifest: {
+        name: 'Sdadim DGT',
+        short_name: 'Sdadim',
+        description: 'Sdadim Digital Gaming Platform - Подготовка к теоретическому экзамену DGT',
+        theme_color: '#18181b', // zinc-900
+        background_color: '#09090b', // zinc-950
+        display: 'standalone',
+        orientation: 'portrait',
+        // Иконки можно добавить позже (создать pwa-192x192.png и pwa-512x512.png)
+        // Пока приложение будет использовать favicon.ico
+        icons: []
+      },
+      workbox: {
+        // КРИТИЧНО: Настройки для максимальной оффлайн работы
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        
+        // Стратегии кэширования
+        runtimeCaching: [
+          {
+            // Static Assets: HTML, JS, CSS - загружаем из кэша, обновляем в фоне
+            urlPattern: /^https?:\/\/.*\.(js|css|html)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-assets',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 дней
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Supabase Images & Storage - агрессивное кэширование
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'supabase-images',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 90, // 90 дней
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Supabase API - NetworkFirst с кэшем на случай offline
+            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-api',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 5, // 5 минут (короткий кэш для API)
+              },
+              networkTimeoutSeconds: 3, // Быстрый fallback на кэш при медленной сети
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Fonts и другие assets
+            urlPattern: /^https?:\/\/.*\.(woff|woff2|ttf|eot|otf)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 год
+              },
+            },
+          },
+        ],
+        
+        // КРИТИЧНО: Navigation fallback для SPA (всегда отдаём index.html для маршрутов)
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/, /\.(png|jpg|jpeg|svg|gif|webp|ico)$/],
+        
+        // Размер кэша
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
+      },
+      devOptions: {
+        enabled: false, // Отключаем в dev режиме для быстрой разработки
+      },
+    }),
     shouldAnalyze &&
       visualizer({
         filename: "dist/stats.html",
