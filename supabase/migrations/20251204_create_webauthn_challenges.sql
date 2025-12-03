@@ -60,13 +60,7 @@ CREATE POLICY "Admins can view challenges"
   ON public.webauthn_challenges
   FOR SELECT
   TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE user_id = auth.uid()
-      AND role = 'admin'
-    )
-  );
+  USING (public.has_role(auth.uid(), 'admin'));
 
 -- ============================================
 -- 4. Функции для работы с challenges
