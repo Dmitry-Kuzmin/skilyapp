@@ -53,8 +53,19 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Service role client для admin операций
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+    
+    // Anon client для verifyOtp (публичные операции)
+    const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
@@ -74,7 +85,7 @@ serve(async (req) => {
       const sessionId = crypto.randomUUID();
 
       // Сохраняем challenge в БД (вместо in-memory Map)
-      const { error: createError } = await supabase.rpc('create_webauthn_challenge', {
+      const { error: createError } = await supabaseAdmin.rpc('create_webauthn_challenge', {
         p_session_id: sessionId,
         p_challenge: challenge,
         p_challenge_type: 'login',
@@ -118,7 +129,7 @@ serve(async (req) => {
       }
 
       // Получаем и удаляем challenge из БД (одноразовый)
-      const { data: challengeData, error: challengeError } = await supabase
+      const { data: challengeData, error: challengeError } = await supabaseAdmin
         .rpc('consume_webauthn_challenge', { p_session_id: sessionId })
         .single();
 
@@ -142,7 +153,7 @@ serve(async (req) => {
       console.log('[Passkey Login] Challenge consumed, fetching passkey data');
 
       // Получаем passkey из БД
-      const { data: passkeyData, error: passkeyError } = await supabase
+      const { data: passkeyData, error: passkeyError } = await supabaseAdmin
         .rpc('get_passkey_for_verification', {
           p_credential_id: credential.id,
         })
@@ -216,7 +227,7 @@ serve(async (req) => {
         console.log('[Passkey Login] Verification successful, updating counter');
 
         // Обновляем counter и last_used_at
-        const { error: updateError } = await supabase.rpc('update_passkey_last_used', {
+        const { error: updateError } = await supabaseAdmin.rpc('update_passkey_last_used', {
           p_credential_id: credential.id,
           p_new_counter: newCounter,
         });
@@ -233,7 +244,7 @@ serve(async (req) => {
         console.log('[Passkey Login] Creating Supabase session for user:', passkeyData.user_email);
 
         // Шаг 1: Генерируем Magic Link (не отправляется, возвращается в ответе)
-        const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
           type: 'magiclink',
           email: passkeyData.user_email,
         });
@@ -253,19 +264,23 @@ serve(async (req) => {
 
         if (!rawToken) {
           console.error('[Passkey Login] Token not found in action_link');
+          console.error('[Passkey Login] Action link:', linkData.properties.action_link);
           return new Response(
             JSON.stringify({ error: 'Failed to extract token from link' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        console.log('[Passkey Login] Raw token extracted, exchanging for session...');
+        console.log('[Passkey Login] Raw token extracted, length:', rawToken.length);
+        console.log('[Passkey Login] Token preview:', rawToken.substring(0, 20) + '...');
+        console.log('[Passkey Login] Exchanging for session...');
 
         // Шаг 3: ОБМЕНИВАЕМ сырой токен на сессию через verifyOtp
-        // ВАЖНО: Используем RAW token из URL, НЕ hashed_token!
-        const { data: sessionData, error: verifyError } = await supabase.auth.verifyOtp({
+        // КРИТИЧНО: Используем ANON client для verifyOtp, НЕ service_role!
+        // verifyOtp - это публичная операция, должна идти от anon key
+        const { data: sessionData, error: verifyError } = await supabaseAnon.auth.verifyOtp({
           email: passkeyData.user_email,
-          token: rawToken, // ← КЛЮЧЕВОЙ МОМЕНТ: сырой токен, не хешированный!
+          token: rawToken, // ← Сырой токен из URL
           type: 'magiclink',
         });
 
