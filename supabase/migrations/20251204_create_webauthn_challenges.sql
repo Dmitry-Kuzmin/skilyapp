@@ -36,10 +36,9 @@ CREATE TABLE IF NOT EXISTS public.webauthn_challenges (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_webauthn_challenge_session 
   ON public.webauthn_challenges(session_id);
 
--- Для автоочистки старых challenges
+-- Для автоочистки старых challenges (сортировка по expires_at)
 CREATE INDEX IF NOT EXISTS idx_webauthn_challenge_expires 
-  ON public.webauthn_challenges(expires_at) 
-  WHERE expires_at < now();
+  ON public.webauthn_challenges(expires_at);
 
 -- Для поиска challenges конкретного пользователя (регистрация)
 CREATE INDEX IF NOT EXISTS idx_webauthn_challenge_user 
