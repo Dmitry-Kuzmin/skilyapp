@@ -1,43 +1,20 @@
 import { Flame, Gem, Heart, Trophy, User } from "lucide-react";
-import { useUserContext } from "@/contexts/UserContext";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useProfileData } from "@/hooks/useProfileData";
 
+/**
+ * ОПТИМИЗИРОВАННЫЙ PremiumStatsHeader
+ * БЫЛО: Собственный запрос к profiles
+ * СТАЛО: Использует useProfileData (единый кэш)
+ */
 export const PremiumStatsHeader = () => {
-  const { profileId } = useUserContext();
-  const [stats, setStats] = useState({
-    xp: 0,
-    streak: 0,
-    gems: 0,
-  });
-
-  useEffect(() => {
-    if (profileId) {
-      loadStats();
-    }
-  }, [profileId]);
-
-  const loadStats = async () => {
-    if (!profileId) return;
-
-    try {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("xp, streak, rank")
-        .eq("id", profileId)
-        .single();
-
-      if (error) throw error;
-
-      setStats({
-        xp: profile?.xp || 0,
-        streak: profile?.streak || 0,
-        gems: profile?.xp || 0,
-      });
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    }
+  // ОПТИМИЗАЦИЯ: Используем общий кэш профиля
+  const { xp, streakDays } = useProfileData();
+  
+  const stats = {
+    xp: xp || 0,
+    streak: streakDays || 0,
+    gems: xp || 0,
   };
 
   return (

@@ -1,44 +1,20 @@
 import { Flame, Gem, Heart, Trophy } from "lucide-react";
-import { useUserContext } from "@/contexts/UserContext";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useProfileData } from "@/hooks/useProfileData";
 
+/**
+ * ОПТИМИЗИРОВАННЫЙ DuolingoStatsHeader
+ * БЫЛО: Собственный запрос к profiles
+ * СТАЛО: Использует useProfileData (единый кэш)
+ */
 export const DuolingoStatsHeader = () => {
-  const { profileId } = useUserContext();
-  const [stats, setStats] = useState({
-    xp: 0,
-    streak: 0,
-    gems: 0,
-    hearts: 5,
-  });
-
-  useEffect(() => {
-    if (profileId) {
-      loadStats();
-    }
-  }, [profileId]);
-
-  const loadStats = async () => {
-    if (!profileId) return;
-
-    try {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("xp, streak, rank")
-        .eq("id", profileId)
-        .single();
-
-      if (error) throw error;
-
-      setStats({
-        xp: profile?.xp || 0,
-        streak: profile?.streak || 0,
-        gems: profile?.xp || 0, // Используем XP как gems для простоты
-        hearts: 5, // Можно добавить систему жизней позже
-      });
-    } catch (error) {
-      console.error("Error loading stats:", error);
-    }
+  // ОПТИМИЗАЦИЯ: Используем общий кэш профиля
+  const { xp, streakDays } = useProfileData();
+  
+  const stats = {
+    xp: xp || 0,
+    streak: streakDays || 0,
+    gems: xp || 0, // Используем XP как gems для простоты
+    hearts: 5, // Можно добавить систему жизней позже
   };
 
   return (

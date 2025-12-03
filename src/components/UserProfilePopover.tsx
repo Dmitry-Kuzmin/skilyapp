@@ -17,6 +17,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
 import { usePremium } from "@/hooks/usePremium";
+import { useProfileData } from "@/hooks/useProfileData";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -234,8 +235,9 @@ export function UserProfilePopover({ notificationsApi, onOpenNotifications }: Us
   const avatarColor = generateAvatarColor(profileId || '');
   const initials = getInitials(profile?.first_name || user?.first_name);
   
-  // Calculate XP
-  const xp = profile?.xp || 0;
+  // ОПТИМИЗАЦИЯ: Используем useProfileData для XP (не делаем дополнительный запрос)
+  const { xp: profileXp } = useProfileData();
+  const xp = profileXp || 0;
   const nextLevelXp = 5000;
   const xpProgress = Math.min((xp % nextLevelXp) / nextLevelXp * 100, 100);
   const subscription = profile?.subscription_status || 'free';
