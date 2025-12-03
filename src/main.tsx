@@ -13,9 +13,13 @@ import { initRollbar, reportError, reportWarning } from "./lib/rollbar";
 import { performanceMonitor } from "./utils/performance";
 import { initServerTime } from "./utils/serverTime";
 import { registerSW } from 'virtual:pwa-register';
+import { initPWAVersionCheck } from "./utils/pwaVersionCheck";
 
 // Инициализируем Rollbar в начале приложения
 initRollbar();
+
+// КРИТИЧНО: PWA Version Check для автоматического обновления
+initPWAVersionCheck();
 
 // КРИТИЧНО: Регистрация PWA Service Worker для offline-first режима
 // autoUpdate гарантирует, что пользователи всегда получают последнюю версию
