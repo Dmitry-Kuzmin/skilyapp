@@ -1,13 +1,35 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  verifyAuthenticationResponse,
+  type VerifyAuthenticationResponseOpts,
+} from "https://esm.sh/@simplewebauthn/server@10.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// WebAuthn Utilities
-function base64urlToBuffer(base64url: string): Uint8Array {
+// Конфигурация Relying Party
+const RP_ID = Deno.env.get('PASSKEY_RP_ID') || 'skilyapp.com';
+const EXPECTED_ORIGIN = Deno.env.get('FRONTEND_URL') || 'https://skilyapp.com';
+
+// Генерация криптографически стойкого challenge
+function generateChallenge(): Uint8Array {
+  const challenge = new Uint8Array(32);
+  crypto.getRandomValues(challenge);
+  return challenge;
+}
+
+// Конвертация Uint8Array в Base64URL
+function uint8ArrayToBase64url(buffer: Uint8Array): string {
+  const binary = String.fromCharCode(...buffer);
+  const base64 = btoa(binary);
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+// Конвертация Base64URL в Uint8Array
+function base64urlToUint8Array(base64url: string): Uint8Array {
   const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
   const padLen = (4 - (base64.length % 4)) % 4;
   const padded = base64 + '='.repeat(padLen);
@@ -17,32 +39,6 @@ function base64urlToBuffer(base64url: string): Uint8Array {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes;
-}
-
-function bufferToBase64url(buffer: Uint8Array): string {
-  const binary = String.fromCharCode(...buffer);
-  const base64 = btoa(binary);
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-function generateChallenge(): string {
-  const challenge = new Uint8Array(32);
-  crypto.getRandomValues(challenge);
-  return bufferToBase64url(challenge);
-}
-
-// Хранилище challenges в памяти (для production можно использовать Redis или Supabase storage)
-// Для минимальной нагрузки используем in-memory с TTL
-const challengeStore = new Map<string, { challenge: string; expires: number }>();
-
-// Очистка старых challenges (вызывается периодически)
-function cleanupChallenges() {
-  const now = Date.now();
-  for (const [key, value] of challengeStore.entries()) {
-    if (now > value.expires) {
-      challengeStore.delete(key);
-    }
-  }
 }
 
 serve(async (req) => {
@@ -58,7 +54,12 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
 
     const body = await req.json();
     const { action } = body;
@@ -67,28 +68,35 @@ serve(async (req) => {
     // ACTION: begin (Генерация challenge для входа)
     // ============================================
     if (action === 'begin') {
-      const challenge = generateChallenge();
+      // Генерируем challenge
+      const challengeBytes = generateChallenge();
+      const challenge = uint8ArrayToBase64url(challengeBytes);
       const sessionId = crypto.randomUUID();
-      
-      // Сохраняем challenge с TTL 2 минуты
-      challengeStore.set(sessionId, {
-        challenge,
-        expires: Date.now() + 120000,
+
+      // Сохраняем challenge в БД (вместо in-memory Map)
+      const { error: createError } = await supabase.rpc('create_webauthn_challenge', {
+        p_session_id: sessionId,
+        p_challenge: challenge,
+        p_challenge_type: 'login',
+        p_user_id: null, // Для входа user_id неизвестен
       });
 
-      // Периодическая очистка
-      if (challengeStore.size > 100) {
-        cleanupChallenges();
+      if (createError) {
+        console.error('[Passkey Login] Failed to create challenge:', createError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate challenge' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      console.log('[Passkey Login] Challenge generated:', sessionId);
+      console.log('[Passkey Login] Challenge created:', sessionId);
 
       // Возвращаем опции для navigator.credentials.get()
       return new Response(
         JSON.stringify({
           sessionId,
           challenge,
-          rpId: Deno.env.get('PASSKEY_RP_ID') || 'skilyapp.com',
+          rpId: RP_ID,
           timeout: 60000,
           userVerification: 'required', // Биометрия обязательна
         }),
@@ -109,48 +117,29 @@ serve(async (req) => {
         );
       }
 
-      // Получаем сохранённый challenge
-      const storedChallenge = challengeStore.get(sessionId);
-      if (!storedChallenge) {
-        console.error('[Passkey Login] Challenge not found:', sessionId);
+      // Получаем и удаляем challenge из БД (одноразовый)
+      const { data: challengeData, error: challengeError } = await supabase
+        .rpc('consume_webauthn_challenge', { p_session_id: sessionId })
+        .single();
+
+      if (challengeError || !challengeData) {
+        console.error('[Passkey Login] Challenge not found or expired:', sessionId);
         return new Response(
           JSON.stringify({ error: 'Challenge expired or not found' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      // Проверяем TTL
-      if (Date.now() > storedChallenge.expires) {
-        challengeStore.delete(sessionId);
-        console.error('[Passkey Login] Challenge expired');
+      // Проверяем тип challenge
+      if (challengeData.challenge_type !== 'login') {
+        console.error('[Passkey Login] Invalid challenge type:', challengeData.challenge_type);
         return new Response(
-          JSON.stringify({ error: 'Challenge expired' }),
+          JSON.stringify({ error: 'Invalid challenge type' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      // Удаляем challenge (одноразовый)
-      challengeStore.delete(sessionId);
-
-      // Верифицируем challenge из clientDataJSON
-      const clientDataJSON = base64urlToBuffer(credential.response.clientDataJSON);
-      const clientData = JSON.parse(new TextDecoder().decode(clientDataJSON));
-
-      if (clientData.challenge !== storedChallenge.challenge) {
-        console.error('[Passkey Login] Challenge mismatch');
-        return new Response(
-          JSON.stringify({ error: 'Challenge verification failed' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      if (clientData.type !== 'webauthn.get') {
-        console.error('[Passkey Login] Invalid type');
-        return new Response(
-          JSON.stringify({ error: 'Invalid credential type' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      console.log('[Passkey Login] Challenge consumed, fetching passkey data');
 
       // Получаем passkey из БД
       const { data: passkeyData, error: passkeyError } = await supabase
@@ -169,107 +158,125 @@ serve(async (req) => {
 
       console.log('[Passkey Login] Passkey found for user:', passkeyData.user_id);
 
-      // ВАЖНО: Здесь должна быть полноценная криптографическая верификация подписи
-      // Для production используйте @simplewebauthn/server или аналог
-      // Упрощённая проверка для MVP:
-      const authenticatorData = base64urlToBuffer(credential.response.authenticatorData);
-      const signature = base64urlToBuffer(credential.response.signature);
-
-      // Проверяем flags (user present, user verified)
-      const flags = authenticatorData[32];
-      const userPresent = (flags & 0x01) !== 0;
-      const userVerified = (flags & 0x04) !== 0;
-
-      if (!userPresent || !userVerified) {
-        console.error('[Passkey Login] User verification failed');
-        return new Response(
-          JSON.stringify({ error: 'User verification failed' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Извлекаем counter
-      const counterView = new DataView(authenticatorData.buffer, 33, 4);
-      const newCounter = counterView.getUint32(0, false); // Big-endian
-
-      // Проверяем counter (защита от replay)
-      if (newCounter <= passkeyData.counter) {
-        console.error('[Passkey Login] Counter mismatch (replay attack?)', {
-          stored: passkeyData.counter,
-          received: newCounter,
-        });
-        return new Response(
-          JSON.stringify({ error: 'Invalid counter' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // TODO: Полная криптографическая верификация подписи
-      // Для MVP пропускаем (доверяем браузеру)
-      // В production добавить полную верификацию через crypto.subtle.verify
-
-      // Обновляем counter и last_used_at
-      const { error: updateError } = await supabase.rpc('update_passkey_last_used', {
-        p_credential_id: credential.id,
-        p_new_counter: newCounter,
-      });
-
-      if (updateError) {
-        console.error('[Passkey Login] Failed to update counter:', updateError);
-      }
-
-      // ============================================
-      // СОЗДАНИЕ SUPABASE СЕССИИ
-      // ============================================
-
-      // Генерируем сессию для пользователя через Admin API
-      // Используем signInWithPassword с временным токеном или generateLink
-      
-      // Вариант 1: Используем admin.generateLink (безопаснее)
-      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-        type: 'magiclink',
-        email: passkeyData.user_email,
-        options: {
-          redirectTo: `${Deno.env.get('FRONTEND_URL') || 'https://skilyapp.com'}/auth/callback`,
-        }
-      });
-
-      if (linkError || !linkData) {
-        console.error('[Passkey Login] Failed to generate link:', linkError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to create session' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Извлекаем токен из ссылки
-      const url = new URL(linkData.properties.action_link);
-      const accessToken = url.searchParams.get('access_token');
-      const refreshToken = url.searchParams.get('refresh_token');
-
-      if (!accessToken || !refreshToken) {
-        console.error('[Passkey Login] Missing tokens in generated link');
-        return new Response(
-          JSON.stringify({ error: 'Failed to create session' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      console.log('[Passkey Login] Session created successfully for user:', passkeyData.user_id);
-
-      // Возвращаем токены клиенту
-      return new Response(
-        JSON.stringify({
-          success: true,
-          access_token: accessToken,
-          refresh_token: refreshToken,
-          user: {
-            id: passkeyData.user_id,
-            email: passkeyData.user_email,
+      // ПОЛНАЯ ВЕРИФИКАЦИЯ через @simplewebauthn/server
+      try {
+        const verification = await verifyAuthenticationResponse({
+          response: credential,
+          expectedChallenge: challengeData.challenge,
+          expectedOrigin: EXPECTED_ORIGIN,
+          expectedRPID: RP_ID,
+          authenticator: {
+            credentialID: base64urlToUint8Array(passkeyData.credential_id || credential.id),
+            credentialPublicKey: passkeyData.public_key,
+            counter: passkeyData.counter,
           },
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+          requireUserVerification: true, // Обязательная биометрия
+        } as VerifyAuthenticationResponseOpts);
+
+        if (!verification.verified || !verification.authenticationInfo) {
+          console.error('[Passkey Login] Verification failed');
+          return new Response(
+            JSON.stringify({ error: 'Verification failed' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const { newCounter } = verification.authenticationInfo;
+
+        console.log('[Passkey Login] Verification successful, updating counter');
+
+        // Обновляем counter и last_used_at
+        const { error: updateError } = await supabase.rpc('update_passkey_last_used', {
+          p_credential_id: credential.id,
+          p_new_counter: newCounter,
+        });
+
+        if (updateError) {
+          console.error('[Passkey Login] Failed to update counter:', updateError);
+          // Не критично, продолжаем
+        }
+
+        // ============================================
+        // СОЗДАНИЕ SUPABASE СЕССИИ
+        // ============================================
+
+        console.log('[Passkey Login] Creating Supabase session for user:', passkeyData.user_email);
+
+        // Генерируем сессию для пользователя через Admin API
+        const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+          type: 'magiclink',
+          email: passkeyData.user_email,
+        });
+
+        if (linkError || !linkData) {
+          console.error('[Passkey Login] Failed to generate link:', linkError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to create session' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Безопасно извлекаем токены из properties
+        // В новых версиях Supabase они доступны напрямую
+        const accessToken = linkData.properties?.access_token;
+        const refreshToken = linkData.properties?.refresh_token;
+
+        if (!accessToken || !refreshToken) {
+          // Fallback: парсим из action_link (старый метод)
+          const url = new URL(linkData.properties.action_link);
+          const fallbackAccessToken = url.searchParams.get('access_token');
+          const fallbackRefreshToken = url.searchParams.get('refresh_token');
+
+          if (!fallbackAccessToken || !fallbackRefreshToken) {
+            console.error('[Passkey Login] Missing tokens in generated link');
+            return new Response(
+              JSON.stringify({ error: 'Failed to create session' }),
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          console.log('[Passkey Login] Session created successfully (fallback method)');
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              access_token: fallbackAccessToken,
+              refresh_token: fallbackRefreshToken,
+              user: {
+                id: passkeyData.user_id,
+                email: passkeyData.user_email,
+              },
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        console.log('[Passkey Login] Session created successfully');
+
+        // Возвращаем токены клиенту
+        return new Response(
+          JSON.stringify({
+            success: true,
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            user: {
+              id: passkeyData.user_id,
+              email: passkeyData.user_email,
+            },
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+
+      } catch (verificationError: any) {
+        console.error('[Passkey Login] Verification error:', verificationError);
+        return new Response(
+          JSON.stringify({
+            error: 'Verification failed',
+            details: verificationError.message,
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Неизвестный action
@@ -278,7 +285,7 @@ serve(async (req) => {
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Passkey Login] Error:', error);
     return new Response(
       JSON.stringify({ error: error.message || 'Internal server error' }),
@@ -286,4 +293,3 @@ serve(async (req) => {
     );
   }
 });
-

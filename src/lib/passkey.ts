@@ -123,7 +123,9 @@ export async function registerPasskey(
       return { success: false, error: 'Не удалось начать регистрацию' };
     }
 
-    console.log('[Passkey] Registration challenge received');
+    // Новое: сервер возвращает sessionId для связи begin ↔ verify
+    const { sessionId } = beginData;
+    console.log('[Passkey] Registration challenge received, sessionId:', sessionId);
 
     // Шаг 2: Создаём credential через браузер
     const publicKeyOptions: PublicKeyCredentialCreationOptions = {
@@ -150,12 +152,13 @@ export async function registerPasskey(
 
     const response = credential.response as AuthenticatorAttestationResponse;
 
-    // Шаг 3: Отправляем credential на верификацию
+    // Шаг 3: Отправляем credential на верификацию (с sessionId)
     const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
       'passkey-register',
       {
         body: {
           action: 'verify',
+          sessionId, // Новое: связываем с challenge из begin
           credential: {
             id: credential.id,
             rawId: bufferToBase64url(credential.rawId),
@@ -227,7 +230,9 @@ export async function loginWithPasskey(): Promise<{
       return { success: false, error: 'Не удалось начать вход' };
     }
 
-    console.log('[Passkey] Login challenge received');
+    // Новое: сервер возвращает sessionId для связи begin ↔ verify
+    const { sessionId } = beginData;
+    console.log('[Passkey] Login challenge received, sessionId:', sessionId);
 
     // Шаг 2: Получаем credential от браузера
     const publicKeyOptions: PublicKeyCredentialRequestOptions = {
@@ -247,13 +252,13 @@ export async function loginWithPasskey(): Promise<{
 
     const response = credential.response as AuthenticatorAssertionResponse;
 
-    // Шаг 3: Отправляем credential на верификацию
+    // Шаг 3: Отправляем credential на верификацию (с sessionId)
     const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
       'passkey-login',
       {
         body: {
           action: 'verify',
-          sessionId: beginData.sessionId,
+          sessionId, // Связываем с challenge из begin
           credential: {
             id: credential.id,
             rawId: bufferToBase64url(credential.rawId),

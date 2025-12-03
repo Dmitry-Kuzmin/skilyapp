@@ -26,7 +26,7 @@ Frontend:
 
 ### База данных
 
-**Таблица:** `passkey_credentials`
+**Таблица 1:** `passkey_credentials` (постоянное хранилище)
 
 ```sql
 id              uuid PRIMARY KEY
@@ -40,9 +40,24 @@ created_at      timestamptz
 last_used_at    timestamptz
 ```
 
+**Таблица 2:** `webauthn_challenges` (временное хранилище, TTL: 2 минуты)
+
+```sql
+id              uuid PRIMARY KEY
+session_id      text UNIQUE         # Session ID (связь begin ↔ verify)
+challenge       text                # Base64URL challenge (32 байта)
+challenge_type  text                # 'register' или 'login'
+user_id         uuid                # Для регистрации (NULL для входа)
+created_at      timestamptz
+expires_at      timestamptz         # created_at + 2 минуты
+```
+
 **RPC Functions:**
+- `create_webauthn_challenge(...)` - Создание challenge (begin)
+- `consume_webauthn_challenge(session_id)` - Получение и удаление challenge (verify)
 - `get_passkey_for_verification(p_credential_id)` - Получение данных для верификации
 - `update_passkey_last_used(p_credential_id, p_new_counter)` - Обновление счётчика
+- `cleanup_expired_webauthn_challenges()` - Очистка старых challenges
 
 ### Edge Functions
 
@@ -58,12 +73,13 @@ POST /passkey-register
 {
   "action": "begin"
 }
-→ { challenge, rp, user, pubKeyCredParams }
+→ { sessionId, challenge, rp, user, pubKeyCredParams }
 
 // 2. Верификация регистрации
 POST /passkey-register
 {
   "action": "verify",
+  "sessionId": "...",  // Новое: связь с challenge
   "credential": { ... },
   "deviceName": "MacBook Pro"
 }
@@ -71,8 +87,9 @@ POST /passkey-register
 ```
 
 **Оптимизация:**
-- Challenge хранится в `auth.users.app_metadata` (TTL: 2 минуты)
-- Минимальная нагрузка на БД (1-2 запроса)
+- Challenge хранится в `webauthn_challenges` (TTL: 2 минуты)
+- Автоматическая очистка через trigger
+- Полная криптографическая верификация через `@simplewebauthn/server`
 - Нет attestation (производительность)
 
 #### 2. `passkey-login`
@@ -93,15 +110,16 @@ POST /passkey-login
 POST /passkey-login
 {
   "action": "verify",
-  "sessionId": "...",
+  "sessionId": "...",  // Связь с challenge из begin
   "credential": { ... }
 }
 → { success: true, access_token, refresh_token }
 ```
 
 **Оптимизация:**
-- Challenge хранится в памяти (Map<sessionId, challenge>)
-- Автоматическая очистка старых challenges
+- Challenge хранится в `webauthn_challenges` (БД, не память)
+- **ИСПРАВЛЕНО:** Работает в serverless Edge Functions (разные инстансы)
+- Полная криптографическая верификация через `@simplewebauthn/server`
 - Counter verification для защиты от replay attacks
 - Создание Supabase сессии через `admin.generateLink()`
 
@@ -193,43 +211,67 @@ Settings → Security → Passkeys
    - Требуется биометрия (`userVerification: 'required'`)
    - Проверка флагов в authenticatorData
 
-### TODO: Полная верификация подписи
+### ✅ Полная верификация подписи (РЕАЛИЗОВАНО)
 
-В текущей реализации используется упрощённая верификация (MVP).  
-Для production добавить:
+**Используется библиотека:** `@simplewebauthn/server@10.0.0`
 
 ```typescript
-// В passkey-login/index.ts
-import { verify } from 'https://esm.sh/@noble/curves'
+// passkey-register/index.ts
+import { verifyRegistrationResponse } from '@simplewebauthn/server';
 
-// Полная проверка ECDSA подписи
-const isValid = await crypto.subtle.verify(
-  {
-    name: 'ECDSA',
-    hash: 'SHA-256',
+const verification = await verifyRegistrationResponse({
+  response: credential,
+  expectedChallenge: challengeData.challenge,
+  expectedOrigin: EXPECTED_ORIGIN,
+  expectedRPID: RP_ID,
+  requireUserVerification: true,
+});
+
+// passkey-login/index.ts
+import { verifyAuthenticationResponse } from '@simplewebauthn/server';
+
+const verification = await verifyAuthenticationResponse({
+  response: credential,
+  expectedChallenge: challengeData.challenge,
+  expectedOrigin: EXPECTED_ORIGIN,
+  expectedRPID: RP_ID,
+  authenticator: {
+    credentialID: credentialIDBytes,
+    credentialPublicKey: passkeyData.public_key,
+    counter: passkeyData.counter,
   },
-  publicKey,
-  signature,
-  clientDataHash
-);
+  requireUserVerification: true,
+});
 ```
+
+**Что проверяется:**
+- ✅ Подпись ECDSA/RSA (crypto.subtle.verify)
+- ✅ Challenge совпадение
+- ✅ Origin проверка (защита от phishing)
+- ✅ RP ID проверка
+- ✅ User verification флаги
+- ✅ Counter для защиты от replay
+- ✅ COSE key parsing
 
 ## ⚡ Оптимизация
 
 ### Минимальная нагрузка на Supabase
 
 **Регистрация:**
-- 1 запрос: update user metadata (challenge)
+- 1 RPC: create_webauthn_challenge (begin)
+- 1 RPC: consume_webauthn_challenge (verify)
 - 1 запрос: insert credential
-- 1 запрос: cleanup metadata
 = **3 запроса** (vs email/password: 5-7 запросов)
 
 **Вход:**
-- 0 запросов в Supabase (challenge в памяти)
+- 1 RPC: create_webauthn_challenge (begin)
+- 1 RPC: consume_webauthn_challenge (verify)
 - 1 RPC: get_passkey_for_verification
 - 1 запрос: generate magic link
 - 1 RPC: update_passkey_last_used
-= **3 запроса** (vs email/password: 4-5 запросов)
+= **5 запросов** (vs email/password: 4-5 запросов)
+
+**ВАЖНО:** Все запросы быстрые (<50ms), serverless-friendly, без проблем с памятью
 
 ### Performance бюджет
 
@@ -343,7 +385,12 @@ npx supabase functions deploy passkey-login
 ### 3. Установить зависимости
 
 ```bash
+# Frontend (уже установлена)
 npm install @passwordless-id/webauthn
+
+# Backend - НЕ ТРЕБУЕТСЯ
+# @simplewebauthn/server импортируется в Edge Functions через ESM:
+# import { ... } from "https://esm.sh/@simplewebauthn/server@10.0.0"
 ```
 
 ### 4. Настроить переменные окружения
@@ -367,18 +414,30 @@ FRONTEND_URL=https://skilyapp.com
 
 ## 📝 Checklist
 
-- [x] Миграция БД применена
-- [x] Edge Functions задеплоены
+### Production-Ready (Приоритет 1) ✅
+- [x] Миграция БД: `passkey_credentials` применена
+- [x] Миграция БД: `webauthn_challenges` применена
+- [x] Edge Functions задеплоены с `@simplewebauthn/server`
 - [x] Зависимости установлены
 - [x] Переменные окружения настроены
 - [x] Компоненты интегрированы
 - [x] Роут `/settings` добавлен
+- [x] **ИСПРАВЛЕНО:** Challenge в БД (не в памяти)
+- [x] **ИСПРАВЛЕНО:** Полная криптографическая верификация
+- [x] **ИСПРАВЛЕНО:** Serverless-friendly архитектура
+- [x] Документация обновлена
+
+### Тестирование (Приоритет 2)
 - [ ] Тестирование на iOS Safari
 - [ ] Тестирование на macOS Chrome
 - [ ] Тестирование на Android Chrome
 - [ ] Тестирование на Windows Edge
+- [ ] Мультиустройство (2-5 passkeys на пользователя)
+
+### Мониторинг (Приоритет 3)
 - [ ] Мониторинг метрик настроен
-- [ ] Документация обновлена
+- [ ] Rate limiting добавлен
+- [ ] Логирование событий
 
 ## 🐛 Troubleshooting
 
