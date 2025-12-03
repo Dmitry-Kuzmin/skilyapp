@@ -301,7 +301,14 @@ const App = () => {
               return false;
             }
 
-            const queryKey = query.queryKey[0] as string;
+            // КРИТИЧНО: Безопасная проверка типа queryKey
+            // queryKey[0] может быть строка, число, объект
+            const root = String(query.queryKey[0] ?? '');
+            
+            // Пустой key - не сохраняем
+            if (!root) {
+              return false;
+            }
 
             // ❌ НЕ сохраняем ephemeral/realtime данные (они быстро устаревают)
             const ephemeralKeys = [
@@ -315,12 +322,14 @@ const App = () => {
               'active-sessions',          // Активные сессии (admin)
             ];
 
-            if (ephemeralKeys.includes(queryKey)) {
+            // Точное совпадение для ephemeral
+            if (ephemeralKeys.includes(root)) {
               return false;
             }
 
             // ✅ Сохраняем "медленные" и стабильные данные
-            const persistKeys = [
+            // ВАЖНО: Используем жёсткий whitelist для предсказуемости
+            const persistentRoots = [
               'dashboard',                // Dashboard данные
               'dashboard-complete',       // Полный dashboard
               'topics',                   // Список тем
@@ -333,18 +342,17 @@ const App = () => {
               'premium-status',          // Premium статус
               'cosmetics',               // Косметика/аватары
               'inventory',               // Инвентарь
-              'coins',                   // Монеты
               'boost-inventory',         // Бусты
               'challenge-bank-count',    // Challenge bank
               'exam-readiness',          // Готовность к экзамену
               'duel-pass-info',          // Duel Pass инфо
               'partners',                // Партнёры
+              'profile',                 // Профиль пользователя
+              'daily-bonus',             // Daily bonus definitions
             ];
 
-            // Если queryKey начинается с одного из persist keys
-            return persistKeys.some(key => 
-              typeof queryKey === 'string' && queryKey.startsWith(key)
-            );
+            // Точное совпадение (предсказуемо, безопасно)
+            return persistentRoots.includes(root);
           },
         },
       }}
