@@ -145,13 +145,13 @@ BEGIN
     subscription_status,
     subscription_expires_at,
     CASE 
-      WHEN subscription_status = 'active' AND subscription_end_date > NOW() THEN true
-      WHEN subscription_status = 'trial' AND subscription_end_date > NOW() THEN true
+      WHEN subscription_status = 'active' AND subscription_expires_at > NOW() THEN true
+      WHEN subscription_status = 'trial' AND subscription_expires_at > NOW() THEN true
       ELSE false
     END as is_premium,
     CASE 
       WHEN subscription_status = 'trial' THEN 
-        GREATEST(0, EXTRACT(DAY FROM (subscription_end_date - NOW()))::INTEGER)
+        GREATEST(0, EXTRACT(DAY FROM (subscription_expires_at - NOW()))::INTEGER)
       ELSE NULL
     END as trial_days_remaining
   INTO v_premium
@@ -207,7 +207,7 @@ BEGIN
     'premium', json_build_object(
       'is_premium', COALESCE(v_premium.is_premium, false),
       'subscription_status', v_premium.subscription_status,
-      'subscription_end_date', v_premium.subscription_end_date,
+      'subscription_expires_at', v_premium.subscription_expires_at,
       'trial_days_remaining', v_premium.trial_days_remaining
     ),
     'partner', json_build_object(
