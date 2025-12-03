@@ -227,52 +227,60 @@ serve(async (req) => {
         }
 
         // ============================================
-        // СОЗДАНИЕ SUPABASE СЕССИИ
+        // СОЗДАНИЕ SUPABASE СЕССИИ (Link Exchange Pattern)
         // ============================================
 
         console.log('[Passkey Login] Creating Supabase session for user:', passkeyData.user_email);
 
-        // Используем recovery link - он содержит токены
+        // Шаг 1: Генерируем Magic Link (не отправляется, возвращается в ответе)
         const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-          type: 'recovery',
+          type: 'magiclink',
           email: passkeyData.user_email,
         });
 
         if (linkError || !linkData?.properties?.action_link) {
-          console.error('[Passkey Login] Failed to generate recovery link:', linkError);
+          console.error('[Passkey Login] Failed to generate magic link:', linkError);
           return new Response(
             JSON.stringify({ error: 'Failed to create session' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        // Парсим токены из recovery link
-        const url = new URL(linkData.properties.action_link);
-        
-        // В recovery link токены в fragment (#), не в query (?)
-        const fragment = url.hash.substring(1); // Убираем #
-        const fragmentParams = new URLSearchParams(fragment);
-        
-        let accessToken = fragmentParams.get('access_token');
-        let refreshToken = fragmentParams.get('refresh_token');
-        
-        // Fallback: пробуем из query параметров
-        if (!accessToken) {
-          accessToken = url.searchParams.get('access_token');
-          refreshToken = url.searchParams.get('refresh_token');
-        }
+        // Шаг 2: Извлекаем СЫРОЙ токен из action_link
+        // action_link: https://.../auth/v1/verify?token=RAW_TOKEN&type=magiclink&redirect_to=...
+        const actionLink = new URL(linkData.properties.action_link);
+        const rawToken = actionLink.searchParams.get('token');
 
-        if (!accessToken || !refreshToken) {
-          console.error('[Passkey Login] Missing tokens in recovery link');
-          console.error('[Passkey Login] Fragment params:', Array.from(fragmentParams.keys()).join(', '));
-          console.error('[Passkey Login] Query params:', Array.from(url.searchParams.keys()).join(', '));
+        if (!rawToken) {
+          console.error('[Passkey Login] Token not found in action_link');
           return new Response(
-            JSON.stringify({ error: 'Failed to create session - missing tokens' }),
+            JSON.stringify({ error: 'Failed to extract token from link' }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
-        console.log('[Passkey Login] Session created successfully via recovery link');
+        console.log('[Passkey Login] Raw token extracted, exchanging for session...');
+
+        // Шаг 3: ОБМЕНИВАЕМ сырой токен на сессию через verifyOtp
+        // ВАЖНО: Используем RAW token из URL, НЕ hashed_token!
+        const { data: sessionData, error: verifyError } = await supabase.auth.verifyOtp({
+          email: passkeyData.user_email,
+          token: rawToken, // ← КЛЮЧЕВОЙ МОМЕНТ: сырой токен, не хешированный!
+          type: 'magiclink',
+        });
+
+        if (verifyError || !sessionData?.session) {
+          console.error('[Passkey Login] Failed to verify OTP:', verifyError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to create session' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const accessToken = sessionData.session.access_token;
+        const refreshToken = sessionData.session.refresh_token;
+
+        console.log('[Passkey Login] Session created successfully via Link Exchange pattern');
 
         // Возвращаем токены клиенту
         return new Response(
