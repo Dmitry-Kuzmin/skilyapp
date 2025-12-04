@@ -950,18 +950,20 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
     
     return (
       <>
-        {showConfetti && (
+        {/* ОПТИМИЗАЦИЯ: Confetti только когда модалка открыта */}
+        {open && showConfetti && (
           <Confetti
-            width={600}
-            height={800}
+            width={window.innerWidth}
+            height={window.innerHeight}
             recycle={false}
             numberOfPieces={200}
             gravity={0.3}
+            onConfettiComplete={() => setShowConfetti(false)}
           />
         )}
 
         {/* Компактный заголовок с балансом */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0" data-vaul-no-drag>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
@@ -1017,7 +1019,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
 
             {/* Boosts Tab */}
-            <TabsContent value="boosts" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent 
+              value="boosts" 
+              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto"
+              data-vaul-no-drag
+            >
               <>
                   {regularBoosts.length > 0 && (
                     <div className="space-y-2">
@@ -1073,7 +1079,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Coins Tab */}
-            <TabsContent value="coins" className="p-3 md:p-4 space-y-3 mt-3 md:mt-4">
+            <TabsContent 
+              value="coins" 
+              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto"
+              data-vaul-no-drag
+            >
               <div className="space-y-3">
                 <div className="text-center py-4">
                   <p className="text-sm text-muted-foreground mb-2">
@@ -1276,7 +1286,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* Premium & Duel Pass Tab */}
-            <TabsContent value="premium" className="p-3 md:p-4 space-y-4 mt-3 md:mt-4">
+            <TabsContent 
+              value="premium" 
+              className="p-3 md:p-4 space-y-4 mt-3 md:mt-4 overflow-y-auto"
+              data-vaul-no-drag
+            >
               <div className="space-y-4">
                 {/* Premium Subscription */}
                 <Card className="relative overflow-hidden p-0 border-0 shadow-xl">
@@ -1475,7 +1489,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </TabsContent>
 
             {/* History Tab */}
-            <TabsContent value="history" className="p-0 h-full flex flex-col overflow-hidden mt-3 md:mt-4">
+            <TabsContent 
+              value="history" 
+              className="p-0 h-full flex flex-col mt-3 md:mt-4"
+              data-vaul-no-drag
+            >
               <div className="px-3 md:px-4 pt-1 pb-3 border-b border-border/50 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-bold flex items-center gap-2">
