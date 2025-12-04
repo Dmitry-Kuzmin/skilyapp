@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "./ui/button";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { ProfileModal } from "./ProfileModal";
-import { AuthModal } from "./AuthModal";
+import { AuthModalNew as AuthModal } from "./AuthModalNew";
 import { TelegramNavigation } from "./TelegramNavigation";
 import { isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
 import { NotificationsPanel } from "./NotificationsPanel";

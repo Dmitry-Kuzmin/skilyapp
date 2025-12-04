@@ -34,7 +34,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AuthModal } from "@/components/AuthModal";
+import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
 
 export default function Partners() {
   const navigate = useNavigate();

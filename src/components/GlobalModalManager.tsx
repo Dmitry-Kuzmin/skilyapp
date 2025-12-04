@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import React from 'react';
 
 // Импорты всех модалок
-import { AuthModal } from '@/components/AuthModal';
+import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { ProfileModal } from '@/components/ProfileModal';
 import { BoostShopModal } from '@/components/shop/BoostShopModal';
 import { PaywallModal } from '@/components/monetization/PaywallModal';

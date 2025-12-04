@@ -12,7 +12,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AuthModal } from "@/components/AuthModal";
+import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
 import { useQueryClient } from "@tanstack/react-query";
 import { ActivatePremiumKeyModal } from "@/components/ActivatePremiumKeyModal";
 import { 

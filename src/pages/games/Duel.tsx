@@ -12,7 +12,7 @@ import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelResult } from '@/components/duel/DuelResult';
 import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
-import { AuthModal } from '@/components/AuthModal';
+import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Card } from '@/components/ui/card';
