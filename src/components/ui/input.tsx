@@ -31,7 +31,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
           
           <input
-            ref={ref}
+        ref={ref}
             type={type}
             inputMode={type === 'email' ? 'email' : 'text'}
             className={cn(
@@ -48,8 +48,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                   ),
               className
             )}
-            {...props}
-          />
+        {...props}
+      />
 
           {rightElement && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center z-10">

@@ -101,14 +101,20 @@ export function UnifiedModal({
   // Отслеживаем модалку в стеке для предотвращения вложенности
   const { isTopModal } = useModalStack(modalId, resolvedOpen, title || modalRouteKey);
   
-  // Мемоизация контента для оптимизации производительности
+  // ОПТИМИЗАЦИЯ: Не рендерим контент когда модалка закрыта
   // Мемоизация контента для оптимизации производительности
   const renderContent = React.useMemo(() => {
+    // Если модалка закрыта - не рендерим детей (экономим ресурсы)
+    if (!resolvedOpen) {
+      return null;
+    }
+    
     if (loading) {
       return skeleton ?? <ModalSkeleton variant={skeletonVariant} />;
     }
+    
     return children;
-  }, [loading, skeleton, skeletonVariant, children]);
+  }, [resolvedOpen, loading, skeleton, skeletonVariant, children]);
   
   // Ref для предотвращения множественных вызовов во время анимации
   const isAnimatingRef = React.useRef(false);
@@ -208,6 +214,12 @@ export function UnifiedModal({
 
   // Vaul сам управляет высотой через snapPoints - убираем старую логику
 
+  // ОПТИМИЗАЦИЯ: Early return если модалка закрыта
+  // Не рендерим DOM вообще пока не открыта
+  if (!resolvedOpen && !loading) {
+    return null;
+  }
+
   const shouldShowHandle = isMobile && showHandle;
 
   // ВАЖНО: Хуки ВСЕГДА должны вызываться в одинаковом порядке
@@ -229,7 +241,7 @@ export function UnifiedModal({
     return (
       <Drawer.Root 
         open={resolvedOpen} 
-        onOpenChange={handleOpenChange}
+          onOpenChange={handleOpenChange}
         shouldScaleBackground={!nested}
         dismissible={!preventClose}
         modal={true} // Vaul автоматически блокирует body scroll
@@ -247,7 +259,7 @@ export function UnifiedModal({
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
           <Drawer.Content
-            className={cn(
+          className={cn(
               "bg-background flex flex-col rounded-t-[24px]",
               "fixed bottom-0 left-0 right-0 z-50",
               "border-t border-border/50",
@@ -255,15 +267,15 @@ export function UnifiedModal({
               "focus:outline-none",
               // Важно: max-h для контента
               "max-h-[96vh]",
-              className
-            )}
+            className
+          )}
           >
             {/* Drawer Handle */}
-            {shouldShowHandle && (
+          {shouldShowHandle && (
               <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 select-none" aria-hidden="true">
-                <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
-              </div>
-            )}
+              <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
+            </div>
+          )}
             
             {/* Close Button */}
             {!hideCloseButton && (
@@ -278,31 +290,31 @@ export function UnifiedModal({
             )}
             
             {/* Title */}
-            {title && showTitleBar && (
-              <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
+          {title && showTitleBar && (
+            <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
                 <h2 className="text-xl font-bold pr-8">{title}</h2>
-              </div>
-            )}
+            </div>
+          )}
 
             {/* Scrollable Content */}
-            <div
-              data-scrollable
+          <div
+            data-scrollable
               data-vaul-no-drag
-              className={cn(
+            className={cn(
                 "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4 overscroll-contain",
                 // Минимальная высота чтобы контент был видим
                 "min-h-[200px]",
                 // Важно: touch-action для правильной работы скролла
                 "touch-action-pan-y",
-                contentClassName
-              )}
+              contentClassName
+            )}
               style={{
                 // Принудительный скролл (важно для Vaul)
                 WebkitOverflowScrolling: 'touch',
               }}
-            >
-              {renderContent}
-            </div>
+          >
+            {renderContent}
+          </div>
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
