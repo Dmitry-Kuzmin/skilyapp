@@ -210,17 +210,21 @@ export function UnifiedModal({
 
   const shouldShowHandle = isMobile && showHandle;
 
-  if (isMobile) {
-    // Преобразуем snapPoints из vh в проценты для Vaul
-    const vaulSnapPoints = React.useMemo(() => {
-      return snapPoints.map(sp => {
-        const num = parseFloat(sp);
-        return num / 100; // Vaul expects 0-1 range (0.6 = 60%)
-      });
-    }, [snapPoints]);
+  // ВАЖНО: Хуки ВСЕГДА должны вызываться в одинаковом порядке
+  // Преобразуем snapPoints для Vaul (даже на десктопе, чтобы не нарушать порядок хуков)
+  const vaulSnapPoints = React.useMemo(() => {
+    return snapPoints.map(sp => {
+      const num = parseFloat(sp);
+      return num / 100; // Vaul expects 0-1 range (0.6 = 60%)
+    });
+  }, [snapPoints]);
 
-    // Определяем начальную точку (clamp to valid index)
-    const safeInitialSnap = Math.min(Math.max(0, initialSnap), vaulSnapPoints.length - 1);
+  // Определяем начальную точку (clamp to valid index)
+  const safeInitialSnap = React.useMemo(() => {
+    return Math.min(Math.max(0, initialSnap), vaulSnapPoints.length - 1);
+  }, [initialSnap, vaulSnapPoints.length]);
+
+  if (isMobile) {
 
     return (
       <Drawer.Root 
