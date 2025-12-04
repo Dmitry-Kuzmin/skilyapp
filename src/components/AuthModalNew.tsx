@@ -23,8 +23,8 @@ interface AuthModalProps {
   isPasskeyAvailable?: boolean;
 }
 
-// Mock avatar для демонстрации (можно заменить на реальный)
-const MOCK_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces";
+// Fallback avatar если у пользователя нет аватара
+const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces";
 
 export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: AuthModalProps) {
   // --- State Machine ---
@@ -34,6 +34,8 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   
   // --- Loading States ---
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -56,6 +58,8 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
         setEmail('');
         setPassword('');
         setEmailError(null);
+        setUserAvatar(null);
+        setUserName(null);
         setCheckingEmail(false);
         setIsSubmitting(false);
       }, 300);
@@ -158,11 +162,29 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
       // Проверяем существование пользователя в Supabase
       const exists = await checkEmailExists(email);
       
-      setCheckingEmail(false);
-      
       if (exists) {
+        // Пытаемся получить данные профиля пользователя
+        try {
+          const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('avatar_url, display_name, first_name')
+            .or(`email.eq.${email},telegram_username.ilike.${email.split('@')[0]}`)
+            .limit(1);
+
+          if (!error && profiles && profiles.length > 0) {
+            const profile = profiles[0];
+            setUserAvatar(profile.avatar_url || null);
+            setUserName(profile.display_name || profile.first_name || email.split('@')[0]);
+          }
+        } catch (profileError) {
+          console.log('[AuthModalNew] Could not fetch profile:', profileError);
+          // Не критично, просто не покажем аватар
+        }
+        
+        setCheckingEmail(false);
         setStep('password-existing');
       } else {
+        setCheckingEmail(false);
         setStep('password-new');
       }
     } catch (error) {
@@ -345,6 +367,8 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
   const handleBackToEmail = () => {
     setStep('email');
     setPassword('');
+    setUserAvatar(null);
+    setUserName(null);
   };
 
   const handleGoogleLogin = async () => {
@@ -438,9 +462,13 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
                   className="relative mb-2"
                 >
                   <img 
-                    src={MOCK_AVATAR} 
-                    alt="User" 
-                    className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                    src={userAvatar || DEFAULT_AVATAR} 
+                    alt={userName || "User"} 
+                    className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
+                    onError={(e) => {
+                      // Fallback если аватар не загрузился
+                      (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+                    }}
                   />
                   {/* Verified Shield Badge */}
                   <div className="absolute -bottom-1 -right-1 bg-zinc-950 rounded-full p-1 border border-zinc-800">
@@ -475,7 +503,7 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
                 >
                   <h2 className="text-2xl font-semibold text-white tracking-tight">
                     {step === 'email' && "Идентификация"}
-                    {step === 'password-existing' && "С возвращением"}
+                    {step === 'password-existing' && (userName ? `С возвращением, ${userName}` : "С возвращением")}
                     {step === 'password-new' && "Создание аккаунта"}
                   </h2>
                   
