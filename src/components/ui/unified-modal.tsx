@@ -29,6 +29,11 @@ interface UnifiedModalProps {
   fullscreen?: boolean; // Полноэкранный режим с залитым фоном
   preventClose?: boolean; // Предотвратить закрытие (клик вне, ESC) - полезно для форм с несохраненными данными
   zIndex?: number; // Z-index для управления наложением модалок (используется глобальным менеджером)
+  nested?: boolean; // Вложенная модалка (для модалок внутри модалок)
+  handleOnly?: boolean; // Свайп только по handle (контент не реагирует)
+  closeThreshold?: number; // Порог для закрытия (0.1-0.9, по умолчанию 0.25)
+  onDrag?: (event: React.PointerEvent, percentageDragged: number) => void; // Callback при свайпе
+  setBackgroundColorOnScale?: boolean; // Изменять цвет фона при масштабировании
 }
 
 /**
@@ -61,6 +66,11 @@ export function UnifiedModal({
   fullscreen = false,
   preventClose = false,
   zIndex,
+  nested = false,
+  handleOnly = false,
+  closeThreshold = 0.25,
+  onDrag,
+  setBackgroundColorOnScale = false,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
   
@@ -286,11 +296,16 @@ export function UnifiedModal({
       <Drawer.Root 
         open={resolvedOpen} 
         onOpenChange={handleOpenChange}
-        shouldScaleBackground
+        shouldScaleBackground={!nested}
         dismissible={!preventClose}
         modal={true}
+        nested={nested}
         snapPoints={snapPoints.map(sp => sp.replace('vh', '') + '%')}
         fadeFromIndex={0}
+        closeThreshold={closeThreshold}
+        handleOnly={handleOnly}
+        onDrag={onDrag}
+        setBackgroundColorOnScale={setBackgroundColorOnScale}
       >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
