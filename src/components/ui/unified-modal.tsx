@@ -1,12 +1,13 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Drawer } from "vaul";
 import { ModalSkeleton, type ModalSkeletonVariant } from "@/components/ui/modal-skeleton";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { useModalStack } from "@/hooks/useModalStack";
 import { getModalConfig, type ModalType } from "@/lib/modal-config";
+import { X } from "lucide-react";
 
 interface UnifiedModalProps {
   open: boolean;
@@ -282,54 +283,72 @@ export function UnifiedModal({
 
   if (isMobile) {
     return (
-      <Sheet open={resolvedOpen} onOpenChange={handleOpenChange}>
-        <SheetContent
-          side="bottom"
-          hideCloseButton={hideCloseButton}
-          onOpenChange={handleOpenChange}
-          className={cn(
-            "p-0 border-none bg-background rounded-t-[24px] flex flex-col shadow-[0_-16px_40px_rgba(15,23,42,0.25)]",
-            // На мобильных всегда полная ширина, игнорируем max-w из className
-            "!w-full !max-w-none !left-0 !right-0",
-            className
-          )}
-          style={{
-            height: isExpanded ? expandedHeight : collapsedHeight,
-            transform: `translateY(${isExpanded ? '0px' : '8px'})`,
-            maxHeight: expandedHeight,
-            // Ускоренная анимация: 0.15s вместо 0.26s
-            transition: "height 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-            // GPU ускорение для плавности
-            willChange: resolvedOpen ? "height, transform" : "auto",
-            // Гарантируем полную ширину на мобильных
-            width: '100%',
-            maxWidth: '100%',
-            left: 0,
-            right: 0,
-          }}
-        >
-          {shouldShowHandle && (
-            <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 select-none pointer-events-none">
-              <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
-            </div>
-          )}
-          {title && showTitleBar && (
-            <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
-              <h2 className="text-xl font-bold">{title}</h2>
-            </div>
-          )}
-
-          <div
-            data-scrollable
+      <Drawer.Root 
+        open={resolvedOpen} 
+        onOpenChange={handleOpenChange}
+        shouldScaleBackground
+        dismissible={!preventClose}
+        modal={true}
+        snapPoints={snapPoints.map(sp => sp.replace('vh', '') + '%')}
+        fadeFromIndex={0}
+      >
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+          <Drawer.Content
             className={cn(
-              "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4",
-              contentClassName
+              "bg-background flex flex-col rounded-t-[24px]",
+              "fixed bottom-0 left-0 right-0 z-50",
+              "border-t border-border/50",
+              "shadow-[0_-16px_40px_rgba(15,23,42,0.25)]",
+              "focus:outline-none",
+              className
             )}
+            style={{
+              height: isExpanded ? expandedHeight : collapsedHeight,
+              maxHeight: expandedHeight,
+              // GPU ускорение
+              willChange: resolvedOpen ? "transform" : "auto",
+            }}
           >
-            {renderContent}
-          </div>
-        </SheetContent>
-      </Sheet>
+            {/* Drawer Handle */}
+            {shouldShowHandle && (
+              <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 select-none" aria-hidden="true">
+                <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
+              </div>
+            )}
+            
+            {/* Close Button */}
+            {!hideCloseButton && (
+              <button
+                onClick={() => handleOpenChange(false)}
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-20"
+                aria-label="Закрыть"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Закрыть</span>
+              </button>
+            )}
+            
+            {/* Title */}
+            {title && showTitleBar && (
+              <div className="px-4 pb-2 pt-3 border-b border-border/50 sm:px-6 sm:pb-3 sm:pt-4">
+                <h2 className="text-xl font-bold pr-8">{title}</h2>
+              </div>
+            )}
+
+            {/* Scrollable Content */}
+            <div
+              data-scrollable
+              className={cn(
+                "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4 overscroll-contain",
+                contentClassName
+              )}
+            >
+              {renderContent}
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
     );
   }
 
