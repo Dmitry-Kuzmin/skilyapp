@@ -165,20 +165,25 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
       if (exists) {
         // Пытаемся получить данные профиля пользователя через RPC
         try {
+          console.log('[AuthModalNew] Fetching profile for email:', email);
           const { data: profileData, error } = await supabase
             .rpc('get_user_profile_by_email', { p_email: email });
 
+          console.log('[AuthModalNew] RPC Response:', { data: profileData, error });
+
           if (!error && profileData && profileData.length > 0) {
             const profile = profileData[0];
+            console.log('[AuthModalNew] Profile data:', profile);
             setUserAvatar(profile.avatar_url || null);
             setUserName(profile.display_name || profile.first_name || email.split('@')[0]);
-            console.log('[AuthModalNew] Loaded user profile:', profile);
           } else {
-            console.log('[AuthModalNew] No profile data found or error:', error);
+            console.warn('[AuthModalNew] No profile data found or error:', error);
+            // Устанавливаем имя хотя бы из email
+            setUserName(email.split('@')[0]);
           }
         } catch (profileError) {
-          console.log('[AuthModalNew] Could not fetch profile:', profileError);
-          // Не критично, просто не покажем аватар
+          console.error('[AuthModalNew] Exception fetching profile:', profileError);
+          setUserName(email.split('@')[0]);
         }
         
         setCheckingEmail(false);
@@ -461,15 +466,24 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
                   exit={{ scale: 0, opacity: 0 }}
                   className="relative mb-2"
                 >
-                  <img 
-                    src={userAvatar || DEFAULT_AVATAR} 
-                    alt={userName || "User"} 
-                    className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
-                    onError={(e) => {
-                      // Fallback если аватар не загрузился
-                      (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
-                    }}
-                  />
+                  {userAvatar ? (
+                    <img 
+                      src={userAvatar} 
+                      alt={userName || "User"} 
+                      className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
+                      onError={(e) => {
+                        console.log('[AuthModalNew] Avatar failed to load, using fallback');
+                        (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+                      }}
+                    />
+                  ) : (
+                    /* Fallback - First Letter Avatar */
+                    <div className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                      <span className="text-3xl font-bold text-white">
+                        {(userName || email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   {/* Verified Shield Badge */}
                   <div className="absolute -bottom-1 -right-1 bg-zinc-950 rounded-full p-1 border border-zinc-800">
                     <ShieldCheck className="w-4 h-4 text-green-500 fill-green-500/20" />
