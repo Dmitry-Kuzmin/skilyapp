@@ -181,7 +181,13 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
             const profile = profileData[0];
             console.log('[AuthModalNew] Profile data:', profile);
             setUserAvatar(profile.avatar_url || null);
-            setUserName(profile.display_name || profile.first_name || email.split('@')[0]);
+            
+            // Формируем имя из доступных полей
+            const displayName = [profile.first_name, profile.last_name]
+              .filter(Boolean)
+              .join(' ') || profile.username || email.split('@')[0];
+            
+            setUserName(displayName);
           } else {
             console.warn('[AuthModalNew] No profile data found. Error details:', {
               message: error?.message,

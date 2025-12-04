@@ -3,8 +3,9 @@
 CREATE OR REPLACE FUNCTION public.get_user_profile_by_email(p_email TEXT)
 RETURNS TABLE (
   avatar_url TEXT,
-  display_name TEXT,
-  first_name TEXT
+  first_name TEXT,
+  last_name TEXT,
+  username TEXT
 ) 
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -15,8 +16,9 @@ BEGIN
   RETURN QUERY
   SELECT 
     COALESCE(p.photo_url, p.equipped_avatar) as avatar_url,
-    p.display_name,
-    p.first_name
+    p.first_name,
+    p.last_name,
+    p.username
   FROM auth.users u
   INNER JOIN public.profiles p ON p.user_id = u.id
   WHERE LOWER(u.email) = LOWER(p_email)
