@@ -1020,9 +1020,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full overflow-hidden">
-            <div className="px-4 pt-4 pb-0">
-              <TabsList className="grid w-full grid-cols-4">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full flex flex-col h-full">
+            <div className="px-4 pt-4 pb-0 shrink-0">
+              <TabsList className="grid w-full grid-cols-4" data-vaul-no-drag>
                 <TabsTrigger value="boosts" className="text-xs truncate">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.boosts')}</span>
@@ -1045,8 +1045,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Boosts Tab */}
             <TabsContent 
               value="boosts" 
-              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto"
+              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 mt-3 md:mt-4"
               data-vaul-no-drag
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               <>
                   {regularBoosts.length > 0 && (
@@ -1105,8 +1106,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Coins Tab */}
             <TabsContent 
               value="coins" 
-              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4 overflow-y-auto"
+              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 mt-3 md:mt-4"
               data-vaul-no-drag
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               <div className="space-y-3">
                 <div className="text-center py-4">
@@ -1312,8 +1314,9 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Premium & Duel Pass Tab */}
             <TabsContent 
               value="premium" 
-              className="p-3 md:p-4 space-y-4 mt-3 md:mt-4 overflow-y-auto"
+              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 mt-3 md:mt-4"
               data-vaul-no-drag
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               <div className="space-y-4">
                 {/* Premium Subscription */}
@@ -1515,8 +1518,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* History Tab */}
             <TabsContent 
               value="history" 
-              className="p-0 h-full flex flex-col mt-3 md:mt-4"
-              data-vaul-no-drag
+              className="flex-1 flex flex-col mt-3 md:mt-4 overflow-hidden"
             >
               <div className="px-3 md:px-4 pt-1 pb-3 border-b border-border/50 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
