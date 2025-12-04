@@ -127,16 +127,16 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       badge: "Skily AI — Local Edition",
       titleTop: "Domina la carretera",
       titleBottom: "sin miedo al examen",
-      descriptionHighlight: "Inteligencia Artificial aplicada a la formación DGT",
+      descriptionHighlight: "Plataforma interactiva con IA para aprender seguridad vial",
       descriptionRest:
-        "Simulaciones realistas, música enfocada y un copiloto virtual que traduce todo al momento.",
+        "Escenarios realistas, música enfocada y un asistente virtual que traduce todo al momento.",
       pressStart: "Pulsa Start",
     },
     stats: [
       {
         value: "97%",
-        label: "Aprobados",
-        description: "Nuestros pilotos pasan la teoría en menos de 6 semanas",
+        label: "Eficacia",
+        description: "Nuestros usuarios dominan el contenido más rápido con aprendizaje interactivo",
       },
       {
         value: "1000+",
@@ -151,7 +151,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     ],
     ecosystem: {
       title: "Ecosistema DGT",
-      description: "Práctica guiada, seguimiento de errores y simulador 1:1 con el examen real.",
+      description: "Aprendizaje interactivo, análisis de progreso y escenarios de práctica realistas.",
       cards: {
         totalQuestions: "1000+ preguntas verificadas",
         categoriesTitle: "Todas las categorías",
@@ -182,7 +182,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       label: "Evolución vs tradición",
       title: "¿Por qué Skily?",
       featureLabel: "Característica",
-      traditional: "Autoescuela tradicional",
+      traditional: "Métodos tradicionales",
       skily: "Skilyapp",
       rows: [
         { feature: "Precio medio", traditional: "€300 - €600", skily: "€0 - €60" },
@@ -252,6 +252,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     },
     footer: {
       menu: [
+        { label: "Acerca de", href: "/about" },
         { label: "Términos", href: "/terms" },
         { label: "Privacidad", href: "/privacy" },
         { label: "Términos de suscripción", href: "/subscription-terms" },
@@ -260,7 +261,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Soporte", href: "https://t.me/sdadimtutbot", external: true },
         { label: "Afiliados", href: "/partners" },
       ],
-      note: "© 2025 Skilyapp. La nueva forma de aprobar la DGT.",
+      note: "© 2025 Skilyapp. Plataforma de aprendizaje interactivo para la seguridad vial.",
     },
     referral: {
       badge: "Invitación",
@@ -279,16 +280,16 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       badge: "Skily AI — Local Edition",
       titleTop: "Own the asphalt",
       titleBottom: "without fearing the test",
-      descriptionHighlight: "AI copilots built for DGT preparation",
+      descriptionHighlight: "AI-powered interactive learning platform for road safety",
       descriptionRest:
-        "Realistic mock exams, focus music and instant bilingual explanations inside your browser.",
+        "Realistic practice scenarios, focus music and instant bilingual explanations inside your browser.",
       pressStart: "Press Start",
     },
     stats: [
       {
         value: "97%",
-        label: "Pass rate",
-        description: "Most learners finish theory prep in under 6 weeks",
+        label: "Effectiveness",
+        description: "Our users master the material faster with interactive learning",
       },
       {
         value: "1000+",
@@ -303,7 +304,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     ],
     ecosystem: {
       title: "DGT ecosystem",
-      description: "Guided practice, error tracking and a 1:1 simulator with the real exam.",
+      description: "Interactive learning, progress analytics and realistic practice scenarios.",
       cards: {
         totalQuestions: "1000+ curated questions",
         categoriesTitle: "Every category",
@@ -334,7 +335,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       label: "Evolution vs tradition",
       title: "Why Skily?",
       featureLabel: "Feature",
-      traditional: "Traditional school",
+      traditional: "Paper-based methods",
       skily: "Skilyapp",
       rows: [
         { feature: "Average price", traditional: "€300 - €600", skily: "€0 - €60" },
@@ -404,6 +405,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     },
     footer: {
       menu: [
+        { label: "About", href: "/about" },
         { label: "Terms", href: "/terms" },
         { label: "Privacy", href: "/privacy" },
         { label: "Subscription Terms", href: "/subscription-terms" },
@@ -412,7 +414,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Support", href: "https://t.me/sdadimtutbot", external: true },
         { label: "Affiliates", href: "/partners" },
       ],
-      note: "© 2025 Skilyapp. The smarter way to pass the DGT exam.",
+      note: "© 2025 Skilyapp. Interactive learning platform for road safety education.",
     },
   },
   ru: {
@@ -425,16 +427,16 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       badge: "Skily AI — Испания",
       titleTop: "Сдай теорию DGT",
       titleBottom: "с первого раза",
-      descriptionHighlight: "AI‑копилот, адаптированный под русскоязычных учеников",
+      descriptionHighlight: "Интерактивная платформа с AI для изучения безопасности дорожного движения",
       descriptionRest:
-        "Реальные экзаменационные вопросы, музыка для концентрации и мгновенные переводы объяснений.",
+        "Реалистичные сценарии практики, музыка для концентрации и мгновенные переводы объяснений.",
       pressStart: "Нажми Start",
     },
     stats: [
       {
         value: "97%",
-        label: "Сдают экзамен",
-        description: "Большинство студентов завершают подготовку за 4–6 недель",
+        label: "Эффективность",
+        description: "Наши пользователи осваивают материал быстрее с интерактивным обучением",
       },
       {
         value: "1000+",
@@ -449,7 +451,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     ],
     ecosystem: {
       title: "Экосистема подготовки",
-      description: "Тренажёр, Challenge Bank и симулятор, который повторяет официальный экзамен.",
+      description: "Интерактивное обучение, аналитика прогресса и реалистичные сценарии практики.",
       cards: {
         totalQuestions: "1000+ проверенных вопросов",
         categoriesTitle: "Все категории",
@@ -480,7 +482,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       label: "Эволюция против традиций",
       title: "Почему Skilyapp?",
       featureLabel: "Функция",
-      traditional: "Обычная автошкола",
+      traditional: "Традиционные методы",
       skily: "Skilyapp",
       rows: [
         { feature: "Стоимость", traditional: "€300 - €600", skily: "€0 - €60" },
@@ -550,6 +552,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     },
     footer: {
       menu: [
+        { label: "О нас", href: "/about" },
         { label: "Условия", href: "/terms" },
         { label: "Политика", href: "/privacy" },
         { label: "Условия подписки", href: "/subscription-terms" },
@@ -558,7 +561,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { label: "Поддержка", href: "https://t.me/sdadimtutbot", external: true },
         { label: "Партнёрам", href: "/partners" },
       ],
-      note: "© 2025 Skilyapp. Мы помогаем русскоязычным ученикам сдать DGT.",
+      note: "© 2025 Skilyapp. Интерактивная платформа для изучения безопасности дорожного движения.",
     },
     referral: {
       badge: "Приглашение",
