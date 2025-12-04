@@ -608,25 +608,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     )}
                   </form>
 
-                  {/* Divider & Passkey */}
+                  {/* Passkey Button - показывается между email и соцсетями */}
                   <motion.div 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1, transition: { delay: 0.1 } }}
-                    className="pt-2"
+                    initial={{ opacity: 0, y: 5 }} 
+                    animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
                   >
-                    <div className="relative flex py-2 items-center">
-                      <div className="flex-grow border-t border-zinc-800"></div>
-                      <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">
-                        Или
-                      </span>
-                      <div className="flex-grow border-t border-zinc-800"></div>
-                    </div>
-                  </motion.div>
-
-                  {/* Passkey Login - Hidden component handles visibility */}
-                  <div className="[&>div]:space-y-0">
+                    {/* PasskeyLoginButton имеет свой divider внутри */}
                     <PasskeyLoginButton onSuccess={onClose} />
-                  </div>
+                  </motion.div>
 
                   {/* Divider & Socials */}
                   <motion.div 
@@ -636,9 +625,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   >
                     <div className="relative flex py-2 items-center">
                       <div className="flex-grow border-t border-zinc-800"></div>
-                      <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">
-                        Или продолжить с
-                      </span>
+                      <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">Или продолжить с</span>
                       <div className="flex-grow border-t border-zinc-800"></div>
                     </div>
 
