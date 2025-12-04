@@ -428,7 +428,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   };
 
   return (
-    <Drawer.Root open={open} onOpenChange={onClose} shouldScaleBackground>
+    <Drawer.Root 
+      open={open} 
+      onOpenChange={onClose}
+      shouldScaleBackground
+      dismissible={true}
+      modal={true}
+      snapPoints={[1]}
+      fadeFromIndex={0}
+    >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
         <Drawer.Content
@@ -441,10 +449,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             sm:w-[420px] sm:max-w-[95vw]
             border-t sm:border border-white/10 
             shadow-2xl z-50
+            focus:outline-none
           "
         >
-          {/* Drawer Handle для мобилок */}
-          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 sm:hidden" />
+          {/* Drawer Handle для мобилок - нативный iOS стиль */}
+          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 sm:hidden" aria-hidden="true" />
           
           <div className="overflow-y-auto flex-1 overscroll-contain">
             {/* Ambient Glow */}
