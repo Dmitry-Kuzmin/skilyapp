@@ -30,11 +30,16 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
       setIsSupported(supported);
 
       if (supported) {
+        // Проверяем доступность platform authenticator для логирования
+        // НО кнопку показываем в любом случае!
+        // Причина: Chrome/Firefox иногда возвращают false даже когда Touch ID доступен
+        // Пусть браузер сам покажет пользователю что у него есть (или нет)
         const available = await isPlatformAuthenticatorAvailable();
         setIsAvailable(available);
         
-        // ВАЖНО: Всегда показываем кнопку если браузер поддерживает
-        // Browser сам покажет доступные Passkeys (или предложит другое устройство)
+        if (!available) {
+          console.log('[PasskeyLoginButton] Platform authenticator not detected, but showing button anyway');
+        }
       }
     };
 
@@ -119,8 +124,10 @@ export function PasskeyLoginButton({ onSuccess }: PasskeyLoginButtonProps) {
     }
   };
 
-  // Не показываем если не поддерживается
-  if (!isSupported || !isAvailable) {
+  // Не показываем если браузер не поддерживает WebAuthn
+  // НЕ проверяем isAvailable - пусть браузер сам решает!
+  // Chrome иногда возвращает false даже когда Touch ID доступен
+  if (!isSupported) {
     return null;
   }
 
