@@ -1078,7 +1078,7 @@ const translations: Record<Language, Record<string, any>> = {
     
     // Footer
     footer: {
-      companyDescription: "Educational platform for DGT exam preparation in Spain",
+      companyDescription: "Interactive learning platform for road safety education in Spain",
       address: "Spain, Tarragona",
       contact: "Contact: support@skilyapp.com",
       legal: "Legal",

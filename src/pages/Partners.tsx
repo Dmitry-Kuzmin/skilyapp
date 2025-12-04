@@ -220,7 +220,7 @@ export default function Partners() {
     en: {
       title: "Affiliate Program",
       subtitle: "Join us and earn together",
-      intro: `SkilyApp offers an affiliate program for educational platforms, bloggers, and influencers who want to help their audiences prepare for the DGT exam.`,
+      intro: `SkilyApp offers an affiliate program for educational platforms, bloggers, and influencers who want to help their audiences learn road safety through interactive gamified learning.`,
       sections: [
         {
           title: "Who can become an affiliate",

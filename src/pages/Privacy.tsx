@@ -7,6 +7,7 @@ export default function Privacy() {
   const content = {
     ru: {
       title: "Политика конфиденциальности",
+      lastModified: "Последнее обновление: 4 декабря 2025",
       intro: `Настоящая Политика конфиденциальности применяется к пользователям iOS-приложения, Android-приложения или веб-сайта SkilyApp (совместно именуемые "Сайт") и другим взаимодействиям (например, запросы в службу поддержки клиентов, электронные письма, телефонные звонки).
 
 Цель настоящей Политики конфиденциальности - помочь вам понять, какие персональные данные вы делитесь с нами. Эта политика описывает, что, когда и как мы собираем данные, и как мы используем и делимся вашими персональными данными.
@@ -40,7 +41,9 @@ export default function Privacy() {
         },
         {
           title: "c. Покупка услуги",
-          content: `Когда вы покупаете услугу у нас, мы можем обрабатывать любые данные, которые вы предоставляете, включая имя, адрес, предпочтения и платежную информацию ("Данные транзакции"). Данные транзакции будут обрабатываться с целью поставки приобретенного продукта и услуг и ведения надлежащих записей этих транзакций.`
+          content: `Когда вы покупаете услугу у нас, мы можем обрабатывать любые данные, которые вы предоставляете, включая имя, адрес, предпочтения и платежную информацию ("Данные транзакции"). Данные транзакции будут обрабатываться с целью поставки приобретенного продукта и услуг и ведения надлежащих записей этих транзакций.
+
+Для обработки платежей мы используем сторонние платежные процессоры (Paddle, Stripe, Telegram Stars), которые могут собирать дополнительную информацию в соответствии со своими политиками конфиденциальности. Мы не храним полные данные вашей платежной карты на наших серверах.`
         },
         {
           title: "d. Посещение нашего веб-сайта",
@@ -80,6 +83,7 @@ SkilyApp
     },
     es: {
       title: "Política de privacidad",
+      lastModified: "Última actualización: 4 de diciembre de 2025",
       intro: `Esta Política de Privacidad se aplica a los usuarios de la aplicación iOS, aplicación Android o sitio web de SkilyApp (colectivamente el "Sitio") y otras interacciones (por ejemplo, consultas de servicio al cliente, correos electrónicos, llamadas telefónicas).
 
 El propósito de esta Política de Privacidad es ayudarle a comprender qué datos personales comparte con nosotros. Esta política describe qué, cuándo y cómo recopilamos datos, y cómo usamos y compartimos sus datos personales.
@@ -113,7 +117,9 @@ Mientras esté registrado en nuestros servicios, mantendremos estos datos.`
         },
         {
           title: "c. Comprar un servicio",
-          content: `Cuando compra un servicio de nosotros, podemos procesar cualquier dato que proporcione, incluido nombre, dirección, preferencias e información de pago ("Datos de transacción"). Los datos de transacción se procesarán con el propósito de suministrar el producto y servicios comprados y mantener registros adecuados de esas transacciones.`
+          content: `Cuando compra un servicio de nosotros, podemos procesar cualquier dato que proporcione, incluido nombre, dirección, preferencias e información de pago ("Datos de transacción"). Los datos de transacción se procesarán con el propósito de suministrar el producto y servicios comprados y mantener registros adecuados de esas transacciones.
+
+Para procesar pagos utilizamos procesadores de pago de terceros (Paddle, Stripe, Telegram Stars), que pueden recopilar información adicional de acuerdo con sus políticas de privacidad. No almacenamos los datos completos de su tarjeta de pago en nuestros servidores.`
         },
         {
           title: "d. Visitar nuestro sitio web",
@@ -153,6 +159,7 @@ Contáctenos en support@skilyapp.com para cualquier pregunta o solicitud relacio
     },
     en: {
       title: "Privacy policy",
+      lastModified: "Last Updated: December 4, 2025",
       intro: `This Privacy Policy applies to users of SkilyApp's iOS application, Android application or Website (collectively the Site) and other interactions (e.g. customer service inquiries, emails, phone calls).
 
 The purpose of this Privacy Policy is to help you understand what personal data you share with us. This policy describes what, when and how we collect data, and how we use and share your personal data.
@@ -186,7 +193,9 @@ As long as you are registered to our services we will keep this data.`
         },
         {
           title: "c. Purchasing a service",
-          content: `When you buy a service from us, we may process any data that you provide, including name, address, preferences and payment information ("Transaction Data"). The transaction data will be processed for the purpose of supplying the purchased products and services and keeping proper records of those transactions.`
+          content: `When you buy a service from us, we may process any data that you provide, including name, address, preferences and payment information ("Transaction Data"). The transaction data will be processed for the purpose of supplying the purchased products and services and keeping proper records of those transactions.
+
+To process payments, we use third-party payment processors (Paddle, Stripe, Telegram Stars), which may collect additional information in accordance with their privacy policies. We do not store your full payment card details on our servers.`
         },
         {
           title: "d. Visiting our website",
@@ -234,6 +243,9 @@ Contact us at support@skilyapp.com for any questions or requests regarding your 
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           {currentContent.title}
         </h1>
+        <p className="text-sm text-muted-foreground mb-8">
+          {currentContent.lastModified}
+        </p>
         
         <div className="prose prose-slate dark:prose-invert max-w-none space-y-8">
           <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
