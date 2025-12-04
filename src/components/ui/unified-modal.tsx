@@ -292,6 +292,14 @@ export function UnifiedModal({
   const shouldShowHandle = isMobile && showHandle;
 
   if (isMobile) {
+    // Преобразуем snapPoints из vh в проценты для Vaul
+    const vaulSnapPoints = React.useMemo(() => {
+      return snapPoints.map(sp => {
+        const num = parseFloat(sp);
+        return num / 100; // Vaul expects 0-1 range
+      });
+    }, [snapPoints]);
+
     return (
       <Drawer.Root 
         open={resolvedOpen} 
@@ -300,7 +308,8 @@ export function UnifiedModal({
         dismissible={!preventClose}
         modal={true}
         nested={nested}
-        snapPoints={snapPoints.map(sp => sp.replace('vh', '') + '%')}
+        snapPoints={vaulSnapPoints}
+        activeSnapPoint={vaulSnapPoints[initialSnap]}
         fadeFromIndex={0}
         closeThreshold={closeThreshold}
         handleOnly={handleOnly}
@@ -316,14 +325,10 @@ export function UnifiedModal({
               "border-t border-border/50",
               "shadow-[0_-16px_40px_rgba(15,23,42,0.25)]",
               "focus:outline-none",
+              // Важно: max-h для контента
+              "max-h-[96vh]",
               className
             )}
-            style={{
-              height: isExpanded ? expandedHeight : collapsedHeight,
-              maxHeight: expandedHeight,
-              // GPU ускорение
-              willChange: resolvedOpen ? "transform" : "auto",
-            }}
           >
             {/* Drawer Handle */}
             {shouldShowHandle && (
@@ -356,6 +361,8 @@ export function UnifiedModal({
               data-scrollable
               className={cn(
                 "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4 overscroll-contain",
+                // Минимальная высота чтобы контент был видим
+                "min-h-[200px]",
                 contentClassName
               )}
             >
