@@ -169,7 +169,13 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
           const { data: profileData, error } = await supabase
             .rpc('get_user_profile_by_email', { p_email: email });
 
-          console.log('[AuthModalNew] RPC Response:', { data: profileData, error });
+          console.log('[AuthModalNew] RPC Response:', { 
+            data: profileData, 
+            error: error,
+            errorMessage: error?.message,
+            errorDetails: error?.details,
+            errorHint: error?.hint
+          });
 
           if (!error && profileData && profileData.length > 0) {
             const profile = profileData[0];
@@ -177,7 +183,12 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
             setUserAvatar(profile.avatar_url || null);
             setUserName(profile.display_name || profile.first_name || email.split('@')[0]);
           } else {
-            console.warn('[AuthModalNew] No profile data found or error:', error);
+            console.warn('[AuthModalNew] No profile data found. Error details:', {
+              message: error?.message,
+              details: error?.details,
+              hint: error?.hint,
+              code: error?.code
+            });
             // Устанавливаем имя хотя бы из email
             setUserName(email.split('@')[0]);
           }
