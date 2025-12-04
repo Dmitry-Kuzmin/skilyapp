@@ -35,6 +35,7 @@ export function Footer() {
     [
       { to: "/blog", label: t("footer.blog") },
       { to: "/help", label: t("footer.help") },
+      { to: "/about", label: t("footer.about") },
     ],
     [
       { to: "/terms", label: t("footer.terms") },

@@ -111,6 +111,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const SubscriptionTerms = lazy(() => import("./pages/SubscriptionTerms"));
+const About = lazy(() => import("./pages/About"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 // Компонент для обработки ошибок загрузки RefundPolicy
 function RefundPolicyErrorFallback() {
@@ -426,6 +427,7 @@ const App = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/subscription-terms" element={<SubscriptionTerms />} />
+          <Route path="/about" element={<About />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/help" element={<HelpCenter />} />

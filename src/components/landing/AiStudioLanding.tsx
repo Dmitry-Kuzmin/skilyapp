@@ -691,7 +691,32 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <footer className="px-6 py-12 border-t border-slate-800/50 text-center text-slate-600 text-xs font-mono uppercase tracking-widest">
+      {/* Disclaimer Section */}
+      <section className="px-6 py-12 border-y border-slate-800/50">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider">
+            <Sparkles className="w-3 h-3" />
+            <span>{language === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : language === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
+          </div>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            {language === 'ru' ? 
+              'SkilyApp — это программная платформа с собственными играми, AI-технологиями и системой геймификации. Мы не продаем доступ к экзаменам или сертификаты. Все наши игры, алгоритмы и интерактивный опыт являются нашей собственной интеллектуальной собственностью.' :
+              language === 'es' ?
+              'SkilyApp es una plataforma de software con juegos propios, tecnologías de IA y sistema de gamificación. No vendemos acceso a exámenes ni certificados. Todos nuestros juegos, algoritmos y experiencia interactiva son nuestra propiedad intelectual.' :
+              'SkilyApp is a software platform with proprietary games, AI technologies, and gamification system. We do not sell exam access or certificates. All our games, algorithms, and interactive experience are our own intellectual property.'
+            }
+          </p>
+          <button
+            onClick={() => navigate('/about')}
+            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
+          >
+            {language === 'ru' ? 'Подробнее о нас' : language === 'es' ? 'Más sobre nosotros' : 'Learn more about us'}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
+
+      <footer className="px-6 py-12 text-center text-slate-600 text-xs font-mono uppercase tracking-widest">
         <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-8">
           {copy.footer.menu.map((item) => (
             item.external ? (
