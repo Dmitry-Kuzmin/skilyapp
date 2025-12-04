@@ -9,6 +9,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
+import { cn } from '@/lib/utils';
 import { GoogleIcon, TelegramIcon } from '@/components/icons/SocialIcons';
 import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
 import { checkEmailExists, getClientIP } from '@/lib/auth-utils';
