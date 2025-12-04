@@ -54,7 +54,7 @@ export function UnifiedModal({
   modalType = 'default',
   hideCloseButton = false,
   snapPoints = ['60vh', '92vh'],
-  initialSnap = 0,
+  initialSnap = 1, // По умолчанию открываем на полную высоту (второй snapPoint)
   showTitleBar = true,
   loading = false,
   skeletonVariant = "default",
@@ -206,88 +206,7 @@ export function UnifiedModal({
     }
   }, [modalRouteKey, route?.isOpen, onOpenChange, open]);
 
-  // Оптимизированное расширение: сразу устанавливаем финальное состояние
-  const [isExpanded, setIsExpanded] = React.useState(() => initialSnap > 0);
-
-  const collapsedHeight = snapPoints[0] ?? '60vh';
-  const expandedHeight = snapPoints[1] ?? '92vh';
-
-  // Быстрое расширение при открытии - используем один RAF для минимальной задержки
-  React.useEffect(() => {
-    if (resolvedOpen) {
-      // Если initialSnap > 0, сразу расширяем, иначе расширяем через один RAF
-      if (initialSnap > 0) {
-        setIsExpanded(true);
-      } else {
-        // Один RAF для минимальной задержки
-        const rafId = requestAnimationFrame(() => {
-          setIsExpanded(true);
-        });
-        return () => cancelAnimationFrame(rafId);
-      }
-    } else {
-      setIsExpanded(initialSnap > 0);
-    }
-  }, [resolvedOpen, initialSnap]);
-
-  // Блокировка скролла body при открытии модалки
-  // Radix UI сам управляет блокировкой, но мы добавляем дополнительную защиту
-  React.useEffect(() => {
-    if (!resolvedOpen) return;
-    
-    // Сохраняем текущую позицию скролла перед блокировкой
-    const scrollY = window.scrollY;
-    document.body.setAttribute('data-scroll-y', scrollY.toString());
-    
-    // Дополнительная блокировка для предотвращения скролла фона
-    // Radix UI уже блокирует скролл, но мы добавляем дополнительную защиту
-    const originalOverflow = document.body.style.overflow;
-    const originalPosition = document.body.style.position;
-    const originalTop = document.body.style.top;
-    const originalWidth = document.body.style.width;
-    
-    // Блокируем скролл только если Radix UI еще не сделал этого
-    if (!document.body.hasAttribute('data-radix-scroll-locked')) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-    }
-    
-    // Предотвращаем скролл фона через touchmove на мобильных
-    const preventBodyScrollHandler = (e: TouchEvent) => {
-      const target = e.target as HTMLElement;
-      const modalContent = target.closest('[role="dialog"]') || 
-                          target.closest('[data-radix-dialog-content]') ||
-                          target.closest('[data-state="open"]');
-      if (!modalContent) {
-        e.preventDefault();
-      }
-    };
-    
-    document.addEventListener('touchmove', preventBodyScrollHandler, { passive: false });
-    
-    return () => {
-      document.removeEventListener('touchmove', preventBodyScrollHandler);
-      
-      // Восстанавливаем скролл
-      const scrollY = document.body.getAttribute('data-scroll-y');
-      document.body.removeAttribute('data-scroll-y');
-      
-      // Восстанавливаем стили только если мы их меняли
-      if (!document.body.hasAttribute('data-radix-scroll-locked')) {
-        document.body.style.overflow = originalOverflow;
-        document.body.style.position = originalPosition;
-        document.body.style.top = originalTop;
-        document.body.style.width = originalWidth;
-      }
-      
-      // Восстанавливаем позицию скролла
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY, 10));
-      }
-    };
-  }, [resolvedOpen]);
+  // Vaul сам управляет высотой через snapPoints - убираем старую логику
 
   const shouldShowHandle = isMobile && showHandle;
 
@@ -296,9 +215,12 @@ export function UnifiedModal({
     const vaulSnapPoints = React.useMemo(() => {
       return snapPoints.map(sp => {
         const num = parseFloat(sp);
-        return num / 100; // Vaul expects 0-1 range
+        return num / 100; // Vaul expects 0-1 range (0.6 = 60%)
       });
     }, [snapPoints]);
+
+    // Определяем начальную точку (clamp to valid index)
+    const safeInitialSnap = Math.min(Math.max(0, initialSnap), vaulSnapPoints.length - 1);
 
     return (
       <Drawer.Root 
@@ -306,15 +228,16 @@ export function UnifiedModal({
         onOpenChange={handleOpenChange}
         shouldScaleBackground={!nested}
         dismissible={!preventClose}
-        modal={true}
+        modal={true} // Vaul автоматически блокирует body scroll
         nested={nested}
         snapPoints={vaulSnapPoints}
-        activeSnapPoint={vaulSnapPoints[initialSnap]}
+        activeSnapPoint={vaulSnapPoints[safeInitialSnap]}
         fadeFromIndex={0}
         closeThreshold={closeThreshold}
         handleOnly={handleOnly}
         onDrag={onDrag}
         setBackgroundColorOnScale={setBackgroundColorOnScale}
+        preventScrollRestoration={true}
       >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
