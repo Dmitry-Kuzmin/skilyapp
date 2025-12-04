@@ -181,22 +181,46 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   ] as const;
 
   const hasLoadedRef = useRef(false);
+  const loadDataTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
+    // ОПТИМИЗАЦИЯ: Debounce загрузки данных
     if (open && !hasLoadedRef.current && profileId) {
       hasLoadedRef.current = true;
-      loadData();
+      // Небольшая задержка для плавного открытия модалки
+      loadDataTimeoutRef.current = setTimeout(() => {
+        loadData();
+      }, 100);
     } else if (!open) {
-      // Сбрасываем флаг при закрытии, чтобы загрузить свежие данные при следующем открытии
+      // Сбрасываем флаг и отменяем pending запросы при закрытии
       hasLoadedRef.current = false;
+      if (loadDataTimeoutRef.current) {
+        clearTimeout(loadDataTimeoutRef.current);
+      }
     }
+    
+    return () => {
+      if (loadDataTimeoutRef.current) {
+        clearTimeout(loadDataTimeoutRef.current);
+      }
+    };
   }, [open, profileId]);
 
   // Загружаем историю транзакций при переключении на вкладку "История"
+  const historyLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
-    if (open && activeTab === 'history' && transactions.length === 0) {
-      loadTransactionHistory();
+    if (open && activeTab === 'history' && transactions.length === 0 && !loadingHistory) {
+      // ОПТИМИЗАЦИЯ: Debounce для предотвращения множественных загрузок
+      historyLoadTimeoutRef.current = setTimeout(() => {
+        loadTransactionHistory();
+      }, 150);
     }
+    
+    return () => {
+      if (historyLoadTimeoutRef.current) {
+        clearTimeout(historyLoadTimeoutRef.current);
+      }
+    };
   }, [open, activeTab]);
 
   const loadData = async () => {
