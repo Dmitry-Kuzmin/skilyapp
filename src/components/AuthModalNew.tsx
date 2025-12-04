@@ -443,9 +443,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           className="
             bg-zinc-950 flex flex-col rounded-t-[32px] sm:rounded-[32px]
             h-[96%] sm:h-auto sm:max-h-[90vh]
-            mt-24 fixed bottom-0 left-0 right-0
-            sm:left-[50%] sm:right-auto sm:bottom-auto sm:top-[50%]
-            sm:translate-x-[-50%] sm:translate-y-[-50%]
+            fixed bottom-0 left-0 right-0
+            sm:inset-0 sm:m-auto
             sm:w-[420px] sm:max-w-[95vw]
             border-t sm:border border-white/10 
             shadow-2xl z-50
