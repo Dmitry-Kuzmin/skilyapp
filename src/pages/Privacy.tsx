@@ -43,7 +43,7 @@ export default function Privacy() {
           title: "c. Покупка услуги",
           content: `Когда вы покупаете услугу у нас, мы можем обрабатывать любые данные, которые вы предоставляете, включая имя, адрес, предпочтения и платежную информацию ("Данные транзакции"). Данные транзакции будут обрабатываться с целью поставки приобретенного продукта и услуг и ведения надлежащих записей этих транзакций.
 
-Для обработки платежей мы используем сторонние платежные процессоры (Paddle, Stripe, Telegram Stars), которые могут собирать дополнительную информацию в соответствии со своими политиками конфиденциальности. Мы не храним полные данные вашей платежной карты на наших серверах.`
+Для обработки платежей мы используем сторонние платежные процессоры (включая Stripe, Telegram Stars и другие), которые могут собирать дополнительную информацию в соответствии со своими политиками конфиденциальности. Мы не храним полные данные вашей платежной карты на наших серверах.`
         },
         {
           title: "d. Посещение нашего веб-сайта",
@@ -119,7 +119,7 @@ Mientras esté registrado en nuestros servicios, mantendremos estos datos.`
           title: "c. Comprar un servicio",
           content: `Cuando compra un servicio de nosotros, podemos procesar cualquier dato que proporcione, incluido nombre, dirección, preferencias e información de pago ("Datos de transacción"). Los datos de transacción se procesarán con el propósito de suministrar el producto y servicios comprados y mantener registros adecuados de esas transacciones.
 
-Para procesar pagos utilizamos procesadores de pago de terceros (Paddle, Stripe, Telegram Stars), que pueden recopilar información adicional de acuerdo con sus políticas de privacidad. No almacenamos los datos completos de su tarjeta de pago en nuestros servidores.`
+Para procesar pagos utilizamos procesadores de pago de terceros (incluyendo Stripe, Telegram Stars y otros), que pueden recopilar información adicional de acuerdo con sus políticas de privacidad. No almacenamos los datos completos de su tarjeta de pago en nuestros servidores.`
         },
         {
           title: "d. Visitar nuestro sitio web",
@@ -195,7 +195,7 @@ As long as you are registered to our services we will keep this data.`
           title: "c. Purchasing a service",
           content: `When you buy a service from us, we may process any data that you provide, including name, address, preferences and payment information ("Transaction Data"). The transaction data will be processed for the purpose of supplying the purchased products and services and keeping proper records of those transactions.
 
-To process payments, we use third-party payment processors (Paddle, Stripe, Telegram Stars), which may collect additional information in accordance with their privacy policies. We do not store your full payment card details on our servers.`
+To process payments, we use third-party payment processors (including Stripe, Telegram Stars, and others), which may collect additional information in accordance with their privacy policies. We do not store your full payment card details on our servers.`
         },
         {
           title: "d. Visiting our website",
