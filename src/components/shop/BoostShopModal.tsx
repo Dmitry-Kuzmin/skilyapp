@@ -987,7 +987,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         )}
 
         {/* Компактный заголовок с балансом */}
-        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0" data-vaul-no-drag>
+        <div className="px-3 md:px-4 py-2 md:py-3 border-b border-border/50 shrink-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <ShoppingBag className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />
@@ -1022,7 +1022,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full flex flex-col h-full">
             <div className="px-4 pt-4 pb-0 shrink-0">
-              <TabsList className="grid w-full grid-cols-4" data-vaul-no-drag>
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="boosts" className="text-xs truncate">
                   <Zap className="w-3 h-3 mr-1 flex-shrink-0" />
                   <span className="truncate">{t('boostShop.tabs.boosts')}</span>
@@ -1045,9 +1045,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Boosts Tab */}
             <TabsContent 
               value="boosts" 
-              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 mt-3 md:mt-4"
-              data-vaul-no-drag
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4"
             >
               <>
                   {regularBoosts.length > 0 && (
@@ -1106,9 +1104,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Coins Tab */}
             <TabsContent 
               value="coins" 
-              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 mt-3 md:mt-4"
-              data-vaul-no-drag
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              className="p-3 md:p-4 space-y-3 mt-3 md:mt-4"
             >
               <div className="space-y-3">
                 <div className="text-center py-4">
@@ -1314,9 +1310,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* Premium & Duel Pass Tab */}
             <TabsContent 
               value="premium" 
-              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 mt-3 md:mt-4"
-              data-vaul-no-drag
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              className="p-3 md:p-4 space-y-4 mt-3 md:mt-4"
             >
               <div className="space-y-4">
                 {/* Premium Subscription */}
@@ -1518,7 +1512,7 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
             {/* History Tab */}
             <TabsContent 
               value="history" 
-              className="flex-1 flex flex-col mt-3 md:mt-4 overflow-hidden"
+              className="p-0 h-full flex flex-col mt-3 md:mt-4"
             >
               <div className="px-3 md:px-4 pt-1 pb-3 border-b border-border/50 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
@@ -1776,10 +1770,8 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         loading={loading}
         skeletonVariant="shop"
         modalRouteKey="boost-shop"
-        contentClassName="!px-0 !py-0"
-        showHandle={true}
       >
-        <ModalContent />
+        {!loading && <ModalContent />}
       </UnifiedModal>
       
       {/* Nested Modals - рендерим только когда нужно */}
