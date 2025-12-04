@@ -430,26 +430,22 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  return (
-    <Drawer.Root 
-      open={open} 
-      onOpenChange={onClose}
-      shouldScaleBackground={isMobile}
-      dismissible={true}
-      modal={true}
-      fadeFromIndex={0}
-      direction={isMobile ? "bottom" : undefined}
-    >
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-        <Drawer.Content
-          className={cn(
-            "bg-zinc-950 flex flex-col border-white/10 shadow-2xl z-50 focus:outline-none",
-            isMobile 
-              ? "rounded-t-[32px] border-t fixed bottom-0 left-0 right-0 max-h-[85vh]"
-              : "rounded-[32px] border fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[420px] max-w-[95vw] max-h-[90vh]"
-          )}
-        >
+  // На мобилках - Vaul drawer, на десктопе - обычная модалка с framer-motion
+  if (isMobile) {
+    return (
+      <Drawer.Root 
+        open={open} 
+        onOpenChange={onClose}
+        shouldScaleBackground
+        dismissible={true}
+        modal={true}
+        fadeFromIndex={0}
+      >
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+          <Drawer.Content
+            className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed bottom-0 left-0 right-0 max-h-[85vh]"
+          >
           {/* Drawer Handle для мобилок - нативный iOS стиль */}
           <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 sm:hidden" aria-hidden="true" />
           
@@ -725,6 +721,306 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
+    );
+  }
+
+  // Desktop - обычная модалка с framer-motion анимациями
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            onClick={onClose}
+          />
+
+          {/* Modal Content */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300, duration: 0.3 }}
+            className="fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 w-[420px] max-w-[95vw] max-h-[90vh] bg-zinc-950 rounded-[32px] border border-white/10 shadow-2xl focus:outline-none overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="overflow-y-auto flex-1 overscroll-contain max-h-[90vh]">
+              {/* Ambient Glow */}
+              <motion.div 
+                animate={{ 
+                  background: emailError 
+                    ? 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15), transparent 70%)' 
+                    : step !== 'email'
+                      ? 'radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.15), transparent 70%)'
+                      : 'radial-gradient(circle at 50% 100%, rgba(37, 99, 235, 0.1), transparent 70%)'
+                }}
+                className="absolute inset-0 pointer-events-none transition-colors duration-1000"
+              />
+
+              {/* Content */}
+              <div className="relative z-10 p-6 sm:p-8 flex flex-col">
+            
+            {/* --- HEADER SECTION --- */}
+            <div className="flex flex-col items-center mb-6 min-h-[140px] justify-end">
+              <AnimatePresence mode="wait">
+                {step === 'password-existing' ? (
+                  /* Avatar State */
+                  <motion.div
+                    key="avatar"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    className="relative mb-2"
+                  >
+                    {userAvatar ? (
+                      <img 
+                        src={userAvatar} 
+                        alt={userName || "User"} 
+                        className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
+                        onError={(e) => {
+                          console.log('[AuthModalNew] Avatar failed to load, using fallback');
+                          (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+                        }}
+                      />
+                    ) : (
+                      /* Fallback - First Letter Avatar */
+                      <div className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                        <span className="text-3xl font-bold text-white">
+                          {(userName || email || 'U').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    {/* Verified Shield Badge */}
+                    <div className="absolute -bottom-1 -right-1 bg-zinc-950 rounded-full p-1 border border-zinc-800">
+                      <ShieldCheck className="w-4 h-4 text-green-500 fill-green-500/20" />
+                    </div>
+                  </motion.div>
+                ) : (
+                  /* Logo State */
+                  <motion.div 
+                    key="logo"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    className="mb-4"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-tr from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/20">
+                      <div className="w-6 h-6 border-2 border-white/80 rounded-lg" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Dynamic Headings */}
+              <motion.div layout className="text-center w-full">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={step}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="flex flex-col items-center"
+                  >
+                    <h2 className="text-2xl font-semibold text-white tracking-tight">
+                      {step === 'email' && "Идентификация"}
+                      {step === 'password-existing' && (userName ? `С возвращением, ${userName}` : "С возвращением")}
+                      {step === 'password-new' && "Создание аккаунта"}
+                    </h2>
+                    
+                    <p className="text-sm text-zinc-500 mt-2 font-medium">
+                      {step === 'email' && "Введите email — мы войдем или создадим аккаунт."}
+                      {step === 'password-existing' && "Ваш аккаунт подтвержден на этом устройстве."}
+                      {step === 'password-new' && "Похоже, вы здесь впервые."}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
+            </div>
+
+            {/* --- FORM SECTION --- */}
+            <div className="flex-1 flex flex-col w-full max-w-[320px] mx-auto">
+              
+              {/* --- STEP 1: EMAIL --- */}
+              <AnimatePresence mode="popLayout">
+                {step === 'email' ? (
+                  <motion.div 
+                    key="step-email"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-4"
+                  >
+                    <form onSubmit={handleEmailSubmit} className="space-y-2">
+                      <Input 
+                        ref={emailInputRef}
+                        type="email" 
+                        placeholder="name@company.com" 
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if(emailError) setEmailError(null);
+                        }}
+                        error={emailError ?? undefined}
+                        className="bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center"
+                        rightElement={
+                           <motion.button
+                             type="submit"
+                             disabled={!isValidEmail || checkingEmail}
+                             initial={{ opacity: 0, scale: 0.5 }}
+                             animate={{ 
+                               opacity: isValidEmail ? 1 : 0, 
+                               scale: isValidEmail ? 1 : 0.5,
+                               pointerEvents: isValidEmail ? 'auto' : 'none'
+                             }}
+                             className="bg-white text-black w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                           >
+                             {checkingEmail ? (
+                               <Loader2 className="w-4 h-4 animate-spin" />
+                             ) : (
+                               <ArrowRight className="w-4 h-4" />
+                             )}
+                           </motion.button>
+                        }
+                      />
+                      
+                      {/* Micro-hint under input */}
+                      {isValidEmail && !emailError && (
+                        <motion.p 
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                          className="text-[11px] text-center text-zinc-500 font-medium"
+                        >
+                          Нажмите стрелку для продолжения
+                        </motion.p>
+                      )}
+                    </form>
+
+                    {/* Passkey Button - показывается между email и соцсетями */}
+                    <motion.div 
+                      initial={{ opacity: 0, y: 5 }} 
+                      animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
+                    >
+                      {/* PasskeyLoginButton имеет свой divider внутри */}
+                      <PasskeyLoginButton onSuccess={onClose} />
+                    </motion.div>
+
+                    {/* Divider & Socials */}
+                    <motion.div 
+                      initial={{ opacity: 0 }} 
+                      animate={{ opacity: 1, transition: { delay: 0.2 } }}
+                      className="pt-2"
+                    >
+                      <div className="relative flex py-2 items-center">
+                        <div className="flex-grow border-t border-zinc-800"></div>
+                        <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">Или продолжить с</span>
+                        <div className="flex-grow border-t border-zinc-800"></div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 mt-1">
+                        <Button 
+                          variant="secondary" 
+                          className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all" 
+                          onClick={handleGoogleLogin}
+                        >
+                          <GoogleIcon />
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden" 
+                        >
+                          <TelegramIcon />
+                          <div 
+                            id="telegram-login-container-new" 
+                            className="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-auto [&>iframe]:!w-full [&>iframe]:!h-full"
+                          />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                ) : (
+                  /* --- STEP 2: PASSWORD (Existing or New) --- */
+                  <motion.div
+                    key="step-password"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-6"
+                  >
+                     {/* Email Pill */}
+                     <div className="flex justify-center">
+                        <div 
+                          onClick={handleBackToEmail}
+                          className="
+                            group flex items-center justify-center gap-3 
+                            bg-zinc-900/50 border border-white/5 
+                            rounded-full py-1.5 px-4 
+                            cursor-pointer hover:bg-zinc-900 hover:border-white/10 transition-all
+                          "
+                        >
+                          <span className="text-zinc-300 text-sm font-medium">{email}</span>
+                          <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
+                            Изменить
+                          </span>
+                        </div>
+                     </div>
+
+                     <form onSubmit={handleFinalSubmit} className="space-y-4">
+                       <Input 
+                         ref={passwordInputRef}
+                         type="password" 
+                         label="Пароль"
+                         placeholder="Введите ваш пароль"
+                         value={password}
+                         onChange={(e) => setPassword(e.target.value)}
+                         className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
+                         autoFocus
+                       />
+                       
+                       <Button 
+                         type="submit"
+                         variant="primary" 
+                         fullWidth 
+                         loading={isSubmitting}
+                         className="h-12 text-[15px] font-semibold"
+                       >
+                         {step === 'password-new' ? "Создать аккаунт" : "Войти"}
+                       </Button>
+                     </form>
+
+                     {/* Alternatives */}
+                     <div className="space-y-3 text-center">
+                        {step === 'password-existing' && (
+                          <>
+                            <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
+                              Забыли пароль?
+                            </button>
+                            <p className="text-[11px] text-zinc-600">
+                              Или используйте другие способы входа выше
+                            </p>
+                          </>
+                        )}
+                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Footer Statement */}
+            <div className="mt-6 pt-6 border-t border-white/5">
+               <p className="text-[10px] text-zinc-600 text-center leading-relaxed max-w-[280px] mx-auto">
+                 Мы используем ваш email или устройство для входа или создания нового аккаунта Skily. Никаких лишних шагов.
+               </p>
+            </div>
+
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 
