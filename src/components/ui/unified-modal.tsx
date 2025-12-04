@@ -270,12 +270,12 @@ export function UnifiedModal({
             className
           )}
           >
-            {/* Drawer Handle */}
-          {shouldShowHandle && (
+            {/* Drawer Handle - НЕ добавляем data-vaul-no-drag! */}
+            {shouldShowHandle && (
               <div className="sticky top-0 z-10 shrink-0 flex justify-center pt-3 pb-2 select-none" aria-hidden="true">
-              <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
-            </div>
-          )}
+                <div className="h-1 w-12 rounded-full bg-white/70 dark:bg-white/60 shadow-[0_3px_12px_rgba(0,0,0,0.35)]" />
+              </div>
+            )}
             
             {/* Close Button */}
             {!hideCloseButton && (
@@ -297,24 +297,22 @@ export function UnifiedModal({
           )}
 
             {/* Scrollable Content */}
-          <div
-            data-scrollable
+            <div
+              data-scrollable
               data-vaul-no-drag
-            className={cn(
-                "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4 overscroll-contain",
-                // Минимальная высота чтобы контент был видим
-                "min-h-[200px]",
+              className={cn(
+                "flex-1 overflow-y-auto scrollbar-none overscroll-contain",
                 // Важно: touch-action для правильной работы скролла
                 "touch-action-pan-y",
-              contentClassName
-            )}
+                contentClassName
+              )}
               style={{
                 // Принудительный скролл (важно для Vaul)
                 WebkitOverflowScrolling: 'touch',
               }}
-          >
-            {renderContent}
-          </div>
+            >
+              {renderContent}
+            </div>
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
