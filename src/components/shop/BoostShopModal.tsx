@@ -1774,9 +1774,10 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         loading={loading}
         skeletonVariant="shop"
         modalRouteKey="boost-shop"
-        contentClassName="!p-0"
+        contentClassName="!px-0 !py-0"
+        showHandle={true}
       >
-        {!loading && <ModalContent />}
+        <ModalContent />
       </UnifiedModal>
       
       {/* Nested Modals - рендерим только когда нужно */}
