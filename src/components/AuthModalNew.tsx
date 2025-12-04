@@ -20,13 +20,12 @@ const authSchema = z.object({
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
-  isPasskeyAvailable?: boolean;
 }
 
 // Fallback avatar если у пользователя нет аватара
 const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces";
 
-export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: AuthModalProps) {
+export function AuthModalNew({ open, onClose }: AuthModalProps) {
   // --- State Machine ---
   const [step, setStep] = useState<'email' | 'password-existing' | 'password-new'>('email');
   
@@ -69,13 +68,17 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
   // --- Auto Focus Logic ---
   useEffect(() => {
     if (open) {
-      if (step === 'email' && !isPasskeyAvailable) {
+      // Не фокусируем на мобилках чтобы не раскрывать клавиатуру
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) return;
+
+      if (step === 'email') {
         setTimeout(() => emailInputRef.current?.focus(), 400);
       } else if (step === 'password-existing' || step === 'password-new') {
         setTimeout(() => passwordInputRef.current?.focus(), 400);
       }
     }
-  }, [open, step, isPasskeyAvailable]);
+  }, [open, step]);
 
   // --- Telegram Widget Setup ---
   useEffect(() => {
@@ -573,7 +576,6 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
                       }}
                       error={emailError ?? undefined}
                       className="bg-zinc-900/50 border-zinc-800 h-14 text-lg text-center placeholder:text-center"
-                      autoFocus={!isPasskeyAvailable}
                       rightElement={
                          <motion.button
                            type="submit"
@@ -606,30 +608,25 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
                     )}
                   </form>
 
-                  {/* Passkey Button */}
-                  {isPasskeyAvailable && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 5 }} 
-                      animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}
-                    >
-                       <Button 
-                          variant="brand" 
-                          fullWidth 
-                          className="h-12 font-medium text-[15px]"
-                          icon={<ScanFace className="w-5 h-5" />}
-                          onClick={() => {
-                            // Trigger PasskeyLoginButton click
-                            const passkeyBtn = document.querySelector('[data-passkey-button]') as HTMLButtonElement;
-                            if (passkeyBtn) passkeyBtn.click();
-                          }}
-                       >
-                          {getPasskeyText()}
-                       </Button>
-                       <p className="text-[11px] text-zinc-600 text-center mt-2">
-                         Нет доступа к этому устройству? Используйте email или соцсети.
-                       </p>
-                    </motion.div>
-                  )}
+                  {/* Divider & Passkey */}
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1, transition: { delay: 0.1 } }}
+                    className="pt-2"
+                  >
+                    <div className="relative flex py-2 items-center">
+                      <div className="flex-grow border-t border-zinc-800"></div>
+                      <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">
+                        Или
+                      </span>
+                      <div className="flex-grow border-t border-zinc-800"></div>
+                    </div>
+                  </motion.div>
+
+                  {/* Passkey Login - Hidden component handles visibility */}
+                  <div className="[&>div]:space-y-0">
+                    <PasskeyLoginButton onSuccess={onClose} />
+                  </div>
 
                   {/* Divider & Socials */}
                   <motion.div 
@@ -718,23 +715,15 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
 
                    {/* Alternatives */}
                    <div className="space-y-3 text-center">
-                      {step === 'password-existing' && isPasskeyAvailable && (
-                        <button 
-                          className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-2 mx-auto w-full"
-                          onClick={() => {
-                            const passkeyBtn = document.querySelector('[data-passkey-button]') as HTMLButtonElement;
-                            if (passkeyBtn) passkeyBtn.click();
-                          }}
-                        >
-                          <ScanFace className="w-4 h-4" />
-                          Войти с устройством
-                        </button>
-                      )}
-                      
                       {step === 'password-existing' && (
-                        <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
-                          Забыли пароль?
-                        </button>
+                        <>
+                          <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
+                            Забыли пароль?
+                          </button>
+                          <p className="text-[11px] text-zinc-600">
+                            Или используйте другие способы входа выше
+                          </p>
+                        </>
                       )}
                    </div>
                 </motion.div>
@@ -749,11 +738,6 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
              </p>
           </div>
 
-        </div>
-
-        {/* Hidden Passkey Button */}
-        <div className="hidden">
-          <PasskeyLoginButton onSuccess={onClose} />
         </div>
       </motion.div>
     </div>
