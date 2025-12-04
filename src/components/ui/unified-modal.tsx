@@ -242,6 +242,7 @@ export function UnifiedModal({
         onDrag={onDrag}
         setBackgroundColorOnScale={setBackgroundColorOnScale}
         preventScrollRestoration={true}
+        noBodyStyles={false}
       >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
