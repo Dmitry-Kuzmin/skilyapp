@@ -1536,7 +1536,11 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4" style={{ contain: 'layout style paint' }}>
+              <div 
+                className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4" 
+                data-vaul-no-drag
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
                 {loadingHistory ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
@@ -1728,16 +1732,16 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
         loading={loading}
         skeletonVariant="shop"
         modalRouteKey="boost-shop"
+        contentClassName="!p-0"
       >
-        {!loading && (
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            <ModalContent />
-          </div>
-        )}
+        {!loading && <ModalContent />}
       </UnifiedModal>
-      <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       
-      {/* Предварительный экран Cryptomus */}
+      {/* Nested Modals - рендерим только когда нужно */}
+      {paywallOpen && (
+        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+      )}
+      
       {cryptomusPreview && (
         <CryptomusPaymentPreview
           open={cryptomusPreview.open}
@@ -1752,7 +1756,6 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
           currency={cryptomusPreview.currency}
           itemName={cryptomusPreview.itemName}
           onPaymentComplete={() => {
-            // Обновляем баланс монет после успешной оплаты
             loadUserData();
           }}
           onCancel={() => {
