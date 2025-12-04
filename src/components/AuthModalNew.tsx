@@ -434,7 +434,6 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       shouldScaleBackground
       dismissible={true}
       modal={true}
-      snapPoints={[1]}
       fadeFromIndex={0}
     >
       <Drawer.Portal>
@@ -442,8 +441,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         <Drawer.Content
           className="
             bg-zinc-950 flex flex-col rounded-t-[32px] sm:rounded-[32px]
-            h-[96%] sm:h-auto
-            max-h-[96vh] sm:max-h-[90vh]
+            max-h-[85vh]
             fixed bottom-0 left-0 right-0
             sm:inset-0 sm:m-auto
             sm:w-[420px] sm:max-w-[95vw]
