@@ -13,21 +13,21 @@ export default function About() {
         {
           icon: Gamepad2,
           title: "Что мы делаем",
-          content: `SkilyApp - это Software-as-a-Service (SaaS) платформа и игровое мобильное приложение, которое помогает людям изучать правила дорожного движения через интерактивный геймплей.
+          content: `SkilyApp — это Software-as-a-Service (SaaS) платформа и мобильное приложение, которое помогает изучать правила дорожного движения через интерактивную геймификацию.
 
-Мы не продаем доступ к экзаменам или сертификаты. Мы создаем уникальный программный продукт с собственными играми, AI-технологиями и системой геймификации.`
+Мы не продаем доступ к экзаменам или сертификаты. Мы создаем программный продукт с собственными технологиями: интерактивными модулями, AI-помощником и системой геймификации.`
         },
         {
           icon: Sparkles,
           title: "Наши технологии",
-          content: `Все наши технологии разработаны собственными силами:
+          content: `Все технологии разработаны нашей командой:
 
-• RaceGame - игра для тренировки восприятия риска
-• GuessTheSign - мгновенное распознавание дорожных знаков
-• Match & Learn - изучение терминологии
-• Skily AI - искусственный интеллект-компаньон с собственными алгоритмами
-• Система дуэлей - соревновательный режим с экономикой
-• Аналитика прогресса - адаптивные рекомендации`
+• RaceGame — тренировка восприятия дорожных ситуаций
+• GuessTheSign — мгновенное распознавание дорожных знаков
+• Match & Learn — изучение терминологии
+• Skily AI — AI-помощник на базе собственных алгоритмов
+• Система дуэлей — соревновательный режим с виртуальной экономикой
+• Аналитика прогресса — персональные рекомендации`
         },
         {
           icon: Trophy,
@@ -87,9 +87,9 @@ export default function About() {
         {
           icon: Gamepad2,
           title: "Lo que hacemos",
-          content: `SkilyApp es una plataforma Software-as-a-Service (SaaS) y una aplicación móvil de juegos que ayuda a las personas a aprender las reglas de tráfico a través de juegos interactivos.
+          content: `SkilyApp es una plataforma Software-as-a-Service (SaaS) y una aplicación móvil que ayuda a aprender las reglas de tráfico a través de experiencias interactivas.
 
-No vendemos acceso a exámenes ni certificados. Creamos un producto de software único con nuestros propios juegos, tecnologías de IA y sistema de gamificación.`
+No vendemos acceso a exámenes ni certificados. Creamos un producto de software con tecnologías propias: módulos interactivos, asistente de IA y sistema de gamificación.`
         },
         {
           icon: Sparkles,
@@ -161,9 +161,9 @@ Todas estas empresas utilizan contenido educativo de acceso público, pero monet
         {
           icon: Gamepad2,
           title: "What we do",
-          content: `SkilyApp is a Software-as-a-Service (SaaS) platform and mobile gaming application that helps people learn traffic rules through interactive gameplay.
+          content: `SkilyApp is a Software-as-a-Service (SaaS) platform and mobile application that helps people learn traffic rules through interactive experiences.
 
-We don't sell exam access or certificates. We create a unique software product with our own games, AI technologies, and gamification system.`
+We don't sell exam access or certificates. We create a software product with proprietary technology: interactive modules, AI assistant, and gamification system.`
         },
         {
           icon: Sparkles,

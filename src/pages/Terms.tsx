@@ -18,20 +18,20 @@ export default function Terms() {
 Нажимая "Я согласен", подписываясь на Платформу и получая доступ или используя Платформу, вы соглашаетесь соблюдать настоящее Соглашение и Политику конфиденциальности. Мы можем изменять настоящее Соглашение или Политику конфиденциальности и можем уведомлять вас об этом. Если вы не согласны с настоящим Соглашением или Политикой конфиденциальности, пожалуйста, немедленно прекратите использование нашей Платформы.`
         },
         {
-          title: "2. Характер сервиса",
-          content: `SkilyApp является платформой Software-as-a-Service (SaaS) и игровым обучающим приложением, которое помогает пользователям изучать принципы безопасности дорожного движения через интерактивный геймплей и собственные технологии.
+          title: "2. Описание сервиса",
+          content: `SkilyApp — это платформа Software-as-a-Service (SaaS) и интерактивное обучающее приложение, которое помогает пользователям изучать принципы безопасности дорожного движения через геймификацию и собственные технологии.
 
-ЧЕМ ЯВЛЯЕТСЯ SkilyApp:
-• Программное приложение с собственными играми (RaceGame, GuessTheSign, Match & Learn, система дуэлей)
-• AI-компаньон Skily, использующий наши собственные алгоритмы машинного обучения
-• Платформа геймификации с сезонами, челленджами и виртуальной экономикой
-• Мобильный игровой опыт для образовательных целей
+ЧЕМ МЫ ЯВЛЯЕМСЯ:
+• Программное приложение с собственными интерактивными модулями (RaceGame, GuessTheSign, Match & Learn, система дуэлей)
+• AI-помощник Skily на базе наших собственных алгоритмов машинного обучения
+• Платформа с геймификацией: сезоны, челленджи и виртуальная экономика
+• Мобильное приложение с образовательным контентом
 
-ЧЕМ SkilyApp НЕ ЯВЛЯЕТСЯ:
-• Мы НЕ являемся сервисом подготовки к экзаменам, который продает доступ к экзаменам
-• Мы НЕ предоставляем сертификаты или официальные учетные данные
-• Мы НЕ продаем курсы, созданные третьими сторонами
-• Мы НЕ предлагаем услуги бронирования или проведения экзаменов
+ЧЕМ МЫ НЕ ЯВЛЯЕМСЯ:
+• Мы НЕ продаем доступ к экзаменам или сертификаты
+• Мы НЕ предоставляем официальные учетные данные или аккредитацию
+• Мы НЕ перепродаем курсы сторонних разработчиков
+• Мы НЕ предлагаем услуги записи на экзамены или их проведения
 
 ЧТО ВЫ ПОКУПАЕТЕ:
 • Подписка на программное обеспечение (Premium) - доступ к нашим собственным технологиям
@@ -96,7 +96,7 @@ export default function Terms() {
         },
         {
           title: "11. Возврат средств за подписку",
-          content: `Мы хотим, чтобы вы были довольны Сервисами SkilyApp; однако возврат средств не будет разрешен после начала вашей платной подписки. Если у вас есть вопросы относительно подписки или наших политик, пожалуйста, свяжитесь с нами.`
+          content: `Мы хотим, чтобы вы были довольны Сервисами SkilyApp; однако мы не предоставляем возврат средств после активации платной подписки. Если у вас есть вопросы относительно подписки или наших политик, пожалуйста, свяжитесь с нами по адресу support@skilyapp.com.`
         },
         {
           title: "12. Цены и повышение цен",
@@ -109,12 +109,12 @@ export default function Terms() {
 Если два или более положений настоящего Соглашения или любого другого соглашения, которое у вас может быть с SkilyApp, считаются противоречащими друг другу, SkilyApp имеет исключительное право выбрать, какое положение остается в силе.`
         },
         {
-          title: "14. Неотказ от прав",
-          content: `Мы оставляем за собой все права, предоставленные нам в соответствии с настоящим Соглашением, а также в соответствии с положениями любого применимого законодательства. Наше неприменение какого-либо конкретного положения или положений настоящего Соглашения или любого применимого законодательства не должно толковаться как наш отказ от права применять это же положение в тех же или иных обстоятельствах в любое время в будущем.`
+          title: "14. Сохранение прав",
+          content: `Мы сохраняем за собой все права, предоставленные нам в соответствии с настоящим Соглашением, а также в соответствии с положениями любого применимого законодательства. Тот факт, что мы не применяем какое-либо положение настоящего Соглашения в конкретной ситуации, не означает, что мы отказываемся от права применить это положение в будущем при аналогичных или иных обстоятельствах.`
         },
         {
-          title: "15. Передача прав и выживание",
-          content: `Вы не можете передавать свои права и/или обязательства по настоящему Соглашению какой-либо другой стороне без нашего предварительного письменного согласия. Мы можем передать наши права и/или обязательства по настоящему Соглашению любой другой стороне по нашему усмотрению. Все части настоящего Соглашения, которые разумно считаются сохраняющими силу после прекращения действия, сохраняют силу и остаются в полной силе после прекращения действия.`
+          title: "15. Передача прав и сохранение силы положений",
+          content: `Вы не можете передавать свои права и/или обязательства по настоящему Соглашению какой-либо другой стороне без нашего предварительного письменного согласия. Мы можем передать наши права и/или обязательства по настоящему Соглашению любой другой стороне по нашему усмотрению. Все части настоящего Соглашения, которые по своей природе должны сохранять силу после прекращения действия договора, продолжают действовать и остаются в полной силе.`
         },
         {
           title: "16. Изменения",
@@ -137,22 +137,22 @@ export default function Terms() {
 AL HACER CLIC EN "ACEPTO", AL SUSCRIBIRSE A LA PLATAFORMA Y AL ACCEDER O USAR LA PLATAFORMA, USTED ACEPTA QUEDAR VINCULADO POR ESTE ACUERDO Y LA POLÍTICA DE PRIVACIDAD. PODEMOS MODIFICAR ESTE ACUERDO O LA POLÍTICA DE PRIVACIDAD Y PODEMOS NOTIFICARLE CUANDO LO HAGAMOS. SI NO ESTÁ DE ACUERDO CON ESTE ACUERDO O LA POLÍTICA DE PRIVACIDAD, DEJE DE USAR NUESTRA PLATAFORMA INMEDIATAMENTE.`
         },
         {
-          title: "2. Naturaleza del servicio",
-          content: `SkilyApp es una plataforma Software-as-a-Service (SaaS) y una aplicación de aprendizaje gamificada que ayuda a los usuarios a aprender principios de seguridad vial a través de juegos interactivos y tecnología propia.
+          title: "2. Descripción del servicio",
+          content: `SkilyApp es una plataforma Software-as-a-Service (SaaS) y una aplicación de aprendizaje gamificada que ayuda a los usuarios a aprender principios de seguridad vial a través de experiencias interactivas y tecnología propia.
 
-QUÉ ES SkilyApp:
-• Una aplicación de software con juegos propios (RaceGame, GuessTheSign, Match & Learn, sistema de duelos)
-• Un compañero de IA Skily que utiliza nuestros propios algoritmos de aprendizaje automático
+QUÉ SOMOS:
+• Una aplicación de software con módulos interactivos propios (RaceGame, GuessTheSign, Match & Learn, sistema de duelos)
+• Un asistente de IA Skily basado en nuestros propios algoritmos de aprendizaje automático
 • Una plataforma de gamificación con temporadas, desafíos y economía virtual
-• Una experiencia de juego móvil con fines educativos
+• Una aplicación móvil con contenido educativo
 
-QUÉ NO ES SkilyApp:
-• NO somos un servicio de preparación de exámenes que vende acceso a exámenes
-• NO proporcionamos certificaciones o credenciales oficiales
-• NO vendemos cursos creados por terceros
-• NO ofrecemos servicios de reserva o realización de exámenes
+QUÉ NO SOMOS:
+• NO vendemos acceso a exámenes ni certificados
+• NO proporcionamos credenciales oficiales ni acreditaciones
+• NO revendemos cursos de terceros
+• NO ofrecemos servicios de reserva ni realización de exámenes
 
-QUÉ COMPRA USTED:
+QUÉ COMPRA:
 • Suscripción de software (Premium) - acceso a nuestra tecnología propia
 • Moneda virtual (Monedas) - para elementos cosméticos en la aplicación y funciones de juego
 • Duel Pass - pase de batalla de temporada con recompensas premium
@@ -232,8 +232,8 @@ Si dos o más disposiciones de este Acuerdo o cualquier otro acuerdo que pueda t
           content: `Nos reservamos todos los derechos permitidos bajo este Acuerdo, así como bajo las disposiciones de cualquier ley aplicable. Nuestra falta de aplicación de cualquier disposición o disposiciones particulares de este Acuerdo o cualquier ley aplicable no debe interpretarse como nuestra renuncia al derecho de hacer cumplir esa misma disposición bajo las mismas o diferentes circunstancias en cualquier momento en el futuro.`
         },
         {
-          title: "15. Asignación y supervivencia",
-          content: `No puede asignar sus derechos y/o obligaciones bajo este Acuerdo a ninguna otra parte sin nuestro consentimiento previo por escrito. Podemos asignar nuestros derechos y/o obligaciones bajo este Acuerdo a cualquier otra parte a nuestra discreción. Todas las partes de este Acuerdo que razonablemente se cree que sobreviven a la terminación sobrevivirán y permanecerán en pleno vigor tras la terminación.`
+          title: "15. Cesión y vigencia continuada",
+          content: `No puede asignar sus derechos y/o obligaciones bajo este Acuerdo a ninguna otra parte sin nuestro consentimiento previo por escrito. Podemos asignar nuestros derechos y/o obligaciones bajo este Acuerdo a cualquier otra parte a nuestra discreción. Todas las disposiciones de este Acuerdo que por su naturaleza deban permanecer vigentes tras la terminación, continuarán en pleno vigor.`
         },
         {
           title: "16. Enmiendas",
