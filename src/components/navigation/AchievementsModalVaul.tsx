@@ -74,33 +74,33 @@ export function AchievementsModalVaul({
   }
 
   // Desktop - Framer Motion Modal
+  if (!open) return null;
+  
   return (
     <AnimatePresence mode="wait">
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={onClose}
+        />
 
-          {/* Modal Content */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 8 }}
-            transition={{ type: "spring", damping: 30, stiffness: 400, duration: 0.25 }}
-            className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-background rounded-[24px] border border-border/50 shadow-2xl overflow-hidden flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {modalContent}
-          </motion.div>
-        </div>
-      )}
+        {/* Modal Content */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 8 }}
+          transition={{ type: "spring", damping: 30, stiffness: 400, duration: 0.25 }}
+          className="relative z-10 w-full max-w-2xl h-auto max-h-[85vh] bg-background rounded-[24px] border border-border/50 shadow-2xl overflow-hidden flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {modalContent}
+        </motion.div>
+      </div>
     </AnimatePresence>
   );
 }
