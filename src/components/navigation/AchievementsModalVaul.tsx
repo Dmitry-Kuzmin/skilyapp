@@ -26,7 +26,7 @@ export function AchievementsModalVaul({
 
   // Общий контент для desktop и mobile
   const modalContent = (
-    <div className="flex flex-col h-full">
+    <>
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-border/40 shrink-0 sm:px-6 sm:pt-6 sm:pb-4">
         <h2 className="text-lg font-semibold sm:text-xl">{title}</h2>
@@ -38,10 +38,10 @@ export function AchievementsModalVaul({
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 scrollbar-none overscroll-contain">
+      <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-6 sm:py-4 scrollbar-none overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
         <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} />
       </div>
-    </div>
+    </>
   );
 
   // Mobile - Vaul Drawer
@@ -63,8 +63,8 @@ export function AchievementsModalVaul({
             {/* Drawer Handle */}
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
             
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto overscroll-contain">
+            {/* Content Wrapper */}
+            <div className="flex-1 flex flex-col overflow-hidden">
               {modalContent}
             </div>
           </Drawer.Content>
@@ -94,7 +94,7 @@ export function AchievementsModalVaul({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ type: "spring", damping: 30, stiffness: 400, duration: 0.25 }}
-            className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-background rounded-[24px] border border-border/50 shadow-2xl overflow-hidden"
+            className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-background rounded-[24px] border border-border/50 shadow-2xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {modalContent}
