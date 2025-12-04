@@ -719,15 +719,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
           <Drawer.Content
             className="bg-zinc-950 flex flex-col rounded-t-[32px] border-t border-white/10 shadow-2xl z-50 focus:outline-none fixed bottom-0 left-0 right-0 max-h-[85vh]"
           >
-          {/* Drawer Handle для мобилок - нативный iOS стиль */}
-          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 sm:hidden" aria-hidden="true" />
-          
-          <div className="overflow-y-auto flex-1 overscroll-contain">
-            {modalContent}
-          </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+            {/* Drawer Handle для мобилок - нативный iOS стиль */}
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4" aria-hidden="true" />
+            
+            <div className="overflow-y-auto flex-1 overscroll-contain">
+              {modalContent}
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
     );
   }
 
