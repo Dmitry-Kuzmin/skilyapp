@@ -442,7 +442,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         <Drawer.Content
           className="
             bg-zinc-950 flex flex-col rounded-t-[32px] sm:rounded-[32px]
-            h-[96%] sm:h-auto sm:max-h-[90vh]
+            h-[96%] sm:h-auto
+            max-h-[96vh] sm:max-h-[90vh]
             fixed bottom-0 left-0 right-0
             sm:inset-0 sm:m-auto
             sm:w-[420px] sm:max-w-[95vw]
@@ -468,7 +469,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
             />
 
             {/* Content */}
-            <div className="relative z-10 p-6 sm:p-8 flex flex-col min-h-[460px]">
+            <div className="relative z-10 p-6 sm:p-8 flex flex-col">
           
           {/* --- HEADER SECTION --- */}
           <div className="flex flex-col items-center mb-6 min-h-[140px] justify-end">
