@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScanFace, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
+import { Drawer } from 'vaul';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUserContext } from '@/contexts/UserContext';
@@ -426,53 +427,40 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     return "Войти с устройством";
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
-      
-      {/* Backdrop */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+    <Drawer.Root open={open} onOpenChange={onClose} shouldScaleBackground>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
+        <Drawer.Content
+          className="
+            bg-zinc-950 flex flex-col rounded-t-[32px] sm:rounded-[32px]
+            h-[96%] sm:h-auto sm:max-h-[90vh]
+            mt-24 fixed bottom-0 left-0 right-0
+            sm:left-[50%] sm:right-auto sm:bottom-auto sm:top-[50%]
+            sm:translate-x-[-50%] sm:translate-y-[-50%]
+            sm:w-[420px] sm:max-w-[95vw]
+            border-t sm:border border-white/10 
+            shadow-2xl z-50
+          "
+        >
+          {/* Drawer Handle для мобилок */}
+          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 sm:hidden" />
+          
+          <div className="overflow-y-auto flex-1 overscroll-contain">
+            {/* Ambient Glow */}
+            <motion.div 
+              animate={{ 
+                background: emailError 
+                  ? 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15), transparent 70%)' 
+                  : step !== 'email'
+                    ? 'radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.15), transparent 70%)'
+                    : 'radial-gradient(circle at 50% 100%, rgba(37, 99, 235, 0.1), transparent 70%)'
+              }}
+              className="absolute inset-0 pointer-events-none transition-colors duration-1000"
+            />
 
-      {/* Main Container */}
-      <motion.div 
-        initial={{ y: "100%", opacity: 0, scale: 0.95 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: "100%", opacity: 0, scale: 0.95 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="
-          relative w-full sm:w-[420px] 
-          bg-zinc-950 
-          sm:rounded-[32px] rounded-t-[32px] 
-          border-t sm:border border-white/10 
-          shadow-2xl overflow-hidden
-        "
-      >
-        {/* Ambient Glow */}
-        <motion.div 
-          animate={{ 
-            background: emailError 
-              ? 'radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.15), transparent 70%)' 
-              : step !== 'email'
-                ? 'radial-gradient(circle at 50% 20%, rgba(59, 130, 246, 0.15), transparent 70%)'
-                : 'radial-gradient(circle at 50% 100%, rgba(37, 99, 235, 0.1), transparent 70%)'
-          }}
-          className="absolute inset-0 pointer-events-none transition-colors duration-1000"
-        />
-
-        {/* Mobile Pull Handle */}
-        <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-12 h-1.5 bg-zinc-800/50 rounded-full" />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 p-6 sm:p-8 flex flex-col min-h-[460px]">
+            {/* Content */}
+            <div className="relative z-10 p-6 sm:p-8 flex flex-col min-h-[460px]">
           
           {/* --- HEADER SECTION --- */}
           <div className="flex flex-col items-center mb-6 min-h-[140px] justify-end">
@@ -725,9 +713,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
              </p>
           </div>
 
-        </div>
-      </motion.div>
-    </div>
+            </div>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
 
