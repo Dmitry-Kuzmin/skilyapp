@@ -163,18 +163,18 @@ export function AuthModalNew({ open, onClose, isPasskeyAvailable = false }: Auth
       const exists = await checkEmailExists(email);
       
       if (exists) {
-        // Пытаемся получить данные профиля пользователя
+        // Пытаемся получить данные профиля пользователя через RPC
         try {
-          const { data: profiles, error } = await supabase
-            .from('profiles')
-            .select('avatar_url, display_name, first_name')
-            .or(`email.eq.${email},telegram_username.ilike.${email.split('@')[0]}`)
-            .limit(1);
+          const { data: profileData, error } = await supabase
+            .rpc('get_user_profile_by_email', { p_email: email });
 
-          if (!error && profiles && profiles.length > 0) {
-            const profile = profiles[0];
+          if (!error && profileData && profileData.length > 0) {
+            const profile = profileData[0];
             setUserAvatar(profile.avatar_url || null);
             setUserName(profile.display_name || profile.first_name || email.split('@')[0]);
+            console.log('[AuthModalNew] Loaded user profile:', profile);
+          } else {
+            console.log('[AuthModalNew] No profile data found or error:', error);
           }
         } catch (profileError) {
           console.log('[AuthModalNew] Could not fetch profile:', profileError);
