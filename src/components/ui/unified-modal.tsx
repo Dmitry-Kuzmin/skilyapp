@@ -286,12 +286,19 @@ export function UnifiedModal({
             {/* Scrollable Content */}
             <div
               data-scrollable
+              data-vaul-no-drag
               className={cn(
                 "flex-1 overflow-y-auto px-4 py-3 scrollbar-none sm:px-6 sm:py-4 overscroll-contain",
                 // Минимальная высота чтобы контент был видим
                 "min-h-[200px]",
+                // Важно: touch-action для правильной работы скролла
+                "touch-action-pan-y",
                 contentClassName
               )}
+              style={{
+                // Принудительный скролл (важно для Vaul)
+                WebkitOverflowScrolling: 'touch',
+              }}
             >
               {renderContent}
             </div>
