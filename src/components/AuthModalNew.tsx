@@ -427,28 +427,27 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     return "Войти с устройством";
   };
 
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   return (
     <Drawer.Root 
       open={open} 
       onOpenChange={onClose}
-      shouldScaleBackground
+      shouldScaleBackground={isMobile}
       dismissible={true}
       modal={true}
       fadeFromIndex={0}
+      direction={isMobile ? "bottom" : undefined}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
         <Drawer.Content
-          className="
-            bg-zinc-950 flex flex-col rounded-t-[32px] sm:rounded-[32px]
-            max-h-[85vh]
-            fixed bottom-0 left-0 right-0
-            sm:inset-0 sm:m-auto
-            sm:w-[420px] sm:max-w-[95vw]
-            border-t sm:border border-white/10 
-            shadow-2xl z-50
-            focus:outline-none
-          "
+          className={cn(
+            "bg-zinc-950 flex flex-col border-white/10 shadow-2xl z-50 focus:outline-none",
+            isMobile 
+              ? "rounded-t-[32px] border-t fixed bottom-0 left-0 right-0 max-h-[85vh]"
+              : "rounded-[32px] border fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] w-[420px] max-w-[95vw] max-h-[90vh]"
+          )}
         >
           {/* Drawer Handle для мобилок - нативный iOS стиль */}
           <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-800 mt-4 sm:hidden" aria-hidden="true" />
