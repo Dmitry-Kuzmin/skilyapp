@@ -4,8 +4,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { UnifiedModal } from "@/components/ui/unified-modal";
-import { AchievementsModalContent } from "./AchievementsModalContent";
+import { AchievementsModalVaul } from "./AchievementsModalVaul";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProfileData } from "@/hooks/useProfileData";
 
@@ -61,34 +60,24 @@ export const AchievementsWidget = ({ className, variant = "desktop" }: Achieveme
 
   return (
     <>
-        <button
-          type="button"
-          className={cn(triggerButtonClass, "text-left")}
-          aria-label={t("profileMenu.achievements")}
+      <button
+        type="button"
+        className={cn(triggerButtonClass, "text-left")}
+        aria-label={t("profileMenu.achievements")}
         onClick={() => setOpen(true)}
-        >
-          {trigger}
-        </button>
-      <UnifiedModal
-        open={open}
-        onOpenChange={setOpen}
-        title={t("profileMenu.achievements")}
-        className={cn(
-          "max-h-[85vh] p-0 flex flex-col",
-          isMobileViewport ? "w-screen max-w-none rounded-t-[28px]" : "w-[95vw] max-w-2xl rounded-2xl"
-        )}
-        showTitleBar={false}
       >
-        <div className="px-3 pt-3 pb-1.5 border-b border-border/40 sm:px-6 sm:pt-6 sm:pb-2">
-          <h2 className="text-base font-semibold sm:text-xl">{t("profileMenu.achievements")}</h2>
-          <p className="text-[11px] text-muted-foreground sm:text-sm">
-            {t("profileMenu.achievementsDesc") || "Отслеживайте прогресс и открывайте награды"}
-          </p>
-        </div>
-        <div className="flex-1 overflow-y-auto px-3 py-2 sm:px-6 sm:py-4 scrollbar-none">
-          <AchievementsModalContent xp={xp} level={level} xpToNextLevel={xpToNextLevel} />
-        </div>
-      </UnifiedModal>
+        {trigger}
+      </button>
+      
+      <AchievementsModalVaul
+        open={open}
+        onClose={() => setOpen(false)}
+        xp={xp}
+        level={level}
+        xpToNextLevel={xpToNextLevel}
+        title={t("profileMenu.achievements")}
+        description={t("profileMenu.achievementsDesc") || "Отслеживайте прогресс и открывайте награды"}
+      />
     </>
   );
 };
