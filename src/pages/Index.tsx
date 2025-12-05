@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,9 +14,10 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import Layout from "@/components/Layout";
 import { PageLoader } from "@/components/PageLoader";
 
-// ОПТИМИЗАЦИЯ: Lazy load Dashboard компонента (тяжёлый компонент с framer-motion)
-// Это уменьшает initial bundle size на ~150-200KB
-const Dashboard = lazy(() => import("@/components/dashboard-new/Dashboard").then(m => ({ default: m.Dashboard })));
+// КРИТИЧНО: Dashboard НЕ lazy load, так как содержит LCP элемент (hero section)
+// Lazy loading Dashboard ухудшает LCP, так как hero section появляется поздно
+// Вместо этого оптимизируем сам Dashboard компонент (framer-motion уже lazy внутри)
+import { Dashboard } from "@/components/dashboard-new/Dashboard";
 
 // Внутренний компонент для авторизованных пользователей
 // Это позволяет вызывать все хуки в правильном порядке
@@ -443,30 +444,28 @@ const DashboardContent = () => {
   } else if (dashboardData) {
     pageContent = (
     <>
-        <Suspense fallback={<DashboardSkeleton />}>
-          <Dashboard
-            stats={{
-              averageScore: averageScore || dashboardData.stats.accuracy,
-              currentStreak: dashboardData.daily_bonus.current_streak || 0,
-              testsCompleted: dashboardData.stats.tests_completed || 0,
-              accuracy: accuracy,
-              coins: balance || dashboardData.profile.coins || 0,
-              xp: dashboardData.profile.xp || 0,
-              level: Math.floor((dashboardData.profile.xp || 0) / 5000) + 1 || 1,
-            }}
-            onStartQuiz={handleStartTest}
-            onClaimReward={handleClaimBonus}
-            hasClaimedToday={hasClaimedToday}
-            onGetPremium={() => setPaywallOpen(true)}
-            profileId={profileId}
-            readinessStatus={readiness ? {
-              status: readiness.status,
-              statusText: readiness.statusText,
-              shortText: readiness.shortText,
-              description: readiness.description,
-            } : undefined}
-          />
-        </Suspense>
+        <Dashboard
+          stats={{
+            averageScore: averageScore || dashboardData.stats.accuracy,
+            currentStreak: dashboardData.daily_bonus.current_streak || 0,
+            testsCompleted: dashboardData.stats.tests_completed || 0,
+            accuracy: accuracy,
+            coins: balance || dashboardData.profile.coins || 0,
+            xp: dashboardData.profile.xp || 0,
+            level: Math.floor((dashboardData.profile.xp || 0) / 5000) + 1 || 1,
+          }}
+          onStartQuiz={handleStartTest}
+          onClaimReward={handleClaimBonus}
+          hasClaimedToday={hasClaimedToday}
+          onGetPremium={() => setPaywallOpen(true)}
+          profileId={profileId}
+          readinessStatus={readiness ? {
+            status: readiness.status,
+            statusText: readiness.statusText,
+            shortText: readiness.shortText,
+            description: readiness.description,
+          } : undefined}
+        />
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
       </>
     );
