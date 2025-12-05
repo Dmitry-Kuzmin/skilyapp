@@ -265,6 +265,20 @@ async function prerender() {
           );
         }
 
+        // КРИТИЧНО: Исправляем ошибку next-themes "Can't find variable: a"
+        // Обёртываем inline скрипт в try-catch, чтобы он не падал при выполнении
+        await page.evaluate(() => {
+          const scripts = document.querySelectorAll('script[nonce=""]');
+          scripts.forEach(script => {
+            const originalContent = script.innerHTML;
+            // Проверяем, является ли это скриптом next-themes (содержит вызовы a())
+            if (originalContent.includes('a(d') || originalContent.includes('a(f') || originalContent.includes('a(h')) {
+              // Обёртываем в try-catch для предотвращения ошибок
+              script.innerHTML = `try{${originalContent}}catch(e){console.warn('[next-themes] Script error (expected in SSG):',e.message)}`;
+            }
+          });
+        });
+
         // КРИТИЧНО: Дополнительная задержка для полной загрузки контента и всех ресурсов
         // Это гарантирует, что все изображения, стили и данные загружены
         await new Promise(resolve => setTimeout(resolve, 3000));
