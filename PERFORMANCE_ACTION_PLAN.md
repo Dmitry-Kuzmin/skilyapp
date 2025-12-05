@@ -45,9 +45,22 @@ curl https://skilyapp.com/ | grep -A 20 "app-skeleton"
 - Сравнить метрики
 
 **Если skeleton в prod, но FCP всё равно 6.4s**:
-- Проверить CSS - может быть скрыт через `display:none`
-- Проверить что skeleton виден ДО загрузки JS
-- Проверить Network waterfall
+
+⚠️ **Критично проверить Render-Blocking CSS:**
+
+Если в PageSpeed Filmstrip первые кадры **белые**, а не серые (skeleton), проблема может быть в:
+
+1. **CSS skeleton во внешнем файле** (render-blocking)
+   - ❌ Плохо: `<link rel="stylesheet" href="skeleton.css">`
+   - ✅ Хорошо: CSS inline в `<style>` теге (у нас так и есть)
+
+2. **Skeleton скрыт стилями**
+   - Проверить что нет `display:none` или `opacity:0` на `.app-skeleton`
+   - Проверить что skeleton виден ДО загрузки JS
+
+3. **Network waterfall**
+   - Проверить что HTML загружается быстро (TTFB)
+   - Проверить что нет блокирующих CSS файлов до skeleton
 
 ### 2. Network Waterfall анализ
 **Цель**: Найти что реально блокирует FCP
@@ -63,12 +76,25 @@ curl https://skilyapp.com/ | grep -A 20 "app-skeleton"
    - Какие запросы самые медленные?
 ```
 
+**Как читать waterfall (подсказки от Димы)**:
+
+- **Синяя полоска (HTML)**: Если длинная → сервер долго думает (TTFB проблема)
+- **Зелёные полоски (JS/CSS)**: Если начинаются после HTML, но до FCP → это проблема
+- **Размер**: Если `index-*.js` размером 800KB+ → это "убийца" FCP на мобильном интернете
+
 **Что искать**:
-- HTML загружается быстро? (TTFB)
-- CSS блокирует? (render-blocking)
-- JS chunks грузятся последовательно?
-- Изображения блокируют?
-- API запросы до FCP? (не должны быть)
+- HTML загружается быстро? (TTFB < 200ms)
+- CSS блокирует? (render-blocking - должно быть inline для skeleton)
+- JS chunks грузятся последовательно? (должны параллельно через HTTP/2)
+- Изображения блокируют? (не должны быть до FCP)
+- API запросы до FCP? (не должны быть - FCP не ждёт API)
+- Долгий TLS handshake? (проверить preconnect)
+- Редиректы? (увеличивают время загрузки)
+
+**Дополнительно в PageSpeed**:
+- Секция **"Opportunities"** - показывает render-blocking ресурсы
+- Секция **"Diagnostics"** - показывает "Reduce unused JavaScript/CSS"
+- **LCP Element** - какой элемент признан LCP (hero-картинка, блок текста, карточка)
 
 ### 3. Bundle Analysis
 **Цель**: Понять размер и состав bundle
@@ -120,10 +146,21 @@ npm run build:analyze
 - Оптимизация последовательной загрузки
 
 #### Если проблема в Bundle:
-- Code splitting (уже есть, но проверить)
-- Lazy loading тяжёлых компонентов
+- ✅ **Code splitting** - улучшенный конфиг уже в `vite.config.ts`:
+  - `react-vendor` (React, ReactDOM, React Router)
+  - `ui-vendor` (framer-motion, @mui)
+  - `charts` (recharts - только для админки)
+  - `data-vendor` (Supabase, React Query)
+  - `vendor` (остальное)
+  
+  **Что это даёт:**
+  - Браузер качает chunks **параллельно** (HTTP/2)
+  - Основной `index.js` становится крошечным
+  - Запускается быстрее
+  
+- Lazy loading тяжёлых компонентов (уже есть)
 - Удаление неиспользуемых зависимостей
-- Разделение vendor на части
+- Проверить Coverage в DevTools (unused JS)
 
 #### Если проблема в API (LCP):
 - React Query prefetchQuery (не `<link rel="prefetch">`)

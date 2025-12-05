@@ -370,16 +370,35 @@ export default defineConfig(({ mode }) => {
           objectShorthand: true,
         },
         manualChunks: (id) => {
-          // МАКСИМАЛЬНО УПРОЩЕННАЯ СТРАТЕГИЯ для исправления ошибки unstable_scheduleCallback
+          // ОПТИМИЗАЦИЯ: Агрессивное разделение bundle для параллельной загрузки
+          // Это ускоряет FCP на медленных сетях (4G Slow)
+          
+          // Выделяем React и ядро в отдельный чанк (он меняется редко)
+          if (id.includes('node_modules/react') || 
+              id.includes('node_modules/react-dom') || 
+              id.includes('node_modules/react-router-dom')) {
+            return 'react-vendor';
+          }
+          
+          // Выделяем тяжелые библиотеки UI
+          if (id.includes('node_modules/@mui') || 
+              id.includes('node_modules/framer-motion')) {
+            return 'ui-vendor';
+          }
+          
+          // Выделяем графики (Recharts очень тяжелый!)
+          if (id.includes('node_modules/recharts')) {
+            return 'charts';
+          }
+          
+          // Выделяем Supabase и работу с данными
+          if (id.includes('node_modules/@supabase') || 
+              id.includes('node_modules/@tanstack')) {
+            return 'data-vendor';
+          }
+          
+          // Всё остальное из node_modules
           if (id.includes('node_modules')) {
-            // ОПТИМИЗАЦИЯ: Тяжелые библиотеки в отдельные chunks для lazy loading
-            if (id.includes('recharts')) {
-              return 'recharts-vendor'; // ~200KB - загружается только в админке
-            }
-            
-            // КРИТИЧНО: ВСЕ node_modules в ОДИН vendor chunk
-            // Это гарантирует, что React и ReactDOM всегда вместе
-            // и загружаются в правильном порядке
             return 'vendor';
           }
         },
