@@ -14,10 +14,29 @@ import { registerSW } from 'virtual:pwa-register';
 import { initPWAVersionCheck } from "./utils/pwaVersionCheck";
 
 // ОПТИМИЗАЦИЯ: Инициализируем Rollbar ПОСЛЕ первого рендера (не блокируем FCP)
+// ВАЖНО: Ранние ошибки (до загрузки Rollbar) логируются в консоль
+// но могут не попасть в Rollbar - это осознанный trade-off для скорости FCP
+const earlyErrors: Array<{error: any, context: any}> = [];
+
+// Временный хук для ранних ошибок (до загрузки Rollbar)
+const captureEarlyError = (error: any, context: any) => {
+  console.error('[Early Error]', error, context);
+  earlyErrors.push({ error, context });
+};
+
 setTimeout(() => {
-  import('./lib/rollbar').then(({ initRollbar }) => {
+  import('./lib/rollbar').then(({ initRollbar, reportError }) => {
     initRollbar();
     console.log('[Main] Rollbar initialized (deferred)');
+    
+    // Отправляем накопленные ранние ошибки
+    if (earlyErrors.length > 0) {
+      console.log(`[Main] Reporting ${earlyErrors.length} early errors to Rollbar`);
+      earlyErrors.forEach(({ error, context }) => {
+        reportError(error, { ...context, earlyError: true });
+      });
+      earlyErrors.length = 0; // Очищаем массив
+    }
   }).catch(err => {
     console.warn('[Main] Failed to init Rollbar:', err);
   });
@@ -161,7 +180,7 @@ if (performanceMonitor && typeof window !== 'undefined') {
   });
 }
 
-// ОПТИМИЗАЦИЯ: Обработка ошибок настраивается после загрузки Rollbar
+// ОПТИМИЗАЦИЯ: Обработка ошибок с отправкой в Rollbar после его загрузки
 window.addEventListener('error', (event) => {
   const errorData = {
     message: event.message,
@@ -175,25 +194,20 @@ window.addEventListener('error', (event) => {
   
   console.error('[Global Error]', errorData);
   
-  // Отправляем в Rollbar асинхронно (когда он загрузится)
+  const errorContext = {
+    type: 'uncaught_error',
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+  };
+  
+  // Пытаемся отправить в Rollbar асинхронно
   import('./lib/rollbar').then(({ reportError }) => {
-    if (event.error) {
-      reportError(event.error, {
-        type: 'uncaught_error',
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-      });
-    } else {
-      reportError(event.message, {
-        type: 'uncaught_error',
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-      });
-    }
+    const errorToReport = event.error || event.message;
+    reportError(errorToReport, errorContext);
   }).catch(() => {
-    // Rollbar не загрузился - игнорируем
+    // Rollbar ещё не загрузился - сохраняем для отправки позже
+    captureEarlyError(event.error || event.message, errorContext);
   });
 });
 
@@ -207,18 +221,21 @@ window.addEventListener('unhandledrejection', (event) => {
   
   console.error('[Unhandled Promise Rejection]', errorData);
   
-  // Отправляем в Rollbar асинхронно (когда он загрузится)
+  const error = event.reason instanceof Error 
+    ? event.reason 
+    : new Error(String(event.reason));
+    
+  const errorContext = {
+    type: 'unhandled_promise_rejection',
+    reason: String(event.reason),
+  };
+  
+  // Пытаемся отправить в Rollbar асинхронно
   import('./lib/rollbar').then(({ reportError }) => {
-    const error = event.reason instanceof Error 
-      ? event.reason 
-      : new Error(String(event.reason));
-      
-    reportError(error, {
-      type: 'unhandled_promise_rejection',
-      reason: String(event.reason),
-    });
+    reportError(error, errorContext);
   }).catch(() => {
-    // Rollbar не загрузился - игнорируем
+    // Rollbar ещё не загрузился - сохраняем для отправки позже
+    captureEarlyError(error, errorContext);
   });
 });
 
@@ -251,6 +268,16 @@ try {
   );
   
   console.log('[Main] React app rendered successfully');
+  
+  // КРИТИЧНО: Удаляем skeleton из DOM после монтирования React
+  // Это гарантирует что он не мешает взаимодействию и не перекрывает контент
+  setTimeout(() => {
+    const skeleton = document.querySelector('.app-skeleton');
+    if (skeleton) {
+      skeleton.remove();
+      console.log('[Main] Skeleton removed from DOM');
+    }
+  }, 100); // Небольшая задержка чтобы React успел отрендерить первый кадр
 } catch (error) {
   console.error('[CRITICAL] Failed to render React app:', error);
   rootElement.innerHTML = `
