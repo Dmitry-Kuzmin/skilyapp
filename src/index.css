@@ -390,12 +390,7 @@ All colors MUST be HSL.
     -moz-osx-font-smoothing: grayscale;
     
     /* Оптимизация шрифтов - предотвращает блокировку рендеринга */
-    font-display: swap;
-  }
-  
-  /* Оптимизация загрузки шрифтов для всех @font-face */
-  @font-face {
-    font-display: swap;
+    /* font-display: swap применяется только к @font-face, но мы используем системные шрифты */
   }
   
   /* ОПТИМИЗАЦИЯ: Reduce motion для пользователей с предпочтениями */
