@@ -24,9 +24,12 @@ const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
 const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
-import { PerformanceMonitor } from "@/components/PerformanceMonitor";
-import { GlobalModalManager } from "@/components/GlobalModalManager";
-import { PasskeyOnboardingWrapper } from "@/components/PasskeyOnboardingWrapper";
+
+// ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов для уменьшения initial bundle
+// Эти компоненты не нужны для первого рендера и могут загрузиться позже
+const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").then(m => ({ default: m.PerformanceMonitor })));
+const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
+const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -449,12 +452,13 @@ const App = () => {
                   <DuelPassLeaderboardModal />
                 </Suspense>
                 {/* Глобальный менеджер модалок для Instagram-подобного поведения */}
-                <GlobalModalManager />
-                <PerformanceMonitor />
+                <Suspense fallback={null}>
+                  <GlobalModalManager />
+                  <PerformanceMonitor />
+                  <PasskeyOnboardingWrapper />
+                </Suspense>
                 {/* Debug панель Service Worker (только в dev или с localStorage.debug_sw) */}
                 <ServiceWorkerDebug />
-                {/* Passkey Onboarding (после первого входа) */}
-                <PasskeyOnboardingWrapper />
               </BrowserRouter>
             </CosmeticsPreviewProvider>
         </Suspense>

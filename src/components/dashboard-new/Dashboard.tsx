@@ -184,8 +184,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
               background: heroBackground,
             }}
           >
-            {/* ОПТИМИЗАЦИЯ LCP: Preload критического изображения для hero section */}
-            <link rel="preload" as="image" href="https://grainy-gradients.vercel.app/noise.svg" fetchPriority="high" />
             <div className={`absolute inset-0 ${heroNoiseOpacity} mix-blend-overlay`} style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
             
             {/* Дополнительный градиентный overlay для глубины */}
