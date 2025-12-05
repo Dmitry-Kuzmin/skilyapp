@@ -6,9 +6,12 @@
 **Отчёт 2 (после preload):** https://pagespeed.web.dev/analysis/https-skilyapp-com/fwf4ofu4tw?form_factor=mobile  
 **Дата 2:** 5 декабря 2025, 14:18 GMT+1
 
+**Отчёт 3 (после исправления Dashboard):** https://pagespeed.web.dev/analysis/https-skilyapp-com/7oukovm93b?form_factor=mobile  
+**Дата 3:** 5 декабря 2025, 14:46 GMT+1
+
 ## 📊 Общие метрики
 
-**Performance Score: 65** (было 64, изначально 59) ✅ **Улучшение на 6 пунктов от исходного!**
+**Performance Score: 66** (было 65, изначально 59) ✅ **Улучшение на 7 пунктов от исходного!**
 
 - **Accessibility: 94** ✅
 - **Best Practices: 100** ✅
@@ -40,8 +43,14 @@
 - CLS: **0** ✅ (без изменений)
 - Speed Index: **6.6s** ⚠️ (без изменений)
 
-### После preload оптимизации (текущее):
+### После preload оптимизации:
 - Performance: **65** ✅ (+1 пункт, всего +6 от исходного)
+- TBT: **80ms** ✅ (стабильно отлично)
+- CLS: **0** ✅ (без изменений)
+- Speed Index: **~6.6s** ⚠️ (нужно уточнить точное значение)
+
+### После исправления Dashboard (текущее):
+- Performance: **66** ✅ (+1 пункт, всего +7 от исходного)
 - TBT: **80ms** ✅ (стабильно отлично)
 - CLS: **0** ✅ (без изменений)
 - Speed Index: **~6.6s** ⚠️ (нужно уточнить точное значение)

@@ -1,13 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
-import { PaywallModal } from "@/components/monetization/PaywallModal";
-import { WelcomeOverlay } from "@/components/dashboard-new/WelcomeOverlay";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -18,6 +16,10 @@ import { PageLoader } from "@/components/PageLoader";
 // Lazy loading Dashboard ухудшает LCP, так как hero section появляется поздно
 // Вместо этого оптимизируем сам Dashboard компонент (framer-motion уже lazy внутри)
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
+
+// ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов (не нужны для первого рендера)
+const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
+const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
 
 // Внутренний компонент для авторизованных пользователей
 // Это позволяет вызывать все хуки в правильном порядке
@@ -466,7 +468,9 @@ const DashboardContent = () => {
             description: readiness.description,
           } : undefined}
         />
-        <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+        <Suspense fallback={null}>
+          <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
+        </Suspense>
       </>
     );
   }
