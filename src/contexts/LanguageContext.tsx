@@ -307,8 +307,6 @@ const translations: Record<Language, Record<string, any>> = {
       supportEmail: "support@skilyapp.com",
       copyright: "© 2025 Sdadim. Todos los derechos reservados.",
       rightsReserved: "Todos los derechos reservados",
-      blog: "Blog",
-      help: "Ayuda",
     },
     boostShop: {
       title: "Tienda",
@@ -1177,8 +1175,6 @@ const translations: Record<Language, Record<string, any>> = {
       supportEmail: "support@skilyapp.com",
       copyright: "© 2025 Sdadim. All rights reserved.",
       rightsReserved: "All rights reserved",
-      blog: "Blog",
-      help: "Help",
     },
     boostShop: {
       title: "Shop",
@@ -2029,8 +2025,6 @@ const translations: Record<Language, Record<string, any>> = {
       supportEmail: "support@skilyapp.com",
       copyright: "© 2025 Sdadim. Все права защищены.",
       rightsReserved: "Все права защищены",
-      blog: "Блог",
-      help: "Помощь",
     },
     boostShop: {
       title: "Магазин",
