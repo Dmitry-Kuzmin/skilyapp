@@ -267,58 +267,6 @@ const Admin = () => {
       description: "Legacy таблица 'questions' была удалена из соображений безопасности. Используйте импорт данных для questions_new.",
       variant: "destructive",
     });
-    
-    /* DISABLED - Legacy questions table removed
-    if (!file || terms.length === 0) return;
-
-    setIsUploading(true);
-
-    try {
-      // Clear existing questions
-      const { error: deleteError } = await supabase.from("questions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-
-      if (deleteError) throw deleteError;
-
-      // Insert new questions
-      const formattedQuestions = terms.map((term: any) => {
-        const optionsEs = term["Opciones (ES)"] || term["opciones_es"] || "";
-        const optionsRu = term["Варианты (RU)"] || term["opciones_ru"] || "";
-        
-        return {
-          topic_es: term["Tema (ES)"] || term["tema_es"] || "",
-          topic_ru: term["Тема (RU)"] || term["tema_ru"] || "",
-          question_es: term["Pregunta (ES)"] || term["pregunta_es"] || "",
-          question_ru: term["Вопрос (RU)"] || term["pregunta_ru"] || "",
-          options_es: typeof optionsEs === 'string' ? optionsEs.split(',').map((s: string) => s.trim()) : [],
-          options_ru: typeof optionsRu === 'string' ? optionsRu.split(',').map((s: string) => s.trim()) : [],
-          correct_answer_es: term["Respuesta Correcta (ES)"] || term["respuesta_es"] || "",
-          correct_answer_ru: term["Правильный Ответ (RU)"] || term["respuesta_ru"] || "",
-          explanation_es: term["Explicación (ES)"] || term["explicacion_es"] || null,
-          explanation_ru: term["Пояснение (RU)"] || term["explicacion_ru"] || null,
-        };
-      });
-
-      const { error: insertError } = await supabase.from("questions").insert(formattedQuestions);
-
-      if (insertError) throw insertError;
-
-      toast({
-        title: "Успешно!",
-        description: `Загружено ${terms.length} вопросов`,
-      });
-
-      setFile(null);
-      setTerms([]);
-    } catch (error: any) {
-      toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось загрузить данные",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-    */
   };
 
   const handleClearDatabase = async () => {
