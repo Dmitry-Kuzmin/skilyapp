@@ -70,14 +70,44 @@ async function prerender() {
       console.log('[Prerender] 🔧 Vercel environment detected, installing Chrome...');
       try {
         const cacheDir = '/tmp/.cache/puppeteer';
-        await install({
-          browser: 'chrome',
-          cacheDir: cacheDir,
-        });
-        console.log('[Prerender] ✅ Chrome installed successfully');
+        // Создаем директорию для кэша, если её нет
+        if (!existsSync(cacheDir)) {
+          mkdirSync(cacheDir, { recursive: true });
+        }
+        
+        // Пробуем установить Chrome с явным указанием версии
+        // Если не указать версию, может быть 404 из-за проблем с определением последней версии
+        try {
+          await install({
+            browser: 'chrome',
+            cacheDir: cacheDir,
+            // Не указываем версию - используем latest, но с fallback
+          });
+          console.log('[Prerender] ✅ Chrome installed successfully');
+        } catch (installError) {
+          // Если получили 404, пробуем установить конкретную версию
+          if (installError.message?.includes('404') || installError.message?.includes('status code 404')) {
+            console.warn('[Prerender] ⚠️ Got 404, trying to install specific Chrome version...');
+            try {
+              // Пробуем установить стабильную версию Chrome
+              await install({
+                browser: 'chrome',
+                cacheDir: cacheDir,
+                buildId: '131.0.6778.85', // Стабильная версия Chrome
+              });
+              console.log('[Prerender] ✅ Chrome installed successfully (specific version)');
+            } catch (versionError) {
+              console.warn('[Prerender] ⚠️ Could not install Chrome (specific version):', versionError.message);
+              throw installError; // Пробрасываем оригинальную ошибку
+            }
+          } else {
+            throw installError;
+          }
+        }
       } catch (error) {
         console.warn('[Prerender] ⚠️ Could not install Chrome:', error.message);
         console.warn('[Prerender] ⚠️ Will try to use system Chrome or bundled Chrome');
+        console.warn('[Prerender] ⚠️ SSG will be skipped if Chrome is not found');
       }
     }
     
@@ -230,7 +260,8 @@ async function prerender() {
     // Это позволит деплою пройти, но SSG не будет работать (нужно будет исправить позже)
     if ((process.env.VERCEL || process.env.VERCEL_ENV) && 
         (error.message?.includes('Could not find Chrome') || 
-         error.message?.includes('ChromeLauncher'))) {
+         error.message?.includes('ChromeLauncher') ||
+         error.message?.includes('404'))) {
       console.error('[Prerender] ❌ Chrome not found on Vercel. SSG will not work.');
       console.error('[Prerender] ⚠️ This is a known issue. Consider:');
       console.error('[Prerender]   1. Installing Chrome via @puppeteer/browsers');
