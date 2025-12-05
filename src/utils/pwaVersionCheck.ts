@@ -3,7 +3,45 @@
  * 
  * Решает проблему: старый index.html пытается загрузить новые chunks.
  * Если Service Worker обновлён - автоматически перезагружаем страницу.
+ * 
+ * FIX: Добавлен cooldown для предотвращения бесконечных перезагрузок
  */
+
+// КРИТИЧНО: Cooldown для предотвращения бесконечного цикла перезагрузок
+const RELOAD_COOLDOWN_MS = 30000; // 30 секунд
+const RELOAD_STORAGE_KEY = 'pwa_last_reload';
+
+function canReload(): boolean {
+  try {
+    const lastReloadStr = sessionStorage.getItem(RELOAD_STORAGE_KEY);
+    if (!lastReloadStr) return true;
+    
+    const lastReload = parseInt(lastReloadStr, 10);
+    const now = Date.now();
+    
+    // Если прошло меньше 30 секунд - не перезагружаем
+    if (now - lastReload < RELOAD_COOLDOWN_MS) {
+      console.warn('[PWA Version] ⚠️ Reload blocked by cooldown', {
+        timeSinceLastReload: Math.round((now - lastReload) / 1000) + 's',
+        cooldown: RELOAD_COOLDOWN_MS / 1000 + 's'
+      });
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    // Если sessionStorage недоступен - разрешаем перезагрузку
+    return true;
+  }
+}
+
+function markReload(): void {
+  try {
+    sessionStorage.setItem(RELOAD_STORAGE_KEY, Date.now().toString());
+  } catch (error) {
+    // Игнорируем ошибки sessionStorage
+  }
+}
 
 export function initPWAVersionCheck() {
   if (!('serviceWorker' in navigator)) {
@@ -17,15 +55,21 @@ export function initPWAVersionCheck() {
   }
 
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    console.log('[PWA Version] 🔄 New Service Worker activated - reloading page');
+    console.log('[PWA Version] 🔄 New Service Worker activated');
     
     // КРИТИЧНО: Проверяем что это НЕ первая регистрация
     // (при первой регистрации тоже срабатывает controllerchange)
     const isFirstActivation = !navigator.serviceWorker.controller;
     
     if (!isFirstActivation) {
-      // Новая версия активировалась - перезагружаем
-      window.location.reload();
+      // Проверяем cooldown перед перезагрузкой
+      if (canReload()) {
+        console.log('[PWA Version] 🔄 Reloading page for new version');
+        markReload();
+        window.location.reload();
+      } else {
+        console.warn('[PWA Version] ⏸️ Reload skipped (cooldown active)');
+      }
     }
   });
 
