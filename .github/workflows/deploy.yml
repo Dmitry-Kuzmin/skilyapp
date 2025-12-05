@@ -35,6 +35,8 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prebuilt'
+          vercel-args: '--prebuilt --prod'
           working-directory: ./
+          # КРИТИЧНО: Используем готовый .vercel/output из предыдущих шагов
+          # Build уже выполнен, prerender тоже - просто деплоим
 
