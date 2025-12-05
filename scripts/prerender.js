@@ -65,10 +65,61 @@ async function prerender() {
   try {
     // Запускаем браузер
     console.log('[Prerender] 🌐 Launching browser...');
-    const browser = await puppeteer.launch({
+    
+    // КРИТИЧНО: Для Vercel нужно использовать правильные аргументы и executablePath
+    const launchOptions = {
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--disable-gpu',
+      ],
+    };
+    
+    // На Vercel пробуем найти Chrome в стандартных местах
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      const { execSync } = await import('child_process');
+      try {
+        // Пробуем найти Chrome в стандартных местах Vercel
+        const chromePaths = [
+          '/usr/bin/google-chrome-stable',
+          '/usr/bin/chromium',
+          '/usr/bin/chromium-browser',
+          '/usr/bin/google-chrome',
+        ];
+        
+        for (const chromePath of chromePaths) {
+          try {
+            execSync(`test -f ${chromePath}`, { stdio: 'ignore' });
+            launchOptions.executablePath = chromePath;
+            console.log(`[Prerender] ✅ Using Chrome at: ${chromePath}`);
+            break;
+          } catch {
+            // Продолжаем поиск
+          }
+        }
+        
+        // Если не нашли, пробуем через which
+        if (!launchOptions.executablePath) {
+          try {
+            const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', { encoding: 'utf-8' }).trim();
+            if (chromePath) {
+              launchOptions.executablePath = chromePath;
+              console.log(`[Prerender] ✅ Using Chrome at: ${chromePath}`);
+            }
+          } catch {
+            console.warn('[Prerender] ⚠️ Could not find Chrome via which');
+          }
+        }
+      } catch (error) {
+        console.warn('[Prerender] ⚠️ Could not find system Chrome:', error.message);
+      }
+    }
+    
+    const browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     
