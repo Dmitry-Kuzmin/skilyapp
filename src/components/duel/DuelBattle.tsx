@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Swords, Timer, Zap, Trophy, WifiOff, Wifi, Flame } from 'lucide-react';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface DuelBattleProps {
   duelId: string;
@@ -42,7 +43,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [skipCount, setSkipCount] = useState(0);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const isOnline = useOnlineStatus(); // FIX: Используем правильный хук вместо navigator.onLine
   const prevOpponentScore = useRef(opponentScore);
   const lastOpponentActivityRef = useRef(Date.now());
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
@@ -151,28 +152,29 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   // useDuelRealtime уже обновляет счет через Realtime подписку мгновенно
   // Это избыточно и создает лишнюю нагрузку на БД и сеть
 
+  // FIX: Показываем уведомления об изменении статуса сети
+  // Используем useOnlineStatus хук вместо navigator.onLine
+  const prevOnlineRef = useRef(isOnline);
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      toast.success('Соединение восстановлено', {
-        description: 'Можете продолжать игру',
-        icon: <Wifi className="w-4 h-4" />,
-      });
-    };
+    if (prevOnlineRef.current !== isOnline) {
+      if (isOnline) {
+        toast.success('Соединение восстановлено', {
+          description: 'Можете продолжать игру',
+          icon: <Wifi className="w-4 h-4" />,
+        });
+      } else {
+        toast.error('Потеряно соединение с интернетом', {
+          description: 'Проверьте подключение к сети',
+          icon: <WifiOff className="w-4 h-4" />,
+          duration: Infinity,
+        });
+      }
+      prevOnlineRef.current = isOnline;
+    }
+  }, [isOnline]);
 
-    const handleOffline = () => {
-      setIsOnline(false);
-      toast.error('Потеряно соединение с интернетом', {
-        description: 'Проверьте подключение к сети',
-        icon: <WifiOff className="w-4 h-4" />,
-        duration: Infinity,
-      });
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Check opponent connection
+  // Check opponent connection
+  useEffect(() => {
     const checkOpponentConnection = setInterval(() => {
       const timeSinceLastActivity = Date.now() - lastOpponentActivityRef.current;
       if (timeSinceLastActivity > 45000 && !answered) {
@@ -184,8 +186,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     }, 10000);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
       clearInterval(checkOpponentConnection);
     };
   }, [answered]);

@@ -3,49 +3,37 @@
  * 
  * Показывает sticky banner когда нет интернета.
  * Критично для Telegram Mini App, где связь часто нестабильна.
+ * 
+ * FIX: Использует useOnlineStatus хук для правильной проверки сети
+ * (Safari/WebKit может давать неправильные значения navigator.onLine)
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { WifiOff, Wifi } from 'lucide-react';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 export const OfflineBanner = () => {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
+  const isOnline = useOnlineStatus();
   const [justReconnected, setJustReconnected] = useState(false);
+  const prevOnlineRef = useRef(isOnline);
 
   useEffect(() => {
-    // Логируем начальное состояние
-    console.log('[OfflineBanner] Initial state:', {
-      online: navigator.onLine,
-      userAgent: navigator.userAgent.substring(0, 50),
-    });
-
-    const handleOnline = () => {
-      console.log('[OfflineBanner] 🌐 Connection restored');
-      setIsOnline(true);
+    // Отслеживаем изменение статуса с offline на online
+    if (!prevOnlineRef.current && isOnline) {
+      // Переключились с offline на online
       setJustReconnected(true);
       
       // Убираем индикатор "reconnected" через 3 секунды
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         setJustReconnected(false);
       }, 3000);
-    };
 
-    const handleOffline = () => {
-      console.log('[OfflineBanner] 📵 Connection lost - switching to offline mode');
-      setIsOnline(false);
-      setJustReconnected(false);
-    };
+      prevOnlineRef.current = isOnline;
+      return () => clearTimeout(timeout);
+    }
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+    prevOnlineRef.current = isOnline;
+  }, [isOnline]);
 
   // Показываем "reconnected" banner на 3 секунды
   if (justReconnected) {

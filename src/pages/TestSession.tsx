@@ -31,6 +31,7 @@ import {
 } from "@/hooks/useTestQuestionsByMode";
 import { useOfflineQueue } from "@/hooks/useOfflineQueue";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
+import { useOnlineStatus, checkOnlineStatus } from "@/hooks/useOnlineStatus";
 
 type QuestionData = {
   id: string;
@@ -278,12 +279,8 @@ const TestSession = () => {
   const [masteryRound, setMasteryRound] = useState(1);
   
   // КРИТИЧНО: Состояния для отслеживания онлайн/офлайн и синхронизации
-  const [isOnline, setIsOnline] = useState(() => {
-    if (typeof navigator !== 'undefined') {
-      return navigator.onLine;
-    }
-    return true;
-  });
+  // FIX: Используем useOnlineStatus вместо navigator.onLine (Safari bug)
+  const isOnline = useOnlineStatus();
   const [pendingSync, setPendingSync] = useState(false);
   
   // КРИТИЧНО: Состояния для обработки конфликтов во время активной сессии
@@ -1852,9 +1849,11 @@ useEffect(() => {
   };
   
   // КРИТИЧНО: Отслеживание онлайн/офлайн статуса и синхронизация
+  // FIX: Используем useOnlineStatus хук, события обрабатываются там
+  const prevOnlineRef = useRef(isOnline);
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
+    // Отслеживаем изменение с offline на online
+    if (!prevOnlineRef.current && isOnline) {
       setPendingSync(true);
       
       // Синхронизируем сохраненные ответы при восстановлении связи
@@ -1885,24 +1884,18 @@ useEffect(() => {
           setPendingSync(false);
         });
       }
-    };
+    }
 
-    const handleOffline = () => {
-      setIsOnline(false);
+    // Отслеживаем изменение с online на offline
+    if (prevOnlineRef.current && !isOnline) {
       toast.warning('Потеряно соединение с интернетом', {
         description: 'Ваши ответы сохраняются локально',
         duration: 5000,
       });
-    };
+    }
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, [testInfo, answers, currentIndex, startTime, mode]);
+    prevOnlineRef.current = isOnline;
+  }, [isOnline, testInfo, answers, currentIndex, startTime, mode]);
 
   // Прокрутка вверх при изменении вопроса
   useEffect(() => {
@@ -2061,7 +2054,9 @@ useEffect(() => {
         const sessionId = getOrCreateSessionId();
         
         // OFFLINE-FIRST: Если offline - добавляем в очередь вместо прямой отправки
-        if (!navigator.onLine) {
+        // FIX: Используем checkOnlineStatus() вместо navigator.onLine
+        const realOnline = await checkOnlineStatus();
+        if (!realOnline) {
           console.log("[TestSession] Offline mode detected, queuing test result for later sync");
           
           await enqueueOfflineAction('test-result', {
