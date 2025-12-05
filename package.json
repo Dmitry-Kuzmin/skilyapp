@@ -9,6 +9,7 @@
     "build": "tsc && vite build",
     "build:prerender": "npm run build && npm run prerender",
     "prerender": "node scripts/prerender.js",
+    "deploy:prebuilt": "./scripts/deploy-prebuilt.sh",
     "build:prerender": "npm run build && npm run prerender",
     "build:analyze": "ANALYZE=true tsc && ANALYZE=true vite build",
     "build:dev": "vite build --mode development",

@@ -31,9 +31,10 @@ if [ ! -f "dist/index.html" ] || ! grep -q '<div id="root">' dist/index.html || 
     echo "⚠️  Continuing anyway..."
 fi
 
-# Шаг 4: Деплой на Vercel (prebuilt mode)
-echo "🚀 Step 3: Deploying to Vercel (prebuilt mode)..."
-vercel --prebuilt --prod
+# Шаг 4: Деплой на Vercel (просто задеплоим dist/)
+echo "🚀 Step 3: Deploying to Vercel..."
+echo "💡 Note: Vercel will automatically detect static files from dist/"
+vercel --prod
 
 echo ""
 echo "✅ Deployment complete!"
