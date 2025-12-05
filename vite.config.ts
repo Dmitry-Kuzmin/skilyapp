@@ -324,8 +324,11 @@ export default defineConfig(({ mode }) => {
   },
   build: {
     // КРИТИЧНО: Используем esbuild с более консервативными настройками
+    // ВАЖНО: terser может быть более стабильным для React, но медленнее
     minify: 'esbuild',
     target: 'es2015',
+    // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации для стабильности
+    minifyWhitespace: true,
     // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации
     cssMinify: true,
     // ОПТИМИЗАЦИЯ: Улучшенное tree-shaking и compression
@@ -373,11 +376,16 @@ export default defineConfig(({ mode }) => {
           // ОПТИМИЗАЦИЯ: Агрессивное разделение bundle для параллельной загрузки
           // Это ускоряет FCP на медленных сетях (4G Slow)
           
-          // Выделяем React и ядро в отдельный чанк (он меняется редко)
+          // КРИТИЧНО: React и ReactDOM должны быть вместе в одном chunk
+          // Разделение может вызвать проблемы с внутренними функциями React
           if (id.includes('node_modules/react') || 
-              id.includes('node_modules/react-dom') || 
-              id.includes('node_modules/react-router-dom')) {
+              id.includes('node_modules/react-dom')) {
             return 'react-vendor';
+          }
+          
+          // React Router может быть отдельно (не критично для загрузки React)
+          if (id.includes('node_modules/react-router-dom')) {
+            return 'react-vendor'; // Оставляем вместе с React для совместимости
           }
           
           // КРИТИЧНО: Выделяем @tiptap и prosemirror (используется только в админке, очень тяжелый!)
@@ -450,11 +458,12 @@ export default defineConfig(({ mode }) => {
     legalComments: 'none',
     treeShaking: true,
     // КРИТИЧНО: Более консервативная минификация для предотвращения ошибок
+    // ВАЖНО: keepNames: true может помочь с React внутренними функциями
     minifyIdentifiers: true,
     minifySyntax: true,
     minifyWhitespace: true,
-    // КРИТИЧНО: Не переименовываем имена функций/переменных слишком агрессивно
-    keepNames: false,
+    // КРИТИЧНО: Сохраняем имена для отладки и стабильности React
+    keepNames: true, // Изменено с false на true для стабильности React
   },
   };
 });
