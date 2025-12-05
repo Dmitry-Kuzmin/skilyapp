@@ -65,6 +65,22 @@ async function prerender() {
   });
 
   try {
+    // КРИТИЧНО: На Vercel нужно установить Chrome перед запуском
+    if (process.env.VERCEL || process.env.VERCEL_ENV) {
+      console.log('[Prerender] 🔧 Vercel environment detected, installing Chrome...');
+      try {
+        const cacheDir = '/tmp/.cache/puppeteer';
+        await install({
+          browser: 'chrome',
+          cacheDir: cacheDir,
+        });
+        console.log('[Prerender] ✅ Chrome installed successfully');
+      } catch (error) {
+        console.warn('[Prerender] ⚠️ Could not install Chrome:', error.message);
+        console.warn('[Prerender] ⚠️ Will try to use system Chrome or bundled Chrome');
+      }
+    }
+    
     // Запускаем браузер
     console.log('[Prerender] 🌐 Launching browser...');
     
