@@ -169,6 +169,8 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
             className="w-full h-auto object-cover block"
             loading="lazy"
             decoding="async"
+            loading="lazy"
+            decoding="async"
             fetchPriority="auto"
             onError={() => {
               if (import.meta.env.DEV) {

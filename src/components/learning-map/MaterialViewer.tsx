@@ -247,6 +247,7 @@ export const MaterialViewer = ({
                     className="w-full h-auto object-cover transition-transform group-hover:scale-105"
                     onError={() => handleImageError(index)}
                     loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="aspect-video flex items-center justify-center bg-muted/50">
