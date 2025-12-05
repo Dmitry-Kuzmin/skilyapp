@@ -12,12 +12,17 @@ import { dirname, join } from 'path';
 import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
 
+// КРИТИЧНО: Определяем реальное окружение
+// vercel build локально устанавливает VERCEL=true, но это не реальный Vercel сервер
+// Реальный Vercel сервер имеет VERCEL=1 и нет HOME переменной
+const isRealVercel = process.env.VERCEL === '1' && !process.env.HOME;
+
 // Динамический импорт для Vercel и локальной разработки
 let chromium = null;
 let puppeteer = null;
 
-// На Vercel используем @sparticuz/chromium
-if (process.env.VERCEL || process.env.VERCEL_ENV) {
+// На реальном Vercel используем @sparticuz/chromium
+if (isRealVercel) {
   try {
     chromium = await import('@sparticuz/chromium');
     console.log('[Prerender] ✅ Loaded @sparticuz/chromium for Vercel');
@@ -25,7 +30,7 @@ if (process.env.VERCEL || process.env.VERCEL_ENV) {
     console.warn('[Prerender] ⚠️ Could not load @sparticuz/chromium:', error.message);
   }
 } else {
-  // Локально используем полный puppeteer
+  // Локально (включая vercel build локально) используем полный puppeteer
   try {
     puppeteer = await import('puppeteer');
     console.log('[Prerender] ✅ Loaded puppeteer for local development');

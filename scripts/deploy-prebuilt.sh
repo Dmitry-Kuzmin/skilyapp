@@ -16,25 +16,28 @@ if ! command -v vercel &> /dev/null; then
     exit 1
 fi
 
-# Шаг 1: Сборка приложения
-echo "📦 Step 1: Building application..."
-npm run build
+# Шаг 1: Сборка приложения и prerender
+echo "📦 Step 1: Building application and prerendering..."
+npm run build:prerender
 
-# Шаг 2: Prerender статических страниц
-echo "🎨 Step 2: Prerendering static pages..."
-npm run prerender
+# Шаг 2: Сборка для Vercel (использует готовый dist/)
+echo "📦 Step 2: Building for Vercel (using pre-rendered dist/)..."
+echo "💡 This will create .vercel/output with prerendered HTML"
+vercel build --prod
 
-# Шаг 3: Проверяем, что prerender сработал
-if [ ! -f "dist/index.html" ] || ! grep -q '<div id="root">' dist/index.html || [ $(grep -o '<div id="root">' dist/index.html | wc -l) -eq 1 ] && ! grep -q 'Сдай теорию DGT' dist/index.html; then
-    echo "⚠️  WARNING: Prerender might not have worked correctly"
-    echo "⚠️  dist/index.html might be empty or not contain content"
-    echo "⚠️  Continuing anyway..."
+# Шаг 2: Проверяем, что build сработал
+if [ ! -d ".vercel/output" ]; then
+    echo "❌ ERROR: .vercel/output directory not found"
+    echo "❌ vercel build failed"
+    exit 1
 fi
 
-# Шаг 4: Деплой на Vercel (просто задеплоим dist/)
-echo "🚀 Step 3: Deploying to Vercel..."
-echo "💡 Note: Vercel will automatically detect static files from dist/"
-vercel --prod
+echo "✅ Build complete! .vercel/output created"
+
+# Шаг 3: Деплой готового результата (без билда на Vercel)
+echo "🚀 Step 2: Deploying prebuilt output to Vercel..."
+echo "💡 Vercel will NOT run build, just deploy .vercel/output"
+vercel deploy --prebuilt --prod
 
 echo ""
 echo "✅ Deployment complete!"
