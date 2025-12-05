@@ -14,6 +14,9 @@ export function ThemeProvider({ children, attribute, defaultTheme, enableSystem 
       attribute={attribute} 
       defaultTheme={defaultTheme} 
       enableSystem={enableSystem}
+      // КРИТИЧНО: suppressHydrationWarning предотвращает ошибки при SSG/prerender
+      // next-themes генерирует inline скрипт, который может вызвать ошибки до загрузки React
+      suppressHydrationWarning
     >
       {children}
     </NextThemesProvider>

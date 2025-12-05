@@ -242,14 +242,43 @@ async function prerender() {
           timeout: 30000,
         });
 
-        // Ждём события render-event (отправляется из main.tsx)
-        await page.waitForFunction(
-          () => window.document.querySelector('#root')?.children.length > 0,
-          { timeout: 10000 }
-        );
+        // КРИТИЧНО: Ждём полного рендера React
+        // Вариант 1: Ждём события render-event (отправляется из main.tsx)
+        try {
+          await page.waitForFunction(
+            () => {
+              const root = window.document.querySelector('#root');
+              return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 0;
+            },
+            { timeout: 15000 }
+          );
+          console.log('[Prerender] ✅ React content detected in #root');
+        } catch (error) {
+          console.warn('[Prerender] ⚠️ Timeout waiting for React content, trying alternative check...');
+          // Альтернативная проверка: ждём хотя бы появления любого контента
+          await page.waitForFunction(
+            () => {
+              const root = window.document.querySelector('#root');
+              return root && (root.children.length > 0 || root.innerHTML.trim().length > 0);
+            },
+            { timeout: 10000 }
+          );
+        }
 
-        // Дополнительная задержка для полной загрузки контента
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // КРИТИЧНО: Дополнительная задержка для полной загрузки контента и всех ресурсов
+        // Это гарантирует, что все изображения, стили и данные загружены
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Финальная проверка: убеждаемся, что контент действительно есть
+        const hasContent = await page.evaluate(() => {
+          const root = document.querySelector('#root');
+          return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 50;
+        });
+        
+        if (!hasContent) {
+          console.warn(`[Prerender] ⚠️ Route ${route} might not have content in #root`);
+          console.warn(`[Prerender] ⚠️ This might be a client-only route or an error occurred`);
+        }
 
         // Получаем HTML
         const html = await page.content();
