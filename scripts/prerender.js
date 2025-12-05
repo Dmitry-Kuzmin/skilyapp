@@ -226,8 +226,28 @@ async function prerender() {
     await browser.close();
     console.log('[Prerender] ✅ Prerender complete!');
   } catch (error) {
-    console.error('[Prerender] ❌ Fatal error:', error);
-    process.exit(1);
+    // КРИТИЧНО: На Vercel если Chrome не найден, не падаем полностью
+    // Это позволит деплою пройти, но SSG не будет работать (нужно будет исправить позже)
+    if ((process.env.VERCEL || process.env.VERCEL_ENV) && 
+        (error.message?.includes('Could not find Chrome') || 
+         error.message?.includes('ChromeLauncher'))) {
+      console.error('[Prerender] ❌ Chrome not found on Vercel. SSG will not work.');
+      console.error('[Prerender] ⚠️ This is a known issue. Consider:');
+      console.error('[Prerender]   1. Installing Chrome via @puppeteer/browsers');
+      console.error('[Prerender]   2. Using alternative SSG approach');
+      console.error('[Prerender]   3. Running prerender locally before deploy');
+      // НЕ падаем - позволяем деплою пройти без SSG
+      console.warn('[Prerender] ⚠️ Continuing without prerender...');
+    } else {
+      console.error('[Prerender] ❌ Fatal error:', error);
+      // На локальной машине падаем, чтобы знать о проблеме
+      if (!process.env.VERCEL && !process.env.VERCEL_ENV) {
+        process.exit(1);
+      }
+      // На Vercel тоже падаем, но с более понятным сообщением
+      console.error('[Prerender] ❌ Build will fail. Please fix Chrome installation.');
+      process.exit(1);
+    }
   } finally {
     server.close();
   }
