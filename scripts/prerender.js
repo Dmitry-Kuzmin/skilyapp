@@ -10,6 +10,7 @@ import puppeteer from 'puppeteer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -81,7 +82,7 @@ async function prerender() {
     
     // На Vercel пробуем найти Chrome в стандартных местах
     if (process.env.VERCEL || process.env.VERCEL_ENV) {
-      const { execSync } = await import('child_process');
+      console.log('[Prerender] 🔧 Vercel environment detected, searching for Chrome...');
       try {
         // Пробуем найти Chrome в стандартных местах Vercel
         const chromePaths = [
@@ -89,33 +90,43 @@ async function prerender() {
           '/usr/bin/chromium',
           '/usr/bin/chromium-browser',
           '/usr/bin/google-chrome',
+          '/opt/google/chrome/chrome',
         ];
         
         for (const chromePath of chromePaths) {
           try {
-            execSync(`test -f ${chromePath}`, { stdio: 'ignore' });
-            launchOptions.executablePath = chromePath;
-            console.log(`[Prerender] ✅ Using Chrome at: ${chromePath}`);
-            break;
+            // Проверяем существование файла
+            if (existsSync(chromePath)) {
+              launchOptions.executablePath = chromePath;
+              console.log(`[Prerender] ✅ Found Chrome at: ${chromePath}`);
+              break;
+            }
           } catch {
             // Продолжаем поиск
           }
         }
         
-        // Если не нашли, пробуем через which
+        // Если не нашли через проверку файлов, пробуем через which
         if (!launchOptions.executablePath) {
           try {
-            const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', { encoding: 'utf-8' }).trim();
-            if (chromePath) {
+            const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', { 
+              encoding: 'utf-8',
+              stdio: ['ignore', 'pipe', 'ignore']
+            }).trim();
+            if (chromePath && chromePath.length > 0) {
               launchOptions.executablePath = chromePath;
-              console.log(`[Prerender] ✅ Using Chrome at: ${chromePath}`);
+              console.log(`[Prerender] ✅ Found Chrome via which: ${chromePath}`);
             }
-          } catch {
-            console.warn('[Prerender] ⚠️ Could not find Chrome via which');
+          } catch (error) {
+            console.warn('[Prerender] ⚠️ Could not find Chrome via which:', error.message);
           }
         }
+        
+        if (!launchOptions.executablePath) {
+          console.warn('[Prerender] ⚠️ Chrome not found in standard locations, Puppeteer will try to use bundled Chrome');
+        }
       } catch (error) {
-        console.warn('[Prerender] ⚠️ Could not find system Chrome:', error.message);
+        console.warn('[Prerender] ⚠️ Error searching for Chrome:', error.message);
       }
     }
     
