@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:tunnel": "./scripts/start-dev-with-tunnel.sh",
-    "build": "tsc && vite build && npm run prerender",
+    "build": "tsc && vite build",
+    "build:prerender": "npm run build && npm run prerender",
     "prerender": "node scripts/prerender.js",
     "build:prerender": "npm run build && npm run prerender",
     "build:analyze": "ANALYZE=true tsc && ANALYZE=true vite build",
