@@ -1,117 +1,62 @@
-# Инструкции по применению миграций и перезапуску Edge Function
+# Инструкция по деплою на Vercel
 
-## Шаг 1: Применить миграции в Supabase
+## Проблема с автоматическим деплоем
 
-### Вариант А: Через Supabase Dashboard (рекомендуется)
+Если автоматический деплой через GitHub не работает, можно задеплоить напрямую через Vercel CLI.
 
-1. Откройте **Supabase Dashboard**: https://supabase.com/dashboard
-2. Выберите ваш проект
-3. Перейдите в **SQL Editor** (в левом меню)
-4. Создайте новый запрос
-5. Скопируйте содержимое файла `APPLY_MIGRATIONS_NOW.sql`
-6. Вставьте в SQL Editor
-7. Нажмите **Run** (или `Ctrl+Enter` / `Cmd+Enter`)
-8. Убедитесь, что нет ошибок
+## Вариант 1: Деплой через Vercel CLI (рекомендуется)
 
-### Вариант Б: Проверить текущие миграции
-
-Если нужно проверить, какие миграции уже применены:
-
-```sql
--- Проверить политики для profiles
-SELECT * FROM pg_policies 
-WHERE schemaname = 'public' 
-AND tablename = 'profiles';
-
--- Проверить политики для duel_notifications
-SELECT * FROM pg_policies 
-WHERE schemaname = 'public' 
-AND tablename = 'duel_notifications';
-
--- Проверить, что таблица в Realtime publication
-SELECT * FROM pg_publication_tables 
-WHERE pubname = 'supabase_realtime' 
-AND tablename = 'duel_notifications';
-```
-
-## Шаг 2: Перезапустить Edge Function
-
-### Вариант А: Через Supabase Dashboard (без CLI)
-
-1. В **Supabase Dashboard** перейдите в **Edge Functions** (в левом меню)
-2. Найдите функцию **duel-manager**
-3. Нажмите на три точки (⋮) рядом с функцией
-4. Выберите **Redeploy** или **Deploy**
-5. Или откройте функцию и нажмите кнопку **Deploy**
-
-### Вариант Б: Через CLI (если установлен)
-
+### 1. Установка Vercel CLI (если не установлен)
 ```bash
-# Установить Supabase CLI (если еще не установлен)
-# macOS:
-brew install supabase/tap/supabase
-
-# Или через npm:
-npm install -g supabase
-
-# Авторизоваться
-supabase login
-
-# Привязать проект
-supabase link --project-ref ijijcrucqqnnjbkclqhb
-
-# Задеплоить функцию
-supabase functions deploy duel-manager
+npm i -g vercel
 ```
 
-## Шаг 3: Проверить результат
+### 2. Логин в Vercel
+```bash
+vercel login
+```
 
-### Проверить логи Edge Function:
+### 3. Деплой production
+```bash
+cd /Users/dimka/Desktop/Sdadim/sdadim-dgt-prep
+vercel --prod
+```
 
-1. В **Supabase Dashboard** → **Edge Functions** → **duel-manager**
-2. Перейдите на вкладку **Logs**
-3. Проверьте, что нет ошибок при запуске
+## Вариант 2: Проверка GitHub токена
 
-### Проверить уведомления:
+Если деплой не проходит из-за истекающего токена:
 
-1. Откройте консоль браузера (F12)
-2. Создайте дуэль и присоединитесь к ней
-3. Проверьте логи:
-   - `[Notifications] ✅ Successfully subscribed to notifications`
-   - `[Notifications] ✅ New notification received via Realtime`
+1. Перейдите на https://github.com/settings/tokens/2761735439/regenerate
+2. Сгенерируйте новый токен
+3. Обновите токен в настройках Vercel:
+   - Vercel Dashboard → Settings → Git
+   - Обновите GitHub интеграцию
 
-### Проверить отображение имени соперника:
+## Вариант 3: Проверка vercel.json
 
-1. Создайте дуэль с двумя игроками
-2. Убедитесь, что имя соперника отображается вместо "Соперник"
+Текущий `vercel.json` использует regex паттерн для исключения статических файлов. Если есть проблемы, можно упростить:
 
-## Возможные проблемы:
+```json
+{
+  "rewrites": [
+    {
+      "source": "/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/(.*\\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|json|map|sw\\.js|workbox-.*\\.js))",
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
 
-### Если миграция не применяется:
+## Проверка после деплоя
 
-1. Проверьте, что вы используете правильный проект
-2. Убедитесь, что нет синтаксических ошибок
-3. Проверьте логи в Supabase Dashboard → Logs
-
-### Если функция не деплоится:
-
-1. Проверьте, что файл `supabase/functions/duel-manager/index.ts` существует
-2. Убедитесь, что нет синтаксических ошибок в коде
-3. Проверьте логи деплоя в Supabase Dashboard
-
-### Если уведомления все еще не работают:
-
-1. Проверьте RLS политики:
-   ```sql
-   SELECT * FROM pg_policies WHERE tablename = 'duel_notifications';
-   ```
-
-2. Проверьте Realtime publication:
-   ```sql
-   SELECT * FROM pg_publication_tables 
-   WHERE tablename = 'duel_notifications';
-   ```
-
-3. Проверьте логи в консоли браузера на наличие ошибок
-
-
+1. Откройте https://skilyapp.com/
+2. Проверьте консоль браузера на ошибки
+3. Убедитесь что lazy-loaded модули загружаются правильно
