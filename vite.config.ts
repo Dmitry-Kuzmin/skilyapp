@@ -372,21 +372,26 @@ export default defineConfig(({ mode }) => {
           constBindings: true,
           objectShorthand: true,
         },
+        // КРИТИЧНО: Убеждаемся что React загружается синхронно и правильно
+        // Это предотвращает проблемы с unstable_scheduleCallback
+        preserveModules: false, // Не сохраняем структуру модулей (лучше для React)
         manualChunks: (id) => {
           // ОПТИМИЗАЦИЯ: Агрессивное разделение bundle для параллельной загрузки
           // Это ускоряет FCP на медленных сетях (4G Slow)
           
-          // КРИТИЧНО: React и ReactDOM должны быть вместе в одном chunk
-          // Разделение может вызвать проблемы с внутренними функциями React
-          if (id.includes('node_modules/react') || 
-              id.includes('node_modules/react-dom')) {
-            return 'react-vendor';
-          }
+          // КРИТИЧНО: React и ReactDOM НЕ разделяем на отдельный chunk
+          // Разделение вызывает проблемы с внутренними функциями React
+          // (unstable_scheduleCallback и другие)
+          // React остаётся в основном vendor chunk для стабильности
+          // if (id.includes('node_modules/react') || 
+          //     id.includes('node_modules/react-dom')) {
+          //   return 'react-vendor';
+          // }
           
           // React Router может быть отдельно (не критично для загрузки React)
-          if (id.includes('node_modules/react-router-dom')) {
-            return 'react-vendor'; // Оставляем вместе с React для совместимости
-          }
+          // if (id.includes('node_modules/react-router-dom')) {
+          //   return 'react-vendor';
+          // }
           
           // КРИТИЧНО: Выделяем @tiptap и prosemirror (используется только в админке, очень тяжелый!)
           if (id.includes('node_modules/@tiptap') || 
