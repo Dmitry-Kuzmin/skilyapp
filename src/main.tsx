@@ -35,9 +35,12 @@ if (import.meta.env.PROD) {
     immediate: true, // КРИТИЧНО: Регистрируем SW немедленно
     onNeedRefresh() {
       console.log('[PWA] 🔄 New version available');
-      // FIX: НЕ перезагружаем автоматически, только логируем
-      // Перезагрузка будет через controllerchange в pwaVersionCheck с cooldown
-      // Это предотвращает двойные перезагрузки и бесконечные циклы
+      // ВАЖНО: НЕ вызываем updateSW(true) здесь!
+      // Перезагрузка будет через controllerchange в pwaVersionCheck
+      // Это предотвращает двойные reload
+      
+      // TODO: Можно показать баннер "Обновить / Позже"
+      // showUpdateBanner(() => updateSW(true));
     },
     onOfflineReady() {
       console.log('[PWA] ✅ App ready to work offline!');
