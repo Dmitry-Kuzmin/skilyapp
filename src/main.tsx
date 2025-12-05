@@ -9,14 +9,19 @@ import "./index.css";
 // Импортируем animations.css - Vite оптимизирует его автоматически
 import "./components/lumi/animations.css";
 import { reportWebVitals } from "./utils/webVitals";
-import { initRollbar, reportError, reportWarning } from "./lib/rollbar";
 import { performanceMonitor } from "./utils/performance";
-import { initServerTime } from "./utils/serverTime";
 import { registerSW } from 'virtual:pwa-register';
 import { initPWAVersionCheck } from "./utils/pwaVersionCheck";
 
-// Инициализируем Rollbar в начале приложения
-initRollbar();
+// ОПТИМИЗАЦИЯ: Инициализируем Rollbar ПОСЛЕ первого рендера (не блокируем FCP)
+setTimeout(() => {
+  import('./lib/rollbar').then(({ initRollbar }) => {
+    initRollbar();
+    console.log('[Main] Rollbar initialized (deferred)');
+  }).catch(err => {
+    console.warn('[Main] Failed to init Rollbar:', err);
+  });
+}, 0);
 
 // КРИТИЧНО: PWA Version Check для автоматического обновления
 initPWAVersionCheck();
@@ -74,10 +79,14 @@ if (import.meta.env.PROD) {
   console.log('[PWA] Development mode - Service Worker disabled');
 }
 
-// КРИТИЧНО: Инициализация Server Time Offset для защиты от неверного времени на устройстве
-initServerTime().catch((error) => {
-  console.error('[Main] Failed to init server time:', error);
-});
+// ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
+setTimeout(() => {
+  import('./utils/serverTime').then(({ initServerTime }) => {
+    initServerTime().catch((error) => {
+      console.error('[Main] Failed to init server time:', error);
+    });
+  });
+}, 100); // Небольшая задержка чтобы React успел отрендерить skeleton
 
 // КРИТИЧНО: Синхронизация времени при возврате в приложение (защита от смены часового пояса/времени)
 if (typeof window !== 'undefined') {
@@ -152,7 +161,7 @@ if (performanceMonitor && typeof window !== 'undefined') {
   });
 }
 
-// КРИТИЧНО: Обработка глобальных ошибок для диагностики белого экрана
+// ОПТИМИЗАЦИЯ: Обработка ошибок настраивается после загрузки Rollbar
 window.addEventListener('error', (event) => {
   const errorData = {
     message: event.message,
@@ -166,23 +175,26 @@ window.addEventListener('error', (event) => {
   
   console.error('[Global Error]', errorData);
   
-  // Отправляем в Rollbar, если это реальная ошибка
-  if (event.error) {
-    reportError(event.error, {
-      type: 'uncaught_error',
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-    });
-  } else {
-    // Если нет объекта error, отправляем как строку
-    reportError(event.message, {
-      type: 'uncaught_error',
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-    });
-  }
+  // Отправляем в Rollbar асинхронно (когда он загрузится)
+  import('./lib/rollbar').then(({ reportError }) => {
+    if (event.error) {
+      reportError(event.error, {
+        type: 'uncaught_error',
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      });
+    } else {
+      reportError(event.message, {
+        type: 'uncaught_error',
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      });
+    }
+  }).catch(() => {
+    // Rollbar не загрузился - игнорируем
+  });
 });
 
 window.addEventListener('unhandledrejection', (event) => {
@@ -195,14 +207,18 @@ window.addEventListener('unhandledrejection', (event) => {
   
   console.error('[Unhandled Promise Rejection]', errorData);
   
-  // Отправляем в Rollbar
-  const error = event.reason instanceof Error 
-    ? event.reason 
-    : new Error(String(event.reason));
-    
-  reportError(error, {
-    type: 'unhandled_promise_rejection',
-    reason: String(event.reason),
+  // Отправляем в Rollbar асинхронно (когда он загрузится)
+  import('./lib/rollbar').then(({ reportError }) => {
+    const error = event.reason instanceof Error 
+      ? event.reason 
+      : new Error(String(event.reason));
+      
+    reportError(error, {
+      type: 'unhandled_promise_rejection',
+      reason: String(event.reason),
+    });
+  }).catch(() => {
+    // Rollbar не загрузился - игнорируем
   });
 });
 
