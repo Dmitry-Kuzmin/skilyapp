@@ -10,7 +10,7 @@ import puppeteer from 'puppeteer';
 import { install } from '@puppeteer/browsers';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
