@@ -8,7 +8,7 @@
 - `xlsx/xlsx.mjs` - **ОГРОМНЫЙ коричневый прямоугольник** (хотя есть lazy loader!)
 - `@tiptap/*` - много компонентов (используется только в админке)
 - `recharts` - через `chart.tsx` (используется только в админке)
-- `lucide-react/dist/esm` - **ОЧЕНЬ много иконок** (все иконки загружаются)
+- `lucide-react/dist/esm` - *ф*ОЧЕНЬ много иконок** (все иконки загружаются)
 - `prosemirror-*` - зависимости @tiptap
 - `@radix-ui/*` - много компонентов
 - `zod`, `date-fns`, и другие
@@ -68,11 +68,36 @@ if (id.includes('node_modules/recharts')) {
 - index: 661KB
 
 **После:**
-- vendor: ~800-900KB (убрали xlsx, @tiptap, recharts)
-- tiptap-vendor: ~200-300KB
-- charts: ~150-200KB
-- xlsx-vendor: ~150KB (или динамический chunk)
-- index: ~500KB (убрали chart.tsx)
+- vendor: ~686KB ✅ (убрали xlsx, @tiptap, recharts)
+- tiptap-vendor: ~391KB ✅
+- xlsx-vendor: ~430KB ✅
+- charts: отсутствует (recharts не используется)
+- index: ~661KB (без изменений)
 
 **FCP: 6.4s → 3.5-4.0s** (на Slow 4G)
+
+## ✅ Критические проверки (по замечаниям эксперта)
+
+### 1. Синхронные импорты xlsx
+**Статус**: ✅ Проверено
+- Все импорты через `loadXLSX()` (динамический `await import('xlsx')`)
+- Нет синхронных `import xlsx from 'xlsx'`
+- **Вывод**: xlsx правильно lazy-loaded
+
+### 2. Админка lazy-loaded
+**Статус**: ✅ Проверено
+- Все админские страницы используют `React.lazy()` в `App.tsx`
+- `AdminEditor`, `AdminDashboard`, `AdminPartners` и т.д. - все lazy
+- **Вывод**: @tiptap и recharts не попадают в initial bundle
+
+### 3. chart.tsx не используется
+**Статус**: ✅ Проверено
+- `chart.tsx` экспортирует компоненты, но нигде не импортируется
+- `recharts` вообще не попадает в bundle
+- **Вывод**: charts chunk не нужен (recharts не используется)
+
+### 4. Проверка Network waterfall
+**Статус**: ⏳ После деплоя
+- Нужно проверить что `tiptap-vendor` и `xlsx-vendor` не загружаются на `/`
+- Проверить что они загружаются только при открытии админки/импорта
 
