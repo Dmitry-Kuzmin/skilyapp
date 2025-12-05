@@ -168,10 +168,9 @@ const QuestionImageComponent = memo(({ imageUrl, compact = false }: { imageUrl: 
             alt="Вопрос" 
             className="w-full h-auto object-cover block"
             loading="lazy"
-            decoding="async"
-            loading="lazy"
-            decoding="async"
-            fetchPriority="auto"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="auto"
             onError={() => {
               if (import.meta.env.DEV) {
               console.error(`[TestSession] Failed to load image: ${imageSrc}`);

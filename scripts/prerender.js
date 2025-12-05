@@ -7,6 +7,7 @@
  */
 
 import puppeteer from 'puppeteer';
+import { install } from '@puppeteer/browsers';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
