@@ -17,7 +17,11 @@
       "destination": "/article/:slug.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!assets|favicon|manifest|sw\\.js|workbox-.*\\.js).*)",
       "destination": "/index.html"
     }
   ],
