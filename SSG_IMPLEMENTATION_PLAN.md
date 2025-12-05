@@ -65,16 +65,24 @@
 
 ## 🚀 План реализации (Вариант 1: vite-plugin-ssg)
 
-### Этап 0: Подготовка кода (1-2 дня) ⚠️ КРИТИЧНО
+### Этап 0: Подготовка кода (1-2 дня) ⚠️ КРИТИЧНО ✅ ЗАВЕРШЁН
 
 **Перед началом SSG нужно исправить все проблемы с `window`:**
 
-- [ ] Найти все обращения к `window` в коде
-- [ ] Найти все обращения к `Telegram` в коде
-- [ ] Найти все обращения к `document` в коде
-- [ ] Обернуть все проблемные места в проверки `typeof window !== 'undefined'`
-- [ ] Переместить инициализацию Telegram WebApp в `useEffect`
-- [ ] Протестировать, что билд не падает
+- [x] Найти все обращения к `window` в коде
+- [x] Найти все обращения к `Telegram` в коде
+- [x] Найти все обращения к `document` в коде
+- [x] Обернуть все проблемные места в проверки `typeof window !== 'undefined'`
+- [x] Использовать `useState` + `useEffect` для избежания Hydration Mismatch
+- [x] Создать helper функции в `src/utils/ssr-safe.ts`
+- [x] Протестировать, что билд не падает ✅
+
+**Исправлено:**
+- `src/App.tsx`: `window.location` → `useState` + `useEffect`
+- `src/App.tsx`: все `window.location.reload()` → проверки
+- `src/App.tsx`: `navigator.onLine` → проверка
+- `src/pages/TestSession.tsx`: `document.addEventListener` → проверка
+- Создан `src/utils/ssr-safe.ts` с helper функциями
 
 **Команды для поиска:**
 ```bash
