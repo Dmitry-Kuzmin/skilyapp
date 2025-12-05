@@ -600,6 +600,9 @@ const TestSession = () => {
       playTrack(currentTrackIndex);
 
       // Если autoplay заблокирован - ждем первого клика
+      // ОПТИМИЗАЦИЯ SSG: Проверка document для безопасности
+      if (typeof document === 'undefined') return;
+      
       const unlockAudio = () => {
         if (audioElement && !unlockAttempted) {
           playTrack(currentTrackIndex);

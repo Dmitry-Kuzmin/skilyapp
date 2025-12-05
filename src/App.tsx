@@ -35,6 +35,9 @@ const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardi
 const IndexErrorFallback = () => {
   useEffect(() => {
     console.error("[App] Index (dashboard) module failed to load");
+    // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
+    if (typeof window === 'undefined') return;
+    
     const timer = setTimeout(() => {
       window.location.reload();
     }, 2000);
@@ -120,6 +123,9 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 function RefundPolicyErrorFallback() {
   useEffect(() => {
     console.error("[App] RefundPolicy module failed to load");
+    // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
+    if (typeof window === 'undefined') return;
+    
     // Перезагружаем страницу через небольшую задержку
     const timer = setTimeout(() => {
       window.location.reload();
@@ -158,6 +164,9 @@ const ScrollToTop = () => {
 
   useEffect(() => {
     // Прокручиваем наверх при каждой смене роута
+    // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
+    if (typeof window === 'undefined') return;
+    
     // Используем requestAnimationFrame для плавности и избежания конфликтов с рендерингом
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -182,8 +191,11 @@ const App = () => {
         const { get } = await import('idb-keyval');
         const cache = await get('SDADIM_REACT_QUERY_OFFLINE_CACHE');
         
+        // ОПТИМИЗАЦИЯ SSG: Проверка navigator для безопасности
+        const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+        
         // Если кэша нет И мы offline - это первый запуск без интернета
-        if (!cache && !navigator.onLine) {
+        if (!cache && !isOnline) {
           console.warn('[App] First run without internet - cache not available');
           setIsFirstRun(true);
         } else {
@@ -228,25 +240,39 @@ const App = () => {
   // ОПТИМИЗАЦИЯ: Фоновые задачи (не блокируют рендеринг)
   useBackgroundTasks();
   
-  // Определяем basename для GitHub Pages
-  // Если мы на GitHub Pages (dmitry-kuzmin.github.io), используем /sdadim-dgt-prep
-  // Иначе используем /
-  const isGitHubPages = window.location.hostname === 'dmitry-kuzmin.github.io' || 
-                        window.location.pathname.startsWith('/sdadim-dgt-prep');
-  const basename = isGitHubPages ? '/sdadim-dgt-prep' : '/';
+  // ОПТИМИЗАЦИЯ SSG: Определяем basename для GitHub Pages безопасно
+  // Используем useState + useEffect чтобы избежать проблем с window в SSG билде
+  const [basename, setBasename] = useState('/');
+  const [isGitHubPages, setIsGitHubPages] = useState(false);
+
+  useEffect(() => {
+    // Этот код выполнится ТОЛЬКО в браузере (не в SSG билде)
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const pathname = window.location.pathname;
+      const isGH = hostname === 'dmitry-kuzmin.github.io' || pathname.startsWith('/sdadim-dgt-prep');
+      setIsGitHubPages(isGH);
+      setBasename(isGH ? '/sdadim-dgt-prep' : '/');
+    }
+  }, []);
 
   // Обработка редиректа из 404.html для GitHub Pages
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirectPath = urlParams.get('p');
-    if (redirectPath && isGitHubPages) {
-      // Удаляем query параметр и перенаправляем на правильный путь
-      window.history.replaceState({}, '', basename + redirectPath);
+    if (typeof window !== 'undefined' && isGitHubPages) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectPath = urlParams.get('p');
+      if (redirectPath) {
+        // Удаляем query параметр и перенаправляем на правильный путь
+        window.history.replaceState({}, '', basename + redirectPath);
+      }
     }
   }, [basename, isGitHubPages]);
 
   // КРИТИЧНО: Очистка URL от ~and~ паттернов (проблема с 404.html на Vercel)
+  // ОПТИМИЗАЦИЯ SSG: Все обращения к window.location обёрнуты в проверку
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
     
@@ -287,7 +313,12 @@ const App = () => {
             </p>
           </div>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              // ОПТИМИЗАЦИЯ SSG: Проверка window для безопасности
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
             className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-lg transition-shadow"
           >
             Retry
