@@ -1,4 +1,25 @@
-import * as Icons from 'lucide-react';
+// ОПТИМИЗАЦИЯ: Используем named imports вместо wildcard для tree-shaking
+// Это уменьшает размер bundle, так как импортируются только нужные иконки
+import {
+  Flame,
+  Swords,
+  Lightbulb,
+  XCircle,
+  Rocket,
+  CheckCircle2,
+  Zap,
+  Timer,
+  SkipForward,
+  Globe,
+  Flag,
+  Target,
+  Trophy,
+  Clock,
+  Bell,
+  Moon,
+  Turtle,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NotificationIconProps {
@@ -7,24 +28,25 @@ interface NotificationIconProps {
   size?: number;
 }
 
-const iconMap: Record<string, keyof typeof Icons> = {
-  'flame': 'Flame',
-  'sword': 'Swords',
-  'lightbulb': 'Lightbulb',
-  'x-circle': 'XCircle',
-  'rocket': 'Rocket',
-  'check-circle': 'CheckCircle2',
-  'zap': 'Zap',
-  'timer': 'Timer',
-  'skip-forward': 'SkipForward',
-  'globe': 'Globe',
-  'flag': 'Flag',
-  'target': 'Target',
-  'trophy': 'Trophy',
-  'clock': 'Clock',
-  'bell': 'Bell',
-  'moon': 'Moon',
-  'turtle': 'Turtle',
+// Маппинг строковых имён на компоненты иконок
+const iconMap: Record<string, LucideIcon> = {
+  'flame': Flame,
+  'sword': Swords,
+  'lightbulb': Lightbulb,
+  'x-circle': XCircle,
+  'rocket': Rocket,
+  'check-circle': CheckCircle2,
+  'zap': Zap,
+  'timer': Timer,
+  'skip-forward': SkipForward,
+  'globe': Globe,
+  'flag': Flag,
+  'target': Target,
+  'trophy': Trophy,
+  'clock': Clock,
+  'bell': Bell,
+  'moon': Moon,
+  'turtle': Turtle,
 };
 
 export function NotificationIcon({ iconName, className, size = 20 }: NotificationIconProps) {
@@ -35,15 +57,10 @@ export function NotificationIcon({ iconName, className, size = 20 }: Notificatio
     return null;
   }
 
-  const iconKey = iconMap[iconName.toLowerCase()];
-  if (!iconKey) {
-    // Fallback icon
-    return <Icons.Bell className={cn('text-muted-foreground', className)} size={size} />;
-  }
-
-  const IconComponent = Icons[iconKey] as React.ComponentType<{ className?: string; size?: number }>;
+  const IconComponent = iconMap[iconName.toLowerCase()];
   if (!IconComponent) {
-    return <Icons.Bell className={cn('text-muted-foreground', className)} size={size} />;
+    // Fallback icon
+    return <Bell className={cn('text-muted-foreground', className)} size={size} />;
   }
 
   return <IconComponent className={className} size={size} />;

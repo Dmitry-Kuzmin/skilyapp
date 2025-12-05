@@ -380,15 +380,27 @@ export default defineConfig(({ mode }) => {
             return 'react-vendor';
           }
           
+          // КРИТИЧНО: Выделяем @tiptap и prosemirror (используется только в админке, очень тяжелый!)
+          if (id.includes('node_modules/@tiptap') || 
+              id.includes('node_modules/prosemirror')) {
+            return 'tiptap-vendor';
+          }
+          
+          // КРИТИЧНО: Выделяем xlsx (используется только при импорте, есть lazy loader)
+          // Исключаем из vendor чтобы не загружать на старте
+          if (id.includes('node_modules/xlsx')) {
+            return 'xlsx-vendor';
+          }
+          
+          // Выделяем графики (Recharts очень тяжелый! используется только в админке)
+          if (id.includes('node_modules/recharts')) {
+            return 'charts';
+          }
+          
           // Выделяем тяжелые библиотеки UI
           if (id.includes('node_modules/@mui') || 
               id.includes('node_modules/framer-motion')) {
             return 'ui-vendor';
-          }
-          
-          // Выделяем графики (Recharts очень тяжелый!)
-          if (id.includes('node_modules/recharts')) {
-            return 'charts';
           }
           
           // Выделяем Supabase и работу с данными
