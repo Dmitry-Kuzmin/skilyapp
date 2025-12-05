@@ -26,7 +26,7 @@ const captureEarlyError = (error: any, context: any) => {
 
 setTimeout(() => {
   import('./lib/rollbar').then(({ initRollbar, reportError }) => {
-    initRollbar();
+initRollbar();
     console.log('[Main] Rollbar initialized (deferred)');
     
     // Отправляем накопленные ранние ошибки
@@ -101,9 +101,9 @@ if (import.meta.env.PROD) {
 // ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
 setTimeout(() => {
   import('./utils/serverTime').then(({ initServerTime }) => {
-    initServerTime().catch((error) => {
-      console.error('[Main] Failed to init server time:', error);
-    });
+initServerTime().catch((error) => {
+  console.error('[Main] Failed to init server time:', error);
+});
   });
 }, 100); // Небольшая задержка чтобы React успел отрендерить skeleton
 
@@ -195,10 +195,10 @@ window.addEventListener('error', (event) => {
   console.error('[Global Error]', errorData);
   
   const errorContext = {
-    type: 'uncaught_error',
-    filename: event.filename,
-    lineno: event.lineno,
-    colno: event.colno,
+      type: 'uncaught_error',
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
   };
   
   // Пытаемся отправить в Rollbar асинхронно

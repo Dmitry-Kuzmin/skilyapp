@@ -409,11 +409,13 @@ export default defineConfig(({ mode }) => {
             return 'ui-vendor';
           }
           
-          // Выделяем Supabase и работу с данными
-          if (id.includes('node_modules/@supabase') || 
-              id.includes('node_modules/@tanstack')) {
-            return 'data-vendor';
-          }
+          // КРИТИЧНО: @supabase и @tanstack НЕ разделяем на отдельный chunk
+          // Разделение вызывает проблемы с зависимостями (u is not a function)
+          // Оставляем в основном vendor chunk для стабильности
+          // if (id.includes('node_modules/@supabase') || 
+          //     id.includes('node_modules/@tanstack')) {
+          //   return 'data-vendor';
+          // }
           
           // Всё остальное из node_modules
           if (id.includes('node_modules')) {
