@@ -5,6 +5,8 @@ import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 import type { Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+// SSG: Prerender будет выполняться через отдельный скрипт (scripts/prerender.js)
+// Это более надёжно чем vite-plugin-prerender для сложных проектов
 
 // Плагин для оптимизации загрузки CSS (неблокирующая загрузка)
 function optimizeCssLoading(): Plugin {
@@ -299,6 +301,8 @@ export default defineConfig(({ mode }) => {
         template: "treemap",
         open: true,
       }),
+    // SSG: Prerender выполняется через отдельный скрипт (scripts/prerender.js)
+    // Запускается после билда: npm run build && npm run prerender
   ].filter(Boolean);
 
   return {

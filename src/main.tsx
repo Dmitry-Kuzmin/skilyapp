@@ -277,6 +277,12 @@ try {
       skeleton.remove();
       console.log('[Main] Skeleton removed from DOM');
     }
+    
+    // SSG: Отправляем событие для prerender плагина
+    // Это сигнализирует, что React приложение полностью отрендерилось
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('render-event'));
+    }
   }, 100); // Небольшая задержка чтобы React успел отрендерить первый кадр
 } catch (error) {
   console.error('[CRITICAL] Failed to render React app:', error);
