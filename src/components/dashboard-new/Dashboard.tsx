@@ -184,7 +184,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
               background: heroBackground,
             }}
           >
-            <div className={`absolute inset-0 ${heroNoiseOpacity} mix-blend-overlay`} style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+            {/* КРИТИЧНО: LCP оптимизация - используем <img> вместо background-image для fetchpriority */}
+            <img 
+              src="https://grainy-gradients.vercel.app/noise.svg" 
+              alt="" 
+              className={`absolute inset-0 w-full h-full object-cover ${heroNoiseOpacity} mix-blend-overlay pointer-events-none`}
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
+              aria-hidden="true"
+            />
             
             {/* Дополнительный градиентный overlay для глубины */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-indigo-900/20 pointer-events-none"></div>
