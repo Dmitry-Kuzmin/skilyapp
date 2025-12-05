@@ -123,6 +123,27 @@ async function prerender() {
           }
         }
         
+        // Если установили через @puppeteer/browsers, используем его
+        if (!launchOptions.executablePath && (process.env.VERCEL || process.env.VERCEL_ENV)) {
+          const cacheDir = '/tmp/.cache/puppeteer';
+          const chromeDir = join(cacheDir, 'chrome');
+          if (existsSync(chromeDir)) {
+            try {
+              const versions = readdirSync(chromeDir);
+              for (const version of versions) {
+                const chromePath = join(chromeDir, version, 'chrome-linux64', 'chrome');
+                if (existsSync(chromePath)) {
+                  launchOptions.executablePath = chromePath;
+                  console.log(`[Prerender] ✅ Using installed Chrome at: ${chromePath}`);
+                  break;
+                }
+              }
+            } catch (error) {
+              console.warn('[Prerender] ⚠️ Could not read Chrome directory:', error.message);
+            }
+          }
+        }
+        
         if (!launchOptions.executablePath) {
           console.warn('[Prerender] ⚠️ Chrome not found in standard locations, Puppeteer will try to use bundled Chrome');
         }
