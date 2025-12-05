@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUserContext } from '@/contexts/UserContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 import { cn } from '@/lib/utils';
@@ -14,9 +15,10 @@ import { GoogleIcon, TelegramIcon } from '@/components/icons/SocialIcons';
 import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
 import { checkEmailExists, getClientIP } from '@/lib/auth-utils';
 
-const authSchema = z.object({
-  email: z.string().email({ message: "Неверный формат email" }).max(255),
-  password: z.string().min(6, { message: "Пароль должен быть минимум 6 символов" })
+// Schema будет использовать переводы через context
+const createAuthSchema = (t: (key: string) => string) => z.object({
+  email: z.string().email({ message: t('auth.errors.invalidEmail') }).max(255),
+  password: z.string().min(6, { message: t('auth.errors.minPassword') })
 });
 
 interface AuthModalProps {
@@ -47,6 +49,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const { login } = useUserContext();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -101,8 +104,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         });
         
         toast({
-          title: "Вход выполнен",
-          description: `Добро пожаловать, ${user.first_name}!`,
+          title: t('auth.success.loggedIn'),
+          description: t('auth.success.welcomeUser', { name: user.first_name }),
         });
         
         onClose();
@@ -113,8 +116,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
       } catch (error) {
         console.error('[AuthModalNew] Telegram login error:', error);
         toast({
-          title: "Ошибка",
-          description: "Не удалось войти через Telegram",
+          title: t('auth.errors.validationError'),
+          description: t('auth.errors.genericError'),
           variant: "destructive"
         });
       }
@@ -156,7 +159,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
   const handleEmailSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!isValidEmail) {
-      setEmailError("Пожалуйста, введите корректный email.");
+      setEmailError(t('auth.errors.invalidEmail'));
       return;
     }
     
@@ -217,7 +220,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     } catch (error) {
       console.error('[AuthModalNew] Email check error:', error);
       setCheckingEmail(false);
-      setEmailError("Не удалось проверить email. Попробуйте снова.");
+      setEmailError(t('auth.errors.checkFailed'));
     }
   };
 
@@ -228,6 +231,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     setIsSubmitting(true);
 
     try {
+      const authSchema = createAuthSchema(t);
       const validated = authSchema.parse({ email, password });
 
       if (step === 'password-new') {
@@ -246,8 +250,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         if (error) {
           if (error.message.includes('already registered')) {
             toast({
-              title: "Ошибка",
-              description: "Этот email уже зарегистрирован. Попробуйте войти.",
+              title: t('auth.errors.validationError'),
+              description: t('auth.errors.alreadyRegistered'),
               variant: "destructive"
             });
           } else {
@@ -327,8 +331,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         }
 
         toast({
-          title: "Регистрация успешна",
-          description: "Добро пожаловать!",
+          title: t('auth.success.registered'),
+          description: t('auth.success.welcome'),
         });
 
         sessionStorage.removeItem('partner_code');
@@ -349,8 +353,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
             toast({
-              title: "Ошибка",
-              description: "Неверный email или пароль",
+              title: t('auth.errors.validationError'),
+              description: t('auth.errors.invalidCredentials'),
               variant: "destructive"
             });
           } else {
@@ -361,8 +365,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         }
 
         toast({
-          title: "Вход выполнен",
-          description: "Добро пожаловать!",
+          title: t('auth.success.loggedIn'),
+          description: t('auth.success.welcome'),
         });
 
         onClose();
@@ -374,15 +378,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "Ошибка валидации",
+          title: t('auth.errors.validationError'),
           description: error.errors[0].message,
           variant: "destructive"
         });
       } else {
         console.error('[AuthModalNew] Auth error:', error);
         toast({
-          title: "Ошибка",
-          description: "Произошла ошибка. Попробуйте снова.",
+          title: t('auth.errors.validationError'),
+          description: t('auth.errors.genericError'),
           variant: "destructive"
         });
       }
@@ -415,8 +419,8 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
     } catch (error: any) {
       console.error('[AuthModalNew] Google OAuth error:', error);
       toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось войти через Google",
+        title: t('auth.errors.validationError'),
+        description: error.message || t('auth.errors.genericError'),
         variant: "destructive"
       });
     }
@@ -510,15 +514,15 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                 className="flex flex-col items-center"
               >
                 <h2 className="text-2xl font-semibold text-white tracking-tight">
-                  {step === 'email' && "Идентификация"}
-                  {step === 'password-existing' && (userName ? `С возвращением, ${userName}` : "С возвращением")}
-                  {step === 'password-new' && "Создание аккаунта"}
+                  {step === 'email' && t('auth.identification')}
+                  {step === 'password-existing' && (userName ? t('auth.welcomeBackWithName', { name: userName }) : t('auth.welcomeBack'))}
+                  {step === 'password-new' && t('auth.createAccount')}
                 </h2>
                 
                 <p className="text-sm text-zinc-500 mt-2 font-medium">
-                  {step === 'email' && "Введите email — мы войдем или создадим аккаунт."}
-                  {step === 'password-existing' && "Ваш аккаунт подтвержден на этом устройстве."}
-                  {step === 'password-new' && "Похоже, вы здесь впервые."}
+                  {step === 'email' && t('auth.emailPrompt')}
+                  {step === 'password-existing' && t('auth.accountVerified')}
+                  {step === 'password-new' && t('auth.newUser')}
                 </p>
               </motion.div>
             </AnimatePresence>
@@ -542,7 +546,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   <Input 
                     ref={emailInputRef}
                     type="email" 
-                    placeholder="name@company.com" 
+                    placeholder={t('auth.emailPlaceholder')} 
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -572,14 +576,14 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   />
                   
                   {/* Micro-hint under input */}
-                  {isValidEmail && !emailError && (
-                    <motion.p 
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className="text-[11px] text-center text-zinc-500 font-medium"
-                    >
-                      Нажмите стрелку для продолжения
-                    </motion.p>
-                  )}
+                    {isValidEmail && !emailError && (
+                      <motion.p 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        className="text-[11px] text-center text-zinc-500 font-medium"
+                      >
+                        {t('auth.tapArrow')}
+                      </motion.p>
+                    )}
                 </form>
 
                 {/* Passkey Button - показывается между email и соцсетями */}
@@ -597,11 +601,11 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                   animate={{ opacity: 1, transition: { delay: 0.2 } }}
                   className="pt-2"
                 >
-                  <div className="relative flex py-2 items-center">
-                    <div className="flex-grow border-t border-zinc-800"></div>
-                    <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">Или продолжить с</span>
-                    <div className="flex-grow border-t border-zinc-800"></div>
-                  </div>
+                    <div className="relative flex py-2 items-center">
+                      <div className="flex-grow border-t border-zinc-800"></div>
+                      <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">{t('auth.orContinueWith')}</span>
+                      <div className="flex-grow border-t border-zinc-800"></div>
+                    </div>
 
                   <div className="grid grid-cols-2 gap-3 mt-1">
                     <Button 
@@ -646,7 +650,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                     >
                       <span className="text-zinc-300 text-sm font-medium">{email}</span>
                       <span className="text-[11px] text-blue-400 font-medium group-hover:text-blue-300 transition-colors">
-                        Изменить
+                        {t('auth.changeEmail')}
                       </span>
                     </div>
                  </div>
@@ -655,38 +659,38 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
                    <Input 
                      ref={passwordInputRef}
                      type="password" 
-                     label="Пароль"
-                     placeholder="Введите ваш пароль"
+                     label={t('auth.password')}
+                     placeholder={t('auth.passwordPlaceholder')}
                      value={password}
                      onChange={(e) => setPassword(e.target.value)}
                      className="bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner"
                      autoFocus
                    />
                    
-                   <Button 
-                     type="submit"
-                     variant="primary" 
-                     fullWidth 
-                     loading={isSubmitting}
-                     className="h-12 text-[15px] font-semibold"
-                   >
-                     {step === 'password-new' ? "Создать аккаунт" : "Войти"}
-                   </Button>
+                     <Button 
+                       type="submit"
+                       variant="primary" 
+                       fullWidth 
+                       loading={isSubmitting}
+                       className="h-12 text-[15px] font-semibold"
+                     >
+                       {step === 'password-new' ? t('auth.createAccountButton') : t('auth.signIn')}
+                     </Button>
                  </form>
 
                  {/* Alternatives */}
-                 <div className="space-y-3 text-center">
-                    {step === 'password-existing' && (
-                      <>
-                        <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
-                          Забыли пароль?
-                        </button>
-                        <p className="text-[11px] text-zinc-600">
-                          Или используйте другие способы входа выше
-                        </p>
-                      </>
-                    )}
-                 </div>
+                   <div className="space-y-3 text-center">
+                      {step === 'password-existing' && (
+                        <>
+                          <button className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
+                            {t('auth.forgotPassword')}
+                          </button>
+                          <p className="text-[11px] text-zinc-600">
+                            {t('auth.alternativeLogin')}
+                          </p>
+                        </>
+                      )}
+                   </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -695,7 +699,7 @@ export function AuthModalNew({ open, onClose }: AuthModalProps) {
         {/* Footer Statement */}
         <div className="mt-6 pt-6 border-t border-white/5">
            <p className="text-[10px] text-zinc-600 text-center leading-relaxed max-w-[280px] mx-auto">
-             Мы используем ваш email или устройство для входа или создания нового аккаунта Skily. Никаких лишних шагов.
+             {t('auth.footerText')}
            </p>
         </div>
 
