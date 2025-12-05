@@ -473,6 +473,8 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
                       src={getImageUrl(currentQuestion.image_url) || currentQuestion.image_url}
                       alt="Pregunta"
                       className="w-full max-h-64 object-contain mx-auto"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </motion.div>
                 )}

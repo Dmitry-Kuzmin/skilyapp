@@ -83,7 +83,15 @@ export const ADASControlPanel: React.FC<ADASControlPanelProps> = ({ stats, readi
 
   return (
     <div className="relative rounded-[2rem] bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-slate-900/20 border border-slate-800/70 p-6 shadow-2xl shadow-slate-900/20 overflow-hidden">
-      <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+      {/* ОПТИМИЗАЦИЯ: Используем <img> вместо background-image для лучшей производительности */}
+      <img 
+        src="https://grainy-gradients.vercel.app/noise.svg" 
+        alt="" 
+        className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+        loading="lazy"
+        decoding="async"
+        aria-hidden="true"
+      />
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-violet-500/5 pointer-events-none" />
 
       <div className="relative z-10 flex items-center justify-between mb-5">

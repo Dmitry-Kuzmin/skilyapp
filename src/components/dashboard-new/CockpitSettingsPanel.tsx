@@ -79,7 +79,15 @@ export const CockpitSettingsPanel: React.FC = () => {
 
   return (
     <div className={`relative w-full h-full ${containerBgClass} overflow-hidden`}>
-      <div className={`absolute inset-0 ${noiseOpacity}`} style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
+      {/* ОПТИМИЗАЦИЯ: Используем <img> вместо background-image для лучшей производительности */}
+      <img 
+        src="https://grainy-gradients.vercel.app/noise.svg" 
+        alt="" 
+        className={`absolute inset-0 w-full h-full object-cover ${noiseOpacity} pointer-events-none`}
+        loading="lazy"
+        decoding="async"
+        aria-hidden="true"
+      />
       <div className={`absolute inset-0 bg-gradient-to-br ${isDarkTheme ? 'from-emerald-500/10 via-transparent to-blue-500/10' : 'from-emerald-500/5 via-transparent to-blue-500/5'} pointer-events-none`} />
 
       <div className="relative z-10 p-4 md:p-5 w-full flex flex-col">

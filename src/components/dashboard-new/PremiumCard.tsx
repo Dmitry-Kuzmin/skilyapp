@@ -69,7 +69,15 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({ onGetPremium }) => {
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/0 via-yellow-400/10 to-yellow-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out z-20"></div>
       
       {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}></div>
+      {/* ОПТИМИЗАЦИЯ: Используем <img> вместо background-image для лучшей производительности */}
+      <img 
+        src="https://grainy-gradients.vercel.app/noise.svg" 
+        alt="" 
+        className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+        loading="lazy"
+        decoding="async"
+        aria-hidden="true"
+      />
       
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex justify-between items-start">
