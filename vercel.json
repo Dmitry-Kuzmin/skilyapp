@@ -1,7 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets|.*\\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|json|map|sw\\.js|workbox-.*\\.js)).*)",
+      "source": "/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/:file\\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|json|map|sw\\.js|workbox-.*\\.js)",
+      "destination": "/:file.$1"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
