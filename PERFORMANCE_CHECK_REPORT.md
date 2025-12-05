@@ -208,3 +208,4 @@ src/utils/webVitals.ts - Web Vitals (FCP, LCP, CLS, TBT)
 Статус: ✅ Готов к деплою (после применения миграции)
 
 
+

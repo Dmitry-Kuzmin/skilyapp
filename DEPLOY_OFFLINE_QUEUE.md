@@ -337,3 +337,4 @@ WHERE synced_at > NOW() - INTERVAL '7 days';
 _Создано: 3 декабря 2025_
 _Offline Mutations Queue - Priority 1 ✅_
 
+
